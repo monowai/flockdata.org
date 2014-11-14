@@ -37,5 +37,17 @@
             reply-timeout="${reply.timeout}"
             amqp-template="amqpTemplate"/>
 
+    <int-amqp:inbound-gateway id="inboundTrackGateway"
+                              request-channel="trackEntity"
+                              queue-names="${fd.track.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              task-executor="qExecutor"
+                              error-channel="entityErrors"
+                              concurrent-consumers="30"
+                              prefetch-count="${rabbit.prefetchCount}"
+                              connection-factory="connectionFactory"/>
+
+
 
 </beans>

@@ -48,7 +48,6 @@ Thumbs.db
 .settings/
 *.iml
 target/
-data/
 report/
 
 

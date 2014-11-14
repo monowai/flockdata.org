@@ -286,15 +286,15 @@ public class TestEntityTags extends EngineBase {
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         tagSet = summaryBean.getTags();
         assertNotNull(tagSet);
-        Set<Entity> entities = entityTagService.findEntityTags("TagA");
+        Set<Entity> entities = entityTagService.findEntityTags(su.getCompany(), "TagA");
         assertNotNull(entities);
         assertNotSame(entities.size() + " Entities returned!", 0, entities.size());
 
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
-        entities = entityTagService.findEntityTags("TagC");
+        entities = entityTagService.findEntityTags(su.getCompany(), "TagC");
         assertNotNull(entities);
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
-        entities = entityTagService.findEntityTags("TagD");
+        entities = entityTagService.findEntityTags(su.getCompany(), "TagD");
         assertNotNull(entities);
         assertEquals(entity.getMetaKey(), entities.iterator().next().getMetaKey());
     }

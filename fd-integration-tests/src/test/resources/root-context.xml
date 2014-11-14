@@ -25,7 +25,18 @@
     <!--fd-engine test integration file-->
 
     <!-- Root Context: defines shared resources visible to all other web components -->
-    <context:component-scan base-package="org.flockdata"/>
+    <context:component-scan base-package="
+        org.flockdata.engine.admin,
+		org.flockdata.engine.query,
+		org.flockdata.engine.schema,
+		org.flockdata.engine.tag,
+		org.flockdata.engine.track,
+		org.flockdata.registration,
+		org.flockdata.helper,
+		org.flockdata.geography,
+		org.flockdata.company,
+		org.flockdata.kv" />
+
 
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath:config.properties"/>
@@ -51,7 +62,7 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:/ehcache.xml"/>
 
-    <bean id="apiKeyInterceptor" class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+    <bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 
 
 </beans>

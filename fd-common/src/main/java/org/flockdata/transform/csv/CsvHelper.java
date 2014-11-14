@@ -53,14 +53,15 @@ public class CsvHelper {
             tag.setReverse(colDef.getReverse());
             tag.setName(column);
             tag.setCode(column);
-            if (Integer.decode(value) != 0) {
-                properties.put("value", Integer.decode(value));
-                if (colDef.getNameColumn() != null) {
-                    tag.addEntityLink(row.get(colDef.getNameColumn()).toString(), properties);
-                } else if (colDef.getRelationshipName() != null) {
-                    tag.addEntityLink(colDef.getRelationshipName(), properties);
-                } else
-                    tag.addEntityLink("undefined", properties);
+            if ( column !=null )
+                if (Integer.decode(value) != 0) {
+                    properties.put("value", Integer.decode(value));
+                    if (colDef.getNameColumn() != null) {
+                        tag.addEntityLink(row.get(colDef.getNameColumn()).toString(), properties);
+                    } else if (colDef.getRelationshipName() != null) {
+                        tag.addEntityLink(colDef.getRelationshipName(), properties);
+                    } else
+                        tag.addEntityLink("undefined", properties);
             } else {
                 return false;
             }
@@ -69,16 +70,21 @@ public class CsvHelper {
                 // Value is missing in the data set - see if there is a default
                 value = colDef.getNullOrEmpty();
             }
-            String label = (colDef.getLabel()!=null? colDef.getLabel(): column);
-            if (colDef.getCode() != null)
-                tag.setCode(row.get(colDef.getCode()).toString());
-            else
-                tag.setCode(value);
+            if ( value !=null && !value.equals("")) {
+                String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
+                if (colDef.getCode() != null)
+                    tag.setCode(row.get(colDef.getCode()).toString());
+                else
+                    tag.setCode(value);
 
-            tag.setName(value).setMustExist(colDef.isMustExist()).setLabel(colDef.isCountry() ? "Country" : label);
-            tag.addEntityLink(colDef.getRelationshipName());
-            tag.setReverse(colDef.getReverse());
+                tag.setName(value).setMustExist(colDef.isMustExist()).setLabel(colDef.isCountry() ? "Country" : label);
+                tag.addEntityLink(colDef.getRelationshipName());
+                tag.setReverse(colDef.getReverse());
+            }
         }
+        if ( tag.getCode() ==null )
+            return false;
+
         setNestedTags(tag, colDef.getTargets(), row,staticDataResolver);
         return true;
     }
@@ -128,12 +134,14 @@ public class CsvHelper {
         Collection<TagInputBean>results = new ArrayList<>();
 
         for (String tag : tags) {
-            TagInputBean newTag = new TagInputBean(tag,entityRelationship)
-                    .setLabel(tagProfile.getLabel());
-            newTag.setReverse(tagProfile.getReverse());
-            newTag.setMustExist(tagProfile.getMustExist());
-            newTag.setLabel(tagProfile.getLabel());
-            results.add(newTag);
+            if ( tag !=null ) {
+                TagInputBean newTag = new TagInputBean(tag, entityRelationship)
+                        .setLabel(tagProfile.getLabel());
+                newTag.setReverse(tagProfile.getReverse());
+                newTag.setMustExist(tagProfile.getMustExist());
+                newTag.setLabel(tagProfile.getLabel());
+                results.add(newTag);
+            }
         }
         return results;
     }

@@ -19,7 +19,7 @@
 
 package org.flockdata.test.unit;
 
-import org.flockdata.engine.repo.KvContentData;
+import org.flockdata.kv.KvContentData;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.track.bean.ContentInputBean;

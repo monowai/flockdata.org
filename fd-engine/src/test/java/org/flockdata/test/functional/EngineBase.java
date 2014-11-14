@@ -20,26 +20,29 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.dao.neo4j.model.CompanyNode;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.company.model.CompanyNode;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
-import org.flockdata.engine.service.*;
 import org.flockdata.track.service.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -109,7 +112,7 @@ public abstract class EngineBase {
 
 	@Autowired
     public
-    EngineConfig engineConfig;
+    FdConfig engineConfig;
 
 	@Autowired
     QueryService queryService;

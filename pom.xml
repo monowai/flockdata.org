@@ -23,12 +23,10 @@
         <java-version>1.7</java-version>
         <org.springframework-version>4.0.7.RELEASE</org.springframework-version>
         <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
-        <!--Weird AMQP integration error when using 3.0.1 of SI -->
-        <!--<org.springintegration.version>2.2.6.RELEASE</org.springintegration.version>-->
-        <org.springintegration.version>3.0.5.RELEASE</org.springintegration.version>
-        <!--Would like to upgrade to 3.x or 4.x of SI, but there are issues to resolve
-        Notably IntegrationRequestMappingHandlerMapping and requires-reply being added to the AMQP outbound gateway -->
-        <org.aspectj-version>1.7.2</org.aspectj-version>
+        <!--HTTP Conversion errors when using 4.0X of SI -->
+        <org.springintegration.version>3.0.6.RELEASE</org.springintegration.version>
+
+        <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>
         <jackson.version>2.2.3</jackson.version>
     </properties>

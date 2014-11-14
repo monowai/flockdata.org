@@ -4,18 +4,17 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:int="http://www.springframework.org/schema/integration"
+
        xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/task
-		http://www.springframework.org/schema/task/spring-task.xsd">
+		http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
 
     <int:gateway id="fdSearchGateway"
-                 service-interface="org.flockdata.engine.service.FdSearchGateway"/>
+                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
@@ -83,4 +82,7 @@
     <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
+
+    <int:channel id="trackEntity"/>
+
 </beans>

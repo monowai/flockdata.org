@@ -24,7 +24,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.functional.EngineBase;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.engine.repo.redis.RedisRepo;
+import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;

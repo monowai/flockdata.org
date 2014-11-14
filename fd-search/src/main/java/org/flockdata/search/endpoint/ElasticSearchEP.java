@@ -39,7 +39,7 @@ public class ElasticSearchEP {
     QueryService searchService;
 
 
-    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
 
     public String simpleQuery(@RequestBody QueryParams queryParams,
                             @RequestHeader(value = "Api-Key", required = false)
@@ -48,7 +48,7 @@ public class ElasticSearchEP {
         return searchService.doSearch(queryParams);
     }
 
-    @RequestMapping(value = "/metaKeys", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/metaKeys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
 
     public EsSearchResult metaKeys(@RequestBody QueryParams queryParams,
                               @RequestHeader(value = "Api-Key", required = false)

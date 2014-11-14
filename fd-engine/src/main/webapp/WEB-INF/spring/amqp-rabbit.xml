@@ -2,11 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:rabbit="http://www.springframework.org/schema/rabbit"
-       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
 		                http://www.springframework.org/schema/rabbit
-		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
 
 
     <rabbit:connection-factory id="connectionFactory"
@@ -23,8 +22,7 @@
 
     <rabbit:queue name="${fd.search.queue}"/>
     <rabbit:queue name="${fd.engine.queue}"/>
-    <!--<rabbit:queue name="${fd.trackin.queue}"/>-->
-    <!--<rabbit:queue name="${fd.track.queue}"/>-->
+    <rabbit:queue name="${fd.track.queue}"/>
 
     <rabbit:direct-exchange name="${fd.search.exchange}">
         <rabbit:bindings>
@@ -35,15 +33,15 @@
     <rabbit:direct-exchange name="${fd.engine.exchange}">
         <rabbit:bindings>
             <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
+
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <!--<rabbit:direct-exchange name="${fd.track.exchange}">-->
-        <!--<rabbit:bindings>-->
-            <!--<rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>-->
-            <!--<rabbit:binding queue="${fd.trackin.queue}" key="${fd.track.binding}"/>-->
-        <!--</rabbit:bindings>-->
 
-    <!--</rabbit:direct-exchange>-->
+    <rabbit:direct-exchange name="${fd.track.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
 
 </beans>

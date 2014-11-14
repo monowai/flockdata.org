@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * User: mike
@@ -39,7 +41,7 @@ import java.util.Map;
 public class TrackBatcher {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
-    private final String entitySync = "BatchSync";
+    private final Lock entityLock = new ReentrantLock();
     private final String tagSync = "TagSync";
     private Company company = null;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TrackBatcher.class);
@@ -74,7 +76,8 @@ public class TrackBatcher {
 
     public void batchEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
 
-        synchronized (entitySync) {
+        try {
+            entityLock.lock();
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
                     entityInputBean.setFortress(importProfile.getFortressName());
@@ -84,7 +87,7 @@ public class TrackBatcher {
 
             if ( batchSize> 0 && (flush || entityBatch.size() >= batchSize)) {
 
-                if (entityBatch.size() >= 1) {
+                if (entityBatch.size() >0 ) {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the entity
                     fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
@@ -95,6 +98,8 @@ public class TrackBatcher {
                 tagBatch = new HashMap<>();
             }
 
+        } finally {
+            entityLock.unlock();
         }
 
     }
@@ -137,10 +142,14 @@ public class TrackBatcher {
     public void flush() throws FlockException {
         if (fdWriter.isSimulateOnly())
             return;
-        synchronized (entitySync) {
-            fdWriter.flushEntities(company, entityBatch, async);
+        try {
+            entityLock.lock();
+            if ( entityBatch.size() >0)
+                fdWriter.flushEntities(company, entityBatch, async);
             entityBatch.clear();
 
+        } finally {
+            entityLock.unlock();
         }
         synchronized (tagSync) {
             batchTag(null, true, "");

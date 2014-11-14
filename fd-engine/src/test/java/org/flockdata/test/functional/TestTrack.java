@@ -608,11 +608,14 @@ public class TestTrack extends EngineBase {
         Set<EntityLog> logs = trackService.getEntityLogs(entity.getId());
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
-        // Same date should still log
+        // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected
+        // so we remove a day from this entry
         DateTime dateMidnight = new DateTime();
-        log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house3"))).getLogResult();
+        log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime().minusDays(1), Helper.getSimpleMap("house", "house3"))).getLogResult();
         logger.info("3 " + new Date(log.getFdWhen()).toString());
         EntityLog thirdLog = trackService.getLastEntityLog(su.getCompany(), metaKey);
+
+        // This is being inserted after the last log
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house4")));
         logger.info("4 " + new Date(log.getFdWhen()).toString());
         logs = trackService.getEntityLogs(entity.getId());
@@ -834,13 +837,13 @@ public class TestTrack extends EngineBase {
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
         assertEquals(past.getMillis(), lastLog.getFortressWhen().longValue());
         assertEquals(past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().getMillis());
-        assertEquals("Modified " + new Date(trackResultBean.getEntity().getLastUpdate()),
-                past.getMillis(), trackResultBean.getEntity().getFortressDateUpdated().longValue());
+        assertEquals("Created " +  trackResultBean.getEntity().getFortressDateCreated(),
+                past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().toDate().getTime());
 
         logger.info(lastLog.toString());
     }
     @Test
-    public void abFortressDateFields() throws Exception {
+    public void date_FortressDateFields() throws Exception {
         // DAT-196
         logger.info("## utcDateFields");
         SystemUser su = registerSystemUser("abFortressDateFields", "userDatesFields");

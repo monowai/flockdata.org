@@ -337,8 +337,8 @@ public class TestCsvEntity {
     @Test
     public void csv_NumberParsesAsString() throws Exception {
         //
-        String[] headers = new String[]{"Title", "NumberAsString"};
-        String[] data = new String[]{"TitleTests", "123"};
+        String[] headers = new String[]{"Title", "NumberAsString", "created", "updated"};
+        String[] data = new String[]{"TitleTests", "123", "1235015570", "1235015805"};
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
@@ -351,6 +351,14 @@ public class TestCsvEntity {
 
         Object o = json.get("NumberAsString");
         Assert.assertTrue(o instanceof String);
+
+        colDef= params.getColumnDef("created");
+        assertTrue ("Created Date Not Found", colDef.isCreateDate());
+        assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
+
+
+//        colDef= params.getColumnDef("updated");
+//        assertTrue ("Update Date Not Found", colDef.isUpdateDate());
 
     }
     public static ImportProfile getImportParams(String profile) throws IOException {
