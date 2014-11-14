@@ -81,7 +81,7 @@ public class SchemaDaoNeo4j {
                     "return tag";
             Map<String, Object> params = new HashMap<>();
             params.put("name", labelName);
-            params.put("key", parseTagIndex(company, labelName));
+            params.put("key", parseTagLabel(company, labelName));
             params.put("cid", company.getId());
 
             template.query(cypher, params);
@@ -138,7 +138,7 @@ public class SchemaDaoNeo4j {
     }
 
     private boolean tagExists(Company company, String indexName) {
-        Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagIndex(company, indexName));
+        Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, indexName));
         return (o != null);
     }
 
@@ -336,8 +336,8 @@ public class SchemaDaoNeo4j {
         return (index.equals("Country") || index.equals("City"));
     }
 
-    private String parseTagIndex(Company company, String indexName) {
-        return company.getId() + ".t." + indexName.toLowerCase().replaceAll("\\s", "");
+    private String parseTagLabel(Company company, String label) {
+        return company.getId() + ".t." + label.toLowerCase().replaceAll("\\s", "");
     }
 
 
