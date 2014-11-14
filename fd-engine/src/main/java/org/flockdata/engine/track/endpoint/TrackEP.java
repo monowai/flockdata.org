@@ -19,22 +19,18 @@
 
 package org.flockdata.engine.track.endpoint;
 
-import org.flockdata.company.service.FortressService;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.track.model.*;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.MediationFacade;
-import org.flockdata.track.service.TrackService;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.track.bean.*;
+import org.flockdata.track.model.*;
+import org.flockdata.track.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -19,8 +19,6 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.company.service.FortressService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -30,8 +28,8 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,12 +53,6 @@ public class LogServiceNeo4j implements LogService {
 
     @Autowired
     private KvService kvService;
-
-    @Autowired
-    private SchemaService schemaService;
-
-    @Autowired
-    private SearchServiceFacade searchService;
 
     @Autowired
     FortressService fortressService;

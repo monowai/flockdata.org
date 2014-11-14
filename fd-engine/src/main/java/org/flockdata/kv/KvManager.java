@@ -23,12 +23,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.engine.admin.EngineConfig;
-import org.flockdata.kv.redis.RedisRepo;
-import org.flockdata.kv.riak.RiakRepo;
+import org.flockdata.engine.FdConfig;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.kv.redis.RedisRepo;
+import org.flockdata.kv.riak.RiakRepo;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
@@ -126,7 +126,7 @@ public class KvManager implements KvService {
     RiakRepo riakRepo;
 
     @Autowired
-    EngineConfig engineAdmin;
+    FdConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(KvManager.class);
 

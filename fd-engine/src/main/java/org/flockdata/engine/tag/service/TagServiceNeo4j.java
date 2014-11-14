@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.engine.FdConfig;
 import org.flockdata.engine.tag.model.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
@@ -57,7 +57,7 @@ public class TagServiceNeo4j implements TagService {
     private TagDaoNeo4j tagDao;
 
     @Autowired
-    EngineConfig engineConfig;
+    FdConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 

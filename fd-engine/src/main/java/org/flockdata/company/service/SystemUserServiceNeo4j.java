@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class SystemUserService implements org.flockdata.registration.service.SystemUserService {
+public class SystemUserServiceNeo4j implements org.flockdata.registration.service.SystemUserService {
 
     @Autowired
     RegistrationDao regDao;

@@ -54,7 +54,7 @@
 
     <int-http:inbound-gateway request-channel="doFdEnginePingRequest"
                               reply-channel="doFdEnginePingResponse"
-                              path="/monitoring/abPing"
+                              path="/monitoring/fdPing"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
                               supported-methods="GET"/>

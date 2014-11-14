@@ -19,7 +19,6 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.company.service.FortressService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
@@ -29,6 +28,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
