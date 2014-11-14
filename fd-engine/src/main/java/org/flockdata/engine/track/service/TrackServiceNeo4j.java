@@ -19,13 +19,8 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.company.service.FortressService;
 import org.flockdata.engine.schema.service.TxService;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.engine.track.EntityDaoNeo;
-import org.flockdata.track.bean.*;
-import org.flockdata.track.model.*;
-import org.flockdata.track.service.TagService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -33,13 +28,14 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
+import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.track.service.EntityTagService;
-import org.flockdata.track.service.SchemaService;
-import org.flockdata.track.service.TrackService;
+import org.flockdata.track.bean.*;
+import org.flockdata.track.model.*;
+import org.flockdata.track.service.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

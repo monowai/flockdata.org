@@ -19,10 +19,10 @@
 
 package org.flockdata.engine.schema.service;
 
-import org.flockdata.engine.track.service.FdServerWriter;
-import org.flockdata.engine.schema.dao.ProfileDao;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.engine.schema.dao.ProfileDaoNeo4j;
 import org.flockdata.engine.schema.model.ProfileNode;
-import org.flockdata.company.service.FortressService;
+import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -32,9 +32,9 @@ import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.flockdata.transform.FileProcessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ import java.io.IOException;
 public class ProfileServiceNeo4j implements ImportProfileService {
 
     @Autowired
-    ProfileDao profileDao;
+    ProfileDaoNeo4j profileDao;
 
     @Autowired
     FortressService fortressService;

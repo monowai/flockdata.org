@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.track;
 
+import org.flockdata.engine.FdConfig;
 import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
 import org.flockdata.helper.CypherHelper;
@@ -60,7 +60,7 @@ public class EntityTagDaoNeo4j {
     TagService tagService;
 
     @Autowired
-    EngineConfig engineAdmin;
+    FdConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
 

@@ -19,8 +19,9 @@
 
 package org.flockdata.engine.admin;
 
-import org.flockdata.helper.VersionHelper;
+import org.flockdata.engine.FdConfig;
 import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.search.model.PingResult;
@@ -43,7 +44,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-public class EngineConfig {
+public class EngineConfig implements FdConfig {
 
     @Autowired
     EntityDaoNeo trackDAO;
@@ -95,22 +96,25 @@ public class EngineConfig {
         this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
     }
 
-    @Value("${fd-engine.kvStore}")
+    @Override
+    @Value("${fd-engine.kv.store}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
             this.kvStore = KvService.KV_STORE.REDIS;
         else if (kvStore.equalsIgnoreCase("riak"))
             this.kvStore = KvService.KV_STORE.RIAK;
         else {
-            logger.error("Unable to resolve the fd-engine.kvStore property [" + kvStore + "]. Defaulting to REDIS");
+            logger.error("Unable to resolve the fd-engine.kv.store property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
 
+    @Override
     public KvService.KV_STORE getKvStore() {
         return kvStore;
     }
 
+    @Override
     public String getTagSuffix(Company company) {
         if (company == null)
             return "";
@@ -125,6 +129,7 @@ public class EngineConfig {
      * Only users with a pre-validated api-key should be calling this
      * @return system configuration details
      */
+    @Override
     public Map<String, String> getHealth() {
         if ( System.getProperty("neo4j")!=null )
             logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
@@ -138,7 +143,7 @@ public class EngineConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-engine.kvStore", String.valueOf(kvStore));
+        healthResults.put("fd-engine.kv.store", String.valueOf(kvStore));
         String esPingResult ;
         try {
             PingResult esPing = fdMonitoringGateway.ping();
@@ -154,29 +159,33 @@ public class EngineConfig {
         if ("http".equalsIgnoreCase(integration)) {
             healthResults.put("fd-search.url", abSearch);
         } else {
-            healthResults.put("rabbitmq.host", rabbitHost);
-            healthResults.put("rabbitmq.port", rabbitPort);
+            healthResults.put("rabbit.host", rabbitHost);
+            healthResults.put("rabbit.port", rabbitPort);
         }
         return healthResults;
 
     }
 
 
+    @Override
     public boolean isMultiTenanted() {
         return multiTenanted;
     }
 
+    @Override
     public void setMultiTenanted(boolean multiTenanted) {
         this.multiTenanted = multiTenanted;
     }
 
 //    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
 //            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+    @Override
     @Secured({"ROLE_AB_ADMIN"})
     public void resetCache() {
         logger.info("Reset the cache");
     }
 
+    @Override
     public boolean isConceptsEnabled() {
         return conceptsEnabled;
     }
@@ -185,14 +194,17 @@ public class EngineConfig {
      * Should be disabled for testing purposes
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
+    @Override
     public void setConceptsEnabled(boolean conceptsEnabled) {
         this.conceptsEnabled = conceptsEnabled;
     }
 
+    @Override
     public void setDuplicateRegistration(boolean duplicateRegistration) {
         this.duplicateRegistration = duplicateRegistration;
     }
 
+    @Override
     public boolean isDuplicateRegistration() {
         return duplicateRegistration;
     }

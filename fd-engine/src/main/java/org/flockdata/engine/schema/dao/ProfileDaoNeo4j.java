@@ -31,7 +31,7 @@ import org.springframework.stereotype.Repository;
  * Time: 4:31 PM
  */
 @Repository
-public class ProfileDao {
+public class ProfileDaoNeo4j {
     @Autowired
     ProfileRepo profileRepo;
 

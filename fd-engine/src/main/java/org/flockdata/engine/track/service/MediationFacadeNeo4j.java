@@ -20,8 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import com.google.common.collect.Lists;
-import org.flockdata.company.service.FortressService;
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.engine.FdConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.helper.FlockException;
@@ -97,7 +96,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     LogService logService;
 
     @Autowired
-    EngineConfig engineConfig;
+    FdConfig engineConfig;
 
     @Autowired
     EntityRetryService entityRetry;

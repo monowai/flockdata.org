@@ -20,7 +20,6 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.schema.service.TxService;
-import org.flockdata.company.service.FortressService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -33,6 +32,7 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.model.TxRef;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;

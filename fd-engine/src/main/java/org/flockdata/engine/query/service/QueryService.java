@@ -19,14 +19,13 @@
 
 package org.flockdata.engine.query.service;
 
-import org.flockdata.company.service.FortressService;
-import org.flockdata.track.service.SchemaService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.DocumentResultBean;
-
 import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

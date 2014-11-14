@@ -33,6 +33,7 @@ import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,8 @@ import java.util.Collection;
 
 @Service
 @Transactional
-public class FortressService {
-    private Logger logger = LoggerFactory.getLogger(FortressService.class);
+public class FortressServiceNeo4j implements FortressService {
+    private Logger logger = LoggerFactory.getLogger(FortressServiceNeo4j.class);
     @Autowired
     private FortressDaoNeo fortressDao;
 
@@ -58,15 +59,18 @@ public class FortressService {
     @Autowired
     private SecurityHelper securityHelper;
 
+    @Override
     public Fortress getFortress(Long id) {
         return fortressDao.findOne(id);
     }
 
+    @Override
     public FortressUser getUser(Long id) {
         return fortressDao.findOneUser(id);
     }
 
     //    @Cacheable(value = "fortressName", unless = "#result == null")
+    @Override
     public Fortress findByName(Company company, String fortressName) throws NotFoundException {
         if (fortressName == null)
             throw new NotFoundException("Unable to lookup a fortress name with a null value");
@@ -74,16 +78,19 @@ public class FortressService {
     }
 
 
+    @Override
     public Fortress findByName(String fortressName) throws NotFoundException {
         Company ownedBy = getCompany();
         return findByName(ownedBy, fortressName);
     }
 
+    @Override
     public Fortress findByCode(String fortressCode) {
         Company ownedBy = getCompany();
         return findByCode(ownedBy, fortressCode);
     }
 
+    @Override
     public Fortress findByCode(Company company, String fortressCode) {
         return fortressDao.getFortressByCode(company.getId(), fortressCode);
     }
@@ -114,6 +121,7 @@ public class FortressService {
      * @param fortressUser user to locate
      * @return fortressUser identity
      */
+    @Override
     public FortressUser getFortressUser(Company company, String fortressName, String fortressUser) throws NotFoundException {
         Fortress fortress = findByName(company, fortressName);
         if (fortress == null)
@@ -132,11 +140,13 @@ public class FortressService {
      * @param fortressUser user to locate
      * @return fortressUser identity
      */
+    @Override
     public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
     }
 
     //    @Cacheable(value = "fortressUser", unless = "#result==null" )
+    @Override
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
@@ -151,21 +161,17 @@ public class FortressService {
         if (fortress == null)
             throw new IllegalArgumentException("Unable to find requested fortress");
         logger.trace("Request to add fortressUser [{}], [{}]", fortress, fortressUser);
-        //Fortress fortressz = findByCode(fortress.getCompany(), fortress.getCode());
-        //logger.trace("Fortress result {}", fortressz);
+
         Company company = fortress.getCompany();
         // this should never happen
         if (company == null)
             throw new IllegalArgumentException("[" + fortress.getName() + "] has no owner");
 
-        // If we're dealing with Primary Keys and Objects, we don't need to make security
-        //  checks, though this one might be the exception!
-
-        //registrationService.isAdminUser(company, "Unable to find requested fortress");
         return fortressDao.save(fortress, fortressUser);
 
     }
 
+    @Override
     public Collection<Fortress> findFortresses() throws FlockException {
         Company company = securityHelper.getCompany();
         if (company == null)
@@ -174,6 +180,7 @@ public class FortressService {
 
     }
 
+    @Override
     public Collection<Fortress> findFortresses(Company company) throws FlockException {
         if (company == null)
             throw new FlockException("Unable to identify the requested company");
@@ -181,11 +188,13 @@ public class FortressService {
 
     }
 
+    @Override
     public void fetch(FortressUser lastUser) {
         fortressDao.fetch(lastUser);
 
     }
 
+    @Override
     public void purge(Fortress fortress) throws FlockException {
         fortressDao.delete(fortress);
     }
@@ -198,10 +207,12 @@ public class FortressService {
      * @param fortressInputBean payload
      * @return existing or newly created fortress
      */
+    @Override
     public Fortress registerFortress(Company company, FortressInputBean fortressInputBean) {
         return registerFortress(company, fortressInputBean, true);
     }
 
+    @Override
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
@@ -223,6 +234,7 @@ public class FortressService {
     }
 
 
+    @Override
     public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException {
         Fortress fortress = findByCode(company, code);
         if (fortress == null)
@@ -239,6 +251,7 @@ public class FortressService {
     }
 
 
+    @Override
     public Fortress getFortress(Company company, String fortressName) throws NotFoundException {
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fortressName);
         if (fortress == null)
