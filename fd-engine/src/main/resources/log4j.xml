@@ -48,7 +48,7 @@
         <!--<level value="debug"/>-->
     <!--</logger>-->
     <logger name="org.springframework.amqp">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
         <level value="info"/>
@@ -96,13 +96,7 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/> <!-- turn this on to see erer statements")-->
     </logger>
-    <logger name="org.flockdata.engine.track.EntityDaoNeo">
-        <level value="info"/>
-    </logger>
 
-    <logger name="org.flockdata.engine.track.service.TrackServiceNeo4j">
-        <level value="info"/>
-    </logger>
     <logger name="org.neo4j.cypher">
         <level value="debug"/>
     </logger>
