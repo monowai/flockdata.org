@@ -19,9 +19,9 @@
 
 package org.flockdata.track.service;
 
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
@@ -37,10 +37,12 @@ import java.util.concurrent.ExecutionException;
  */
 public interface LogService {
 
-    Collection<TrackResultBean> processLogsSync(Company company, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Collection<TrackResultBean> processLogsSync(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     EntityLog getLastLog(Entity entity) throws FlockException;
+
+//    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException;
 
 }

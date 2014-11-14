@@ -69,16 +69,17 @@ public class TestForceDeadlock extends EngineBase {
         setSecurity();
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
 
-        CountDownLatch latch = new CountDownLatch(4);
         List<TagInputBean> tags = getTags(10);
 
         Map<Integer, TagRunner> runners = new HashMap<>();
+
         int threadMax = 3;
+        CountDownLatch latch = new CountDownLatch(threadMax);
         for (int i = 0; i < threadMax; i++) {
             runners.put(i, addTagRunner(fortress, 5, tags, latch));
         }
 
-        //latch.await();
+        latch.await();
         for (int i = 0; i < threadMax; i++) {
             while (runners.get(i) == null || !runners.get(i).isDone()) {
                 Thread.yield();

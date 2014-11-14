@@ -19,11 +19,10 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.engine.PropertyConversion;
-import org.flockdata.helper.DatagioTagException;
+import org.flockdata.helper.FlockDataTagException;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.registration.bean.TagInputBean;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,7 +54,7 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOP"));
 
-        Iterable<Tag> tagResults = tagService.makeTags(iSystemUser.getCompany(),tags).get();
+        Iterable<Tag> tagResults = tagService.createTags(iSystemUser.getCompany(),tags);
         assertNotNull(tagResults);
         int count = 0;
         for (Tag next : tagResults) {
@@ -71,7 +70,7 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOPSY"));
         tags.add(new TagInputBean("FLOPPO"));
         tags.add(new TagInputBean("FLOPER"));
-        tagResults = tagService.makeTags(iSystemUser.getCompany(),tags).get();
+        tagResults = tagService.createTags(iSystemUser.getCompany(),tags);
         count = 0;
         for (Tag next : tagResults) {
             assertNotNull(next);
@@ -133,7 +132,7 @@ public class TestTags extends EngineBase {
         try {
             tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
-        } catch (DatagioTagException dte) {
+        } catch (FlockDataTagException dte) {
             logger.debug("Correct");
         }
 
@@ -150,7 +149,7 @@ public class TestTags extends EngineBase {
         SystemUser iSystemUser = registerSystemUser("tagWithProperties", mike_admin);
 
         TagInputBean tagInput = new TagInputBean("ZFLOP");
-        tagInput.setProperty("num", 123);
+        tagInput.setProperty("num", 123l);
         tagInput.setProperty("dec", 123.11);
         tagInput.setProperty("string", "abc");
 
@@ -160,9 +159,9 @@ public class TestTags extends EngineBase {
         Tag result = tagService.findTag(iSystemUser.getCompany(),"ZFLOP");
 
         assertNotNull(result);
-        assertEquals(123l, tag.getProperty("num"));
-        assertEquals(123.11, tag.getProperty("dec"));
-        assertEquals("abc", tag.getProperty("string"));
+        assertEquals(123l, result.getProperty("num"));
+        assertEquals(123.11, result.getProperty("dec"));
+        assertEquals("abc", result.getProperty("string"));
 
     }
 
@@ -306,15 +305,6 @@ public class TestTags extends EngineBase {
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
         assertEquals(tagA.getId(), tagB.getId());
-
-    }
-
-    @Test
-    public void systemPropertiesHonoured() throws Exception {
-        // Case insensitive test
-        assertTrue(PropertyConversion.isSystemColumn("Name"));
-        assertTrue(PropertyConversion.isSystemColumn("code"));
-        assertTrue(PropertyConversion.isSystemColumn("keY"));
 
     }
 

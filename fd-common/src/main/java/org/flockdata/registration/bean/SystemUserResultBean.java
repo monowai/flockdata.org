@@ -60,4 +60,12 @@ public class SystemUserResultBean {
     public String getCompanyName() {
         return companyName;
     }
+
+    @Override
+    public String toString() {
+        return "SystemUserResultBean{" +
+                "login='" + login + '\'' +
+                ", companyName='" + companyName + '\'' +
+                '}';
+    }
 }

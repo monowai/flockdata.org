@@ -14,7 +14,7 @@
 	   http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <int:gateway id="fdSearchGateway" async-executor="qExecutor"
-                 service-interface="org.flockdata.engine.service.FdSearchGateway"/>
+                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
@@ -68,14 +68,22 @@
 
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
+    <int:channel id="doTagCloudReply"/>
+    <int:channel id="doMetaKeyReply"/>
+
+
+    <int:channel id="trackEntity"/>
 
     <int:channel id="errors"/>
 
-    <int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>
+    <int:channel id="entityErrors"/>
 
-    <bean id="fdLoggingHandler" class="org.springframework.integration.handler.LoggingHandler">
-        <constructor-arg index="0" value="DEBUG"/>
+    <int:service-activator id="fdEntityErrorLogger" input-channel="entityErrors" ref="fdEntityErrorHandler"/>
+
+    <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
+
     </bean>
+
 
     <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="40"
                    rejection-policy="CALLER_RUNS"/>

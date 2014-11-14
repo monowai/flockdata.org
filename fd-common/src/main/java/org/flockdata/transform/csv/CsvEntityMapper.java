@@ -32,6 +32,8 @@ import org.flockdata.transform.TagProfile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +45,8 @@ import java.util.Map;
  * Time: 4:34 PM
  */
 public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
+
+    private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
 
     public CsvEntityMapper(ImportProfile importProfile) {
         setDocumentType(importProfile.getDocumentName());
@@ -111,8 +115,18 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.isDescription()) {
                     setDescription(row.get(column).toString());
                 }
-                if ( colDef.isCreatedDate()){
-                    setWhen( new DateTime(value));
+                if ( colDef.isCreateDate()){
+                    if ( colDef.isDateEpoc()) {
+                        long val = Long.parseLong(value)*1000;
+
+                        setWhen(new DateTime(val));
+//                        logger.debug ("{}, {}, {}", val, value, getWhen());
+                    }
+                    else if ( NumberUtils.isDigits(value))  // plain old java millis
+                        setWhen(new DateTime(Long.parseLong(value)));
+                    else // ToDo: apply a date format
+                        setWhen( new DateTime(value));
+
                 }
 
                 if (colDef.isCallerRef()) {
@@ -147,7 +161,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.isTitle()) {
                     setName(value);
                 }
-                if (colDef.isCreatedUser()) { // The user in the calling system
+                if (colDef.isCreateUser()) { // The user in the calling system
                     setFortressUser(value);
                 }
 

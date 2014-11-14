@@ -52,7 +52,6 @@ public class EntityTXResult {
         this.documentType = entity.getDocumentType();
         this.callerRef = entity.getCallerRef();
         this.fortressName = entity.getFortress().getName();
-        this.fortressKey = entity.getFortress().getFortressKey();
         this.lastSystemChange = entity.getLastUpdate();
         this.entityLog = log;
     }

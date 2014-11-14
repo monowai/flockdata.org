@@ -89,11 +89,11 @@ public class SecurityHelper {
         return su.getCompany();
     }
 
-    public Company getCompany(String apiKey) {
-        if (apiKey == null)
+    public Company getCompany(String usersApiKey) {
+        if (usersApiKey == null)
             return getCompany();
 
-        SystemUser su = sysUserService.findByApiKey(apiKey);
+        SystemUser su = sysUserService.findByApiKey(usersApiKey);
         if ( su == null )
             return null;
         return su.getCompany();

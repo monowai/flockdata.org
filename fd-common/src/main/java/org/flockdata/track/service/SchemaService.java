@@ -44,7 +44,7 @@ public interface SchemaService {
 
     DocumentType resolveByDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
 
-    void registerConcepts(Company company, Iterable<TrackResultBean> resultBeans);
+    void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
 
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
 

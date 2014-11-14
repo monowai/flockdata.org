@@ -41,11 +41,20 @@
         <level value="info"/>
     </logger>
 
+    <logger name="org.springframework">
+        <level value="error"/>
+    </logger>
+    <!--<logger name="org.springframework.retry.support.RetryTemplate">-->
+        <!--<level value="debug"/>-->
+    <!--</logger>-->
     <logger name="org.springframework.amqp">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
         <level value="info"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>
@@ -73,9 +82,6 @@
         <level value="error"/>
     </logger>
 
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
 
     <logger name="com.jersey">
         <level value="error"/>
@@ -90,28 +96,18 @@
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/> <!-- turn this on to see erer statements")-->
     </logger>
-    <logger name="org.flockdata.engine.repo.neo4j.EntityDaoNeo">
-        <level value="info"/>
-    </logger>
 
-    <logger name="org.flockdata.engine.service.TrackServiceNeo4j">
-        <level value="info"/>
-    </logger>
     <logger name="org.neo4j.cypher">
         <level value="debug"/>
     </logger>
 
     <logger name="org.flockdata">
-        <level value="info"/>
-    </logger>
-
-    <logger name="org.flockdata.engine.service.MediationFacadeNeo4j">
-        <level value="debug"/>
+        <level value="${fd.logLevel}"/>
     </logger>
 
     <!-- Root Logger -->
     <root>
-        <priority value="debug"/>
+        <priority value="${fd.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

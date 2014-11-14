@@ -22,7 +22,18 @@
     <context:spring-configured/>
     <context:annotation-config/>
 
-    <context:component-scan base-package="org.flockdata, org.flockdata.authentication"/>
+    <context:component-scan base-package="
+        org.flockdata.engine.admin,
+		org.flockdata.engine.query,
+		org.flockdata.engine.schema,
+		org.flockdata.engine.tag,
+		org.flockdata.engine.track,
+		org.flockdata.registration,
+		org.flockdata.helper,
+		org.flockdata.geography,
+		org.flockdata.company,
+		org.flockdata.kv" />
+
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
@@ -45,7 +56,7 @@
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-	<bean id="apiKeyInterceptor" class="org.flockdata.authentication.handler.ApiKeyInterceptor"/>
+	<bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg>

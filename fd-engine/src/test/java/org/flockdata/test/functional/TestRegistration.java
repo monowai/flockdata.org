@@ -19,7 +19,7 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.engine.repo.neo4j.model.FortressNode;
+import org.flockdata.company.model.FortressNode;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;

@@ -19,7 +19,6 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.authentication.handler.ApiKeyInterceptor;
 import org.flockdata.registration.model.Company;
 
 import javax.servlet.http.HttpServletRequest;

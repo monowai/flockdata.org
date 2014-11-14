@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-    <display-name>FlockData - Data Mediation Service</display-name>
+    <display-name>FlockData -Engine Service</display-name>
 
     <!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
     <context-param>

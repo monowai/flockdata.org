@@ -19,21 +19,25 @@
 
 package org.flockdata.client.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import org.apache.commons.codec.binary.Base64;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.transform.FdWriter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.apache.commons.codec.binary.Base64;
-import org.flockdata.registration.bean.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -47,9 +51,9 @@ import java.util.*;
  * Template to support writing Entity and Tag information to a remote FlockData service
  *
  * @see org.flockdata.client.Importer
- *      <p/>
- *      User: Mike Holdsworth
- *      Since: 13/10/13
+ * <p/>
+ * User: Mike Holdsworth
+ * Since: 13/10/13
  */
 public class FdRestWriter implements FdWriter {
 
@@ -65,7 +69,7 @@ public class FdRestWriter implements FdWriter {
     private String REGISTER;
     private final String userName;
     private final String password;
-    private final String apiKey;
+    private String apiKey;
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
@@ -75,10 +79,10 @@ public class FdRestWriter implements FdWriter {
     /**
      * Use this version for administrative access where the username and password must exist
      *
-     * @param serverName   where are we talking to?
-     * @param userName     configured user in the security domain
-     * @param password     configured password in the security domain
-     * @param batchSize    default batch command size
+     * @param serverName where are we talking to?
+     * @param userName   configured user in the security domain
+     * @param password   configured password in the security domain
+     * @param batchSize  default batch command size
      */
     public FdRestWriter(String serverName, String userName, String password, int batchSize) {
         this(serverName, null, userName, password, batchSize, null);
@@ -102,7 +106,7 @@ public class FdRestWriter implements FdWriter {
         this.COUNTRIES = serverName + "/v1/geo/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
-        simulateOnly = batchSize <1;
+        simulateOnly = batchSize < 1;
     }
 
     public FdRestWriter(String serverName, String apiKey, int batchSize) {
@@ -117,12 +121,12 @@ public class FdRestWriter implements FdWriter {
      * @param o - arbitrary object
      * @return Map<String,Object>
      */
-    public static Map<String,Object> convertToMap(Object o ){
+    public static Map<String, Object> convertToMap(Object o) {
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
-        return  om.convertValue(o, Map.class);
+        return om.convertValue(o, Map.class);
     }
 
-    public SystemUserResultBean me(){
+    public SystemUserResultBean me() {
         RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
@@ -286,16 +290,59 @@ public class FdRestWriter implements FdWriter {
         return null;
     }
 
+    public String flushEntitiesAmqp(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
+
+        ConnectionFactory factory = new ConnectionFactory();
+        Connection connection =null ;
+        factory.setHost("localhost");
+        Channel channel  = null;
+
+        if ( apiKey == null ){
+            apiKey = me().getApiKey();
+        }
+
+        try {
+            connection = factory.newConnection();
+            channel = connection.createChannel();
+
+            channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
+
+            for (EntityInputBean entityInput : entityInputs) {
+                if ( entityInput.getApiKey() == null )
+                    entityInput.setApiKey(apiKey); // ToDo: Fix all of this.
+                channel.basicPublish("fd.track.exchange", "fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(entityInput));
+            }
+        } catch (IOException ioe) {
+            logger.error(ioe.getLocalizedMessage());
+            throw new FlockException("IO Exception", ioe.getCause());
+        } finally{
+            if ( connection != null)
+                try {
+                    connection.close();
+                    if ( channel!=null && channel.isOpen())
+                        channel.close();
+
+                } catch (IOException e) {
+                    logger.error("Unexpected", e);
+                }
+        }
+        return "OK";
+
+    }
+    private boolean amqp = true; // Experimental support
+
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
+        if ( amqp )
+            return flushEntitiesAmqp(company, entityInputs, async);
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            restTemplate.exchange( NEW_ENTITY+"?async="+async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            restTemplate.exchange(NEW_ENTITY + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             logger.error("Service tracking error {}", getErrorMessage(e));
@@ -307,9 +354,10 @@ public class FdRestWriter implements FdWriter {
         }
     }
 
-    RestTemplate restTemplate= null;
+    RestTemplate restTemplate = null;
+
     private RestTemplate getRestTemplate() {
-        if ( restTemplate == null ) {
+        if (restTemplate == null) {
             restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         }
@@ -372,10 +420,10 @@ public class FdRestWriter implements FdWriter {
 
     public String getErrorMessage(HttpStatusCodeException e) throws FlockException {
 
-        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode()== HttpStatus.BAD_REQUEST|| e.getStatusCode()== HttpStatus.BAD_REQUEST) {
+        if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR || e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.BAD_REQUEST) {
             logger.error(e.getResponseBodyAsString());
             String error = e.getResponseBodyAsString();
-            if ( error.contains("Invalid API"))
+            if (error.contains("Invalid API"))
                 logger.info("Your API key appears to be invalid. Have you run the configure process?");
             throw new FlockException(error);
         }
@@ -390,8 +438,7 @@ public class FdRestWriter implements FdWriter {
         String message;
         if (n != null) {
             message = String.valueOf(n.get("message"));
-        }
-        else
+        } else
             message = e.getMessage();
 
         return message;
@@ -401,6 +448,7 @@ public class FdRestWriter implements FdWriter {
 
     /**
      * Simple header with no authorisation
+     *
      * @return unauthenticated header
      */
     private static HttpHeaders getHeaders() {
@@ -417,7 +465,6 @@ public class FdRestWriter implements FdWriter {
     }
 
 
-
     public static HttpHeaders getHeaders(final String apiKey, final String userName, final String password) {
         if (httpHeaders != null)
             return httpHeaders;
@@ -432,7 +479,7 @@ public class FdRestWriter implements FdWriter {
                     set("Authorization", authHeader);
                 }
 
-                if ( apiKey != null )
+                if (apiKey != null)
                     set("Api-Key", apiKey);
 
                 setContentType(MediaType.APPLICATION_JSON);
@@ -475,7 +522,6 @@ public class FdRestWriter implements FdWriter {
 //            }
 //        }
 //    }
-
 
 
 }

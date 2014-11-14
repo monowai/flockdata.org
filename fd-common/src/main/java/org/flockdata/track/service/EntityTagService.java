@@ -62,8 +62,6 @@ public interface EntityTagService {
 
     void changeType(Entity entity, EntityTag existingTag, String newType) throws FlockException;
 
-    Set<Entity> findEntityTags(String tagCode) throws FlockException;
-
     Set<Entity> findEntityTags(Company company, String tagName) throws FlockException;
 
     Collection<EntityTag> findLogTags(Company company, Log log);
