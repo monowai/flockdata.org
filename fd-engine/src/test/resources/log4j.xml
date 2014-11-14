@@ -42,27 +42,21 @@
         <level value="error"/>
     </logger>
 
-    <logger name="org.flockdata.engine.schema">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.engine.track.service.LogRetryService">
-        <level value="debug"/>
-    </logger>
-    <logger name="org.flockdata.engine.tag">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.company">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.engine.track">
-        <level value="info"/>
-    </logger>
-    <logger name="org.flockdata.kv.KvManager">
-        <level value="info"/>
-    </logger>
-    <logger name=" org.flockdata.engine.track.service.TrackServiceNeo4j">
-        <level value="info"/>
-    </logger>
+    <!--<logger name="org.flockdata.engine.schema">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.flockdata.engine.tag">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.flockdata.company">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.flockdata.engine.track">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.flockdata.kv.KvManager">-->
+        <!--<level value="info"/>-->
+    <!--</logger>-->
 
     <!-- Root Logger -->
     <logger name="org.flockdata">
