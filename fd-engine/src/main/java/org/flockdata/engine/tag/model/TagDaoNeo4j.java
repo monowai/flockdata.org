@@ -77,7 +77,9 @@ public class TagDaoNeo4j {
         Collection<Tag> results = new ArrayList<>();
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-                results.add(save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships));
+                results.add(
+                        save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships)
+                );
             } catch (FlockDataTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
                 tagInputBean.getServiceMessage(te.getMessage());
@@ -126,33 +128,6 @@ public class TagDaoNeo4j {
         }
         TagNode tag = new TagNode(tagInput, label);
 
-        // ToDo: Multi-tenanted custom tagInputs?
-        // _Tag only exists for SDN projection
-//        String query = "merge (tag" + label + " {code:{code}, name:{name}, key:{key}";
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("code", tag.getCode());
-//        params.put("key", tag.getKey());
-//        //params.put("typeKey", tag.getKey());
-//        params.put("name", tag.getName());
-//        // ToDo: - set custom properties
-//
-//        Map<String, Object> properties = tagInput.getProperties();
-//        if (properties != null)
-//            for (Map.Entry<String, Object> prop : properties.entrySet()) {
-//                if (!PropertyConversion.isSystemColumn(prop.getKey())) {
-//                    if (prop.getValue() != null) {
-//                        DefinedProperty property = PropertyConversion.convertProperty(1, prop.getValue());
-//                        query = query + ", " + PropertyConversion.toJsonColumn(prop.getKey(), property.value());
-//                    }
-//                }
-//            }
-//
-//        query = query + "})  return tag";
-//        Result<Map<String, Object>> result = template.query(query, params);
-
-
-        //Map<String, Object> mapResult = result.singleOrNull();
-        //return (Node) mapResult.get("tag");
         try {
             logger.debug("Saving {}", tag);
             tag = template.save(tag);
@@ -161,8 +136,6 @@ public class TagDaoNeo4j {
         } catch (ConstraintViolationException e) {
             logger.debug("Error saving {}", tag);
             throw e;
-            //return findTag(company, tagInput.getCode(), label);
-
         }
 
     }
@@ -215,7 +188,7 @@ public class TagDaoNeo4j {
                 "       return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
-        //params.put("coTags", coTags);
+
         Result<Map<String, Object>> result = template.query(query, params);
 
         if (!((Result) result).iterator().hasNext())
@@ -227,7 +200,6 @@ public class TagDaoNeo4j {
 
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            //results.add(new TagNode((Node) row.get("otherTag")));
             results.add(template.projectTo(row.get("otherTag"), TagNode.class));
         }
         //
@@ -268,7 +240,6 @@ public class TagDaoNeo4j {
      * @param label   Neo4j label for the node
      * @return null if not found
      */
-
     public Tag findTag(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");

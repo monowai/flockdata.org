@@ -23,6 +23,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
@@ -69,10 +70,11 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<Fortress> registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws FlockException {
+    @ResponseStatus(HttpStatus.CREATED)
+    public FortressResultBean registerFortress( @RequestBody FortressInputBean fortressInputBean, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.registerFortress(company, fortressInputBean, true);
-        return new ResponseEntity<>(fortress, HttpStatus.CREATED);
+        return new FortressResultBean(fortress);
 
     }
 

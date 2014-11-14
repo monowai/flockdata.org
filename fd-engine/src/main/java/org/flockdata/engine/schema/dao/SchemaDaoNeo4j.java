@@ -41,11 +41,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Maintains company specific Schema details
+ * Maintains company specific Schema details. Structure of the nodes that FD has established
+ * based on Entities, DocumentTypes, Tags and Relationships
+ *
  * User: mike
  * Date: 3/04/14
  * Time: 7:30 AM
- * To change this template use File | Settings | File Templates.
  */
 @Repository
 public class SchemaDaoNeo4j {
@@ -61,11 +62,10 @@ public class SchemaDaoNeo4j {
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
     /**
-     *  The general sSchema is tracked so that we know what the general structure is
+     * The general sSchema is tracked so that we know what the general structure is
      *
      * @param company   who owns the tags
      * @param labelName labelName being create
-     *
      * @return true if it was created for the first time
      */
     public boolean registerTag(Company company, String labelName) {
@@ -131,7 +131,7 @@ public class SchemaDaoNeo4j {
 
 
     private DocumentType documentExists(Fortress fortress, String docCode) {
-        assert fortress !=null;
+        assert fortress != null;
         DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docCode));
         logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
         return dt;
@@ -213,6 +213,7 @@ public class SchemaDaoNeo4j {
 
             Collection<Concept> concepts = documentTypeNode.getConcepts();
             logger.trace("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
+            boolean save = false;
             for (ConceptInputBean concept : conceptInput.get(docType)) {
                 //logger.debug("Looking to create [{}]", concept.getName());
                 ConceptNode existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
@@ -221,23 +222,32 @@ public class SchemaDaoNeo4j {
                     if (existingConcept == null) {
                         logger.debug("No existing concept found for [{}]. Creating it", relationship);
                         existingConcept = new ConceptNode(concept.getName(), relationship, docType);
+                        save = true;
                     } else {
                         logger.trace("Found an existing concept {}", existingConcept);
                         template.fetch(existingConcept.getRelationships());
                         Relationship existingR = existingConcept.hasRelationship(relationship, docType);
                         if (existingR == null) {
                             existingConcept.addRelationship(relationship, docType);
+                            save = true;
                             logger.debug("Creating {} concept for{}", relationship, existingConcept);
                         }
                     }
                     // DAT-112 removed save check. ToDo: Room for optimization?
-                    documentTypeNode.add(existingConcept);
-                    logger.debug("Creating concept {}", existingConcept);
+                    if (!documentTypeNode.getConcepts().contains(existingConcept)) {
+                        documentTypeNode.add(existingConcept);
+                        logger.debug("Creating concept {}", existingConcept);
+                        save = true;
+                    }
                 }
             }
-            logger.trace("About to register {} concepts", concepts.size());
-            documentTypeRepo.save(documentTypeNode);
-            logger.trace("{} Concepts registered", concepts.size());
+
+            if (save) {
+                logger.trace("About to register {} concepts", concepts.size());
+                documentTypeRepo.save(documentTypeNode);
+                logger.trace("{} Concepts registered", concepts.size());
+            }
+
         }
     }
 

@@ -500,9 +500,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
     }
 
-    public void distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException {
+    @Async
+    public Future<Void> distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException {
         logger.debug("Distributing changes to sub-services");
         searchService.makeChangesSearchable(fortress, resultBeans);
+        return new AsyncResult<>(null);
         //logger.debug("Distributed changes to search service");
     }
 

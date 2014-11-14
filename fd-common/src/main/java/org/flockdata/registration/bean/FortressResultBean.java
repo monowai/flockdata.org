@@ -28,6 +28,8 @@ import org.flockdata.registration.model.Fortress;
 public class FortressResultBean {
     private String name;
     private String timeZone;
+    private boolean enabled=true;
+    private boolean searchActive;
 
     protected FortressResultBean() {
 
@@ -37,6 +39,8 @@ public class FortressResultBean {
         this();
         this.name = fortress.getName();
         this.timeZone = fortress.getTimeZone();
+        this.enabled = fortress.isEnabled();
+        this.searchActive = fortress.isSearchActive();
     }
 
     public String getName() {
@@ -45,5 +49,13 @@ public class FortressResultBean {
 
     public String getTimeZone() {
         return timeZone;
+    }
+
+    public boolean isSearchActive() {
+        return searchActive;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

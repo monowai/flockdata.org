@@ -38,6 +38,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -65,7 +66,7 @@ public class EntityRetryService {
     @Autowired
     SchemaService schemaService;
 
-    @Retryable(include = {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities)
             throws InterruptedException, ExecutionException, FlockException, IOException {
         return doTrack(fortress, entities);
