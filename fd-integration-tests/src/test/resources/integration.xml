@@ -68,6 +68,9 @@
 
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
+    <int:channel id="doTagCloudReply"/>
+    <int:channel id="doMetaKeyReply"/>
+
 
     <int:channel id="trackEntity"/>
 

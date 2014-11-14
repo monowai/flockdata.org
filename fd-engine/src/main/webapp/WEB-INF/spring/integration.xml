@@ -68,6 +68,9 @@
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
 
+    <int:channel id="doTagCloudReply"/>
+    <int:channel id="doMetaKeyReply"/>
+
     <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
@@ -83,6 +86,8 @@
     <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
 
     </bean>
+
+
 
     <task:executor id="fd-q-exec"
                    pool-size="${q.thread.poolSize}"

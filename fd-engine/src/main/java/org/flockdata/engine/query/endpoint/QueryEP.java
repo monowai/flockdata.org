@@ -65,47 +65,47 @@ public class QueryEP {
     MediationFacade mediationFacade;
 
 
-    @RequestMapping(value = "/matrix", method = RequestMethod.POST)
+    @RequestMapping(value = "/matrix", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return matrixService.getMatrix(company, matrixInput);
     }
 
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.search(company, queryParams);
     }
 
-    @RequestMapping(value = "/es", method = RequestMethod.POST)
+    @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public EsSearchResult searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
         return mediationFacade.search(company, queryParams);
     }
 
-    @RequestMapping(value = "/tagcloud", method = RequestMethod.POST)
+    @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public TagCloud getTagCloudEsParam(@RequestBody TagCloudParams tagCloudParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.getTagCloud(company, tagCloudParams);
     }
 
-    @RequestMapping(value = "/documents", method = RequestMethod.POST)
+    @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return queryService.getDocumentsInUse(company, fortresses);
     }
 
 
-    @RequestMapping(value = "/concepts", method = RequestMethod.POST)
+    @RequestMapping(value = "/concepts", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return queryService.getConcepts(company, documents);
     }
 
 
-    @RequestMapping(value = "/relationships", method = RequestMethod.POST)
+    @RequestMapping(value = "/relationships", method = RequestMethod.POST,consumes = "application/json", produces = "application/json")
     public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
