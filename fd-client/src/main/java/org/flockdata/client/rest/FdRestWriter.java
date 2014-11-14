@@ -69,7 +69,7 @@ public class FdRestWriter implements FdWriter {
     private String REGISTER;
     private final String userName;
     private final String password;
-    private final String apiKey;
+    private String apiKey;
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
@@ -297,6 +297,10 @@ public class FdRestWriter implements FdWriter {
         factory.setHost("localhost");
         Channel channel  = null;
 
+        if ( apiKey == null ){
+            apiKey = me().getApiKey();
+        }
+
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();
@@ -304,7 +308,8 @@ public class FdRestWriter implements FdWriter {
             channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
 
             for (EntityInputBean entityInput : entityInputs) {
-                entityInput.setApiKey(apiKey);
+                if ( entityInput.getApiKey() == null )
+                    entityInput.setApiKey(apiKey); // ToDo: Fix all of this.
                 channel.basicPublish("fd.track.exchange", "fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(entityInput));
             }
         } catch (IOException ioe) {

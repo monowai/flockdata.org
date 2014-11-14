@@ -87,7 +87,7 @@ public class SearchServiceFacade {
         searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
 
-        /**
+    /**
          * Callback handler that is invoked from fd-search. This routine ties the generated search document ID
          * to the Entity
          * <p/>
@@ -121,7 +121,6 @@ public class SearchServiceFacade {
         SearchChange searchChange = null;
         Entity entity = resultBean.getEntity();
         if (!(entity.isSearchSuppressed() || !entity.getFortress().isSearchActive())) {
-            //result, result.getMetaInputBean().getEvent(), result.getMetaInputBean().getWhen()
             searchChange = getSearchChange(company, resultBean, resultBean.getEntityInputBean().getEvent(), resultBean.getEntityInputBean().getWhen());
         }
         return searchChange;
@@ -139,7 +138,7 @@ public class SearchServiceFacade {
 
     public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
         if (searchDocument.isEmpty())
-            return ;
+            return;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
@@ -170,8 +169,6 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
-
     public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
         assert entity!=null ;
         if (entity.isSearchSuppressed())
@@ -184,7 +181,7 @@ public class SearchServiceFacade {
         searchDocument.setName(entity.getName());
         try {
             if (logger.isTraceEnabled())
-                logger.trace("JSON {}", om.writeValueAsString(searchDocument));
+                logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw (e);

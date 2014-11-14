@@ -49,6 +49,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
 import java.util.Set;
 
@@ -88,7 +89,7 @@ public class LogRetryService {
      * @throws org.flockdata.helper.FlockException
      * @throws IOException
      */
-    @Retryable(include = {DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
+    @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
     TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         return writeLogTx(fortress, trackResultBean);
     }
