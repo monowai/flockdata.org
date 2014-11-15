@@ -17,7 +17,7 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <ehcache.version>2.6.7</ehcache.version>
-        <org.springdata.neo4j>3.2.0.RELEASE</org.springdata.neo4j>
+        <org.springdata.neo4j>3.2.1.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.5</neo4j.version>
         <org.springbatch-version>3.0.1.RELEASE</org.springbatch-version>
 
