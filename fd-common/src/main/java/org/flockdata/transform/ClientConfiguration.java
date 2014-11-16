@@ -36,6 +36,7 @@ import java.util.Properties;
 public class ClientConfiguration {
     private String company;
     private boolean async;
+    private boolean validateOnly;
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
@@ -152,5 +153,13 @@ public class ClientConfiguration {
 
     public boolean isAsync() {
         return async;
+    }
+
+    public void setValidateOnly(boolean validateOnly) {
+        this.validateOnly = validateOnly;
+    }
+
+    public boolean isValidateOnly() {
+        return validateOnly;
     }
 }

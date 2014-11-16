@@ -164,18 +164,16 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = (EntityInputBean) row;
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
-                        rows = rows + entityInputBean.getCrossReferences().size();
+                        entityInputBean.getCrossReferences().size();
                     }
                     if (contentInputBean != null) {
                         if (contentInputBean.getFortressUser() == null)
                             contentInputBean.setFortressUser(importProfile.getFortressUser());
                         entityInputBean.setContent(contentInputBean);
                     }
-
-                    //logger.info(json);
+                    rows++;
                     xsr.nextTag();
                     trackBatcher.batchEntity(entityInputBean);
-                    rows++;
                     if (rows % 500 == 0 && !writer.isSimulateOnly())
                         logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
 

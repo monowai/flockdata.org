@@ -78,6 +78,10 @@ public class Importer {
                 .required(false)
                 .help("Default batch size");
 
+        parser.addArgument("-v", "--validate")
+                .required(false)
+                .help("Runs a batch and verifies that the entities exist");
+
         parser.addArgument("-a", "--async")
                 .required(false)
                 .setDefault(false)
@@ -106,12 +110,13 @@ public class Importer {
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
         boolean async = false;
+        boolean validate = false;
         FileProcessor fileProcessor = null;
         try {
             Namespace ns = getCommandLineArgs(args);
             File file = Configure.getFile(Configure.configFile, ns);
-            ClientConfiguration defaults = Configure.readConfiguration(file);
-            if (defaults.getApiKey() == null) {
+            ClientConfiguration configuration = Configure.readConfiguration(file);
+            if (configuration.getApiKey() == null) {
                 logger.error("No API key is set in the config file. Have you run the config process?");
                 System.exit(-1);
             }
@@ -123,13 +128,18 @@ public class Importer {
             }
             String batch = ns.getString("batch");
 
-            int batchSize = defaults.getBatchSize();
+            int batchSize = configuration.getBatchSize();
             if (batch != null && !batch.equals(""))
                 batchSize = Integer.parseInt(batch);
 
             Object o = ns.get("async");
             if ( o!=null )
                 async = Boolean.parseBoolean(o.toString());
+
+            o = ns.get("validate");
+            if ( o!=null )
+                validate = Boolean.parseBoolean(o.toString());
+
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -153,9 +163,10 @@ public class Importer {
                     item++;
                 }
                 ImportProfile importProfile;
-                defaults.setBatchSize(batchSize);
-                defaults.setAsync(async);
-                FdWriter restClient = getRestClient(defaults);
+                configuration.setBatchSize(batchSize);
+                configuration.setAsync(async);
+                configuration.setValidateOnly(validate);
+                FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
                     //importParams = Class.forName(importProfile);
 
@@ -178,7 +189,7 @@ public class Importer {
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, defaults);
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, configuration);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
@@ -193,15 +204,15 @@ public class Importer {
     }
 
 
-    private static FdRestWriter getRestClient(ClientConfiguration defaults) {
-        FdRestWriter abClient = new FdRestWriter(defaults.getEngineURL(), defaults.getApiKey(), null, null, defaults.getBatchSize(), null);
-        String ping = abClient.ping();
+    private static FdWriter getRestClient(ClientConfiguration configuration) {
+        FdRestWriter fdClient = new FdRestWriter(configuration);
+        String ping = fdClient.ping();
         if (!ping.equalsIgnoreCase("pong!")) {
             logger.error("Error communicating with fd-engine");
         }
-        boolean simulateOnly = defaults.getBatchSize() <= 0;
-        abClient.setSimulateOnly(simulateOnly);
-        return abClient;
+        boolean simulateOnly = configuration.getBatchSize() <= 0;
+        fdClient.setSimulateOnly(simulateOnly);
+        return fdClient;
 
     }
 
