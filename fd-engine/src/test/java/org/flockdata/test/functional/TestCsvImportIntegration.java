@@ -34,6 +34,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.joda.time.DateTime;
@@ -78,7 +79,12 @@ public class TestCsvImportIntegration extends EngineBase {
             FileProcessor myProcessor = new FileProcessor();
             FdTestWriter testWriter = new FdTestWriter(su);
 
-            myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), false);
+
+            ClientConfiguration defaults = new ClientConfiguration();
+            defaults.setBatchSize(10);
+            defaults.setAsync(false);
+
+            myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), defaults);
             Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
 

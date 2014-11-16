@@ -35,8 +35,10 @@ import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -57,7 +59,7 @@ import java.util.*;
  */
 public class FdRestWriter implements FdWriter {
 
-    private String NEW_ENTITY;
+    private String TRACK;
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
@@ -67,12 +69,13 @@ public class FdRestWriter implements FdWriter {
     private String ME;
     private String HEALTH;
     private String REGISTER;
-    private final String userName;
-    private final String password;
+    private String userName;
+    private String password;
     private String apiKey;
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
+    private boolean validateOnly=false;
     private String defaultFortress;
     private ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
 
@@ -84,8 +87,29 @@ public class FdRestWriter implements FdWriter {
      * @param password   configured password in the security domain
      * @param batchSize  default batch command size
      */
+    @Deprecated
     public FdRestWriter(String serverName, String userName, String password, int batchSize) {
         this(serverName, null, userName, password, batchSize, null);
+    }
+
+    public FdRestWriter (ClientConfiguration configuration){
+        httpHeaders = null;
+        this.apiKey = configuration.getApiKey();
+        this.validateOnly = configuration.isValidateOnly();
+        // Urls to write Entity/Tag/Fortress information
+        this.TRACK = configuration.getEngineURL()+ "/v1/track/";
+        this.AUTH_PING = configuration.getEngineURL() + "/v1/admin/ping/";
+        this.PING = configuration.getEngineURL() + "/v1/ping/";
+        this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
+        this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
+        this.HEALTH = configuration.getEngineURL() + "/v1/admin/health/";
+        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/xref/";
+        this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
+        this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
+        this.COUNTRIES = configuration.getEngineURL() + "/v1/geo/";
+        this.batchSize = configuration.getBatchSize();
+        simulateOnly = batchSize < 1;
+
     }
 
     public FdRestWriter(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
@@ -94,7 +118,7 @@ public class FdRestWriter implements FdWriter {
         this.password = password;
         this.apiKey = apiKey;
         // Urls to write Entity/Tag/Fortress information
-        this.NEW_ENTITY = serverName + "/v1/track/";
+        this.TRACK = serverName + "/v1/track/";
         this.AUTH_PING = serverName + "/v1/admin/ping/";
         this.PING = serverName + "/v1/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
@@ -334,6 +358,12 @@ public class FdRestWriter implements FdWriter {
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
+
+        if ( validateOnly ){
+            return validateOnly(entityInputs);
+
+        }
+
         if ( amqp )
             return flushEntitiesAmqp(company, entityInputs, async);
         RestTemplate restTemplate = getRestTemplate();
@@ -342,7 +372,7 @@ public class FdRestWriter implements FdWriter {
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            restTemplate.exchange(NEW_ENTITY + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            restTemplate.exchange(TRACK + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             logger.error("Service tracking error {}", getErrorMessage(e));
@@ -352,6 +382,40 @@ public class FdRestWriter implements FdWriter {
             return null;
 
         }
+    }
+
+    private String validateOnly(List<EntityInputBean> entityInputs) throws FlockException {
+        RestTemplate restTemplate = getRestTemplate();
+
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        //HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
+
+        try {
+            Map<String,Object>params = new HashMap<>();
+            for (EntityInputBean entityInput : entityInputs) {
+                params.put("fortress", entityInput.getFortress());
+                params.put("documentType", entityInput.getDocumentType());
+                params.put("callerRef", entityInput.getCallerRef());
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentType}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+
+                //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
+                //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
+                if ( found == null || found.getBody() == null ){
+                    logger.info ("Not Found {}", entityInput);
+                }
+            }
+
+            //restTemplate.exchange(TRACK , HttpMethod.GET, requestEntity, EntityBean.class);
+            return "OK";
+        } catch (HttpClientErrorException e) {
+            logger.error("Service tracking error {}", getErrorMessage(e));
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Service tracking error {}", getErrorMessage(e));
+            return null;
+
+        }
+
     }
 
     RestTemplate restTemplate = null;
