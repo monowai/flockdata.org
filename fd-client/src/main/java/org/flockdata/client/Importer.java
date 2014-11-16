@@ -87,6 +87,11 @@ public class Importer {
                 .setDefault(false)
                 .help("Async processing");
 
+        parser.addArgument("-amqp", "--amqp")
+                .required(false)
+                .setDefault(false)
+                .help("Use AMQP instead of HTTP (experimental)");
+
         parser.addArgument("-c", "--path")
                 .setDefault("./conf")
                 .required(false)
@@ -109,8 +114,7 @@ public class Importer {
     public static void main(String args[]) {
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
-        boolean async = false;
-        boolean validate = false;
+        boolean async = false, validate=false, amqp = false;
         FileProcessor fileProcessor = null;
         try {
             Namespace ns = getCommandLineArgs(args);
@@ -140,6 +144,10 @@ public class Importer {
             if ( o!=null )
                 validate = Boolean.parseBoolean(o.toString());
 
+            o = ns.get("amqp");
+            if ( o!=null )
+                amqp = Boolean.parseBoolean(o.toString());
+
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -166,6 +174,7 @@ public class Importer {
                 configuration.setBatchSize(batchSize);
                 configuration.setAsync(async);
                 configuration.setValidateOnly(validate);
+                configuration.setAmqp(amqp);
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
                     //importParams = Class.forName(importProfile);

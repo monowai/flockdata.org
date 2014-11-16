@@ -95,6 +95,7 @@ public class FdRestWriter implements FdWriter {
     public FdRestWriter (ClientConfiguration configuration){
         httpHeaders = null;
         this.apiKey = configuration.getApiKey();
+        this.amqp = configuration.isAmqp();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = configuration.getEngineURL()+ "/v1/track/";
@@ -314,7 +315,7 @@ public class FdRestWriter implements FdWriter {
         return null;
     }
 
-    public String flushEntitiesAmqp(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
+    public String flushEntitiesAmqp(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
 
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection =null ;
@@ -355,24 +356,24 @@ public class FdRestWriter implements FdWriter {
     }
     private boolean amqp = true; // Experimental support
 
-    public String flushEntities(Company company, List<EntityInputBean> entityInputs, boolean async) throws FlockException {
+    public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
 
-        if ( validateOnly ){
+        if ( configuration.isValidateOnly() ){
             return validateOnly(entityInputs);
 
         }
 
-        if ( amqp )
-            return flushEntitiesAmqp(company, entityInputs, async);
+        if ( configuration.isAmqp() )
+            return flushEntitiesAmqp(company, entityInputs, configuration);
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            restTemplate.exchange(TRACK + "?async=" + async, HttpMethod.PUT, requestEntity, TrackResultBean.class);
+            restTemplate.exchange(TRACK + "?async=" + configuration.isAsync(), HttpMethod.PUT, requestEntity, TrackResultBean.class);
             return "OK";
         } catch (HttpClientErrorException e) {
             logger.error("Service tracking error {}", getErrorMessage(e));

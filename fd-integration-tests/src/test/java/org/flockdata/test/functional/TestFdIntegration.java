@@ -58,6 +58,7 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.*;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.TrackBatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -1094,7 +1095,9 @@ public class TestFdIntegration {
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
         requests++;
         logger.info("Starting run for " + fortressName);
-        TrackBatcher tb = new TrackBatcher(null, serverWriter, 50, su.getCompany());
+        ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setBatchSize(50);
+        TrackBatcher tb = new TrackBatcher(null, serverWriter, configuration, su.getCompany());
         try {
             while (rows <= runMax) {
 

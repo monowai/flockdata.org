@@ -44,7 +44,7 @@ public interface FdWriter {
 
     String flushTags(List<TagInputBean> tagInputBeans) throws FlockException;
 
-    String flushEntities(Company company, List<EntityInputBean> entityBatch, boolean async) throws FlockException;
+    String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException;
 
     int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException;
 
