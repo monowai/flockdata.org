@@ -48,6 +48,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -73,7 +74,7 @@ public class TestCsvImportIntegration extends EngineBase {
 
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
         DocumentType docType = schemaService.resolveByDocCode(f, "QuestionEvent");
-        int i = 1, maxRuns =4;
+        int i = 1, maxRuns = 4;
         do {
 
             FileProcessor myProcessor = new FileProcessor();
@@ -81,8 +82,7 @@ public class TestCsvImportIntegration extends EngineBase {
 
 
             ClientConfiguration defaults = new ClientConfiguration();
-            defaults.setBatchSize(10);
-            defaults.setAsync(false);
+            defaults.setBatchSize(1);
 
             myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), defaults);
             Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
@@ -91,13 +91,13 @@ public class TestCsvImportIntegration extends EngineBase {
             EntityLog log = trackService.getLastEntityLog(entityA.getId());
             Collection<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
             for (EntityLog entityLog : logs) {
-                logger.info ( "{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
+                logger.info("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
-//            logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
-            //assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-            //assertEquals( "Run "+i+" has wrong log count", 6, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
+            logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
+            assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
+            assertEquals( "Run "+i+" has wrong log count", 6, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
             i++;
-        } while ( i <= maxRuns ) ;
+        } while (i <= maxRuns);
     }
 
     private class FdTestWriter implements FdWriter {
@@ -123,15 +123,25 @@ public class TestCsvImportIntegration extends EngineBase {
             if (count == 0)
                 count = entityBatch.size();
             ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
-            for (EntityInputBean entityInputBean : entityBatch) {
-                entityInputBean.setApiKey(su.getApiKey());
 
-                MyRunner runner = new MyRunner(entityInputBean);
+            if (configuration.getBatchSize() == 1) {
+                for (EntityInputBean entityInputBean : entityBatch) {
+                    entityInputBean.setApiKey(su.getApiKey());
+
+                    MyRunner runner = new MyRunner(entityInputBean);
+                    executor.execute(runner);
+                }
+            } else {
+                logger.info( "Processing as a batch of {}", configuration.getBatchSize());
+                MyRunner runner = new MyRunner(entityBatch);
                 executor.execute(runner);
+
             }
+
             while (executor.getActiveCount() > 0)
                 logger.trace("Executor at {}", executor.getActiveCount());
-            logger.debug("Executor at {}",executor.getActiveCount());
+            logger.debug("Executor at {}", executor.getActiveCount());
+
             return "";
         }
 
@@ -153,17 +163,26 @@ public class TestCsvImportIntegration extends EngineBase {
 
     private class MyRunner implements Runnable {
         private EntityInputBean entityInputBean;
+        Collection<EntityInputBean> entityInputBeans;
 
         MyRunner(EntityInputBean entityInputBean) {
             this.entityInputBean = entityInputBean;
+        }
+
+        MyRunner(Collection<EntityInputBean> entityInputBeans) {
+            this.entityInputBeans = entityInputBeans;
         }
 
         @Override
         public void run() {
 
             try {
-                logger.debug("My Date {}", entityInputBean.getWhen());
-                mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(entityInputBean));
+                if (entityInputBean != null) {
+                    logger.debug("My Date {}", entityInputBean.getWhen());
+                    mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(entityInputBean));
+                } else {
+                    mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(entityInputBeans));
+                }
             } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
                 logger.error("Unexpected", e);
             }
