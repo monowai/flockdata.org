@@ -37,6 +37,7 @@ public class ClientConfiguration {
     private String company;
     private boolean async;
     private boolean validateOnly;
+    private boolean amqp;
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
@@ -104,7 +105,8 @@ public class ClientConfiguration {
         return "ConfigProperties{" +
                 "engineURL='" + engineURL + '\'' +
                 ", defaultUser='" + defaultUser + '\'' +
-                ", apiKey='" + apiKey + '\'' +
+                ", amqp='" + amqp + '\'' +
+                ", async='" + async + '\'' +
                 ", batchSize=" + batchSize +
                 '}';
     }
@@ -161,5 +163,13 @@ public class ClientConfiguration {
 
     public boolean isValidateOnly() {
         return validateOnly;
+    }
+
+    public boolean isAmqp() {
+        return amqp;
+    }
+
+    public void setAmqp(boolean amqp) {
+        this.amqp = amqp;
     }
 }

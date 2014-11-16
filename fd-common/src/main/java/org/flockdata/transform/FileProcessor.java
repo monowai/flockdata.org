@@ -77,7 +77,7 @@ public class FileProcessor {
 
     public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
-        trackBatcher = new TrackBatcher(importProfile, writer, defaults.getBatchSize(), company, defaults.isAsync());
+        trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
         Mappable mappable = importProfile.getMappable();
 
         //String file = path;
@@ -222,7 +222,6 @@ public class FileProcessor {
                 while ((nextLine = csvReader.readNext()) != null) {
                     if (!((!nextLine[0].equals("") && nextLine[0].charAt(0) == '#'))) {
                         headerRow = nextLine;
-
                         break;
                     }
                 }
