@@ -499,29 +499,13 @@ public class FdRestWriter implements FdWriter {
         return properties;
     }
 
-
-//    public void flush(String message) throws FlockException {
-//        flush(message, ProfileConfiguration.DataType.TAG);
-//        flush(message, ProfileConfiguration.DataType.TRACK);
-//    }
-
-    /**
-     * push any remaining updates
-     */
-//    public void flush(String message, ProfileConfiguration.DataType dataType) throws FlockException {
-//        if (simulateOnly)
-//            return;
-//        if (dataType.equals(ProfileConfiguration.DataType.TRACK)) {
-//            synchronized (entitySync) {
-//                track(null, true, message);
-//
-//            }
-//        } else {
-//            synchronized (tagSync) {
-//                batch(null, true, message);
-//            }
-//        }
-//    }
-
-
+    @Override
+    public String toString() {
+        return "FdRestWriter{" +
+                "PING='" + PING + '\'' +
+                ", userName='" + userName + '\'' +
+                ", simulateOnly=" + simulateOnly +
+                ", batchSize=" + batchSize +
+                '}';
+    }
 }

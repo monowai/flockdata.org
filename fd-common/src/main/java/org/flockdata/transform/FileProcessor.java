@@ -75,8 +75,9 @@ public class FileProcessor {
         this.defaultStaticDataResolver = staticDataResolver;
     }
 
-    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, Boolean async) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
-        trackBatcher = new TrackBatcher(importProfile, writer, 100, company, async);
+    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+
+        trackBatcher = new TrackBatcher(importProfile, writer, defaults.getBatchSize(), company, defaults.isAsync());
         Mappable mappable = importProfile.getMappable();
 
         //String file = path;

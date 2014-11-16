@@ -19,7 +19,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.client.ClientConfiguration;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.client.rest.FdRestReader;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;

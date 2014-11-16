@@ -19,16 +19,17 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.rest.FdRestReader;
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.FileProcessor;
-import org.flockdata.profile.ImportProfile;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.flockdata.client.rest.FdRestReader;
+import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.profile.ImportProfile;
+import org.flockdata.registration.bean.SystemUserResultBean;
+import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FileProcessor;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
 
@@ -153,6 +154,7 @@ public class Importer {
                 }
                 ImportProfile importProfile;
                 defaults.setBatchSize(batchSize);
+                defaults.setAsync(async);
                 FdWriter restClient = getRestClient(defaults);
                 if (clazz != null) {
                     //importParams = Class.forName(importProfile);
@@ -176,7 +178,7 @@ public class Importer {
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, async);
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, defaults);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

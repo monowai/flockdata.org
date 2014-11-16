@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.client;
+package org.flockdata.transform;
 
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.profile.ImportProfile;
@@ -35,6 +35,7 @@ import java.util.Properties;
  */
 public class ClientConfiguration {
     private String company;
+    private boolean async;
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
@@ -145,4 +146,11 @@ public class ClientConfiguration {
         return importProfile;
     }
 
+    public void setAsync(boolean async) {
+        this.async = async;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
 }
