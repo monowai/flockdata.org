@@ -119,7 +119,7 @@ public class TestCsvImportIntegration extends EngineBase {
         }
 
         @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, boolean async) throws FlockException {
+        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             if (count == 0)
                 count = entityBatch.size();
             ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
