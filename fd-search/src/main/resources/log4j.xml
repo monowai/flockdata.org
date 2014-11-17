@@ -37,6 +37,16 @@
         <level value="error"/>
     </logger>
 
+    <logger name="org.springframework.amqp">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.integration">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>

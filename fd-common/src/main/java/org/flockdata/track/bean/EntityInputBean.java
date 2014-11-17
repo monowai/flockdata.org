@@ -51,7 +51,7 @@ public class EntityInputBean {
     private String timezone;
     private boolean archiveTags = true;
     private String updateUser;
-    private String apiKey;
+    private String apiKey; //ToDo: This should be in the message header, not the payload
 
     public EntityInputBean() {
     }

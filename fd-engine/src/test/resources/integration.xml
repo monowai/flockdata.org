@@ -13,7 +13,7 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-    <int:gateway id="fdSearchGateway"
+    <int:gateway id="fdSearchGateway"  async-executor="qExecutor"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject"

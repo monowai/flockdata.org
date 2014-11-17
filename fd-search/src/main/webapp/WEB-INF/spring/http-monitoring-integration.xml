@@ -30,9 +30,7 @@
     <int:gateway id="fdMonitoringGateway"
                  service-interface="org.flockdata.search.service.FdMonitoringGateway"/>
 
-    <int:channel id="doFdEnginePingRequest">
-        <int:dispatcher task-executor="qExecutor"/>
-    </int:channel>
+    <int:channel id="doFdEnginePingRequest"/>
 
     <int:channel id="pingFdEngineRequest"/>
     <int:channel id="pingFdEngineReply"/>

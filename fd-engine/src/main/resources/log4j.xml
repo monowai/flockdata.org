@@ -47,8 +47,11 @@
     <!--<logger name="org.springframework.retry.support.RetryTemplate">-->
         <!--<level value="debug"/>-->
     <!--</logger>-->
+    <logger name="org.springframework.integration.channel.NullChannel">
+        <level value="debug"/>
+    </logger>
     <logger name="org.springframework.amqp">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
     <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
         <level value="info"/>
