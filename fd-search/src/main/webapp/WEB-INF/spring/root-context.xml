@@ -26,17 +26,15 @@
     <import resource="integration.xml"/>
     <import resource="http-proxy-integration.xml"/>
     <import resource="http-monitoring-integration.xml"/>
-    <import resource="${fd.integration}-integration.xml"/>
+    <!--<import resource="${fd.integration}-integration.xml"/>-->
+    <import resource="amqp-integration.xml"/>
 
-    <task:annotation-driven executor="taskExecutor"/>
-    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ConcurrentTaskExecutor">
-        <property name="concurrentExecutor" ref="threadPoolExecutor"/>
-    </bean>
-    <bean id="threadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="keepAliveSeconds" value="5"/>
-        <property name="allowCoreThreadTimeOut" value="true"/>
-        <property name="queueCapacity" value="-1"/>
-    </bean>
+    <task:annotation-driven executor="fd-search"/>
+
+    <task:executor id="fd-search"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
 
 
 </beans>

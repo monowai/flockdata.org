@@ -37,7 +37,6 @@
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-
     <rabbit:direct-exchange name="${fd.track.exchange}">
         <rabbit:bindings>
             <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>

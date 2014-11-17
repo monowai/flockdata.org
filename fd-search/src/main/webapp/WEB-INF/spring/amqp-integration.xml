@@ -21,18 +21,16 @@
             concurrent-consumers="50"
             prefetch-count="10"
             acknowledge-mode="AUTO"
-            task-executor="rabbitTaskExec"
+            task-executor="fd-search"
             shutdown-timeout="3000"
             receive-timeout="${request.timeout}"
             connection-factory="connectionFactory"
             message-converter="jsonToSearchChangeConverter"
             />
 
-    <!--async-executor="taskExecutor"-->
     <int-amqp:outbound-gateway
             request-channel="searchDocSyncResult"
             exchange-name="${fd.engine.exchange}"
-            reply-timeout="${reply.timeout}"
             requires-reply="false"
             routing-key="${fd.engine.binding}"
             amqp-template="amqpTemplate"/>

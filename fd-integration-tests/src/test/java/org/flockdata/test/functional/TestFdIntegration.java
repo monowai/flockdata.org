@@ -58,8 +58,6 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.*;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.TrackBatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -1060,106 +1058,6 @@ public class TestFdIntegration {
         doSearchTests(runMax, list);
     }
 
-    //@Test
-    public void memoryLeak() throws Exception {
-//        assumeTrue(false);// Suppressing this for the time being
-        logger.info("## memoryLeak");
-        int runMax = 500;
-
-//        for (int i = 1; i < fortressMax + 1; i++) {
-//            deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.batch" + i);
-//            doEsQuery(EntitySearchSchema.PREFIX+"monowai.batch" + i, "*", -1);
-//        }
-
-        waitAWhile("Wait {} secs for index to delete ");
-
-        SystemUser su = registerSystemUser("Batty");
-
-        logger.info("FortressCount: " + fortressMax + " RunCount: " + runMax + " LogCount: " + 1);
-        logger.info("We will be expecting a total of " + (runMax * 1 * fortressMax) + " messages to be handled");
-
-        StopWatch watch = new StopWatch();
-        long totalRows = 0;
-
-        DecimalFormat f = new DecimalFormat("##.000");
-        Collection<String> metaKeys = new ArrayList<>();
-
-        watch.start();
-
-        String fortressName = "strezz" + 1;
-        StopWatch fortressWatch = new StopWatch();
-        fortressWatch.start();
-        int rows = 1;
-        long requests = 0;
-
-        Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
-        requests++;
-        logger.info("Starting run for " + fortressName);
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setBatchSize(50);
-        TrackBatcher tb = new TrackBatcher(null, serverWriter, configuration, su.getCompany());
-        try {
-            while (rows <= runMax) {
-
-                EntityInputBean aib = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + rows);
-                aib.addTag(new TagInputBean("value1", "Category", "category"));
-                aib.addTag(new TagInputBean("value2", "Category", "category"));
-                aib.addTag(new TagInputBean("value3", "Category", "category"));
-                aib.addTag(new TagInputBean("value4", "Category", "category"));
-                aib.addTag(new TagInputBean("value1", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value2", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value3", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value4", "Theme", "theme"));
-
-                ContentInputBean cib = new ContentInputBean("mary", new DateTime());
-
-                aib.setContent(cib);
-                //TrackResultBean tr = mediationFacade.trackEntity(iFortress, aib);
-                tb.batchEntity(aib);
-
-                //assertNotNull(tr);
-                metaKeys.add("ABC" + rows);
-                rows++;
-                if (rows % 500 == 0) {
-                    logger.info("Processed {} of {} ", rows, runMax);
-                }
-            }
-        } finally {
-            logger.info("Final Flush");
-            tb.flush();
-        }
-        fortressWatch.stop();
-        double fortressRunTime = (fortressWatch.getTime()) / 1000d;
-        logger.info("*** {} took {}  [{}] Avg processing time= {}. Requests per second {}",
-                iFortress.getName(),
-                fortressRunTime,
-                requests,
-                f.format(fortressRunTime / requests),
-                f.format(requests / fortressRunTime));
-        watch.split();
-        //splitTotals = splitTotals + fortressRunTime;
-        totalRows = totalRows + requests;
-
-        watch.stop();
-
-        double totalTime = watch.getTime() / 1000d;
-        logger.info("*** Processed {} requests. Data sets created in {} secs. Fortress avg = {} avg requests per second {}",
-                totalRows,
-                f.format(totalTime),
-                f.format(totalTime / fortressMax),
-                f.format(totalRows / totalTime));
-
-        logger.info("Validating tags for entity");
-//        for (String metaKey : metaKeys) {
-//            wait(5000);
-//            Entity e = trackService.findByCallerRef(su.getCompany(), iFortress.getCode(), "CompanyNode", metaKey);
-//            assertNotNull (e);
-//            assertEquals(8, entityTagService.findEntityTags(su.getCompany(), e ).size());
-//        }
-
-    }
-
-
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
         assumeTrue(runMe);
@@ -1175,7 +1073,6 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForInitialSearchResult(su.getCompany(), result.getEntity().getMetaKey());
-
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
         doEsQuery(EntitySearchSchema.PREFIX + "*", searchFor, 1);
