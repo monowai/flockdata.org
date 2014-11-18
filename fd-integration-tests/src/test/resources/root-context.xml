@@ -7,7 +7,8 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context
@@ -41,21 +42,21 @@
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath:config.properties"/>
 
+    <import resource="integration.xml"/>
+    <import resource="amqp-integration-test.xml"/>
     <import resource="simple-security.xml" />
     <import resource="http-proxy-integration.xml"/>
     <import resource="neo4j-context-test.xml"/>
-    <import resource="integration.xml"/>
-    <import resource="amqp-integration-test.xml"/>
     <import resource="kv-context.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 
 
-    <task:annotation-driven executor="executor"/>
+    <task:annotation-driven executor="fdi-task"/>
 
     <aop:aspectj-autoproxy/>
 
     <!--Pool size is the number of executors that will handle Bulk Uploads and searchChange search responses-->
-    <task:executor id="executor" pool-size="20-20" keep-alive="180" queue-capacity="10"
+    <task:executor id="fdi-task" pool-size="20-20" keep-alive="180" queue-capacity="10"
                    rejection-policy="CALLER_RUNS"/>
     <cache:annotation-driven/>
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cacheManager-ref="ehcache"/>

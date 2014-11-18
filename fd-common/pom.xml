@@ -25,6 +25,29 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
             <version>${org.springsecurity-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-framework</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-expression</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>

@@ -43,6 +43,8 @@
                               acknowledge-mode="AUTO"
                               task-executor="fd-track"
                               error-channel="entityErrors"
+                              transaction-manager="transactionManager"
+                              channel-transacted="true"
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"
                               connection-factory="connectionFactory"/>

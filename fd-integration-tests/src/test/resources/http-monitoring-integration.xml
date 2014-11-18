@@ -22,9 +22,7 @@
          qExceutor must be declared in the Parent XML SI config XML.
     -->
 
-    <int:channel id="doEsPingRequest">
-        <int:dispatcher task-executor="qExecutor"/>
-    </int:channel>
+    <int:channel id="doEsPingRequest"/>
 
     <int:channel id="pingEsRequest"/>
     <int:channel id="pingEsReply"/>

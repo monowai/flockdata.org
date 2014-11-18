@@ -1,28 +1,21 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns:task="http://www.springframework.org/schema/task"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-
-
+       http://www.springframework.org/schema/beans/spring-beans.xsd
 	   http://www.springframework.org/schema/integration
-	   http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+	   http://www.springframework.org/schema/integration/spring-integration.xsd
+	   http://www.springframework.org/schema/task
+	   http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <int:gateway id="fdSearchGateway"
-                 async-executor="qExecutor"
-                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"
-                 default-reply-timeout="0"/>
-
-    <int:json-to-object-transformer id="jsonToObject"
-                                    input-channel="searchReply"
-                                    output-channel="searchDocSyncResult"
-                                    type="org.flockdata.search.model.SearchResults">
-    </int:json-to-object-transformer>
+    <int:gateway id="fdSearchGateway"  async-executor="fd-q-exec"
+                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject2"
                                     input-channel="doMetaKeyReply"
@@ -36,47 +29,54 @@
                                     type="org.flockdata.search.model.TagCloud">
     </int:json-to-object-transformer>
 
+
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="sendRequest"
-                                    output-channel="syncSearchDocs">
+                                    output-channel="syncSearchDocs"
+                                    content-type="application/json">
     </int:object-to-json-transformer>
 
     <int:object-to-json-transformer id="objectToJson2"
                                     input-channel="sendSearchRequest"
-                                    output-channel="doMetaKeyQuery">
+                                    output-channel="doMetaKeyQuery"
+                                    content-type="application/json">
     </int:object-to-json-transformer>
 
     <int:object-to-json-transformer id="objectToJsonTagCloud"
                                     input-channel="sendTagCloudRequest"
-                                    output-channel="doTagCloudQuery">
+                                    output-channel="doTagCloudQuery"
+                                    content-type="application/json">
     </int:object-to-json-transformer>
 
     <int:channel id="syncSearchDocs">
-        <int:dispatcher task-executor="qExecutor"/>
+        <int:dispatcher task-executor="fd-q-exec"/>
     </int:channel>
 
-    <int:channel id="doMetaKeyQuery"/>
+    <int:channel id="doMetaKeyQuery" >
+        <int:dispatcher task-executor="fd-q-exec"/>
+    </int:channel>
 
     <int:channel id="doTagCloudQuery"/>
 
-    <int:channel id="searchDocSyncResult">
-        <int:dispatcher task-executor="qExecutor"/>
-    </int:channel>
+    <!--Channel to capture incoming search result from fd-search-->
+    <int:channel id="searchDocSyncResult"/>
+
     <int:channel id="sendRequest"/>
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
 
-    <int:channel id="sendTagCloudRequest"/>
-    <int:channel id="sendTagCloudReply"/>
     <int:channel id="doTagCloudReply"/>
     <int:channel id="doMetaKeyReply"/>
 
+    <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
+    <int:channel id="sendTagCloudRequest"/>
+    <int:channel id="sendTagCloudReply"/>
 
-    <int:channel id="trackEntity"/>
-
-    <int:channel id="errors"/>
+    <int:channel id="trackEntity">
+        <int:dispatcher task-executor="fd-track"/>
+    </int:channel>
 
     <int:channel id="entityErrors"/>
 
@@ -86,16 +86,18 @@
 
     </bean>
 
+    <!--<int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="myErrorChannel">-->
+    <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />-->
+    <!--</int:handler-retry-advice>-->
 
-    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="40"
+    <task:executor id="fd-q-exec"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
                    rejection-policy="CALLER_RUNS"/>
 
-
-    <!--<bean fortressId="qThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-    <!--<property conceptName="allowCoreThreadTimeOut" value="true"/>-->
-    <!--<property conceptName="queueCapacity" value="50"/>-->
-    <!--<property conceptName="rejectedExecutionHandler" value="CALLER_RUNS"/>-->
-    <!--&lt;!&ndash;Was -1&ndash;&gt;-->
-    <!--</bean>-->
+    <task:executor id="fd-track"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
 
 </beans>
