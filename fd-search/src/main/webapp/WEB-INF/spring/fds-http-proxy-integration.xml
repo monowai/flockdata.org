@@ -5,13 +5,12 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:int-http="http://www.springframework.org/schema/integration/http"
-             xmlns:security="http://www.springframework.org/schema/security"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/integration
 		http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/integration/http
-		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
 
     <int:annotation-config/>
     <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>

@@ -57,7 +57,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>

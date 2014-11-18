@@ -143,6 +143,10 @@ public class QueryDaoES implements QueryDao {
 
         TagCloud tagcloud = new TagCloud();
         Aggregations tagCloudFacet = response.getAggregations();
+        if ( tagCloudFacet == null ) {
+            // ToDo: support "ALL" tag fields
+            return tagcloud;
+        }
         Map<String, Aggregation> aggregates = tagCloudFacet.getAsMap();
         for (String key : aggregates.keySet()) {
             InternalTerms terms = (InternalTerms) aggregates.get(key);
