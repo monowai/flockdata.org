@@ -39,19 +39,12 @@
 		
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
     <import resource="classpath:${fd.auth.provider}-security.xml" />
-	<import resource="integration.xml" />
-	<import resource="http-proxy-integration.xml" />
-	<import resource="http-monitoring-integration.xml" />
-	<import resource="amqp-integration.xml" />
+	<import resource="fde-integration.xml" />
+	<import resource="fde-http-proxy-integration.xml" />
+	<import resource="fde-http-monitoring-integration.xml" />
+	<import resource="fde-amqp-integration.xml" />
 	<import resource="neo4j-context.xml" />
 	<import resource="kv-context.xml" />
-
-	<task:annotation-driven executor="fd-engineExec"  />
-
-	<!--Pool size is the number of executors that will handle Bulk Uploads and 
-		incoming search responses -->
-	<task:executor id="fd-engineExec" pool-size="${thread.poolSize}"
-		keep-alive="120" queue-capacity="${thread.queueCapacity}" rejection-policy="CALLER_RUNS" />
 
 	<aop:aspectj-autoproxy />
 	<!--<cache:annotation-driven />-->
@@ -83,6 +76,24 @@
         </constructor-arg>
 
     </bean>
+
+    <task:annotation-driven executor="fd-engineExec"  />
+
+    <!--Pool size is the number of executors that will handle Bulk Uploads and
+        incoming search responses -->
+    <task:executor id="fd-engineExec" pool-size="${thread.poolSize}"
+                   keep-alive="120" queue-capacity="${thread.queueCapacity}" rejection-policy="CALLER_RUNS" />
+
+
+    <task:executor id="fd-q-exec"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-track"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
 
 
 </beans>

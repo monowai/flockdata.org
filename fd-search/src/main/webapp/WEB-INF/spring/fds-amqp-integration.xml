@@ -12,7 +12,7 @@
 		                http://www.springframework.org/schema/integration/spring-integration.xsd">
     <int:annotation-config/>
     <!-- RabbitMQ CONFIGURATION  -->
-    <import resource="amqp-rabbit.xml"/>
+    <import resource="fds-amqp-rabbit.xml"/>
 
     <int-amqp:inbound-gateway
             id="inboundGateway"
