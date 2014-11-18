@@ -19,7 +19,7 @@
         <ehcache.version>2.6.7</ehcache.version>
         <org.springdata.neo4j>3.2.1.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.5</neo4j.version>
-        <org.springbatch-version>3.0.1.RELEASE</org.springbatch-version>
+        <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
 
     </properties>
 
@@ -89,27 +89,27 @@
             </exclusions>
         </dependency>
         <!--sd-Neo4J advanced mapping-->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-neo4j-aspects</artifactId>
-            <version>${org.springdata.neo4j}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-cypher</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-kernel</artifactId>
-                </exclusion>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.data</groupId>-->
+            <!--<artifactId>spring-data-neo4j-aspects</artifactId>-->
+            <!--<version>${org.springdata.neo4j}</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.neo4j</groupId>-->
+                    <!--<artifactId>neo4j</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.neo4j</groupId>-->
+                    <!--<artifactId>neo4j-cypher</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.neo4j</groupId>-->
+                    <!--<artifactId>neo4j-kernel</artifactId>-->
+                <!--</exclusion>-->
 
-            </exclusions>
+            <!--</exclusions>-->
 
-        </dependency>
+        <!--</dependency>-->
         <!--<dependency>-->
             <!--<groupId>org.projectrecator.spring</groupId>-->
             <!--<artifactId>reactor-spring-context</artifactId>-->
@@ -184,11 +184,33 @@
             <artifactId>spring-instrument</artifactId>
             <version>${org.springframework-version}</version>
         </dependency>
+<!--Never had to include these in the past-->
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${org.springsecurity-version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${org.springframework-version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+
+        <dependency>
+            <!--https://stackoverflow.com/questions/26754982/parsing-applicationcontext-xml-renders-a-java-lang-nosuchmethoderror-could-th-->
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <!--End Never had to include these in the past-->
+
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-core</artifactId>

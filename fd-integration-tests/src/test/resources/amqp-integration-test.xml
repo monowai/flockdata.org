@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
@@ -15,39 +16,38 @@
     <!-- RabbitMQ CONFIGURATION  -->
     <import resource="amqp-rabbit.xml"/>
 
-    <!-- from RabbitMq to Fd-engine-->
+    <!-- from fd-search to fd-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
                               request-channel="searchDocSyncResult"
                               queue-names="${fd.engine.queue}"
                               shutdown-timeout="3000"
-                              concurrent-consumers="50"
-                              prefetch-count="10"
-                              channel-transacted="false"
-                              task-executor="rabbitTaskExec"
-                              receive-timeout="${request.timeout}"
+                              acknowledge-mode="AUTO"
+                              concurrent-consumers="${rabbit.concurrentConsumers}"
+                              prefetch-count="${rabbit.prefetchCount}"
+                              task-executor="fd-q-exec"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
     <int-amqp:outbound-gateway
             request-channel="syncSearchDocs"
-            reply-channel="nullChannel"
             routing-key="${fd.search.binding}"
-            exchange-name="${fd.search.exchange}"
             requires-reply="false"
-            reply-timeout="${reply.timeout}"
+            exchange-name="${fd.search.exchange}"
             amqp-template="amqpTemplate"/>
+
 
     <int-amqp:inbound-gateway id="inboundTrackGateway"
                               request-channel="trackEntity"
                               queue-names="${fd.track.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
-                              task-executor="qExecutor"
                               error-channel="entityErrors"
+                              transaction-manager="transactionManager"
+                              channel-transacted="true"
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"
                               connection-factory="connectionFactory"/>
-
-
+    <!--
+    -->
 
 </beans>

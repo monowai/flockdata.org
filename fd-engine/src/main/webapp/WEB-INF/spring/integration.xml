@@ -52,7 +52,7 @@
         <int:dispatcher task-executor="fd-q-exec"/>
     </int:channel>
 
-    <int:channel id="doMetaKeyQuery">
+    <int:channel id="doMetaKeyQuery" >
         <int:dispatcher task-executor="fd-q-exec"/>
     </int:channel>
 
@@ -86,7 +86,9 @@
 
     </bean>
 
-
+    <!--<int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="myErrorChannel">-->
+        <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />-->
+    <!--</int:handler-retry-advice>-->
 
     <task:executor id="fd-q-exec"
                    pool-size="${q.thread.poolSize}"
