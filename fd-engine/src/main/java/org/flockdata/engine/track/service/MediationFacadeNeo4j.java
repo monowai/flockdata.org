@@ -102,6 +102,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
     EntityRetryService entityRetry;
 
     @Autowired
+    ConceptRetryService conceptRetryService;
+
+
+    @Autowired
     SecurityHelper securityHelper;
 
     @Autowired
@@ -157,7 +161,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException illegal input
      * @throws IOException                         json processing exception
      */
-    @ServiceActivator(inputChannel = "trackEntity")
+    @ServiceActivator(inputChannel = "trackEntity" )
     public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException {
         EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
         // ToDo: A collection??
@@ -303,9 +307,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
             Iterable<TrackResultBean> loopResults;
 
             loopResults = entityRetry.track(fortress, entityInputBeans);
+            logger.debug("{}", Thread.currentThread().getName());
             distributeChanges(fortress, loopResults);
-            //searchService.makeChangesSearchable(theseResults);
-            //kvService.doKvWrites(theseResults); //ToDo: Via integration with persistent properties
 
             for (TrackResultBean theResult : loopResults) {
                 allResults.add(theResult);
@@ -502,11 +505,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
     }
 
-    @Async
-    public Future<Void> distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException {
-        logger.debug("Distributing changes to sub-services");
+//    @Async
+    public void distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
+        logger.debug("Distributing changes to sub-services {}", Thread.currentThread().getName());
         searchService.makeChangesSearchable(fortress, resultBeans);
-        return new AsyncResult<>(null);
+
+        conceptRetryService.trackConcepts(fortress, resultBeans);
+        //return new AsyncResult<>(null);
         //logger.debug("Distributed changes to search service");
     }
 

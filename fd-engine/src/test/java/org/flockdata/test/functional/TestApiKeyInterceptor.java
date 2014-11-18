@@ -21,7 +21,6 @@ package org.flockdata.test.functional;
 
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.registration.model.Company;
-import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +29,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TestApiKeyInterceptor extends EngineBase {
 
@@ -66,11 +66,11 @@ public class TestApiKeyInterceptor extends EngineBase {
 		request.addHeader("Api-Key", apiKey);
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
-		Assert.assertEquals(true, status);
+		assertEquals(true, status);
         Company company = (Company) request.getAttribute("company");
         assertNotNull (company);
 
-		Assert.assertEquals(companyName, company.getName());
+		assertEquals(companyName, company.getName());
 	}
 
 	@Test

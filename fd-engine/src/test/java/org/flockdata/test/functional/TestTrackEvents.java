@@ -20,25 +20,25 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
+import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.Log;
-import org.flockdata.registration.model.Company;
-import org.flockdata.test.utils.Helper;
 import org.flockdata.track.model.ChangeEvent;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+
 
 /**
  * User: Mike Holdsworth

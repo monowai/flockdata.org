@@ -68,6 +68,7 @@ public class TestCsvImportIntegration extends EngineBase {
     @Test
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
+//        engineConfig.setConceptsEnabled(false);
         logger.info("Starting ## csvImport_DuplicateLogsNotCreated");
         setSecurity();
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
@@ -80,9 +81,8 @@ public class TestCsvImportIntegration extends EngineBase {
             FileProcessor myProcessor = new FileProcessor();
             FdTestWriter testWriter = new FdTestWriter(su);
 
-
             ClientConfiguration defaults = new ClientConfiguration();
-            defaults.setBatchSize(1);
+//            defaults.setBatchSize(1);
 
             myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), defaults);
             Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
@@ -124,21 +124,21 @@ public class TestCsvImportIntegration extends EngineBase {
                 count = entityBatch.size();
             ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
 
-            if (configuration.getBatchSize() == 1) {
+            //if (configuration.getBatchSize() == 1) {
                 for (EntityInputBean entityInputBean : entityBatch) {
                     entityInputBean.setApiKey(su.getApiKey());
 
                     MyRunner runner = new MyRunner(entityInputBean);
                     executor.execute(runner);
                 }
-            } else {
-                logger.info( "Processing as a batch of {}", configuration.getBatchSize());
-                MyRunner runner = new MyRunner(entityBatch);
-                executor.execute(runner);
+//            } else {
+//                logger.info( "Processing as a batch of {}", configuration.getBatchSize());
+//                MyRunner runner = new MyRunner(entityBatch);
+//                executor.execute(runner);
+//
+//            }
 
-            }
-
-            while (executor.getActiveCount() > 0)
+            while (executor.getActiveCount() != 0)
                 logger.trace("Executor at {}", executor.getActiveCount());
             logger.debug("Executor at {}", executor.getActiveCount());
 

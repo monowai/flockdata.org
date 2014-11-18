@@ -19,14 +19,14 @@
 
 package org.flockdata.test.functional;
 
+import org.junit.Assert;
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
-import org.flockdata.track.model.Entity;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import junit.framework.Assert;
+import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,8 +39,8 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 /**

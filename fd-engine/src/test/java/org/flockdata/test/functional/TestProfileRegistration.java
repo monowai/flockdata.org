@@ -19,10 +19,9 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -34,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -70,20 +69,20 @@ public class TestProfileRegistration extends EngineBase {
         assertNotNull(regResult);
         assertEquals(harry, regResult.getLogin());
         assertEquals(harry, regResult.getLogin());
-        Assert.assertNotNull(regResult.getApiKey());
+        assertNotNull(regResult.getApiKey());
         setSecurityEmpty();
 
         // Check we get back a Guest
         regResult = getMe();
-        Assert.assertNotNull(regResult);
+        assertNotNull(regResult);
         assertEquals("Guest", regResult.getName());
         assertEquals("guest", regResult.getLogin());
 
         setSecurity(harry);
         regResult = getMe();
-        Assert.assertNotNull(regResult);
+        assertNotNull(regResult);
         assertEquals(harry, regResult.getLogin());
-        Assert.assertNotNull(regResult.getApiKey());
+        assertNotNull(regResult.getApiKey());
 
         // Assert that harry, who is not an admin, cannot create another user
         mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")

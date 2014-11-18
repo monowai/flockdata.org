@@ -922,7 +922,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity () throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -1060,7 +1060,7 @@ public class TestFdIntegration {
 
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         String searchFor = "testing";
 
         SystemUser su = registerSystemUser("Nik");

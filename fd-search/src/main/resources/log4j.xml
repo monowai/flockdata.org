@@ -34,7 +34,7 @@
     </logger>
 
     <logger name="org.springframework">
-        <level value="error"/>
+        <level value="debug"/>
     </logger>
 
     <logger name="org.springframework.amqp">
@@ -44,7 +44,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
     <logger name="org.flockdata">

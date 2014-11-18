@@ -25,7 +25,7 @@ package org.flockdata.test.functional;
  * Time: 4:49 PM
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -43,10 +43,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
