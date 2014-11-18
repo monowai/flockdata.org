@@ -19,24 +19,21 @@
 
 package org.flockdata.test.unit;
 
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.company.model.CompanyNode;
+import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.TxRef;
-import org.flockdata.test.utils.Helper;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Date;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * User: Mike Holdsworth
@@ -51,12 +48,12 @@ public class TestInputBeans {
         TxRefNode tx = new TxRefNode("abc", new CompanyNode(""));
 
         // Current status should be created
-        Assert.assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
+        assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
         TxRefNode.TxStatus previous = tx.commit();
-        Assert.assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
+        assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_CREATED, previous);
         previous = tx.rollback();
-        Assert.assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
+        assertEquals(TxRef.TxStatus.TX_ROLLBACK, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_COMMITTED, previous);
 
     }
@@ -77,6 +74,8 @@ public class TestInputBeans {
         assertTrue(fib.getSearchActive());
 
     }
+
+
 
     @Test
     public void testEntityInputBean() throws Exception {

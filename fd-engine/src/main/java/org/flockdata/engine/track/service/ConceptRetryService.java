@@ -21,7 +21,6 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
@@ -40,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -52,7 +50,7 @@ import java.util.concurrent.ExecutionException;
 @EnableRetry
 @Service
 //@Transactional
-public class EntityRetryService {
+public class ConceptRetryService {
 
     @Autowired
     TrackService trackService;
@@ -67,16 +65,16 @@ public class EntityRetryService {
     SchemaService schemaService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities)
+    public Iterable<TrackResultBean> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
             throws InterruptedException, ExecutionException, FlockException, IOException {
-        return doTrack(fortress, entities);
+        return doTrack(fortress, resultBeans);
     }
 
     @Transactional
-    Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entities) throws InterruptedException, FlockException, ExecutionException, IOException {
-        Iterable<TrackResultBean> resultBeans = trackService.trackEntities(fortress, entities);
+    Iterable<TrackResultBean> doTrack(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+        schemaService.registerConcepts(fortress, resultBeans);
 
-        resultBeans = logService.processLogsSync(fortress, resultBeans);
+//        resultBeans = logService.processLogsSync(fortress, resultBeans);
 //        Collection<TrackResultBean> trackResultBeans = new ArrayList<>();
 //        for (TrackResultBean resultBean : resultBeans) {
 //            trackResultBeans.add(logRetryService.writeLogTx(fortress, resultBean));

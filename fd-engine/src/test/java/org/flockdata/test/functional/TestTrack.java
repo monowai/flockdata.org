@@ -41,10 +41,10 @@ import org.springframework.util.StopWatch;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -93,7 +93,7 @@ public class TestTrack extends EngineBase {
         waitForFirstLog(su.getCompany(), entity);
 
         Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
-        org.junit.Assert.assertNotNull(logs);
+        assertNotNull(logs);
         assertEquals("3 Identical changes should result in a single log", 1, logs.size());
     }
 
@@ -210,7 +210,7 @@ public class TestTrack extends EngineBase {
 
         // Test that we get the expected number of log events
 //        waitAWhile();
-        assertEquals(max, (double) trackService.getLogCount(su.getCompany(), ahKey));
+        assertEquals(max, (double) trackService.getLogCount(su.getCompany(), ahKey), 0);
     }
 
     /**
@@ -252,7 +252,7 @@ public class TestTrack extends EngineBase {
             mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", entity.getMetaKey(), new DateTime(), json));
             i++;
         }
-        assertEquals(1d, (double) trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(1d, (double) trackService.getLogCount(su.getCompany(), entity.getMetaKey()),0);
         Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
@@ -985,14 +985,14 @@ public class TestTrack extends EngineBase {
 
     }
 
-    private void createLogRecords(Authentication auth, SystemUser su, String auditEntity, String key, double recordsToCreate) throws Exception {
+    private void createLogRecords(Authentication auth, SystemUser su, String metaKey, String key, double recordsToCreate) throws Exception {
         int i = 0;
         SecurityContextHolder.getContext().setAuthentication(auth);
         while (i < recordsToCreate) {
-            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", auditEntity, new DateTime(), Helper.getSimpleMap(key, "house" + i), (String) null));
+            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getSimpleMap(key, "house" + i), (String) null));
             i++;
         }
-        assertEquals(recordsToCreate, (double) trackService.getLogCount(su.getCompany(), auditEntity));
+        assertEquals(recordsToCreate, (double) trackService.getLogCount(su.getCompany(), metaKey),0 );
     }
 
 

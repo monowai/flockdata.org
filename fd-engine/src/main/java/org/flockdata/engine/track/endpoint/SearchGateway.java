@@ -23,7 +23,7 @@ import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Payload;
+import org.springframework.messaging.handler.annotation.Payload;
 
 /**
  * User: Mike Holdsworth

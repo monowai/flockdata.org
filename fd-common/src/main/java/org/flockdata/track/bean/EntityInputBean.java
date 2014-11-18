@@ -114,9 +114,8 @@ public class EntityInputBean {
      * @param when when the caller says this occurred
      */
     public void setWhen(DateTime when) {
-        //if (!(log != null && log.getWhen() != null && log.getWhen().getTime() > 0))
-        this.when = when.toDate();
-        //this.metaTZ = when.getZone().getID();
+        if ( when != null )
+            this.when = when.toDate();
 
     }
 

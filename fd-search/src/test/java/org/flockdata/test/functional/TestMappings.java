@@ -19,24 +19,24 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.company.model.CompanyNode;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
 import org.joda.time.DateTime;
@@ -49,7 +49,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: mike

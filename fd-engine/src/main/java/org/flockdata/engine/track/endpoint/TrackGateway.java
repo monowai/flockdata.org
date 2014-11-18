@@ -20,7 +20,7 @@
 package org.flockdata.engine.track.endpoint;
 
 import org.flockdata.track.bean.EntityInputBean;
-import org.springframework.integration.annotation.Payload;
+import org.springframework.messaging.handler.annotation.Payload;
 
 /**
  * User: mike

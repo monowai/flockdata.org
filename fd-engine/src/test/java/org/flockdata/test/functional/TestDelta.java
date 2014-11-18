@@ -19,11 +19,11 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.utils.Helper;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;

@@ -26,13 +26,13 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.track.model.EntityNode;
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.company.model.FortressNode;
 import org.flockdata.company.model.FortressUserNode;
+import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.bean.EntityInputBean;
@@ -47,7 +47,7 @@ import org.springframework.test.annotation.Rollback;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**

@@ -19,20 +19,20 @@
 
 package org.flockdata.engine.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.kv.redis.RedisRepo;
+import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.functional.EngineBase;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.kv.redis.RedisRepo;
-import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.EntityLog;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

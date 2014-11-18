@@ -19,15 +19,9 @@
 
 package org.flockdata.test.endpoint;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.authentication.UserProfile;
 import org.flockdata.helper.JsonUtils;
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +36,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -76,7 +75,7 @@ public class TestAuthenticationEP {
 
 		UserProfile userProfile = JsonUtils.getBytesAsObject(response
 				.getResponse().getContentAsByteArray(), UserProfile.class);
-		Assert.assertNotNull(userProfile);
+		assertNotNull(userProfile);
 	}
 
 	@Test
@@ -112,7 +111,7 @@ public class TestAuthenticationEP {
 
 		UserProfile userProfile = JsonUtils.getBytesAsObject(response
 				.getResponse().getContentAsByteArray(), UserProfile.class);
-		Assert.assertNotNull(userProfile.getUserRoles());
+		assertNotNull(userProfile.getUserRoles());
 	}
 
 	@Test
