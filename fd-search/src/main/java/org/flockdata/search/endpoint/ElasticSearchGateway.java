@@ -22,7 +22,6 @@ package org.flockdata.search.endpoint;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,5 +35,5 @@ public interface ElasticSearchGateway {
 
 
     //@Gateway(requestChannel = "esDelete")
-    public void delete(@Payload Entity entity);
+    public void delete(Entity entity);
 }
