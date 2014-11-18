@@ -21,7 +21,7 @@ package org.flockdata.engine.admin;
 
 import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Payload;
+import org.springframework.messaging.handler.annotation.Payload;
 
 public interface FdMonitoringGateway {
     /**

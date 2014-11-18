@@ -21,7 +21,6 @@ package org.flockdata.search.service;
 
 import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Payload;
 
 public interface FdMonitoringGateway {
     /**
@@ -30,7 +29,6 @@ public interface FdMonitoringGateway {
      *
      * @return PingResult
      */
-    @Payload("new java.util.Date()")
     @Gateway(requestChannel = "pingFdEngineRequest", replyChannel = "pingFdEngineReply")
     public PingResult ping();
 }
