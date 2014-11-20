@@ -17,6 +17,11 @@
         <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
+
+<!--This variable is passed to fd.search to control the log level. Example
+mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=info
+-->
+        <fd.logLevel>${env.fd.logLevel}</fd.logLevel>
     </properties>
 
     <dependencies>
@@ -215,6 +220,7 @@
                                     <fd.config>${project.basedir}/src/test/resources/config.properties</fd.config>
                                     <log4j.configuration>file://${project.basedir}/src/test/resources/log4j-search.xml</log4j.configuration>
                                     <java.awt.headless>true</java.awt.headless>
+                                    <fd.logLevel>${fd.logLevel}</fd.logLevel>
                                 </systemProperties>
                             </container>
                             <configuration>
@@ -225,6 +231,7 @@
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
 <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
                                     <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
+                                    <cargo.jvmargs>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                                 </properties>
                             </configuration>
                             <deployables>

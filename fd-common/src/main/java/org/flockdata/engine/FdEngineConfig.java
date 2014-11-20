@@ -21,8 +21,6 @@ package org.flockdata.engine;
 
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.annotation.Secured;
 
 import java.util.Map;
 
@@ -32,10 +30,6 @@ import java.util.Map;
  * Time: 1:22 PM
  */
 public interface FdEngineConfig {
-    @Value("${fd-engine.kv.store}")
-    void setKvStore(String kvStore);
-
-    KvService.KV_STORE getKvStore();
 
     String getTagSuffix(Company company);
 
@@ -45,10 +39,9 @@ public interface FdEngineConfig {
 
     void setMultiTenanted(boolean multiTenanted);
 
-    //    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
-    //            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
-        @Secured({"ROLE_AB_ADMIN"})
-        void resetCache();
+    void resetCache();
+
+    public KvService.KV_STORE getKvStore();
 
     boolean isConceptsEnabled();
 

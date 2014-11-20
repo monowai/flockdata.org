@@ -22,6 +22,8 @@ package org.flockdata.engine.admin;
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.VersionHelper;
+import org.flockdata.kv.FdKvConfig;
+import org.flockdata.kv.KvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.search.model.PingResult;
@@ -49,7 +51,10 @@ public class EngineConfig implements FdEngineConfig {
     @Autowired
     EntityDaoNeo trackDAO;
 
-    private String abSearch;
+    @Autowired
+    FdKvConfig kvConfig;
+
+    private String fdSearch;
 
     private String rabbitHost;
 
@@ -87,8 +92,8 @@ public class EngineConfig implements FdEngineConfig {
 
     @Value("${fd-search.url:@null}")
     protected void setFdSearch(String fdSearchMake) {
-        if ("@null".equals(fdSearchMake)) this.abSearch = null;
-        else this.abSearch = fdSearchMake;
+        if ("@null".equals(fdSearchMake)) this.fdSearch = null;
+        else this.fdSearch = fdSearchMake;
     }
 
     @Value("${fdengine.multiTenanted:@null}")
@@ -97,23 +102,8 @@ public class EngineConfig implements FdEngineConfig {
     }
 
     @Override
-    @Value("${fd-engine.kv.store}")
-    public void setKvStore(String kvStore) {
-        if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
-            this.kvStore = KvService.KV_STORE.REDIS;
-        else if (kvStore.equalsIgnoreCase("riak"))
-            this.kvStore = KvService.KV_STORE.RIAK;
-        else if (kvStore.equalsIgnoreCase("MEMORY"))
-            this.kvStore = KvService.KV_STORE.MEMORY;
-        else {
-            logger.error("Unable to resolve the fd-engine.kv.store property [" + kvStore + "]. Defaulting to REDIS");
-        }
-
-    }
-
-    @Override
     public KvService.KV_STORE getKvStore() {
-        return kvStore;
+        return kvConfig.getKvStore();
     }
 
     @Override
@@ -122,10 +112,6 @@ public class EngineConfig implements FdEngineConfig {
             return "";
         return (isMultiTenanted() ? company.getCode() : "");
     }
-//    @Secured({"ROLE_AB_ADMIN"})
-//    public Map<String, String> getHealthSecured() {
-//        return getHealth();
-//    }
 
     /**
      * Only users with a pre-validated api-key should be calling this
@@ -159,7 +145,7 @@ public class EngineConfig implements FdEngineConfig {
 
         //healthResults.put("fd.multiTenanted", multiTenanted.toString());
         if ("http".equalsIgnoreCase(integration)) {
-            healthResults.put("fd-search.url", abSearch);
+            healthResults.put("fd-search.url", fdSearch);
         } else {
             healthResults.put("rabbit.host", rabbitHost);
             healthResults.put("rabbit.port", rabbitPort);
@@ -167,7 +153,6 @@ public class EngineConfig implements FdEngineConfig {
         return healthResults;
 
     }
-
 
     @Override
     public boolean isMultiTenanted() {
