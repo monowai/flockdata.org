@@ -300,6 +300,12 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-store</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>

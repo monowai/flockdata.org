@@ -17,48 +17,52 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv.redis;
+package org.flockdata.kv.memory;
 
-import org.flockdata.track.model.Entity;
 import org.flockdata.kv.KvRepo;
+import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Simple map to hold Key Values. Non-persistent and for testing purposes only
+ */
 @Component
-public class RedisRepo implements KvRepo {
+public class MapRepo implements KvRepo {
 
     @Autowired
-    private RedisTemplate<Long, byte[]> template;
-    private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
+    private static Logger logger = LoggerFactory.getLogger(MapRepo.class);
 
-    public void add(Entity entity, Log log) {
-        template.opsForValue().set(log.getId(), log.getEntityContent());
+    Map<Long, byte[]> map = new HashMap <>();
+
+    public void add(KvContentBean contentBean) {
+        map.put(contentBean.getLogId(), contentBean.getEntityContent());
     }
 
-    public byte[] getValue(Entity entity, Log forLog) {
-        return template.opsForValue().get(forLog.getId());
+    public byte[] getValue(EntityBean entity, Log forLog) {
+
+        return map.get(forLog.getId());
     }
 
-    public void delete(Entity entity, Log log) {
-        template.opsForValue().getOperations().delete(log.getId());
+    public void delete(EntityBean entity, Log log) {
+        map.remove(log.getId());
     }
 
     @Override
     public void purge(String index) {
-        logger.debug("Purge not supported for REDIS. Ignoring this request") ;
+        map.clear() ;
     }
 
     @Override
     public String ping() {
-        Date when = new Date();
-        template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
-        template.opsForValue().getOperations().delete(-99999l);
-        return "Redis is OK";
+
+        return "MemMap is OK";
     }
 }

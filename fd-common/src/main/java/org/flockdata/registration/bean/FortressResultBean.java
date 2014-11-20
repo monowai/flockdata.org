@@ -26,10 +26,13 @@ import org.flockdata.registration.model.Fortress;
  * Since: 21/12/13
  */
 public class FortressResultBean {
+    private String code;
     private String name;
+    private String indexName;
     private String timeZone;
     private boolean enabled=true;
     private boolean searchActive;
+    private String companyName;
 
     protected FortressResultBean() {
 
@@ -38,9 +41,12 @@ public class FortressResultBean {
     public FortressResultBean(Fortress fortress) {
         this();
         this.name = fortress.getName();
+        this.code = fortress.getCode();
+        this.indexName = fortress.getIndexName();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
         this.searchActive = fortress.isSearchActive();
+        this.companyName = fortress.getCompany().getName();
     }
 
     public String getName() {
@@ -57,5 +63,13 @@ public class FortressResultBean {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 }

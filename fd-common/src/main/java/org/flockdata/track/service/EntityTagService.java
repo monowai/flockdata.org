@@ -56,6 +56,8 @@ public interface EntityTagService {
 
     Collection<EntityTag> getEntityTags(Company company, Entity entity);
 
+    Collection<EntityTag> getEntityTags(Company company, Long entity);
+
     void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
     void deleteEntityTags(Entity entity, EntityTag value) throws FlockException;

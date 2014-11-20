@@ -81,7 +81,7 @@ public class TestTrackEvents extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getMetaKey();
+        String metaKey = resultBean.getEntityBean().getMetaKey();
         assertNotNull(metaKey);
 
         Entity entity = trackService.getEntity(su.getCompany(), metaKey);

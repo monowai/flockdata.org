@@ -19,7 +19,10 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.track.model.Entity;
+import org.joda.time.DateTime;
 
 /**
  * User: mike
@@ -27,26 +30,46 @@ import org.flockdata.track.model.Entity;
  * Time: 8:47 AM
  */
 public class EntityBean {
+
+    private Long id ;
+    private String searchKey;
     private String metaKey;
-    private String fortressCode;
+//    private String fortressCode;
     private String callerRef;
     private String documentType;
-    private String createdBy;
     private long whenCreated;
+    private String indexName;
+    private boolean searchSuppressed;
+    private String name;
+    private String description;
+    private FortressResultBean fortress;
+    private DateTime fortressDateCreated;
+    private String event;
+    private String lastUser;
+    private String createdUser;
 
-    public EntityBean (){
+    EntityBean (){
 
     }
     public EntityBean(Entity entity){
         this();
         if ( entity != null ) {
+            this.id = entity.getId();
+            this.searchKey = entity.getSearchKey();
             this.metaKey = entity.getMetaKey();
-            fortressCode = entity.getFortress().getCode();
             documentType = entity.getDocumentType();
             callerRef = entity.getCallerRef();
-
-            createdBy = entity.getCreatedBy().getCode();
             whenCreated = entity.getWhenCreated();
+            indexName = entity.getFortress().getIndexName();
+            description = entity.getDescription();
+            searchSuppressed = entity.isSearchSuppressed();
+            name = entity.getName();
+            fortress = new FortressResultBean(entity.getFortress());
+            event = entity.getEvent();
+            fortressDateCreated = entity.getFortressDateCreated();
+            if (entity.getLastUser()!=null )
+                lastUser = entity.getLastUser().getCode();
+            createdUser= entity.getCreatedBy().getCode();
         }
     }
 
@@ -56,14 +79,6 @@ public class EntityBean {
 
     void setDocumentType(String documentType) {
         this.documentType = documentType;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public long getWhenCreated() {
@@ -81,19 +96,94 @@ public class EntityBean {
         this.metaKey = metaKey;
     }
 
-    public String getFortressCode() {
-        return fortressCode;
-    }
-
-    void setFortressCode(String fortressCode) {
-        this.fortressCode = fortressCode;
-    }
-
     public String getCallerRef() {
         return callerRef;
     }
 
     void setCallerRef(String callerRef) {
         this.callerRef = callerRef;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isSearchSuppressed() {
+        return searchSuppressed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public FortressResultBean getFortress() {
+        return fortress;
+    }
+
+    @JsonIgnore
+    public DateTime getFortressDateCreated() {
+        return fortressDateCreated;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public String getLastUser() {
+        return lastUser;
+    }
+
+    public String getCreatedUser() {
+        return createdUser;
+    }
+
+    @JsonIgnore
+    /**
+     * Primary key of the node in the db. This should not be relied upon outside of
+     * fd-engine and the caller should instead use their own callerRef or the metaKey
+     *
+     */
+    public Long getId() {
+        return id;
+    }
+
+    public String getSearchKey() {
+        return searchKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntityBean)) return false;
+
+        EntityBean that = (EntityBean) o;
+
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (searchKey != null ? searchKey.hashCode() : 0);
+        result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
+        result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
+        return result;
     }
 }

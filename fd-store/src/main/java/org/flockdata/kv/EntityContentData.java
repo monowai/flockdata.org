@@ -26,7 +26,6 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
-import org.springframework.data.annotation.Transient;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,7 +42,6 @@ public class EntityContentData implements EntityContent {
 
     private KvContent kvContent;
 
-    @Transient
     private
     ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 

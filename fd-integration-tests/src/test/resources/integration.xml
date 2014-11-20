@@ -14,8 +14,11 @@
 	   http://www.springframework.org/schema/task
 	   http://www.springframework.org/schema/task/spring-task.xsd">
 
-    <int:gateway id="fdSearchGateway"  async-executor="fd-q-exec"
+    <int:gateway id="fdSearchGateway" async-executor="fd-q-exec"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
+
+    <int:gateway id="kvGateway"  async-executor="fd-q-exec"
+                 service-interface="org.flockdata.kv.KvGateway"/>
 
     <int:json-to-object-transformer id="jsonToObject2"
                                     input-channel="doMetaKeyReply"
@@ -48,13 +51,21 @@
                                     content-type="application/json">
     </int:object-to-json-transformer>
 
-    <int:channel id="syncSearchDocs">
-        <int:dispatcher task-executor="fd-q-exec"/>
-    </int:channel>
+    <int:object-to-json-transformer id="kvContentToJson"
+                                    input-channel="kvWriteRequest"
+                                    output-channel="writeKvContent"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+    <int:json-to-object-transformer id="jsonToKvContent"
+                                    input-channel="writeKvContent"
+                                    output-channel="doKvWrite"
+                                    type="org.flockdata.kv.bean.KvContentBean">
+    </int:json-to-object-transformer>
 
-    <int:channel id="doMetaKeyQuery" >
-        <int:dispatcher task-executor="fd-q-exec"/>
-    </int:channel>
+
+    <int:channel id="syncSearchDocs"/>
+
+    <int:channel id="doMetaKeyQuery"/>
 
     <int:channel id="doTagCloudQuery"/>
 
@@ -74,30 +85,32 @@
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
 
-    <int:channel id="trackEntity">
-        <int:dispatcher task-executor="fd-track"/>
-    </int:channel>
+    <int:channel id="trackEntity"/>
+
+    <!--KV Gateway channel-->
+    <int:channel id="kvWriteRequest"/>
+    <!--Outbound channel-->
+    <int:channel id="writeKvContent"/>
+    <int:channel id="kvErrors"/>
+    <int:channel id="doKvWrite"/>
+
 
     <int:channel id="entityErrors"/>
-
     <int:service-activator id="fdEntityErrorLogger" input-channel="entityErrors" ref="fdEntityErrorHandler"/>
-
     <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
-
     </bean>
+
+    <int:service-activator id="fdKvErrorLogger"
+                           input-channel="kvErrors"
+                           ref="fdKvErrorHandler"/>
+
+    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler">
+    </bean>
+
 
     <!--<int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="myErrorChannel">-->
     <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />-->
     <!--</int:handler-retry-advice>-->
 
-    <task:executor id="fd-q-exec"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
-
-    <task:executor id="fd-track"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
-
+    <import resource="amqp-integration-test.xml"/>
 </beans>

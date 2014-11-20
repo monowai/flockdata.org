@@ -207,7 +207,12 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Collection<EntityTag> getEntityTags(Company company, Entity entity) {
-        return entityTagDao.getEntityTags(company, entity);
+        return getEntityTags(company, entity.getId());
+    }
+
+    @Override
+    public Collection<EntityTag> getEntityTags(Company company, Long entityId) {
+        return entityTagDao.getEntityTags(company, entityId);
     }
 
     @Override

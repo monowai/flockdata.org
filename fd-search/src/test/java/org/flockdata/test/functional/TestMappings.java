@@ -34,6 +34,7 @@ import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
@@ -79,7 +80,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = new EntityNode("zzUnique", fortress, mib, doc, user);
 
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -126,7 +127,7 @@ public class TestMappings extends ESBase {
         what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
         ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
         mib.setContent(log);
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setWhat(what);
 
         SearchChange searchResult = searchRepo.update(change);
@@ -159,8 +160,8 @@ public class TestMappings extends ESBase {
         Entity entityA = getEntity("cust", "fort", "anyuser");
         Entity entityB = getEntity("cust", "fortb", "anyuser");
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -192,8 +193,8 @@ public class TestMappings extends ESBase {
         Entity entityB = getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase

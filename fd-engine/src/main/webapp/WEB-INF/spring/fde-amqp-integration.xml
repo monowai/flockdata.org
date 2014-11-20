@@ -17,7 +17,7 @@
     <import resource="fde-amqp-rabbit.xml"/>
 
     <!-- from fd-search to fd-engine-->
-    <int-amqp:inbound-gateway id="inboundGateway"
+    <int-amqp:inbound-gateway id="searchSyncResult"
                               request-channel="searchDocSyncResult"
                               queue-names="${fd.engine.queue}"
                               shutdown-timeout="3000"
@@ -48,7 +48,24 @@
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"
                               connection-factory="connectionFactory"/>
-<!--
--->
+
+    <int-amqp:outbound-gateway
+            request-channel="writeKvContent"
+            routing-key="${fd.kv.binding}"
+            requires-reply="false"
+            exchange-name="${fd.kv.exchange}"
+            amqp-template="amqpTemplate"/>
+
+    <int-amqp:inbound-gateway id="kvWrite"
+                              request-channel="doKvWrite"
+                              queue-names="${fd.kv.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              error-channel="kvErrors"
+                              task-executor="fd-engineExec"
+                              concurrent-consumers="30"
+                              prefetch-count="${rabbit.prefetchCount}"
+                              message-converter="jsonToKvContentConverter"
+                              connection-factory="connectionFactory"/>
 
 </beans>
