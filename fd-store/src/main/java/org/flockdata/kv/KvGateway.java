@@ -17,27 +17,21 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track.endpoint;
+package org.flockdata.kv;
 
-import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.SearchChange;
+import org.flockdata.kv.bean.KvContentBean;
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.Async;
+
+import java.util.concurrent.Future;
 
 /**
- * User: Mike Holdsworth
- * Date: 7/07/13
- * Time: 8:54 AM
+ * User: mike
+ * Date: 19/11/14
+ * Time: 11:48 AM
  */
-public interface SearchGateway {
-
-    @Gateway(requestChannel = "makeSearchRequest")
-    public SearchChange createSearchableChange(@Payload EntitySearchChanges changes);
-
-    @Gateway(requestChannel = "searchDelete")
-    public void delete(@Payload Entity entity);
-
-    //ToDo:
-    // Add an HTTP gateway call to ElasticSearchEP.getMetaKeys(QueryParams);
+public interface KvGateway {
+    @Async
+    @Gateway(requestChannel = "kvWriteRequest")
+    Future<Void> doKvWrite( KvContentBean resultBean);
 }

@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.tag.model;
 
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.registration.bean.TagInputBean;
@@ -51,7 +51,7 @@ public class TagDaoNeo4j {
     Neo4jTemplate template;
 
     @Autowired
-    FdConfig engineAdmin;
+    FdEngineConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 

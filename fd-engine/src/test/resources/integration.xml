@@ -16,6 +16,10 @@
     <int:gateway id="fdSearchGateway"  async-executor="qExecutor"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
+    <int:gateway id="kvGateway"
+                 async-executor="qExecutor"
+                 service-interface="org.flockdata.kv.KvGateway"/>
+
     <int:json-to-object-transformer id="jsonToObject"
                                     input-channel="searchReply"
                                     output-channel="searchDocSyncResult"
@@ -84,5 +88,12 @@
     <int:channel id="sendTagCloudReply"/>
 
     <int:channel id="trackEntity" />
+
+    <!--KV Gateway channel-->
+    <int:channel id="kvWriteRequest"/>
+    <!--Outbound channel-->
+    <int:channel id="writeKvContent"/>
+    <int:channel id="kvErrors"/>
+
 
 </beans>

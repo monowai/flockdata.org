@@ -17,22 +17,24 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv;
+package org.flockdata.kv.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.engine.FdConfig;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockException;
+import org.flockdata.kv.*;
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
-import org.flockdata.kv.service.KvService;
+import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.Log;
@@ -40,8 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: Mike Holdsworth
@@ -61,13 +60,16 @@ import java.util.concurrent.Future;
 @EnableAsync
 public class KvManager implements KvService {
 
+    @Autowired
+    KvGateway kvGateway;  // Used for async loose coupling between this service and the db
+
     @Override
     public String ping() {
         KvRepo repo = getKvRepo();
         return repo.ping();
     }
 
-    Boolean asyncWrites =true;
+    Boolean asyncWrites = true;
 
     @Value("${fd-engine.kv.async:@null}")
     protected void setAsyncWrites(String kvAsync) {
@@ -81,40 +83,30 @@ public class KvManager implements KvService {
         getKvRepo().purge(indexName);
     }
 
-    @Override
-    public void doKvWrites(Iterable<TrackResultBean> theseResults) throws IOException {
-        for (TrackResultBean thisResult : theseResults) {
-            doKvWrite(thisResult)  ;
+    @ServiceActivator(inputChannel = "doKvWrite")
+    public void asyncWrite(KvContentBean kvBean) throws FlockException {
+        try {
+            getKvRepo().add(kvBean);
+        } catch (IOException e) {
+            throw new FlockException ("Error writing to the KvStore ", e);
         }
     }
 
-
-    @Override
-    public void doKvWrite(TrackResultBean resultBean) throws IOException {
-        if (resultBean.getContentInput() != null && resultBean.getContentInput().getStatus() != ContentInputBean.LogStatus.TRACK_ONLY) {
-            // ToDo: deal with this via spring integration??
-            // Making this Async will break a lot of the functional tests.
-            Log log = resultBean.getLogResult().getWhatLog();
-            if (log != null && !resultBean.getLogResult().isLogIgnored()) {
-//                logger.info ("AsyncWrites = {}. Thread {}", asyncWrites, Thread.currentThread().getName());
-                Future<Void> done = doKvWrite(resultBean.getEntity(), log);
-                try {
-                    if ( !asyncWrites) // Configurable to make functional testing easier
-                        done.get(); // Wait for the response
-                } catch (InterruptedException | ExecutionException e) {
-                    logger.error("Unexpected", e);
-                    throw new IOException(e.getMessage());
-                }
-            }
+    /**
+     * Persists the payload
+     *
+     * if fd-engine.kv.async== true, then this will be done via an integration gateway
+     * otherwise it will be done immediately with no guarantees around delivery.
+     *
+     * @param kvBean payload for the KvStore
+     */
+    public void doKvWrite(KvContentBean kvBean) throws FlockException {
+        if (asyncWrites) {
+            // Via the Gateway
+            kvGateway.doKvWrite(kvBean);
+        } else {
+            asyncWrite(kvBean);
         }
-    }
-
-    @Async
-    public Future<Void> doKvWrite (Entity entity, Log log) throws IOException {
-        AsyncResult<Void> result = new AsyncResult<>(null);
-        getKvRepo(log).add(entity, log);
-//        logger.info ("DoWrite = {}. Thread {}", asyncWrites, Thread.currentThread().getName());
-        return result;
     }
 
     private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
@@ -126,7 +118,10 @@ public class KvManager implements KvService {
     RiakRepo riakRepo;
 
     @Autowired
-    FdConfig engineAdmin;
+    MapRepo mapRepo;
+
+    @Autowired
+    FdKvConfig kvConfig;
 
     private Logger logger = LoggerFactory.getLogger(KvManager.class);
 
@@ -134,8 +129,7 @@ public class KvManager implements KvService {
      * adds what store details to the log that will be index in Neo4j
      * Subsequently, this data will make it to a KV store
      *
-     *
-     * @param log      Log
+     * @param log     Log
      * @param content Escaped Json
      * @return logChange
      * @throws IOException
@@ -145,7 +139,7 @@ public class KvManager implements KvService {
         // Compress the Value of JSONText
         CompressionResult compressionResult = CompressionHelper.compress(new KvContentData(content));
         Boolean compressed = (compressionResult.getMethod() == CompressionResult.Method.GZIP);
-        log.setWhatStore(String.valueOf(engineAdmin.getKvStore()));
+        log.setWhatStore(String.valueOf(kvConfig.getKvStore()));
         log.setCompressed(compressed);
         log.setChecksum(compressionResult.getChecksum());
         log.setEntityContent(compressionResult.getAsBytes());
@@ -154,7 +148,7 @@ public class KvManager implements KvService {
     }
 
     private KvRepo getKvRepo() {
-        return getKvRepo(String.valueOf(engineAdmin.getKvStore()));
+        return getKvRepo(String.valueOf(kvConfig.getKvStore()));
     }
 
     private KvRepo getKvRepo(Log change) {
@@ -166,8 +160,11 @@ public class KvManager implements KvService {
             return redisRepo;
         } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.RIAK))) {
             return riakRepo;
+        } else if ( kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.MEMORY))) {
+            return mapRepo;
         } else {
-            throw new IllegalStateException("The only supported KV Stores supported are redis & riak");
+            logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
+            return mapRepo;
         }
 
     }
@@ -177,7 +174,7 @@ public class KvManager implements KvService {
         if (log == null)
             return null;
         try {
-            byte[] entityContent = getKvRepo(log).getValue(entity, log);
+            byte[] entityContent = getKvRepo(log).getValue(new EntityBean(entity), log);
             if (entityContent != null)
                 return new EntityContentData(entityContent, log);
 
@@ -190,16 +187,16 @@ public class KvManager implements KvService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(entity, change);
+        getKvRepo(change).delete(new EntityBean(entity), change);
     }
 
 
     /**
      * Determine if the Log Content has changed
      *
-     * @param entity        thing being tracked
-     * @param compareFrom   existing change to compare from
-     * @param compareTo     new Change to compare with
+     * @param entity      thing being tracked
+     * @param compareFrom existing change to compare from
+     * @param compareTo   new Change to compare with
      * @return false if different, true if same
      */
     @Override
@@ -209,12 +206,12 @@ public class KvManager implements KvService {
         EntityContent content = null;
         int count = 0;
         int timeout = 10;
-        while ( content ==null && count < timeout){
+        while (content == null && count < timeout) {
             count++;
             content = getContent(entity, compareFrom);
         }
 
-        if ( count >= timeout)
+        if (count >= timeout)
             logger.error("Timeout looking for KV What data for [{}] [{}]", entity, compareFrom);
 
         if (content == null)
@@ -222,24 +219,24 @@ public class KvManager implements KvService {
 
         logger.debug("Value found [{}]", content);
         boolean sameContentType = compareFrom.getContentType().equals(compareTo.getContentType());
-        if ( !sameContentType )
+        if (!sameContentType)
             return false;
 
-        if ( compareFrom.getContentType().equals("json"))
+        if (compareFrom.getContentType().equals("json"))
             return sameJson(content, new EntityContentData(compareTo.getEntityContent(), compareTo));
         else
             return sameCheckSum(compareFrom, compareTo);
     }
 
     private boolean sameCheckSum(Log compareFrom, Log compareTo) {
-        return compareFrom.getChecksum().equals(compareTo.getChecksum()) ;
+        return compareFrom.getChecksum().equals(compareTo.getChecksum());
     }
 
 
     @Override
     public boolean sameJson(EntityContent compareFrom, EntityContent compareTo) {
 
-        logger.debug ("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
+        logger.debug("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
         JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
         JsonNode jCompareWith = om.valueToTree(compareTo.getWhat());
         return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);

@@ -45,16 +45,6 @@ public class Helper {
         return getSimpleMap("Key", "Test"+System.currentTimeMillis());
     }
 
-    public static Map<String, Object> getBigJsonText(int i) {
-        Map<String, Object> map = getSimpleMap("Key", "Random");
-        int count = 0;
-        do {
-            map.put("Key"+count, "Now is the time for all good men to come to the aid of the party");
-            count++;
-        } while ( count < i);
-        return map;
-    }
-
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();

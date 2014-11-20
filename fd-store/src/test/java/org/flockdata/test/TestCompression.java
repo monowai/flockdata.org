@@ -17,19 +17,18 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.unit;
+package org.flockdata.test;
 
-import org.flockdata.kv.KvContentData;
-import org.flockdata.helper.CompressionResult;
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.helper.CompressionHelper;
-import org.flockdata.test.utils.Helper;
-import org.flockdata.track.model.KvContent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.CompressionResult;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.kv.KvContentData;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.model.KvContent;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;

@@ -51,10 +51,10 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortressB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getMetaKey();
+        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getMetaKey();
+        String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
         // There should be a doc type per fortress and it should have the same Id.
@@ -91,15 +91,15 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortressC = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB"));
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getMetaKey();
+        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getMetaKey();
+        String metaKeyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
 
         inputBean = new EntityInputBean(fortressC.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyC = mediationFacade.trackEntity(suA.getCompany(), inputBean).getMetaKey();
+        String metaKeyC = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
         assertFalse(metaKeyC.equals(metaKeyA));
         assertFalse(metaKeyC.equals(metaKeyB));
 

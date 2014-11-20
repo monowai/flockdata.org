@@ -9,6 +9,7 @@
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
+        <module>fd-store</module>
         <module>fd-engine</module>
         <module>fd-search</module>
         <module>fd-spring</module>

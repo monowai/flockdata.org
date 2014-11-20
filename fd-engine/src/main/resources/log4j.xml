@@ -8,7 +8,7 @@
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%-5p: %c - %m%n"/>
+            <param name="ConversionPattern" value="%t %-5p: %c - %m%n"/>
         </layout>
     </appender>
 
@@ -48,16 +48,16 @@
         <!--<level value="debug"/>-->
     <!--</logger>-->
     <logger name="org.springframework.integration.channel.NullChannel">
-        <level value="debug"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.amqp">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="debug"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>
@@ -85,7 +85,6 @@
         <level value="error"/>
     </logger>
 
-
     <logger name="com.jersey">
         <level value="error"/>
     </logger>
@@ -93,9 +92,11 @@
     <logger name="org.eclipse">
         <level value="error"/>
     </logger>
+
     <logger name="o.e.jetty">
         <level value="error"/>
     </logger>
+
     <logger name="org.springframework.data.neo4j.support.query">
         <level value="info"/> <!-- turn this on to see erer statements")-->
     </logger>

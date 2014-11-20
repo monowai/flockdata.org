@@ -130,7 +130,7 @@ public class TrackEP {
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
             throw new NotFoundException("Unable to locate the requested metaKey");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
-            input.setAbMessage("Ignoring request to change as the 'what' has not changed");
+            input.setFdMessage("Ignoring request to change as the 'what' has not changed");
             return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
         } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
             return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
@@ -332,9 +332,7 @@ public class TrackEP {
 
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity != null) {
-            EntityLog log = trackService.getLogForEntity(entity, logId);
-            if (log != null)
-                return kvService.getContent(entity, log.getLog()).getWhat();
+            return mediationFacade.getLogContent(entity, logId);
         }
 
         throw new NotFoundException(String.format("Unable to locate the log for %s / %d", metaKey, logId));

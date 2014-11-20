@@ -13,8 +13,14 @@
 <!--Contains generic integration functionality for fd-engine.
 Transformers, gateways and channels -->
 
-    <int:gateway id="fdSearchGateway"  async-executor="fd-q-exec"
+    <int:gateway id="fdSearchGateway"
+                 async-executor="fd-q-exec"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
+
+    <int:gateway id="kvGateway"
+                 async-executor="fd-q-exec"
+                 service-interface="org.flockdata.kv.KvGateway"/>
+
 
     <int:service-activator id="fdEntityErrorLogger"
                            input-channel="entityErrors"
@@ -23,6 +29,17 @@ Transformers, gateways and channels -->
     <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler">
 
     </bean>
+
+
+    <int:service-activator id="fdKvErrorLogger"
+                           input-channel="kvErrors"
+                           ref="fdKvErrorHandler"/>
+
+    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler">
+
+    </bean>
+
+
 
     <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="entityErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
@@ -57,6 +74,24 @@ Transformers, gateways and channels -->
                                     output-channel="sendSearchReply"
                                     type="org.flockdata.search.model.EsSearchResult">
     </int:json-to-object-transformer>
+<!--KV-->
+    <int:object-to-json-transformer id="kvContentToJson"
+                                    input-channel="kvWriteRequest"
+                                    output-channel="writeKvContent"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+    <int:json-to-object-transformer id="jsonToKvContent"
+                                    input-channel="writeKvContent"
+                                    output-channel="doKvWrite"
+                                    type="org.flockdata.kv.bean.KvContentBean">
+    </int:json-to-object-transformer>
+
+
+    <!--Service Activator -->
+    <int:channel id="doKvWrite"/>
+    <int:channel id="writeKvContent"/>
+<!--End KV-->
+
 
     <int:channel id="syncSearchDocs">
         <int:dispatcher task-executor="fd-q-exec"/>
@@ -74,6 +109,10 @@ Transformers, gateways and channels -->
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
+    <int:channel id="doMetaKeyQuery" >
+        <int:dispatcher task-executor="fd-q-exec"/>
+    </int:channel>
+
 
     <int:channel id="entityErrors"/>
     <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
@@ -82,10 +121,11 @@ Transformers, gateways and channels -->
     <int:channel id="doMetaKeyReply"/>
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
-
-    <int:channel id="doMetaKeyQuery" >
-        <int:dispatcher task-executor="fd-q-exec"/>
-    </int:channel>
+    <!--KV Gateway channel-->
+    <int:channel id="kvWriteRequest"/>
+    <!--Outbound channel-->
+    <int:channel id="writeKvContent"/>
+    <int:channel id="kvErrors"/>
 
 
 

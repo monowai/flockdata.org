@@ -20,7 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import com.google.common.collect.Lists;
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.helper.FlockException;
@@ -96,7 +96,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     LogService logService;
 
     @Autowired
-    FdConfig engineConfig;
+    FdEngineConfig engineConfig;
 
     @Autowired
     EntityRetryService entityRetry;
@@ -161,7 +161,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException illegal input
      * @throws IOException                         json processing exception
      */
-    @ServiceActivator(inputChannel = "trackEntity" )
+    @ServiceActivator(inputChannel = "trackEntity")
     public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException {
         EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
         // ToDo: A collection??
@@ -254,6 +254,15 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     public void createAlias(Company company, String label, Tag tag, String akaValue) {
         tagService.createAlias(company, tag, label, akaValue);
+    }
+
+    @Override
+    public Map<String, Object> getLogContent(Entity entity, Long logId) {
+        EntityLog log = trackService.getLogForEntity(entity, logId);
+        if (log != null)
+            return kvService.getContent(entity, log.getLog()).getWhat();
+
+        return new HashMap<>();
     }
 
     private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
@@ -505,13 +514,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
     }
 
-//    @Async
-    public void distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
+    @Async
+    public Future<Void> distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
         logger.debug("Distributing changes to sub-services {}", Thread.currentThread().getName());
         searchService.makeChangesSearchable(fortress, resultBeans);
-
         conceptRetryService.trackConcepts(fortress, resultBeans);
-        //return new AsyncResult<>(null);
+        return new AsyncResult<>(null);
         //logger.debug("Distributed changes to search service");
     }
 

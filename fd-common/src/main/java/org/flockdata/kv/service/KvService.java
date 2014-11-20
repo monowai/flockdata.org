@@ -19,11 +19,12 @@
 
 package org.flockdata.kv.service;
 
+import org.flockdata.helper.FlockException;
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
-import org.flockdata.track.bean.DeltaBean;
-import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Log;
 
 import java.io.IOException;
@@ -38,10 +39,6 @@ public interface KvService {
 
     void purge(String indexName);
 
-    public void doKvWrites(Iterable<TrackResultBean> theseResults) throws IOException;
-
-    public void doKvWrite(TrackResultBean resultBean) throws IOException;
-
     Log prepareLog(Log log, ContentInputBean content) throws IOException;
 
     EntityContent getContent(Entity entity, Log log);
@@ -54,7 +51,9 @@ public interface KvService {
 
     DeltaBean getDelta(Entity entity, Log from, Log to);
 
+    void doKvWrite(KvContentBean kvBean) throws FlockException;
 
+    void asyncWrite(KvContentBean kvBean) throws FlockException;
 
-    public enum KV_STORE {REDIS, RIAK}
+    public enum KV_STORE {REDIS, RIAK, MEMORY}
 }

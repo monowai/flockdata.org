@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.admin;
 
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.service.KvService;
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-public class EngineConfig implements FdConfig {
+public class EngineConfig implements FdEngineConfig {
 
     @Autowired
     EntityDaoNeo trackDAO;
@@ -103,6 +103,8 @@ public class EngineConfig implements FdConfig {
             this.kvStore = KvService.KV_STORE.REDIS;
         else if (kvStore.equalsIgnoreCase("riak"))
             this.kvStore = KvService.KV_STORE.RIAK;
+        else if (kvStore.equalsIgnoreCase("MEMORY"))
+            this.kvStore = KvService.KV_STORE.MEMORY;
         else {
             logger.error("Unable to resolve the fd-engine.kv.store property [" + kvStore + "]. Defaulting to REDIS");
         }

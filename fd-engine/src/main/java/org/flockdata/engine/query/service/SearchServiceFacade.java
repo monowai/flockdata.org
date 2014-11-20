@@ -30,6 +30,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
@@ -41,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +51,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.Future;
 
 /**
  * Search Service interactions
@@ -75,7 +79,7 @@ public class SearchServiceFacade {
     EntityTagService entityTagService;
 
     @Autowired
-    KvService kvService;
+    KvService kvGateway;
 
     @Autowired
     FortressService fortressService;
@@ -138,11 +142,13 @@ public class SearchServiceFacade {
 
     public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
         if (searchDocument.isEmpty())
+          //  return new AsyncResult<>(null);
             return;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
 
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
         logger.debug("Requests sent [{}]] logs", searchDocument.size());
+        //return new AsyncResult<>(null);
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
@@ -151,7 +157,7 @@ public class SearchServiceFacade {
         if (entity.getLastUser() != null)
             fortressService.fetch(entity.getLastUser());
         Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getWhatLog());
-        SearchChange searchDocument = new EntitySearchChange(entity, resultBean.getContentInput(), log);
+        SearchChange searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
         if (resultBean.getTags() != null) {
             searchDocument.setTags(resultBean.getTags());
             //searchDocument.setSearchKey(entity.getCallerRef());
@@ -169,14 +175,14 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-    public SearchChange prepareSearchDocument(Entity entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
+    public SearchChange prepareSearchDocument(Company company, EntityBean entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
         assert entity!=null ;
         if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
         searchDocument = new EntitySearchChange(entity, contentInput, entityLog.getLog() );
         searchDocument.setWho(entityLog.getLog().getWho().getCode());
-        searchDocument.setTags(entityTagService.getEntityTags(entity.getFortress().getCompany(), entity));
+        searchDocument.setTags(entityTagService.getEntityTags(company, entity.getId()));
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         try {
@@ -207,12 +213,13 @@ public class SearchServiceFacade {
             if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
                 // Update against the Entity only by re-indexing the search document
                 EntitySearchChange searchDocument;
+                EntityBean entityBean = new EntityBean(entity);
                 if (lastChange != null) {
-                    EntityContent content = kvService.getContent(entity, lastChange);
-                    searchDocument = new EntitySearchChange(entity, content, lastChange);
+                    EntityContent content = kvGateway.getContent(entity, lastChange);
+                    searchDocument = new EntitySearchChange(entityBean, content, lastChange);
                     searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
-                    searchDocument = new EntitySearchChange(entity);
+                    searchDocument = new EntitySearchChange(entityBean);
                     if (entity.getCreatedBy() != null)
                         searchDocument.setWho(entity.getCreatedBy().getCode());
                 }
@@ -277,7 +284,7 @@ public class SearchServiceFacade {
 
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
-                return prepareSearchDocument(logResultBean.getEntity(), input, logResultBean.getWhatLog().getEntityLog());
+                return prepareSearchDocument(fortress.getCompany(), trackResultBean.getEntityBean(), input, logResultBean.getWhatLog().getEntityLog());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);

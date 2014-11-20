@@ -5,16 +5,29 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/integration/amqp
 	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
 		                http://www.springframework.org/schema/integration
-		                http://www.springframework.org/schema/integration/spring-integration.xsd">
+		                http://www.springframework.org/schema/integration/spring-integration.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
     <int:annotation-config/>
 
     <!-- RabbitMQ CONFIGURATION  -->
     <import resource="amqp-rabbit.xml"/>
+
+    <task:executor id="fd-q-exec"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-track"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+
 
     <!-- from fd-search to fd-engine-->
     <int-amqp:inbound-gateway id="inboundGateway"
@@ -24,7 +37,6 @@
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${rabbit.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
-                              task-executor="fd-q-exec"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
@@ -41,13 +53,29 @@
                               queue-names="${fd.track.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
+                              task-executor="fd-track"
                               error-channel="entityErrors"
                               transaction-manager="transactionManager"
                               channel-transacted="true"
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"
                               connection-factory="connectionFactory"/>
-    <!--
-    -->
+    <int-amqp:outbound-gateway
+            request-channel="writeKvContent"
+            routing-key="${fd.kv.binding}"
+            requires-reply="false"
+            exchange-name="${fd.kv.exchange}"
+            amqp-template="amqpTemplate"/>
 
+    <int-amqp:inbound-gateway id="kvWrite"
+                              request-channel="doKvWrite"
+                              queue-names="${fd.kv.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              task-executor="fd-q-exec"
+                              error-channel="kvErrors"
+                              concurrent-consumers="20"
+                              prefetch-count="${rabbit.prefetchCount}"
+                              message-converter="jsonToKvContentConverter"
+                              connection-factory="connectionFactory"/>
 </beans>

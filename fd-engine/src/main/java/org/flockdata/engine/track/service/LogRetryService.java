@@ -101,7 +101,7 @@ public class LogRetryService {
 
         Entity entity;
         if (entityExists)
-            entity = entityDao.findEntity(trackResultBean.getEntityId(), true);
+            entity = entityDao.findEntity(trackResultBean.getEntity().getId(), true);
         else
             entity = trackResultBean.getEntity();
 
@@ -109,7 +109,7 @@ public class LogRetryService {
 
         logger.debug("writeLog entityExists [{}]  entity [{}], [{}]", entityExists, entity.getId(), new DateTime(entity.getFortressDateUpdated()));
 
-        LogResultBean resultBean = new LogResultBean(content, entity, fortress);
+//        LogResultBean resultBean = new LogResultBean(content);
         logger.trace("looking for fortress user {}", fortress);
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
@@ -118,7 +118,7 @@ public class LogRetryService {
             // Different user creating the Entity than is creating the log
             thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
         }
-        resultBean.setEntity(entity);
+        //resultBean.setEntity(entity);
         trackResultBean.setLogResult(
                 createLog(entity, content, thisFortressUser)
         );
@@ -140,7 +140,7 @@ public class LogRetryService {
         //entity = trackService.getEntity(entity);
         Fortress fortress = entity.getFortress();
 
-        LogResultBean resultBean = new LogResultBean(content, entity, thisFortressUser.getFortress());
+        LogResultBean resultBean = new LogResultBean(content);
         //ToDo: May want to track a "View" event which would not change the What data.
         if (!content.hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
@@ -199,7 +199,7 @@ public class LogRetryService {
         // Prepares the change
         content.setChangeEvent(preparedLog.getEvent());
         resultBean.setWhatLog(preparedLog);
-        resultBean.setEntity(entity);
+//        resultBean.setEntity(entity);
 
         if (entity.getId() == null)
             content.setStatus(ContentInputBean.LogStatus.TRACK_ONLY);

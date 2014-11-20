@@ -25,6 +25,8 @@ import com.basho.riak.client.RiakException;
 import com.basho.riak.client.RiakFactory;
 import com.basho.riak.client.bucket.Bucket;
 import org.flockdata.kv.KvRepo;
+import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
@@ -60,10 +62,10 @@ public class RiakRepo implements KvRepo {
         return client;
     }
 
-    public void add(Entity entity, Log log) throws IOException {
+    public void add(KvContentBean contentBean) throws IOException {
         try {
-            Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
-            bucket.store(String.valueOf(log.getId()), log.getEntityContent()).execute();
+            Bucket bucket = getClient().createBucket(getBucket(contentBean.getEntityBean())).execute();
+            bucket.store(String.valueOf(contentBean.getLogId()), contentBean.getEntityContent()).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();
@@ -72,11 +74,15 @@ public class RiakRepo implements KvRepo {
         }
     }
 
+    private String getBucket(EntityBean entity) {
+        return entity.getIndexName()+"/"+entity.getDocumentType().toLowerCase();
+    }
+
     private String getBucket(Entity entity) {
         return entity.getFortress().getIndexName()+"/"+entity.getDocumentType().toLowerCase();
     }
 
-    public byte[] getValue(Entity entity, Log forLog) {
+    public byte[] getValue(EntityBean entity, Log forLog) {
         try {
             Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
@@ -93,7 +99,7 @@ public class RiakRepo implements KvRepo {
         return null;
     }
 
-    public void delete(Entity entity, Log log) {
+    public void delete(EntityBean entity, Log log) {
         try {
             Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
             bucket.delete(String.valueOf(log.getId())).execute();

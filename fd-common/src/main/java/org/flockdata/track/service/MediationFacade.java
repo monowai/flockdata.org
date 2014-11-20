@@ -38,6 +38,7 @@ import org.flockdata.track.model.Entity;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -86,4 +87,5 @@ public interface MediationFacade {
     void createAlias(Company company, String label, Tag source, String akaValue);
 
 
+    Map<String,Object> getLogContent(Entity entity, Long logId);
 }

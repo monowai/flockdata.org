@@ -19,6 +19,7 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.model.ChangeEvent;
 import org.flockdata.track.model.EntityContent;
@@ -35,8 +36,8 @@ import java.util.Map;
  * Time: 7:41 PM
  */
 public class ContentInputBean implements EntityContent {
-    private LogStatus abStatus;
-    private String abMessage;
+    private LogStatus fdStatus;
+    private String fdMessage;
     private Boolean isTransactional = false;
 
     // Use either metaKey or CallerRef strategy
@@ -208,8 +209,8 @@ public class ContentInputBean implements EntityContent {
         }
     }
 
-    public void setAbMessage(String abMessage) {
-        this.abMessage = abMessage;
+    public void setFdMessage(String fdMessage) {
+        this.fdMessage = fdMessage;
 
     }
 
@@ -229,7 +230,7 @@ public class ContentInputBean implements EntityContent {
     }
 
     public void setStatus(LogStatus logStatus) {
-        this.abStatus = logStatus;
+        this.fdStatus = logStatus;
 
     }
 
@@ -251,6 +252,7 @@ public class ContentInputBean implements EntityContent {
 
     private ChangeEvent changeEvent;
 
+    @JsonIgnore
     public ChangeEvent getChangeEvent() {
         return changeEvent;
     }
@@ -260,7 +262,7 @@ public class ContentInputBean implements EntityContent {
     }
 
     public LogStatus getStatus() {
-        return abStatus;
+        return fdStatus;
     }
 
     public String getAttachment() {
@@ -312,5 +314,35 @@ public class ContentInputBean implements EntityContent {
                 ", callerRef='" + callerRef + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ContentInputBean)) return false;
+
+        ContentInputBean that = (ContentInputBean) o;
+
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) return false;
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
+        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (txRef != null ? !txRef.equals(that.txRef) : that.txRef != null) return false;
+        if (when != null ? !when.equals(that.when) : that.when != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = metaKey != null ? metaKey.hashCode() : 0;
+        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
+        result = 31 * result + (txRef != null ? txRef.hashCode() : 0);
+        result = 31 * result + (when != null ? when.hashCode() : 0);
+        result = 31 * result + (contentType != null ? contentType.hashCode() : 0);
+        return result;
     }
 }

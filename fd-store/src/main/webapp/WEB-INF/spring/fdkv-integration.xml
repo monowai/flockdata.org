@@ -1,0 +1,44 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/integration
+	   http://www.springframework.org/schema/integration/spring-integration.xsd">
+<!--Contains generic integration functionality for fd-engine.
+Transformers, gateways and channels -->
+
+    <int:service-activator id="fdKvErrorLogger"
+                           input-channel="kvErrors"
+                           ref="fdKvErrorHandler"/>
+
+
+    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler">
+
+    </bean>
+
+
+    <!--<int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="entityErrors">-->
+        <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />-->
+    <!--</int:handler-retry-advice>-->
+
+    <int:json-to-object-transformer id="jsonToKvContent"
+                                    input-channel="writeKvContent"
+                                    output-channel="doKvWrite"
+                                    type="org.flockdata.kv.bean.KvContentBean">
+    </int:json-to-object-transformer>
+
+
+    <!--Service Activator -->
+    <int:channel id="doKvWrite"/>
+    <int:channel id="writeKvContent"/>
+    <int:channel id="kvErrors"/>
+
+
+
+</beans>

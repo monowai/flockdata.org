@@ -1,0 +1,58 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd
+
+
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:spring-configured />
+	<context:annotation-config />
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:component-scan
+		base-package="org.flockdata.kv" />
+
+	<context:property-placeholder
+		ignore-resource-not-found="true" ignore-unresolvable="true"
+		location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}" />
+		
+	<import resource="fdkv-integration.xml" />
+	<import resource="fdkv-amqp-integration.xml" />
+	<import resource="fdkv-test-redis-context.xml" />
+
+	<aop:aspectj-autoproxy />
+
+    <!--<bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager" />-->
+
+    <task:annotation-driven executor="fd-engineExec"  />
+
+    <!--Pool size is the number of executors that will handle Bulk Uploads and
+        incoming search responses -->
+    <task:executor id="fd-engineExec" pool-size="${thread.poolSize}"
+                   keep-alive="120" queue-capacity="${thread.queueCapacity}" rejection-policy="CALLER_RUNS" />
+
+
+    <task:executor id="fd-q-exec"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-track"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+
+</beans>

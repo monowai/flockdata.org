@@ -33,6 +33,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
@@ -63,7 +64,7 @@ public class TestEntitySearch {
         tags.add( new EntityTagRelationship(e, getTag("NameB", "Dupe"), "Dupe", null ));
         tags.add( new EntityTagRelationship(e, getTag("NameC", "dupe"), "dupe", null ));
 
-        EntitySearchChange entitySearchChange = new EntitySearchChange(e);
+        EntitySearchChange entitySearchChange = new EntitySearchChange(new EntityBean(e));
         entitySearchChange.setTags(tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
