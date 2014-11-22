@@ -109,6 +109,10 @@
         <level value="${fd.logLevel}"/>
     </logger>
 
+    <logger name="org.flockdata.engine.tag.model">
+        <level value="info"/>
+    </logger>
+
     <!-- Root Logger -->
     <root>
         <priority value="${fd.logLevel}"/>

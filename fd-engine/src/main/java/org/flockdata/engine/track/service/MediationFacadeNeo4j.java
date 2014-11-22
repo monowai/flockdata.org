@@ -71,6 +71,9 @@ import java.util.concurrent.Future;
 @Service
 @Qualifier("mediationFacadeNeo4j")
 public class MediationFacadeNeo4j implements MediationFacade {
+
+    // Default behaviour when creating a new fortress
+    private static final boolean IGNORE_SEARCH_ENGINE = false ;
     @Autowired
     TrackService trackService;
 
@@ -313,10 +316,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> loopResults;
-
-            loopResults = entityRetry.track(fortress, entityInputBeans);
-            logger.debug("{}", Thread.currentThread().getName());
+            Iterable<TrackResultBean> loopResults  = entityRetry.track(fortress, entityInputBeans);
+            logger.debug("Tracked requests" );
             distributeChanges(fortress, loopResults);
 
             for (TrackResultBean theResult : loopResults) {
@@ -334,7 +335,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
         if (fortress == null)
             fortress = fortressService.registerFortress(company,
-                    new FortressInputBean(inputBean.getFortress(), false)
+                    new FortressInputBean(inputBean.getFortress(), IGNORE_SEARCH_ENGINE)
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
         return trackEntity(fortress, inputBean);
@@ -514,13 +515,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
     }
 
-    @Async
-    public Future<Void> distributeChanges(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
-        logger.debug("Distributing changes to sub-services {}", Thread.currentThread().getName());
+    public void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
+
+        logger.debug("Distributing changes to sub-services");
         searchService.makeChangesSearchable(fortress, resultBeans);
         conceptRetryService.trackConcepts(fortress, resultBeans);
-        return new AsyncResult<>(null);
-        //logger.debug("Distributed changes to search service");
+//        return new AsyncResult<>(null);
     }
 
 

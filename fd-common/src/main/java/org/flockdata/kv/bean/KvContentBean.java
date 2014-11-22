@@ -66,4 +66,12 @@ public class KvContentBean {
     public void setLogId(Long logId) {
         this.logId = logId;
     }
+
+    @Override
+    public String toString() {
+        return "KvContentBean{" +
+                "logId=" + logId +
+                ", entityBean=" + entityBean +
+                '}';
+    }
 }

@@ -17,23 +17,18 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv;
-
-import org.flockdata.kv.bean.KvContentBean;
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.MessagingGateway;
-
-import java.util.concurrent.Future;
+package org.flockdata.helper;
 
 /**
- * User: mike
- * Date: 19/11/14
- * Time: 11:48 AM
+ * User: Mike Holdsworth
+ * Since: 27/09/13
  */
-@MessagingGateway(errorChannel = "kvErrors")
-public interface KvGateway {
-    //Setting Future<?> forces the request to be asyncExecuted, but it is still a blocking call
-    // ToD: how to make this return after delivering tot he queue
-    @Gateway(requestChannel = "kvWriteRequest")
-    Future<?> doKvWrite(KvContentBean resultBean);
+public class FlockServiceException extends RuntimeException {
+    public FlockServiceException(String message) {
+        super(message);
+    }
+
+    public FlockServiceException(String message, Throwable t) {
+        super(message, t);
+    }
 }

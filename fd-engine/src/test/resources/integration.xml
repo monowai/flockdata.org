@@ -95,5 +95,10 @@
     <int:channel id="writeKvContent"/>
     <int:channel id="kvErrors"/>
 
+<!--Not used, but you will get a spring deployment error if it's missing -->
+    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
+    </int:handler-retry-advice>
+
 
 </beans>

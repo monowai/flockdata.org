@@ -129,7 +129,7 @@ public class TagDaoNeo4j {
         TagNode tag = new TagNode(tagInput, label);
 
         try {
-            logger.debug("Saving {}", tag);
+            logger.trace("Saving {}", tag);
             tag = template.save(tag);
             logger.debug("Saved {}", tag);
             return tag;
@@ -249,7 +249,7 @@ public class TagDaoNeo4j {
             label = label.substring(1);
         String query;
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
-        logger.debug("findTag code [{}] label [{}]", tagCode, label);
+        logger.trace("findTag code [{}] label [{}]", tagCode, label);
         query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
                 "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
                 "with t,a " +
@@ -274,7 +274,7 @@ public class TagDaoNeo4j {
             }
 
             Tag tag = template.projectTo(n, TagNode.class);
-            logger.debug("findTag found {}, {}", tag.getCode(), label);
+            logger.trace("findTag found {}, {}", tag.getCode(), label);
             return tag;
         }
         logger.debug("findTag notFound {}, {}", tagCode, label);
