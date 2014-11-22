@@ -255,7 +255,9 @@ public class SearchServiceFacade {
 
     }
 
-    public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
+    @Async("fd-engine")
+    public Future<?> makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
+        logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             SearchChange change = getSearchChange(fortress, resultBean);
@@ -263,7 +265,7 @@ public class SearchServiceFacade {
                 changes.add(change);
         }
         makeChangesSearchable(changes);
-
+        return new AsyncResult<>(null);
     }
 
     private SearchChange getSearchChange(Fortress fortress, TrackResultBean trackResultBean) {

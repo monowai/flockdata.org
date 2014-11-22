@@ -23,6 +23,8 @@ import org.flockdata.search.model.*;
 import org.flockdata.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 
+import java.util.concurrent.Future;
+
 /**
  * Facades the call to the underlying auditbucket-search implementation.
  * User: Mike Holdsworth
@@ -32,7 +34,7 @@ import org.springframework.integration.annotation.Gateway;
 public interface FdSearchGateway {
 
     @Gateway(requestChannel = "sendRequest")
-    public void makeSearchChanges(EntitySearchChanges searchChanges);
+    public Future<?> makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
     public EsSearchResult search(QueryParams queryParams);

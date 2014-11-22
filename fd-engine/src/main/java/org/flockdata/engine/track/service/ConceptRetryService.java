@@ -26,6 +26,8 @@ import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TrackService;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -34,12 +36,15 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -49,7 +54,6 @@ import java.util.concurrent.ExecutionException;
 @Configuration
 @EnableRetry
 @Service
-//@Transactional
 public class ConceptRetryService {
 
     @Autowired
@@ -64,14 +68,19 @@ public class ConceptRetryService {
     @Autowired
     SchemaService schemaService;
 
+    private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
+
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Iterable<TrackResultBean> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
+
+    @Async("fd-engine")    // ToDo: Via Integration - this should happen and not be subject to service stopping
+    public Future<Iterable<TrackResultBean>> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
             throws InterruptedException, ExecutionException, FlockException, IOException {
-        return doTrack(fortress, resultBeans);
+        return new AsyncResult<>(doTrack(fortress, resultBeans));
     }
 
     @Transactional
     Iterable<TrackResultBean> doTrack(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+        logger.debug("tracking concepts");
         schemaService.registerConcepts(fortress, resultBeans);
 
 //        resultBeans = logService.processLogsSync(fortress, resultBeans);

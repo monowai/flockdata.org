@@ -112,9 +112,9 @@ public class TrackServiceNeo4j implements TrackService {
         if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
             entity = findByCallerRef(fortress, entityInputBean.getDocumentType(), entityInputBean.getCallerRef());
         if (entity != null) {
-            logger.debug("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
+            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
             entityInputBean.setMetaKey(entity.getMetaKey());
-            logger.debug("Existing entity [{}]", entity);
+            logger.trace("Existing entity [{}]", entity);
             TrackResultBean arb = new TrackResultBean(entity, entityInputBean);
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getLog());
@@ -445,7 +445,7 @@ public class TrackServiceNeo4j implements TrackService {
         Collection<TrackResultBean> arb = new ArrayList<>();
         for (EntityInputBean inputBean : entityInputs) {
             TrackResultBean result = createEntity(fortress, inputBean);
-            logger.debug("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentType());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(result);
         }
 

@@ -77,12 +77,13 @@
 
     </bean>
 
-    <task:annotation-driven executor="fd-engineExec"  />
-
     <!--Pool size is the number of executors that will handle Bulk Uploads and
         incoming search responses -->
-    <task:executor id="fd-engineExec" pool-size="${thread.poolSize}"
-                   keep-alive="120" queue-capacity="${thread.queueCapacity}" rejection-policy="CALLER_RUNS" />
+    <task:executor id="fd-engine"
+                   pool-size="${thread.poolSize}"
+                   keep-alive="120"
+                   queue-capacity="${thread.queueCapacity}"
+                   rejection-policy="CALLER_RUNS" />
 
 
     <task:executor id="fd-q-exec"

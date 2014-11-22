@@ -95,7 +95,6 @@ public class FdRestWriter implements FdWriter {
     public FdRestWriter (ClientConfiguration configuration){
         httpHeaders = null;
         this.apiKey = configuration.getApiKey();
-        this.amqp = configuration.isAmqp();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = configuration.getEngineURL()+ "/v1/track/";
@@ -354,7 +353,6 @@ public class FdRestWriter implements FdWriter {
         return "OK";
 
     }
-    private boolean amqp = true; // Experimental support
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())

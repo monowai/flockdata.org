@@ -54,7 +54,7 @@ public class RiakRepo implements KvRepo {
                     client.generateAndSetClientId();
 
                 }
-            } finally{
+            } finally {
                 lock.unlock();
             }
 
@@ -67,19 +67,21 @@ public class RiakRepo implements KvRepo {
             Bucket bucket = getClient().createBucket(getBucket(contentBean.getEntityBean())).execute();
             bucket.store(String.valueOf(contentBean.getLogId()), contentBean.getEntityContent()).execute();
         } catch (RiakException e) {
-            logger.error("RIAK Repo Error", e);
-            client.shutdown();
-            client = null;
+            //logger.error("RIAK Repo Error", e);
+            if (client != null) {
+                client.shutdown();
+                client = null;
+            }
             throw new IOException("RIAK Repo Error [" + e.getMessage() + "]", e);
         }
     }
 
     private String getBucket(EntityBean entity) {
-        return entity.getIndexName()+"/"+entity.getDocumentType().toLowerCase();
+        return entity.getIndexName() + "/" + entity.getDocumentType().toLowerCase();
     }
 
     private String getBucket(Entity entity) {
-        return entity.getFortress().getIndexName()+"/"+entity.getDocumentType().toLowerCase();
+        return entity.getFortress().getIndexName() + "/" + entity.getDocumentType().toLowerCase();
     }
 
     public byte[] getValue(EntityBean entity, Log forLog) {

@@ -23,15 +23,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.helper.CompressionHelper;
-import org.flockdata.helper.CompressionResult;
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.helper.FlockException;
+import org.flockdata.helper.*;
 import org.flockdata.kv.*;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
-import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityBean;
@@ -52,6 +49,10 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
+ *
+ * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
+ * for various KV stores. Also provides retry and integration capabilities
+ *
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
@@ -83,28 +84,45 @@ public class KvManager implements KvService {
         getKvRepo().purge(indexName);
     }
 
-    @ServiceActivator(inputChannel = "doKvWrite")
-    public void asyncWrite(KvContentBean kvBean) throws FlockException {
+    /**
+     * Activated via an integration channel. This method goes through retry logic to handle
+     * temporary failures. If the kvBean is not processed then the message is left on the queue
+     * for retry
+     *
+     * @param kvBean content
+     * @throws FlockServiceException - problem with the underlying
+     */
+    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"})
+    public void asyncWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
+            // ToDo: Retrier or CircuitBreaker?
+            logger.debug("Received request to add kvBean {}", kvBean);
             getKvRepo().add(kvBean);
+
         } catch (IOException e) {
-            throw new FlockException ("Error writing to the KvStore ", e);
+            String errorMsg = String.format("Error writing to the %s KvStore.",kvConfig.getKvStore());
+            logger.error (errorMsg); // Hopefully an ops team will monitor for this event and
+                                     //           resolve the underlying DB problem
+            throw new FlockServiceException(errorMsg, e);
         }
     }
 
     /**
      * Persists the payload
      *
-     * if fd-engine.kv.async== true, then this will be done via an integration gateway
-     * otherwise it will be done immediately with no guarantees around delivery.
+     * if fd-engine.kv.async== true, then this will be handed off to an integration gateway
+     * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
+     * will have to deal with any errors
      *
      * @param kvBean payload for the KvStore
      */
-    public void doKvWrite(KvContentBean kvBean) throws FlockException {
+    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException{
         if (asyncWrites) {
             // Via the Gateway
+            logger.debug("Async write begins");
             kvGateway.doKvWrite(kvBean);
         } else {
+
             asyncWrite(kvBean);
         }
     }

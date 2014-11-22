@@ -28,6 +28,13 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandlingException;
 
 /**
+ *
+ * KV messages should always be written
+ *
+ * To get here, we have gone through a Retry advice chain so likely the DB is down
+ * The message will stay on the q as unacknowledged and redelivery will be attempted
+ * and the process will begin again.
+ *
  * User: mike
  * Date: 11/11/14
  * Time: 2:14 PM
@@ -37,13 +44,12 @@ public class KvErrorHandler {
 
     @ServiceActivator
     public void handleFailedKvRequest(Message<MessageHandlingException> message) {
-        // ToDo: How to persist failed messages
-        if (message.getPayload().getFailedMessage().getPayload() instanceof KvContentBean) {
-            KvContentBean entity = (KvContentBean) message.getPayload().getFailedMessage().getPayload();
+        MessageHandlingException payLoad = message.getPayload();
+        if (payLoad.getFailedMessage().getPayload() instanceof KvContentBean) {
+            KvContentBean entity = (KvContentBean) payLoad.getFailedMessage().getPayload();
             logger.info(JsonUtils.getJSON(entity));
-            logger.error(message.getPayload().getMessage());
         }
-        //throw message.getPayload();
+        throw payLoad;
 
 
     }

@@ -10,17 +10,13 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd">
-<!--Contains generic integration functionality for fd-engine.
+
+    <!--Contains generic integration functionality for fd-engine.
 Transformers, gateways and channels -->
 
     <int:gateway id="fdSearchGateway"
                  async-executor="fd-q-exec"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
-
-    <int:gateway id="kvGateway"
-                 async-executor="fd-q-exec"
-                 service-interface="org.flockdata.kv.KvGateway"/>
-
 
     <int:service-activator id="fdEntityErrorLogger"
                            input-channel="entityErrors"
@@ -31,6 +27,11 @@ Transformers, gateways and channels -->
     </bean>
 
 
+    <int:gateway id="kvGateway"
+                 async-executor="fd-q-exec"
+                 service-interface="org.flockdata.kv.KvGateway">
+    </int:gateway>
+
     <int:service-activator id="fdKvErrorLogger"
                            input-channel="kvErrors"
                            ref="fdKvErrorHandler"/>
@@ -39,9 +40,7 @@ Transformers, gateways and channels -->
 
     </bean>
 
-
-
-    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="entityErrors">
+    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
     </int:handler-retry-advice>
 
