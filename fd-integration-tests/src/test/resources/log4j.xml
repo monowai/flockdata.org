@@ -12,6 +12,10 @@
         </layout>
     </appender>
 
+    <logger name="org.springframework">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.springframework.transaction">
         <level value="error"/>
     </logger>
@@ -45,17 +49,13 @@
     <logger name="io.searchbox">
         <level value="info"/>
     </logger>
-    <logger name="org.springframework">
-        <level value="info"/>
-    </logger>
     <logger name="org.flockdata">
-        <level value="info"/>
+        <level value="${fd.logLevel}"/>
     </logger>
-
 
     <!-- Root Logger. If you're diagnosing integration test issues, up this value to debug -->
     <root>
-        <priority value="info"/>
+        <priority value="${fd.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

@@ -15,6 +15,12 @@
     <int:gateway id="engineGateway"
                  service-interface="org.flockdata.search.service.EngineGateway" />
 
+    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="errors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
+    </int:handler-retry-advice>
+
+
+    <import resource="fds-amqp-integration.xml"/>
     <!--Outbound result of the request to index the entity -->
     <int:object-to-json-transformer id="objectToJson"
                                     input-channel="searchReply"

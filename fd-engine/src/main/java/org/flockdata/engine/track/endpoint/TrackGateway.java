@@ -20,15 +20,20 @@
 package org.flockdata.engine.track.endpoint;
 
 import org.flockdata.track.bean.EntityInputBean;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
+
+import java.util.concurrent.Future;
 
 /**
  * User: mike
  * Date: 5/11/14
  * Time: 2:29 PM
  */
+@MessagingGateway(errorChannel = "entityErrors")
 public interface TrackGateway {
-    //@Gateway (requestChannel = "trackEntityOut")
-    public void trackEntity ( @Payload EntityInputBean entityInputBean);
+
+    @Gateway(requestChannel = "startEntityTrack")
+    Future<?> doTrackEntity(EntityInputBean entityInputBean);
 
 }

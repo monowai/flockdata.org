@@ -341,7 +341,7 @@ public class TestTagConcepts extends EngineBase {
             salesInput.addTag(new TagInputBean("Linux", "purchased").setLabel("Device"));
             //promoInput.addTag(new TagInputBean("Gary", "authorised").setLabel("Person"));
             mediationFacade.trackEntity(su.getCompany(), salesInput).getEntity();
-//            waitAWhile();
+            waitAWhile();
             Collection<String> docs = new ArrayList<>();
             docs.add(promo.getName());
             docs.add(sale.getName());

@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
  */
 public interface FdSearchGateway {
 
-    @Gateway(requestChannel = "sendRequest")
+    @Gateway(requestChannel = "sendEntityIndexRequest")
     public Future<?> makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )

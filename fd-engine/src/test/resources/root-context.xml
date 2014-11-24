@@ -52,6 +52,10 @@
                    rejection-policy="CALLER_RUNS"/>
     <cache:annotation-driven/>
 
+    <task:executor id="fd-q-exec" pool-size="30-50" keep-alive="120" queue-capacity="30"
+                   rejection-policy="CALLER_RUNS"/>
+    <cache:annotation-driven/>
+
     <aop:aspectj-autoproxy/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>

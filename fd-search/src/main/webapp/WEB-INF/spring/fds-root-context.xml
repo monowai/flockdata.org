@@ -27,7 +27,7 @@
     <import resource="fds-http-proxy-integration.xml"/>
     <import resource="fds-http-monitoring-integration.xml"/>
     <!--<import resource="fds-${fd.integration}-integration.xml"/>-->
-    <import resource="fds-amqp-integration.xml"/>
+
 
     <task:annotation-driven executor="fd-search"/>
 
