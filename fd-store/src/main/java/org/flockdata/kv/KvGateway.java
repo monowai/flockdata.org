@@ -32,8 +32,7 @@ import java.util.concurrent.Future;
  */
 @MessagingGateway(errorChannel = "kvErrors")
 public interface KvGateway {
-    //Setting Future<?> forces the request to be asyncExecuted, but it is still a blocking call
-    // ToD: how to make this return after delivering tot he queue
-    @Gateway(requestChannel = "kvWriteRequest")
+
+    @Gateway(requestChannel = "startKvWrite")
     Future<?> doKvWrite(KvContentBean resultBean);
 }

@@ -25,7 +25,6 @@ import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import java.util.Map;
 @Component
 public class MapRepo implements KvRepo {
 
-    @Autowired
     private static Logger logger = LoggerFactory.getLogger(MapRepo.class);
 
     Map<Long, byte[]> map = new HashMap <>();

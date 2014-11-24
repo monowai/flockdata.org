@@ -86,7 +86,7 @@ public class SearchServiceFacade {
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
-    @ServiceActivator(inputChannel = "searchDocSyncResult")
+    @ServiceActivator(inputChannel = "searchDocSyncResult", adviceChain = {"retrier"})
     public void searchDocSyncResult(byte[] searchResults) throws IOException {
         searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
@@ -145,10 +145,8 @@ public class SearchServiceFacade {
           //  return new AsyncResult<>(null);
             return;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
-
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
-        logger.debug("Requests sent [{}]] logs", searchDocument.size());
-        //return new AsyncResult<>(null);
+        logger.debug("[{}] log requests sent to search", searchDocument.size());
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {

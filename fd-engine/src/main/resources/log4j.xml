@@ -59,8 +59,17 @@
     <logger name="org.springframework.integration">
         <level value="error"/>
     </logger>
+    <logger name="org.springframework.integration.endpoint.PollingConsumer">
+        <level value="info"/>
+    </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>
+    </logger>
+    <logger name="org.springframework.data">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.integration.mapping">
+        <level value="info"/>
     </logger>
 
     <logger name="org.springframework.context">
