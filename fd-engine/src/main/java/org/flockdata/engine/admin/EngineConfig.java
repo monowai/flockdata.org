@@ -23,7 +23,6 @@ import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
-import org.flockdata.kv.KvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.search.model.PingResult;
@@ -75,6 +74,7 @@ public class EngineConfig implements FdEngineConfig {
 
     private boolean conceptsEnabled=true;
     private boolean duplicateRegistration;
+    private boolean testMode;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -194,6 +194,15 @@ public class EngineConfig implements FdEngineConfig {
     @Override
     public boolean isDuplicateRegistration() {
         return duplicateRegistration;
+    }
+
+    public boolean isTestMode() {
+        return testMode;
+    }
+
+    @Override
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
     }
 
 }

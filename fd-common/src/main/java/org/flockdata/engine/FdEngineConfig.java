@@ -50,4 +50,8 @@ public interface FdEngineConfig {
     void setDuplicateRegistration(boolean duplicateRegistration);
 
     boolean isDuplicateRegistration();
+
+    void setTestMode(boolean testMode);
+
+    boolean isTestMode();
 }

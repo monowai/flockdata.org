@@ -119,7 +119,7 @@
     </logger>
 
     <logger name="org.flockdata.engine.tag.model">
-        <level value="info"/>
+        <level value="${fd.logLevel}"/>
     </logger>
 
     <!-- Root Logger -->
