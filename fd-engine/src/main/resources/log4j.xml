@@ -107,11 +107,11 @@
     </logger>
 
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="info"/> <!-- turn this on to see erer statements")-->
+        <level value="info"/> <!-- set this to debug to see cypher statements")-->
     </logger>
 
     <logger name="org.neo4j.cypher">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="org.flockdata">
