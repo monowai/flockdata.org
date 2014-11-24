@@ -520,8 +520,10 @@ public class MediationFacadeNeo4j implements MediationFacade {
         logger.debug("Distributing changes to sub-services");
         searchService.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests. I hate config properties
-        conceptRetryService.trackConcepts(fortress, resultBeans);
-//        return new AsyncResult<>(null);
+        if (engineConfig.isTestMode())
+            conceptRetryService.trackConcepts(fortress, resultBeans).get();
+        else
+            conceptRetryService.trackConcepts(fortress, resultBeans);
     }
 
 

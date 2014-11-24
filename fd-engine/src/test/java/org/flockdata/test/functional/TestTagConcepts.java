@@ -114,6 +114,7 @@ public class TestTagConcepts extends EngineBase {
         try {
             logger.debug("### fortressConcepts");
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
             setSecurity();
@@ -249,6 +250,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### relationshipWorkForMultipleDocuments");
             setSecurity();
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
 
@@ -317,6 +319,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
 
@@ -384,6 +387,7 @@ public class TestTagConcepts extends EngineBase {
             setSecurity();
 
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t;
 
