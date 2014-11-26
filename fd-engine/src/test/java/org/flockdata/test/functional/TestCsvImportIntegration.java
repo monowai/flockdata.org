@@ -158,6 +158,11 @@ public class TestCsvImportIntegration extends EngineBase {
         public Collection<Tag> getCountries() throws FlockException {
             return null;
         }
+
+        @Override
+        public void close() {
+
+        }
     }
 
     private class MyRunner implements Runnable {
