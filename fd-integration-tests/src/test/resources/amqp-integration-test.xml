@@ -14,7 +14,7 @@
     <int:annotation-config/>
 
     <!-- Implementation bindings -->
-    <import resource="amqp-rabbit.xml"/>
+    <import resource="fde-amqp-rabbit.xml"/>
 
     <!--Sends search docs out. Whenever an entity has changed-->
     <int-amqp:outbound-gateway
@@ -25,60 +25,61 @@
             amqp-template="amqpTemplate"/>
 
     <!-- Acknowledgement from fd-search of an fd-engine request-->
-    <int-amqp:inbound-gateway id="searchSyncResult"
+    <int-amqp:inbound-gateway id="searchSyncResultId"
                               request-channel="searchDocSyncResult"
                               queue-names="${fd.engine.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
-                              concurrent-consumers="${rabbit.concurrentConsumers}"
+                              concurrent-consumers="${fd-search.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
                               task-executor="fd-engine"
+
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
-
-
-    <!--internally used to send content to the inboundTrackGateway -->
-    <int-amqp:outbound-gateway
-            request-channel="trackWriteRequest"
-            routing-key="${fd.track.binding}"
-            requires-reply="false"
-            exchange-name="${fd.track.exchange}"
-            amqp-template="amqpTemplate"/>
-
-    <!-- Starts an incoming request to track an entity -->
-    <int-amqp:inbound-gateway id="inboundTrackGateway"
-                              request-channel="trackEntity"
-                              queue-names="${fd.track.queue}"
-                              shutdown-timeout="3000"
-                              mapped-request-headers="apiKey"
-                              acknowledge-mode="AUTO"
-                              task-executor="fd-engine"
-                              error-channel="entityErrors"
-                              concurrent-consumers="30"
-                              prefetch-count="${rabbit.prefetchCount}"
-                              connection-factory="connectionFactory"/>
 
     <!--Part of the track flow. Writes the entity to the KV store-->
     <int-amqp:outbound-gateway
             request-channel="writeKvContent"
-            routing-key="${fd.kv.binding}"
             requires-reply="false"
+            routing-key="${fd.kv.binding}"
             exchange-name="${fd.kv.exchange}"
+            amqp-template="amqpTemplate"/>
+
+    <!--internally used to send content to the inboundTrackGateway -->
+    <int-amqp:outbound-gateway
+            request-channel="writeEntityContent"
+            routing-key="${fd.track.binding}"
+            requires-reply="false"
+            mapped-request-headers="apiKey"
+            exchange-name="${fd.track.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
-                              request-channel="startKvWrite"
+                              request-channel="doKvWrite"
                               queue-names="${fd.kv.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
-                              reply-channel="nullChannel"
                               error-channel="kvErrors"
-                              concurrent-consumers="30"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              task-executor="fd-store"
+                              concurrent-consumers="${fd-store.concurrentConsumers}"
+                              prefetch-count="2"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
-
+    <!-- Starts an incoming request to track an entity -->
+    <int-amqp:inbound-gateway id="entityWrite"
+                              request-channel="doTrackEntity"
+                              reply-channel="nullChannel"
+                              queue-names="${fd.track.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              task-executor="fd-track"
+                              mapped-request-headers="apiKey"
+                              error-channel="entityErrors"
+                              message-converter="jsonToEntityInput"
+                              concurrent-consumers="${fd-track.concurrentConsumers}"
+                              prefetch-count="${rabbit.prefetchCount}"
+                              connection-factory="connectionFactory"/>
 
 </beans>
