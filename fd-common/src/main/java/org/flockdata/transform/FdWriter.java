@@ -48,8 +48,6 @@ public interface FdWriter {
 
     int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException;
 
-
-
     /**
      * if True, then the writer will not persist changes
      * @return
@@ -57,4 +55,6 @@ public interface FdWriter {
     boolean isSimulateOnly();
 
     Collection<Tag> getCountries()  throws FlockException ;
+
+    void close();
 }

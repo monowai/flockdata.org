@@ -23,15 +23,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.apache.commons.codec.binary.Base64;
+import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -315,51 +311,34 @@ public class FdRestWriter implements FdWriter {
         return null;
     }
 
-    public String flushEntitiesAmqp(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    @Override
+    public void close() {
+        if (amqpHelper !=null )
+            amqpHelper.close();
+    }
 
-        ConnectionFactory factory = new ConnectionFactory();
-        Connection connection =null ;
-        factory.setHost("localhost");
-        Channel channel  = null;
-
+    public String flushEntitiesAmqp(List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         if ( apiKey == null ){
             apiKey = me().getApiKey();
         }
 
         try {
-            connection = factory.newConnection();
-            channel = connection.createChannel();
-
-            channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
-
-            HashMap<String,Object>headers = new HashMap<>();
-            headers.put("apiKey", apiKey);
-
-            AMQP.BasicProperties.Builder builder =
-                    new AMQP.BasicProperties().builder()
-                            .headers(headers)
-                    ;
-
             for (EntityInputBean entityInput : entityInputs) {
                // ToDo: Fix all of this.
-                channel.basicPublish("fd.track.exchange", "fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
+                getAmqpHelper(configuration).publish(entityInput);
             }
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
-        } finally{
-            if ( connection != null)
-                try {
-                    connection.close();
-                    if ( channel!=null && channel.isOpen())
-                        channel.close();
-
-                } catch (IOException e) {
-                    logger.error("Unexpected", e);
-                }
         }
         return "OK";
 
+    }
+    private AmqpHelper amqpHelper = null;
+    private AmqpHelper getAmqpHelper(ClientConfiguration configuration) {
+        if ( amqpHelper == null )
+            amqpHelper = new AmqpHelper(configuration);
+        return amqpHelper;
     }
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
@@ -372,7 +351,7 @@ public class FdRestWriter implements FdWriter {
         }
 
         if ( configuration.isAmqp() )
-            return flushEntitiesAmqp(company, entityInputs, configuration);
+            return flushEntitiesAmqp(entityInputs, configuration);
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);

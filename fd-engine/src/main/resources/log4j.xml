@@ -138,7 +138,7 @@
     </logger>
 
     <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <!-- Root Logger -->
