@@ -19,17 +19,17 @@
 
 package org.flockdata.track.service;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -60,7 +60,7 @@ public interface MediationFacade {
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    public void trackEntity(byte[] payload) throws FlockException, IOException, ExecutionException, InterruptedException;
+    public TrackResultBean trackEntity(EntityInputBean payload, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
@@ -80,7 +80,8 @@ public interface MediationFacade {
 
     void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
-    Collection<TrackResultBean> trackEntities(Company company, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
+
+    void trackEntities(String userApiKey, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     void mergeTags(Company company, Tag source, Tag target);
 
@@ -88,4 +89,5 @@ public interface MediationFacade {
 
 
     Map<String,Object> getLogContent(Entity entity, Long logId);
+
 }

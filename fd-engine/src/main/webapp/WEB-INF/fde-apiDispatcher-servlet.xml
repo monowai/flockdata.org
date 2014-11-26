@@ -1,10 +1,9 @@
-
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
 
@@ -13,7 +12,7 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:component-scan
             base-package="org.flockdata.engine.admin.endpoint,
@@ -24,7 +23,15 @@
             org.flockdata.company.endpoint"
     />
     <tx:annotation-driven/>
-    
+
+    <task:executor id="fd-web-api"
+                   pool-size="51"
+                   queue-capacity="30"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:annotation-driven executor="fd-web-api" mode="aspectj"/>
+
+
     <!-- Required to get the SimpleUser Security Principal in a SimpleUser MVC Controller method -->
     <mvc:annotation-driven>
         <mvc:argument-resolvers>

@@ -186,4 +186,12 @@ public class EntityBean {
         result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "EntityBean{" +
+                "metaKey='" + metaKey + '\'' +
+                ", indexName='" + indexName + '\'' +
+                '}';
+    }
 }

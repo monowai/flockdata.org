@@ -47,7 +47,7 @@ public class GeographyEP {
     RegistrationService regService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+    public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         return geoService.findCountries(regService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 

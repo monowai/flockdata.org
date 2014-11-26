@@ -14,7 +14,7 @@
                                channel-cache-size="${rabbit.publisherCacheSize}"
                                publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
-                               executor="fd-q-exec"/>
+                               executor="fd-engine"/>
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 

@@ -43,6 +43,7 @@
                                   location="classpath:config.properties"/>
 
     <import resource="simple-security.xml" />
+    <import resource="fdit-task.xml"/>
     <import resource="http-proxy-integration.xml"/>
     <import resource="neo4j-context-test.xml"/>
     <import resource="kv-context.xml"/>
@@ -58,24 +59,7 @@
 
     <aop:aspectj-autoproxy/>
 
-    <!--Pool size is the number of executors that will handle Bulk Uploads and
-        incoming search responses -->
-    <task:executor id="fd-engine"
-                   pool-size="${thread.poolSize}"
-                   keep-alive="120"
-                   queue-capacity="${thread.queueCapacity}"
-                   rejection-policy="CALLER_RUNS" />
 
-
-    <task:executor id="fd-q-exec"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
-
-    <task:executor id="fd-track"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
 
 
 </beans>

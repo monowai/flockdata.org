@@ -16,8 +16,11 @@ Transformers, gateways and channels -->
 
     <import resource="amqp-integration-test.xml" />
 
-    <int:gateway id="fdSearchGateway"
+    <int:gateway id="fdSearchGateway" async-executor="fd-engine"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
+
+    <int:gateway id="fdTrackGateway"  async-executor="fd-engine"
+                 service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 
     <int:service-activator id="fdEntityErrorLogger"
                            input-channel="entityErrors"
@@ -96,22 +99,25 @@ Transformers, gateways and channels -->
 
 
     <int:channel id="syncSearchDocs">
-        <int:dispatcher task-executor="fd-q-exec"/>
+        <int:dispatcher task-executor="fd-engine"/>
     </int:channel>
 
 
     <!--Channel to capture incoming search result from fd-search-->
     <int:channel id="searchDocSyncResult">
-        <int:dispatcher task-executor="fd-q-exec"/>
+        <int:dispatcher task-executor="fd-engine"/>
     </int:channel>
 
-    <int:channel id="sendEntityIndexRequest"/>
+    <int:channel id="sendEntityIndexRequest">
+        <int:dispatcher task-executor="fd-engine"/>
+    </int:channel>
+
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
     <int:channel id="doMetaKeyQuery" >
-        <int:dispatcher task-executor="fd-q-exec"/>
+        <int:dispatcher task-executor="fd-engine"/>
     </int:channel>
 
 
@@ -124,9 +130,13 @@ Transformers, gateways and channels -->
     <int:channel id="sendTagCloudReply"/>
 
     <!--KV Outbound -->
-    <int:channel id="startKvWrite"/>
+    <int:channel id="startKvWrite">
+        <int:dispatcher task-executor="fd-engine"/>
+    </int:channel>
     <int:channel id="writeKvContent"/>
-    <int:channel id="doKvWrite"/>
+    <int:channel id="doKvWrite">
+        <int:dispatcher task-executor="fd-engine"/>
+    </int:channel>
     <!--End KV Outbound -->
 
     <!--KV Gateway channels-->
@@ -137,13 +147,17 @@ Transformers, gateways and channels -->
     <!--End KV Gateway channel-->
 
     <!--Entity Tracking channels-->
-    <int:channel id="startEntityTrack"/>
+    <int:channel id="startEntityTrack">
+        <int:dispatcher task-executor="fd-engine"/>
+    </int:channel>
     <int:channel id="trackWriteRequest"/>
     <int:channel id="writeTrackContent"/>
     <int:channel id="entityErrors"/>
 
     <!--Receive Channel-->
-    <int:channel id="trackEntity"/>
+    <int:channel id="trackEntity">
+        <int:dispatcher task-executor="fd-engine"/>
+    </int:channel>
 
 
 

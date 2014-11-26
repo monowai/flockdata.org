@@ -84,7 +84,7 @@ public class TestAPISecurity extends EngineBase {
 		setSecurityEmpty();
 
 		mockMVC.perform(
-				MockMvcRequestBuilders.get("/fortress/").header("Api-Key",
+				MockMvcRequestBuilders.get("/fortress/").header("api-key",
 						apikey))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 	}

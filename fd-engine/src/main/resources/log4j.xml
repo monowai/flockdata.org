@@ -51,13 +51,13 @@
         <level value="error"/>
     </logger>
     <logger name="org.springframework.amqp">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
     <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
         <level value="error"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="error"/>
+        <level value="info"/>
     </logger>
     <logger name="org.springframework.integration.endpoint.PollingConsumer">
         <level value="info"/>
@@ -90,6 +90,10 @@
         <level value="error"/>
     </logger>
 
+    <logger name="org.springframework.core.task">
+        <level value="info"/>
+    </logger>
+
     <logger name="com.sun.jersey.server">
         <level value="error"/>
     </logger>
@@ -117,9 +121,24 @@
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>
+    <logger name="org.flockdata.engine.schema">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.tag">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.company">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.track">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.query">
+        <level value="info"/>
+    </logger>
 
-    <logger name="org.flockdata.engine.tag.model">
-        <level value="${fd.logLevel}"/>
+    <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
+        <level value="debug"/>
     </logger>
 
     <!-- Root Logger -->

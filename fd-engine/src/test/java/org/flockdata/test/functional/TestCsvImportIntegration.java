@@ -20,7 +20,6 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -126,9 +125,9 @@ public class TestCsvImportIntegration extends EngineBase {
 
             //if (configuration.getBatchSize() == 1) {
                 for (EntityInputBean entityInputBean : entityBatch) {
-                    entityInputBean.setApiKey(su.getApiKey());
 
-                    MyRunner runner = new MyRunner(entityInputBean);
+
+                    MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
                     executor.execute(runner);
                 }
 //            } else {
@@ -164,9 +163,11 @@ public class TestCsvImportIntegration extends EngineBase {
     private class MyRunner implements Runnable {
         private EntityInputBean entityInputBean;
         Collection<EntityInputBean> entityInputBeans;
+        private String apiKey;
 
-        MyRunner(EntityInputBean entityInputBean) {
+        MyRunner(EntityInputBean entityInputBean, String apiKey) {
             this.entityInputBean = entityInputBean;
+            this.apiKey = apiKey;
         }
 
         MyRunner(Collection<EntityInputBean> entityInputBeans) {
@@ -179,9 +180,9 @@ public class TestCsvImportIntegration extends EngineBase {
             try {
                 if (entityInputBean != null) {
                     logger.debug("My Date {}", entityInputBean.getWhen());
-                    mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(entityInputBean));
+                    mediationFacade.trackEntity(entityInputBean, apiKey);
                 } else {
-                    mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(entityInputBeans));
+                    mediationFacade.trackEntity(entityInputBean, apiKey);
                 }
             } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
                 logger.error("Unexpected", e);

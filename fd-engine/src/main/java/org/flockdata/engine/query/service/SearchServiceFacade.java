@@ -85,10 +85,10 @@ public class SearchServiceFacade {
     FortressService fortressService;
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
-
-    @ServiceActivator(inputChannel = "searchDocSyncResult", adviceChain = {"retrier"})
-    public void searchDocSyncResult(byte[] searchResults) throws IOException {
-        searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
+    //, adviceChain = {"retrier"}
+    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false")
+    public Boolean searchDocSyncResult(byte[] searchResults) throws IOException {
+        return searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
 
     /**
@@ -97,9 +97,10 @@ public class SearchServiceFacade {
          * <p/>
          * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
          *
-         * @param searchResults contains keys to tie the search to the entity
-         */
-    public void searchDocSyncResult(SearchResults searchResults) {
+     * @param searchResults contains keys to tie the search to the entity
+     */
+    @ServiceActivator(inputChannel = "searchSyncResult", requiresReply = "false")
+    public Boolean searchDocSyncResult(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
@@ -109,7 +110,7 @@ public class SearchServiceFacade {
             logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
             Long entityId = searchResult.getMetaId();
             if (entityId == null)
-                return;
+                return false;
 
             try {
                 trackService.recordSearchResult(searchResult, entityId);
@@ -118,6 +119,7 @@ public class SearchServiceFacade {
             }
         }
         logger.trace("Finished processing search results");
+        return true;
     }
 
 
@@ -253,7 +255,7 @@ public class SearchServiceFacade {
 
     }
 
-    @Async("fd-engine")
+    @Async("fd-search")
     public Future<?> makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChange> changes = new ArrayList<>();

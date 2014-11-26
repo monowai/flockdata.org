@@ -114,7 +114,6 @@ public class Importer {
     public static void main(String args[]) {
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
-        boolean async = false, validate=false, amqp = false;
         FileProcessor fileProcessor = null;
         try {
             Namespace ns = getCommandLineArgs(args);
@@ -134,19 +133,19 @@ public class Importer {
 
             int batchSize = configuration.getBatchSize();
             if (batch != null && !batch.equals(""))
-                batchSize = Integer.parseInt(batch);
+                configuration.setBatchSize(Integer.parseInt(batch));
 
             Object o = ns.get("async");
             if ( o!=null )
-                async = Boolean.parseBoolean(o.toString());
+                configuration.setAsync(Boolean.parseBoolean(o.toString()));
 
             o = ns.get("validate");
             if ( o!=null )
-                validate = Boolean.parseBoolean(o.toString());
+                configuration.setValidateOnly(Boolean.parseBoolean(o.toString()));
 
             o = ns.get("amqp");
             if ( o!=null )
-                amqp = Boolean.parseBoolean(o.toString());
+                configuration.setAmqp(Boolean.parseBoolean(o.toString()));
 
 
             watch.start();
@@ -171,10 +170,6 @@ public class Importer {
                     item++;
                 }
                 ImportProfile importProfile;
-                configuration.setBatchSize(batchSize);
-                configuration.setAsync(async);
-                configuration.setValidateOnly(validate);
-                configuration.setAmqp(amqp);
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
                     //importParams = Class.forName(importProfile);

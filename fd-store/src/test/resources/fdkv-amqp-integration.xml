@@ -23,7 +23,7 @@
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
-                              task-executor="fd-engineExec"
+                              task-executor="fd-engine"
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"
                               message-converter="jsonToKvContentConverter"

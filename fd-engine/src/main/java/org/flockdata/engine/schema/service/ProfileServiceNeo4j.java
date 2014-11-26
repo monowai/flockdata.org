@@ -111,7 +111,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
      * Does not validate the arguments.
      */
     @Override
-    @Async
+    @Async ("fd-track")
     public void processAsync(Company company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
         process(company, fortressCode, documentCode, file, true);
     }

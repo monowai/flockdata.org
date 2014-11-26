@@ -60,7 +60,7 @@ public class TestSchemaManagement extends EngineBase {
         // There should be a doc type per fortress and it should have the same Id.
         // ToDo: fortress actions based on fortress api-key
 //        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/fortress/")
-//                        .header("Api-Key", su.getApiKey())
+//                        .header("api-key", su.getApiKey())
 //                                //.("company", su.getCompany())
 //                        .contentType(MediaType.APPLICATION_JSON)
 //                        .content(getJSON(new FortressInputBean(fortressName, true)))

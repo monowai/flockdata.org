@@ -15,7 +15,7 @@
     <import resource="fds-amqp-rabbit.xml"/>
 
     <int-amqp:inbound-gateway
-            id="inboundGateway"
+            id="writeEntitySearch"
             request-channel="syncSearchDocs"
             queue-names="${fd.search.queue}"
             concurrent-consumers="50"

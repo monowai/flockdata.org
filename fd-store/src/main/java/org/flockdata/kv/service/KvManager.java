@@ -23,7 +23,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.helper.*;
+import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.CompressionResult;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.*;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.memory.MapRepo;
@@ -40,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,20 +51,34 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- *
  * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
  * for various KV stores. Also provides retry and integration capabilities
- *
+ * <p/>
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
 @Service
 @Transactional
-@EnableAsync
 public class KvManager implements KvService {
 
     @Autowired
     KvGateway kvGateway;  // Used for async loose coupling between this service and the db
+
+    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+
+    @Autowired
+    RedisRepo redisRepo;
+
+    @Autowired
+    RiakRepo riakRepo;
+
+    @Autowired
+    MapRepo mapRepo;
+
+    @Autowired
+    FdKvConfig kvConfig;
+
+    private Logger logger = LoggerFactory.getLogger(KvManager.class);
 
     @Override
     public String ping() {
@@ -92,56 +108,41 @@ public class KvManager implements KvService {
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
      */
-    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"})
-    public void asyncWrite(KvContentBean kvBean) throws FlockServiceException {
+    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"}, requiresReply = "false")
+    public Boolean asyncWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
-            // ToDo: Retrier or CircuitBreaker?
+            // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add kvBean {}", kvBean);
             getKvRepo().add(kvBean);
 
         } catch (IOException e) {
-            String errorMsg = String.format("Error writing to the %s KvStore.",kvConfig.getKvStore());
-            logger.error (errorMsg); // Hopefully an ops team will monitor for this event and
-                                     //           resolve the underlying DB problem
-            throw new FlockServiceException(errorMsg, e);
+            String errorMsg = String.format("Error writing to the %s KvStore.", kvConfig.getKvStore());
+            logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
+            //           resolve the underlying DB problem
+            throw new FlockServiceException(errorMsg, e); // Keep the message on the queue
         }
+        return Boolean.TRUE;
     }
 
     /**
      * Persists the payload
-     *
+     * <p/>
      * if fd-engine.kv.async== true, then this will be handed off to an integration gateway
      * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
      * will have to deal with any errors
      *
      * @param kvBean payload for the KvStore
      */
-    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException{
+    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         if (asyncWrites) {
             // Via the Gateway
-            logger.debug("Async write begins");
+            logger.trace("Async write begins");
             kvGateway.doKvWrite(kvBean);
         } else {
 
             asyncWrite(kvBean);
         }
     }
-
-    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
-
-    @Autowired
-    RedisRepo redisRepo;
-
-    @Autowired
-    RiakRepo riakRepo;
-
-    @Autowired
-    MapRepo mapRepo;
-
-    @Autowired
-    FdKvConfig kvConfig;
-
-    private Logger logger = LoggerFactory.getLogger(KvManager.class);
 
     /**
      * adds what store details to the log that will be index in Neo4j
@@ -178,7 +179,7 @@ public class KvManager implements KvService {
             return redisRepo;
         } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.RIAK))) {
             return riakRepo;
-        } else if ( kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.MEMORY))) {
+        } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.MEMORY))) {
             return mapRepo;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
@@ -254,7 +255,7 @@ public class KvManager implements KvService {
     @Override
     public boolean sameJson(EntityContent compareFrom, EntityContent compareTo) {
 
-        logger.debug("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
+        logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
         JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
         JsonNode jCompareWith = om.valueToTree(compareTo.getWhat());
         return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);

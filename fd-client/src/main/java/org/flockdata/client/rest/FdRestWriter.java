@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -331,10 +332,17 @@ public class FdRestWriter implements FdWriter {
 
             channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
 
+            HashMap<String,Object>headers = new HashMap<>();
+            headers.put("apiKey", apiKey);
+
+            AMQP.BasicProperties.Builder builder =
+                    new AMQP.BasicProperties().builder()
+                            .headers(headers)
+                    ;
+
             for (EntityInputBean entityInput : entityInputs) {
-                if ( entityInput.getApiKey() == null )
-                    entityInput.setApiKey(apiKey); // ToDo: Fix all of this.
-                channel.basicPublish("fd.track.exchange", "fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(entityInput));
+               // ToDo: Fix all of this.
+                channel.basicPublish("fd.track.exchange", "fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
             }
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
@@ -543,7 +551,7 @@ public class FdRestWriter implements FdWriter {
                 }
 
                 if (apiKey != null)
-                    set("Api-Key", apiKey);
+                    set("api-key", apiKey);
 
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", CompressionHelper.charSet.toString());

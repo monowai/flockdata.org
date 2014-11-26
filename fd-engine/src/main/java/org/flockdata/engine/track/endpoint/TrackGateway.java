@@ -20,8 +20,11 @@
 package org.flockdata.engine.track.endpoint;
 
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
@@ -30,10 +33,11 @@ import java.util.concurrent.Future;
  * Date: 5/11/14
  * Time: 2:29 PM
  */
-@MessagingGateway(errorChannel = "entityErrors")
+@MessagingGateway(errorChannel = "entityErrors", asyncExecutor = "fd-track")
+@Async("fd-track")
 public interface TrackGateway {
-
-    @Gateway(requestChannel = "startEntityTrack")
-    Future<?> doTrackEntity(EntityInputBean entityInputBean);
+//    ToDo: where to send the reply
+    @Gateway(requestChannel = "startEntityWrite")
+    Future<TrackResultBean> doTrackEntity(EntityInputBean entityInputBean, @Header(value="apiKey") String apiKey);
 
 }
