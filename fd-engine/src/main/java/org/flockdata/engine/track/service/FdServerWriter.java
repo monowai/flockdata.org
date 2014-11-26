@@ -79,7 +79,9 @@ public class FdServerWriter implements FdWriter, FdReader {
     @Override
     public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
         try {
-            mediationFacade.trackEntities(configuration.getApiKey(), entityBatch);
+            for (EntityInputBean entityInputBean : entityBatch) {
+                mediationFacade.trackEntity(company, entityInputBean);
+            }
             return "ok";
         } catch (InterruptedException e) {
             throw new FlockException("Interrupted", e);
