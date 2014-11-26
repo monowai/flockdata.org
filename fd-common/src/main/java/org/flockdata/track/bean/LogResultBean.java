@@ -19,13 +19,11 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.model.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.model.TxRef;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * User: Mike Holdsworth
@@ -36,11 +34,8 @@ public class LogResultBean {
     private String message;
     private String fortress;
     private String documentType;
-    private String metaKey;
     private String callerRef;
     private ContentInputBean.LogStatus status = ContentInputBean.LogStatus.OK;
-
-    private Entity entity;
 
     private String fortressUser;
     private String txReference = null;
@@ -49,19 +44,18 @@ public class LogResultBean {
     private Log whatLog;
     private boolean logIgnored = false;
 
-
     private LogResultBean() {
     }
 
-    public LogResultBean(ContentInputBean content, Entity entity, Fortress fortress) {
+    public LogResultBean(ContentInputBean content) {
         this();
-        this.entity = entity;
-        if ( entity !=null ) {
-            setMetaKey(entity.getMetaKey());
-            setDocumentType(entity.getDocumentType());
-            setCallerRef(entity.getCallerRef());
-            setFortress(fortress.getName());
-        }
+//        this.entity =entity;
+//        if ( entity !=null ) {
+//            setMetaKey(entity.getMetaKey());
+//            setDocumentType(entity.getDocumentType());
+//            setCallerRef(entity.getCallerRef());
+//            setFortress(fortress.getName());
+//        }
         setFortressUser(content.getFortressUser());
 
     }
@@ -78,15 +72,6 @@ public class LogResultBean {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getMetaKey() {
-        return metaKey;
-    }
-
-    public void setMetaKey(String metaKey) {
-        this.metaKey = metaKey;
     }
 
     public void setTxReference(TxRef txReference) {
@@ -165,20 +150,29 @@ public class LogResultBean {
         return whatLog;
     }
 
-    @JsonIgnore
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
-    }
+//    @JsonIgnore
+//    @Deprecated
+//    /**
+//     * Used internally by fd-engine to carry the current entity. Can not be
+//     * serialized over Json.
+//     *
+//     * @deprecated - use getEntityBean with works over JSON. fd-engine to change
+//     */
+//    public Entity getEntity() {
+//        return entity;
+//    }
+//
+//    public void setEntity(Entity entity) {
+//        this.entity = entity;
+//    }
 
     public void setLogIgnored() {
         this.logIgnored = true;
     }
 
     public boolean isLogIgnored() {
-        return logIgnored;
+        return logIgnored ||
+                getStatus() == ContentInputBean.LogStatus.IGNORE||
+                getStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
     }
 }

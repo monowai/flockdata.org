@@ -22,6 +22,7 @@ package org.flockdata.search.endpoint;
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,20 +42,20 @@ public class ElasticSearchEP {
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
 
-    public String simpleQuery(@RequestBody QueryParams queryParams,
-                            @RequestHeader(value = "Api-Key", required = false)
-                            String apiHeaderKey) throws FlockException {
+    public String simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
 
         return searchService.doSearch(queryParams);
     }
 
     @RequestMapping(value = "/metaKeys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-
-    public EsSearchResult metaKeys(@RequestBody QueryParams queryParams,
-                              @RequestHeader(value = "Api-Key", required = false)
-                              String apiHeaderKey) throws FlockException {
+    public EsSearchResult metaKeys(@RequestBody QueryParams queryParams) throws FlockException {
 
         return searchService.metaKeySearch(queryParams);
+    }
+
+    @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public org.flockdata.search.model.TagCloud tagCloud(@RequestBody TagCloudParams queryParams) throws FlockException {
+        return searchService.getTagCloud(queryParams);
     }
 
 }

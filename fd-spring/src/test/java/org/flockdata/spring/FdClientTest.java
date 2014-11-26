@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertNotNull;
 
+
 public class FdClientTest extends AbstractFDTest {
     @Autowired
     FdRestWriter fdClient;

@@ -21,6 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
@@ -52,7 +53,7 @@ public class LogServiceNeo4j implements LogService {
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
-    private KvService kvService;
+    private KvService kvManager;
 
     @Autowired
     FortressService fortressService;
@@ -87,8 +88,14 @@ public class LogServiceNeo4j implements LogService {
         TrackResultBean result = logRetryService.writeLog(fortress, resultBean);
         if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
-        // ToDo: KV should be written to first as a notional update
-        kvService.doKvWrite(result); //ToDo: Consider KV not available. How to write the logs
+
+        if (resultBean.getContentInput() != null
+                && !resultBean.getLogResult().isLogIgnored()) {
+            if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
+                KvContentBean kvContentBean = new KvContentBean(resultBean);
+                kvManager.doKvWrite(kvContentBean);
+            }
+        }
         return result;
     }
 
@@ -112,12 +119,5 @@ public class LogServiceNeo4j implements LogService {
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
         return entityDao.getLastLog(entity.getId());
     }
-
-//    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException {
-//        logger.debug("Distributing changes to sub-services");
-//        schemaService.registerConcepts(company, resultBeans);
-//        searchService.makeChangesSearchable(resultBeans);
-//        //logger.debug("Distributed changes to search service");
-//    }
 
 }

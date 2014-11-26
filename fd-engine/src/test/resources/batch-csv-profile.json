@@ -29,8 +29,7 @@
                                 {
                                     "relationship": "state",
                                     "column": "country",
-                                    "label": "Country",
-                                    "country": true
+                                    "label": "Countryx"
                                 }
                             ]
 

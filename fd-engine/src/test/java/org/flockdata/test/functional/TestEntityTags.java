@@ -25,7 +25,7 @@ package org.flockdata.test.functional;
  * Time: 4:49 PM
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -43,10 +43,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
@@ -80,7 +80,7 @@ public class TestEntityTags extends EngineBase {
         entityBean.setContent(contentBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
 
         Assert.assertEquals(1, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
         Assert.assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entity).size());
@@ -101,8 +101,10 @@ public class TestEntityTags extends EngineBase {
         Assert.assertEquals(2, entityTagService.getEntityTags(su.getCompany(), entity).size());
 
         EntityLog lastLog = logService.getLastLog(entity);
-        EntityContent entityContent = kvService.getContent(entity, lastLog.getLog());
-        assertEquals(jsonMap.get("Key").toString(), entityContent.getWhat().get("Key").toString());
+        assertNotNull ( lastLog);
+        Map<String,Object> values = mediationFacade.getLogContent(entity, lastLog.getId());
+        assertFalse(values.isEmpty());
+        assertEquals(jsonMap.get("Key").toString(), values.get("Key").toString());
 
     }
 
@@ -119,9 +121,9 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
 
-        EntityTagInputBean auditTag = new EntityTagInputBean(resultBean.getMetaKey(), null, "!!!");
+        EntityTagInputBean auditTag = new EntityTagInputBean(resultBean.getEntityBean().getMetaKey(), null, "!!!");
         try {
             entityTagService.processTag(entity, auditTag);
             fail("Null argument exception should have been thrown");
@@ -155,7 +157,7 @@ public class TestEntityTags extends EngineBase {
         DateTime fCreated = new DateTime().minus(10000);
         EntityInputBean entityBean = new EntityInputBean(fortress.getName(), "anyone", "aTest", fCreated, "abc");
         TrackResultBean resultBean = mediationFacade.trackEntity(fortress, entityBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
 
         assertEquals(fCreated.getMillis(), entity.getFortressDateCreated().getMillis());
 
@@ -178,7 +180,7 @@ public class TestEntityTags extends EngineBase {
         // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
         entityBean.setContent(contentInputBean);
         mediationFacade.trackEntity(fortress, entityBean);
-        entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertEquals(fCreated, entity.getFortressDateCreated());
         assertEquals(fUpdated.getMillis(), entity.getFortressDateUpdated().longValue());
         tags = entityTagService.getEntityTags(su.getCompany(), entity);
@@ -209,7 +211,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", "CCCC"));
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
@@ -241,7 +243,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", "CCCC"));
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
 
         assertNotNull(tagSet);
@@ -276,7 +278,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagC", null));
         entityInput.addTag(new TagInputBean("TagD", "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(4, tagSet.size());
@@ -314,7 +316,7 @@ public class TestEntityTags extends EngineBase {
         tag.setCode(null ); // This gets set to null if not supplied over an endpoint
         entityInput.addTag(tag);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(1, tagSet.size());
@@ -335,7 +337,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("taga", "lower"));
         entityInput.addTag(new TagInputBean("tAgA", "mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Tag tag = tagService.findTag(su.getCompany(), "Taga");
         assertNotNull(tag);
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
@@ -369,7 +371,7 @@ public class TestEntityTags extends EngineBase {
                 id = entityTag.getTag().getId();
             Assert.assertEquals(id, entityTag.getTag().getId());
         }
-        assertNull(resultBean.getMetaKey());
+        assertNull(resultBean.getEntityBean().getMetaKey());
 
     }
 
@@ -398,7 +400,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         TrackResultBean rb = mediationFacade.trackEntity(su.getCompany(), entity);
-        ContentInputBean contentInput = new ContentInputBean("Harry", rb.getMetaKey(), new DateTime(),null);
+        ContentInputBean contentInput = new ContentInputBean("Harry", rb.getEntityBean().getMetaKey(), new DateTime(),null);
         assertNotNull(mediationFacade.trackLog(su.getCompany(), contentInput));
     }
 
@@ -420,7 +422,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(tag);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(entity);
         assertNotNull(tagSet);
         assertEquals(3, tagSet.size());
@@ -448,7 +450,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(),true);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey(),true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
@@ -471,7 +473,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(),true);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey(),true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
@@ -499,7 +501,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(), true);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
@@ -523,7 +525,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey(), true);
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey(), true);
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("One for the Generic tag and one for exploration", 1, tagResults.size());
     }
@@ -545,7 +547,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         // By default, tags are inbound to the Entity. This asserts the reverse also works
         Collection<EntityTag> tagResults = entityTagService.findOutboundTags(entity);
         assertEquals("No tag heading out from the Entity could be found", 1, tagResults.size());
@@ -571,7 +573,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.addTag(tagB);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagResults = entityTagService.findEntityTags(entity);
         assertEquals("Union of type and tag does not total", 3, tagResults.size());
         EntitySummaryBean summaryBean = trackService.getEntitySummary(null, entity.getMetaKey());
@@ -795,7 +797,7 @@ public class TestEntityTags extends EngineBase {
 
         inputBean.addTag(tagInput);
         TrackResultBean entityResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity created = trackService.getEntity(su.getCompany(), entityResult.getMetaKey());
+        Entity created = trackService.getEntity(su.getCompany(), entityResult.getEntityBean().getMetaKey());
         Log firstLog = trackService.getLastEntityLog(su.getCompany(), created.getMetaKey()).getLog();
         assertNotNull(created);
 
@@ -808,7 +810,7 @@ public class TestEntityTags extends EngineBase {
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
         updatedEntity.addTag(new TagInputBean("TEST-UPDATE", "camel"));
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
-        Entity entity = trackService.getEntity(su.getCompany(), entityResult.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), entityResult.getEntityBean().getMetaKey());
         assertNotNull(entity);
 
         // Should only be one tag
@@ -831,7 +833,7 @@ public class TestEntityTags extends EngineBase {
         updatedEntity.setContent(alb);
         updatedEntity.getTags().clear();
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
-        entity = trackService.getEntity(su.getCompany(), entityResult.getMetaKey());
+        entity = trackService.getEntity(su.getCompany(), entityResult.getEntityBean().getMetaKey());
 
         // 3 logs
         Assert.assertEquals(3, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
@@ -864,7 +866,7 @@ public class TestEntityTags extends EngineBase {
         tagInput = new TagInputBean(("TAG-SECOND"), "rlxb-test");
         inputBean.addTag(tagInput);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity created = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity created = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         trackService.getLastEntityLog(su.getCompany(), created.getMetaKey()).getLog();
         assertNotNull(created);
         validateTag(created, null, 2);
@@ -877,7 +879,7 @@ public class TestEntityTags extends EngineBase {
         // we are updating an existing entity with two tags and telling it that only one is now valid
         updatedEntity.addTag(new TagInputBean("TAG-FIRST", "rlx-test"));
         resultBean = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertNotNull(entity);
 
         // Should be one tag
@@ -908,7 +910,7 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertNotNull(entity);
 
         validateTag(entity, "TagA", 1);
@@ -942,7 +944,7 @@ public class TestEntityTags extends EngineBase {
 
         inputBean.addTag(outBound);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity created = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity created = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         trackService.getLastEntityLog(su.getCompany(), created.getMetaKey()).getLog();
 
         // Total of two tags
@@ -1000,7 +1002,7 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
-        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertNotNull(entity);
 
         validateTag(entity, "TagA", 1);

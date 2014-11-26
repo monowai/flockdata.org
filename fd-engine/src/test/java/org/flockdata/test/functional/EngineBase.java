@@ -22,7 +22,7 @@ package org.flockdata.test.functional;
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.company.model.FortressNode;
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.service.TxService;
@@ -112,7 +112,7 @@ public abstract class EngineBase {
 
 	@Autowired
     public
-    FdConfig engineConfig;
+    FdEngineConfig engineConfig;
 
 	@Autowired
     QueryService queryService;

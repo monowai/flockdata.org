@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: mike
@@ -80,7 +80,7 @@ public class TestHashcodeAndEquality {
         EntityInputBean entityInput = new EntityInputBean();
         entityInput.setCallerRef("abc");
 
-        EntityNode mh = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
+        EntityNode mh = new EntityNode("123abc", entityInput, documentTypeNode);
         EntityTagRelationship entityTagA = new EntityTagRelationship(mh.getId(), tagNode);
         EntityTagRelationship entityTagB = new EntityTagRelationship(mh.getId(), tagNodeB);
 

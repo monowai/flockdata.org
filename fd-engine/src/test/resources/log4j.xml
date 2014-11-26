@@ -54,7 +54,7 @@
     <!--<logger name="org.flockdata.engine.track">-->
         <!--<level value="info"/>-->
     <!--</logger>-->
-    <!--<logger name="org.flockdata.kv.KvManager">-->
+    <!--<logger name="org.flockdata.kv.service.KvManager">-->
         <!--<level value="info"/>-->
     <!--</logger>-->
 

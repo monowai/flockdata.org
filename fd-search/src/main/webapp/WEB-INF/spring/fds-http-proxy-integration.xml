@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans:beans xmlns:int="http://www.springframework.org/schema/integration"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:int-http="http://www.springframework.org/schema/integration/http"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration
+		http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/http
+		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+    <int:annotation-config/>
+    <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
+
+    <int-http:inbound-gateway request-channel="doMetaKeyQuery"
+                              reply-channel="doMetaKeyReply"
+                              path="/api/esSearch"
+
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+
+                              request-payload-type="org.flockdata.search.model.QueryParams"
+                              supported-methods="POST">
+
+            </int-http:inbound-gateway>
+
+    <int-http:inbound-gateway request-channel="doTagCloudQuery"
+                              reply-channel="doTagCloudReply"
+                              path="/api/esTagCloud"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              request-payload-type="org.flockdata.search.model.TagCloudParams"
+                              supported-methods="POST"/>
+
+</beans:beans>

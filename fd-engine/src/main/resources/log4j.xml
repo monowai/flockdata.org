@@ -8,7 +8,7 @@
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%-5p: %c - %m%n"/>
+            <param name="ConversionPattern" value="%t %-5p: %c - %m%n"/>
         </layout>
     </appender>
 
@@ -47,17 +47,29 @@
     <!--<logger name="org.springframework.retry.support.RetryTemplate">-->
         <!--<level value="debug"/>-->
     <!--</logger>-->
-    <logger name="org.springframework.amqp">
+    <logger name="org.springframework.integration.channel.NullChannel">
         <level value="error"/>
     </logger>
-    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+    <logger name="org.springframework.amqp">
         <level value="info"/>
+    </logger>
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.integration">
         <level value="info"/>
     </logger>
+    <logger name="org.springframework.integration.endpoint.PollingConsumer">
+        <level value="info"/>
+    </logger>
     <logger name="org.springframework.scheduling">
         <level value="error"/>
+    </logger>
+    <logger name="org.springframework.data">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.integration.mapping">
+        <level value="info"/>
     </logger>
 
     <logger name="org.springframework.context">
@@ -78,10 +90,13 @@
         <level value="error"/>
     </logger>
 
+    <logger name="org.springframework.core.task">
+        <level value="info"/>
+    </logger>
+
     <logger name="com.sun.jersey.server">
         <level value="error"/>
     </logger>
-
 
     <logger name="com.jersey">
         <level value="error"/>
@@ -90,19 +105,40 @@
     <logger name="org.eclipse">
         <level value="error"/>
     </logger>
+
     <logger name="o.e.jetty">
         <level value="error"/>
     </logger>
+
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="info"/> <!-- turn this on to see erer statements")-->
+        <level value="info"/> <!-- set this to debug to see cypher statements")-->
     </logger>
 
     <logger name="org.neo4j.cypher">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
+    </logger>
+    <logger name="org.flockdata.engine.schema">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.tag">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.company">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.track">
+        <level value="info"/>
+    </logger>
+    <logger name="org.flockdata.engine.query">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
+        <level value="debug"/>
     </logger>
 
     <!-- Root Logger -->

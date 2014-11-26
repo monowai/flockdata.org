@@ -24,10 +24,10 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.TrackService;
-import org.flockdata.registration.service.RegistrationService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +39,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: Mike Holdsworth
@@ -117,7 +117,7 @@ public class TestForceDeadlock extends EngineBase {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<EntityInputBean> inputBeans = runners.get(i).getInputBeans();
-            Future<Collection<TrackResultBean>> runResult = mediationFacade.trackEntitiesAsync(su.getCompany(), inputBeans);
+            Future<Collection<TrackResultBean>> runResult = (Future<Collection<TrackResultBean>>) mediationFacade.trackEntitiesAsync(su.getCompany(), inputBeans);
             futures.put(i,runResult );
         }
 

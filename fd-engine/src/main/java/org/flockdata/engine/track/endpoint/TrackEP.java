@@ -87,10 +87,8 @@ public class TrackEP {
     public void trackEntities(@RequestBody List<EntityInputBean> inputBeans, boolean async,
                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
-        if ( async)
-            mediationFacade.trackEntitiesAsync(company, inputBeans);
-        else
-            mediationFacade.trackEntities(company, inputBeans);
+
+        mediationFacade.trackEntities(CompanyResolver.resolveCallerApiKey(request), inputBeans);
     }
 
     /**
@@ -130,7 +128,7 @@ public class TrackEP {
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
             throw new NotFoundException("Unable to locate the requested metaKey");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
-            input.setAbMessage("Ignoring request to change as the 'what' has not changed");
+            input.setFdMessage("Ignoring request to change as the 'what' has not changed");
             return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
         } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
             return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
@@ -140,7 +138,7 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", produces = "application/json", method = RequestMethod.PUT)
     public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
@@ -167,27 +165,29 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", method = RequestMethod.GET)
-    public @ResponseBody  Entity findByCallerRef(@PathVariable("fortress") String fortressName,
-                                                 @PathVariable("documentType") String recordType,
-                                                 @PathVariable("callerRef") String callerRef,
-                                                 HttpServletRequest request) throws FlockException {
+    @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", produces = "application/json", method = RequestMethod.GET)
+    public @ResponseBody
+    EntityBean findByCallerRef(@PathVariable("fortress") String fortressName,
+                               @PathVariable("documentType") String documentType,
+                               @PathVariable("callerRef") String callerRef,
+                               HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        return trackService.findByCallerRef(fortress, recordType, callerRef);
+        Entity entity =  trackService.findByCallerRef(fortress, documentType, callerRef);
+        return new EntityBean(entity);
     }
 
 
     @RequestMapping(value = "/{metaKey}", method = RequestMethod.GET)
-    public ResponseEntity<Entity> getEntity(@PathVariable("metaKey") String metaKey ,
-                                            HttpServletRequest request) throws FlockException {
+    public EntityBean getEntity(@PathVariable("metaKey") String metaKey,
+                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
         Entity result = trackService.getEntity(company, metaKey, true);
         if (result == null)
-            throw new FlockException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
+            throw new NotFoundException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new EntityBean(result);
     }
 
     /**
@@ -256,7 +256,7 @@ public class TrackEP {
         return trackService.getLogTags(company, tl);
     }
 
-    @RequestMapping(value = "/{metaKey}/tags", method = RequestMethod.GET)
+    @RequestMapping(value = "/{metaKey}/tags", produces = "application/json", method = RequestMethod.GET)
     public @ResponseBody Collection<EntityTag> getEntityTags(@PathVariable("metaKey") String metaKey,
                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -330,9 +330,7 @@ public class TrackEP {
 
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity != null) {
-            EntityLog log = trackService.getLogForEntity(entity, logId);
-            if (log != null)
-                return kvService.getContent(entity, log.getLog()).getWhat();
+            return mediationFacade.getLogContent(entity, logId);
         }
 
         throw new NotFoundException(String.format("Unable to locate the log for %s / %d", metaKey, logId));

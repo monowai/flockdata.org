@@ -112,11 +112,10 @@ public class TrackServiceNeo4j implements TrackService {
         if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
             entity = findByCallerRef(fortress, entityInputBean.getDocumentType(), entityInputBean.getCallerRef());
         if (entity != null) {
-            logger.debug("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
+            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
             entityInputBean.setMetaKey(entity.getMetaKey());
-            logger.debug("Existing entity [{}]", entity);
-            TrackResultBean arb = new TrackResultBean(entity, fortress);
-            arb.setEntityInputBean(entityInputBean);
+            logger.trace("Existing entity [{}]", entity);
+            TrackResultBean arb = new TrackResultBean(entity, entityInputBean);
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getLog());
             if ( entityInputBean.getLog()!=null && entityInputBean.getLog().getWhen()!=null) {
@@ -136,9 +135,8 @@ public class TrackServiceNeo4j implements TrackService {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
-        TrackResultBean resultBean = new TrackResultBean(entity);
-        resultBean.setEntityInputBean(entityInputBean);
-        resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), resultBean.getEntity(), null, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
+        TrackResultBean resultBean = new TrackResultBean(entity, entityInputBean);
+        resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
 
         resultBean.setContentInput(entityInputBean.getLog());
         return resultBean;
@@ -296,7 +294,7 @@ public class TrackServiceNeo4j implements TrackService {
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
-            searchDocument = new EntitySearchChange(entity);
+            searchDocument = new EntitySearchChange(new EntityBean(entity));
             searchDocument.setDelete(true);
             searchDocument.setSearchKey(searchKey);
             return searchDocument;
@@ -307,7 +305,7 @@ public class TrackServiceNeo4j implements TrackService {
             // Update against the Entity only by re-indexing the search document
             EntityContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(entity, priorContent, fromLog);
+            searchDocument = new EntitySearchChange(new EntityBean(entity), priorContent, fromLog);
             searchDocument.setTags(entityTagService.getEntityTags(company, entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -443,11 +441,11 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
-        for (EntityInputBean inputBean : inputBeans) {
+        for (EntityInputBean inputBean : entityInputs) {
             TrackResultBean result = createEntity(fortress, inputBean);
-            logger.debug("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntityId(), inputBean.getCallerRef(), inputBean.getDocumentType());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(result);
         }
 

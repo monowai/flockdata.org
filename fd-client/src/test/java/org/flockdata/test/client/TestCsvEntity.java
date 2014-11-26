@@ -20,7 +20,7 @@
 package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.client.ClientConfiguration;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;

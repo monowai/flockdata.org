@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/integration/amqp
+	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+		                http://www.springframework.org/schema/integration
+		                http://www.springframework.org/schema/integration/spring-integration.xsd">
+    <int:annotation-config/>
+
+    <!-- RabbitMQ CONFIGURATION  -->
+    <import resource="fdkv-amqp-rabbit.xml"/>
+
+
+    <!--Receives the inbound request from writeKvContent-->
+    <int-amqp:inbound-gateway id="kvWrite"
+                              request-channel="doKvWrite"
+                              queue-names="${fd.kv.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              error-channel="kvErrors"
+                              task-executor="fd-store"
+                              concurrent-consumers="${fd-store.concurrentConsumers}"
+                              prefetch-count="2"
+                              message-converter="jsonToKvContentConverter"
+                              connection-factory="connectionFactory"/>
+
+</beans>

@@ -19,14 +19,11 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageHandlingException;
 import org.springframework.integration.annotation.ServiceActivator;
-
-import java.io.IOException;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandlingException;
 
 /**
  * User: mike
@@ -39,15 +36,22 @@ public class EntityErrorHandler {
     @ServiceActivator
     public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
         // ToDo: How to persist failed messages
-        try {
-            EntityInputBean entity = JsonUtils.getBytesAsObject((byte[]) message.getPayload().getFailedMessage().getPayload(), EntityInputBean.class);
-            logger.info(JsonUtils.getJSON(entity));
-            logger.error(message.getPayload().getMessage());
-            //throw message.getPayload();
+        MessageHandlingException payLoad = message.getPayload();
+        Object msgPayload = payLoad.getFailedMessage().getPayload();
+        if ( payLoad.getCause()!= null )
+            logger.error(payLoad.getCause().getMessage());
+        else
+            logger.error(payLoad.getMessage());
 
-        } catch (IOException e) {
-            logger.error("Unexpected", e);
+        if (msgPayload instanceof String)
+            logger.debug(msgPayload.toString());
+        else {
+            Object o = ((MessageHandlingException) msgPayload).getFailedMessage().getPayload();
+            logger.info(o.toString());
+
         }
+
+        throw payLoad;
 
     }
 }

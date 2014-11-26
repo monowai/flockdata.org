@@ -19,16 +19,17 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.rest.FdRestReader;
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.FileProcessor;
-import org.flockdata.profile.ImportProfile;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.flockdata.client.rest.FdRestReader;
+import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.profile.ImportProfile;
+import org.flockdata.registration.bean.SystemUserResultBean;
+import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.FileProcessor;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
 
@@ -77,10 +78,19 @@ public class Importer {
                 .required(false)
                 .help("Default batch size");
 
+        parser.addArgument("-v", "--validate")
+                .required(false)
+                .help("Runs a batch and verifies that the entities exist");
+
         parser.addArgument("-a", "--async")
                 .required(false)
                 .setDefault(false)
                 .help("Async processing");
+
+        parser.addArgument("-amqp", "--amqp")
+                .required(false)
+                .setDefault(false)
+                .help("Use AMQP instead of HTTP (experimental)");
 
         parser.addArgument("-c", "--path")
                 .setDefault("./conf")
@@ -104,13 +114,12 @@ public class Importer {
     public static void main(String args[]) {
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
-        boolean async = false;
         FileProcessor fileProcessor = null;
         try {
             Namespace ns = getCommandLineArgs(args);
             File file = Configure.getFile(Configure.configFile, ns);
-            ClientConfiguration defaults = Configure.readConfiguration(file);
-            if (defaults.getApiKey() == null) {
+            ClientConfiguration configuration = Configure.readConfiguration(file);
+            if (configuration.getApiKey() == null) {
                 logger.error("No API key is set in the config file. Have you run the config process?");
                 System.exit(-1);
             }
@@ -122,13 +131,22 @@ public class Importer {
             }
             String batch = ns.getString("batch");
 
-            int batchSize = defaults.getBatchSize();
+            int batchSize = configuration.getBatchSize();
             if (batch != null && !batch.equals(""))
-                batchSize = Integer.parseInt(batch);
+                configuration.setBatchSize(Integer.parseInt(batch));
 
             Object o = ns.get("async");
             if ( o!=null )
-                async = Boolean.parseBoolean(o.toString());
+                configuration.setAsync(Boolean.parseBoolean(o.toString()));
+
+            o = ns.get("validate");
+            if ( o!=null )
+                configuration.setValidateOnly(Boolean.parseBoolean(o.toString()));
+
+            o = ns.get("amqp");
+            if ( o!=null )
+                configuration.setAmqp(Boolean.parseBoolean(o.toString()));
+
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -152,8 +170,7 @@ public class Importer {
                     item++;
                 }
                 ImportProfile importProfile;
-                defaults.setBatchSize(batchSize);
-                FdWriter restClient = getRestClient(defaults);
+                FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
                     //importParams = Class.forName(importProfile);
 
@@ -176,7 +193,7 @@ public class Importer {
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, async);
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, configuration);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
@@ -191,15 +208,15 @@ public class Importer {
     }
 
 
-    private static FdRestWriter getRestClient(ClientConfiguration defaults) {
-        FdRestWriter abClient = new FdRestWriter(defaults.getEngineURL(), defaults.getApiKey(), null, null, defaults.getBatchSize(), null);
-        String ping = abClient.ping();
+    private static FdWriter getRestClient(ClientConfiguration configuration) {
+        FdRestWriter fdClient = new FdRestWriter(configuration);
+        String ping = fdClient.ping();
         if (!ping.equalsIgnoreCase("pong!")) {
             logger.error("Error communicating with fd-engine");
         }
-        boolean simulateOnly = defaults.getBatchSize() <= 0;
-        abClient.setSimulateOnly(simulateOnly);
-        return abClient;
+        boolean simulateOnly = configuration.getBatchSize() <= 0;
+        fdClient.setSimulateOnly(simulateOnly);
+        return fdClient;
 
     }
 

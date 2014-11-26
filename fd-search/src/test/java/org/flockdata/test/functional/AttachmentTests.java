@@ -19,12 +19,12 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackSearchDao;
-import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.track.model.SearchChange;
+import org.flockdata.track.model.TrackSearchDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Map;
 
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: mike

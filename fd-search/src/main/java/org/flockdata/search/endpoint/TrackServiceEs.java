@@ -70,7 +70,7 @@ public class TrackServiceEs implements TrackService {
      * the message on the queue until the mapping is fixed
      */
     @Override
-    public void createSearchableChange(EntitySearchChanges changes) throws IOException {
+    public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
@@ -82,7 +82,7 @@ public class TrackServiceEs implements TrackService {
             if (searchChange.isDelete()) {
                 logger.debug("Delete request");
                 trackSearch.delete(searchChange);
-                return;
+                return results;
             }
             SearchResult result = new SearchResult(trackSearch.update(searchChange));
 
@@ -97,16 +97,20 @@ public class TrackServiceEs implements TrackService {
             }
 
         }
+
         if (!results.isEmpty()) {
             logger.debug("Processed {} requests. Sending back {} SearchChanges", processed, results.getSearchResults().size());
             engineGateway.handleSearchResult(results);
         }
+        return results;
 
     }
     @Override
-    @ServiceActivator(inputChannel = "syncSearchDocs") // Subscriber
-    public void createSearchableChange(byte[] bytes) throws IOException {
-        createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+    @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
+    public Boolean createSearchableChange(byte[] bytes) throws IOException {
+        SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        return true;
+        //return results;
 
     }
 

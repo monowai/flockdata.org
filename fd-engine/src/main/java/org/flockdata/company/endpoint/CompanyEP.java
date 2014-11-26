@@ -62,14 +62,14 @@ public class CompanyEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 
-    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+    public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
     @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
 
     public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName,
-                                              String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+                                              String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
 
         Company callersCompany = getCompany(apiHeaderKey, apiKey);
@@ -92,7 +92,7 @@ public class CompanyEP {
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
 
     public Collection<DocumentResultBean> getDocumentsInUse(
-            String apiKey, @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+            String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
 
         // ToDo: figure out if the API Key can resolve to multiple companies
         Company company = getCompany(apiHeaderKey, apiKey);
