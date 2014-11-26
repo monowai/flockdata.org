@@ -4,85 +4,128 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-       xmlns:task="http://www.springframework.org/schema/task"
        xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/task
-		http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+	   http://www.springframework.org/schema/integration
+	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-    <int:gateway id="fdSearchGateway"
+
+    <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
+
+    <int:gateway id="fdSearchGateway" async-executor="fd-search"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
-    <int:json-to-object-transformer id="jsonToObject"
-                                    input-channel="searchReply"
-                                    output-channel="searchDocSyncResult"
-                                    type="org.flockdata.search.model.SearchResults">
-    </int:json-to-object-transformer>
+    <int:gateway id="fdTrackGateway" async-executor="fd-engine"
+                 service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 
-    <int:json-to-object-transformer id="jsonToObject2"
-                                    input-channel="doMetaKeyReply"
-                                    output-channel="sendSearchReply"
-                                    type="org.flockdata.search.model.EsSearchResult">
-    </int:json-to-object-transformer>
+    <int:gateway id="kvGateway" async-executor="fd-store"
+                 service-interface="org.flockdata.kv.KvGateway"/>
 
-    <int:json-to-object-transformer id="jsonToObjectTagCloud"
+    <int:service-activator id="fdEntityErrorLogger"
+                           input-channel="entityErrors"
+                           ref="fdEntityErrorHandler"/>
+
+    <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
+
+
+
+    <int:service-activator id="fdKvErrorLogger"
+                           input-channel="kvErrors"
+                           ref="fdKvErrorHandler"/>
+
+    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+
+    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+    </int:handler-retry-advice>
+
+
+    <!--<int:json-to-object-transformer id="indexRequestReply"-->
+    <!--input-channel="searchDocSyncResult"-->
+    <!--output-channel="searchSyncResult"-->
+    <!--type="org.flockdata.search.model.SearchResults"/>-->
+
+    <int:object-to-json-transformer id="sendIndexRequest"
+                                    input-channel="sendEntityIndexRequest"
+                                    output-channel="syncSearchDocs"/>
+
+    <int:object-to-json-transformer id="tagCloudSend"
+                                    input-channel="sendTagCloudRequest"
+                                    output-channel="doTagCloudQuery"/>
+
+    <int:json-to-object-transformer id="tagCloudReply"
                                     input-channel="doTagCloudReply"
                                     output-channel="sendTagCloudReply"
-                                    type="org.flockdata.search.model.EsSearchResult">
-    </int:json-to-object-transformer>
+                                    type="org.flockdata.search.model.TagCloud"/>
 
-
-    <int:object-to-json-transformer id="objectToJson"
-                                    input-channel="sendRequest"
-                                    output-channel="syncSearchDocs"
-                                    content-type="application/json">
-    </int:object-to-json-transformer>
-
-    <int:object-to-json-transformer id="objectToJson2"
+    <int:object-to-json-transformer id="simpleSearchSend"
                                     input-channel="sendSearchRequest"
-                                    output-channel="doMetaKeyQuery"
-                                    content-type="application/json">
-    </int:object-to-json-transformer>
+                                    output-channel="doMetaKeyQuery"/>
 
-    <int:object-to-json-transformer id="objectToJsonTagCloud"
-                                    input-channel="sendTagCloudRequest"
-                                    output-channel="doTagCloudQuery"
-                                    content-type="application/json">
-    </int:object-to-json-transformer>
+    <int:json-to-object-transformer id="simpleSearchReply"
+                                    input-channel="doMetaKeyReply"
+                                    output-channel="sendSearchReply"
+                                    type="org.flockdata.search.model.EsSearchResult"/>
 
-    <task:executor id="qExecutor" pool-size="40-40" keep-alive="180" queue-capacity="100"
-                   rejection-policy="CALLER_RUNS"/>
+    <!--KV-->
+    <int:object-to-json-transformer id="kvContentToJson"
+                                    input-channel="startKvWrite"
+                                    output-channel="writeKvContent"/>
+
+    <int:object-to-json-transformer id="entityInputToJson"
+                                    input-channel="startEntityWrite"
+                                    output-channel="writeEntityContent"/>
+
+    <!--<int:json-to-object-transformer id="jsonToKvContent"-->
+    <!--input-channel="writeKvContent"-->
+    <!--output-channel="doKvWrite"-->
+    <!--type="org.flockdata.kv.bean.KvContentBean">-->
+    <!--</int:json-to-object-transformer>-->
 
 
-    <int:channel id="syncSearchDocs">
-        <int:dispatcher task-executor="fd-engine"/>
-    </int:channel>
 
-    <int:channel id="doMetaKeyQuery">
-        <int:dispatcher task-executor="fd-engine"/>
-    </int:channel>
+    <!--End KV-->
 
-    <int:channel id="doTagCloudQuery">
-        <int:dispatcher task-executor="fd-engine"/>
-    </int:channel>
+    <int:channel id="syncSearchDocs"/>
 
-    <int:channel id="searchDocSyncResult">
-        <!--Enabling taskexecutor resulted in transformation failure under http-->
-        <!--<int:dispatcher task-executor="taskExecutor"/>-->
-    </int:channel>
-    <int:channel id="sendRequest"/>
+
+    <!--Channel to capture incoming search result from fd-search-->
+    <int:channel id="searchDocSyncResult"/>
+    <int:channel id="searchSyncResult"/>
+
+    <int:channel id="sendEntityIndexRequest"/>
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
+    <int:channel id="doMetaKeyQuery"/>
 
-    <!-- TAG CLOUD CHANNEL Fd-ENGINE-->
+
+    <!-- search queries-->
+    <int:channel id="doTagCloudQuery"/>
+    <int:channel id="doTagCloudReply"/>
+    <int:channel id="doMetaKeyReply"/>
     <int:channel id="sendTagCloudRequest"/>
     <int:channel id="sendTagCloudReply"/>
 
-    <int:channel id="trackEntity"/>
+    <!--KV Outbound -->
+    <int:channel id="startKvWrite"/>
+    <int:channel id="writeKvContent"/>
+    <!--Input channel for KV-->
+    <int:channel id="doKvWrite"/>
+    <int:channel id="kvErrors"/>
+    <!--End KV -->
+
+    <!--Entity Outbound -->
+    <int:channel id="startEntityWrite"/>
+    <int:channel id="writeEntityContent"/>
+
+    <!--Entity Input-->
+    <int:channel id="doTrackEntity"/>
+    <int:channel id="entityErrors"/>
+
+    <!--End Entity-->
 
 </beans>

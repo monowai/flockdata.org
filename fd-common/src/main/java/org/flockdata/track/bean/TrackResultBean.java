@@ -19,7 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,14 +31,12 @@ import java.util.Collection;
  * Since: 11/05/13
  */
 public class TrackResultBean {
-    private Long entityId = null;
     private String serviceMessage;
-    private String fortressName;
-    private String documentType;
-    private String callerRef;
-    private String metaKey;
     private LogResultBean logResult;
     private ContentInputBean contentInput;
+
+
+    private EntityBean entityBean;
     private Entity entity;
     private Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
@@ -55,56 +52,40 @@ public class TrackResultBean {
         this.serviceMessage = serviceMessage;
     }
 
-    private TrackResultBean(String fortressName, String documentType, String callerRef, String metaKey) {
-        this();
-        this.fortressName = fortressName;
-        this.documentType = documentType;
-        this.callerRef = callerRef;
-        this.metaKey = metaKey;
-
+    /**
+     * Entity is only used internally by fd-engine. it can not be serialized as JSON
+     * Callers should rely on entityResultBean
+     *
+     * @param entity  internal node
+     * @param entityInputBean user supplied content to create entity
+     */
+    public TrackResultBean(Entity entity, EntityInputBean entityInputBean) {
+        this.entity = entity;
+        this.entityBean = new EntityBean(entity);
+        this.entityInputBean = entityInputBean;
     }
 
-    public TrackResultBean(Entity entity, Fortress fortress) {
-        this(fortress.getName(), entity.getDocumentType(), entity.getCallerRef(), entity.getMetaKey());
-        this.entityId = entity.getId();
+    public TrackResultBean(Entity entity) {
+        this.entityBean = new EntityBean(entity);
         this.entity = entity;
 
     }
 
-    public TrackResultBean(Entity entity) {
-        this(entity, entity.getFortress());
-    }
+//    public TrackResultBean(LogResultBean logResultBean, ContentInputBean input) {
+//        this.logResult = logResultBean;
+//        this.contentInput = input;
+//        this.entityBean = logResultBean.getEntity();
+//        // ToDo: Do we need these instance variables or just get straight from the entity?
+//        if (entity != null) {
+//            this.fortressName = entityBean.getFortressCode();
+//            this.documentType = entityBean.getDocumentType();
+//            this.callerRef = entityBean.getCallerRef();
+//            this.metaKey = entityBean.getMetaKey();
+//        }
+//    }
 
-    public TrackResultBean(LogResultBean logResultBean, ContentInputBean input) {
-        this.logResult = logResultBean;
-        this.contentInput = input;
-        this.entity = logResultBean.getEntity();
-        // ToDo: Do we need these instance variables or just get straight from the entity?
-        if (entity != null) {
-            this.fortressName = entity.getFortress().getName();
-            this.documentType = entity.getDocumentType();
-            this.callerRef = entity.getCallerRef();
-            this.metaKey = entity.getMetaKey();
-        }
-    }
-
-    public String getFortressName() {
-        return fortressName;
-    }
-
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCallerRef() {
-        return callerRef;
-    }
-
-    public String getMetaKey() {
-        if (entity != null)
-            return entity.getMetaKey();
-        return metaKey;
+    public EntityBean getEntityBean() {
+        return entityBean;
     }
 
     @Override
@@ -114,32 +95,18 @@ public class TrackResultBean {
 
         TrackResultBean that = (TrackResultBean) o;
 
-        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
-        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (entity != null ? !entity.equals(that.entity) : that.entity != null) return false;
         if (entityInputBean != null ? !entityInputBean.equals(that.entityInputBean) : that.entityInputBean != null)
             return false;
-        if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
-        if (entityId != null ? !entityId.equals(that.entityId) : that.entityId != null) return false;
-        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (contentInput != null ? !contentInput.equals(that.contentInput) : that.contentInput!= null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = entityId != null ? entityId.hashCode() : 0;
-        result = 31 * result + (fortressName != null ? fortressName.hashCode() : 0);
-        result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
-        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
-        result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
-        result = 31 * result + (entity != null ? entity.hashCode() : 0);
-        result = 31 * result + (entityInputBean != null ? entityInputBean.hashCode() : 0);
+        int result = entityInputBean != null ? entityInputBean.hashCode() : 0;
+        result = 31 * result + (contentInput != null ? contentInput.hashCode() : 0);
         return result;
-    }
-
-    public void setMetaKey(String metaKey) {
-        this.metaKey = metaKey;
     }
 
     public String getServiceMessage() {
@@ -151,11 +118,9 @@ public class TrackResultBean {
     }
 
     @JsonIgnore
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    @JsonIgnore
+    /**
+     * @deprecated use getEntityBean
+     */
     public Entity getEntity() {
         return entity;
     }
@@ -199,10 +164,6 @@ public class TrackResultBean {
 
     public void setContentInput(ContentInputBean contentInputBean) {
         this.contentInput = contentInputBean;
-    }
-
-    public void setEntityInputBean(EntityInputBean entityInputBean) {
-        this.entityInputBean = entityInputBean;
     }
 
     @JsonIgnore

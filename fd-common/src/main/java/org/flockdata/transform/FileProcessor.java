@@ -75,8 +75,9 @@ public class FileProcessor {
         this.defaultStaticDataResolver = staticDataResolver;
     }
 
-    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, Boolean async) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
-        trackBatcher = new TrackBatcher(importProfile, writer, 100, company, async);
+    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+
+        trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
         Mappable mappable = importProfile.getMappable();
 
         //String file = path;
@@ -163,18 +164,16 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = (EntityInputBean) row;
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
-                        rows = rows + entityInputBean.getCrossReferences().size();
+                        entityInputBean.getCrossReferences().size();
                     }
                     if (contentInputBean != null) {
                         if (contentInputBean.getFortressUser() == null)
                             contentInputBean.setFortressUser(importProfile.getFortressUser());
                         entityInputBean.setContent(contentInputBean);
                     }
-
-                    //logger.info(json);
+                    rows++;
                     xsr.nextTag();
                     trackBatcher.batchEntity(entityInputBean);
-                    rows++;
                     if (rows % 500 == 0 && !writer.isSimulateOnly())
                         logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
 
@@ -223,7 +222,6 @@ public class FileProcessor {
                 while ((nextLine = csvReader.readNext()) != null) {
                     if (!((!nextLine[0].equals("") && nextLine[0].charAt(0) == '#'))) {
                         headerRow = nextLine;
-
                         break;
                     }
                 }

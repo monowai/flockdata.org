@@ -114,6 +114,7 @@ public class TestTagConcepts extends EngineBase {
         try {
             logger.debug("### fortressConcepts");
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
             setSecurity();
@@ -249,6 +250,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### relationshipWorkForMultipleDocuments");
             setSecurity();
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
 
@@ -317,6 +319,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
 
@@ -341,7 +344,7 @@ public class TestTagConcepts extends EngineBase {
             salesInput.addTag(new TagInputBean("Linux", "purchased").setLabel("Device"));
             //promoInput.addTag(new TagInputBean("Gary", "authorised").setLabel("Person"));
             mediationFacade.trackEntity(su.getCompany(), salesInput).getEntity();
-//            waitAWhile();
+            waitAWhile();
             Collection<String> docs = new ArrayList<>();
             docs.add(promo.getName());
             docs.add(sale.getName());
@@ -384,6 +387,7 @@ public class TestTagConcepts extends EngineBase {
             setSecurity();
 
             engineConfig.setConceptsEnabled(true);
+            engineConfig.setTestMode(true);
 
             Transaction t;
 

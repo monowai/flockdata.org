@@ -20,13 +20,13 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.company.model.FortressNode;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
+import org.flockdata.registration.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,9 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.TimeZone;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @Transactional
 public class TestRegistration extends EngineBase {
@@ -66,11 +64,11 @@ public class TestRegistration extends EngineBase {
 
         int max = 100;
         for (int i = 0; i < max; i++) {
-            Assert.assertNotNull(fortressService.findByName(su.getCompany(), "fortressA"));
-            Assert.assertNotNull(fortressService.findByName(su.getCompany(), "fortressB"));
-            Assert.assertNotNull(fortressService.findByName(su.getCompany(), "fortressC"));
+            assertNotNull(fortressService.findByName(su.getCompany(), "fortressA"));
+            assertNotNull(fortressService.findByName(su.getCompany(), "fortressB"));
+            assertNotNull(fortressService.findByName(su.getCompany(), "fortressC"));
             Fortress fCode = fortressService.findByCode(su.getCompany(), "fortressspacename");
-            Assert.assertNotNull(fCode);
+            assertNotNull(fCode);
             assertEquals("Fortress Space Name", fCode.getName());
         }
     }
@@ -94,14 +92,14 @@ public class TestRegistration extends EngineBase {
         Company company = companyService.create(companyName);
         SystemUser systemUser = regService.registerSystemUser(company, new RegistrationBean(companyName, "password", "user").setIsUnique(false) );
         assertNotNull(systemUser);
-        Collection<Company> companies = companyEP.findCompanies(systemUser.getApiKey(), null);
+        Collection<Company> companies = companyService.findCompanies(systemUser.getApiKey());
         assertEquals(1, companies.size());
         String cKey = companies.iterator().next().getApiKey();
         Company companyB = companyService.create(companyName.toLowerCase());
         SystemUser systemUserB = regService.registerSystemUser(companyB, new RegistrationBean(companyName.toLowerCase(), "password", "xyz").setIsUnique(false));
         assertNotNull(systemUserB);
 
-        companyEP.findCompanies(systemUserB.getApiKey(), null);
+        companyService.findCompanies(systemUserB.getApiKey());
 
         assertEquals(1, companies.size());
         assertEquals("Company keys should be the same irrespective of name case create with", companies.iterator().next().getApiKey(), cKey);
@@ -151,7 +149,7 @@ public class TestRegistration extends EngineBase {
         Company foundCompany = companyService.findByName(listCompany.getName());
         assertEquals(null, listCompany.getId(), foundCompany.getId());
         try {
-            junit.framework.Assert.assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
+            org.junit.Assert.assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
             fail("Illegal API key parsed in. This should not have worked");
         } catch (FlockException e ){
             // Illegal API key so this is good.
@@ -176,7 +174,7 @@ public class TestRegistration extends EngineBase {
         String apiKeySally = registerSystemUser("coB123", sally_admin).getApiKey();
 
         try {
-            junit.framework.Assert.assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
+            org.junit.Assert.assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
             fail("Security Check failed");
         } catch (FlockException e ){
             // Illegal API key so this is good.
@@ -186,7 +184,7 @@ public class TestRegistration extends EngineBase {
         assertNotNull ( companyEP.getCompany("coB123", null, null));
         setSecurity(mike_admin);
         try {
-            junit.framework.Assert.assertEquals("Mike's APIKey cannot see Sally's company record", null, companyEP.getCompany("coB123", apiKeyMike, apiKeyMike));
+            org.junit.Assert.assertEquals("Mike's APIKey cannot see Sally's company record", null, companyEP.getCompany("coB123", apiKeyMike, apiKeyMike));
             fail("Security Check failed");
         } catch (FlockException e ){
             // Illegal API key so this is good.
@@ -293,7 +291,7 @@ public class TestRegistration extends EngineBase {
         SystemUser su = registerSystemUser(name, uid);
         assertNotNull(su);
         Company company = companyService.findByName(name);
-        Assert.assertNotNull(company);
+        assertNotNull(company);
         assertEquals(name.replaceAll("\\s", "").toLowerCase(), company.getCode());
 
         Company comp = companyService.findByCode(company.getCode());

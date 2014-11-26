@@ -9,6 +9,7 @@
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
+        <module>fd-store</module>
         <module>fd-engine</module>
         <module>fd-search</module>
         <module>fd-spring</module>
@@ -21,10 +22,10 @@
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.7</java-version>
-        <org.springframework-version>4.0.7.RELEASE</org.springframework-version>
+        <org.springframework-version>4.1.2.RELEASE</org.springframework-version>
         <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
         <!--HTTP Conversion errors when using 4.0X of SI -->
-        <org.springintegration.version>3.0.6.RELEASE</org.springintegration.version>
+        <org.springintegration.version>4.1.0.RELEASE</org.springintegration.version>
 
         <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>

@@ -19,9 +19,9 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.model.EntityKey;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -51,7 +51,6 @@ public class EntityInputBean {
     private String timezone;
     private boolean archiveTags = true;
     private String updateUser;
-    private String apiKey;
 
     public EntityInputBean() {
     }
@@ -89,6 +88,7 @@ public class EntityInputBean {
         this.metaKey = metaKey;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMetaKey() {
         return this.metaKey;
     }
@@ -114,9 +114,8 @@ public class EntityInputBean {
      * @param when when the caller says this occurred
      */
     public void setWhen(DateTime when) {
-        //if (!(log != null && log.getWhen() != null && log.getWhen().getTime() > 0))
-        this.when = when.toDate();
-        //this.metaTZ = when.getZone().getID();
+        if ( when != null )
+            this.when = when.toDate();
 
     }
 
@@ -412,11 +411,4 @@ public class EntityInputBean {
         return result;
     }
 
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
 }

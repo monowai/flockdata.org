@@ -27,7 +27,7 @@ import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityLog;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 /**

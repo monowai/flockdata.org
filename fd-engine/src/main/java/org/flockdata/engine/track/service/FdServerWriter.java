@@ -29,6 +29,7 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.MediationFacade;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdReader;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class FdServerWriter implements FdWriter, FdReader {
 
     // ToDo: Yes this is useless - fix me!
     final String lock = "countryLock";
-    private Map<String,Tag> countries = new HashMap<>();
+    private Map<String, Tag> countries = new HashMap<>();
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdServerWriter.class);
 
@@ -76,14 +77,11 @@ public class FdServerWriter implements FdWriter, FdReader {
     }
 
     @Override
-    public String flushEntities(Company company, List<EntityInputBean> entityBatch, boolean async) throws FlockException {
+    public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
         try {
-            if ( company == null )
-                company = securityHelper.getCompany();
-            if ( async )
-                mediationFacade.trackEntitiesAsync(company, entityBatch);
-            else
-                mediationFacade.trackEntities(company, entityBatch);
+            for (EntityInputBean entityInputBean : entityBatch) {
+                mediationFacade.trackEntity(company, entityInputBean);
+            }
             return "ok";
         } catch (InterruptedException e) {
             throw new FlockException("Interrupted", e);
@@ -116,9 +114,9 @@ public class FdServerWriter implements FdWriter, FdReader {
         if (name.length() == 2)
             return name;
 
-        if (countries.isEmpty() ) {
+        if (countries.isEmpty()) {
             synchronized (lock) {
-                if ( countries.isEmpty()) {
+                if (countries.isEmpty()) {
                     Collection<Tag> results = getCountries();
 
                     for (Tag next : results) {

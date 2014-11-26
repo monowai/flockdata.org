@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:component-scan
+            base-package="org.flockdata.engine.admin.endpoint,
+            org.flockdata.engine.query.endpoint,
+            org.flockdata.engine.tag.endpoint,
+            org.flockdata.engine.track.endpoint,
+            org.flockdata.geography.endpoint,
+            org.flockdata.company.endpoint"
+    />
+    <tx:annotation-driven/>
+
+    <task:executor id="fd-web-api"
+                   pool-size="51"
+                   queue-capacity="30"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:annotation-driven executor="fd-web-api" mode="aspectj"/>
+
+
+    <!-- Required to get the SimpleUser Security Principal in a SimpleUser MVC Controller method -->
+    <mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean class="org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver"/>
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/fortress/**"/>
+            <mvc:mapping path="/query/**"/>
+            <mvc:mapping path="/track/**"/>
+            <mvc:mapping path="/admin/**"/>
+            <mvc:mapping path="/batch/**"/>
+            <bean class="org.flockdata.helper.ApiKeyInterceptor"/>
+        </mvc:interceptor>
+        <!--<mvc:interceptor>-->
+        <!--<mvc:mapping path="/profiles/me/"/>-->
+        <!--<bean class="ApiKeyInterceptor"/>-->
+        <!--</mvc:interceptor>-->
+    </mvc:interceptors>
+</beans>

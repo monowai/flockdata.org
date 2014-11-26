@@ -47,23 +47,16 @@ public class TrackBatcher {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TrackBatcher.class);
 
     private ProfileConfiguration importProfile;
-    private int batchSize = 100;
+    private ClientConfiguration  clientConfiguration;
     FdWriter fdWriter;
-    boolean async = false;
 
-    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, int batchSize, Company company, Boolean async) {
+    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, ClientConfiguration configuration, Company company) {
         this.importProfile = importProfile;
-        this.batchSize = batchSize;
+        this.clientConfiguration = configuration;
         this.fdWriter = writer;
         this.company = company;
-        this.async = async;
-        logger.info("batchsize={}, async={}", batchSize, async);
+        logger.info("Configuration {}", clientConfiguration);
 
-    }
-
-    public TrackBatcher(ProfileConfiguration profileConfiguration, FdWriter writer, int batchSize, Company company) {
-        this (profileConfiguration, writer, batchSize, company, false);
-        this.company = company;
     }
 
     public void batchTag(TagInputBean tagInputBean, String message) throws FlockException {
@@ -85,13 +78,13 @@ public class TrackBatcher {
                 batchTags(entityInputBean);
             }
 
-            if ( batchSize> 0 && (flush || entityBatch.size() >= batchSize)) {
+            if ( clientConfiguration.getBatchSize()> 0 && (flush || entityBatch.size() >=  clientConfiguration.getBatchSize())) {
 
                 if (entityBatch.size() >0 ) {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the entity
-                    fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
-                    fdWriter.flushEntities(company, entityBatch, async );
+                    //fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
+                    fdWriter.flushEntities(company, entityBatch,  clientConfiguration );
                     logger.debug("Flushed Batch [{}]", entityBatch.size());
                 }
                 entityBatch = new ArrayList<>();
@@ -114,7 +107,7 @@ public class TrackBatcher {
             if (tagInputBean != null)
                 tagBatch.put(tagInputBean.getName() + tagInputBean.getLabel(), tagInputBean);
 
-            if (flush || tagBatch.size() == batchSize) {
+            if (flush || tagBatch.size() == clientConfiguration.getBatchSize()) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", tagBatch.size());
                 if (tagBatch.size() >= 0)
                     fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
@@ -145,7 +138,7 @@ public class TrackBatcher {
         try {
             entityLock.lock();
             if ( entityBatch.size() >0)
-                fdWriter.flushEntities(company, entityBatch, async);
+                fdWriter.flushEntities(company, entityBatch, clientConfiguration);
             entityBatch.clear();
 
         } finally {

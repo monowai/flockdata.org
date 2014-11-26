@@ -32,9 +32,9 @@ public class TagCloudParams {
     private String company;
 
     // ToDo: Can this be an Array[] ?
-    private String fortress;
+    private String fortress="*";
     // ToDo: This should be an Array[]
-    private String type;
+    private String type ="";
 
     private String[] tags;
 

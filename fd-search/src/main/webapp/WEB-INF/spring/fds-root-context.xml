@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <context:spring-configured/>
+    <!--<context:annotation-config/>-->
+
+    <context:component-scan base-package="org.flockdata.search"/>
+    <!-- Root Context: defines shared resources visible to all other web components -->
+
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:/config.properties,file:${fd.config}"/>
+
+    <import resource="spring-security.xml"/>
+    <import resource="es-context.xml"/>
+    <import resource="fds-integration.xml"/>
+    <import resource="fds-http-proxy-integration.xml"/>
+    <import resource="fds-http-monitoring-integration.xml"/>
+    <!--<import resource="fds-${fd.integration}-integration.xml"/>-->
+
+
+    <task:annotation-driven executor="fd-search"/>
+
+    <task:executor id="fd-search"
+                   pool-size="${q.thread.poolSize}"
+                   queue-capacity="${q.task.capacity}"
+                   rejection-policy="CALLER_RUNS"/>
+
+
+</beans>

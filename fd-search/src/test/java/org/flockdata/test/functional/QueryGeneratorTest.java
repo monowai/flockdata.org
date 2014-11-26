@@ -20,10 +20,10 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.search.helper.QueryGenerator;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**

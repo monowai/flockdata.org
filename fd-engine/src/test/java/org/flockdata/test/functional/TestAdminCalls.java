@@ -46,8 +46,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.*;
 
 /**
@@ -76,7 +76,7 @@ public class TestAdminCalls extends EngineBase {
 
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getMetaKey();
+        String metaKey = resultBean.getEntityBean().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(trackService.getEntity(su.getCompany(), metaKey));
@@ -108,7 +108,7 @@ public class TestAdminCalls extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getMetaKey();
+        String metaKey = resultBean.getEntityBean().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(trackService.getEntity(su.getCompany(), metaKey));
@@ -116,7 +116,7 @@ public class TestAdminCalls extends EngineBase {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        assertEquals(2, trackService.getLogCount(su.getCompany(), resultBean.getMetaKey()));
+        assertEquals(2, trackService.getLogCount(su.getCompany(), resultBean.getEntityBean().getMetaKey()));
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -142,7 +142,7 @@ public class TestAdminCalls extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getMetaKey();
+        String metaKey = resultBean.getEntityBean().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(trackService.getEntity(su.getCompany(), metaKey));
@@ -181,7 +181,7 @@ public class TestAdminCalls extends EngineBase {
         trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
-        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
 
         assertNotNull(resultA);
 
@@ -191,7 +191,7 @@ public class TestAdminCalls extends EngineBase {
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
 
-        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getMetaKey();
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);

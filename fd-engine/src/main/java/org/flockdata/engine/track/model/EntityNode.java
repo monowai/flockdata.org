@@ -126,14 +126,14 @@ public class EntityNode implements Entity {
 
     }
 
-    public EntityNode(String uniqueKey, @NotEmpty Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public EntityNode(String uniqueKey, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
-        assert fortress!=null;
+        assert documentType.getFortress()!=null;
 
         metaKey = uniqueKey;
-        this.fortress = (FortressNode)fortress;
+        this.fortress = (FortressNode)documentType.getFortress();
         // DAT-278
         String docType = (documentType.getName().toLowerCase());
         labels.add(documentType.getName());
@@ -164,7 +164,7 @@ public class EntityNode implements Entity {
     }
 
     public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentTypeNode doc, FortressUser user) throws FlockException {
-        this(guid, fortress, mib, doc);
+        this(guid, mib, doc);
         setCreatedBy(user);
     }
 

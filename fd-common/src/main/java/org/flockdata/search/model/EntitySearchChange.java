@@ -19,9 +19,11 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.registration.model.Fortress;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
 
@@ -70,6 +72,23 @@ public class EntitySearchChange implements SearchChange {
 
     public EntitySearchChange() {
     }
+    /**
+     *
+     * @param entity  server side entity
+     * @param content content the user wants stored
+     * @deprecated use the EntityBean version of this
+     */
+    public EntitySearchChange(Entity entity, ContentInputBean content) {
+        this ( new EntityBean(entity), content);
+    }
+    /**
+     *
+     * @param entity  server side entity
+     * @deprecated use the EntityBean version of this
+     */
+    public EntitySearchChange(Entity entity) {
+        this(new EntityBean(entity));
+    }
 
 
     /**
@@ -77,19 +96,19 @@ public class EntitySearchChange implements SearchChange {
      *
      * @param entity details
      */
-    public EntitySearchChange(Entity entity) {
+    public EntitySearchChange(EntityBean entity) {
         this();
         this.metaKey = entity.getMetaKey();
         this.entityId = entity.getId();
         setDocumentType(entity.getDocumentType());
         setFortress(entity.getFortress());
-        this.indexName = entity.getFortress().getIndexName();
+        this.indexName = entity.getIndexName();
         this.searchKey = entity.getSearchKey();
         this.callerRef = entity.getCallerRef();
         if (entity.getLastUser() != null)
-            this.who = entity.getLastUser().getCode();
+            this.who = entity.getLastUser();
         else
-            this.who = entity.getCreatedBy().getCode();
+            this.who = entity.getCreatedUser();
 
         this.description = entity.getDescription();
         this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
@@ -97,7 +116,7 @@ public class EntitySearchChange implements SearchChange {
         setWhen(new DateTime(entity.getWhenCreated()));
     }
 
-    public EntitySearchChange(Entity entity, EntityContent content) {
+    public EntitySearchChange(EntityBean entity, EntityContent content) {
         this(entity);
         if ( content != null ) {
             //ToDo: this attachment might be compressed
@@ -107,7 +126,7 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    public EntitySearchChange(Entity entity, EntityContent content, Log log) {
+    public EntitySearchChange(EntityBean entity, EntityContent content, Log log) {
         this(entity, content);
         if ( log !=null ) {
             this.event= log.getEvent().getCode();
@@ -140,9 +159,9 @@ public class EntitySearchChange implements SearchChange {
         return searchKey;
     }
 
-    private void setFortress(Fortress fortress) {
+    private void setFortress(FortressResultBean fortress) {
         this.setFortressName(fortress.getName());
-        this.setCompanyName(fortress.getCompany().getName());
+        this.setCompanyName(fortress.getCompanyName());
 
     }
 

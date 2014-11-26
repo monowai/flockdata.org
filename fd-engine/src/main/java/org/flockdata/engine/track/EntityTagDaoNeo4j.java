@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track;
 
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
@@ -60,7 +60,7 @@ public class EntityTagDaoNeo4j {
     TagService tagService;
 
     @Autowired
-    FdConfig engineAdmin;
+    FdEngineConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
 
@@ -210,7 +210,7 @@ public class EntityTagDaoNeo4j {
         if ( logToMoveFrom == null )
             return;
 
-        Collection<EntityTag> metaTags = getEntityTags(company, entity);
+        Collection<EntityTag> metaTags = getEntityTags(company, entity.getId());
         Collection<EntityTag> entityTags = findLogTags(company, logToMoveFrom);
         Node entityNode = template.getPersistentState(entity);
 
@@ -315,9 +315,9 @@ public class EntityTagDaoNeo4j {
 
     }
 
-    public Collection<EntityTag> getEntityTags(Company company, Entity entity) {
+    public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
         List<EntityTag> tagResults = new ArrayList<>();
-        if ( null == entity.getId())
+        if ( null == entityid)
             return tagResults;
         String query = "match (entity:_Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
                 "where id(entity)={id} \n" +
@@ -328,7 +328,7 @@ public class EntityTagDaoNeo4j {
 
         //List<EntityTag> raw = getEntityTags(entity.getId(), query);
         //Collections.sort(raw, new BeanComparator<>("tagType"));
-        return getEntityTags(entity.getId(), query);
+        return getEntityTags(entityid, query);
     }
 
     private Collection<EntityTag> getEntityTags(Long primaryKey, String query) {

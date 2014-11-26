@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.schema.service;
 
-import org.flockdata.engine.FdConfig;
+import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
@@ -49,7 +49,7 @@ public class SchemaServiceNeo4j implements SchemaService {
     SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    FdConfig engineConfig;
+    FdEngineConfig engineConfig;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     public Boolean ensureSystemIndexes(Company company) {

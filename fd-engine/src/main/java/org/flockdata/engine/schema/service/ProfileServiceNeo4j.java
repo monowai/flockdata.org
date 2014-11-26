@@ -34,6 +34,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -110,7 +111,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
      * Does not validate the arguments.
      */
     @Override
-    @Async
+    @Async ("fd-track")
     public void processAsync(Company company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
         process(company, fortressCode, documentCode, file, true);
     }
@@ -130,7 +131,10 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         profile.setDocumentName(documentType.getName());
         FileProcessor fileProcessor = new FileProcessor(fdServerWriter);
         FileProcessor.validateArgs(file);
-        fileProcessor.processFile(profile, file, 0, fdServerWriter, company, async);
+        ClientConfiguration defaults = new ClientConfiguration();
+        defaults.setAsync(async);
+        defaults.setBatchSize(5);
+        fileProcessor.processFile(profile, file, 0, fdServerWriter, company, defaults);
     }
 
     @Override

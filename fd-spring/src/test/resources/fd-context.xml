@@ -4,7 +4,7 @@
        xmlns:fd="http://www.flockdata.com/schema/spring/flockdata"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-		                   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		                   http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.flockdata.com/schema/spring/flockdata
                            http://www.flockdata.com/schema/spring/flockdata-0.1.xsd
                            http://www.springframework.org/schema/util

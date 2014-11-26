@@ -43,14 +43,8 @@
     <import resource="integration.xml"/>
     <import resource="test-security.xml" />
     <import resource="kv-context.xml"/>
+    <import resource="fde-task.xml"/>
     <import resource="http-monitoring-integration.xml"/>
-
-
-    <task:annotation-driven executor="fd-engine"/>
-
-    <task:executor id="fd-engine" pool-size="30-50" keep-alive="120" queue-capacity="30"
-                   rejection-policy="CALLER_RUNS"/>
-    <cache:annotation-driven/>
 
     <aop:aspectj-autoproxy/>
 

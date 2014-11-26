@@ -19,24 +19,25 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.company.model.CompanyNode;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
 import org.joda.time.DateTime;
@@ -49,7 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: mike
@@ -79,7 +80,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = new EntityNode("zzUnique", fortress, mib, doc, user);
 
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -126,7 +127,7 @@ public class TestMappings extends ESBase {
         what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
         ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
         mib.setContent(log);
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setWhat(what);
 
         SearchChange searchResult = searchRepo.update(change);
@@ -159,8 +160,8 @@ public class TestMappings extends ESBase {
         Entity entityA = getEntity("cust", "fort", "anyuser");
         Entity entityB = getEntity("cust", "fortb", "anyuser");
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -192,8 +193,8 @@ public class TestMappings extends ESBase {
         Entity entityB = getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase

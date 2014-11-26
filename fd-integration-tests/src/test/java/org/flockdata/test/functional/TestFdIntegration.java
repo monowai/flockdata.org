@@ -21,6 +21,7 @@ package org.flockdata.test.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -32,7 +33,7 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.engine.query.endpoint.QueryEP;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.endpoint.TrackEP;
@@ -58,7 +59,6 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.*;
-import org.flockdata.transform.TrackBatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -256,7 +256,7 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void dataTypes_WhatFieldsIndexed() throws Exception {
+    public void search_WhatFieldsIndexed() throws Exception {
         assumeTrue(runMe);
         logger.info("## dataTypes_WhatFieldsIndexed");
 
@@ -283,9 +283,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void companyAndFortressWithSpaces() throws Exception {
+    public void track_companyAndFortressWithSpaces() throws Exception {
         assumeTrue(runMe);
-        logger.info("## companyAndFortressWithSpaces");
+        logger.info("## track_companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Track Test"));
@@ -309,9 +309,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void pdf_TrackedAndFound() throws Exception {
+    public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
-        logger.info("## pdf_TrackedAndFound");
+        logger.info("## search_pdfTrackedAndFound");
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound"));
@@ -339,9 +339,9 @@ public class TestFdIntegration {
 
 
     @Test
-    public void entity_WithOnlyTagsTracksToSearch() throws Exception {
+    public void track_WithOnlyTagsTracksToSearch() throws Exception {
         assumeTrue(runMe);
-        logger.info("## entity_WithOnlyTagsTracksToSearch");
+        logger.info("## track_WithOnlyTagsTracksToSearch");
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         SystemUser su = registerSystemUser("Mark");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityWithTagsProcess"));
@@ -353,7 +353,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         logger.debug("Created Request ");
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
-        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getMetaKey());
+        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntityBean().getMetaKey());
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
         doEsQuery(summary.getEntity().getFortress().getIndexName(), inputBean.getEvent(), 1);
@@ -363,9 +363,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void immutableEntityWithNoLogsAreIndexed() throws Exception {
+    public void track_immutableEntityWithNoLogsAreIndexed() throws Exception {
         assumeTrue(runMe);
-        logger.info("## immutableEntityWithNoLogsAreIndexed");
+        logger.info("## track_immutableEntityWithNoLogsAreIndexed");
         SystemUser su = registerSystemUser("Manfred");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("immutableEntityWithNoLogsAreIndexed"));
         DateTime now = new DateTime();
@@ -375,8 +375,8 @@ public class TestFdIntegration {
         TrackResultBean trackResult;
         trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForInitialSearchResult(su.getCompany(), trackResult.getEntity().getMetaKey());
-        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getMetaKey());
-        waitForInitialSearchResult(su.getCompany(), trackResult.getMetaKey());
+        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getEntityBean().getMetaKey());
+        waitForInitialSearchResult(su.getCompany(), trackResult.getEntityBean().getMetaKey());
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
         assertNotNull("Search record not received", summary.getEntity().getSearchKey());
@@ -386,7 +386,7 @@ public class TestFdIntegration {
         // Not flagged as meta only so will not appear in the search index until a log is created
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", now, "ZZZ999");
         trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getMetaKey());
+        summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getEntityBean().getMetaKey());
         assertNotNull(summary);
         assertSame("No change logs were expected", 0, summary.getChanges().size());
         assertNull(summary.getEntity().getSearchKey());
@@ -395,9 +395,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void rebuildESIndexFromEngine() throws Exception {
+    public void admin_rebuildSearchIndexFromEngine() throws Exception {
         assumeTrue(runMe);
-        logger.info("## rebuildESIndexFromEngine");
+        logger.info("## admin_rebuildSearchIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
 
@@ -405,7 +405,7 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        Entity entity = trackService.getEntity(su.getCompany(), auditResult.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), auditResult.getEntityBean().getMetaKey());
         waitForEntitiesToUpdate(su.getCompany(), entity);
 
         doEsQuery(entity.getFortress().getIndexName(), "*");
@@ -425,7 +425,7 @@ public class TestFdIntegration {
     public void
     load_createEntityAndTimeLogsWithSearchActivated() throws Exception {
         assumeTrue(runMe);
-        logger.info("## createHeaderTimeLogsWithSearchActivated");
+        logger.info("## load_createEntityAndTimeLogsWithSearchActivated");
         int max = 3;
         String metaKey;
         SystemUser su = registerSystemUser("Olivia");
@@ -434,7 +434,7 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         TrackResultBean auditResult;
         auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        metaKey = auditResult.getMetaKey();
+        metaKey = auditResult.getEntityBean().getMetaKey();
 
         assertNotNull(metaKey);
 
@@ -465,10 +465,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void auditsByPassGraphByCallerRef() throws Exception {
+    public void track_IgnoreGraphAndCheckSearch() throws Exception {
         assumeTrue(runMe);
-        logger.info("## auditsByPassGraphByCallerRef started");
-//        deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.trackgraph");
+        logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
 
@@ -516,10 +515,10 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void searchDocIsRewrittenAfterCancellingLogs() throws Exception {
+    public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
         assumeTrue(runMe);
-        logger.info("## searchDocRewrite");
+        logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
         EntityInputBean entityInput = new EntityInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
@@ -569,10 +568,10 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void tagKeySearch() throws Exception {
+    public void tag_UniqueKeySearch() throws Exception {
         // DAT-95
         assumeTrue(runMe);
-        logger.info("## tagKeySearch");
+        logger.info("## tag_UniqueKeySearch");
         SystemUser su = registerSystemUser("Cameron");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagKeySearch"));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -594,10 +593,10 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void searchIndexWithNoMetaKeysDoesNotError() throws Exception {
+    public void search_withNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
         assumeTrue(runMe);
-        logger.info("## searchDocWithNoMetaKeyWorks");
+        logger.info("## search_withNoMetaKeysDoesNotError");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
 
@@ -610,7 +609,7 @@ public class TestFdIntegration {
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         waitForEntitiesToUpdate(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
@@ -619,17 +618,19 @@ public class TestFdIntegration {
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
         String queryResult = runMetaQuery(qp);
-        logger.info(queryResult);
+        assertNotNull(queryResult);
+        assertTrue ( "Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,") );
+//        logger.info(queryResult);
 
         // Two search docs,but one without a metaKey
 
     }
 
     @Test
-    public void engineQueryResultsReturn() throws Exception {
+    public void query_engineResultsReturn() throws Exception {
         // DAT-83
         assumeTrue(runMe);
-        logger.info("## engineQueryResultsReturn");
+        logger.info("## query_engineResultsReturn");
         SystemUser su = registerSystemUser("Kiwi");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("QueryTest"));
 
@@ -642,7 +643,7 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         waitForEntitiesToUpdate(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
@@ -662,10 +663,10 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void utcDateFieldsThruToSearch() throws Exception {
+    public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
         assumeTrue(runMe);
-        logger.info("## utcDateFieldsThruToSearch");
+        logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
         fib.setTimeZone("Europe/Copenhagen"); // Arbitrary TZ
@@ -683,12 +684,12 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
-        Entity entity = trackService.getEntity(su.getCompany(), result.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         assertEquals(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
-        EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getMetaKey());
+        EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getEntityBean().getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
 
@@ -721,7 +722,7 @@ public class TestFdIntegration {
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
-                        .header("Api-Key", su.getApiKey())
+                        .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(input))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -736,9 +737,9 @@ public class TestFdIntegration {
      * @throws Exception
      */
     @Test
-    public void suppressIndexingOnDemand() throws Exception {
+    public void search_suppressOnDemand() throws Exception {
         assumeTrue(runMe);
-        logger.info("## suppressIndexOnDemand");
+        logger.info("## search_suppressOnDemand");
 
         SystemUser su = registerSystemUser("Barbara");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("suppress"));
@@ -746,7 +747,7 @@ public class TestFdIntegration {
 
         //Transaction tx = getTransaction();
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
 
         LogResultBean resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getLogResult();
         assertNotNull(resultBean);
@@ -759,7 +760,7 @@ public class TestFdIntegration {
         inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSearchSuppressed(true);
         TrackResultBean noIndex = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity noIndexEntity = trackService.getEntity(su.getCompany(), noIndex.getMetaKey());
+        Entity noIndexEntity = trackService.getEntity(su.getCompany(), noIndex.getEntityBean().getMetaKey());
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", noIndexEntity.getMetaKey(), new DateTime(), getSimpleMap("who", "bob")));
         // Bob's not there because we said we didn't want to index that entity
@@ -768,9 +769,9 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void tagKeyReturnsSingleSearchResult() throws Exception {
+    public void tag_ReturnsSingleSearchResult() throws Exception {
         assumeTrue(runMe);
-        logger.info("## tagKeyReturnsSingleSearchResult");
+        logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("suppress"));
@@ -780,7 +781,7 @@ public class TestFdIntegration {
         metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), metaInput);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
         String indexName = entity.getFortress().getIndexName();
 
         Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
@@ -796,10 +797,10 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void testCancelUpdatesSearchCorrectly() throws Exception {
+    public void cancel_UpdatesSearchCorrectly() throws Exception {
         assumeTrue(runMe);
         // DAT-53
-        logger.info("## testCancelUpdatesSearchCorrectly");
+        logger.info("## cancel_UpdatesSearchCorrectly");
 
         SystemUser su = registerSystemUser("Rocky");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testCancelUpdatesSearchCorrectly"));
@@ -807,7 +808,7 @@ public class TestFdIntegration {
         DateTime firstDate = dt.minusDays(2);
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
         inputBean.setContent(new ContentInputBean("olivia@sunnybell.com", firstDate, getSimpleMap("house", "house1")));
-        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         waitForEntitiesToUpdate(su.getCompany(), entity);
@@ -843,16 +844,16 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
+    public void search_nGramDefaults() throws Exception {
         assumeTrue(runMe);
-        logger.info("## testWhatIndexingDefaultAttributeWithNGram");
+        logger.info("## search_nGramDefaults");
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
         EntityInputBean inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setDescription("This is a description");
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getMetaKey());
+        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
 
         Map<String, Object> what = getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
@@ -879,7 +880,7 @@ public class TestFdIntegration {
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
         assumeTrue(runMe);
         //DAT-279
-        logger.info("## merge_SearchDocIsReWritten");
+        logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("mergeSimpleSearch", false));
@@ -923,7 +924,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity () throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -932,7 +933,15 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
 
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
-        inputBean.setApiKey(su.getApiKey());
+        HashMap<String,Object>headers = new HashMap<>();
+        headers.put("apiKey", su.getApiKey());
+
+        AMQP.BasicProperties.Builder builder =
+                new AMQP.BasicProperties().builder()
+                        .headers(headers)
+                ;
+
+        //inputBean.setApiKey(su.getApiKey());
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -942,11 +951,12 @@ public class TestFdIntegration {
 
         channel.queueBind("int.fd.track.queue", "int.fd.track.exchange", "int.fd.track.queue");
 
-        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(inputBean));
+        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(inputBean));
+        waitAWhile("AMQP", 8000);
         channel.close();
         connection.close();
-        waitAWhile();
-        Entity entityA = trackService.findByCallerRef(fortress, "DocType", "AAA");
+
+        Entity entityA = trackService.findByCallerRef(fortress, inputBean.getDocumentType(), inputBean.getCallerRef());
         assertNotNull(entityA);
 
 
@@ -1015,10 +1025,7 @@ public class TestFdIntegration {
                 while (log <= logMax) {
                     Thread.yield();
                     createLog(su.getCompany(), metaKey, log);
-                    Thread.yield(); // Failure to yield Getting a frustrating thread update problem causing
-//                    IllegalStateException( "Unable to delete relationship since it is already deleted."
-                    // under specifically stressed situations like this. We need to be able to detect and recover
-                    // from the scenario
+                    Thread.yield();
                     requests++;
                     if (!searchChecked) {
                         searchChecked = true;
@@ -1059,104 +1066,6 @@ public class TestFdIntegration {
         doSearchTests(runMax, list);
     }
 
-    //@Test
-    public void memoryLeak() throws Exception {
-//        assumeTrue(false);// Suppressing this for the time being
-        logger.info("## memoryLeak");
-        int runMax = 500;
-
-//        for (int i = 1; i < fortressMax + 1; i++) {
-//            deleteEsIndex(EntitySearchSchema.PREFIX+"monowai.batch" + i);
-//            doEsQuery(EntitySearchSchema.PREFIX+"monowai.batch" + i, "*", -1);
-//        }
-
-        waitAWhile("Wait {} secs for index to delete ");
-
-        SystemUser su = registerSystemUser("Batty");
-
-        logger.info("FortressCount: " + fortressMax + " RunCount: " + runMax + " LogCount: " + 1);
-        logger.info("We will be expecting a total of " + (runMax * 1 * fortressMax) + " messages to be handled");
-
-        StopWatch watch = new StopWatch();
-        long totalRows = 0;
-
-        DecimalFormat f = new DecimalFormat("##.000");
-        Collection<String> metaKeys = new ArrayList<>();
-
-        watch.start();
-
-        String fortressName = "strezz" + 1;
-        StopWatch fortressWatch = new StopWatch();
-        fortressWatch.start();
-        int rows = 1;
-        long requests = 0;
-
-        Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
-        requests++;
-        logger.info("Starting run for " + fortressName);
-        TrackBatcher tb = new TrackBatcher(null, serverWriter, 50, su.getCompany());
-        try {
-            while (rows <= runMax) {
-
-                EntityInputBean aib = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + rows);
-                aib.addTag(new TagInputBean("value1", "Category", "category"));
-                aib.addTag(new TagInputBean("value2", "Category", "category"));
-                aib.addTag(new TagInputBean("value3", "Category", "category"));
-                aib.addTag(new TagInputBean("value4", "Category", "category"));
-                aib.addTag(new TagInputBean("value1", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value2", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value3", "Theme", "theme"));
-                aib.addTag(new TagInputBean("value4", "Theme", "theme"));
-
-                ContentInputBean cib = new ContentInputBean("mary", new DateTime());
-
-                aib.setContent(cib);
-                //TrackResultBean tr = mediationFacade.trackEntity(iFortress, aib);
-                tb.batchEntity(aib);
-
-                //assertNotNull(tr);
-                metaKeys.add("ABC" + rows);
-                rows++;
-                if (rows % 500 == 0) {
-                    logger.info("Processed {} of {} ", rows, runMax);
-                }
-            }
-        } finally {
-            logger.info("Final Flush");
-            tb.flush();
-        }
-        fortressWatch.stop();
-        double fortressRunTime = (fortressWatch.getTime()) / 1000d;
-        logger.info("*** {} took {}  [{}] Avg processing time= {}. Requests per second {}",
-                iFortress.getName(),
-                fortressRunTime,
-                requests,
-                f.format(fortressRunTime / requests),
-                f.format(requests / fortressRunTime));
-        watch.split();
-        //splitTotals = splitTotals + fortressRunTime;
-        totalRows = totalRows + requests;
-
-        watch.stop();
-
-        double totalTime = watch.getTime() / 1000d;
-        logger.info("*** Processed {} requests. Data sets created in {} secs. Fortress avg = {} avg requests per second {}",
-                totalRows,
-                f.format(totalTime),
-                f.format(totalTime / fortressMax),
-                f.format(totalRows / totalTime));
-
-        logger.info("Validating tags for entity");
-//        for (String metaKey : metaKeys) {
-//            wait(5000);
-//            Entity e = trackService.findByCallerRef(su.getCompany(), iFortress.getCode(), "CompanyNode", metaKey);
-//            assertNotNull (e);
-//            assertEquals(8, entityTagService.findEntityTags(su.getCompany(), e ).size());
-//        }
-
-    }
-
-
     @Test
     public void simpleQueryEPWorksForImportedRecord() throws Exception {
         assumeTrue(runMe);
@@ -1172,7 +1081,6 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForInitialSearchResult(su.getCompany(), result.getEntity().getMetaKey());
-
 
         QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
         doEsQuery(EntitySearchSchema.PREFIX + "*", searchFor, 1);
@@ -1524,7 +1432,7 @@ public class TestFdIntegration {
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
                 } else if (apiKey != null)
-                    set("Api-Key", apiKey);
+                    set("api-key", apiKey);
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", "UTF-8");
             }

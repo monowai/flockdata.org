@@ -61,7 +61,7 @@ public class RegistrationEP {
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
 
-    public SystemUserResultBean get(@RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+    public SystemUserResultBean get(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 
         return new SystemUserResultBean(regService.getSystemUser(apiHeaderKey));

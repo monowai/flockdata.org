@@ -22,10 +22,6 @@ package org.flockdata.search.service;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.search.model.JsonSearchChange;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
@@ -46,12 +42,7 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
-                ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
-                SimpleModule iModule = new SimpleModule("ImportParameters", new Version(1,0,0,null))
-                        .addDeserializer(EntitySearchChanges.class, new JsonSearchChange());
-                mapper.registerModule(iModule);
-
-                return mapper.readValue(((String) content).getBytes(CompressionHelper.charSet), EntitySearchChanges.class);
+                return FlockDataJsonFactory.getObjectMapper().readValue(((String) content).getBytes(CompressionHelper.charSet), EntitySearchChanges.class);
             }
         } catch (IOException e1) {
             e1.printStackTrace();
