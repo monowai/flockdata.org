@@ -17,15 +17,16 @@
     <import resource="fdkv-amqp-rabbit.xml"/>
 
 
+    <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
                               queue-names="${fd.kv.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
-                              task-executor="fd-engine"
-                              concurrent-consumers="30"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              task-executor="fd-store"
+                              concurrent-consumers="${fd-store.concurrentConsumers}"
+                              prefetch-count="2"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
