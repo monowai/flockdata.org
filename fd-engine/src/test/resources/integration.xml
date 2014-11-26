@@ -15,8 +15,11 @@
 Transformers, gateways and channels -->
 
     <int:gateway id="fdSearchGateway"
-                 async-executor="fd-q-exec"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
+
+    <int:gateway id="fdTrackGateway"
+                 service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
+
 
     <int:service-activator id="fdEntityErrorLogger"
                            input-channel="entityErrors"
@@ -28,7 +31,7 @@ Transformers, gateways and channels -->
 
 
     <int:gateway id="kvGateway"
-                 async-executor="fd-q-exec"
+                 async-executor="fd-engine"
                  service-interface="org.flockdata.kv.KvGateway">
     </int:gateway>
 
@@ -96,7 +99,7 @@ Transformers, gateways and channels -->
 
 
     <int:channel id="syncSearchDocs">
-        <int:dispatcher task-executor="fd-q-exec"/>
+        <int:dispatcher task-executor="fd-engine"/>
     </int:channel>
 
 
@@ -109,7 +112,7 @@ Transformers, gateways and channels -->
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
     <int:channel id="doMetaKeyQuery" >
-        <int:dispatcher task-executor="fd-q-exec"/>
+        <int:dispatcher task-executor="fd-engine"/>
     </int:channel>
 
 

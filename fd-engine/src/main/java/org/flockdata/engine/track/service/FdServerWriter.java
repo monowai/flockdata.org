@@ -62,7 +62,7 @@ public class FdServerWriter implements FdWriter, FdReader {
 
     // ToDo: Yes this is useless - fix me!
     final String lock = "countryLock";
-    private Map<String,Tag> countries = new HashMap<>();
+    private Map<String, Tag> countries = new HashMap<>();
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdServerWriter.class);
 
@@ -79,12 +79,7 @@ public class FdServerWriter implements FdWriter, FdReader {
     @Override
     public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
         try {
-            if ( company == null )
-                company = securityHelper.getCompany();
-            if ( configuration.isAsync() )
-                mediationFacade.trackEntitiesAsync(company, entityBatch);
-            else
-                mediationFacade.trackEntities(company, entityBatch);
+            mediationFacade.trackEntities(configuration.getApiKey(), entityBatch);
             return "ok";
         } catch (InterruptedException e) {
             throw new FlockException("Interrupted", e);
@@ -117,9 +112,9 @@ public class FdServerWriter implements FdWriter, FdReader {
         if (name.length() == 2)
             return name;
 
-        if (countries.isEmpty() ) {
+        if (countries.isEmpty()) {
             synchronized (lock) {
-                if ( countries.isEmpty()) {
+                if (countries.isEmpty()) {
                     Collection<Tag> results = getCountries();
 
                     for (Tag next : results) {

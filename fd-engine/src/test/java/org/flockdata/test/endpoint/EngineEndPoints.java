@@ -70,7 +70,7 @@ public class EngineEndPoints {
                 .perform(
                         MockMvcRequestBuilders
                                 .post("/fortress/")
-                                .header("Api-Key", su.getApiKey())
+                                .header("api-key", su.getApiKey())
                                         // .("company", su.getCompany())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
@@ -88,7 +88,7 @@ public class EngineEndPoints {
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
         MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.post("/query/documents/")
-                        .header("Api-Key", su.getApiKey())
+                        .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(fortresses))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -99,7 +99,7 @@ public class EngineEndPoints {
 
     public Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
         MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.post("/query/relationships/")
-                        .header("Api-Key", su.getApiKey())
+                        .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(fortresses))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -110,7 +110,7 @@ public class EngineEndPoints {
 
     public MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/query/matrix/")
-                        .header("Api-Key", su.getApiKey())
+                        .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(input))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

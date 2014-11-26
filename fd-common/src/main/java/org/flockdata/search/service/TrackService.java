@@ -31,9 +31,9 @@ import java.io.IOException;
  */
 public interface TrackService {
 
-    void createSearchableChange(EntitySearchChanges changes) throws IOException;
+    org.flockdata.search.model.SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException;
 
-    void createSearchableChange(byte[] bytes) throws IOException;
+    Boolean createSearchableChange(byte[] bytes) throws IOException;
 
     void delete(Entity entity);
 

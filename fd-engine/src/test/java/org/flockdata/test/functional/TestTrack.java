@@ -86,7 +86,7 @@ public class TestTrack extends EngineBase {
         entityInputBeans.add(inputBean);
         logger.info("Tracking...");
 
-        mediationFacade.trackEntities(su.getCompany(), entityInputBeans);
+        mediationFacade.trackEntities(fortWP, entityInputBeans, 1);
         logger.info("Tracked...");
         Entity entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
         assertNotNull(entity);

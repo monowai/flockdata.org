@@ -87,10 +87,8 @@ public class TrackEP {
     public void trackEntities(@RequestBody List<EntityInputBean> inputBeans, boolean async,
                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
-        if ( async)
-            mediationFacade.trackEntitiesAsync(company, inputBeans);
-        else
-            mediationFacade.trackEntities(company, inputBeans);
+
+        mediationFacade.trackEntities(CompanyResolver.resolveCallerApiKey(request), inputBeans);
     }
 
     /**

@@ -21,6 +21,7 @@ package org.flockdata.test.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -721,7 +722,7 @@ public class TestFdIntegration {
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
-                        .header("Api-Key", su.getApiKey())
+                        .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(input))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -923,7 +924,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity () throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -932,7 +933,15 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
 
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
-        inputBean.setApiKey(su.getApiKey());
+        HashMap<String,Object>headers = new HashMap<>();
+        headers.put("apiKey", su.getApiKey());
+
+        AMQP.BasicProperties.Builder builder =
+                new AMQP.BasicProperties().builder()
+                        .headers(headers)
+                ;
+
+        //inputBean.setApiKey(su.getApiKey());
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -942,7 +951,7 @@ public class TestFdIntegration {
 
         channel.queueBind("int.fd.track.queue", "int.fd.track.exchange", "int.fd.track.queue");
 
-        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", null, JsonUtils.getObjectAsJsonBytes(inputBean));
+        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(inputBean));
         waitAWhile("AMQP", 8000);
         channel.close();
         connection.close();
@@ -1423,7 +1432,7 @@ public class TestFdIntegration {
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
                 } else if (apiKey != null)
-                    set("Api-Key", apiKey);
+                    set("api-key", apiKey);
                 setContentType(MediaType.APPLICATION_JSON);
                 set("charset", "UTF-8");
             }

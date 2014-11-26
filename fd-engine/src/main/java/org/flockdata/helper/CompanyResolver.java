@@ -35,4 +35,11 @@ public class CompanyResolver {
             throw new NotFoundException("Unable to identify any Company that you are authorised to work with");
         return company;
     }
+
+    public static String resolveCallerApiKey(HttpServletRequest request)  throws FlockException {
+        String apiKey= (String )  request.getAttribute(ApiKeyInterceptor.API_KEY);
+        if (apiKey == null )
+            throw new NotFoundException("Unable to identify the ApiKey that you are calling with");
+        return apiKey;
+    }
 }

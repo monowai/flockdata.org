@@ -83,7 +83,7 @@ public class TrackBatcher {
                 if (entityBatch.size() >0 ) {
                     logger.debug("Flushing....");
                     // process the tags independently to reduce the chance of a deadlock when processing the entity
-                    fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
+                    //fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
                     fdWriter.flushEntities(company, entityBatch,  clientConfiguration );
                     logger.debug("Flushed Batch [{}]", entityBatch.size());
                 }

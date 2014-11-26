@@ -139,6 +139,9 @@ public class LogRetryService {
         // Warning - making this private means it doesn't get a transaction!
         //entity = trackService.getEntity(entity);
         Fortress fortress = entity.getFortress();
+        // ToDo: ??? noticed during tracking over AMQP
+        if ( thisFortressUser.getFortress() == null )
+            thisFortressUser.setFortress(entity.getFortress());
 
         LogResultBean resultBean = new LogResultBean(content);
         //ToDo: May want to track a "View" event which would not change the What data.

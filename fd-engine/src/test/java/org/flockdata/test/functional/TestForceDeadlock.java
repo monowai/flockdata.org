@@ -117,7 +117,7 @@ public class TestForceDeadlock extends EngineBase {
             CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
             runners.put(i, runner);
             List<EntityInputBean> inputBeans = runners.get(i).getInputBeans();
-            Future<Collection<TrackResultBean>> runResult = mediationFacade.trackEntitiesAsync(su.getCompany(), inputBeans);
+            Future<Collection<TrackResultBean>> runResult = (Future<Collection<TrackResultBean>>) mediationFacade.trackEntitiesAsync(su.getCompany(), inputBeans);
             futures.put(i,runResult );
         }
 

@@ -19,7 +19,6 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
@@ -32,7 +31,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -56,7 +57,6 @@ public class TestContentDuplicate  extends  EngineBase{
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "poppy", "TestDoc", DateTime.now(), "123");
-        inputBean.setApiKey(su.getApiKey());
 
         int max = 5;
         List<ContentInputBean> contentBeans = new ArrayList<>();
@@ -64,7 +64,7 @@ public class TestContentDuplicate  extends  EngineBase{
             ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a" +i));
             contentBeans.add(contentBean);
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(inputBean));
+            mediationFacade.trackEntity(inputBean,su.getApiKey());
         }
         Entity entity = trackService.findByCallerRef(su.getCompany(), fortress.getName(), "TestDoc", "123");
         assertEquals(max, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
@@ -72,7 +72,7 @@ public class TestContentDuplicate  extends  EngineBase{
         // Reprocess forward
         for (ContentInputBean contentBean : contentBeans) {
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(inputBean));
+            mediationFacade.trackEntity(inputBean,su.getApiKey());
         }
 
         assertEquals(max, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
@@ -81,7 +81,7 @@ public class TestContentDuplicate  extends  EngineBase{
         Collections.reverse(contentBeans);
         for (ContentInputBean contentBean : contentBeans) {
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(JsonUtils.getObjectAsJsonBytes(inputBean));
+            mediationFacade.trackEntity(inputBean,su.getApiKey());
         }
 
         assertEquals(max, trackService.getLogCount(su.getCompany(), entity.getMetaKey()));

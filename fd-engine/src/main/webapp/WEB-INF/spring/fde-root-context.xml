@@ -38,6 +38,7 @@
 		location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}" />
 		
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
+    <import resource="fde-task.xml"/>
     <import resource="classpath:${fd.auth.provider}-security.xml" />
 	<import resource="fde-integration.xml" />
 	<import resource="fde-http-proxy-integration.xml" />
@@ -47,7 +48,9 @@
 	<import resource="kv-context.xml" />
 
 	<aop:aspectj-autoproxy />
-	<!--<cache:annotation-driven />-->
+
+
+    <!--<cache:annotation-driven />-->
 	<!--<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"-->
 		<!--p:cacheManager-ref="ehcache" />-->
 
@@ -76,25 +79,6 @@
         </constructor-arg>
 
     </bean>
-
-    <!--Pool size is the number of executors that will handle Bulk Uploads and
-        incoming search responses -->
-    <task:executor id="fd-engine"
-                   pool-size="${thread.poolSize}"
-                   keep-alive="120"
-                   queue-capacity="${thread.queueCapacity}"
-                   rejection-policy="CALLER_RUNS" />
-
-
-    <task:executor id="fd-q-exec"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
-
-    <task:executor id="fd-track"
-                   pool-size="${q.thread.poolSize}"
-                   queue-capacity="${q.task.capacity}"
-                   rejection-policy="CALLER_RUNS"/>
 
 
 </beans>

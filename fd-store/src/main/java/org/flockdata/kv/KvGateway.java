@@ -22,6 +22,7 @@ package org.flockdata.kv;
 import org.flockdata.kv.bean.KvContentBean;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
@@ -30,9 +31,10 @@ import java.util.concurrent.Future;
  * Date: 19/11/14
  * Time: 11:48 AM
  */
-@MessagingGateway(errorChannel = "kvErrors")
+@MessagingGateway (asyncExecutor = "fd-store")
+@Async("fd-store")
 public interface KvGateway {
 
     @Gateway(requestChannel = "startKvWrite")
-    Future<?> doKvWrite(KvContentBean resultBean);
+    Future<Boolean> doKvWrite(KvContentBean resultBean);
 }

@@ -17,11 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.engine.track;
 
-import org.flockdata.helper.CompressionHelper;
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
@@ -30,25 +29,21 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Convert incoming bytes to an ArrayList<SearchChange>
- *
+ * User: mike
+ * Date: 25/11/14
+ * Time: 2:21 PM
  */
-@Component("jsonToSearchChangeConverter")
-public class JsonSearchChangeConverter extends SimpleMessageConverter {
+@Component("jsonToEntityInput")
+public class JsonEntityInputConverter  extends SimpleMessageConverter {
 
     @Override
     public Object fromMessage(final Message message) throws MessageConversionException {
 
-        final Object content = super.fromMessage(message);
         try {
-            if (content instanceof String) {
-                return FlockDataJsonFactory.getObjectMapper().readValue(((String) content).getBytes(CompressionHelper.charSet), EntitySearchChanges.class);
-            }
+            return JsonUtils.getBytesAsObject(message.getBody(), EntityInputBean.class);
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new MessageConversionException("failed to convert text-based Message content", e1);
         }
-        return content;
     }
-
 }

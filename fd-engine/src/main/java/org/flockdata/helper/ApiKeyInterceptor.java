@@ -34,7 +34,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory
             .getLogger(ApiKeyInterceptor.class);
     public static final String COMPANY = "company";
-    public static final String API_KEY = "Api-Key";
+    public static final String API_KEY = "api-key";
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -55,10 +55,11 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
             }
         } else {
-        	logger.trace("Identifying company from Api-Key supplied in request HttpHeader" );
+        	logger.trace("Identifying company from api-key supplied in request HttpHeader" );
             Company company = securityHelper.getCompany(apiKey);
             if (company != null) {
                 request.setAttribute(COMPANY, company);
+                request.setAttribute(API_KEY, apiKey);
                 return true;
             }
         }

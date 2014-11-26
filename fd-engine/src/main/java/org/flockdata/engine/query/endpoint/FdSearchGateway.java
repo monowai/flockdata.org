@@ -22,6 +22,8 @@ package org.flockdata.engine.query.endpoint;
 import org.flockdata.search.model.*;
 import org.flockdata.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
@@ -31,10 +33,12 @@ import java.util.concurrent.Future;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
+@MessagingGateway(asyncExecutor = "fd-search")
+@Async("fd-search")
 public interface FdSearchGateway {
 
-    @Gateway(requestChannel = "sendEntityIndexRequest")
-    public Future<?> makeSearchChanges(EntitySearchChanges searchChanges);
+    @Gateway(requestChannel = "sendEntityIndexRequest" )
+    public Future<Boolean> makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
     public EsSearchResult search(QueryParams queryParams);
@@ -43,12 +47,6 @@ public interface FdSearchGateway {
     public TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
     public void delete(Entity entity, String searchKey);
-
-    public byte[] findOne(Entity entity, String searchKey);
-
-    public byte[] findOne(Entity entity);
-
-    public Long getHitCount(String s);
 
     void delete(String indexName);
 }

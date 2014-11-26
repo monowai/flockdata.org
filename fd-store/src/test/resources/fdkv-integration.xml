@@ -18,7 +18,7 @@ Transformers, gateways and channels -->
                            ref="fdKvErrorHandler"/>
 
     <int:gateway id="kvGateway"
-                 async-executor="fd-q-exec"
+                 async-executor="fd-engine"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
 

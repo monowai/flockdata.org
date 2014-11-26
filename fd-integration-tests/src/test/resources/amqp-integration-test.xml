@@ -32,7 +32,7 @@
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${rabbit.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
-                              task-executor="fd-q-exec"
+                              task-executor="fd-engine"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
@@ -50,8 +50,9 @@
                               request-channel="trackEntity"
                               queue-names="${fd.track.queue}"
                               shutdown-timeout="3000"
+                              mapped-request-headers="apiKey"
                               acknowledge-mode="AUTO"
-                              task-executor="fd-track"
+                              task-executor="fd-engine"
                               error-channel="entityErrors"
                               concurrent-consumers="30"
                               prefetch-count="${rabbit.prefetchCount}"

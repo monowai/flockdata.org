@@ -63,7 +63,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 				.getApiKey();
 
 		request.setRequestURI("/fortress/");
-		request.addHeader("Api-Key", apiKey);
+		request.addHeader("api-key", apiKey);
 		boolean status = apiKeyInterceptor.preHandle(request, response, null);
 
 		assertEquals(true, status);
@@ -78,7 +78,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 			throws Exception {
 
 		request.setRequestURI("/fortress/");
-		request.addHeader("Api-Key", "someKey");
+		request.addHeader("api-key", "someKey");
         boolean status = false;
         try {
             status = apiKeyInterceptor.preHandle(request, response, null);

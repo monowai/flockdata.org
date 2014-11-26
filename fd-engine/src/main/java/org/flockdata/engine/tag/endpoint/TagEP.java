@@ -59,7 +59,7 @@ public class TagEP {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
+                                               @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         return mediationFacade.createTags(company, tagInputs);
@@ -69,7 +69,7 @@ public class TagEP {
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> purgeUnusedConcepts(
                                                String apiKey,
-                                               @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+                                               @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         tagService.purgeUnusedConcepts(company);
@@ -80,7 +80,7 @@ public class TagEP {
     @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteConcepts( @PathVariable("label") String label,
                                                               String apiKey,
-            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+            @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         tagService.purgeLabel(company, label);
@@ -91,7 +91,7 @@ public class TagEP {
     @RequestMapping(value = "/{type}", produces = "application/json", method = RequestMethod.GET)
     public Collection<Tag> getTags(@PathVariable("type") String index,
                                    String apiKey,
-                                   @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey) throws FlockException {
+                                   @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTags(company, index);
     }
@@ -99,7 +99,7 @@ public class TagEP {
     @RequestMapping(value = "/{label}/{code}", produces = "application/json",  method = RequestMethod.GET)
     public Tag getTag(@PathVariable("label") String label,
                                   String apiKey,
-                                  @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("code") String code) throws FlockException {
+                                  @RequestHeader(value = "api-key", required = false) String apiHeaderKey, @PathVariable("code") String code) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         return tagService.findTag(company, label, code);
     }
@@ -108,7 +108,7 @@ public class TagEP {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void mergeTags(
             String apiKey,
-            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
+            @RequestHeader(value = "api-key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         Tag source = tagService.findTag(company, label, sourceTag);
         Tag target = tagService.findTag(company, label, targetTag);
@@ -120,7 +120,7 @@ public class TagEP {
     @ResponseStatus(HttpStatus.CREATED)
     public void aliasTag(
             String apiKey,
-            @RequestHeader(value = "Api-Key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
+            @RequestHeader(value = "api-key", required = false) String apiHeaderKey, @PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
         Tag source = tagService.findTag(company, label, sourceTag);
         if ( source == null )
