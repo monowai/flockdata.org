@@ -65,7 +65,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### multipleDocsSameFortress");
 
             setSecurity();
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
 
             Transaction t = beginManualTransaction();
             SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
@@ -113,7 +113,7 @@ public class TestTagConcepts extends EngineBase {
     public void fortressConcepts() throws Exception {
         try {
             logger.debug("### fortressConcepts");
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
             engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
@@ -191,7 +191,7 @@ public class TestTagConcepts extends EngineBase {
         try {
             logger.debug("### multipleRelationships");
             setSecurity();
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
             Transaction t = beginManualTransaction();
 
             SystemUser su = registerSystemUser("multipleRelationships", mike_admin);
@@ -249,7 +249,7 @@ public class TestTagConcepts extends EngineBase {
         try {
             logger.debug("### relationshipWorkForMultipleDocuments");
             setSecurity();
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
             engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
@@ -318,7 +318,7 @@ public class TestTagConcepts extends EngineBase {
         try {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
             engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
@@ -386,7 +386,7 @@ public class TestTagConcepts extends EngineBase {
             logger.debug("### uniqueRelationshipByDocType");
             setSecurity();
 
-            engineConfig.setConceptsEnabled(true);
+            engineConfig.setConceptsEnabled("true");
             engineConfig.setTestMode(true);
 
             Transaction t;

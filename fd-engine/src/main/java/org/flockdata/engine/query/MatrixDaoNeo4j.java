@@ -21,8 +21,9 @@ package org.flockdata.engine.query;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.helper.CypherHelper;
+import org.flockdata.query.EdgeResult;
+import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResult;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.model.Company;
 import org.slf4j.Logger;
@@ -56,49 +57,61 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String toRlx = CypherHelper.getRelationships(input.getToRlxs()); // ToDo: Can we have diff from and too?
         String conceptString = "";
         if (!conceptsFrom.equals(""))
-            conceptString = "where ("+ conceptsFrom +")";
+            conceptString = "where (" + conceptsFrom + ")";
         if (!conceptsTo.equals("")) {
-            conceptString = conceptString + " and ( "+ conceptsTo +") " ;
+            conceptString = conceptString + " and ( " + conceptsTo + ") ";
         }
         boolean docFilter = !(docIndexes.equals(":_Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
-        String query = "match (meta:_Entity) "+(docFilter? "where  " + docIndexes: "")+
+        String query = "match (meta:_Entity) " + (docFilter ? "where  " + docIndexes : "") +
                 " with meta " +
                 "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
-                conceptString+
-                "with tag1.name as tag1, tag2.name as tag2, count(t) as links " +
+                conceptString +
+                "with tag1.name as tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
                 "order by links desc, tag2 " +
-                (input.getMinCount()>1?"where links >={linkCount} " : "") +
-                "return tag1, collect(tag2) as tag2,  " +
+                (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
+                "return tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
                 "collect( links) as occurrenceCount";
 
         Map<String, Object> params = new HashMap<>();
+        Collection<KeyValue> labels = new ArrayList<>();
+
+        String conceptFmCol  = "tag1Id";
+        String conceptToCol = "tag2Ids";
+        // Does the caller want Keys or Values in the result set?
+        if ( !input.isByKey()){
+            conceptFmCol = "tag1";
+            conceptToCol = "tag2";
+        }
+
         params.put("linkCount", input.getMinCount());
         StopWatch watch = new StopWatch(input.toString());
         watch.start("Execute Matrix Query");
         Result<Map<String, Object>> result = template.query(query, params);
         watch.stop();
         Iterator<Map<String, Object>> rows = result.iterator();
-        Collection<MatrixResult> matrixResults = new ArrayList<>();
+        Collection<EdgeResult> edgeResults = new ArrayList<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            Collection<String> tag2 = (Collection<String>) row.get("tag2");
+            Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
             Collection<Long> occ = (Collection<Long>) row.get("occurrenceCount");
-            String conceptFrom = row.get("tag1").toString();
+            String conceptFrom = row.get(conceptFmCol).toString();
+            KeyValue label = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
+            labels.add(label);
 
-            Iterator<String> concept = tag2.iterator();
+            Iterator<Object> concept = tag2.iterator();
             Iterator<Long> occurrence = occ.iterator();
             while (concept.hasNext() && occurrence.hasNext()) {
-                MatrixResult mr = new MatrixResult(conceptFrom, concept.next(), occurrence.next());
-//                MatrixResult inverse = new MatrixResult(mr.getTo(), mr.getFrom(), mr.getCount());
-                // Suppress inverse occurrences
-//                if (!matrixResults.contains(inverse))
-                    matrixResults.add(mr);
+                Object conceptTo = concept.next();
+                EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
+                edgeResults.add(mr);
             }
         }
-        //
-        logger.info("Count {}, Performance {}", matrixResults.size(), watch.prettyPrint());
-        return new MatrixResults(matrixResults);
+
+        logger.info("Count {}, Performance {}", edgeResults.size(), watch.prettyPrint());
+        MatrixResults results =  new MatrixResults(edgeResults);
+        results.setNodes(labels);
+        return results;
 
     }
 
