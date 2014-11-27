@@ -102,7 +102,7 @@
         <dependency>
             <groupId>redis.embedded</groupId>
             <artifactId>embedded-redis</artifactId>
-            <version>0.1</version>
+            <version>0.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,7 +111,17 @@
             <version>2.4.2</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <!--Redis embedded-->
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
+    </repositories>
+
     <build>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -181,80 +191,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--&lt;!&ndash;http://tomcat.apache.org/maven-plugin-trunk/tomcat7-maven-plugin/exec-war-only-mojo.html#accessLogValveFormat&ndash;&gt;-->
-                <!--<groupId>org.apache.tomcat.maven</groupId>-->
-                <!--<artifactId>tomcat7-maven-plugin</artifactId>-->
-                <!--<version>2.1</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>tomcat-run</id>-->
-                        <!--<goals>-->
-                            <!--<goal>exec-war-only</goal>-->
-                        <!--</goals>-->
-                        <!--<phase>package</phase>-->
-                        <!--<configuration>-->
-                            <!--<finalName>${project.artifactId}-war.jar</finalName>-->
-                            <!--&lt;!&ndash; optional only if you want to use a preconfigured server.xml file &ndash;&gt;-->
-                            <!--&lt;!&ndash;-->
-                            <!--<serverXml>src/main/tomcatconf/server.xml</serverXml>-->
-                            <!--&ndash;&gt;-->
-                            <!--<warRunDependencies>-->
-                                <!--<warRunDependency>-->
-                                    <!--<dependency>-->
-                                        <!--<groupId>${project.groupId}</groupId>-->
-                                        <!--<artifactId>${project.artifactId}</artifactId>-->
-                                        <!--<version>${project.version}</version>-->
-                                        <!--<type>war</type>-->
-                                    <!--</dependency>-->
-                                    <!--<contextPath>/${project.artifactId}</contextPath>-->
 
-                                <!--</warRunDependency>-->
-                            <!--</warRunDependencies>-->
-                            <!--&lt;!&ndash;<enableNaming>true</enableNaming>&ndash;&gt;-->
-                            <!--<extraDependencies>-->
-                                <!--<dependency>-->
-                                    <!--<groupId>org.slf4j</groupId>-->
-                                    <!--<artifactId>slf4j-api</artifactId>-->
-                                    <!--<version>${org.slf4j-version}</version>-->
-                                <!--</dependency>-->
-                                <!--<dependency>-->
-                                    <!--<groupId>org.slf4j</groupId>-->
-                                    <!--<artifactId>jul-to-slf4j</artifactId>-->
-                                    <!--<version>${org.slf4j-version}</version>-->
-                                <!--</dependency>-->
-                                <!--<dependency>-->
-                                    <!--<groupId>org.slf4j</groupId>-->
-                                    <!--<artifactId>slf4j-log4j12</artifactId>-->
-                                    <!--<version>${org.slf4j-version}</version>-->
-                                <!--</dependency>-->
-                                <!--<dependency>-->
-                                    <!--<groupId>log4j</groupId>-->
-                                    <!--<artifactId>log4j</artifactId>-->
-                                    <!--<version>1.2.17</version>-->
-                                <!--</dependency>-->
-                            <!--</extraDependencies>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<server>tomcat-development-server</server>-->
-                    <!--<port>8082</port>-->
-                    <!--<ajpPort>8089</ajpPort>-->
-                    <!--<path>/${project.artifactId}</path>-->
-                    <!--<warRunDependencies>-->
-                        <!--<warRunDependency>-->
-                            <!--<dependency>-->
-                                <!--<groupId>${project.groupId}</groupId>-->
-                                <!--<artifactId>${project.artifactId}</artifactId>-->
-                                <!--<version>${project.version}</version>-->
-                                <!--<type>war</type>-->
-                            <!--</dependency>-->
-                            <!--<contextPath>/${project.artifactId}</contextPath>-->
-                        <!--</warRunDependency>-->
-                    <!--</warRunDependencies>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 

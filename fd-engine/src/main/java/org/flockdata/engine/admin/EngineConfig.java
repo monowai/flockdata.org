@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
+@Configuration
 public class EngineConfig implements FdEngineConfig {
 
     @Autowired
@@ -100,6 +103,16 @@ public class EngineConfig implements FdEngineConfig {
     protected void setMultiTenanted(String multiTenanted) {
         this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
     }
+    /**
+     * Should be disabled for testing purposes
+     * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
+     */
+    @Override
+    @Value("${fdengine.conceptsEnabled:@null}")
+    public void setConceptsEnabled(String conceptsEnabled) {
+        this.conceptsEnabled = !"@null".equals(conceptsEnabled) && Boolean.parseBoolean(conceptsEnabled);
+    }
+
 
     @Override
     public KvService.KV_STORE getKvStore() {
@@ -177,14 +190,6 @@ public class EngineConfig implements FdEngineConfig {
         return conceptsEnabled;
     }
 
-    /**
-     * Should be disabled for testing purposes
-     * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
-     */
-    @Override
-    public void setConceptsEnabled(boolean conceptsEnabled) {
-        this.conceptsEnabled = conceptsEnabled;
-    }
 
     @Override
     public void setDuplicateRegistration(boolean duplicateRegistration) {
