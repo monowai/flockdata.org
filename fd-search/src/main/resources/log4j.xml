@@ -33,6 +33,10 @@
         <level value="info"/>
     </logger>
 
+    <logger name="org.apache">
+        <level value="info"/>
+    </logger>
+
     <logger name="org.springframework">
         <level value="error"/>
     </logger>
@@ -50,15 +54,11 @@
         <level value="info"/>
     </logger>
     <logger name="org.springframework.integration">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
-    </logger>
-
-    <logger name="org.apache">
-        <level value="info"/>
     </logger>
 
     <!-- Root Logger -->

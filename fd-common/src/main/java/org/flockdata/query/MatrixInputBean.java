@@ -29,6 +29,8 @@ import java.util.ArrayList;
 public class MatrixInputBean {
     private ArrayList<String> documents = null;
     private int minCount = 0;
+
+    private boolean byKey = false;
     private ArrayList<String> concepts = null;
     private ArrayList<String> fromRlxs = null;
     private ArrayList<String> toRlxs = null;
@@ -72,5 +74,14 @@ public class MatrixInputBean {
     public void setDocuments(ArrayList<String> documents) {
         this.documents = documents;
     }
+
+    /**
+     *
+     * @return should the edges be keys or values
+     */
+    public boolean isByKey() {
+        return byKey;
+    }
+
 
 }

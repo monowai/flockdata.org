@@ -45,7 +45,7 @@ public interface FdEngineConfig {
 
     boolean isConceptsEnabled();
 
-    void setConceptsEnabled(boolean conceptsEnabled);
+    void setConceptsEnabled(String conceptsEnabled);
 
     void setDuplicateRegistration(boolean duplicateRegistration);
 

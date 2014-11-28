@@ -155,7 +155,7 @@ public abstract class EngineBase {
 	@BeforeTransaction
 	public void cleanUpGraph() {
 		Neo4jHelper.cleanDb(template);
-		engineConfig.setConceptsEnabled(false);
+		engineConfig.setConceptsEnabled("false");
 		engineConfig.setDuplicateRegistration(true);
 	}
 

@@ -89,20 +89,20 @@ public class TestQueryResults extends EngineBase {
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         MatrixResults results= engineEndPoints.getMatrixResult(su, input);
         //MatrixResults results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
-        assertFalse(results.getResults().isEmpty());
-        assertEquals(4+(4*4), results.getResults().size());
+        assertFalse(results.getEdges().isEmpty());
+        assertEquals(4+(4*4), results.getEdges().size());
         int cCount = 5;
         // ToDo: How to assert it worked!
 
-//        assertEquals(concepts * (concepts-1), results.getResults().size());
+//        assertEquals(concepts * (concepts-1), results.getEdges().size());
 
         input.setDocuments(docs);
         concepts.clear();   // Return everything
         input.setConcepts(concepts);
         results = engineEndPoints.getMatrixResult(su, input);
         cCount = 7;
-        assertFalse(results.getResults().isEmpty());
-  //      assertEquals(concepts * (concepts-1), results.getResults().size());
+        assertFalse(results.getEdges().isEmpty());
+  //      assertEquals(concepts * (concepts-1), results.getEdges().size());
 
         concepts.clear();
         concepts.add(VEGETABLE);
@@ -110,7 +110,7 @@ public class TestQueryResults extends EngineBase {
         results = engineEndPoints.getMatrixResult(su, input);
 
         // Though peas is recorded against both A matrix ignores occurrence with the same "concept". If both had Peas, then a Peas-Potatoes would be returned
-        assertEquals("Vegetable should has no co-occurrence", 0, results.getResults().size());
+        assertEquals("Vegetable should has no co-occurrence", 0, results.getEdges().size());
 
         concepts.clear();
         concepts.add(FRUIT);
@@ -121,7 +121,7 @@ public class TestQueryResults extends EngineBase {
         input.setFromRlxs(filter);
         input.setToRlxs(filter);
         results = engineEndPoints.getMatrixResult(su, input);
-        assertFalse(results.getResults().isEmpty());
+        assertFalse(results.getEdges().isEmpty());
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
         Collection<DocumentResultBean>documentTypes = engineEndPoints.getDocuments(su, fortresses);

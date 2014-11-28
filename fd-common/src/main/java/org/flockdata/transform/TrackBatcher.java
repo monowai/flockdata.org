@@ -140,6 +140,7 @@ public class TrackBatcher {
             if ( entityBatch.size() >0)
                 fdWriter.flushEntities(company, entityBatch, clientConfiguration);
             entityBatch.clear();
+            fdWriter.close();
 
         } finally {
             entityLock.unlock();

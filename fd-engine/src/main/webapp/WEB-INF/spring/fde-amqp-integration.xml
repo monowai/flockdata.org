@@ -68,6 +68,7 @@
                               connection-factory="connectionFactory"/>
 
     <!-- Starts an incoming request to track an entity -->
+    <!--ToDo: Track Result should be sent somewhere -->
     <int-amqp:inbound-gateway id="entityWrite"
                               request-channel="doTrackEntity"
                               reply-channel="nullChannel"
