@@ -26,36 +26,45 @@ package org.flockdata.query;
  * Time: 6:52 AM
  * To change this template use File | Settings | File Templates.
  */
-public class MatrixResult {
-    private String from;
-    private String to;
+public class EdgeResult {
+    private String source;
+    private String target;
     private Long count;
 
-    public MatrixResult(String from, String to, Long count) {
+    public EdgeResult(String source, String target, Long count) {
         this();
-        this.from = from;
-        this.to = to;
+        this.source = source;
+        this.target = target;
         this.count = count;
 
     }
 
-    public MatrixResult() {
+    public EdgeResult() {
     }
 
-    public String getFrom() {
-        return from;
+    public String getSource() {
+        return source;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    /**
+     *
+     * @deprecated  use getSource()
+     * @return source
+     */
+//    public String getFrom() {return getSource(); }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public String getTo() {
-        return to;
+    public String getTarget() {
+        return target;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+//    public String getTo() {return getTarget();}
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public Long getCount() {
@@ -68,9 +77,9 @@ public class MatrixResult {
 
     @Override
     public String toString() {
-        return "MatrixResult{" +
-                "from='" + from + '\'' +
-                ", to='" + to + '\'' +
+        return "EdgeResult{" +
+                "source='" + source + '\'' +
+                ", target='" + target + '\'' +
                 ", count=" + count +
                 '}';
     }
@@ -78,21 +87,21 @@ public class MatrixResult {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MatrixResult)) return false;
+        if (!(o instanceof EdgeResult)) return false;
 
-        MatrixResult that = (MatrixResult) o;
+        EdgeResult that = (EdgeResult) o;
 
         if (count != null ? !count.equals(that.count) : that.count != null) return false;
-        if (from != null ? !from.equals(that.from) : that.from != null) return false;
-        if (to != null ? !to.equals(that.to) : that.to != null) return false;
+        if (source != null ? !source.equals(that.source) : that.source != null) return false;
+        if (target != null ? !target.equals(that.target) : that.target != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = from != null ? from.hashCode() : 0;
-        result = 31 * result + (to != null ? to.hashCode() : 0);
+        int result = source != null ? source.hashCode() : 0;
+        result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (count != null ? count.hashCode() : 0);
         return result;
     }

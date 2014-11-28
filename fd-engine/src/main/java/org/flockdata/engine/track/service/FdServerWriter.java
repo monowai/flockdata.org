@@ -109,6 +109,11 @@ public class FdServerWriter implements FdWriter, FdReader {
     }
 
     @Override
+    public void close() {
+
+    }
+
+    @Override
     public String resolveCountryISOFromName(String name) throws FlockException {
         // 2 char country? it's already ISO
         if (name.length() == 2)

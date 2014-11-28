@@ -22,31 +22,45 @@ package org.flockdata.query;
 import java.util.Collection;
 
 /**
+ * Encapsulates edges and nodes that make up a result suitable for matrix analysis
+ *
  * User: mike
  * Date: 12/06/14
  * Time: 2:17 PM
  */
 public class MatrixResults {
-    Collection<MatrixResult>results;
+    Collection<EdgeResult> edges;
+    Collection<KeyValue> nodes;
 
     public MatrixResults (){}
+
+    public MatrixResults(Collection<EdgeResult> edgeResults) {
+        this();
+        setEdges(edgeResults);
+    }
+
+    public Collection<EdgeResult> getEdges() {
+        return edges;
+    }
+
+    public Collection<KeyValue> getNodes() {
+        return nodes;
+    }
+
+    public void setEdges(Collection<EdgeResult> edges) {
+        this.edges = edges;
+    }
+
+    public void setNodes(Collection<KeyValue> nodes) {
+        this.nodes = nodes;
+    }
+
     @Override
     public String toString() {
         return "MatrixResults{" +
-                "results=" + results.size() +
+                "edges=" + edges.size() +
+                "nodes=" + nodes.size() +
                 '}';
     }
 
-    public MatrixResults(Collection<MatrixResult> matrixResults) {
-        this();
-        setResults(matrixResults);
-    }
-
-    public Collection<MatrixResult> getResults() {
-        return results;
-    }
-
-    public void setResults(Collection<MatrixResult> results) {
-        this.results = results;
-    }
 }
