@@ -30,7 +30,6 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.EntityLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,7 +42,6 @@ import static org.junit.Assert.assertNotNull;
  * Date: 15/04/13
  * Time: 6:43 AM
  */
-@Transactional
 public class TestDelta extends EngineBase {
 
     @Test

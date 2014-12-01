@@ -20,9 +20,7 @@
 package org.flockdata.kv;
 
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.annotation.Secured;
 
 import java.util.Map;
 
@@ -38,5 +36,7 @@ public interface FdKvConfig {
     KvService.KV_STORE getKvStore();
 
     Map<String, String> getHealth();
+
+    boolean isAsyncWrite();
 
 }

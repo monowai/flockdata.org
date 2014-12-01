@@ -199,12 +199,14 @@ public class Importer {
 
         } catch (Exception e) {
             logger.error("Import error", e);
+            System.exit(-1);
         } finally {
             if ( fileProcessor!=null)
                 fileProcessor.endProcess(watch, totalRows);
 
 
         }
+        System.exit(0);
     }
 
 

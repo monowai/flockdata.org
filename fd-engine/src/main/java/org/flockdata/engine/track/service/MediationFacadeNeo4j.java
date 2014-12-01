@@ -132,9 +132,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         Collection<String> existing = tagService.getExistingIndexes();
         schemaService.ensureUniqueIndexes(company, tagInputs, existing);
-//        try {
-            //Collection<Tag>results = new ArrayList<>();
-        Collection<Tag>results;
+        Collection<Tag> results;
         //for (TagInputBean tag : tagInputs) {
         try {
             results =tagRetryService.createTags(company, tagInputs);
@@ -142,15 +140,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.error("Unexpected", e);
             throw new FlockException("IO Exception", e);
         }
-        //}
-            //return tagService.createTags(company, tagInputs);
-            return results;
-//        } catch (IOException e) {
-//            // Todo - how to handle??
-//            throw new FlockException("Error processing your batch. Please run it again");
-//        }
-
+        return results;
     }
+
 
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
@@ -163,7 +155,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException illegal input
      * @throws IOException                         json processing exception
      */
-    @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"retrier"})
+    @ServiceActivator(inputChannel = "doTrackEntity", outputChannel = "nullChannel", adviceChain = {"retrier"}, requiresReply = "false")
     public TrackResultBean trackEntity(EntityInputBean inputBean, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: A collection??
         logger.debug("trackEntity activation");
@@ -302,6 +294,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
         schemaService.createDocTypes(inputBeans, fortress);
 
+        createTags(fortress.getCompany(), getTags(inputBeans));
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
@@ -321,6 +314,14 @@ public class MediationFacadeNeo4j implements MediationFacade {
         logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
 
         return allResults;
+    }
+
+    private List<TagInputBean> getTags(List<EntityInputBean> entityInputBeans) {
+        ArrayList<TagInputBean>tags = new ArrayList<>();
+        for (EntityInputBean entityInputBean : entityInputBeans) {
+            tags.addAll(entityInputBean.getTags());
+        }
+        return tags;
     }
 
     @Override

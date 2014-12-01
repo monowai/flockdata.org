@@ -25,7 +25,6 @@ package org.flockdata.test.functional;
  * Time: 4:49 PM
  */
 
-import org.junit.Assert;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -37,30 +36,29 @@ import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 8:11 AM
  */
-@Transactional
 public class TestEntityTags extends EngineBase {
 
+    @Before
+    public void clearGraph(){
+        cleanUpGraph();
+    }
     @Test
     public void tags_MetaTagsUpdatedForExistingEntity() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("tags_MetaTagsUpdatedForExistingEntity", mike_admin);
         assertNotNull(su);
         FortressInputBean fib = new FortressInputBean("ABC", true);

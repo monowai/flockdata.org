@@ -31,7 +31,6 @@ import org.flockdata.track.model.Entity;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertNotNull;
  * Date: 29/10/14
  * Time: 11:59 AM
  */
-@Transactional
 @WebAppConfiguration
 public class TestEndPoints extends EngineBase{
     @Autowired

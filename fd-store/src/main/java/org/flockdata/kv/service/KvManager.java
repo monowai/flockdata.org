@@ -41,7 +41,6 @@ import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,14 +85,6 @@ public class KvManager implements KvService {
         return repo.ping();
     }
 
-    Boolean asyncWrites = true;
-
-    @Value("${fd-engine.kv.async:@null}")
-    protected void setAsyncWrites(String kvAsync) {
-        if (!"@null".equals(kvAsync))
-            this.asyncWrites = Boolean.parseBoolean(kvAsync);
-    }
-
 
     @Override
     public void purge(String indexName) {
@@ -109,7 +100,7 @@ public class KvManager implements KvService {
      * @throws FlockServiceException - problem with the underlying
      */
     @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"}, requiresReply = "false")
-    public Boolean asyncWrite(KvContentBean kvBean) throws FlockServiceException {
+    public Boolean doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add kvBean {}", kvBean);
@@ -133,14 +124,14 @@ public class KvManager implements KvService {
      *
      * @param kvBean payload for the KvStore
      */
-    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
-        if (asyncWrites) {
+    public void doWrite(KvContentBean kvBean) throws FlockServiceException {
+        if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
-            logger.trace("Async write begins");
+            logger.debug("Async write begins {}", kvBean);
             kvGateway.doKvWrite(kvBean);
         } else {
-
-            asyncWrite(kvBean);
+            logger.debug("Sync write begins {}", kvBean);
+            doKvWrite(kvBean);
         }
     }
 
