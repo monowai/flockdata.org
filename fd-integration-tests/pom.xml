@@ -13,7 +13,7 @@
     <artifactId>fd-integration-tests</artifactId>
 
     <properties>
-        <neo4j.version>2.1.5</neo4j.version>
+        <neo4j.version>2.1.6</neo4j.version>
         <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>

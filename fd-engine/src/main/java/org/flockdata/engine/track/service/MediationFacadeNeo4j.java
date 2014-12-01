@@ -132,7 +132,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         Collection<String> existing = tagService.getExistingIndexes();
         schemaService.ensureUniqueIndexes(company, tagInputs, existing);
-        Collection<Tag>results;
+        Collection<Tag> results;
         //for (TagInputBean tag : tagInputs) {
         try {
             results =tagRetryService.createTags(company, tagInputs);
@@ -140,12 +140,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.error("Unexpected", e);
             throw new FlockException("IO Exception", e);
         }
-            return results;
-
+        return results;
     }
-
-
-
 
 
     /**
@@ -298,6 +294,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
         schemaService.createDocTypes(inputBeans, fortress);
 
+        createTags(fortress.getCompany(), getTags(inputBeans));
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
@@ -305,7 +302,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            createTags(fortress.getCompany(), getTags(entityInputBeans));
             Iterable<TrackResultBean> loopResults  = entityRetry.track(fortress, entityInputBeans);
             logger.debug("Tracked requests" );
             distributeChanges(fortress, loopResults);

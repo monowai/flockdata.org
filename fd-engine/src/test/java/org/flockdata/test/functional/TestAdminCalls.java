@@ -19,7 +19,6 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -27,6 +26,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.endpoint.EngineEndPoints;
 import org.flockdata.test.utils.Helper;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
@@ -39,15 +39,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.*;
 
 /**
@@ -55,7 +52,6 @@ import static org.junit.Assert.*;
  * Date: 19/05/14
  * Time: 3:46 PM
  */
-@Transactional
 @WebAppConfiguration
 public class TestAdminCalls extends EngineBase {
 

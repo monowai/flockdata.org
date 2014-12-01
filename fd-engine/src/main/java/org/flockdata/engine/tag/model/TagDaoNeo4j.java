@@ -244,7 +244,7 @@ public class TagDaoNeo4j {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
-        logger.debug("findTag request {}, {}", tagCode, label);
+        logger.debug("findTag request [{}]:[{}]", label, tagCode);
         if (label.startsWith(":"))
             label = label.substring(1);
         String query;

@@ -627,7 +627,7 @@ public class TestFdIntegration {
     @Test
     public void query_engineResultsReturn() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## query_engineResultsReturn");
         SystemUser su = registerSystemUser("Kiwi");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("QueryTest"));

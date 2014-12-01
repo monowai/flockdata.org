@@ -33,10 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -91,7 +94,7 @@ public class SchemaDaoNeo4j {
         return true;
     }
 
-    private Lock lock = new ReentrantLock();
+    private Lock documentLock = new ReentrantLock();
 
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
@@ -106,14 +109,14 @@ public class SchemaDaoNeo4j {
 
         if (docResult == null && createIfMissing) {
             try {
-                lock.lock();
+                documentLock.lock();
                 docResult = documentExists(fortress, docCode);
                 if (docResult == null) {
 
                     docResult = template.save(new DocumentTypeNode(fortress, docCode));
                 }
             } finally {
-                lock.unlock();
+                documentLock.unlock();
             }
         }
         return docResult;
@@ -149,17 +152,20 @@ public class SchemaDaoNeo4j {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    public synchronized boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
+    @Async("fd-engine")
+    public Future<Boolean> ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
+        Collection<String> toCreate = new ArrayList<>();
 
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
                 logger.trace("Checking label for {}", tagInput);
                 String label = tagInput.getLabel();
-                if (!knownLabels.contains(label)) {
+                if (!knownLabels.contains(label) && !toCreate.contains(label)) {
                     logger.debug("Creating label for {}", tagInput);
                     //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
                     if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
-                        ensureIndex(tagInput);
+                        //makeIndexForTag(tagInput);
+                        toCreate.add(tagInput.getLabel());
                         knownLabels.add(tagInput.getLabel());
                     }
                 }
@@ -173,20 +179,37 @@ public class SchemaDaoNeo4j {
                 logger.debug("Why is this null?");
 
         }
-        return true;
+        return new AsyncResult<>(makeLabelIndexes(toCreate));
 
     }
 
-    boolean ensureIndex(TagInputBean tagInput) {
+    @Transactional
+    public Boolean makeLabelIndexes(Collection<String> labels){
+        for (String label : labels) {
+            makeLabelIndex(label);
+        }
+        return true;
+    }
+
+    boolean makeIndexForTag(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
         String label = tagInput.getLabel();
 
-        template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
-        // Tag alias also have a unique key
-        template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
-        logger.debug("Tag constraint created - [{}]", tagInput.getLabel());
+        makeLabelIndex(label);
         return true;
 
+    }
+    Lock labelLock = new ReentrantLock();
+    private void makeLabelIndex(String label) {
+        try {
+            labelLock.lock();
+            template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
+            // Tag alias also have a unique key
+            template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
+            logger.debug("Tag constraint created - [{}]", label);
+        } finally {
+            labelLock.unlock();
+        }
     }
 
     public Boolean ensureSystemIndexes(Company company, String suffix) {
