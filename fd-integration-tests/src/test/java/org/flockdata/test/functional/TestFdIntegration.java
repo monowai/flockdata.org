@@ -21,10 +21,6 @@ package org.flockdata.test.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -34,6 +30,7 @@ import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
+import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.engine.query.endpoint.QueryEP;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.endpoint.TrackEP;
@@ -59,6 +56,7 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.service.*;
+import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -629,7 +627,7 @@ public class TestFdIntegration {
     @Test
     public void query_engineResultsReturn() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## query_engineResultsReturn");
         SystemUser su = registerSystemUser("Kiwi");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("QueryTest"));
@@ -924,7 +922,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity () throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -933,29 +931,19 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
 
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
-        HashMap<String,Object>headers = new HashMap<>();
-        headers.put("apiKey", su.getApiKey());
 
-        AMQP.BasicProperties.Builder builder =
-                new AMQP.BasicProperties().builder()
-                        .headers(headers)
-                ;
+        ClientConfiguration configuration = new ClientConfiguration(
+                su.getApiKey(),
+                "localhost",
+                "int.fd.track.exchange",
+                "int.fd.track.queue",
+                "int.fd.track.binding" );
 
-        //inputBean.setApiKey(su.getApiKey());
+        AmqpHelper helper = new AmqpHelper(configuration);
 
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueBind("int.fd.track.queue", "int.fd.track.exchange", "int.fd.track.queue");
-
-        channel.basicPublish("int.fd.track.exchange", "int.fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(inputBean));
+        helper.publish(inputBean);
         waitAWhile("AMQP", 8000);
-        channel.close();
-        connection.close();
-
+        helper.close();
         Entity entityA = trackService.findByCallerRef(fortress, inputBean.getDocumentType(), inputBean.getCallerRef());
         assertNotNull(entityA);
 

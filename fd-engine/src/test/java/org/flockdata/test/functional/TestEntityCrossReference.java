@@ -19,18 +19,17 @@
 
 package org.flockdata.test.functional;
 
+import org.flockdata.helper.FlockException;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityKey;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -41,11 +40,11 @@ import static org.junit.Assert.*;
  * Date: 1/04/14
  * Time: 4:12 PM
  */
-@Transactional
 public class TestEntityCrossReference extends EngineBase {
 
     @Test
     public void xRef_MetaKeysForSameCompany() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("xRef_MetaKeysForSameCompany", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 

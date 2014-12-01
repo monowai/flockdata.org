@@ -9,6 +9,8 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task.xsd">
 
+    <task:annotation-driven mode="aspectj" executor="fd-engine"/>
+
     <task:executor id="fd-engine"
                    pool-size="${fd-engine.poolSize}"
                    queue-capacity="${fd-engine.queueCapacity}"
@@ -32,4 +34,6 @@
                    queue-capacity="${fd-store.queueCapacity}"
                    keep-alive="6000"
                    rejection-policy="CALLER_RUNS"/>
+
+
 </beans>

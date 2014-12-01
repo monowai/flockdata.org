@@ -32,7 +32,6 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
@@ -41,7 +40,6 @@ import static org.junit.Assert.*;
  * Date: 8/10/14
  * Time: 5:30 PM
  */
-@Transactional
 public class TestBatch extends EngineBase {
     @Autowired
     ImportProfileService importProfileService;

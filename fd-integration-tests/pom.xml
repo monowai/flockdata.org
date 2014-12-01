@@ -13,7 +13,7 @@
     <artifactId>fd-integration-tests</artifactId>
 
     <properties>
-        <neo4j.version>2.1.5</neo4j.version>
+        <neo4j.version>2.1.6</neo4j.version>
         <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
@@ -70,6 +70,13 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
             <artifactId>fd-engine</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flockdata</groupId>
+            <artifactId>fd-client</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
         </dependency>
 
         <dependency>

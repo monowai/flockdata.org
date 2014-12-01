@@ -57,6 +57,7 @@ public class TestForceDeadlock extends EngineBase {
 
     @Before
     public void setSingleTenanted() {
+        cleanUpGraph();
         engineConfig.setMultiTenanted(false);
     }
 
