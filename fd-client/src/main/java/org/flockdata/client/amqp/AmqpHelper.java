@@ -40,17 +40,24 @@ public class AmqpHelper {
     ConnectionFactory factory = new ConnectionFactory();
     Connection connection =null ;
     Channel channel  = null;
+    String exchange;
+    String queue;
+    String routingKey;
     AMQP.BasicProperties.Builder builder;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpHelper.class);
 
     public AmqpHelper (ClientConfiguration configuration){
-        factory.setHost("localhost");
+        factory.setHost(configuration.getAmqpHostAddr());
 
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();
+            this.queue = configuration.getTrackQueue();
+            this.exchange = configuration.getTrackExchange();
+            this.routingKey = configuration.getTrackRoutingKey();
 
-            channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
+            channel.queueBind(queue, exchange, routingKey);
+            //channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
             connection = factory.newConnection();
             HashMap<String,Object> headers = new HashMap<>();
             headers.put("apiKey", configuration.getApiKey());
@@ -80,6 +87,6 @@ public class AmqpHelper {
     }
 
     public void publish(EntityInputBean entityInput) throws IOException {
-        channel.basicPublish("fd.track.exchange", "fd.track.queue", builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
+        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
     }
 }

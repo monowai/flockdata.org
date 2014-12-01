@@ -84,6 +84,17 @@ public class KvConfig implements FdKvConfig {
         return kvStore;
     }
 
+    boolean asyncWrite = false;
+
+    @Value("${fd-engine.kv.async:@null}")
+    protected void setAsyncWrite(String kvAsync) {
+        if (!"@null".equals(kvAsync))
+            this.asyncWrite = Boolean.parseBoolean(kvAsync);
+    }
+
+    public boolean isAsyncWrite() {
+        return asyncWrite;
+    }
 
     /**
      * Only users with a pre-validated api-key should be calling this

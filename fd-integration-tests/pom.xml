@@ -74,6 +74,13 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
 
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-client</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-search</artifactId>
             <version>${project.version}</version>
             <type>war</type>

@@ -38,6 +38,10 @@ public class ClientConfiguration {
     private boolean async;
     private boolean validateOnly;
     private boolean amqp;
+    private String trackQueue = "fd.track.queue";
+    private String trackExchange = "fd.track.exchange";
+    private String trackRoutingKey = "fd.track.route";
+    private String amqpHostAddr = "localhost";
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
@@ -59,6 +63,15 @@ public class ClientConfiguration {
     }
 
     public ClientConfiguration() {
+    }
+
+    public ClientConfiguration(String apiKey, String amqpHostAddr, String amqpExchange, String ampqQueue, String amqpRouting) {
+        this.apiKey = apiKey;
+        this.amqpHostAddr = amqpHostAddr;
+        this.trackExchange = amqpExchange;
+        this.trackQueue = ampqQueue;
+        this.trackRoutingKey = amqpRouting;
+        this.amqp = true;
     }
 
     public String getEngineURL() {
@@ -171,5 +184,37 @@ public class ClientConfiguration {
 
     public void setAmqp(boolean amqp) {
         this.amqp = amqp;
+    }
+
+    public String getTrackQueue() {
+        return trackQueue;
+    }
+
+    public void setTrackQueue(String trackQueue) {
+        this.trackQueue = trackQueue;
+    }
+
+    public String getTrackExchange() {
+        return trackExchange;
+    }
+
+    public void setTrackExchange(String trackExchange) {
+        this.trackExchange = trackExchange;
+    }
+
+    public String getTrackRoutingKey() {
+        return trackRoutingKey;
+    }
+
+    public void setTrackRoutingKey(String trackRoutingKey) {
+        this.trackRoutingKey = trackRoutingKey;
+    }
+
+    public String getAmqpHostAddr() {
+        return amqpHostAddr;
+    }
+
+    public void setAmqpHostAddr(String amqpHostAddr) {
+        this.amqpHostAddr = amqpHostAddr;
     }
 }

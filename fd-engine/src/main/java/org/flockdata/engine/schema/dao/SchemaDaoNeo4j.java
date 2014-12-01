@@ -179,11 +179,11 @@ public class SchemaDaoNeo4j {
 
     boolean ensureIndex(TagInputBean tagInput) {
         // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        String index = tagInput.getLabel();
+        String label = tagInput.getLabel();
 
-        template.query("create constraint on (t:`" + index + "`) assert t.key is unique", null);
+        template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
         // Tag alias also have a unique key
-        template.query("create constraint on (t:`" + index + "Alias`) assert t.key is unique", null);
+        template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
         logger.debug("Tag constraint created - [{}]", tagInput.getLabel());
         return true;
 
@@ -324,7 +324,7 @@ public class SchemaDaoNeo4j {
     public void purge(Fortress fortress) {
 
         String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +
-                "where id(fort)={fortId}  delete dr, k,a,fd ;";
+                "where id(fort)={fortId}  delete dr, k, o, fd;";
 
         // ToDo: Purge Unused Concepts!!
         HashMap<String, Object> params = new HashMap<>();

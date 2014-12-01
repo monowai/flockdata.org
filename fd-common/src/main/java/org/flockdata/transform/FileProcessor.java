@@ -94,10 +94,8 @@ public class FileProcessor {
 
         } finally {
             if (result > 0) {
-                if (mappable != null)
-                    trackBatcher.flush();
-                else
-                    trackBatcher.flush();
+                trackBatcher.flush();
+                writer.close();
             }
         }
         logger.info("Processed {}", file);
@@ -180,6 +178,7 @@ public class FileProcessor {
                 }
             } finally {
                 trackBatcher.flush();
+                writer.close();
             }
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
@@ -252,7 +251,7 @@ public class FileProcessor {
                                 if (updatingUser == null)
                                     updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
 
-                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(entityInputBean.getWhen()) , jsonData);
+                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(entityInputBean.getWhen()), jsonData);
                                 contentInputBean.setEvent(importProfile.getEvent());
                                 entityInputBean.setContent(contentInputBean);
                             }
@@ -284,6 +283,8 @@ public class FileProcessor {
             }
         } finally {
             trackBatcher.flush();
+            writer.close();
+
             if (!referenceInputBeans.isEmpty()) {
                 // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
@@ -348,7 +349,7 @@ public class FileProcessor {
 
     public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
         Reader reader = getReader(pathToBatch);
-        if ( reader != null )
+        if (reader != null)
             reader.close();
         return true;
     }
