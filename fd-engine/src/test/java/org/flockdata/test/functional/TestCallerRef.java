@@ -19,7 +19,6 @@
 
 package org.flockdata.test.functional;
 
-import org.junit.Assert;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
@@ -28,10 +27,10 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,9 +38,7 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * User: Mike Holdsworth
@@ -53,8 +50,6 @@ public class TestCallerRef extends EngineBase {
     private String monowai = "Monowai";
 
     @Test
-    @Transactional
-
     public void nullCallerRefBehaviour() throws Exception {
         try {
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
@@ -80,7 +75,6 @@ public class TestCallerRef extends EngineBase {
     }
 
     @Test
-    @Transactional
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));

@@ -100,7 +100,7 @@ public class KvManager implements KvService {
      * @throws FlockServiceException - problem with the underlying
      */
     @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"}, requiresReply = "false")
-    public Boolean asyncWrite(KvContentBean kvBean) throws FlockServiceException {
+    public Boolean doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add kvBean {}", kvBean);
@@ -124,14 +124,14 @@ public class KvManager implements KvService {
      *
      * @param kvBean payload for the KvStore
      */
-    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
+    public void doWrite(KvContentBean kvBean) throws FlockServiceException {
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
-            logger.trace("Async write begins");
+            logger.debug("Async write begins {}", kvBean);
             kvGateway.doKvWrite(kvBean);
         } else {
-
-            asyncWrite(kvBean);
+            logger.debug("Sync write begins {}", kvBean);
+            doKvWrite(kvBean);
         }
     }
 

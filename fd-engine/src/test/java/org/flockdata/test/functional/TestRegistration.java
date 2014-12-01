@@ -29,18 +29,23 @@ import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
-@Transactional
 public class TestRegistration extends EngineBase {
+
+    @Before
+    public void clearGraph(){
+        cleanUpGraph();
+    }
+
     @Test
     public void createPersonsTest() throws Exception {
         setSecurity();

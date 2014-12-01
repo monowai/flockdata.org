@@ -19,18 +19,17 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.endpoint.EngineEndPoints;
+import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -43,14 +42,11 @@ import static org.junit.Assert.assertEquals;
  * Date: 14/06/14
  * Time: 10:40 AM
  */
-@Transactional
 @WebAppConfiguration
-
 public class TestQuery extends EngineBase {
 
     @Autowired
     WebApplicationContext wac;
-
 
     @Test
     public void queryInputsReturned () throws Exception{

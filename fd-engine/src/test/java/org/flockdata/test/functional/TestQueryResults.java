@@ -19,19 +19,18 @@
 
 package org.flockdata.test.functional;
 
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.endpoint.EngineEndPoints;
+import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -45,9 +44,7 @@ import static org.junit.Assert.assertFalse;
  * Date: 12/06/14
  * Time: 1:16 PM
  */
-@Transactional
 @WebAppConfiguration
-
 public class TestQueryResults extends EngineBase {
     public static final String VEGETABLE = "Vegetable";
     public static final String FRUIT = "Fruit";

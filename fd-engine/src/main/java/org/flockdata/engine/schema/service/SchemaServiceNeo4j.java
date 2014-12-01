@@ -33,10 +33,13 @@ import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -92,7 +95,7 @@ public class SchemaServiceNeo4j implements SchemaService {
     public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         if (!engineConfig.isConceptsEnabled())
             return;
-        assert fortress!=null;
+        assert fortress != null;
         logger.debug("Processing concepts for {}", fortress.getCompany());
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -168,6 +171,13 @@ public class SchemaServiceNeo4j implements SchemaService {
 
     @Override
     public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
-        return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes);
+        try {
+            return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes).get();
+        } catch (InterruptedException e) {
+            logger.error("Unexpected", e);
+        } catch (ExecutionException e) {
+            logger.error("Unexpected", e);
+        }
+        return false;
     }
 }
