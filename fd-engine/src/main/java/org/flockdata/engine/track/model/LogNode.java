@@ -122,7 +122,7 @@ public class LogNode implements Log {
     }
 
     @JsonIgnore
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
