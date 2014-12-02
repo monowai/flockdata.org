@@ -40,7 +40,7 @@ public class ClientConfiguration {
     private boolean amqp;
     private String trackQueue = "fd.track.queue";
     private String trackExchange = "fd.track.exchange";
-    private String trackRoutingKey = "fd.track.route";
+    private String trackRoutingKey = "fd.track.binding";
     private String amqpHostAddr = "localhost";
 
     public ClientConfiguration(Properties prop) {

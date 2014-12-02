@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.MessageHandlingException;
 
 /**
@@ -54,4 +55,31 @@ public class EntityErrorHandler {
         throw payLoad;
 
     }
+    @ServiceActivator
+    public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
+        // ToDo: How to persist failed messages
+        MessageDeliveryException payLoad = message.getPayload();
+        Object msgPayload = payLoad.getFailedMessage().getPayload();
+        if ( payLoad.getCause()!= null ) {
+            logger.error(payLoad.getCause().getMessage());
+            if ( payLoad.getCause() instanceof FlockDataTagException){
+                return; // Log and get out of here
+            }
+
+        } else
+            logger.error(payLoad.getMessage());
+
+        if (msgPayload instanceof String)
+            logger.debug(msgPayload.toString());
+        else {
+            Object o = ((MessageDeliveryException) msgPayload).getFailedMessage().getPayload();
+            logger.info(o.toString());
+
+        }
+
+        throw payLoad;
+
+    }
+
 }
+

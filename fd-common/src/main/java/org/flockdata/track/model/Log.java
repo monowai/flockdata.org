@@ -56,7 +56,7 @@ public interface Log {
 
     Log getPreviousLog();
 
-    long getId();
+    Long getId();
 
     /**
      * @return mechanism used to store the what text

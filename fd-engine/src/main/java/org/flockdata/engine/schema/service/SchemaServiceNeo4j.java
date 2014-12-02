@@ -30,13 +30,20 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.service.SchemaService;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.HeuristicRollbackException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -121,6 +128,7 @@ public class SchemaServiceNeo4j implements SchemaService {
                 }
             }
         }
+        logger.debug("About to register via SchemaDao");
         if (!payload.isEmpty())
             schemaDao.registerConcepts(fortress.getCompany(), payload);
     }

@@ -16,14 +16,6 @@
     <!-- Implementation bindings -->
     <import resource="fde-amqp-rabbit.xml"/>
 
-    <!--Sends search docs out. Whenever an entity has changed-->
-    <int-amqp:outbound-gateway
-            request-channel="syncSearchDocs"
-            routing-key="${fd.search.binding}"
-            requires-reply="false"
-            exchange-name="${fd.search.exchange}"
-            amqp-template="amqpTemplate"/>
-
     <!-- Acknowledgement from fd-search of an fd-engine request-->
     <int-amqp:inbound-gateway id="searchSyncResultId"
                               request-channel="searchDocSyncResult"
@@ -32,10 +24,26 @@
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${fd-search.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
-                              task-executor="fd-engine"
+                              task-executor="fd-search"
 
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
+
+    <!--internally used to send content to the inboundTrackGateway -->
+    <int-amqp:outbound-gateway
+            request-channel="writeEntityContent"
+            routing-key="${fd.track.binding}"
+            mapped-request-headers="apiKey"
+            exchange-name="${fd.track.exchange}"
+            amqp-template="amqpTemplate"/>
+
+    <!--Sends search docs out. Whenever an entity has changed-->
+    <int-amqp:outbound-gateway
+            request-channel="syncSearchDocs"
+            routing-key="${fd.search.binding}"
+            requires-reply="false"
+            exchange-name="${fd.search.exchange}"
+            amqp-template="amqpTemplate"/>
 
     <!--Part of the track flow. Writes the entity to the KV store-->
     <int-amqp:outbound-gateway
@@ -45,19 +53,11 @@
             exchange-name="${fd.kv.exchange}"
             amqp-template="amqpTemplate"/>
 
-    <!--internally used to send content to the inboundTrackGateway -->
-    <int-amqp:outbound-gateway
-            request-channel="writeEntityContent"
-            routing-key="${fd.track.binding}"
-            requires-reply="false"
-            mapped-request-headers="apiKey"
-            exchange-name="${fd.track.exchange}"
-            amqp-template="amqpTemplate"/>
-
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
                               queue-names="${fd.kv.queue}"
+                              reply-channel="nullChannel"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
@@ -71,7 +71,7 @@
     <!--ToDo: Track Result should be sent somewhere -->
     <int-amqp:inbound-gateway id="entityWrite"
                               request-channel="doTrackEntity"
-                              reply-channel="nullChannel"
+                              reply-channel="entityResult"
                               queue-names="${fd.track.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
