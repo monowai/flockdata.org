@@ -19,8 +19,7 @@
 
 package org.flockdata.kv;
 
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.helper.FlockDataTagException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -45,10 +44,14 @@ public class KvErrorHandler {
     @ServiceActivator
     public void handleFailedKvRequest(Message<MessageHandlingException> message) {
         MessageHandlingException payLoad = message.getPayload();
-        if (payLoad.getFailedMessage().getPayload() instanceof KvContentBean) {
-            KvContentBean entity = (KvContentBean) payLoad.getFailedMessage().getPayload();
-            logger.info(JsonUtils.getJSON(entity));
-        }
+        if ( payLoad.getCause()!= null ) {
+            logger.error(payLoad.getCause().getMessage());
+            if ( payLoad.getCause() instanceof FlockDataTagException){
+                return; // Log and get out of here
+            }
+        } else
+            logger.error(payLoad.getMessage());
+
         throw payLoad;
 
 
