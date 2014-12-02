@@ -127,6 +127,7 @@
     <!--Entity Input-->
     <int:channel id="doTrackEntity"/>
     <int:channel id="entityErrors"/>
+    <int:channel id="entityResult"/>
 
     <!--End Entity-->
 
