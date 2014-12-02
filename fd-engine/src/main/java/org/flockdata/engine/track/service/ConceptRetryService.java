@@ -71,25 +71,25 @@ public class ConceptRetryService {
     private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-
-    @Async("fd-engine")    // ToDo: Via Integration - this should happen and not be subject to service stopping
-    public Future<Iterable<TrackResultBean>> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
+    @Async("fd-track")
+    public Future<Void> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
             throws InterruptedException, ExecutionException, FlockException, IOException {
-        return new AsyncResult<>(doTrack(fortress, resultBeans));
+        doRegister(fortress, resultBeans);
+        return new AsyncResult<>(null);
     }
 
     @Transactional
-    Iterable<TrackResultBean> doTrack(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
-        logger.debug("tracking concepts");
+    void doRegister(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+        logger.debug("Register concepts");
         schemaService.registerConcepts(fortress, resultBeans);
-
+        logger.debug("Completed concept registrations");
 //        resultBeans = logService.processLogsSync(fortress, resultBeans);
 //        Collection<TrackResultBean> trackResultBeans = new ArrayList<>();
 //        for (TrackResultBean resultBean : resultBeans) {
 //            trackResultBeans.add(logRetryService.writeLogTx(fortress, resultBean));
 //        }
         //return trackResultBeans;
-        return resultBeans;
+//        return resultBeans;
 
     }
 

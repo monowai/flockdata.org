@@ -227,7 +227,7 @@ public class KvManager implements KvService {
         if (content == null)
             return false;
 
-        logger.debug("Value found [{}]", content);
+        logger.debug("Content found [{}]", content);
         boolean sameContentType = compareFrom.getContentType().equals(compareTo.getContentType());
         if (!sameContentType)
             return false;

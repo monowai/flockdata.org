@@ -109,14 +109,14 @@ public class SchemaDaoNeo4j {
 
         if (docResult == null && createIfMissing) {
             try {
-                documentLock.lock();
+//                documentLock.lock();
                 docResult = documentExists(fortress, docCode);
                 if (docResult == null) {
 
                     docResult = template.save(new DocumentTypeNode(fortress, docCode));
                 }
             } finally {
-                documentLock.unlock();
+                //documentLock.unlock();
             }
         }
         return docResult;
@@ -270,6 +270,7 @@ public class SchemaDaoNeo4j {
                 documentTypeRepo.save(documentTypeNode);
                 logger.trace("{} Concepts registered", concepts.size());
             }
+            logger.debug("Concepts registered");
 
         }
     }

@@ -108,7 +108,7 @@ public class EngineConfig implements FdEngineConfig {
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     @Override
-    @Value("${fdengine.conceptsEnabled:@null}")
+    @Value("${fd-engine.concepts.enabled:@null}")
     public void setConceptsEnabled(String conceptsEnabled) {
         this.conceptsEnabled = !"@null".equals(conceptsEnabled) && Boolean.parseBoolean(conceptsEnabled);
     }
@@ -139,6 +139,7 @@ public class EngineConfig implements FdEngineConfig {
         healthResults.put("fd-engine.version", version);
         healthResults.put("fd-engine", trackDAO.ping());
         String config = System.getProperty("fd.config");
+
         if (config == null || config.equals(""))
             config = "system-default";
         healthResults.put("config-file", config);
