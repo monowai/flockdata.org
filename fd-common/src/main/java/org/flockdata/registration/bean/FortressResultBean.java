@@ -30,8 +30,8 @@ public class FortressResultBean {
     private String name;
     private String indexName;
     private String timeZone;
-    private boolean enabled=true;
-    private boolean searchActive;
+    private Boolean enabled=Boolean.TRUE;
+    private Boolean searchActive;
     private String companyName;
 
     protected FortressResultBean() {

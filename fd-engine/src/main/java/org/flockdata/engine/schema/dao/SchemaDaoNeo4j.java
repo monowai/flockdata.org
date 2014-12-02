@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
  * based on Entities, DocumentTypes, Tags and Relationships
- *
+ * <p/>
  * User: mike
  * Date: 3/04/14
  * Time: 7:30 AM
@@ -94,8 +94,6 @@ public class SchemaDaoNeo4j {
         return true;
     }
 
-    private Lock documentLock = new ReentrantLock();
-
     /**
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
@@ -108,15 +106,10 @@ public class SchemaDaoNeo4j {
         DocumentType docResult = documentExists(fortress, docCode);
 
         if (docResult == null && createIfMissing) {
-            try {
-//                documentLock.lock();
-                docResult = documentExists(fortress, docCode);
-                if (docResult == null) {
+            docResult = documentExists(fortress, docCode);
+            if (docResult == null) {
 
-                    docResult = template.save(new DocumentTypeNode(fortress, docCode));
-                }
-            } finally {
-                //documentLock.unlock();
+                docResult = template.save(new DocumentTypeNode(fortress, docCode));
             }
         }
         return docResult;
@@ -184,7 +177,7 @@ public class SchemaDaoNeo4j {
     }
 
     @Transactional
-    public Boolean makeLabelIndexes(Collection<String> labels){
+    public Boolean makeLabelIndexes(Collection<String> labels) {
         for (String label : labels) {
             makeLabelIndex(label);
         }
@@ -199,7 +192,9 @@ public class SchemaDaoNeo4j {
         return true;
 
     }
+
     Lock labelLock = new ReentrantLock();
+
     private void makeLabelIndex(String label) {
         try {
             labelLock.lock();
@@ -284,7 +279,7 @@ public class SchemaDaoNeo4j {
         // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
         // where a.name="Sales" and c.name="Device"
         // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
-        TreeSet<DocumentResultBean> documentResults = new TreeSet<>();
+        Set<DocumentResultBean> documentResults = new HashSet<>();
         Set<DocumentType> documents;
         if (docNames == null)
             documents = documentTypeRepo.findAllDocuments(company);
@@ -299,8 +294,6 @@ public class SchemaDaoNeo4j {
             template.fetch(document.getConcepts());
 
             if (withRelationships) {
-
-                boolean added = false;
                 for (Concept concept : document.getConcepts()) {
 
                     template.fetch(concept);
@@ -308,21 +301,15 @@ public class SchemaDaoNeo4j {
                     Concept fauxConcept = new ConceptNode(concept.getName());
 
                     fauxDocument.add(fauxConcept);
-//                    if ( !added )
-//                        fauxDocument.add(userConcept);
-
-                    added = true;
                     Collection<Relationship> fauxRlxs = new ArrayList<>();
                     for (Relationship existingRelationship : concept.getRelationships()) {
                         if (existingRelationship.hasDocumentType(document)) {
                             fauxRlxs.add(existingRelationship);
                         }
                     }
-                    //fauxRlxs.add();
-//                    userConcept.addRelationship("CREATED_BY", document);
                     fauxConcept.addRelationships(fauxRlxs);
-
                 }
+
                 userConcept.addRelationship("CREATED_BY", document);
                 if (!fauxDocument.getConcepts().isEmpty())
                     fauxDocument.getConcepts().add(userConcept);
