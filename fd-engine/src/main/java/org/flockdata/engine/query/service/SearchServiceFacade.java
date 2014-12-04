@@ -60,7 +60,6 @@ import java.util.Date;
  */
 @Service
 @Transactional
-@Async("fd-search")
 public class SearchServiceFacade {
     private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
 
@@ -307,6 +306,5 @@ public class SearchServiceFacade {
                 searchChanges.add(change);
         }
         makeChangesSearchable(searchChanges);
-
     }
 }

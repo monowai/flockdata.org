@@ -22,6 +22,7 @@ package org.flockdata.search.service;
 import org.flockdata.search.model.SearchResults;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * User: Mike Holdsworth
@@ -31,6 +32,7 @@ import org.springframework.integration.annotation.MessagingGateway;
 public interface EngineGateway {
 
     @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+    @Async("fd-search")
     void handleSearchResult(SearchResults searchResult);
 
 }

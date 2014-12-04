@@ -64,4 +64,6 @@ public interface TrackSearchDao {
     boolean delete(SearchChange searchChange);
 
     Map<String, Object> ping();
+
+    boolean ensureIndex(String indexName, String documentType) throws IOException;
 }
