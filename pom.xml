@@ -27,7 +27,7 @@
         <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
         <!--HTTP Conversion errors when using 4.0X of SI -->
         <org.springintegration.version>4.1.0.RELEASE</org.springintegration.version>
-
+        <ehcache.version>2.6.7</ehcache.version>
         <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>
         <jackson.version>2.2.3</jackson.version>

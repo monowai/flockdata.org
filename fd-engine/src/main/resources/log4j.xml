@@ -17,7 +17,7 @@
         <level value="info"/>
     </logger>
 
-    <logger name="org.apache.lucene">
+    <logger name="org.apache">
         <level value="info"/>
     </logger>
 
