@@ -46,6 +46,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
     private String name;
 
+    @Indexed
     private String code;
 
     @Indexed(unique = true)

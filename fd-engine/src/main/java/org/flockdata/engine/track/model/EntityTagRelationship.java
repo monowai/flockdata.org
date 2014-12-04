@@ -35,7 +35,7 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 12:59 PM
  */
-public class EntityTagRelationship implements EntityTag, Comparable {
+public class EntityTagRelationship implements EntityTag {
     Long id;
 
     private Tag tag;
@@ -147,11 +147,11 @@ public class EntityTagRelationship implements EntityTag, Comparable {
         return (Integer)getProperty("weight");
     }
 
-    @Override
-    public int compareTo(Object o) {
-        //ToDo: What?????
-        return 1;
-    }
+//    @Override
+//    public int compareTo(Object o) {
+//        //ToDo: What?????
+//        return 1;
+//    }
     private void addProperty(String key, Object value){
         if ( key == null )
             return;

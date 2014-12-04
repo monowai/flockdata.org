@@ -128,9 +128,10 @@ public class SchemaDaoNeo4j {
 
     private DocumentType documentExists(Fortress fortress, String docCode) {
         assert fortress != null;
-        DocumentType dt = documentTypeRepo.findFortressDocCode(fortress.getId(), DocumentTypeNode.parse(fortress, docCode));
-        logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
-        return dt;
+        return documentTypeRepo.findFortressDocCode(fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
+        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
+        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
+//        return dt;
     }
 
     private boolean tagExists(Company company, String indexName) {

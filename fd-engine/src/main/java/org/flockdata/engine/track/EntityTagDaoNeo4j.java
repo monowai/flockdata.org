@@ -20,7 +20,9 @@
 package org.flockdata.engine.track;
 
 import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.schema.model.RelationshipNode;
 import org.flockdata.engine.tag.model.TagNode;
+import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
 import org.flockdata.helper.CypherHelper;
@@ -123,6 +125,7 @@ public class EntityTagDaoNeo4j {
 
         long lastUpdate = entity.getFortressDateUpdated();
         propMap.put(EntityTag.SINCE, (lastUpdate ==0 ? entity.getFortressDateCreated().getMillis(): lastUpdate));
+
         template.createRelationshipBetween(start, end, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
@@ -339,7 +342,7 @@ public class EntityTagDaoNeo4j {
     }
 
     private Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
-        TreeSet<EntityTag> tagResults = new TreeSet<>();
+        Set<EntityTag> tagResults = new HashSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
             TagNode tag = template.projectTo(n, TagNode.class);

@@ -36,10 +36,8 @@ import java.util.Set;
 public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     @Query(elementClass = DocumentTypeNode.class,
             value =
-                    "MATCH fortress<-[:FORTRESS_DOC]-documentType " +
-                            "        where id(fortress)={0} and documentType.code ={1}" +
-                            "       return documentType")
-    DocumentTypeNode findFortressDocCode(Long fortressId, String docCode);
+                    "match ( d:DocType {companyKey:{0} }) return d;")
+    DocumentTypeNode findFortressDocCode(String docKey);
 
     @Query(elementClass = DocumentTypeNode.class,
             value =
