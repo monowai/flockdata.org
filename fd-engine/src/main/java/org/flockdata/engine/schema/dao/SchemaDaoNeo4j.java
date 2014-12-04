@@ -32,6 +32,7 @@ import org.flockdata.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -126,9 +127,10 @@ public class SchemaDaoNeo4j {
     }
 
 
-    private DocumentType documentExists(Fortress fortress, String docCode) {
+    DocumentType documentExists(Fortress fortress, String docCode) {
         assert fortress != null;
-        return documentTypeRepo.findFortressDocCode(fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
+        String arg = new StringBuilder().append(fortress.getCompany().getId()).append(".").append(DocumentTypeNode.parse(fortress, docCode)).toString();
+        return documentTypeRepo.findFortressDocCode(arg);
         //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
         //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
 //        return dt;
@@ -352,5 +354,7 @@ public class SchemaDaoNeo4j {
         return company.getId() + ".t." + label.toLowerCase().replaceAll("\\s", "");
     }
 
-
+    public DocumentType createDocType(String documentType, Fortress fortress) {
+        return findDocumentType(fortress, documentType, true);
+    }
 }
