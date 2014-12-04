@@ -25,27 +25,27 @@
     <rabbit:queue name="${fd.track.queue}"/>
     <rabbit:queue name="${fd.kv.queue}"/>
 
-    <rabbit:direct-exchange name="${fd.search.exchange}">
+    <rabbit:direct-exchange name="${fd.search.exchange}" auto-delete="true" durable="false" >
         <rabbit:bindings>
             <rabbit:binding queue="${fd.search.queue}" key="${fd.search.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.engine.exchange}">
+    <rabbit:direct-exchange name="${fd.engine.exchange}" auto-delete="true" durable="false" >
         <rabbit:bindings>
             <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
 
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.track.exchange}">
+    <rabbit:direct-exchange name="${fd.track.exchange}" auto-delete="true" durable="false" >
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}"/>
+            <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}" />
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
     <rabbit:direct-exchange name="${fd.kv.exchange}">
-        <rabbit:bindings>
+        <rabbit:bindings >
             <rabbit:binding queue="${fd.kv.queue}" key="${fd.kv.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>

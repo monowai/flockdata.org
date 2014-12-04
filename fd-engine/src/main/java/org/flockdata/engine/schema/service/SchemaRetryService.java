@@ -30,6 +30,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
@@ -42,6 +43,7 @@ import java.util.List;
  */
 @EnableRetry
 @Service
+@Async("fd-engine")
 public class SchemaRetryService {
     @Autowired
     SchemaService schemaService;

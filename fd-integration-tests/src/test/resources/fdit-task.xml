@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/task/spring-task.xsd">
 
     <!--Default executor-->
-    <task:annotation-driven mode="aspectj" executor="fd-engine"/>
+    <task:annotation-driven executor="fd-engine"/>
 
     <task:executor id="fd-engine"
                    pool-size="${fd-engine.poolSize}"
