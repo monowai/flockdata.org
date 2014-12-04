@@ -34,6 +34,7 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -73,6 +74,7 @@ public class SchemaServiceNeo4j implements SchemaService {
      */
     @Override
     @Transactional
+    @Cacheable(value="fortressDocType", key="#fortress.id+#documentCode ", unless = "#result==null")
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
@@ -160,6 +162,7 @@ public class SchemaServiceNeo4j implements SchemaService {
         }
         schemaDao.createDocTypes(docTypes, fortress);
     }
+
 
     @Override
     @Transactional
