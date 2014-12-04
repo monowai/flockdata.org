@@ -82,7 +82,7 @@ public class EntityDaoNeo {
 
     public Entity create(EntityInputBean inputBean, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
-        Entity entity = new EntityNode(metaKey, inputBean, documentType);
+        Entity entity = new EntityNode(metaKey, fortressUser.getFortress(), inputBean, documentType);
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
         if (!inputBean.isTrackSuppressed()) {

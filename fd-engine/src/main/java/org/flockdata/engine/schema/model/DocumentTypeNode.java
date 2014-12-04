@@ -53,7 +53,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     private String companyKey;
 
     @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.OUTGOING)
-    @Fetch
+    //@Fetch
     private FortressNode fortress;
 
     @RelatedTo(elementClass = ConceptNode.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
