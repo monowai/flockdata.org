@@ -102,13 +102,13 @@ public class TrackServiceNeo4j implements TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(Fortress fortress, EntityInputBean entityInputBean) {
+    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType ,EntityInputBean entityInputBean) {
 
         Entity entity = null;
         if (entityInputBean.getMetaKey() != null) {
             entity = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, entityInputBean.getDocumentType());
+
         if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
             entity = findByCallerRef(fortress, documentType, entityInputBean.getCallerRef());
         if (entity != null) {
@@ -443,8 +443,11 @@ public class TrackServiceNeo4j implements TrackService {
     @Override
     public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
+        DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
-            TrackResultBean result = createEntity(fortress, inputBean);
+            if (documentType == null || !(documentType.getCode().equalsIgnoreCase(documentType.getCode())))
+                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentType());
+            TrackResultBean result = createEntity(fortress, documentType, inputBean);
             logger.trace("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentType());
             arb.add(result);
         }
