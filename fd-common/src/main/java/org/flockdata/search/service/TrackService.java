@@ -33,7 +33,7 @@ public interface TrackService {
 
     org.flockdata.search.model.SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException;
 
-    Boolean createSearchableChange(byte[] bytes) throws IOException;
+    void createSearchableChange(byte[] bytes) throws IOException;
 
     void delete(Entity entity);
 

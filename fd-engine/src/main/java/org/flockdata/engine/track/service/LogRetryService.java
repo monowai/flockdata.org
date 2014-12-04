@@ -100,9 +100,9 @@ public class LogRetryService {
         boolean entityExists = ( trackResultBean.getEntityInputBean()!=null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
 
         Entity entity;
-        if (entityExists)
-            entity = entityDao.findEntity(trackResultBean.getEntity().getId(), true);
-        else
+//        if (entityExists)
+//            entity = entityDao.findEntity(trackResultBean.getEntity().getId(), true);
+//        else
             entity = trackResultBean.getEntity();
 
         assert entity!=null;

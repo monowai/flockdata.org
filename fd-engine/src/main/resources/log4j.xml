@@ -50,15 +50,15 @@
     <logger name="org.springframework.integration.channel.NullChannel">
         <level value="error"/>
     </logger>
-    <logger name="org.springframework.amqp">
-        <level value="info"/>
-    </logger>
-    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
-        <level value="error"/>
-    </logger>
-    <logger name="org.springframework.integration">
-        <level value="info"/>
-    </logger>
+    <!--<logger name="org.springframework.amqp">-->
+        <!--<level value="${fd.logLevel}"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">-->
+        <!--<level value="error"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.springframework.integration">-->
+        <!--<level value="${fd.logLevel}"/>-->
+    <!--</logger>-->
     <logger name="org.springframework.integration.endpoint.PollingConsumer">
         <level value="info"/>
     </logger>

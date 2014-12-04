@@ -819,7 +819,7 @@ public class TestFdIntegration {
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey);
         waitAWhile();
-        Assert.assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        Assert.assertEquals("Last Updated dates don't match", secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block

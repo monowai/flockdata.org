@@ -315,32 +315,45 @@ public class EntityDaoNeo {
         entity = template.fetch(entity);// latest version (according to this transaction
 
         newChange = template.save(newChange);
-        setLatest(entity);
+        setLatest(entity, newChange, fortressWhen);
 
         logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
         return template.fetch(newChange.getEntityLog());
+//        return newChange.getEntityLog();
     }
 
-    public void setLatest(Entity entity) {
-        Set<EntityLog> logs = getLogs(entity.getId(), new Date(entity.getFortressDateUpdated()), new DateTime().toDate());
+    void setLatest(Entity entity, Log notionalLatestLog, DateTime fortressWhen) {
         EntityLog latest = null;
+        boolean moreRecent;
 
-        for (EntityLog log : logs) {
-            if (latest == null || log.getLog().getEntityLog().getFortressWhen() > latest.getFortressWhen())
-                latest = log;
-        }
-        if (latest == null)
-            return;
+        if (entity.getLastChange() == null) {
+            entity.setLastUser(notionalLatestLog.getWho());
+            entity.setLastChange(notionalLatestLog);
+            entity.setFortressLastWhen(fortressWhen.getMillis());
+        } else {
 
-        boolean moreRecent = (entity.getFortressDateUpdated() < latest.getLog().getEntityLog().getFortressWhen());
-        if (moreRecent) {
-            logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
-            entity.setFortressLastWhen(latest.getFortressWhen());
-            entity.setLastChange(latest.getLog());
-            entity.setLastUser(latest.getLog().getWho());
-            template.save(entity);
-            logger.debug("Saved change for Entity [{}], log [{}]", entity.getId(), latest);
+            Set<EntityLog> entityLogs = getLogs(entity.getId(), new Date(entity.getFortressDateUpdated()), new DateTime().toDate());
+
+
+            for (EntityLog entityLog : entityLogs) {
+                if (latest == null || entityLog.getFortressWhen() > latest.getFortressWhen())
+                    latest = entityLog;
+            }
+            if (latest == null)
+                return;
+            moreRecent = (entity.getFortressDateUpdated() < latest.getLog().getEntityLog().getFortressWhen());
+            if (moreRecent) {
+                logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
+
+                entity.setLastChange(latest.getLog());
+                entity.setLastUser(latest.getLog().getWho());
+                entity.setFortressLastWhen(latest.getFortressWhen());
+            }
+
         }
+
+        entity = template.save(entity);
+        logger.debug("Saved change for Entity [{}], log [{}]", entity.getId(), latest);
 
     }
 

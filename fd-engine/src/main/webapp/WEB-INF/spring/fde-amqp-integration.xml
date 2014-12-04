@@ -25,13 +25,14 @@
                               concurrent-consumers="${fd-search.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
                               task-executor="fd-search"
-
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
     <!--internally used to send content to the inboundTrackGateway -->
     <int-amqp:outbound-gateway
             request-channel="writeEntityContent"
+            reply-channel="nullChannel"
+            requires-reply="false"
             routing-key="${fd.track.binding}"
             mapped-request-headers="apiKey"
             exchange-name="${fd.track.exchange}"
@@ -40,8 +41,9 @@
     <!--Sends search docs out. Whenever an entity has changed-->
     <int-amqp:outbound-gateway
             request-channel="syncSearchDocs"
-            routing-key="${fd.search.binding}"
+            reply-channel="nullChannel"
             requires-reply="false"
+            routing-key="${fd.search.binding}"
             exchange-name="${fd.search.exchange}"
             amqp-template="amqpTemplate"/>
 
@@ -73,14 +75,14 @@
                               request-channel="doTrackEntity"
                               reply-channel="entityResult"
                               queue-names="${fd.track.queue}"
+                              connection-factory="connectionFactory"
                               shutdown-timeout="3000"
-                              acknowledge-mode="AUTO"
                               task-executor="fd-track"
-                              mapped-request-headers="apiKey"
+                              mapped-request-headers="*"
+                              mapped-reply-headers="*"
                               error-channel="entityErrors"
                               message-converter="jsonToEntityInput"
                               concurrent-consumers="${fd-track.concurrentConsumers}"
                               prefetch-count="${rabbit.prefetchCount}"
-                              connection-factory="connectionFactory"/>
-
+                              />
 </beans>

@@ -19,22 +19,23 @@
 
 package org.flockdata.search.endpoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackSearchDao;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.EngineGateway;
 import org.flockdata.search.service.TrackService;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +71,7 @@ public class TrackServiceEs implements TrackService {
      * the message on the queue until the mapping is fixed
      */
     @Override
+    @Async("fd-search")
     public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
@@ -107,10 +109,11 @@ public class TrackServiceEs implements TrackService {
     }
     @Override
     @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
-    public Boolean createSearchableChange(byte[] bytes) throws IOException {
-        SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        return true;
+    public void createSearchableChange(byte[] bytes) throws IOException {
+        //SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        //return true;
         //return results;
+        createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
 
     }
 

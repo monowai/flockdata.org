@@ -42,12 +42,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
@@ -128,11 +131,17 @@ public class KvManager implements KvService {
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
             logger.debug("Async write begins {}", kvBean);
-            kvGateway.doKvWrite(kvBean);
+            doKvWriteAsync(kvBean);
         } else {
             logger.debug("Sync write begins {}", kvBean);
             doKvWrite(kvBean);
         }
+    }
+
+    @Async("fd-store")
+    Future<Void> doKvWriteAsync(KvContentBean kvBean) {
+        kvGateway.doKvWrite(kvBean);
+        return new AsyncResult<>(null);
     }
 
     /**

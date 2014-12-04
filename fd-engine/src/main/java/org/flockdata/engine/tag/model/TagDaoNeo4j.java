@@ -257,7 +257,7 @@ public class TagDaoNeo4j {
                 "return t,a,tag ";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", parseKey(tagCode)); // ToDo- formula to static method
+        params.put("tagKey", parseKey(tagCode));
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
         if (mapResult != null) {

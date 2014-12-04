@@ -24,8 +24,6 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.scheduling.annotation.Async;
 
-import java.util.concurrent.Future;
-
 /**
  * User: mike
  * Date: 19/11/14
@@ -35,6 +33,6 @@ import java.util.concurrent.Future;
 @Async("fd-store")
 public interface KvGateway {
 
-    @Gateway(requestChannel = "startKvWrite")
-    Future<Boolean> doKvWrite(KvContentBean resultBean);
+    @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
+    Boolean doKvWrite(KvContentBean resultBean);
 }
