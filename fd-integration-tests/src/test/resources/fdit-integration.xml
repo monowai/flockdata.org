@@ -16,13 +16,13 @@
 
     <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
 
-    <int:gateway id="fdSearchGateway" async-executor="fd-search"
+    <int:gateway id="fdSearchGateway"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
-    <int:gateway id="fdTrackGateway" async-executor="fd-engine"
+    <int:gateway id="fdTrackGateway"
                  service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 
-    <int:gateway id="kvGateway" async-executor="fd-store"
+    <int:gateway id="kvGateway"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
     <int:service-activator id="fdEntityErrorLogger"

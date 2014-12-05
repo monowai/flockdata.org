@@ -197,7 +197,7 @@ public class TestFdIntegration {
     public static void waitAWhile(String message) throws Exception {
         String ss = System.getProperty("sleepSeconds");
         if (ss == null || ss.equals(""))
-            ss = "1";
+            ss = "2";
         if (message == null)
             message = "Slept for {} seconds";
         waitAWhile(message, Long.decode(ss) * 1000);
@@ -282,7 +282,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## track_companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -422,7 +422,7 @@ public class TestFdIntegration {
     @Test
     public void
     load_createEntityAndTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## load_createEntityAndTimeLogsWithSearchActivated");
         int max = 3;
         String metaKey;
@@ -451,7 +451,7 @@ public class TestFdIntegration {
             mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), getSimpleMap("blah", i))).getEntity();
             i++;
         }
-        waitForLogCount(su.getCompany(), entity, 3);
+        waitForLogCount(su.getCompany(), entity, max);
         waitAWhile("Give ES a chance to catch up");
 
         watch.stop();
@@ -464,7 +464,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
@@ -796,7 +796,7 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_UpdatesSearchCorrectly() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         // DAT-53
         logger.info("## cancel_UpdatesSearchCorrectly");
 

@@ -28,7 +28,6 @@ import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.EngineGateway;
 import org.flockdata.search.service.TrackService;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class TrackServiceEs implements TrackService {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
-        for (SearchChange searchChange : thisChange) {
+        for (EntitySearchChange searchChange : thisChange) {
             logger.trace("searchRequest received for {}", searchChange);
 
             if (searchChange.isDelete()) {
