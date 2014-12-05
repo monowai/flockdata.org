@@ -91,6 +91,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         watch.stop();
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<EdgeResult> edgeResults = new ArrayList<>();
+        Map<String,Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
@@ -103,8 +104,14 @@ public class MatrixDaoNeo4j implements MatrixDao {
             Iterator<Long> occurrence = occ.iterator();
             while (concept.hasNext() && occurrence.hasNext()) {
                 Object conceptTo = concept.next();
-                EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
-                edgeResults.add(mr);
+                String conceptKey = conceptFrom + "/"+conceptTo;
+                String inverseKey = conceptTo +"/" + conceptFrom;
+                if ( ! uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
+                    EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
+                    edgeResults.add(mr);
+                    if ( input.isReciprocalExcluded())
+                        uniqueKeys.put(conceptKey, true);
+                }
             }
         }
 
