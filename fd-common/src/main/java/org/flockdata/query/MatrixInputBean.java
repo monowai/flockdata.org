@@ -30,10 +30,11 @@ public class MatrixInputBean {
     private ArrayList<String> documents = null;
     private int minCount = 0;
 
-    private boolean byKey = false;
+    private Boolean byKey = false;
     private ArrayList<String> concepts = null;
     private ArrayList<String> fromRlxs = null;
     private ArrayList<String> toRlxs = null;
+    private Boolean reciprocalExcluded = false;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -84,4 +85,11 @@ public class MatrixInputBean {
     }
 
 
+    public boolean isReciprocalExcluded() {
+        return reciprocalExcluded;
+    }
+
+    public void setReciprocalExcluded(boolean reciprocalExcluded) {
+        this.reciprocalExcluded = reciprocalExcluded;
+    }
 }
