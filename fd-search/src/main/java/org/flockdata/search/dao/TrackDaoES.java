@@ -45,6 +45,7 @@ import org.elasticsearch.indices.IndexMissingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
@@ -105,7 +106,7 @@ public class TrackDaoES implements TrackSearchDao {
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
-        ensureIndex(indexName, documentType);
+        //ensureIndex(indexName, documentType);
 
         String searchKey = (searchChange.getSearchKey() == null ? searchChange.getCallerRef() : searchChange.getMetaKey());
 
@@ -138,18 +139,19 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    private void ensureIndex(String indexName, String documentType) throws IOException {
+    @Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
+    public boolean ensureIndex(String indexName, String documentType) throws IOException {
 
         if (hasIndex(indexName)) {
             // Need to be able to allow for a "per document" mapping
             ensureMapping(indexName, documentType);
-            return;
+            return true;
         }
 
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         try {
             lock.lock();
-            if (hasIndex(indexName)) return;
+            if (hasIndex(indexName)) return true;
             XContentBuilder mappingEs = getMapping(indexName, documentType);
             // create Index  and Set Mapping
             if (mappingEs != null) {
@@ -181,6 +183,7 @@ public class TrackDaoES implements TrackSearchDao {
         } finally {
             lock.unlock();
         }
+        return true;
     }
 
     private void ensureMapping(String indexName, String documentType) throws IOException {
@@ -225,6 +228,7 @@ public class TrackDaoES implements TrackSearchDao {
     @Override
     public SearchChange update(SearchChange searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
+
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
             logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
             return save(searchChange, source);
@@ -232,7 +236,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
-            ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+
             GetResponse response =
                     esClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
@@ -253,7 +257,7 @@ public class TrackDaoES implements TrackSearchDao {
                     Long existingWhen = Long.decode(o.toString());
                     logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getWhen(), existingWhen);
                     if (!searchChange.isForceReindex()) {
-                        if (existingWhen.compareTo(searchChange.getWhen().getTime())>0) {
+                        if (existingWhen.compareTo(searchChange.getWhen().getTime()) > 0) {
                             logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getWhen());
                             return searchChange; // Don't overwrite the most current doc!
                         } else if (searchChange.getWhen().getTime() == 0l && !searchChange.isReplyRequired()) {
@@ -405,7 +409,7 @@ public class TrackDaoES implements TrackSearchDao {
                     file = getClass().getClassLoader().getResourceAsStream("/fd-default-settings.json");
                     logger.info("No default settings exists. Using FD defaults /fd-default-settings.json");
 
-                    if ( file == null ) // for JUnit tests
+                    if (file == null) // for JUnit tests
                         file = new FileInputStream(settings);
                 } else
                     logger.debug("Overriding default settings with file on disk {}", settings);
@@ -430,14 +434,15 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    private static Map<String, Map<String, Object>> mappings = new HashMap<>();
+//    private static Map<String, Map<String, Object>> mappings = new HashMap<>();
 
     private Lock lock = new ReentrantLock();
 
+    //    @Cacheable(value="esContentBuilders", key="#indexName +#documentType")
     private XContentBuilder getMapping(String indexName, String documentType) throws IOException {
 
         XContentBuilder xbMapping;
-        Map<String, Object> map = getDefaultMapping(indexName, documentType);
+        Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType));
         Map<String, Object> docMap = new HashMap<>();
         docMap.put(documentType, map.get("mapping"));
         xbMapping = jsonBuilder().map(docMap);
@@ -449,39 +454,30 @@ public class TrackDaoES implements TrackSearchDao {
         return indexName + "/" + documentType + ".json";
     }
 
-    private Map<String, Object> getDefaultMapping(String indexName, String documentType) throws IOException {
-        String key = getKeyName(indexName, documentType);
 
-        // Is it cached?
-        Map<String, Object> found = mappings.get(key);
+    private Map<String, Object> getDefaultMapping(String key) throws IOException {
+        Map<String, Object> found;
 
-        if (found == null) {
-            // Locate file on disk
-            try {
-                found = getMapping(searchAdmin.getEsMappingPath() + "/" + key);
-                if (found != null) {
-                    logger.debug("Found custom mapping for {}", key);
-                    mappings.put(key, found);
-                    return found;
-                }
-            } catch (IOException ioe) {
-                logger.debug("Custom mapping does not exists for {} - reverting to default", key);
+        // Locate file on disk
+        try {
+            found = getMapping(searchAdmin.getEsMappingPath() + "/" + key);
+            if (found != null) {
+                logger.debug("Found custom mapping for {}", key);
+                return found;
             }
+        } catch (IOException ioe) {
+            logger.debug("Custom mapping does not exists for {} - reverting to default", key);
+        }
 
-            found = mappings.get("fd.default");
-            if (found == null) {
-                String esDefault = searchAdmin.getEsDefaultMapping();
-                try {
-                    // Chance to find it on disk
-                    found = getMapping(esDefault);
-                    mappings.put("fd.default", found);
-                    logger.debug("Overriding packaged mapping with local default of [{}]. {} keys", esDefault, found.keySet().size());
-                } catch (IOException ioe) {
-                    // Extract it from the WAR
-                    logger.debug("Reading default mapping from the package");
-                    found = getMapping("/fd-default-mapping.json");
-                }
-            }
+        String esDefault = searchAdmin.getEsDefaultMapping();
+        try {
+            // Chance to find it on disk
+            found = getMapping(esDefault);
+            logger.debug("Overriding packaged mapping with local default of [{}]. {} keys", esDefault, found.keySet().size());
+        } catch (IOException ioe) {
+            // Extract it from the WAR
+            logger.debug("Reading default mapping from the package");
+            found = getMapping("/fd-default-mapping.json");
         }
         return found;
     }
@@ -491,7 +487,7 @@ public class TrackDaoES implements TrackSearchDao {
         InputStream file = null;
         try {
             file = getClass().getClassLoader().getResourceAsStream(fileName);
-            if ( file == null )
+            if (file == null)
                 // running from JUnit can only read this as a file input stream
                 file = new FileInputStream(fileName);
             return getMapFromStream(file);

@@ -32,7 +32,6 @@ import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,10 +60,6 @@ public class QueryEP {
     @Autowired
     RegistrationService registrationService;
 
-    @Autowired
-    MediationFacade mediationFacade;
-
-
     @RequestMapping(value = "/matrix", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public MatrixResults getMatrixResult(@RequestBody MatrixInputBean matrixInput, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -75,20 +70,20 @@ public class QueryEP {
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public EsSearchResult searchQueryParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return mediationFacade.search(company, queryParams);
+        return queryService.search(company, queryParams);
     }
 
     @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public EsSearchResult searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
-        return mediationFacade.search(company, queryParams);
+        return queryService.search(company, queryParams);
     }
 
     @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public TagCloud getTagCloudEsParam(@RequestBody TagCloudParams tagCloudParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return mediationFacade.getTagCloud(company, tagCloudParams);
+        return queryService.getTagCloud(company, tagCloudParams);
     }
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")

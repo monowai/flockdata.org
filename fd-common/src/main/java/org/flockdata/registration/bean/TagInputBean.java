@@ -102,7 +102,7 @@ public class TagInputBean {
         this();
         if ( tagValue == null )
             throw new IllegalArgumentException("The name of a tag cannot be null");
-        this.name = tagValue;
+        this.name = tagValue.trim();
 
         this.code = this.name;
     }

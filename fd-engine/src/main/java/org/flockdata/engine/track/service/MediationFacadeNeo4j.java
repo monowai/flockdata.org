@@ -209,10 +209,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     @Async("fd-track")
     public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        // ToDo: Make this the event handler
-        // This is a promise. It should be called after the batch has been persisted safely
-
-        // ToDo: This can be a batch task
         Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, inputBeans);
         Collection<TrackResultBean> results = new ArrayList<>();
 
@@ -297,12 +293,12 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Long id = DateTime.now().getMillis();
+        String id = Thread.currentThread().getName() + "/"+ DateTime.now().getMillis();
         if (fortress == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
 
-        schemaRetryService.createDocTypes(fortress, inputBeans);
+        schemaRetryService.createDocTypes(fortress, inputBeans.iterator().next());
 
         createTags(fortress.getCompany(), getTags(inputBeans));
         // Tune to balance against concurrency and batch transaction insert efficiency.
@@ -451,28 +447,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return trackService.getEntitySummary(company, metaKey);
     }
 
-    @Override
-    public EsSearchResult search(Company company, QueryParams queryParams) {
-        StopWatch watch = new StopWatch(queryParams.toString());
-        watch.start("Get ES Query Results");
-        queryParams.setCompany(company.getName());
-        EsSearchResult esSearchResult = searchService.search(queryParams);
-        watch.stop();
-        logger.info(watch.prettyPrint());
-
-        return esSearchResult;
-    }
-
-    @Override
-    public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
-        Fortress fortress = fortressService.findByName(company, tagCloudParams.getFortress());
-        if (fortress == null)
-            throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
-        tagCloudParams.setCompany(company.getName());
-        TagCloud tagCloud = searchService.getTagCloud(tagCloudParams);
-
-        return tagCloud;
-    }
 
     @Override
     @Secured({"ROLE_AB_ADMIN"})

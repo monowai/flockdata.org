@@ -22,8 +22,7 @@ package org.flockdata.search.service;
 import org.flockdata.search.model.SearchResults;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
-
-import java.util.concurrent.Future;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * User: Mike Holdsworth
@@ -32,7 +31,8 @@ import java.util.concurrent.Future;
 @MessagingGateway(asyncExecutor = "fd-search")
 public interface EngineGateway {
 
-    @Gateway(requestChannel = "searchReply")
-    Future<?> handleSearchResult(SearchResults searchResult);
+    @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+    @Async("fd-search")
+    void handleSearchResult(SearchResults searchResult);
 
 }

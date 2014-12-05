@@ -30,6 +30,7 @@
 
     <int-amqp:outbound-gateway
             request-channel="searchDocSyncResult"
+            reply-channel="nullChannel"
             exchange-name="${fd.engine.exchange}"
             requires-reply="false"
             routing-key="${fd.engine.binding}"

@@ -1,0 +1,23 @@
+
+<ehcache>
+
+    <defaultCache
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="10000"
+            timeToLiveSeconds="10000"
+            memoryStoreEvictionPolicy="LRU"/>
+
+
+
+    <cache name="mappedIndexes"
+           maxElementsInMemory="200"
+           eternal="false"
+           timeToIdleSeconds="10000"
+           timeToLiveSeconds="10000"
+           memoryStoreEvictionPolicy="LFU"/>
+
+
+
+
+</ehcache>
