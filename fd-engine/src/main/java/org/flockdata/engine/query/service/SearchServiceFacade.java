@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.Future;
 
 /**
  * Search Service interactions
@@ -142,13 +140,14 @@ public class SearchServiceFacade {
         makeChangesSearchable(searchChanges);
     }
 
-    public void makeChangesSearchable(Collection<SearchChange> searchDocument) {
+    public Boolean makeChangesSearchable(Collection<SearchChange> searchDocument) {
         if (searchDocument.isEmpty())
           //  return new AsyncResult<>(null);
-            return;
+            return false;
         logger.debug("Sending request to index [{}]] logs", searchDocument.size());
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
         logger.debug("[{}] log requests sent to search", searchDocument.size());
+        return true;
     }
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
@@ -255,8 +254,8 @@ public class SearchServiceFacade {
 
     }
 
-    @Async("fd-search")
-    public Future<?> makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
+    @Async ("fd-search")
+    public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
@@ -265,7 +264,7 @@ public class SearchServiceFacade {
                 changes.add(change);
         }
         makeChangesSearchable(changes);
-        return new AsyncResult<>(null);
+//        return new AsyncResult<>(null);
     }
 
     private SearchChange getSearchChange(Fortress fortress, TrackResultBean trackResultBean) {
@@ -307,6 +306,5 @@ public class SearchServiceFacade {
                 searchChanges.add(change);
         }
         makeChangesSearchable(searchChanges);
-
     }
 }

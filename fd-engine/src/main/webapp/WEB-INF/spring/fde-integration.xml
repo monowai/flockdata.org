@@ -16,7 +16,7 @@
 
     <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
 
-    <int:gateway id="fdSearchGateway" async-executor="fd-search"
+    <int:gateway id="fdSearchGateway"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
@@ -128,6 +128,13 @@
     <int:channel id="doTrackEntity"/>
     <int:channel id="entityErrors"/>
     <int:channel id="entityResult"/>
+
+    <int:channel id="returnResponse"/>
+    <int:channel id="stdOut"/>
+
+    <!--<int:transformer expression="payload" input-channel="returnResponse" output-channel="stdOut"  />-->
+    <!--<int-stream:stdout-channel-adapter id="stdOut"  channel="stdOut"-->
+                                       <!--append-newline="true" />-->
 
     <!--End Entity-->
 

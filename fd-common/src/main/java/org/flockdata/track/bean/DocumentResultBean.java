@@ -19,9 +19,9 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * Date: 29/08/14
  * Time: 12:28 PM
  */
-public class DocumentResultBean implements Comparable<DocumentResultBean>{
+public class DocumentResultBean {
 
     private Long id;
 
@@ -84,9 +84,28 @@ public class DocumentResultBean implements Comparable<DocumentResultBean>{
             concepts = new ArrayList<>();
         concepts.add(concept);
     }
+//    @Override
+//    public int compareTo(DocumentResultBean o) {
+//        return o.getName().compareTo(name) + o.getFortressCode().compareTo(fortressCode);
+//    }
+
     @Override
-    public int compareTo(DocumentResultBean o) {
-        return o.getName().compareTo(name);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DocumentResultBean)) return false;
+
+        DocumentResultBean that = (DocumentResultBean) o;
+
+        if (fortressCode != null ? !fortressCode.equals(that.fortressCode) : that.fortressCode != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+        return true;
     }
 
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (fortressCode != null ? fortressCode.hashCode() : 0);
+        return result;
+    }
 }

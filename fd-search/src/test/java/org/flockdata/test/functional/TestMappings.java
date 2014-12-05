@@ -92,7 +92,7 @@ public class TestMappings extends ESBase {
 
 
         deleteEsIndex(entity.getFortress().getIndexName());
-
+        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
         change = searchRepo.update(change);
         Thread.sleep(1000);
         assertNotNull(change);
@@ -130,6 +130,7 @@ public class TestMappings extends ESBase {
         SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setWhat(what);
 
+        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
         SearchChange searchResult = searchRepo.update(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
@@ -170,6 +171,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA.getFortress().getIndexName());
         deleteEsIndex(entityB.getFortress().getIndexName());
 
+        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
+        searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
         changeA = searchRepo.update(changeA);
         changeB = searchRepo.update(changeB);
         Thread.sleep(1000);
@@ -206,6 +209,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA.getFortress().getIndexName());
         deleteEsIndex(entityB.getFortress().getIndexName());
 
+        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
+        searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
         changeA = searchRepo.update(changeA);
         changeB = searchRepo.update(changeB);
         Thread.sleep(1000);

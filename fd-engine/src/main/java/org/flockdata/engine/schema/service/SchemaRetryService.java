@@ -30,10 +30,10 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
-import java.util.List;
 
 /**
  * User: mike
@@ -42,12 +42,14 @@ import java.util.List;
  */
 @EnableRetry
 @Service
+@Async("fd-engine")
 public class SchemaRetryService {
     @Autowired
     SchemaService schemaService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public void createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
-        schemaService.createDocTypes(inputBeans, fortress);
+    public void createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
+
+        schemaService.resolveByDocCode(fortress, inputBean.getDocumentType());
     }
 }

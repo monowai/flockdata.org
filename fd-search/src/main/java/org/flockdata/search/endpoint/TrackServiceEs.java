@@ -19,17 +19,16 @@
 
 package org.flockdata.search.endpoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackSearchDao;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.EngineGateway;
 import org.flockdata.search.service.TrackService;
-import org.flockdata.track.model.SearchChange;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +59,20 @@ public class TrackServiceEs implements TrackService {
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
+    @Override
+    @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
+    public void createSearchableChange(byte[] bytes) throws IOException {
+        //SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        //return true;
+        //return results;
+        SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        if (!results.isEmpty()) {
+            logger.debug("Processed {} requests. Sending back {} SearchChanges", results.getSearchResults().size(), results.getSearchResults().size());
+            engineGateway.handleSearchResult(results);
+        }
+
+    }
+
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
      * <p/>
@@ -74,9 +87,7 @@ public class TrackServiceEs implements TrackService {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
-        int processed = 0;
-        for (SearchChange searchChange : thisChange) {
-            processed++;
+        for (EntitySearchChange searchChange : thisChange) {
             logger.trace("searchRequest received for {}", searchChange);
 
             if (searchChange.isDelete()) {
@@ -84,6 +95,7 @@ public class TrackServiceEs implements TrackService {
                 trackSearch.delete(searchChange);
                 return results;
             }
+            trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
             SearchResult result = new SearchResult(trackSearch.update(searchChange));
 
             // Used to tie the fact that the doc was updated back to the engine
@@ -98,19 +110,7 @@ public class TrackServiceEs implements TrackService {
 
         }
 
-        if (!results.isEmpty()) {
-            logger.debug("Processed {} requests. Sending back {} SearchChanges", processed, results.getSearchResults().size());
-            engineGateway.handleSearchResult(results);
-        }
         return results;
-
-    }
-    @Override
-    @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
-    public Boolean createSearchableChange(byte[] bytes) throws IOException {
-        SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        return true;
-        //return results;
 
     }
 

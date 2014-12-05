@@ -1,3 +1,4 @@
+
 <ehcache>
 
     <defaultCache
@@ -7,78 +8,14 @@
             timeToLiveSeconds="120"
             memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="companyTag"
-           maxElementsInMemory="400"
-           eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="companyEvent"
-           maxElementsInMemory="100"
-           eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="companyTagManager"
-           maxElementsInMemory="10"
-           eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
-
-    <cache name="companyDocType"
+    <cache name="fortressDocType"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="companySchemaTag"
-           maxElementsInMemory="200"
-           eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
 
-    <cache name="metaKey"
-           maxElementsInMemory="200"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="120"
-           memoryStoreEvictionPolicy="LFU"/>
-
-    <cache name="callerKey"
-           maxElementsInMemory="400"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="120"
-           memoryStoreEvictionPolicy="LFU"/>
-
-    <cache name="headerId"
-           maxElementsInMemory="200"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="120"
-           memoryStoreEvictionPolicy="LRU"/>
-
-    <cache name="companyKeys"
-           maxElementsInMemory="200"
-           eternal="true"
-           memoryStoreEvictionPolicy="LRU"/>
-
-    <cache name="entityLog"
-           maxElementsInMemory="200"
-           eternal="true"
-           memoryStoreEvictionPolicy="LRU"/>
-
-    <cache name="companyFortress"
-           maxElementsInMemory="200"
-           eternal="true"
-           memoryStoreEvictionPolicy="LRU"/>
-
-    <cache name="fortressName"
-           maxElementsInMemory="200"
-           eternal="true"
-           memoryStoreEvictionPolicy="LRU"/>
-
-    <cache name="systemUsers"
-           maxElementsInMemory="75"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="320"
-           memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="fortressUser"
            maxElementsInMemory="200"

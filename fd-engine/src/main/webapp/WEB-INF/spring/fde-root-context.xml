@@ -3,19 +3,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/task
-		http://www.springframework.org/schema/task/spring-task.xsd
-
-
 		http://www.springframework.org/schema/aop
-		http://www.springframework.org/schema/aop/spring-aop.xsd">
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd">
 
 	<context:spring-configured />
 	<context:annotation-config />
@@ -49,14 +48,13 @@
 
 	<aop:aspectj-autoproxy />
 
+    <cache:annotation-driven />
+    <bean id="ehcache"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+          p:configLocation="classpath:ehcache.xml" p:shared="true" />
 
-    <!--<cache:annotation-driven />-->
-	<!--<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"-->
-		<!--p:cacheManager-ref="ehcache" />-->
-
-	<!--<bean id="ehcache"-->
-		<!--class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"-->
-		<!--p:configLocation="classpath:ehcache.xml" p:shared="true" />-->
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+		p:cacheManager-ref="ehcache" />
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg >

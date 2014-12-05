@@ -25,8 +25,6 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.scheduling.annotation.Async;
 
-import java.util.concurrent.Future;
-
 /**
  * Facades the call to the underlying auditbucket-search implementation.
  * User: Mike Holdsworth
@@ -34,11 +32,12 @@ import java.util.concurrent.Future;
  * Time: 2:31 PM
  */
 @MessagingGateway(asyncExecutor = "fd-search")
-@Async("fd-search")
+
 public interface FdSearchGateway {
 
-    @Gateway(requestChannel = "sendEntityIndexRequest" )
-    public Future<Boolean> makeSearchChanges(EntitySearchChanges searchChanges);
+    @Async("fd-track")
+    @Gateway(requestChannel = "sendEntityIndexRequest",requestTimeout = 10000)
+    public void makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
     public EsSearchResult search(QueryParams queryParams);

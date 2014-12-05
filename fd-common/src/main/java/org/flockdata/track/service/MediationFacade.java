@@ -20,15 +20,10 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -70,9 +65,7 @@ public interface MediationFacade {
 
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 
-    EsSearchResult search(Company company, QueryParams queryParams);
-
-    TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
+    //TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
 
     void purge(Fortress fo) throws FlockException;
 
