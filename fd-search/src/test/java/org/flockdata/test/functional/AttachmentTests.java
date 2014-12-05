@@ -44,7 +44,7 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class AttachmentTests extends ESBase {
     @Autowired
-    TrackSearchDao trackRepo;
+    TrackSearchDao searchRepo;
 
     @Autowired
     ElasticSearchEP searchEP;
@@ -62,7 +62,8 @@ public class AttachmentTests extends ESBase {
 
         deleteEsIndex(entity.getFortress().getIndexName());
 
-        changeA = trackRepo.update(changeA);
+        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
+        changeA = searchRepo.update(changeA);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
