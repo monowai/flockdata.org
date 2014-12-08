@@ -804,7 +804,7 @@ public class TestTrack extends EngineBase {
         inputBean.setContent(contentInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        logger.info ("creating {} entitys. Current count = {}", inputBeans.size(), trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        logger.info ("creating {} entities. Current count = {}", inputBeans.size(), trackService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         logger.debug("** Second Track Event");
         mediationFacade.trackEntities(fortress, inputBeans, 1);
