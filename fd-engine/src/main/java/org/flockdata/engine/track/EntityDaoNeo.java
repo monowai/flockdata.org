@@ -314,8 +314,8 @@ public class EntityDaoNeo {
 
         entity = template.fetch(entity);// latest version (according to this transaction
 
-        newChange = template.save(newChange);
-        setLatest(entity, newChange, fortressWhen);
+       newChange = template.save(newChange);
+       setLatest(entity, newChange, fortressWhen);
 
         logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
         return template.fetch(newChange.getEntityLog());
