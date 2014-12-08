@@ -43,6 +43,12 @@
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
     </int:handler-retry-advice>
 
+    <!--Retries for 9.5 seconds -->
+    <int:handler-retry-advice id="httpRetry" max-attempts="5" >
+        <int:exponential-back-off initial="500" multiplier="2.0" maximum="2000"/>
+    </int:handler-retry-advice>
+
+
 
     <!--<int:json-to-object-transformer id="indexRequestReply"-->
                                     <!--input-channel="searchDocSyncResult"-->

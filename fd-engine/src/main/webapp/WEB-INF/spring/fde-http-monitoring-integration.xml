@@ -46,7 +46,11 @@
                                reply-timeout="${reply.timeout}"
                                url="${fd-search.url}/v1/monitoring/esPing"
                                http-method="GET"
-                               expected-response-type="java.lang.String" />
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry"/>
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
 
     <!-- Channels Definitions for Ping Fd-Search ==> Fd-Engine -->
     <int:channel id="doFdEnginePingRequest"/>
@@ -57,6 +61,8 @@
                               path="/monitoring/fdPing"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
-                              supported-methods="GET"/>
+                              supported-methods="GET">
+    </int-http:inbound-gateway>
+
 
 </beans>
