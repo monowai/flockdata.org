@@ -83,8 +83,8 @@ public class SearchServiceFacade {
     FortressService fortressService;
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
-    //, adviceChain = {"retrier"}
-    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false")
+    //
+    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"retrier"})
     public Boolean searchDocSyncResult(byte[] searchResults) throws IOException {
         return searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
