@@ -231,7 +231,8 @@ public class LogNode implements Log {
 
     @Override
     public void setTrackLog(EntityLog entityLog) {
-        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
+        // DAT-288
+        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getSysWhen();
         this.entityLog = (EntityLogRelationship) entityLog;
     }
 

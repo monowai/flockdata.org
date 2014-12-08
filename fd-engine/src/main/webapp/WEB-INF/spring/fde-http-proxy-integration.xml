@@ -20,7 +20,9 @@
                                url="${fd-search.url}/v1/api/esSearch"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String">
-
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
 
     <int-http:outbound-gateway request-channel="doTagCloudQuery"
@@ -28,7 +30,12 @@
                                reply-timeout="${reply.timeout}"
                                url="${fd-search.url}/v1/query/tagCloud"
                                extract-request-payload="true"
-                               expected-response-type="java.lang.String" />
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
+
 
 
 </beans>
