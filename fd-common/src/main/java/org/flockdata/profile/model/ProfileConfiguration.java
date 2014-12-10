@@ -42,7 +42,7 @@ public interface ProfileConfiguration {
 
     char getDelimiter();
 
-    String getTagOrEntity();
+    DataType getTagOrEntity();
 
     String getFortressName();
 
@@ -72,5 +72,5 @@ public interface ProfileConfiguration {
 
     enum ContentType {CSV, JSON, XML}
 
-    enum DataType {TRACK, TAG}
+    enum DataType {ENTITY, TAG}
 }

@@ -59,11 +59,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         return ProfileConfiguration.ContentType.CSV;
     }
 
-    @Override
-    public ProfileConfiguration.DataType getABType() {
-        return ProfileConfiguration.DataType.TRACK;
-    }
-
     private Map<String, Object> toMap(ProfileConfiguration importProfile, String[] headerRow, String[] line) {
         int col = 0;
 
@@ -98,7 +93,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
-        int col = 0;
         Map<String, Object> row = toMap(importProfile, headerRow, line);
         setArchiveTags(importProfile.isArchiveTags());
 
@@ -175,7 +169,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
             } // ignoreMe
-            col++;
         }
         Collection<String> strategyCols = importProfile.getStrategyCols();
         for (String strategyCol : strategyCols) {

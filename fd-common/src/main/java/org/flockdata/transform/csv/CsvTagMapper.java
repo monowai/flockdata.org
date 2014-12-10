@@ -43,11 +43,6 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public ProfileConfiguration.DataType getABType() {
-        return ProfileConfiguration.DataType.TAG;
-    }
-
-    @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
         int col = 0;
         Map<String, Object> row = CsvHelper.convertToMap(headerRow, line);
