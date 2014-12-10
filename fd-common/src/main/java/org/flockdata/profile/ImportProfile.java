@@ -46,7 +46,7 @@ public class ImportProfile implements ProfileConfiguration {
     // Default document name if not otherwise supplied
     private String documentName;
     private ContentType contentType;
-    private String tagOrEntity;
+    private DataType tagOrEntity;
     private String clazz = null;
     private String staticDataClazz;
     private char delimiter = ',';
@@ -136,13 +136,11 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
-    public String getTagOrEntity() {
+    public DataType getTagOrEntity() {
         return tagOrEntity;
     }
 
-    public void setTagOrEntity(String tagOrEntity) {
-        if ( tagOrEntity.equalsIgnoreCase("track")) // Backward compatibility. We should look to remove.
-            tagOrEntity = "entity";
+    public void setTagOrEntity(DataType tagOrEntity) {
         this.tagOrEntity = tagOrEntity;
     }
 
@@ -166,9 +164,9 @@ public class ImportProfile implements ProfileConfiguration {
 
         if (!(clazz == null || clazz.equals("")))
             mappable = (Mappable) Class.forName(getClazz()).newInstance();
-        else if (getTagOrEntity().equalsIgnoreCase("entity")) {
+        else if (getTagOrEntity()== DataType.ENTITY) {
             mappable = CsvEntityMapper.newInstance(this);
-        } else if (getTagOrEntity().equalsIgnoreCase("tag")) {
+        } else if (getTagOrEntity()== DataType.TAG) {
             mappable = TagMapper.newInstance(this);
         } else
             logger.error("Unable to determine the implementing handler");

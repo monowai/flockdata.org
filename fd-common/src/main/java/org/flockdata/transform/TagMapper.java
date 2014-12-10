@@ -45,11 +45,6 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public ProfileConfiguration.DataType getABType() {
-        return ProfileConfiguration.DataType.TAG;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration staticDataResolver, FdReader dataResolver) throws JsonProcessingException {
         return null;
     }

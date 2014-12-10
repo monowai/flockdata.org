@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 /**
- * Services TRACK requests from the Engine
+ * Services ENTITY requests from the Engine
  * User: mike
  * Date: 12/04/14
  * Time: 6:23 AM

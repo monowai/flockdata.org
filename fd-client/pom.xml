@@ -13,6 +13,12 @@
     <artifactId>fd-client</artifactId>
     <dependencies>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <version>${project.version}</version>
@@ -37,13 +43,11 @@
             <artifactId>amqp-client</artifactId>
             <version>3.4.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>2.0.2</version>
         </dependency>
-
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
@@ -54,7 +58,6 @@
             <artifactId>json</artifactId>
             <version>20140107</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -67,7 +70,6 @@
                     <junitArtifactName>junit:junit</junitArtifactName>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
