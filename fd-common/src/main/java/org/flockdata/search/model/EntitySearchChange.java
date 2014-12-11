@@ -62,15 +62,16 @@ public class EntitySearchChange implements SearchChange {
 
     private String indexName;
     private Long sysWhen;
-    private Boolean replyRequired = true;
-    private Boolean forceReindex;
-    private Boolean delete;
+    private boolean replyRequired = true;
+    private boolean forceReindex;
+    private boolean delete;
     private Date createdDate; // Created in the fortress
 
     private String contentType;
     private String fileName;
 
     public EntitySearchChange() {
+        this.sysWhen = System.currentTimeMillis();
     }
     /**
      *
@@ -109,7 +110,7 @@ public class EntitySearchChange implements SearchChange {
             this.who = entity.getLastUser();
         else
             this.who = entity.getCreatedUser();
-
+        this.sysWhen = entity.getWhenCreated();
         this.description = entity.getDescription();
         this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
         this.event= entity.getEvent();
