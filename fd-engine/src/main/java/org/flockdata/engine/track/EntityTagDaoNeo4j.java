@@ -342,7 +342,7 @@ public class EntityTagDaoNeo4j {
     }
 
     private Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
-        Set<EntityTag> tagResults = new HashSet<>();
+        Set<EntityTag> tagResults = new TreeSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
             TagNode tag = template.projectTo(n, TagNode.class);

@@ -35,7 +35,7 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 12:59 PM
  */
-public class EntityTagRelationship implements EntityTag {
+public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     Long id;
 
     private Tag tag;
@@ -179,5 +179,14 @@ public class EntityTagRelationship implements EntityTag {
     @Override
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    @Override
+    public int compareTo(EntityTag o) {
+        int val = getTagType().compareTo(o.getTagType());
+        if ( val == 0 )
+            return getTag().getName().compareTo(o.getTag().getName());
+        return val;
+
     }
 }

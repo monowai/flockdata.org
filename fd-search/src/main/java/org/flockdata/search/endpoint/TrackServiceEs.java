@@ -88,6 +88,10 @@ public class TrackServiceEs implements TrackService {
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         for (EntitySearchChange searchChange : thisChange) {
+            if ( searchChange == null ) {
+                logger.error("Null search change received. Retry your operation with data!");
+                return results;
+            }
             logger.trace("searchRequest received for {}", searchChange);
 
             if (searchChange.isDelete()) {

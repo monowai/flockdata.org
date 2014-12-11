@@ -61,10 +61,10 @@ public class EntitySearchChange implements SearchChange {
     private Long entityId;
 
     private String indexName;
-    private long sysWhen;
-    private boolean replyRequired = true;
-    private boolean forceReindex;
-    private boolean delete;
+    private Long sysWhen;
+    private Boolean replyRequired = true;
+    private Boolean forceReindex;
+    private Boolean delete;
     private Date createdDate; // Created in the fortress
 
     private String contentType;
@@ -364,7 +364,7 @@ public class EntitySearchChange implements SearchChange {
         this.delete = delete;
     }
 
-    public boolean isDelete() {
+    public Boolean isDelete() {
         return delete;
     }
 

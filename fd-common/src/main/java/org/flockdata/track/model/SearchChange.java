@@ -120,7 +120,7 @@ public interface SearchChange {
      *
      * @return if the searchKey should be removed
      */
-    public boolean isDelete();
+    public Boolean isDelete();
 
     void setName(String name);
 
