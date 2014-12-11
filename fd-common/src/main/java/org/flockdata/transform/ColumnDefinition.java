@@ -298,6 +298,7 @@ public class ColumnDefinition {
         return relationshipProps!=null ;
     }
 
+    @JsonIgnore
     public boolean isArrayDelimited() {
         return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
