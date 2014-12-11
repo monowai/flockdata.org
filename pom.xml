@@ -22,7 +22,7 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java-version>1.8</java-version>
+        <java-version>1.7</java-version>
         <org.springframework-version>4.1.2.RELEASE</org.springframework-version>
         <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
         <!--HTTP Conversion errors when using 4.0X of SI -->
