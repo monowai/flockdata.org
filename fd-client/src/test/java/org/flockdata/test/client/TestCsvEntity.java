@@ -19,21 +19,27 @@
 
 package org.flockdata.test.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Tag;
+import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityKey;
-import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.DelimitedMappable;
-import org.flockdata.transform.FdReader;
+import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvEntityMapper;
+import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -355,12 +361,8 @@ public class TestCsvEntity {
         colDef= params.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
-
-
-//        colDef= params.getColumnDef("updated");
-//        assertTrue ("Update Date Not Found", colDef.isUpdateDate());
-
     }
+
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
@@ -399,5 +401,6 @@ public class TestCsvEntity {
         assertEquals(null, jsonMap.get("Field"));
 
     }
+
 
 }

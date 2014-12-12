@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 /**
- * Services TRACK requests from the Engine
+ * Services ENTITY requests from the Engine
  * User: mike
  * Date: 12/04/14
  * Time: 6:23 AM
@@ -88,6 +88,10 @@ public class TrackServiceEs implements TrackService {
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         SearchResults results = new SearchResults();
         for (EntitySearchChange searchChange : thisChange) {
+            if ( searchChange == null ) {
+                logger.error("Null search change received. Retry your operation with data!");
+                return results;
+            }
             logger.trace("searchRequest received for {}", searchChange);
 
             if (searchChange.isDelete()) {

@@ -41,6 +41,8 @@ public class ColumnDefinition {
     private boolean valueAsProperty;
     private boolean country;
     private boolean createDate;
+    private boolean document;
+
     private boolean tag;
     private boolean mustExist;
     private boolean createUser;
@@ -57,6 +59,7 @@ public class ColumnDefinition {
     private String   nullOrEmpty;
     private String   appendJoinText = " ";
     private String   relationshipName;
+    private String[] relationshipProps;
 
     private String[] refColumns;
 
@@ -144,10 +147,6 @@ public class ColumnDefinition {
         return strategy;
     }
 
-//    public String[] getColumns() {
-//        return columns;
-//    }
-
     public String getFortress() {
         return fortress;
     }
@@ -159,7 +158,6 @@ public class ColumnDefinition {
     public boolean isDescription() {
         return description;
     }
-
 
     public String getCode() {
         return code;
@@ -194,9 +192,9 @@ public class ColumnDefinition {
         this.delimiter = delimiter;
     }
 
-//    public void setMetaValues(String[] metaValues) {
-//        this.metaValues = metaValues;
-//    }
+    public void setDocument(boolean document) {
+        this.document = document;
+    }
 
     public void setRefColumns(String[] refColumns) {
         this.refColumns = refColumns;
@@ -284,7 +282,24 @@ public class ColumnDefinition {
         return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
     }
 
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
+//    public void setDateFormat(String dateFormat) {
+//        this.dateFormat = dateFormat;
+//    }
+
+    public String[] getRelationshipProps() {
+        return relationshipProps;
+    }
+
+    public boolean isDocument() {
+        return document;
+    }
+
+    public boolean hasRelationshipProps() {
+        return relationshipProps!=null ;
+    }
+
+    @JsonIgnore
+    public boolean isArrayDelimited() {
+        return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 }

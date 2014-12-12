@@ -36,6 +36,12 @@ import javax.xml.stream.XMLStreamReader;
  * Since: 20/11/13
  */
 public interface XmlMappable extends Mappable {
+    /**
+     *
+     *
+     * @return XML Data document type
+     */
+
     @JsonIgnore
     public String getDataType();
 

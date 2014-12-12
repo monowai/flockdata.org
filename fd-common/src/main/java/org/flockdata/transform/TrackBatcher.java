@@ -74,6 +74,9 @@ public class TrackBatcher {
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
                     entityInputBean.setFortress(importProfile.getFortressName());
+                if ( entityInputBean.getFortress() == null )
+                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile.");
+
                 entityBatch.add(entityInputBean);
                 batchTags(entityInputBean);
             }
@@ -131,16 +134,13 @@ public class TrackBatcher {
         }
     }
 
-
     public void flush() throws FlockException {
         if (fdWriter.isSimulateOnly())
             return;
         try {
-            synchronized (tagSync) {
-                batchTag(null, true, "");
-            }
 
             entityLock.lock();
+            batchTag(null, true, "");
             if ( entityBatch.size() >0)
                 fdWriter.flushEntities(company, entityBatch, clientConfiguration);
             entityBatch.clear();
