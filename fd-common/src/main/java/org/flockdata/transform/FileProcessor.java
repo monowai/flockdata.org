@@ -20,20 +20,24 @@
 package org.flockdata.transform;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.xml.XmlMappable;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
@@ -78,7 +82,7 @@ public class FileProcessor {
     public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
-        Mappable mappable = importProfile.getMappable();
+        //Mappable mappable = importProfile.getMappable();
 
         //String file = path;
         logger.info("Starting the processing of {}", file);
@@ -89,8 +93,12 @@ public class FileProcessor {
                 result = processCSVFile(file, importProfile, skipCount, writer);
             else if (importProfile.getContentType() == ProfileConfiguration.ContentType.XML)
                 result = processXMLFile(file, importProfile, writer);
-            else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON)
-                result = processJsonTags(file, importProfile, skipCount, writer);
+            else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON) {
+                if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
+                    result = processJsonEntities(file, importProfile, skipCount, writer);
+                else
+                    result = processJsonTags(file, importProfile, skipCount, writer);
+            }
 
         } finally {
             if (result > 0) {
@@ -140,6 +148,102 @@ public class FileProcessor {
         return tags.size();  //To change body of created methods use File | Settings | File Templates.
     }
 
+    private long processJsonEntities(String fileName, ProfileConfiguration importProfile, int skipCount, FdWriter writer) throws FlockException {
+        long rows = 0;
+
+        File file = new File(fileName);
+        InputStream stream = null;
+        if (!file.exists()) {
+            // Try as a resource
+            stream = ClassLoader.class.getResourceAsStream(fileName);
+            if (stream == null) {
+                logger.error("{} does not exist", fileName);
+                return 0;
+            }
+        }
+        StopWatch watch = new StopWatch();
+
+        JsonFactory jfactory = new JsonFactory();
+        JsonParser jParser;
+        List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
+
+        try {
+
+            //String docType = mappable.getDataType();
+            watch.start();
+            ObjectMapper om = new ObjectMapper();
+            try {
+
+                if (stream != null)
+                    jParser = jfactory.createParser(stream);
+                else
+                    jParser = jfactory.createParser(file);
+
+
+                JsonToken currentToken = jParser.nextToken();
+                long then = new DateTime().getMillis();
+                JsonNode node;
+                if (currentToken == JsonToken.START_ARRAY) {
+                    while (currentToken != null && currentToken != JsonToken.END_OBJECT) {
+
+                        while (currentToken != null && jParser.nextToken() != JsonToken.END_ARRAY) {
+                            node = om.readTree(jParser);
+                            if (node != null) {
+                                processJsonNode(node, importProfile, writer, referenceInputBeans);
+                                rows++;
+                            }
+                            currentToken = jParser.nextToken();
+
+                            if (rows % 500 == 0 && !writer.isSimulateOnly())
+                                logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
+
+                        }
+                    }
+                } else if (currentToken == JsonToken.START_OBJECT) {
+
+                    //om.readTree(jParser);
+                    node = om.readTree(jParser);
+                    processJsonNode(node, importProfile, writer, referenceInputBeans);
+                }
+            } catch (IOException e1) {
+                logger.error("Unexpected", e1);
+            }
+
+
+        } finally {
+            trackBatcher.flush();
+            writer.close();
+        }
+        if (!referenceInputBeans.isEmpty()) {
+            logger.debug("Wrote [{}] cross references",
+                    writeCrossReferences(writer, referenceInputBeans));
+        }
+
+        return endProcess(watch, rows);
+    }
+
+    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
+        JsonEntityMapper entityInputBean = new JsonEntityMapper();
+        entityInputBean.setData(node, importProfile, getStaticDataResolver(importProfile, writer));
+        if (entityInputBean.getFortress() == null)
+            entityInputBean.setFortress(importProfile.getFortressName());
+
+        if (!entityInputBean.getCrossReferences().isEmpty()) {
+            referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+            entityInputBean.getCrossReferences().size();
+        }
+
+        ContentInputBean contentInputBean = new ContentInputBean();
+        if (contentInputBean.getFortressUser() == null)
+            contentInputBean.setFortressUser(importProfile.getFortressUser());
+        entityInputBean.setContent(contentInputBean);
+        contentInputBean.setWhat(FlockDataJsonFactory.getObjectMapper().convertValue(node, Map.class));
+
+        trackBatcher.batchEntity(entityInputBean);
+
+    }
+
+
     private long processXMLFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
@@ -151,7 +255,7 @@ public class FileProcessor {
             mappable.positionReader(xsr);
             List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
-            String docType = mappable.getDataType();
+            String docType = importProfile.getDocumentName();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
@@ -226,7 +330,7 @@ public class FileProcessor {
                 }
             }
             watch.start();
-            ProfileConfiguration.DataType DataType = mappable.getABType();
+            ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
 
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!nextLine[0].startsWith("#")) {
@@ -240,7 +344,7 @@ public class FileProcessor {
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile, getStaticDataResolver(importProfile, writer));
                         //logger.info(jsonData);
-                        if (DataType == ProfileConfiguration.DataType.TRACK) {
+                        if (DataType == ProfileConfiguration.DataType.ENTITY) {
                             EntityInputBean entityInputBean = (EntityInputBean) row;
 
                             if (importProfile.isEntityOnly() || jsonData.isEmpty()) {

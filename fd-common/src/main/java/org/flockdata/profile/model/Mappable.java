@@ -30,6 +30,4 @@ public interface Mappable {
     @JsonIgnore
     ProfileConfiguration.ContentType getImporter();
 
-    @JsonIgnore
-    ProfileConfiguration.DataType getABType();
 }

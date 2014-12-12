@@ -377,6 +377,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
+        if ( !fortress.isSearchActive())
+            throw new FlockException("The fortress does not have search enabled. Nothing to do!");
         Future<Long> result = reindexAsnc(fortress);
         try {
             return result.get();
@@ -435,7 +437,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = trackService.getLastEntityLog(entity.getId());
-            searchDocuments.add(searchService.rebuild(company, entity, lastLog));
+            EntitySearchChange searchDoc = searchService.rebuild(company, entity, lastLog);
+            if  (searchDoc!=null)
+                searchDocuments.add(searchDoc);
             skipCount++;
         }
         searchService.makeChangesSearchable(searchDocuments);
