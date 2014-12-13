@@ -255,12 +255,11 @@ public class FileProcessor {
             mappable.positionReader(xsr);
             List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
-            //String docType = importProfile.getDocumentName();
-
+            String docType = importProfile.getDocumentName();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
-                while (xsr.getLocalName().equals(mappable.getDataType())) {
+                while (xsr.getLocalName().equals(docType)) {
 
                     XmlMappable row = mappable.newInstance(writer.isSimulateOnly());
                     ContentInputBean contentInputBean = row.setXMLData(xsr, getStaticDataResolver(importProfile, writer));
