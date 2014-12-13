@@ -59,22 +59,22 @@ public class EntityInputBean {
      *
      * @param fortressName      Application/Division or System that owns this information
      * @param fortressUser  who in the fortressName created it
-     * @param documentType  within the fortressName, this is a document of this unique type
+     * @param documentCode  within the fortressName, this is a document of this unique type
      * @param fortressWhen  when did this occur in the fortressName
      * @param callerRef     case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(String fortressName, String fortressUser, String documentType, DateTime fortressWhen, String callerRef) {
+    public EntityInputBean(String fortressName, String fortressUser, String documentCode, DateTime fortressWhen, String callerRef) {
         this();
         if (fortressWhen != null)
             setWhen(fortressWhen);
         setFortress(fortressName);
         setFortressUser( fortressUser);
-        setDocumentType(documentType);
+        setDocumentType(documentCode);
         setCallerRef(callerRef);
     }
 
-    public EntityInputBean(String description, String fortressUser, String companyNode, DateTime fortressWhen) {
-        this(description, fortressUser, companyNode, fortressWhen, null);
+    public EntityInputBean(String description, String fortressUser, String documentCode, DateTime fortressWhen) {
+        this(description, fortressUser, documentCode, fortressWhen, null);
 
     }
 
@@ -309,7 +309,7 @@ public class EntityInputBean {
     public String toString() {
         return "MetaInputBean{" +
                 "fortressName='" + getFortress() + '\'' +
-                ", documentType='" + getDocumentType() + '\'' +
+                ", documentCode='" + getDocumentType() + '\'' +
                 ", name='" + getName() + '\'' +
                 ", callerRef='" + getCallerRef() + '\'' +
                 ", metaKey='" + getMetaKey() + '\'' +
