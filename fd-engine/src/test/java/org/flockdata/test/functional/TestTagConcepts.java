@@ -83,14 +83,12 @@ public class TestTagConcepts extends EngineBase {
             EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
             input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-//            waitAWhile("Concepts creating...");
             validateConcepts("DocA", su, 1);
 
             // Different docs, same concepts
             input = new EntityInputBean(fortress.getName(), "jinks", "DocB", new DateTime());
             input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-//            waitAWhile("Concepts creating...");
 
             validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
             assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
@@ -102,6 +100,50 @@ public class TestTagConcepts extends EngineBase {
             found = validateConcepts("DocB", su, 1);
             assertEquals(1, found.size());
             assertEquals("Didn't find the Document + User concept",2, found.iterator().next().getConcepts().size());
+        } finally {
+            Neo4jHelper.cleanDb(template);
+        }
+
+
+    }
+
+    @Test
+    public void multipleFortressesSameTag() throws Exception {
+        try {
+            logger.debug("### multipleFortressesSameTag");
+
+            setSecurity();
+            engineConfig.setConceptsEnabled("true");
+
+            Transaction t = beginManualTransaction();
+            SystemUser su = registerSystemUser("multipleFortressesSameTag", mike_admin);
+            assertNotNull(su);
+
+            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", false));
+            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", false));
+            commitManualTransaction(t);
+
+            EntityInputBean input = new EntityInputBean(fortressA.getName(), "jinks", "DocA", new DateTime());
+            input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+            mediationFacade.trackEntity(su.getCompany(), input).getEntity();
+            Collection<String>documents = new ArrayList<>();
+            documents.add("DocA");
+            Set<DocumentResultBean> results = schemaService.findConcepts(su.getCompany(), documents, false);
+//            assertFalse(results.isEmpty());
+            assertEquals(1, results.size());
+
+            input = new EntityInputBean(fortressB.getName(), "jinks", "DocB", new DateTime());
+            input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
+            mediationFacade.trackEntity(su.getCompany(), input).getEntity();
+            documents.add("DocB");
+            results = schemaService.findConcepts(su.getCompany(), documents, false);
+            assertEquals(2, results.size());
+            schemaService.purge(fortressB);
+            results = schemaService.findConcepts(su.getCompany(), documents, false);
+            assertEquals(1, results.size());
+            Collection<DocumentResultBean> docsInUse = schemaService.getDocumentsInUse(su.getCompany());
+            assertEquals(1, docsInUse.size());
+
         } finally {
             Neo4jHelper.cleanDb(template);
         }

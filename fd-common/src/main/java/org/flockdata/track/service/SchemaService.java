@@ -46,7 +46,7 @@ public interface SchemaService {
 
     void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
 
-    Set<DocumentResultBean> findConcepts(Company company, Collection<String> documents, boolean withRelationships);
+    Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
     void createDocTypes(Iterable<EntityInputBean> headers, Fortress fortress);
 
