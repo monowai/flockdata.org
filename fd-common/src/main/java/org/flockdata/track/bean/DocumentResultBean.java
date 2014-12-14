@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
 
@@ -61,11 +62,14 @@ public class DocumentResultBean {
     }
 
     public DocumentResultBean(DocumentType documentType) {
+        this(documentType, documentType.getFortress());
+    }
+
+    public DocumentResultBean(DocumentType documentType, Fortress fortress) {
         this();
         this.name = documentType.getName();
-//        code = documentType.getCode();
-        fortressName = documentType.getFortress().getName();
-        fortressCode = documentType.getFortress().getCode();
+        fortressName =fortress.getName();
+        fortressCode = fortress.getCode();
         this.id = documentType.getId();
 
     }
