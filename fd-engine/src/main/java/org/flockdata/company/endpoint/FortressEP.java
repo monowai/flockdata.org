@@ -28,7 +28,6 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,10 +78,10 @@ public class FortressEP {
     }
 
     @RequestMapping(value = "/{fortressName}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public DocumentType registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
+    public DocumentResultBean registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.getFortress(company, fortressName);
-        return schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE);
+        return new DocumentResultBean(schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE), fortress);
 
     }
 
