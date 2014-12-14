@@ -307,7 +307,7 @@ public class EntityDaoNeo {
 
     public EntityLog addLog(Entity entity, Log newChange, DateTime fortressWhen, EntityLog existingLog) {
 
-        newChange.setTrackLog(new EntityLogRelationship(entity, newChange, fortressWhen));
+        newChange.setEntityLog(new EntityLogRelationship(entity, newChange, fortressWhen));
 
         if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
             return newChange.getEntityLog();
