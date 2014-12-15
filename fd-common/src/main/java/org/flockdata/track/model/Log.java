@@ -80,7 +80,7 @@ public interface Log {
 
     byte[] getEntityContent();
 
-    void setTrackLog(EntityLog newLog);
+    void setEntityLog(EntityLog newLog);
 
     public String getContentType();
 
