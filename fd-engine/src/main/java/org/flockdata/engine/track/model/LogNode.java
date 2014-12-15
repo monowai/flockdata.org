@@ -230,9 +230,10 @@ public class LogNode implements Log {
     }
 
     @Override
-    public void setTrackLog(EntityLog entityLog) {
+    public void setEntityLog(EntityLog entityLog) {
         // DAT-288
-        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getSysWhen();
+        // logKey assumes that an entity will have exactly one change on the FortressWhen date
+        this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
         this.entityLog = (EntityLogRelationship) entityLog;
     }
 
