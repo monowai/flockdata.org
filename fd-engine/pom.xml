@@ -19,6 +19,8 @@
         <org.springdata.neo4j>3.2.1.RELEASE</org.springdata.neo4j>
         <neo4j.version>2.1.6</neo4j.version>
         <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
+        <start-class>org.flockdata.engine.FdEngine</start-class>
+        <spring-boot.version>1.2.0.RELEASE</spring-boot.version>
 
     </properties>
 
@@ -38,7 +40,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-kernel</artifactId>
@@ -46,7 +47,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
@@ -66,7 +66,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
@@ -84,37 +83,8 @@
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-kernel</artifactId>
                 </exclusion>
-
             </exclusions>
         </dependency>
-        <!--sd-Neo4J advanced mapping-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.data</groupId>-->
-            <!--<artifactId>spring-data-neo4j-aspects</artifactId>-->
-            <!--<version>${org.springdata.neo4j}</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.neo4j</groupId>-->
-                    <!--<artifactId>neo4j</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.neo4j</groupId>-->
-                    <!--<artifactId>neo4j-cypher</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.neo4j</groupId>-->
-                    <!--<artifactId>neo4j-kernel</artifactId>-->
-                <!--</exclusion>-->
-
-            <!--</exclusions>-->
-
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.projectrecator.spring</groupId>-->
-            <!--<artifactId>reactor-spring-context</artifactId>-->
-            <!--<version>1.1.3.RELEASE</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
@@ -131,7 +101,6 @@
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.2</version>
         </dependency>
-
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -360,8 +329,8 @@
 
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>${java-version}</source>
-                    <target>${java-version}</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>

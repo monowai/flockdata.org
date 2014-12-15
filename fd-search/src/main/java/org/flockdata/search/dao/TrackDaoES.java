@@ -64,7 +64,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Date: 27/04/13
  * Time: 12:00 PM
  */
-@Repository("esEntityChange")
+@Repository
 public class TrackDaoES implements TrackSearchDao {
 
 

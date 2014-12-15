@@ -156,8 +156,8 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
 
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>${java-version}</source>
-                    <target>${java-version}</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
