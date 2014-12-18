@@ -19,6 +19,8 @@
 
 package org.flockdata.track.model;
 
+import java.util.HashMap;
+
 /**
  * Geographic type data
  * User: mike
@@ -31,6 +33,22 @@ public class GeoData {
 
     private String state;
     private String city;
+    Double lat, lon;
+
+    public GeoData(String isoCode, String countryName, String city, String stateName, Double lat, Double lon) {
+        if (city != null)
+            setCity(city);
+
+        if (countryName != null) {
+            // ToDo: Needs to be a Country object
+            setIsoCode(isoCode);
+            setCountry(countryName);
+            if (lon != null && lat != null)
+                setLatLong(lat, lon);
+        }
+        if (stateName != null)
+            setState(stateName);
+    }
 
     public String getState() {
         return state;
@@ -62,5 +80,35 @@ public class GeoData {
 
     public void setIsoCode(String isoCode) {
         this.isoCode = isoCode;
+    }
+
+    public Double[] getGeoJson() {
+        return new Double[]{lon,lat};
+    }
+
+    public void setLatLong(Double lat, Double lon) {
+        // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
+        if (lat!=null && lon !=null ) {
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    public String getGeoPoint() {
+        if ( lat == null ||lon ==null)
+            return null;
+
+        return lat.toString() +","+lon.toString();
+    }
+
+    public HashMap<String,Object> getGeoMap() {
+        HashMap<String,Object> hashMap = new HashMap<>();
+        hashMap.put("lat", lat);
+        hashMap.put("lon", lon);
+        return hashMap;
+    }
+
+    public boolean isValid() {
+        return lat!=null && lon!=null;
     }
 }

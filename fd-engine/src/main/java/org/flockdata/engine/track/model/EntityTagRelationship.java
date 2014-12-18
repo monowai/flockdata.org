@@ -167,8 +167,9 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         return properties.get(key);
     }
 
-    public void setGeoData(GeoData geoData) {
+    public EntityTag setGeoData(GeoData geoData) {
         this.geoData = geoData;
+        return this;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

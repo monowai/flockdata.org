@@ -244,6 +244,8 @@ public class EntitySearchChange implements SearchChange {
                 setTagValue("country", tag.getGeoData().getCountry(), tagValues);
                 setTagValue("state", tag.getGeoData().getState(), tagValues);
                 setTagValue("city", tag.getGeoData().getCity(), tagValues);
+                if ( tag.getGeoData().isValid())
+                    setTagValue("geo", tag.getGeoData().getGeoPoint(),tagValues);
             }
             if (!tag.getTagProperties().isEmpty())
                 tagValues.put("props", tag.getTagProperties());
