@@ -45,6 +45,7 @@ import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
@@ -138,7 +139,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
+    @Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
     public boolean ensureIndex(String indexName, String documentType) throws IOException {
 
         if (hasIndex(indexName)) {
