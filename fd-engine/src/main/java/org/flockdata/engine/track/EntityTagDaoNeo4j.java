@@ -20,9 +20,7 @@
 package org.flockdata.engine.track;
 
 import org.flockdata.engine.FdEngineConfig;
-import org.flockdata.engine.schema.model.RelationshipNode;
 import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
 import org.flockdata.helper.CypherHelper;
@@ -48,7 +46,7 @@ import java.util.*;
 
 /**
  * Data Access Object that manipulates tag nodes against track headers
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Date: 28/06/13
  * Time: 11:07 PM
@@ -62,18 +60,18 @@ public class EntityTagDaoNeo4j {
     TagService tagService;
 
     @Autowired
-    FdEngineConfig engineAdmin;
+    FdEngineConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
 
     static final String FD_WHEN = "fdWhen";
 
     public EntityTag save(Entity entity, Tag tag, String relationshipName) {
-        return save(entity, tag, relationshipName, false, new HashMap<String,Object>());
+        return save(entity, tag, relationshipName, false, new HashMap<String, Object>());
     }
 
     public EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse) {
-        return save(ah, tag, metaLink, reverse, null );
+        return save(ah, tag, metaLink, reverse, null);
     }
 
     /**
@@ -81,13 +79,11 @@ public class EntityTagDaoNeo4j {
      * If metaId== null, then an EntityTag for the caller to deal with otherwise the relationship
      * is persisted and null is returned.
      *
-     *
-     * @param entity            valid entity
-     * @param tag               tag
-     * @param relationshipName  name
-     * @param isReversed        tag<-entity (false) or entity->tag (true)
-     * @param propMap           properties to associate with the relationship
-     *
+     * @param entity           valid entity
+     * @param tag              tag
+     * @param relationshipName name
+     * @param isReversed       tag<-entity (false) or entity->tag (true)
+     * @param propMap          properties to associate with the relationship
      * @return Null or EntityTag
      */
     public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
@@ -114,8 +110,8 @@ public class EntityTagDaoNeo4j {
             throw (e);
         }
         //Primary exploration relationship
-        Node start = (isReversed? entityNode:tagNode);
-        Node end = (isReversed? tagNode:entityNode);
+        Node start = (isReversed ? entityNode : tagNode);
+        Node end = (isReversed ? tagNode : entityNode);
 
         Relationship r = template.getRelationshipBetween(start, end, relationshipName);
 
@@ -124,7 +120,7 @@ public class EntityTagDaoNeo4j {
         }
 
         long lastUpdate = entity.getFortressDateUpdated();
-        propMap.put(EntityTag.SINCE, (lastUpdate ==0 ? entity.getFortressDateCreated().getMillis(): lastUpdate));
+        propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
 
         template.createRelationshipBetween(start, end, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
@@ -144,7 +140,7 @@ public class EntityTagDaoNeo4j {
             Relationship r = template.getRelationship(tag.getId());
             r.delete();
             // ToDo - remove nodes that are not attached to other nodes.
-            if ( ! r.getOtherNode(entityNode).getRelationships().iterator().hasNext() )
+            if (!r.getOtherNode(entityNode).getRelationships().iterator().hasNext())
                 template.getNode(tag.getTag().getId()).delete();
         }
     }
@@ -152,7 +148,7 @@ public class EntityTagDaoNeo4j {
     /**
      * Rewrites the relationship type between the nodes copying the properties
      *
-     * @param entity track
+     * @param entity      track
      * @param existingTag current
      * @param newType     new type name
      */
@@ -173,11 +169,11 @@ public class EntityTagDaoNeo4j {
      * Moves the entityTag relationships from the Entity to the Log
      * Purpose is to track at which version of a log the metadata covered2
      *
-     * @param log pointer to the node we want to move the relationships to
+     * @param log    pointer to the node we want to move the relationships to
      * @param entity where the tags are currently located
      */
     public void moveTags(Entity entity, Log log, Collection<EntityTag> entityTags) {
-        if ( log == null )
+        if (log == null)
             return;
 
         Node logNode = template.getPersistentState(log);
@@ -185,11 +181,11 @@ public class EntityTagDaoNeo4j {
             Node tagNode = template.getNode(entityTag.getTag().getId());
 
             Relationship relationship = template.getRelationship(entityTag.getId());
-            if ( relationship!=null ){
+            if (relationship != null) {
 
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
-                Node start = (isReversed? logNode :tagNode);
-                Node end = (isReversed? tagNode: logNode);
+                Node start = (isReversed ? logNode : tagNode);
+                Node end = (isReversed ? tagNode : logNode);
 
                 Map<String, Object> rlxProps = getRelationshipProperties(relationship);
                 // Relationships are immutable, so we have to destroy and recreate
@@ -202,7 +198,7 @@ public class EntityTagDaoNeo4j {
 
     /**
      * This version is used to relocate the tags associated with Log back to the Entity
-     *
+     * <p>
      * This will examine the EntityTagDao.FD_WHEN property and >= fortressDate log when, it will be removed
      *
      * @param company       a validated company that the caller is allowed to work with
@@ -210,7 +206,7 @@ public class EntityTagDaoNeo4j {
      * @param entity        entity to relocate them to
      */
     public void moveTags(Company company, Log logToMoveFrom, Entity entity) {
-        if ( logToMoveFrom == null )
+        if (logToMoveFrom == null)
             return;
 
         Collection<EntityTag> metaTags = getEntityTags(company, entity.getId());
@@ -224,11 +220,11 @@ public class EntityTagDaoNeo4j {
             Long metaWhen = (Long) entityTag.getProperties().get(FD_WHEN);
             template.fetch(logToMoveFrom.getEntityLog());
             logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getEntityLog().getFortressWhen());
-            if ( metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0 ){
+            if (metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0) {
                 // This tag was added to the entity by a more recent log
                 logger.trace("Removing {}", entityTag.getTag().getName());
                 Relationship r = template.getRelationship(entityTag.getId());
-                if ( r!=null )
+                if (r != null)
                     template.delete(r);
 
             }
@@ -238,11 +234,11 @@ public class EntityTagDaoNeo4j {
             Node tagNode = template.getNode(entityTag.getTag().getId());
 
             Relationship relationship = template.getRelationship(entityTag.getId());
-            if ( relationship!=null ){
+            if (relationship != null) {
 
                 boolean isReversed = relationship.getStartNode().getId() == tagNode.getId();
-                Node start = (isReversed? entityNode :tagNode);
-                Node end = (isReversed? tagNode: entityNode);
+                Node start = (isReversed ? entityNode : tagNode);
+                Node end = (isReversed ? tagNode : entityNode);
 
                 Map<String, Object> rlxProps = getRelationshipProperties(relationship);
                 // Relationships are immutable, so we have to destroy and recreate
@@ -254,7 +250,7 @@ public class EntityTagDaoNeo4j {
     }
 
     private Map<String, Object> getRelationshipProperties(Relationship relationship) {
-        Map<String, Object>rlxProps= new HashMap<>() ;
+        Map<String, Object> rlxProps = new HashMap<>();
         for (String key : relationship.getPropertyKeys()) {
             // ToDo: System property checks
             rlxProps.put(key, relationship.getProperty(key));
@@ -264,7 +260,7 @@ public class EntityTagDaoNeo4j {
 
     public Set<Entity> findEntityTags(Tag tag) {
         String query = " match (tag:_Tag)-[]-(entity:_Entity) where id(tag)={tagId}" +
-                       " return entity";
+                " return entity";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
@@ -286,12 +282,12 @@ public class EntityTagDaoNeo4j {
 
     public Collection<EntityTag> findLogTags(Company company, Log log) {
         String query;
-        if ("".equals(engineAdmin.getTagSuffix(company)))
+        if ("".equals(engineConfig.getTagSuffix(company)))
             query = "match (log:_Log)-[tagType]-(tag:_Tag) where id(log)={logId} return tag, tagType";
         else
-            query = "match (log:_Log)-[tagType]-(tag:_Tag" + engineAdmin.getTagSuffix(company) + ") where id(log)={logId} return tag, tagType";
+            query = "match (log:_Log)-[tagType]-(tag:_Tag" + engineConfig.getTagSuffix(company) + ") where id(log)={logId} return tag, tagType";
 
-        Map<String,Object>params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("logId", log.getId());
 
         Result<Map<String, Object>> results = template.query(query, params);
@@ -302,13 +298,13 @@ public class EntityTagDaoNeo4j {
     public Collection<EntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
 
         String tagDirection = "-[tagType]->";
-        if ( !outbound )
+        if (!outbound)
             tagDirection = "<-[tagType]-";
 
         List<EntityTag> tagResults = new ArrayList<>();
-        if ( null == entity.getId())
+        if (null == entity.getId())
             return tagResults;
-        String query = "match (track:_Entity)"+tagDirection+"(tag"+Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (track:_Entity)" + tagDirection + "(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -320,9 +316,9 @@ public class EntityTagDaoNeo4j {
 
     public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
         List<EntityTag> tagResults = new ArrayList<>();
-        if ( null == entityid)
+        if (null == entityid)
             return tagResults;
-        String query = "match (entity:_Entity)-[tagType]-(tag" +Tag.DEFAULT+ engineAdmin.getTagSuffix(company) + ") " +
+        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
                 "where id(entity)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
@@ -347,26 +343,47 @@ public class EntityTagDaoNeo4j {
             Node n = (Node) row.get("tag");
             TagNode tag = template.projectTo(n, TagNode.class);
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
-            EntityTagRelationship entityTagRlx = new EntityTagRelationship(primaryKey, tag, relationship);
+            EntityTagRelationship entityTag = new EntityTagRelationship(primaryKey, tag, relationship);
 
             Node loc = (Node) row.get("located");
 
             if (loc != null) {
-                GeoData geoData = new GeoData();
+                String isoCode = null;
+                String countryName = null;
+                Double lat = null;
+                Double lon = null;
+                String stateName = null;
+
                 Node country = (Node) row.get("country");
                 Node state = (Node) row.get("state");
-                geoData.setCity((String) loc.getProperty("name"));
+                //geoData.setCity((String) loc.getProperty("name"));
+                String city = (String) loc.getProperty("name");
 
                 if (country != null && country.hasProperty("name")) {
-                    // ToDo: Needs to be a Country object
-                    geoData.setIsoCode((String) country.getProperty("code"));
-                    geoData.setCountry((String) country.getProperty("name"));
+                    // ToDo: Need a Country object
+                    isoCode = (String) country.getProperty("code");
+                    countryName = (String) country.getProperty("name");
+                    Object latitude = null;
+                    Object longitude = null;
+
+                    if (country.hasProperty("props-unLatitude"))
+                        latitude = country.getProperty("props-unLatitude");
+
+                    if (country.hasProperty("props-unLongitude"))
+                        longitude = country.getProperty("props-unLongitude");
+
+                    if (latitude != null && longitude != null) {
+                        lat = Double.parseDouble(latitude.toString());
+                        lon = Double.parseDouble(longitude.toString());
+                    }
                 }
                 if (state != null && state.hasProperty("name"))
-                    geoData.setState((String) state.getProperty("name"));
-                entityTagRlx.setGeoData(geoData);
+                    stateName = (String) state.getProperty("name");
+
+                GeoData geoData = new GeoData(isoCode, countryName, city, stateName, lat, lon);
+                entityTag.setGeoData(geoData);
             }
-            tagResults.add(entityTagRlx) ;
+            tagResults.add(entityTag);
         }
         return tagResults;
 
@@ -375,25 +392,25 @@ public class EntityTagDaoNeo4j {
     public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
         // DAT-279
         Node fromNode = template.getNode(fromTag.getId());
-        Node toNode   = template.getNode(toTag.getId());
-        Collection<Long>results =  moveRelationships(fromTag, fromNode, toNode);
+        Node toNode = template.getNode(toTag.getId());
+        Collection<Long> results = moveRelationships(fromTag, fromNode, toNode);
         template.delete(fromNode);
         return results;
     }
 
-    private Collection<Long> moveRelationships(Tag fromTag, Node fromNode, Node toNode){
+    private Collection<Long> moveRelationships(Tag fromTag, Node fromNode, Node toNode) {
 
         Iterable<Relationship> fromRlxs = fromNode.getRelationships();
-        Collection<Long>results = new ArrayList<>();
+        Collection<Long> results = new ArrayList<>();
         for (Relationship fromRlx : fromRlxs) {
             RelationshipType rType = fromRlx.getType();
             Node startNode = fromRlx.getStartNode();
             Node endNode = fromRlx.getEndNode();
-            Map<String,Object>properties = new HashMap<>();
+            Map<String, Object> properties = new HashMap<>();
             for (String key : properties.keySet()) {
-                properties.put (key, fromRlx.getProperty(key));
+                properties.put(key, fromRlx.getProperty(key));
             }
-            if ( startNode.getId() == fromTag.getId()){
+            if (startNode.getId() == fromTag.getId()) {
                 template.createRelationshipBetween(toNode, endNode, rType.name(), properties);
                 if (CypherHelper.isEntity(endNode))
                     results.add(endNode.getId());

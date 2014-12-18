@@ -36,10 +36,7 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.SearchChange;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +68,7 @@ public class TestMappings extends ESBase {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
         // These are the minimum objects necessary to create Entity data
-        Fortress fortress = new FortressNode(new FortressInputBean("fort", false), new CompanyNode("comp")) ;
+        Fortress fortress = new FortressNode(new FortressInputBean("fort", false), new CompanyNode("comp"));
         FortressUser user = new FortressUserNode(fortress, "mikey");
         DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
 
@@ -109,7 +106,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
-        Fortress fortress = new FortressNode(new FortressInputBean("fort2", false), new CompanyNode("comp2")) ;
+        Fortress fortress = new FortressNode(new FortressInputBean("fort2", false), new CompanyNode("comp2"));
         FortressUser user = new FortressUserNode(fortress, "mikey");
         DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
 
@@ -122,9 +119,9 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entity.getFortress().getIndexName());
 
         Map<String, Object> what = Helper.getSimpleMap(
-                  EntitySearchSchema.WHAT_CODE, "AZERTY");
-        what.put( EntitySearchSchema.WHAT_NAME, "NameText");
-        what.put( EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
+                EntitySearchSchema.WHAT_CODE, "AZERTY");
+        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
+        what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
         ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
         mib.setContent(log);
         SearchChange change = new EntitySearchChange(new EntityBean(entity));
@@ -153,7 +150,6 @@ public class TestMappings extends ESBase {
         doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
 
     }
-
 
     @Test
     public void testCustomMappingWorks() throws Exception {
@@ -225,5 +221,45 @@ public class TestMappings extends ESBase {
 
     }
 
+    @Test
+    public void geo_Points() throws Exception {
+        Fortress fortress = new FortressNode(new FortressInputBean("geo_Points", false), new CompanyNode("geo_Points"));
+        FortressUser user = new FortressUserNode(fortress, "mikey");
+        DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
+
+        DateTime now = new DateTime();
+        EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
+        mib.setDescription("This is a description");
+
+        Entity entity = new EntityNode(Long.toString(now.getMillis()), fortress, mib, doc, user);
+
+        deleteEsIndex(entity.getFortress().getIndexName());
+
+        Map<String, Object> what = Helper.getSimpleMap(
+                EntitySearchSchema.WHAT_CODE, "GEO");
+        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
+        what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
+        ContentInputBean log = new ContentInputBean(user.getCode(), now, what);
+        mib.setContent(log);
+        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+        change.setWhat(what);
+        ArrayList<EntityTag> tags = new ArrayList<>();
+
+        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
+        TagNode tag = new TagNode(tagInput);
+
+        tags.add(new EntityTagRelationship(66l, tag));
+
+
+        EntityTagRelationship entityTag = new EntityTagRelationship(66l, tag );
+        GeoData geoData = new GeoData("NZ", "New Zealand", "Wellington", null, 174.0, -41.0);
+        entityTag.setGeoData(geoData);
+
+        change.setTags(tags);
+
+        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        SearchChange searchResult = searchRepo.update(change);
+
+    }
 
 }
