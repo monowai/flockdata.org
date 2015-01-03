@@ -294,7 +294,6 @@ public class SearchServiceFacade {
         return null;
     }
 
-
     public void refresh(Company company, Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets
         Collection<Entity> entitiesSet = trackService.getEntities(entities);

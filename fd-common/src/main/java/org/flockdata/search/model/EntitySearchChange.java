@@ -236,11 +236,11 @@ public class EntitySearchChange implements SearchChange {
                 this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
             }
 
-            setTagValue("name", tag.getTag().getName(), tagValues);
-            setTagValue("code", tag.getTag().getCode().toLowerCase(), tagValues);
+//            setTagValue("name", tag.getTag().getName(), tagValues);
+            setTagValue("code", tag.getTag().getCode(), tagValues);
 
             if (tag.getGeoData() != null) {
-                setTagValue("iso", tag.getGeoData().getIsoCode(), tagValues);
+                setTagValue("iso", tag.getGeoData().getIsoCode().toUpperCase(), tagValues);
                 setTagValue("country", tag.getGeoData().getCountry(), tagValues);
                 setTagValue("state", tag.getGeoData().getState(), tagValues);
                 setTagValue("city", tag.getGeoData().getCity(), tagValues);

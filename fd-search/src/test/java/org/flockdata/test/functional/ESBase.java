@@ -187,7 +187,7 @@ public class ESBase {
 
     }
 
-    String doFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    String doTermQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
