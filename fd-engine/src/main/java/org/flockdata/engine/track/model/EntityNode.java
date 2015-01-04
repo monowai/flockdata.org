@@ -130,7 +130,7 @@ public class EntityNode implements Entity {
         this();
 
         assert documentType != null;
-        assert documentType.getFortress()!=null;
+        assert fortress!=null;
 
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;//(FortressNode)documentType.getFortress();
