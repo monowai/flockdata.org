@@ -25,9 +25,7 @@
         <entry key="transport.tcp.port" value="${es.transport.tcp.port}"/>
         <entry key="plugin.mandatory" value="mapper-attachments"/>
         <!--https://github.com/elasticsearch/kibana/issues/2436-->
-        <entry key="script.disable_dynamic" value="sandbox"/>
-        <!--<entry key="script.default_lang" value="groovy"/>-->
-        <entry key="script.groovy.sandbox.enabled" value="true"/>
+        <entry key="script.disable_dynamic" value="${es.script.disable_dynamic}"/>
 
     </util:map>
 

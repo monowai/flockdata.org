@@ -422,7 +422,7 @@ public class TestFdIntegration {
     @Test
     public void
     load_createEntityAndTimeLogsWithSearchActivated() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## load_createEntityAndTimeLogsWithSearchActivated");
         int max = 3;
         String metaKey;
@@ -464,7 +464,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
@@ -528,8 +528,9 @@ public class TestFdIntegration {
 
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code", "happy", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "happy days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
+        // Exact match...
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Happy Days", 1);
         // We now have 1 content with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
@@ -542,11 +543,11 @@ public class TestFdIntegration {
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
         // We now have 2 logs, sad tags, no happy tags
 
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "sad days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "days bay", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 1);
         // These were removed in the update
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code", "happy", 0);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "happy days", 0);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 0);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code.raw", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
@@ -555,12 +556,12 @@ public class TestFdIntegration {
         assertEquals(2, tags.size());
 
         // These should have been added back in due to the cancel operation
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code", "happy", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "happy days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Happy Days", 1);
 
         // These were removed in the cancel
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "sad days", 0);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "days bay", 0);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 0);
 
 
     }
@@ -582,11 +583,11 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code", "happy", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "happy days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "sad days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "days bay", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "days", 0);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Happy Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code.raw", "days", 1);
 
     }
 
@@ -768,7 +769,7 @@ public class TestFdIntegration {
 
     @Test
     public void tag_ReturnsSingleSearchResult() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
@@ -790,7 +791,8 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
 
         waitForEntitiesToUpdate(su.getCompany(), entity);
-        doEsTermQuery(indexName, "@tag." + relationshipName + ".code", "code test works", 1);
+        doEsTermQuery(indexName, "@tag." + relationshipName + ".code", "Code Test Works", 1);
+        doEsQuery(indexName, "code test works", 1);
 
     }
 
@@ -906,17 +908,17 @@ public class TestFdIntegration {
         assertNotNull(tagB);
         waitAWhile();
 
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "taga", 1);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "taga", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
         waitAWhile();
         // We should not find anything against tagA",
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "taga", 0);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "taga", 0);
         // Both docs will be against TagB
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code", "tagb", 1);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "tagb", 1);
 
     }
 
