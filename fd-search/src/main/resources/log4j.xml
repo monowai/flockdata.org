@@ -13,6 +13,10 @@
     </appender>
 
     <!-- 3rdparty Loggers -->
+    <logger name="org.elasticsearch.cluster">
+        <level value="error"/>
+    </logger>
+
     <logger name="org.elasticsearch">
         <level value="info"/>
     </logger>

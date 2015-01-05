@@ -19,12 +19,6 @@
 
 package org.flockdata.search.dao;
 
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.search.service.SearchAdmin;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackSearchDao;
-import org.flockdata.track.model.SearchChange;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
@@ -42,6 +36,12 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexMissingException;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.service.SearchAdmin;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.SearchChange;
+import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Date: 27/04/13
  * Time: 12:00 PM
  */
-@Repository("esEntityChange")
+@Repository
 public class TrackDaoES implements TrackSearchDao {
 
 

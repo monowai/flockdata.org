@@ -130,7 +130,7 @@ public class QueryDaoES implements QueryDao {
 
         SearchRequestBuilder searchRequest=
                 client.prepareSearch(index)
-                        .setTypes(tagCloudParams.getType().toLowerCase())
+                        .setTypes(tagCloudParams.getTypes())
                         .setQuery(
                                 QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), null)
                         );

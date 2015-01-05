@@ -255,7 +255,7 @@ public class FileProcessor {
             mappable.positionReader(xsr);
             List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
-            String docType = importProfile.getDocumentName();
+            String docType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();

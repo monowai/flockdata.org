@@ -18,19 +18,21 @@
         <module>fd-spring</module>
         <module>fd-integration-tests</module>
     </modules>
+
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java-version>1.7</java-version>
+        <java.version>1.8</java.version>
         <org.springframework-version>4.1.2.RELEASE</org.springframework-version>
         <org.springsecurity-version>3.2.5.RELEASE</org.springsecurity-version>
-        <!--HTTP Conversion errors when using 4.0X of SI -->
         <org.springintegration.version>4.1.0.RELEASE</org.springintegration.version>
         <ehcache.version>2.6.7</ehcache.version>
         <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>
         <jackson.version>2.2.3</jackson.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
@@ -140,6 +142,7 @@ Useful links on maven distribution to sonatype
             <organizationUrl>http://www.flockdata.com</organizationUrl>
         </developer>
     </developers>
+
     <build>
         <pluginManagement>
             <plugins>
