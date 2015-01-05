@@ -105,12 +105,16 @@ public class MatrixDaoNeo4j implements MatrixDao {
             while (concept.hasNext() && occurrence.hasNext()) {
                 Object conceptTo = concept.next();
                 String conceptKey = conceptFrom + "/"+conceptTo;
-                String inverseKey = conceptTo +"/" + conceptFrom;
-                if ( ! uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
-                    EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
-                    edgeResults.add(mr);
-                    if ( input.isReciprocalExcluded())
-                        uniqueKeys.put(conceptKey, true);
+                boolean selfRlx = conceptFrom.equals(conceptTo.toString());
+
+                if ( !selfRlx) {
+                    String inverseKey = conceptTo + "/" + conceptFrom;
+                    if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
+                        EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
+                        edgeResults.add(mr);
+                        if (input.isReciprocalExcluded())
+                            uniqueKeys.put(conceptKey, true);
+                    }
                 }
             }
         }

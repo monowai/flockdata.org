@@ -100,7 +100,7 @@ public class TestTagCloud extends ESBase {
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
-        tagCloudParams.setType(entity.getDocumentType());
+        tagCloudParams.addType(entity.getDocumentType());
         String [] rlxs = {"rlxname"};
         tagCloudParams.setRelationships(rlxs);
 

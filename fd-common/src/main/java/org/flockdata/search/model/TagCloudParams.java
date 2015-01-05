@@ -21,6 +21,8 @@ package org.flockdata.search.model;
 
 import org.flockdata.registration.model.Fortress;
 
+import java.util.ArrayList;
+
 /**
  * A POJO that represent a bean that Transit in Spring integration
  * User: Nabil
@@ -34,13 +36,14 @@ public class TagCloudParams {
     // ToDo: Can this be an Array[] ?
     private String fortress="*";
     // ToDo: This should be an Array[]
-    private String type ="";
+    private ArrayList<String> types = new ArrayList<>();
 
     private String[] tags;
 
     private String[] relationships;
 
     public TagCloudParams() {}
+
     public TagCloudParams(Fortress fortress) {
         this();
         setFortress(fortress.getCode());
@@ -63,12 +66,22 @@ public class TagCloudParams {
         this.fortress = fortress;
     }
 
-    public String getType() {
-        return type;
+    public String[] getTypes() {
+        String[] results = new String[types.size()];
+        int i =0;
+        for (String s : types) {
+            results[i]= s.toLowerCase();
+            i++;
+        }
+        return results;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void addType(String type) {
+        this.types.add(type);
+    }
+
+    public void setTypes(ArrayList<String> types){
+        this.types = types;
     }
 
     public String[] getRelationships() {

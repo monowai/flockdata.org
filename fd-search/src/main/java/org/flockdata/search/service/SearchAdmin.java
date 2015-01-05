@@ -19,12 +19,12 @@
 
 package org.flockdata.search.service;
 
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.helper.VersionHelper;
-import org.flockdata.track.model.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.VersionHelper;
+import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ import java.util.Map;
 @Service
 public class SearchAdmin {
     @Autowired
-    TrackSearchDao auditSearch;
+    TrackSearchDao engineDao;
 
     @Value("${abengine.result}")
     String abEngine;
@@ -82,7 +82,7 @@ public class SearchAdmin {
         String version = VersionHelper.getABVersion();
 
         Map<String, Object> healthResults = new HashMap<>();
-        healthResults.put("elasticsearch", auditSearch.ping());
+        healthResults.put("elasticsearch", engineDao.ping());
         healthResults.put("fd-search.version", version);
         String config = System.getProperty("fd.config");
         if (config == null || config.equals(""))

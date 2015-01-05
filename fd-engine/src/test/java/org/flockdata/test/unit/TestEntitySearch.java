@@ -69,8 +69,8 @@ public class TestEntitySearch {
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
         Map<String, Object> values = entitySearchChange.getTagValues().get("dupe");
-        assertTrue (values.get("name") instanceof Collection);
-        Collection mValues = (Collection) values.get("name");
+        assertTrue (values.get("code") instanceof Collection);
+        Collection mValues = (Collection) values.get("code");
         // Each entry has a Name and Code value
         assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3,mValues.size() );
 
