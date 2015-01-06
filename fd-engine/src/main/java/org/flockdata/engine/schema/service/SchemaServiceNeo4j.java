@@ -65,7 +65,8 @@ public class SchemaServiceNeo4j implements SchemaService {
      */
     @Override
     @Transactional
-    @Cacheable(value="fortressDocType", key="#fortress.id+#documentCode ", unless = "#result==null")
+    // ToDo: This conflicts with StormPath - needs to be resolved!
+    //@Cacheable(value="fortressDocType", key="#fortress.id+#documentCode ", unless = "#result==null")
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
