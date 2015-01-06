@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,7 +144,7 @@ public class EngineConfig implements FdEngineConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-engine.kv.store", String.valueOf(kvStore));
+        healthResults.put("fd-engine.kv.store", kvConfig.getKvStore().toString());
         String esPingResult ;
         try {
             PingResult esPing = fdMonitoringGateway.ping();
