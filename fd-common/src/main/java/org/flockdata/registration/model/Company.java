@@ -27,8 +27,6 @@ public interface Company {
 
     public void setName(String name);
 
-    public void setApiKey(String apiKey);
-
     String getApiKey();
 
     public String getCode();

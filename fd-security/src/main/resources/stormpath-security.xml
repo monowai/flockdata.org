@@ -3,20 +3,18 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:cache="http://www.springframework.org/schema/cache"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
                     http://www.springframework.org/schema/beans/spring-beans.xsd
                     http://www.springframework.org/schema/security
-                    http://www.springframework.org/schema/security/spring-security.xsd
-                    http://www.springframework.org/schema/cache
-                    http://www.springframework.org/schema/cache/spring-cache.xsd">
+                    http://www.springframework.org/schema/security/spring-security.xsd">
 
     <beans:bean id="userProfileService"
                 class="org.flockdata.authentication.stormpath.StormPathUser" />
 
     <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
         <beans:property name="apiKeyFileLocation" value="${fd.auth.stormpath.apiKeyFile}" />
-        <beans:property name="cacheManager" ref="spCache" />
+        <!--You're including this module in super module. We assume a cache configuration named fdCacheManager -->
+        <beans:property name="cacheManager" ref="fdCacheManager" />
     </beans:bean>
 
     <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
@@ -67,25 +65,25 @@
         <expression-handler ref="methodExpressionHandler"/>
     </global-method-security>
 
-    <cache:annotation-driven cache-manager="spCache" />
-    <!-- Generic cache manager based on the JDK ConcurrentMap -->
-
-    <beans:bean id="spCache" class="org.springframework.cache.support.SimpleCacheManager">
-        <beans:property name="caches">
-            <beans:set>
-                <beans:bean
-                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-                        name="com.stormpath.sdk.application.Application" />
-                <beans:bean
-                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-                        name="com.stormpath.sdk.account.Account" />
-                <beans:bean
-                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-                        name="com.stormpath.sdk.group.Group" />
-                <beans:bean
-                        class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-                        name="com.stormpath.sdk.directory.CustomData" />
-            </beans:set>
-        </beans:property>
-    </beans:bean>
+    <!--<cache:annotation-driven cache-manager="spCache" />-->
+    <!--&lt;!&ndash; Generic cache manager based on the JDK ConcurrentMap &ndash;&gt;-->
+<!-- DAT-302 these configurations moved to fd-ehcache.xml -->
+    <!--<beans:bean id="spCache" class="org.springframework.cache.support.SimpleCacheManager">-->
+        <!--<beans:property name="caches">-->
+            <!--<beans:set>-->
+                <!--<beans:bean-->
+                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+                        <!--name="com.stormpath.sdk.application.Application" />-->
+                <!--<beans:bean-->
+                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+                        <!--name="com.stormpath.sdk.account.Account" />-->
+                <!--<beans:bean-->
+                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+                        <!--name="com.stormpath.sdk.group.Group" />-->
+                <!--<beans:bean-->
+                        <!--class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"-->
+                        <!--name="com.stormpath.sdk.directory.CustomData" />-->
+            <!--</beans:set>-->
+        <!--</beans:property>-->
+    <!--</beans:bean>-->
 </beans:beans>

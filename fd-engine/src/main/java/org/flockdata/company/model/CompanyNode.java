@@ -69,11 +69,6 @@ public class CompanyNode implements Company {
     }
 
     @Override
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
-    @Override
     public String getApiKey() {
         return this.apiKey;
     }

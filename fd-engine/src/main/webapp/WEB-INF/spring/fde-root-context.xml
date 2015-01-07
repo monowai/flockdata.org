@@ -48,13 +48,14 @@
 
 	<aop:aspectj-autoproxy />
 
-    <cache:annotation-driven />
-    <bean id="ehcache"
-          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-          p:configLocation="classpath:ehcache.xml" p:shared="true" />
+    <cache:annotation-driven cache-manager="fdCacheManager" />
 
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
-		p:cacheManager-ref="ehcache" />
+    <bean id="fdCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+		p:cacheManager-ref="fdCache" />
+
+    <bean id="fdCache"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+          p:configLocation="classpath:fd-ehcache.xml" p:shared="false" />
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg >
