@@ -1,0 +1,38 @@
+<ehcache>
+
+    <defaultCache
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            memoryStoreEvictionPolicy="LRU"/>
+
+
+    <cache name="fortressDocType"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="com.stormpath.sdk.directory.CustomData" maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="com.stormpath.sdk.application.Application" maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="com.stormpath.sdk.account.Account" maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="com.stormpath.sdk.group.Group" maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+
+    <cache name="fortressUser"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+</ehcache>
