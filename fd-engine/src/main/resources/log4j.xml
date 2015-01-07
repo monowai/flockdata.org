@@ -30,7 +30,11 @@
     </logger>
 
     <logger name="net.sf.ehcache">
-        <level value="info"/>
+        <level value="error"/>
+    </logger>
+
+    <logger name="org.springframework.cache">
+        <level value="error"/>
     </logger>
 
     <logger name="org.jboss">
