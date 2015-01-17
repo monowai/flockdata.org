@@ -70,7 +70,7 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
-    private String customPropertyName;
+    private String targetProperty;
 
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
     private boolean updateDate;
@@ -167,8 +167,8 @@ public class ColumnDefinition {
     }
 
     // Overrides the value name of the property
-    public String getCustomPropertyName() {
-        return customPropertyName;
+    public String getTargetProperty() {
+        return targetProperty;
     }
 
     public String getRelationship() {
