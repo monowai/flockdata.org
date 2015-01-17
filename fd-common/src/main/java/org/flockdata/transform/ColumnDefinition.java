@@ -61,6 +61,8 @@ public class ColumnDefinition {
     private String   relationshipName;
     private String[] relationshipProps;
 
+    private String[] properties; // Properties to add to an object
+
     private String[] refColumns;
 
     private String relationship;
@@ -308,5 +310,18 @@ public class ColumnDefinition {
     public String getExpression() {
         return expression;
     }
+
+    public String[] getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String[] properties) {
+        this.properties = properties;
+    }
+
+    public boolean hasProperites() {
+        return this.properties !=null && properties.length>0;
+    }
+
 
 }

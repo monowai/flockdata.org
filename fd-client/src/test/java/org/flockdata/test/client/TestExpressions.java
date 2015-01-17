@@ -32,25 +32,37 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * SPeL tests and custom properties for tags
+ *
  * Created by mike on 17/01/15.
  */
 public class TestExpressions {
     @Test
     public void string_Concatenation() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/expressions.json");
+        ImportProfile params = ClientConfiguration.getImportParams("/tag-expressions.json");
         CsvTagMapper mapper = new CsvTagMapper();
-        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"last_name","first_name","birthday","gender","type","state","district","party","url","address","phone","contact_form","rss_url","twitter","facebook","facebook_id","youtube","youtube_id","bioguide_id","thomas_id","opensecrets_id","lis_id","cspan_id", "govtrack_id","votesmart_id","ballotpedia_id","washington_post_id","icpsr_id","wikipedia_id"};
-        // Category column is intentionally null
         String[] data = new String[]{"Whitehouse","Sheldon","1955-10-20","M","sen","RI","","Democrat","http://www.whitehouse.senate.gov","530 Hart Senate Office Building Washington DC 20510","202-224-2921","http://www.whitehouse.senate.gov/contact","http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1","SenWhitehouse","SenatorWhitehouse","194172833926853","SenatorWhitehouse","UCnG0N70SNBkNqvIMLodPTIA","W000802","01823","N00027533","S316","92235","412247","2572","Sheldon Whitehouse","gIQA7KHw9O","40704","Sheldon Whitehouse" };
         Map<String, Object> json = mapper.setData(headers, data, params, reader);
         assertNotNull(json);
         assertNotNull(mapper);
         assertEquals("Person", mapper.getLabel());
         assertEquals("Whitehouse, Sheldon", mapper.getName());
+        assertEquals(2, mapper.getTargets().get("HAS_ALIAS").size());
+        assertEquals( "Custom properties not being set", 2, mapper.getProperties().size());
+        boolean birthdaySet = false, urlSet = false;
+        for (String key : mapper.getProperties().keySet()) {
+            if ( key.equals("birthday")) {
+                assertEquals("1955-10-20", mapper.getProperties().get("birthday"));
+                birthdaySet = true;
+            } else if ( key.equals("url")){
+                urlSet = true;
+                assertEquals("http://www.whitehouse.senate.gov", mapper.getProperties().get("url"));
+            }
+        }
 
-        //org.springframework.expression.Expression exp = parser.parseExpression("#row.first_name + #row.last_name");
-        //System.out.println(exp.getValue());
+        assertEquals(true, birthdaySet);
+        assertEquals(true, urlSet);
 
     }
 
