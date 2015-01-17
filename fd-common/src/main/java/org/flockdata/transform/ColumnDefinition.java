@@ -72,6 +72,7 @@ public class ColumnDefinition {
 
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
     private boolean updateDate;
+    private String expression;
 
     public String getLabel() {
         return label;
@@ -163,6 +164,7 @@ public class ColumnDefinition {
         return code;
     }
 
+    // Overrides the value name of the property
     public String getCustomPropertyName() {
         return customPropertyName;
     }
@@ -302,4 +304,9 @@ public class ColumnDefinition {
     public boolean isArrayDelimited() {
         return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
+
+    public String getExpression() {
+        return expression;
+    }
+
 }
