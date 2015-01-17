@@ -25,6 +25,9 @@ import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.FdReader;
 import org.flockdata.transform.TagProfile;
 import org.slf4j.LoggerFactory;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.*;
 
@@ -35,6 +38,8 @@ import java.util.*;
  */
 public class CsvHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvHelper.class);
+
+    private static final ExpressionParser parser = new SpelExpressionParser();
 
     public static boolean getTagInputBean(TagInputBean tag,
                                           FdReader staticDataResolver,
@@ -51,9 +56,9 @@ public class CsvHelper {
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
-            tag.setName(column);
-            tag.setCode(column);
-            if ( column !=null )
+            tag.setName(getValue(row, colDef, column));
+            tag.setCode(getValue(row, colDef, column));
+            if (column != null)
                 if (Integer.decode(value) != 0) {
                     properties.put("value", Integer.decode(value));
                     if (colDef.getNameColumn() != null) {
@@ -62,30 +67,30 @@ public class CsvHelper {
                         tag.addEntityLink(colDef.getRelationshipName(), properties);
                     } else
                         tag.addEntityLink("undefined", properties);
-            } else {
-                return false;
-            }
+                } else {
+                    return false;
+                }
         } else {
-            if (value == null || value.equals("") ){
-                // Value is missing in the data set - see if there is a default
-                value = colDef.getNullOrEmpty();
-            }
-            if ( value !=null && !value.equals("")) {
-                String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
-                if (colDef.getCode() != null)
-                    tag.setCode(row.get(colDef.getCode()).toString());
-                else
-                    tag.setCode(value);
+//            if (value == null || value.equals("") ){
+//                // Value is missing in the data set - see if there is a default
+//                value = colDef.getNullOrEmpty();
+//            }
+            //if ( value !=null && !value.equals("")) {
+            String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
+            if (colDef.getCode() != null)
+                tag.setCode(getValue(row, colDef, row.get(colDef.getCode()).toString()));
+            else
+                tag.setCode(getValue(row, colDef, value));
 
-                tag.setName(value).setMustExist(colDef.isMustExist()).setLabel(colDef.isCountry() ? "Country" : label);
-                tag.addEntityLink(colDef.getRelationshipName());
-                tag.setReverse(colDef.getReverse());
-            }
+            tag.setName(getValue(row, colDef, value)).setMustExist(colDef.isMustExist()).setLabel(colDef.isCountry() ? "Country" : label);
+            tag.addEntityLink(colDef.getRelationshipName());
+            tag.setReverse(colDef.getReverse());
+            //}
         }
-        if ( tag.getCode() ==null )
+        if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row,staticDataResolver);
+        setNestedTags(tag, colDef.getTargets(), row, staticDataResolver);
         return true;
     }
 
@@ -98,23 +103,23 @@ public class CsvHelper {
         for (TagProfile tagProfile : tagsToAnalyse) {
             Object value = csvRow.get(tagProfile.getColumn());
 
-            if ( value == null ){
+            if (value == null) {
                 logger.error("Undefined row value for {}", tagProfile.getColumn());
                 throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
             }
 
-            if ( tagProfile.getDelimiter() != null ){
+            if (tagProfile.getDelimiter() != null) {
                 // No known entity relationship
-                setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, csvRow,null));
-            } else if ( tagProfile.isCountry()) {
+                setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, csvRow, null));
+            } else if (tagProfile.isCountry()) {
                 String iso = reader.resolveCountryISOFromName(value.toString());
-                if ( iso == null  ) // Regression tests
+                if (iso == null) // Regression tests
                     iso = value.toString();
                 newTag = new TagInputBean(iso)
                         .setLabel(tagProfile.getLabel());
                 setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
-            }else{
+            } else {
                 newTag = new TagInputBean(value.toString())
                         .setLabel(tagProfile.getLabel());
                 newTag.setReverse(tagProfile.getReverse());
@@ -129,12 +134,12 @@ public class CsvHelper {
         return newTag;
     }
 
-    public static Collection<TagInputBean>getTagsFromList(TagProfile tagProfile, Map<String, Object> row, String entityRelationship ){
+    public static Collection<TagInputBean> getTagsFromList(TagProfile tagProfile, Map<String, Object> row, String entityRelationship) {
         List<String> tags = Arrays.asList(row.get(tagProfile.getColumn()).toString().split(tagProfile.getDelimiter()));
-        Collection<TagInputBean>results = new ArrayList<>();
+        Collection<TagInputBean> results = new ArrayList<>();
 
         for (String tag : tags) {
-            if ( tag !=null ) {
+            if (tag != null) {
                 TagInputBean newTag = new TagInputBean(tag, entityRelationship)
                         .setLabel(tagProfile.getLabel());
                 newTag.setReverse(tagProfile.getReverse());
@@ -156,5 +161,20 @@ public class CsvHelper {
         return row;
     }
 
-
+    public static String getValue(Map<String, Object> row, ColumnDefinition colDef, Object defaultValue) {
+        String expression = colDef.getExpression();
+        if (expression == null) {
+            if (defaultValue == null || defaultValue.equals("")) {
+                // May be a literal value to set the property to
+                return colDef.getNullOrEmpty();
+            }
+            return defaultValue.toString();
+        }
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("row", row);
+        Object result = parser.parseExpression(expression).getValue(context);
+        if (result == null)
+            return defaultValue.toString();
+        return result.toString();
+    }
 }

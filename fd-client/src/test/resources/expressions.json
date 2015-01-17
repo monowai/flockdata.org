@@ -1,0 +1,15 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "entityOnly": true,
+  "fortress": "Olympic",
+  "fortressUser": "mike",
+  "batchSize": -1,
+  "header": true,
+  "content": {
+    "Person": {
+      "tag": true,
+      "expression" : "#row['last_name']+ ', ' + #row['first_name']"
+    }
+  }
+}
