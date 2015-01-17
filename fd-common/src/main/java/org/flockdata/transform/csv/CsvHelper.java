@@ -45,9 +45,9 @@ public class CsvHelper {
                                           FdReader staticDataResolver,
                                           Map<String, Object> row,
                                           String column,
-                                          ColumnDefinition colDef,
+                                          Map<String, ColumnDefinition> content,
                                           String value) throws FlockException {
-
+        ColumnDefinition colDef = content.get(column);
         if (colDef.isCountry()) {
             value = staticDataResolver.resolveCountryISOFromName(value);
         }
@@ -71,21 +71,25 @@ public class CsvHelper {
                     return false;
                 }
         } else {
-//            if (value == null || value.equals("") ){
-//                // Value is missing in the data set - see if there is a default
-//                value = colDef.getNullOrEmpty();
-//            }
-            //if ( value !=null && !value.equals("")) {
             String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
             if (colDef.getCode() != null)
                 tag.setCode(getValue(row, colDef, row.get(colDef.getCode()).toString()));
             else
                 tag.setCode(getValue(row, colDef, value));
 
-            tag.setName(getValue(row, colDef, value)).setMustExist(colDef.isMustExist()).setLabel(colDef.isCountry() ? "Country" : label);
+            tag.setName(getValue(row, colDef, value))
+                    .setMustExist(colDef.isMustExist())
+                    .setLabel(colDef.isCountry() ? "Country" : label);
             tag.addEntityLink(colDef.getRelationshipName());
             tag.setReverse(colDef.getReverse());
-            //}
+            if ( colDef.hasProperites() ){
+                for (int i = 0; i < colDef.getProperties().length; i++) {
+                    String s = colDef.getProperties()[i];
+                    value = CsvHelper.getValue(row, content.get(s), row.get(s));
+                    tag.setProperty(s, value);
+                }
+            }
+
         }
         if (tag.getCode() == null)
             return false;
@@ -162,19 +166,27 @@ public class CsvHelper {
     }
 
     public static String getValue(Map<String, Object> row, ColumnDefinition colDef, Object defaultValue) {
+        if ( colDef == null )
+            return getNullSafeDefault(defaultValue, colDef);
         String expression = colDef.getExpression();
         if (expression == null) {
-            if (defaultValue == null || defaultValue.equals("")) {
-                // May be a literal value to set the property to
-                return colDef.getNullOrEmpty();
-            }
-            return defaultValue.toString();
+            return getNullSafeDefault(defaultValue, colDef);
         }
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("row", row);
         Object result = parser.parseExpression(expression).getValue(context);
         if (result == null)
-            return defaultValue.toString();
+            return getNullSafeDefault(defaultValue, colDef);
         return result.toString();
+    }
+
+    private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef){
+        if (defaultValue == null || defaultValue.equals("")) {
+            // May be a literal value to set the property to
+            if ( colDef == null )
+                return null;
+            return colDef.getNullOrEmpty();
+        }
+        return defaultValue.toString();
     }
 }

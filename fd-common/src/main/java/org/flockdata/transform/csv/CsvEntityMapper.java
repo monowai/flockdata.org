@@ -149,7 +149,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
-                    if (CsvHelper.getTagInputBean(tag, dataResolver, row, column, colDef, value))
+                    if (CsvHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value))
                         addTag(tag);
                 }
                 if (colDef.isTitle()) {

@@ -50,27 +50,26 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
 
         for (String column : content.keySet()) {
             ColumnDefinition colDef = importProfile.getColumnDef(column);
-            String value ;
+            String value;
             Object colValue = row.get(column);
             // colValue may yet be an expression
-            value = (colValue!=null? colValue.toString(): null);
-            if ( value !=null )
+            value = (colValue != null ? colValue.toString() : null);
+            if (value != null)
                 value = value.trim();
 
-            if (colDef!=null) {
+            if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    //if (value != null && !value.equals("")) {
-                        CsvHelper.getTagInputBean(this, dataResolver, row, column, colDef, value);
-                    //}
+                    CsvHelper.getTagInputBean(this, dataResolver, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
-                    setName(line[col]);
-                    if ( colDef.getCode()!=null )
+                    setName(CsvHelper.getValue(row, colDef, value));
+                    if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if ( colDef.getCustomPropertyName()!=null)
-                    setProperty(colDef.getCustomPropertyName(), line[col]);
+                if (colDef.getCustomPropertyName() != null)
+                    setProperty(colDef.getCustomPropertyName(), CsvHelper.getValue(row, colDef, value));
+
 
             } // ignoreMe
             col++;
