@@ -1,10 +1,8 @@
 {
   "contentType": "csv",
   "tagOrEntity": "tag",
-  "entityOnly": true,
-  "fortress": "Olympic",
+  "fortress": "GovTrack",
   "fortressUser": "mike",
-  "batchSize": -1,
   "header": true,
   "content": {
     "Person": {
