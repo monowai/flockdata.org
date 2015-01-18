@@ -189,7 +189,7 @@ public class TagInputBean {
         return properties;
     }
 
-    public TagInputBean setProperty(String key, Serializable value) {
+    public TagInputBean setProperty(String key, Object value) {
         if ( properties == null )
             properties = new HashMap<>();
         properties.put(key, value);

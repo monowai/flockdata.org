@@ -53,6 +53,9 @@ public class TransformationHelper {
         }
         Map<String, Object> properties = new HashMap<>();
 
+//        if ( !evaluateTag (colDef, row))
+//            return false;
+
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
@@ -72,10 +75,12 @@ public class TransformationHelper {
                 }
         } else {
             String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
+            String codeValue ;
             if (colDef.getCode() != null)
-                tag.setCode(getValue(row, colDef, row.get(colDef.getCode()).toString()));
+                codeValue = getValue(row, colDef, row.get(colDef.getCode()).toString());
             else
-                tag.setCode(getValue(row, colDef, value));
+                codeValue = getValue(row, colDef, value);
+            tag.setCode(codeValue);
 
             tag.setName(getValue(row, colDef, value))
                     .setMustExist(colDef.isMustExist())
@@ -98,40 +103,59 @@ public class TransformationHelper {
         return true;
     }
 
-    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> csvRow, FdReader reader) throws FlockException {
+    private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {
+        String condition = tagProfile.getCondition();
+        if ( condition == null )
+            return true;
+        Object result = evaluateExpression(row, condition);
+        return Boolean.parseBoolean(result.toString());
+    }
+
+    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row, FdReader reader) throws FlockException {
         if (tagsToAnalyse == null)
             return null;
 
         TagInputBean newTag = null;
 
         for (TagProfile tagProfile : tagsToAnalyse) {
-            Object value = csvRow.get(tagProfile.getColumn());
+            if ( evaluateTag(tagProfile, row)) {
+                Object value = row.get(tagProfile.getColumn());
 
-            if (value == null) {
-                logger.error("Undefined row value for {}", tagProfile.getColumn());
-                throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
-            }
+                if (value == null) {
+                    logger.error("Undefined row value for {}", tagProfile.getColumn());
+                    throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
+                }
 
-            if (tagProfile.getDelimiter() != null) {
-                // No known entity relationship
-                setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, csvRow, null));
-            } else if (tagProfile.isCountry()) {
-                String iso = reader.resolveCountryISOFromName(value.toString());
-                if (iso == null) // Regression tests
-                    iso = value.toString();
-                newTag = new TagInputBean(iso)
-                        .setLabel(tagProfile.getLabel());
-                setInTo.setTargets(tagProfile.getRelationship(), newTag);
+                if (tagProfile.getDelimiter() != null) {
+                    // No known entity relationship
+                    setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
+                } else if (tagProfile.isCountry()) {
+                    String iso = reader.resolveCountryISOFromName(value.toString());
+                    if (iso == null) // Regression tests
+                        iso = value.toString();
+                    newTag = new TagInputBean(iso)
+                            .setLabel(tagProfile.getLabel());
+                    setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
-            } else {
-                newTag = new TagInputBean(value.toString())
-                        .setLabel(tagProfile.getLabel());
-                newTag.setReverse(tagProfile.getReverse());
-                newTag.setMustExist(tagProfile.getMustExist());
-                setInTo.setTargets(tagProfile.getRelationship(), newTag);
-            }
-            if (tagProfile.getTargets() != null) {
-                setNestedTags(newTag, tagProfile.getTargets(), csvRow, reader);
+                } else {
+                    newTag = new TagInputBean(value.toString())
+                            .setLabel(tagProfile.getLabel());
+                    newTag.setReverse(tagProfile.getReverse());
+                    newTag.setMustExist(tagProfile.getMustExist());
+                    setInTo.setTargets(tagProfile.getRelationship(), newTag);
+                }
+                if (tagProfile.hasProperites()) {
+                    for (ColumnDefinition thisCol : tagProfile.getProperties()) {
+                        String sourceCol = thisCol.getSourceProperty();
+                        value = TransformationHelper.getValue(row, thisCol, row.get(sourceCol));
+                        if (newTag!=null)
+                            newTag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
+                    }
+                }
+
+                if (tagProfile.getTargets() != null) {
+                    setNestedTags(newTag, tagProfile.getTargets(), row, reader);
+                }
             }
 
         }
@@ -172,12 +196,16 @@ public class TransformationHelper {
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable("row", row);
-        Object result = parser.parseExpression(expression).getValue(context);
+        Object result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString();
+    }
+
+    private static Object evaluateExpression(Map<String, Object> row, String expression) {
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("row", row);
+        return parser.parseExpression(expression).getValue(context);
     }
 
     private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef) {
