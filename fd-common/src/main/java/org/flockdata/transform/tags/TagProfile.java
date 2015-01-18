@@ -19,6 +19,8 @@
 
 package org.flockdata.transform.tags;
 
+import org.flockdata.transform.ColumnDefinition;
+
 import java.util.ArrayList;
 
 /**
@@ -35,7 +37,11 @@ public class TagProfile {
     private String delimiter =null;
     private boolean country = false;
     private String label;
+
+    private String condition;// boolean expression that determines if this tag will be created
     private ArrayList<TagProfile> targets;
+    private ArrayList<ColumnDefinition>properties;
+
     private boolean mustExist;
 
     public String getColumn() {
@@ -130,5 +136,17 @@ public class TagProfile {
 
     public void setCountry(boolean country) {
         this.country = country;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public ArrayList<ColumnDefinition> getProperties() {
+        return properties;
+    }
+
+    public boolean hasProperites() {
+        return properties!=null && properties.size()>0;
     }
 }

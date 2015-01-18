@@ -18,12 +18,6 @@
           "column": "wikipedia_id",
           "label": "WikipediaAlias",
           "relationship": "HAS_ALIAS"
-        },
-        {
-          "column": "party",
-          "label:": "Party",
-          "expression": "#row['",
-          "relationship": "member_of"
         }
       ],
       "properties": [
