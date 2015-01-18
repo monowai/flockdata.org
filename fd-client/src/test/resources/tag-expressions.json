@@ -7,20 +7,24 @@
   "content": {
     "Person": {
       "tag": true,
-      "expression" : "#row['last_name']+ ', ' + #row['first_name']",
+      "expression": "#row['last_name']+ ', ' + #row['first_name']",
       "targets": [
         {
           "column": "thomas_id",
           "label": "ThomasAlias",
           "relationship": "HAS_ALIAS"
-        },{
+        },
+        {
           "column": "wikipedia_id",
           "label": "WikipediaAlias",
           "relationship": "HAS_ALIAS"
         }
-       ],
-      "properties": ["birthday", "url"]
+      ],
+      "properties": [
+        {"sourceProperty": "birthday", "targetProperty": "dob"},
+        {"sourceProperty": "url"}
+      ]
     }
-
   }
+}
 }

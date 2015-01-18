@@ -22,6 +22,8 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.transform.tags.TagProfile;
+import org.flockdata.transform.tags.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -61,7 +63,8 @@ public class ColumnDefinition {
     private String   relationshipName;
     private String[] relationshipProps;
 
-    private String[] properties; // Properties to add to an object
+    @JsonDeserialize(using = ColumnDeserializer.class)
+    private ArrayList<ColumnDefinition> properties; // Properties to add to an object
 
     private String[] refColumns;
 
@@ -75,6 +78,7 @@ public class ColumnDefinition {
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
     private boolean updateDate;
     private String expression;
+    private String sourceProperty;
 
     public String getLabel() {
         return label;
@@ -311,17 +315,18 @@ public class ColumnDefinition {
         return expression;
     }
 
-    public String[] getProperties() {
+    public ArrayList<ColumnDefinition> getProperties() {
         return properties;
     }
 
-    public void setProperties(String[] properties) {
-        this.properties = properties;
-    }
 
     public boolean hasProperites() {
-        return this.properties !=null && properties.length>0;
+        return this.properties !=null && properties.size()>0;
     }
 
+
+    public String getSourceProperty() {
+        return sourceProperty;
+    }
 
 }

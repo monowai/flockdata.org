@@ -26,6 +26,7 @@ import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.FdReader;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.transform.TransformationHelper;
 
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
         int col = 0;
-        Map<String, Object> row = CsvHelper.convertToMap(headerRow, line);
+        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String column : content.keySet()) {
@@ -60,15 +61,15 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
             if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    CsvHelper.getTagInputBean(this, dataResolver, row, column, content, value);
+                    TransformationHelper.getTagInputBean(this, dataResolver, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
-                    setName(CsvHelper.getValue(row, colDef, value));
+                    setName(TransformationHelper.getValue(row, colDef, value));
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
                 if (colDef.getTargetProperty() != null)
-                    setProperty(colDef.getTargetProperty(), CsvHelper.getValue(row, colDef, value));
+                    setProperty(colDef.getTargetProperty(), TransformationHelper.getValue(row, colDef, value));
 
 
             } // ignoreMe

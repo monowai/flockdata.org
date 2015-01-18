@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.tags;
 
 import java.util.ArrayList;
 
