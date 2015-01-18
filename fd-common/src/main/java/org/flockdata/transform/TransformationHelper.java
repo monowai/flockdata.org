@@ -17,13 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform.csv;
+package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.FdReader;
-import org.flockdata.transform.TagProfile;
+import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -32,12 +30,14 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import java.util.*;
 
 /**
+ * Helper functions for interpreting ColumnDefinitions and setting values
+ *
  * User: mike
  * Date: 27/08/14
  * Time: 7:53 AM
  */
-public class CsvHelper {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CsvHelper.class);
+public class TransformationHelper {
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
 
     private static final ExpressionParser parser = new SpelExpressionParser();
 
@@ -82,15 +82,15 @@ public class CsvHelper {
                     .setLabel(colDef.isCountry() ? "Country" : label);
             tag.addEntityLink(colDef.getRelationshipName());
             tag.setReverse(colDef.getReverse());
-            if ( colDef.hasProperites() ){
-                for (int i = 0; i < colDef.getProperties().length; i++) {
-                    String s = colDef.getProperties()[i];
-                    value = CsvHelper.getValue(row, content.get(s), row.get(s));
-                    tag.setProperty(s, value);
+            if (colDef.hasProperites()) {
+                for (ColumnDefinition thisCol : colDef.getProperties()) {
+                    String sourceCol = thisCol.getSourceProperty();
+                    value = TransformationHelper.getValue(row, thisCol, row.get(sourceCol));
+                    tag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
                 }
             }
-
         }
+
         if (tag.getCode() == null)
             return false;
 
@@ -166,7 +166,7 @@ public class CsvHelper {
     }
 
     public static String getValue(Map<String, Object> row, ColumnDefinition colDef, Object defaultValue) {
-        if ( colDef == null )
+        if (colDef == null)
             return getNullSafeDefault(defaultValue, colDef);
         String expression = colDef.getExpression();
         if (expression == null) {
@@ -180,10 +180,10 @@ public class CsvHelper {
         return result.toString();
     }
 
-    private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef){
+    private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef) {
         if (defaultValue == null || defaultValue.equals("")) {
             // May be a literal value to set the property to
-            if ( colDef == null )
+            if (colDef == null)
                 return null;
             return colDef.getNullOrEmpty();
         }

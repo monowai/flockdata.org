@@ -23,7 +23,7 @@ import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.FdReader;
-import org.flockdata.transform.TagMapper;
+import org.flockdata.transform.tags.TagMapper;
 import org.flockdata.transform.csv.CsvEntityMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.slf4j.LoggerFactory;

@@ -17,11 +17,13 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.tags;
 
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.transform.DelimitedMappable;
+import org.flockdata.transform.FdReader;
 import org.flockdata.transform.csv.CsvTagMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

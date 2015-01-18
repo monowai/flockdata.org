@@ -26,7 +26,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.FdReader;
-import org.flockdata.transform.TagProfile;
+import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;

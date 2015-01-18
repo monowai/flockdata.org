@@ -52,8 +52,8 @@ public class TestExpressions {
         assertEquals( "Custom properties not being set", 2, mapper.getProperties().size());
         boolean birthdaySet = false, urlSet = false;
         for (String key : mapper.getProperties().keySet()) {
-            if ( key.equals("birthday")) {
-                assertEquals("1955-10-20", mapper.getProperties().get("birthday"));
+            if ( key.equals("dob")) {
+                assertEquals("1955-10-20", mapper.getProperties().get("dob"));
                 birthdaySet = true;
             } else if ( key.equals("url")){
                 urlSet = true;
@@ -61,7 +61,7 @@ public class TestExpressions {
             }
         }
 
-        assertEquals(true, birthdaySet);
+        assertEquals("Unable to find remapped target property name",true, birthdaySet);
         assertEquals(true, urlSet);
 
     }
