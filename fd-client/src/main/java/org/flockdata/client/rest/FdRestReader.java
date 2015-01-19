@@ -78,7 +78,7 @@ public class FdRestReader implements FdReader {
         }
         TagInputBean tag = countriesByName.get(name.toLowerCase());
         if (tag == null) {
-            logger.error("Unable to resolve country name [{}]", name);
+            //logger.error("Unable to resolve country name [{}]", name);
             return null;
         }
         return tag.getCode();

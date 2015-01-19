@@ -428,10 +428,10 @@ public class FdRestWriter implements FdWriter {
             return "OK";
         } catch (HttpClientErrorException e) {
             // to test, try to log against no existing fortress.
-            logger.error("Datagio client error processing Tags {}", getErrorMessage(e));
+            logger.error("FlockData client error processing Tags {}", getErrorMessage(e));
             return null;
         } catch (HttpServerErrorException e) {
-            logger.error("Datagio server error processing Tags {}", getErrorMessage(e));
+            logger.error("FlockData server error processing Tags {}", getErrorMessage(e));
             return null;
 
         }
