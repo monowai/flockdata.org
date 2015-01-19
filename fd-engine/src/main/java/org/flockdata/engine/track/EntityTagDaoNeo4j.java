@@ -366,13 +366,13 @@ public class EntityTagDaoNeo4j {
                     Object latitude = null;
                     Object longitude = null;
 
-                    if (country.hasProperty("props-unLatitude"))
-                        latitude = country.getProperty("props-unLatitude");
+                    if (country.hasProperty("props-latitude"))
+                        latitude = country.getProperty("props-latitude");
 
-                    if (country.hasProperty("props-unLongitude"))
-                        longitude = country.getProperty("props-unLongitude");
+                    if (country.hasProperty("props-longitude"))
+                        longitude = country.getProperty("props-longitude");
 
-                    if (latitude != null && longitude != null) {
+                    if ( (latitude != null && longitude != null) && ! (latitude.equals("") || longitude.equals(""))) {
                         lat = Double.parseDouble(latitude.toString());
                         lon = Double.parseDouble(longitude.toString());
                     }

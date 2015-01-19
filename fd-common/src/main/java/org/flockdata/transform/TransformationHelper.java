@@ -53,9 +53,6 @@ public class TransformationHelper {
         }
         Map<String, Object> properties = new HashMap<>();
 
-//        if ( !evaluateTag (colDef, row))
-//            return false;
-
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
@@ -199,7 +196,7 @@ public class TransformationHelper {
         Object result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
-        return result.toString();
+        return result.toString().trim();
     }
 
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
@@ -215,6 +212,6 @@ public class TransformationHelper {
                 return null;
             return colDef.getNullOrEmpty();
         }
-        return defaultValue.toString();
+        return defaultValue.toString().trim();
     }
 }

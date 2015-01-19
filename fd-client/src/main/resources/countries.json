@@ -23,7 +23,7 @@
                     "column": "BGN_capital",
                     "label": "City",
                     "relationship": "capital",
-                    "condition": "#row[HasCapital].equals('1')",
+                    "condition": "#row[HasCapital].trim().equals('1')",
                     "properties": [
                         {
                             "sourceProperty": "UNc_latitude",
