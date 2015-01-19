@@ -207,11 +207,39 @@ public class TestAdminCalls extends EngineBase {
     public void testPing() throws Exception {
         setSecurity();
         EngineEndPoints eep = new EngineEndPoints(wac);
-        String result = eep.ping();
+        String result = eep.adminPing();
         assertTrue("pong!".equalsIgnoreCase(result));
         setSecurityEmpty(); // Unsecured should also work
         result = eep.ping();
         assertTrue("pong!".equalsIgnoreCase(result));
+    }
+
+    /**
+     * Ensures that an authorised user, but one who is not associated with a company, can ping the service
+     * while an unauthorised user cannot
+     *
+     * @throws Exception
+     */
+    @Test
+    public void authPing() throws Exception {
+
+        setSecurityEmpty(); // Unsecured should fail
+        EngineEndPoints eep = new EngineEndPoints(wac);
+        String result = eep.adminPing();
+        assertFalse(result.contains("Pong"));
+
+        setSecurity(mike_admin);// Secured user should work
+        result = eep.adminPing();
+        assertTrue("pong!".equalsIgnoreCase(result));
+
+    }
+
+    @Test
+    public void auth_Health() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+
     }
 
     @Test

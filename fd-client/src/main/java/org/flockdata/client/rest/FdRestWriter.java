@@ -194,7 +194,7 @@ public class FdRestWriter implements FdWriter {
 
     public String pingAuth(String userName, String password) {
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(AUTH_PING, HttpMethod.GET, requestEntity, String.class);
@@ -523,7 +523,7 @@ public class FdRestWriter implements FdWriter {
                 if (userName != null && password != null) {
                     String auth = userName + ":" + password;
                     byte[] encodedAuth = Base64.encodeBase64(
-                            auth.getBytes(Charset.forName("US-ASCII")));
+                            auth.getBytes(Charset.forName("UTF-8")));
                     String authHeader = "Basic " + new String(encodedAuth);
                     set("Authorization", authHeader);
                 }

@@ -161,4 +161,12 @@ public class EngineEndPoints {
 
         return JsonUtils.getBytesAsObject(json, TrackResultBean.class);
     }
+
+    public String adminPing()throws Exception {
+        ResultActions result = getMockMvc()
+                .perform(
+                        MockMvcRequestBuilders.get("/admin/ping"));
+        return result.andReturn().getResponse().getContentAsString();
+
+    }
 }
