@@ -54,4 +54,6 @@ public interface FdEngineConfig {
     void setTestMode(boolean testMode);
 
     boolean isTestMode();
+
+    String authPing();
 }
