@@ -28,26 +28,26 @@ import org.flockdata.registration.model.Fortress;
  */
 public class EntitySearchSchema {
     // Storage schema used in a Search Document
-    public static final String WHAT = "@what";
-    public static final String WHEN = "@when";
-    public static final String CALLER_REF = "@code";
-    public static final String DESCRIPTION = "@description";
-    public static final String TIMESTAMP = "@timestamp";
-    public static final String FORTRESS = "@fortress";
-    public static final String DOC_TYPE = "@docType";
-    public static final String ATTACHMENT = "@attachment";
+    public static final String WHAT = "what";
+    public static final String WHEN = "when";
+    public static final String CALLER_REF = "code";
+    public static final String DESCRIPTION = "description";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String FORTRESS = "fortress";
+    public static final String DOC_TYPE = "docType";
+    public static final String ATTACHMENT = "attachment";
 
-    public static final String TAG = "@tag";
-    public static final String LAST_EVENT = "@lastEvent";
-    public static final String WHO = "@who";
-    public static final String META_KEY = "@metaKey";
-    public static final String CREATED = "@whenCreated"; // Date the document was first created in the Fortress
+    public static final String TAG = "tag";
+    public static final String LAST_EVENT = "lastEvent";
+    public static final String WHO = "who";
+    public static final String META_KEY = "metaKey";
+    public static final String CREATED = "whenCreated"; // Date the document was first created in the Fortress
 
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";
     public static final String WHAT_DESCRIPTION = "description";
-    public static final String FILENAME = "@filename";
-    public static final String CONTENT_TYPE = "@contentType";
+    public static final String FILENAME = "filename";
+    public static final String CONTENT_TYPE = "contentType";
     public static final String PREFIX = "fd.";
 
     public static String parseIndex(Fortress fortress) {
