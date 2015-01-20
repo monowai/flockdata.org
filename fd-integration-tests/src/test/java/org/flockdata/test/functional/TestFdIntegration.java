@@ -791,7 +791,7 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
 
         waitForEntitiesToUpdate(su.getCompany(), entity);
-        doEsTermQuery(indexName, "@tag." + relationshipName + ".code", "Code Test Works", 1);
+        doEsTermQuery(indexName, "tag." + relationshipName + ".code", "Code Test Works", 1);
         doEsQuery(indexName, "code test works", 1);
 
     }
@@ -908,17 +908,17 @@ public class TestFdIntegration {
         assertNotNull(tagB);
         waitAWhile();
 
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "taga", 1);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.code.raw", "taga", 1);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.code.raw", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
         waitAWhile();
         // We should not find anything against tagA",
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "taga", 0);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.code.raw", "taga", 0);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.code.raw", "taga", 0);
         // Both docs will be against TagB
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxa.code.raw", "tagb", 1);
-        doEsFieldQuery(fortress.getIndexName(), "@tag.rlxb.code.raw", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.code.raw", "tagb", 1);
+        doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.code.raw", "tagb", 1);
 
     }
 
