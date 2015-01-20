@@ -86,6 +86,8 @@
               "code": {
                 "index": "not_analyzed",
                 "type": "string",
+                "doc_values": true,
+                "boost": 3.0,
                 "store": "true"
               },
               "analyzed": {
