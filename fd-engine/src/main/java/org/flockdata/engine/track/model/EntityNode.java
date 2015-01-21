@@ -136,8 +136,13 @@ public class EntityNode implements Entity {
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;//(FortressNode)documentType.getFortress();
         // DAT-278
-        String docType = (documentType.getName().toLowerCase());
+        String docType = documentType.getName();
+        if ( docType == null)
+            docType = documentType.getCode();
 
+        assert docType != null;
+
+        docType = docType.toLowerCase();
         callerRef = entityInput.getCallerRef();
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 
