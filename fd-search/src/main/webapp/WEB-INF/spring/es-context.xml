@@ -26,6 +26,7 @@
         <entry key="plugin.mandatory" value="mapper-attachments"/>
         <!--https://github.com/elasticsearch/kibana/issues/2436-->
         <entry key="script.disable_dynamic" value="${es.script.disable_dynamic}"/>
+        <entry key="path.plugins" value="${es.path.plugins}"/>
 
     </util:map>
 
