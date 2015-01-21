@@ -26,6 +26,7 @@ import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.FdReader;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.transform.TransformationHelper;
 
 import java.util.Map;
 
@@ -44,32 +45,33 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
 
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
-        int col = 0;
-        Map<String, Object> row = CsvHelper.convertToMap(headerRow, line);
+        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, ColumnDefinition> content = importProfile.getContent();
 
-        for (String column : headerRow) {
+        for (String column : content.keySet()) {
             ColumnDefinition colDef = importProfile.getColumnDef(column);
-            String value = line[col];
-            if ( value !=null )
+            String value;
+            Object colValue = row.get(column);
+            // colValue may yet be an expression
+            value = (colValue != null ? colValue.toString() : null);
+            if (value != null)
                 value = value.trim();
 
-            if (colDef!=null) {
+            if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    if (value != null && !value.equals("")) {
-                        CsvHelper.getTagInputBean(this, dataResolver, row, column, colDef, value);
-                    }
+                    TransformationHelper.getTagInputBean(this, dataResolver, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
-                    setName(line[col]);
-                    if ( colDef.getCode()!=null )
+                    setName(TransformationHelper.getValue(row, "nameExp", colDef, value));
+                    if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if ( colDef.getCustomPropertyName()!=null)
-                    setProperty(colDef.getCustomPropertyName(), line[col]);
+                if (colDef.getTargetProperty() != null)
+                    setProperty(colDef.getTargetProperty(), TransformationHelper.getValue(row, "propExp", colDef, value));
+
 
             } // ignoreMe
-            col++;
         }
         return row;
     }

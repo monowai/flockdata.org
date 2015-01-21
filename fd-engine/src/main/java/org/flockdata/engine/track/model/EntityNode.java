@@ -132,11 +132,19 @@ public class EntityNode implements Entity {
         assert documentType != null;
         assert fortress!=null;
 
+        labels.add(documentType.getName());
         metaKey = uniqueKey;
         this.fortress = (FortressNode)fortress;//(FortressNode)documentType.getFortress();
         // DAT-278
-        String docType = (documentType.getName().toLowerCase());
-        labels.add(documentType.getName());
+        String docType = documentType.getName();
+        if ( docType == null)
+            docType = documentType.getCode();
+
+        if ( docType == null )
+            throw new RuntimeException("Unable to resolve the doc type code ["+documentType+"] for  "+entityInput)  ;
+        assert docType != null;
+
+        docType = docType.toLowerCase();
         callerRef = entityInput.getCallerRef();
         callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
 

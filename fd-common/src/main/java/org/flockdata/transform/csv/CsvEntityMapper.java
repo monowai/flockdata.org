@@ -25,12 +25,10 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityKey;
-import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.DelimitedMappable;
-import org.flockdata.transform.FdReader;
-import org.flockdata.transform.TagProfile;
+import org.flockdata.transform.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +139,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setMustExist(colDef.isMustExist());
                         tagProfile.setColumn(column);
                         tagProfile.setDelimiter(colDef.getDelimiter());
-                        Collection<TagInputBean> tags = CsvHelper.getTagsFromList(tagProfile, row, colDef.getRelationshipName());
+                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, colDef.getRelationshipName());
                         for (TagInputBean tag : tags) {
                             addTag(tag);
                         }
@@ -149,7 +147,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
-                    if (CsvHelper.getTagInputBean(tag, dataResolver, row, column, colDef, value))
+                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value))
                         addTag(tag);
                 }
                 if (colDef.isTitle()) {

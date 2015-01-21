@@ -34,14 +34,14 @@ import java.util.ArrayList;
  * Date: 27/05/14
  * Time: 4:25 PM
  */
-public class TagProfileDeserializer extends JsonDeserializer<ArrayList<TagProfile>> {
+public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinition>> {
     @Override
-    public ArrayList<TagProfile> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ArrayList<TagProfile> values = new ArrayList<>();
+    public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        ArrayList<ColumnDefinition> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
         for (JsonNode jsonNode : node) {
-            values.add(om.readValue(jsonNode.toString(), TagProfile.class));
+            values.add(om.readValue(jsonNode.toString(), ColumnDefinition.class));
 
         }
         return values;

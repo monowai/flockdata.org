@@ -22,6 +22,8 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.transform.tags.TagProfile;
+import org.flockdata.transform.tags.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -55,11 +57,17 @@ public class ColumnDefinition {
     private String   documentType = null;
     private String   label;
     private String   type; //datatype
-    private String   nameColumn;
+    private String   name;
+
+
+    private String   nameExp;
     private String   nullOrEmpty;
     private String   appendJoinText = " ";
     private String   relationshipName;
     private String[] relationshipProps;
+
+    @JsonDeserialize(using = ColumnDeserializer.class)
+    private ArrayList<ColumnDefinition> properties; // Properties to add to an object
 
     private String[] refColumns;
 
@@ -68,10 +76,12 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
-    private String customPropertyName;
+    private String codeExp;
+    private String targetProperty;
 
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
     private boolean updateDate;
+    private String sourceProperty;
 
     public String getLabel() {
         return label;
@@ -128,8 +138,8 @@ public class ColumnDefinition {
         return country;
     }
 
-    public String getNameColumn() {
-        return nameColumn;
+    public String getName() {
+        return name;
     }
 
     public String getRelationshipName() {
@@ -163,8 +173,9 @@ public class ColumnDefinition {
         return code;
     }
 
-    public String getCustomPropertyName() {
-        return customPropertyName;
+    // Overrides the value name of the property
+    public String getTargetProperty() {
+        return targetProperty;
     }
 
     public String getRelationship() {
@@ -302,4 +313,39 @@ public class ColumnDefinition {
     public boolean isArrayDelimited() {
         return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
+
+    public String getExpression(String expCol) {
+        if ( expCol == null )
+            return null;
+        if ( expCol.equals("nameExp"))
+            return nameExp;
+        else if ( expCol.equals("codeExp"))
+            return codeExp;
+
+        return null;
+    }
+
+    public ArrayList<ColumnDefinition> getProperties() {
+        return properties;
+    }
+
+
+    public boolean hasProperites() {
+        return this.properties !=null && properties.size()>0;
+    }
+
+
+    public String getSourceProperty() {
+        return sourceProperty;
+    }
+
+    public String getNameExp() {
+        return nameExp;
+    }
+
+    public String getCodeExp() {
+        return codeExp;
+    }
+
+
 }

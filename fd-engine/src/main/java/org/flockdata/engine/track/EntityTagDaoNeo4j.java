@@ -32,6 +32,7 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
+import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.optional;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -366,13 +367,13 @@ public class EntityTagDaoNeo4j {
                     Object latitude = null;
                     Object longitude = null;
 
-                    if (country.hasProperty("props-unLatitude"))
-                        latitude = country.getProperty("props-unLatitude");
+                    if (country.hasProperty("props-latitude"))
+                        latitude = country.getProperty("props-latitude");
 
-                    if (country.hasProperty("props-unLongitude"))
-                        longitude = country.getProperty("props-unLongitude");
+                    if (country.hasProperty("props-longitude"))
+                        longitude = country.getProperty("props-longitude");
 
-                    if (latitude != null && longitude != null) {
+                    if ( (latitude != null && longitude != null) && ! (latitude.equals("") || longitude.equals(""))) {
                         lat = Double.parseDouble(latitude.toString());
                         lon = Double.parseDouble(longitude.toString());
                     }
@@ -421,5 +422,23 @@ public class EntityTagDaoNeo4j {
             }
         }
         return results;
+    }
+
+    public void purgeUnusedTags(String label) {
+        // ToDo: Pageable
+
+        // Figure out the purge statement:
+        //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r:HAS_ALIAS]-(a) delete t,a,r;
+        //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r]-() delete t,r;
+
+        String query = "optional match (t:"+label+")-[:HAS_ALIAS]-(a) where not (t)-[]-(:Entity) return t,a;";
+        template.query(query, null);
+//        Result<Map<String, Object>> result = template.query(query, null);
+//        for (Map<String, Object> row : result) {
+//            Tag tag = template.convert(row.get("entity"), TagNode.class);
+//            Map<String, Object> params = new HashMap<>();
+//            tagService.p(tag);
+//        }
+
     }
 }

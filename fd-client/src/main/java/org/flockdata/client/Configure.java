@@ -214,7 +214,8 @@ public class Configure {
         SystemUserResultBean suResult = registerUser(engineURL, internalUser, internalPass, user, company);
 
         if (suResult != null) {
-            version = getVersion(engineURL, suResult.getApiKey());
+            // Test that we can connect with the generated API Key
+            getVersion(engineURL, suResult.getApiKey());
         } else {
             logger.info("Unable to register the data access user name with the admin account [{}]", internalUser);
             System.exit(-1);
@@ -223,7 +224,7 @@ public class Configure {
             logger.error("The Login name [{}] is already in use with another company. Login names must be unique per company. Try using an email address", user);
             System.exit(-1);
         }
-        if (version != null) {
+        if (suResult != null) {
             defaults.setDefaultUser(user);
             defaults.setCompany(suResult.getCompanyName());
             defaults.setApiKey(suResult.getApiKey());

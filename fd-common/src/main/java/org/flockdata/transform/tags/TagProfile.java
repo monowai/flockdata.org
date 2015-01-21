@@ -17,7 +17,9 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.transform;
+package org.flockdata.transform.tags;
+
+import org.flockdata.transform.ColumnDefinition;
 
 import java.util.ArrayList;
 
@@ -29,13 +31,20 @@ import java.util.ArrayList;
 public class TagProfile {
     private String column;
     private String name;
+    private String nameExp;
     private String code;
+    private String codeExp;
+
     private Boolean reverse =false;
     private String relationship;
     private String delimiter =null;
     private boolean country = false;
     private String label;
+
+    private String condition;// boolean expression that determines if this tag will be created
     private ArrayList<TagProfile> targets;
+    private ArrayList<ColumnDefinition>properties;
+
     private boolean mustExist;
 
     public String getColumn() {
@@ -64,9 +73,6 @@ public class TagProfile {
 
     public String getName() {
         return name;
-    }
-    public void setName(String name){
-        this.name= name;
     }
 
     /**
@@ -130,5 +136,17 @@ public class TagProfile {
 
     public void setCountry(boolean country) {
         this.country = country;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public ArrayList<ColumnDefinition> getProperties() {
+        return properties;
+    }
+
+    public boolean hasProperites() {
+        return properties!=null && properties.size()>0;
     }
 }
