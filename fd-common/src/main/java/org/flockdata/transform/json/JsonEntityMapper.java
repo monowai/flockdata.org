@@ -85,15 +85,19 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
 
     private TagInputBean getTagFromNode(JsonNode thisNode, ColumnDefinition colDef) {
         String code;
-        boolean object = true;
+        boolean readRow = true;
         if (colDef.isArrayDelimited()){
             code = thisNode.asText();
-            object = false;
+            readRow = false;
+        } else if (colDef.getCode() == null ) {
+            code = thisNode.asText();
+            readRow=false;
         } else
             code= thisNode.get(colDef.getCode()).asText();
 
         TagInputBean tag = new TagInputBean(code);
-        if (object)
+
+        if (readRow)
             tag.setName(thisNode.get(colDef.getName()).asText());
 
         tag.setLabel(colDef.getLabel());
