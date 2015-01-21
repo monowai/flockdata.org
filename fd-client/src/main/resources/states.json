@@ -1,0 +1,21 @@
+{
+    "contentType": "csv",
+    "tagOrEntity": "tag",
+    "delimiter":",",
+    "header": true,
+    "content": {
+        "name": {
+            "tag": true,
+            "label": "State",
+            "code": "code",
+            "targets": [
+                {
+                    "column": "country",
+                    "label": "Country",
+                    "mustExist": true,
+                    "relationship": "region"
+                }
+            ]
+        }
+    }
+}
