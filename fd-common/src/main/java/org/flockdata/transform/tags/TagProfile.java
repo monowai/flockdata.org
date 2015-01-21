@@ -31,7 +31,10 @@ import java.util.ArrayList;
 public class TagProfile {
     private String column;
     private String name;
+    private String nameExp;
     private String code;
+    private String codeExp;
+
     private Boolean reverse =false;
     private String relationship;
     private String delimiter =null;
@@ -70,9 +73,6 @@ public class TagProfile {
 
     public String getName() {
         return name;
-    }
-    public void setName(String name){
-        this.name= name;
     }
 
     /**

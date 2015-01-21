@@ -94,7 +94,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
 
         TagInputBean tag = new TagInputBean(code);
         if (object)
-            tag.setName(thisNode.get(colDef.getNameColumn()).asText());
+            tag.setName(thisNode.get(colDef.getName()).asText());
 
         tag.setLabel(colDef.getLabel());
         Map<String,Object> rlxProperties = new HashMap<>();

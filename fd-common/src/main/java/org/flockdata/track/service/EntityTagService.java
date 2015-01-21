@@ -71,4 +71,6 @@ public interface EntityTagService {
     void moveTags(Company company, Log previousLog, Entity entity);
 
     Collection<Long> mergeTags(Tag fromTag, Tag toTag);
+
+    void purgeUnusedTags(String label);
 }

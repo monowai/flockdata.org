@@ -48,7 +48,8 @@ public class TestExpressions {
         assertNotNull(mapper);
         assertEquals("Politician", mapper.getLabel());
         assertEquals("Whitehouse, Sheldon", mapper.getName());
-        assertEquals(2, mapper.getTargets().get("HAS_ALIAS").size());
+        assertEquals("01823", mapper.getCode());
+        assertEquals(1, mapper.getTargets().get("HAS_ALIAS").size());
     }
 
     @Test
@@ -61,8 +62,8 @@ public class TestExpressions {
         assertNotNull(json);
         assertNotNull(mapper);
 
-        assertEquals( "Custom properties not being set", 2, mapper.getProperties().size());
-        boolean birthdaySet = false, urlSet = false;
+        assertEquals( "Custom properties not being set", 3, mapper.getProperties().size());
+        boolean birthdaySet = false, urlSet = false, genderSet =false;
         for (String key : mapper.getProperties().keySet()) {
             if ( key.equals("dob")) {
                 assertEquals("1955-10-20", mapper.getProperties().get("dob"));
@@ -70,11 +71,13 @@ public class TestExpressions {
             } else if ( key.equals("url")){
                 urlSet = true;
                 assertEquals("http://www.whitehouse.senate.gov", mapper.getProperties().get("url"));
-            }
+            } else if ( key.equals("gender"))
+                genderSet = true;
         }
 
         assertEquals("Unable to find remapped target property name",true, birthdaySet);
         assertEquals(true, urlSet);
+        assertEquals(true, genderSet);
     }
 
     FdReader reader = new FdReader() {
