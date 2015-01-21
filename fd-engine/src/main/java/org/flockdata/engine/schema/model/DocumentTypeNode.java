@@ -131,6 +131,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
                 "id=" + id +
                 ", fortress=" + fortress +
                 ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 
