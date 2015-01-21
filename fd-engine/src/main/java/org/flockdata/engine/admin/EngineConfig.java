@@ -206,6 +206,12 @@ public class EngineConfig implements FdEngineConfig {
     }
 
     @Override
+    @Secured({"ROLE_AB_ADMIN","ROLE_AB_USER"})
+    public String authPing() {
+        return  "Pong!";
+    }
+
+    @Override
     public void setTestMode(boolean testMode) {
         this.testMode = testMode;
     }

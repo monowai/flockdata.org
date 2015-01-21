@@ -19,27 +19,18 @@
 
 package org.flockdata.test.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityKey;
 import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvEntityMapper;
-import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -196,7 +187,7 @@ public class TestCsvEntity {
 
         colDef = params.getColumnDef(headers[6]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertEquals("Year", colDef.getNameColumn());
+        assertEquals("Year", colDef.getName());
         assertTrue("Tag to value", colDef.isValueAsProperty());
         assertFalse("Shouldn't be a title", colDef.isTitle());
         assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());

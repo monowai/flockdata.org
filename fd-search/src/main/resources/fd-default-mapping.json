@@ -1,71 +1,73 @@
 {
   "mapping": {
     "_source": {
-      "excludes": ["@attachment"]
+      "excludes": ["attachment"]
     },
     "properties": {
-      "@attachment": {
+      "attachment": {
         "type": "attachment",
         "path": "full",
         "fields": {
-          "@attachment": {
+          "attachment": {
             "type": "string",
             "store": true,
             "term_vector": "with_positions_offsets"
           }
         }
       },
-      "@tags": {
-        "type": "string",
-        "dynamic": true
-      },
 
-      "@metaKey": {
+      "metaKey": {
         "type": "string",
+        "doc_values": true,
         "index": "not_analyzed"
       },
-      "@code": {
+      "code": {
         "type": "string",
+        "doc_values": true,
         "boost": "2.0",
         "index": "not_analyzed"
       },
-      "@docType": {
+      "docType": {
         "type": "string",
+        "doc_values": true,
         "index": "not_analyzed"
       },
-      "@fortress": {
+      "fortress": {
         "type": "string",
+        "doc_values": true,
         "index": "not_analyzed"
       },
-      "@lastEvent": {
+      "lastEvent": {
         "type": "string",
+        "doc_values": true,
         "index": "not_analyzed"
       },
-      "@timestamp": {
+      "timestamp": {
         "type": "date",
         "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
       },
-      "@whenCreated": {
+      "whenCreated": {
         "type": "date",
         "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
       },
-      "@description": {
+      "description": {
         "type": "string",
         "boost": 4,
         "analyzer": "ngram_long"
       },
-      "@when": {
+      "when": {
         "type": "date"
       },
-      "@who": {
+      "who": {
         "type": "string",
+
         "index": "not_analyzed"
       }
     },
     "dynamic_templates": [
       {
         "geo_tag": {
-          "path_match": "@tag.*.geo",
+          "path_match": "tag.*.geo",
           "match_mapping_type": "string",
           "mapping": {
             "type": "geo_point",
@@ -77,13 +79,16 @@
       },
       {
         "fd.tag-template": {
-          "path_match": "@tag.*.code",
+          "path_match": "tag.*.code",
           "mapping": {
             "type": "multi_field",
+
             "fields": {
               "code": {
                 "index": "not_analyzed",
                 "type": "string",
+                "doc_values": true,
+                "boost": 3.0,
                 "store": "true"
               },
               "raw": {

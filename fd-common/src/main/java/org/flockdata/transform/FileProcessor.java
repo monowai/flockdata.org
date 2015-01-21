@@ -323,7 +323,7 @@ public class FileProcessor {
             String[] nextLine;
             if (mappable.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((!nextLine[0].equals("") && nextLine[0].charAt(0) == '#'))) {
+                    if (!((!nextLine[0].equals("") && (nextLine[0].charAt(0) == '#')||nextLine[0].charAt(1)=='#'))) {
                         headerRow = nextLine;
                         break;
                     }

@@ -35,5 +35,5 @@ findBaseDirAndCdThere
 
 ## Countries
 ## match (c:Country) return c;
-$JAVA -classpath $FD_APP/fd-client.jar org.flockdata.client.Importer -c ${FD_CONFIG} "/countries.json, /JsonTags.json"
+$JAVA -classpath $FD_APP/fd-client.jar org.flockdata.client.Importer -c ${FD_CONFIG} "/fd-cow.txt, /countries.json"
 

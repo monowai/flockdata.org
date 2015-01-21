@@ -1065,4 +1065,15 @@ public class TestEntityTags extends EngineBase {
         assertTrue("The expected tag ["+ tagName +"] was not found", found);
     }
 
+
+    @Test
+    public void scenario_AliasFound ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasFound", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
+
+        TagInputBean tag = new TagInputBean("Holdsworth, Mike");
+
+
+
+    }
 }

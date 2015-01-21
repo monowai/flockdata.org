@@ -267,4 +267,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
         return entityTagDao.mergeTags(fromTag, toTag);
     }
+
+    @Override
+    public void purgeUnusedTags(String label) {
+        entityTagDao.purgeUnusedTags(label);
+    }
 }
