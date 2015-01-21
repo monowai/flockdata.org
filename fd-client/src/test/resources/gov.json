@@ -18,7 +18,7 @@
                 "code": "thomas_id",
                 "label": "Person",
                 "relationshipName": "sponsored",
-                "nameColumn": "name",
+                "name": "name",
                 "targets": [
                     {
                         "column": "state",
@@ -48,7 +48,7 @@
             "cosponsors": {
                 "tag": true,
                 "code": "thomas_id",
-                "nameColumn": "name",
+                "name": "name",
                 "label": "Person",
                 "relationshipName": "cosponsors",
                 "relationshipProps": ["sponsored_at"],

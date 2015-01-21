@@ -154,9 +154,10 @@ public class ClientConfiguration {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
                 importProfile = om.readValue(stream, ImportProfile.class);
-            } else
+            } else {
                 // Defaults??
-                importProfile = new ImportProfile();
+                throw new IllegalArgumentException("Unable to locate the profile " + profile);
+            }
         }
         //importParams.setWriter(restClient);
         return importProfile;

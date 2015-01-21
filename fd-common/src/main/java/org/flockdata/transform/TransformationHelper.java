@@ -56,13 +56,13 @@ public class TransformationHelper {
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
-            tag.setName(getValue(row, colDef, column));
-            tag.setCode(getValue(row, colDef, column));
+            tag.setName(getValue(row, "nameExp", colDef, column));
+            tag.setCode(getValue(row, "codeExp", colDef, column));
             if (column != null)
                 if (Integer.decode(value) != 0) {
                     properties.put("value", Integer.decode(value));
-                    if (colDef.getNameColumn() != null) {
-                        tag.addEntityLink(row.get(colDef.getNameColumn()).toString(), properties);
+                    if (colDef.getName() != null) {
+                        tag.addEntityLink(row.get(colDef.getName()).toString(), properties);
                     } else if (colDef.getRelationshipName() != null) {
                         tag.addEntityLink(colDef.getRelationshipName(), properties);
                     } else
@@ -74,12 +74,12 @@ public class TransformationHelper {
             String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
             String codeValue ;
             if (colDef.getCode() != null)
-                codeValue = getValue(row, colDef, row.get(colDef.getCode()).toString());
+                codeValue = getValue(row, "codeExp", colDef, row.get(colDef.getCode()).toString());
             else
-                codeValue = getValue(row, colDef, value);
+                codeValue = getValue(row, "codeExp", colDef, value);
             tag.setCode(codeValue);
 
-            tag.setName(getValue(row, colDef, value))
+            tag.setName(getValue(row, "nameExp", colDef, value))
                     .setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);
             tag.addEntityLink(colDef.getRelationshipName());
@@ -87,7 +87,7 @@ public class TransformationHelper {
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
                     String sourceCol = thisCol.getSourceProperty();
-                    value = TransformationHelper.getValue(row, thisCol, row.get(sourceCol));
+                    value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
                     tag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
                 }
             }
@@ -144,7 +144,7 @@ public class TransformationHelper {
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
                         String sourceCol = thisCol.getSourceProperty();
-                        value = TransformationHelper.getValue(row, thisCol, row.get(sourceCol));
+                        value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
                         if (newTag!=null)
                             newTag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
                     }
@@ -186,10 +186,10 @@ public class TransformationHelper {
         return row;
     }
 
-    public static String getValue(Map<String, Object> row, ColumnDefinition colDef, Object defaultValue) {
+    public static String getValue(Map<String, Object> row, String expCol, ColumnDefinition colDef, Object defaultValue) {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, colDef);
-        String expression = colDef.getExpression();
+        String expression = colDef.getExpression(expCol);
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }

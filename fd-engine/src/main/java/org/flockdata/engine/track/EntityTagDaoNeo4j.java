@@ -32,6 +32,7 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
+import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.optional;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -421,5 +422,23 @@ public class EntityTagDaoNeo4j {
             }
         }
         return results;
+    }
+
+    public void purgeUnusedTags(String label) {
+        // ToDo: Pageable
+
+        // Figure out the purge statement:
+        //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r:HAS_ALIAS]-(a) delete t,a,r;
+        //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r]-() delete t,r;
+
+        String query = "optional match (t:"+label+")-[:HAS_ALIAS]-(a) where not (t)-[]-(:Entity) return t,a;";
+        template.query(query, null);
+//        Result<Map<String, Object>> result = template.query(query, null);
+//        for (Map<String, Object> row : result) {
+//            Tag tag = template.convert(row.get("entity"), TagNode.class);
+//            Map<String, Object> params = new HashMap<>();
+//            tagService.p(tag);
+//        }
+
     }
 }

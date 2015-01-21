@@ -57,7 +57,10 @@ public class ColumnDefinition {
     private String   documentType = null;
     private String   label;
     private String   type; //datatype
-    private String   nameColumn;
+    private String   name;
+
+
+    private String   nameExp;
     private String   nullOrEmpty;
     private String   appendJoinText = " ";
     private String   relationshipName;
@@ -73,11 +76,11 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
+    private String codeExp;
     private String targetProperty;
 
     private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
     private boolean updateDate;
-    private String expression;
     private String sourceProperty;
 
     public String getLabel() {
@@ -135,8 +138,8 @@ public class ColumnDefinition {
         return country;
     }
 
-    public String getNameColumn() {
-        return nameColumn;
+    public String getName() {
+        return name;
     }
 
     public String getRelationshipName() {
@@ -311,8 +314,15 @@ public class ColumnDefinition {
         return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
-    public String getExpression() {
-        return expression;
+    public String getExpression(String expCol) {
+        if ( expCol == null )
+            return null;
+        if ( expCol.equals("nameExp"))
+            return nameExp;
+        else if ( expCol.equals("codeExp"))
+            return codeExp;
+
+        return null;
     }
 
     public ArrayList<ColumnDefinition> getProperties() {
@@ -328,5 +338,14 @@ public class ColumnDefinition {
     public String getSourceProperty() {
         return sourceProperty;
     }
+
+    public String getNameExp() {
+        return nameExp;
+    }
+
+    public String getCodeExp() {
+        return codeExp;
+    }
+
 
 }

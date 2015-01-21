@@ -7,17 +7,19 @@
   "content": {
     "Politician": {
       "tag": true,
-      "expression": "#row['last_name']+ ', ' + #row['first_name']",
+      "nameExp": "#row['last_name']+ ', ' + #row['first_name']",
+
+      "code": "thomas_id",
       "targets": [
-        {
-          "column": "thomas_id",
-          "label": "ThomasAlias",
-          "relationship": "HAS_ALIAS"
-        },
         {
           "column": "wikipedia_id",
           "label": "WikipediaAlias",
           "relationship": "HAS_ALIAS"
+        },
+        {
+          "column": "party",
+          "label": "Party",
+          "relationship": "affiliation"
         }
       ],
       "properties": [
@@ -25,7 +27,8 @@
           "sourceProperty": "birthday",
           "targetProperty": "dob"
         },
-        {"sourceProperty": "url"}
+        {"sourceProperty": "url"},
+        {"sourceProperty": "gender"}
       ]
     }
   }
