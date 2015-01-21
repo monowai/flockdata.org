@@ -141,7 +141,7 @@ public class EntityNode implements Entity {
             docType = documentType.getCode();
 
         if ( docType == null )
-            throw new RuntimeException("Unable to resolve the doc type code value for  "+entityInput)  ;
+            throw new RuntimeException("Unable to resolve the doc type code ["+documentType+"] for  "+entityInput)  ;
         assert docType != null;
 
         docType = docType.toLowerCase();
