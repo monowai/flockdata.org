@@ -30,7 +30,7 @@
             "valueAsProperty": true
         },
         "Gold Medals": {
-            "nameColumn": "Year",
+            "name": "Year",
             "tag": true,
             "valueAsProperty": true
         }
