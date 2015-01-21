@@ -236,6 +236,7 @@ public class TestAdminCalls extends EngineBase {
 
     @Test
     public void auth_Health() throws Exception {
+        setSecurityEmpty();
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
