@@ -49,7 +49,7 @@ public class ImportProfile implements ProfileConfiguration {
     private DataType tagOrEntity;
     private String clazz = null;
     private String staticDataClazz;
-    private char delimiter = ',';
+    private String delimiter = ",";
     private boolean header = true;
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportProfile.class);
@@ -128,10 +128,12 @@ public class ImportProfile implements ProfileConfiguration {
 
     @Override
     public char getDelimiter() {
-        return delimiter;
+        if ( delimiter.equals( "\t"))
+                return '\t';
+        return delimiter.charAt(0);
     }
 
-    public void setDelimiter(char delimiter) {
+    public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
     }
 

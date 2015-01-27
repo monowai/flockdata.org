@@ -91,7 +91,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
 
         column = node.get("delimiter");
         if (column != null&& !column.isNull())
-            importProfile.setDelimiter(column.toString().charAt(1));
+            importProfile.setDelimiter(column.asText());
 
         column = node.get("entityKey");
         if ( column == null )

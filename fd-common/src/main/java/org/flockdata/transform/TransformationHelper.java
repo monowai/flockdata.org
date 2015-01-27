@@ -78,7 +78,8 @@ public class TransformationHelper {
             else
                 codeValue = getValue(row, "codeExp", colDef, value);
             tag.setCode(codeValue);
-
+            if ( value == null && colDef.getName() != null )
+                value = row.get(colDef.getName()).toString();
             tag.setName(getValue(row, "nameExp", colDef, value))
                     .setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);

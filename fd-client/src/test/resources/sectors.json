@@ -1,0 +1,34 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "fortress": "GovTrack",
+  "fortressUser": "mike",
+  "header": true,
+  "delimiter": "\t",
+  "content": {
+    "OSCategory": {
+      "tag": true,
+      "code": "Catcode",
+      "name": "Catname",
+      "targets": [
+        {
+          "column": "Industry",
+          "label": "OSIndustry",
+          "relationship": "comprises",
+          "targets": [{
+            "column": "Sector",
+            "name": "Sector Long",
+            "label": "OSSector",
+            "relationship": "industry"
+          }]
+        }
+      ],
+      "properties": [
+        {
+          "sourceProperty": "Catorder",
+          "targetProperty": "order"
+        }
+      ]
+    }
+  }
+}
