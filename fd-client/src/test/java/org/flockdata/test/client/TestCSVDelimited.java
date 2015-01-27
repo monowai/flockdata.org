@@ -19,6 +19,7 @@
 
 package org.flockdata.test.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
@@ -82,8 +83,15 @@ public class TestCSVDelimited {
                 Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
                 for (TagInputBean represents : targets ) {
                     assertFalse(represents.getCode().contains("|"));
-                    assertTrue(represents.getMustExist());
+                    assertTrue(represents.isMustExist());
                 }
+            }
+            // Check that the payload will serialize
+            ObjectMapper om = new ObjectMapper();
+            try {
+                om.writeValueAsString(tagInputBeans);
+            } catch (Exception e) {
+                throw new FlockException("Failed to serialize");
             }
             return null;
         }
