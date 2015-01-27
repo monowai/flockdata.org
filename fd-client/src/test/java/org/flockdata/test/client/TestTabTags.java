@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestTabTags {
     @Test
-    public void string_Properites() throws Exception {
+    public void string_NestedTags() throws Exception {
         ImportProfile params = ClientConfiguration.getImportParams("/sectors.json");
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
@@ -47,22 +47,7 @@ public class TestTabTags {
         assertEquals("F2600", mapper.getCode());
         assertEquals("Private Equity & Investment Firms", mapper.getName());
         assertNotNull(mapper.getProperties().get("order"));
-//        assertEquals( "Custom properties not being set", 3, mapper.getProperties().size());
-        boolean birthdaySet = false, urlSet = false, genderSet =false;
-        for (String key : mapper.getProperties().keySet()) {
-            if ( key.equals("dob")) {
-                assertEquals("1955-10-20", mapper.getProperties().get("dob"));
-                birthdaySet = true;
-            } else if ( key.equals("url")){
-                urlSet = true;
-                assertEquals("http://www.whitehouse.senate.gov", mapper.getProperties().get("url"));
-            } else if ( key.equals("gender"))
-                genderSet = true;
-        }
-
-        assertEquals("Unable to find remapped target property name",true, birthdaySet);
-        assertEquals(true, urlSet);
-        assertEquals(true, genderSet);
+        assertEquals(1, mapper.getTargets().size());
     }
     FdReader reader = new FdReader() {
         @Override

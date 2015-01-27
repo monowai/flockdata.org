@@ -112,7 +112,7 @@ public class TrackBatcher {
 
             if (flush || tagBatch.size() == clientConfiguration.getBatchSize()) {
                 logger.debug("Flushing " + message + " Tag Batch [{}]", tagBatch.size());
-                if (tagBatch.size() >= 0)
+                if (tagBatch.size() > 0)
                     fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
                 logger.debug("Tag Batch Flushed");
                 tagBatch = new HashMap<>();

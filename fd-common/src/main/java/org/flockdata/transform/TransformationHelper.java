@@ -119,9 +119,15 @@ public class TransformationHelper {
             if ( evaluateTag(tagProfile, row)) {
                 Object value = row.get(tagProfile.getColumn());
 
-                if (value == null) {
-                    logger.error("Undefined row value for {}", tagProfile.getColumn());
-                    throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
+                if (value == null ) {
+                    String codeExp =  tagProfile.getCodeExp();
+                    if (codeExp != null ){
+                        value = evaluateExpression(row, codeExp);
+                    }
+                    if ( value == null ) {
+                        logger.error("No code or codeExp could be found for column value for {}", tagProfile.getColumn());
+                        throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
+                    }
                 }
 
                 if (tagProfile.getDelimiter() != null) {
@@ -180,9 +186,17 @@ public class TransformationHelper {
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
-        for (String column : headerRow) {
-            row.put(column, line[col]);
-            col++;
+        if ( headerRow == null ) {
+            // No header row so we will name the columns, starting at 0, by their ordinal
+            for ( String lineCol: line){
+                row.put(Integer.toString(col), lineCol);
+                col++;
+            }
+        }  else {
+            for (String column : headerRow) {
+                row.put(column, line[col]);
+                col++;
+            }
         }
         return row;
     }
@@ -202,6 +216,11 @@ public class TransformationHelper {
 
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
         StandardEvaluationContext context = new StandardEvaluationContext();
+//        try {
+//            context.registerFunction("replace", StringParser.class.getDeclaredMethod("replace", String.class, Character.class));
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
         context.setVariable("row", row);
         return parser.parseExpression(expression).getValue(context);
     }
