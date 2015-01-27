@@ -339,7 +339,4 @@ public class TagInputBean {
         return thisLabel;
     }
 
-    public boolean getMustExist() {
-        return mustExist;
-    }
 }
