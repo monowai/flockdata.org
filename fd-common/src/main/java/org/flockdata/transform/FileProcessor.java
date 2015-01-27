@@ -321,11 +321,13 @@ public class FileProcessor {
 
             String[] headerRow = null;
             String[] nextLine;
-            if (mappable.hasHeader()) {
+            if (importProfile.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((!nextLine[0].equals("") && (nextLine[0].charAt(0) == '#')||nextLine[0].charAt(1)=='#'))) {
-                        headerRow = nextLine;
-                        break;
+                    if (!nextLine[0].equals("")) {
+                        if (!(((nextLine[0].charAt(0) == '#') || nextLine[0].charAt(1) == '#'))) {
+                            headerRow = nextLine;
+                            break;
+                        }
                     }
                 }
             }

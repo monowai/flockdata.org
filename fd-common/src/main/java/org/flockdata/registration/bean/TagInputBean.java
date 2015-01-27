@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -338,5 +337,9 @@ public class TagInputBean {
         if ( thisLabel.startsWith(":"))
             thisLabel= thisLabel.substring(1, thisLabel.length());
         return thisLabel;
+    }
+
+    public boolean getMustExist() {
+        return mustExist;
     }
 }

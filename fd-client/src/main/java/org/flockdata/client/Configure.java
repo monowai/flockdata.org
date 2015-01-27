@@ -287,7 +287,7 @@ public class Configure {
         }
     }
 
-    static ClientConfiguration readConfiguration(File file) {
+    public static ClientConfiguration readConfiguration(File file) {
         if (file.exists()) {
             // Load the defaults
             try {

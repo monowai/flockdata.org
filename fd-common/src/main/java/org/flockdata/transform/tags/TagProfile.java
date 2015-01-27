@@ -33,6 +33,7 @@ public class TagProfile {
     private String name;
     private String nameExp;
     private String code;
+
     private String codeExp;
 
     private Boolean reverse =false;
@@ -144,6 +145,18 @@ public class TagProfile {
 
     public ArrayList<ColumnDefinition> getProperties() {
         return properties;
+    }
+
+    public String getNameExp() {
+        return nameExp;
+    }
+
+    public String getCodeExp() {
+        return codeExp;
+    }
+
+    public boolean isMustExist() {
+        return mustExist;
     }
 
     public boolean hasProperites() {
