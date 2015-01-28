@@ -61,7 +61,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
                         if ( colDef.isDescription())
                             setDescription(nodeField.asText());
                         if ( colDef.isDocument())
-                            setDocumentType(nodeField.asText());
+                            setDocumentName(nodeField.asText());
                         if ( colDef.isTag())
                             addTag(getTagFromNode(nodeField, colDef));
 

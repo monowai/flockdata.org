@@ -159,7 +159,7 @@ public class TransformationHelper {
                     newTag = new TagInputBean(value.toString())
                             .setLabel(tagProfile.getLabel());
                     newTag.setReverse(tagProfile.getReverse());
-                    newTag.setMustExist(tagProfile.getMustExist());
+                    newTag.setMustExist(tagProfile.isMustExist());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
                 }
                 if (tagProfile.hasProperites()) {
@@ -189,7 +189,7 @@ public class TransformationHelper {
                 TagInputBean newTag = new TagInputBean(tag, entityRelationship)
                         .setLabel(tagProfile.getLabel());
                 newTag.setReverse(tagProfile.getReverse());
-                newTag.setMustExist(tagProfile.getMustExist());
+                newTag.setMustExist(tagProfile.isMustExist());
                 newTag.setLabel(tagProfile.getLabel());
                 results.add(newTag);
             }

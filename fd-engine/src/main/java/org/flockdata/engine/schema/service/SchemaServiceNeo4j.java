@@ -148,8 +148,8 @@ public class SchemaServiceNeo4j implements SchemaService {
     public void createDocTypes(Iterable<EntityInputBean> entities, Fortress fortress) {
         ArrayList<String> docTypes = new ArrayList<>();
         for (EntityInputBean entity : entities) {
-            if (!docTypes.contains(entity.getDocumentType()))
-                docTypes.add(entity.getDocumentType());
+            if (!docTypes.contains(entity.getDocumentName()))
+                docTypes.add(entity.getDocumentName());
         }
         schemaDao.createDocTypes(docTypes, fortress);
     }

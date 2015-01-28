@@ -13,20 +13,20 @@
         "tags": {
             "label": "Topic",
             "reverse": true,
-            "relationshipName": "REFERS",
+            "relationship": "REFERS",
             "delimiter": ","
         },
         "i": {
             "tag": true,
             "label": "Developer",
-            "relationshipName": "ASKS",
+            "relationship": "ASKS",
             "createUser": true
 
         },
         "j": {
             "tag": true,
             "label": "Developer",
-            "relationshipName": "HAS_ANSWER",
+            "relationship": "HAS_ANSWER",
             "updateUser": true
         },
         "at" :{

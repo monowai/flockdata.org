@@ -25,6 +25,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.flockdata.client.rest.FdRestReader;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -42,18 +43,18 @@ import java.util.List;
 /**
  * General importer with support for CSV and XML parsing. Interacts with AbRestClient to send
  * information via a RESTful interface
- * <p/>
+ * <p>
  * Will send information to FlockData as either tags or track information.
- * <p/>
+ * <p>
  * You should extend EntityInputBean or TagInputBean and implement XMLMappable or DelimitedMappable
  * to massage your data prior to dispatch to FD.
- * <p/>
+ * <p>
  * Parameters:
  * -s=http://localhost:8080/fd-engine
- * <p/>
+ * <p>
  * quoted string containing "file,DelimitedClass,BatchSize"
  * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"
- * <p/>
+ * <p>
  * if BatchSize is set to -1, then a simulation only is run; information is not dispatched to the server.
  * This is useful to debug the class implementing Delimited
  *
@@ -61,7 +62,7 @@ import java.util.List;
  * @see org.flockdata.profile.model.Mappable
  * @see org.flockdata.registration.bean.TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
@@ -136,15 +137,15 @@ public class Importer {
                 configuration.setBatchSize(Integer.parseInt(batch));
 
             Object o = ns.get("async");
-            if ( o!=null )
+            if (o != null)
                 configuration.setAsync(Boolean.parseBoolean(o.toString()));
 
             o = ns.get("validate");
-            if ( o!=null )
+            if (o != null)
                 configuration.setValidateOnly(Boolean.parseBoolean(o.toString()));
 
             o = ns.get("amqp");
-            if ( o!=null )
+            if (o != null)
                 configuration.setAmqp(Boolean.parseBoolean(o.toString()));
 
 
@@ -172,24 +173,21 @@ public class Importer {
                 ImportProfile importProfile;
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
-                    //importParams = Class.forName(importProfile);
-
                     importProfile = ClientConfiguration.getImportParams(clazz);
-
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
-                if (su != null) {
-                    importProfile.setFortressUser(su.getLogin());
-                } else {
-                    logger.error("Unable to validate the system user as a default fortress user. This will cause errors in the TrackEP if you do not set the FortressUser");
-                }
+                if (su.getApiKey() == null)
+                    throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
+
+                importProfile.setFortressUser(su.getLogin());
+
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importProfile, batchSize, skipCount);
 
 
-                if (fileProcessor== null )
+                if (fileProcessor == null)
                     fileProcessor = new FileProcessor(new FdRestReader(restClient));
 
                 // Importer does not know what the company is
@@ -201,7 +199,7 @@ public class Importer {
             logger.error("Import error", e);
             System.exit(-1);
         } finally {
-            if ( fileProcessor!=null)
+            if (fileProcessor != null)
                 fileProcessor.endProcess(watch, totalRows);
 
 
@@ -221,7 +219,6 @@ public class Importer {
         return fdClient;
 
     }
-
 
 
 }

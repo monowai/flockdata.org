@@ -946,7 +946,7 @@ public class TestFdIntegration {
         helper.publish(inputBean);
         waitAWhile("AMQP", 8000);
         helper.close();
-        Entity entityA = trackService.findByCallerRef(fortress, inputBean.getDocumentType(), inputBean.getCallerRef());
+        Entity entityA = trackService.findByCallerRef(fortress, inputBean.getDocumentName(), inputBean.getCallerRef());
         assertNotNull(entityA);
 
 

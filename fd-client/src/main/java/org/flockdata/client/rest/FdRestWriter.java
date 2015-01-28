@@ -379,9 +379,9 @@ public class FdRestWriter implements FdWriter {
             Map<String,Object>params = new HashMap<>();
             for (EntityInputBean entityInput : entityInputs) {
                 params.put("fortress", entityInput.getFortress());
-                params.put("documentType", entityInput.getDocumentType());
+                params.put("documentName", entityInput.getDocumentName());
                 params.put("callerRef", entityInput.getCallerRef());
-                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentType}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentName}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
                 //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
