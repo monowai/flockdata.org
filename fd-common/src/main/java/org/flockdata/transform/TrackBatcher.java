@@ -74,10 +74,10 @@ public class TrackBatcher {
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
                     entityInputBean.setFortress(importProfile.getFortressName());
-                if ( entityInputBean.getFortress() == null )
+                if ( entityInputBean.getFortress() == null || entityInputBean.getFortress().equals(""))
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
 
-                if ( entityInputBean.getDocumentName() == null )
+                if ( entityInputBean.getDocumentName() == null ||  entityInputBean.getDocumentName().equals("") )
                     throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via your import profile with the documentName attribute.");
 
                 entityBatch.add(entityInputBean);
