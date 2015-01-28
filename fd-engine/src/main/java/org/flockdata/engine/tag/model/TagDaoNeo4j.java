@@ -102,9 +102,9 @@ public class TagDaoNeo4j {
             }
         }
 
-        Map<String, Collection<TagInputBean>> tags = tagInput.getTargets();
-        for (String rlxName : tags.keySet()) {
-            Collection<TagInputBean> associatedTag = tags.get(rlxName);
+        Map<String, Collection<TagInputBean>> targets = tagInput.getTargets();
+        for (String rlxName : targets.keySet()) {
+            Collection<TagInputBean> associatedTag = targets.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
                 createRelationship(company, start, tagInputBean, rlxName, createdValues, suppressRelationships);
             }

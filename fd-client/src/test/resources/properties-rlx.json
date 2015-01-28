@@ -1,0 +1,26 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "fortressUser": "mike",
+  "header": false,
+  "content": {
+    "1": {
+      "callerRef": true,
+      "callerRefExp": "#row['1'].replace('|', ' ').trim()"
+    },
+    "3": {
+      "tag": true,
+      "codeExp": "#row['3'].replace('|', ' ').trim()",
+      "nameExp": "#row['3'].replace('|', ' ').trim()",
+      "label": "Politician",
+      "relationship": "receives",
+      "rlxProperties": [
+        {
+          "sourceProperty": "4",
+          "targetProperty": "amount"
+        }
+      ]
+    }
+  }
+}

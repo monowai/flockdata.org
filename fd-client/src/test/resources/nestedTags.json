@@ -13,7 +13,7 @@
         },
         "zip": {
             "tag": true,
-            "relationshipName": "lives",
+            "relationship": "lives",
             "label": "ZipCode",
             "targets": [
                 {
@@ -42,7 +42,7 @@
 
         "name": {
             "tag" :true,
-            "relationshipName":"blah",
+            "relationship":"blah",
             "label": "Wow"
         }
     }

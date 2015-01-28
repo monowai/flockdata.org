@@ -14,7 +14,7 @@
         },
         "Tag": {
             "delimiter": ",",
-            "relationshipName": "subject"
+            "relationship": "subject"
         }
     }
 }

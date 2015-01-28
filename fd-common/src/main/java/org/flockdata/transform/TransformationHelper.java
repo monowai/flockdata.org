@@ -19,6 +19,7 @@
 
 package org.flockdata.transform;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
@@ -31,7 +32,7 @@ import java.util.*;
 
 /**
  * Helper functions for interpreting ColumnDefinitions and setting values
- *
+ * <p>
  * User: mike
  * Date: 27/08/14
  * Time: 7:53 AM
@@ -58,13 +59,13 @@ public class TransformationHelper {
             tag.setReverse(colDef.getReverse());
             tag.setName(getValue(row, "nameExp", colDef, column));
             tag.setCode(getValue(row, "codeExp", colDef, column));
-            if (column != null)
+            if (column != null && value != null)
                 if (Integer.decode(value) != 0) {
                     properties.put("value", Integer.decode(value));
                     if (colDef.getName() != null) {
                         tag.addEntityLink(row.get(colDef.getName()).toString(), properties);
-                    } else if (colDef.getRelationshipName() != null) {
-                        tag.addEntityLink(colDef.getRelationshipName(), properties);
+                    } else if (colDef.getRelationship() != null) {
+                        tag.addEntityLink(colDef.getRelationship(), properties);
                     } else
                         tag.addEntityLink("undefined", properties);
                 } else {
@@ -72,24 +73,36 @@ public class TransformationHelper {
                 }
         } else {
             String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
-            String codeValue ;
+            String codeValue;
             if (colDef.getCode() != null)
                 codeValue = getValue(row, "codeExp", colDef, row.get(colDef.getCode()).toString());
             else
                 codeValue = getValue(row, "codeExp", colDef, value);
             tag.setCode(codeValue);
-            if ( value == null && colDef.getName() != null )
+            if (value == null && colDef.getName() != null)
                 value = row.get(colDef.getName()).toString();
             tag.setName(getValue(row, "nameExp", colDef, value))
                     .setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);
-            tag.addEntityLink(colDef.getRelationshipName());
+            if (colDef.getRelationship() != null) {
+                Map<String, Object> rlxProperties = new HashMap<>();
+                if (colDef.getRlxProperties() != null) {
+                    for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
+                        rlxProperties.put(columnDefinition.getTargetProperty(),
+                                getValue(row.get(columnDefinition.getSourceProperty()), columnDefinition));
+                    }
+                }
+
+                tag.addEntityLink(colDef.getRelationship(), rlxProperties);
+            }
+
+
             tag.setReverse(colDef.getReverse());
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
                     String sourceCol = thisCol.getSourceProperty();
                     value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
-                    tag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
+                    tag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
                 }
             }
         }
@@ -103,7 +116,7 @@ public class TransformationHelper {
 
     private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {
         String condition = tagProfile.getCondition();
-        if ( condition == null )
+        if (condition == null)
             return true;
         Object result = evaluateExpression(row, condition);
         return Boolean.parseBoolean(result.toString());
@@ -116,17 +129,18 @@ public class TransformationHelper {
         TagInputBean newTag = null;
 
         for (TagProfile tagProfile : tagsToAnalyse) {
-            if ( evaluateTag(tagProfile, row)) {
+            if (evaluateTag(tagProfile, row)) {
                 Object value = row.get(tagProfile.getColumn());
 
-                if (value == null ) {
-                    String codeExp =  tagProfile.getCodeExp();
-                    if (codeExp != null ){
+                if (value == null || value.equals("")) {
+                    String codeExp = tagProfile.getCodeExp();
+                    if (codeExp != null) {
                         value = evaluateExpression(row, codeExp);
                     }
-                    if ( value == null ) {
-                        logger.error("No code or codeExp could be found for column value for {}", tagProfile.getColumn());
-                        throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
+                    if (value == null || value.equals("")) {
+                        logger.error("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getColumn());
+                        value= "";
+                        //throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
                     }
                 }
 
@@ -152,8 +166,8 @@ public class TransformationHelper {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
                         String sourceCol = thisCol.getSourceProperty();
                         value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
-                        if (newTag!=null)
-                            newTag.setProperty(thisCol.getTargetProperty()==null?sourceCol:thisCol.getTargetProperty(), value);
+                        if (newTag != null)
+                            newTag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value,thisCol));
                     }
                 }
 
@@ -186,19 +200,42 @@ public class TransformationHelper {
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
-        if ( headerRow == null ) {
+        if (headerRow == null) {
             // No header row so we will name the columns, starting at 0, by their ordinal
-            for ( String lineCol: line){
+            for (String lineCol : line) {
                 row.put(Integer.toString(col), lineCol);
                 col++;
             }
-        }  else {
+        } else {
             for (String column : headerRow) {
                 row.put(column, line[col]);
                 col++;
             }
         }
         return row;
+    }
+
+    public static Object getValue(Object value, ColumnDefinition colDef) {
+        if (value == null || value.equals("null"))
+            return null;
+        else if (NumberUtils.isNumber(value.toString())) {
+            if (colDef != null && colDef.getType() != null && colDef.getType().equalsIgnoreCase("string"))
+                return String.valueOf(value);
+            else
+                return NumberUtils.createNumber(value.toString());
+        } else {
+//                Date date = null;
+//                try {
+//                    if ( colDef!=null && colDef.getDateFormat()!=null ) {
+//                        date = DateUtils.parseDate(line[col], colDef.getDateFormat());
+//                        row.put(column, date.getTime());
+//                    }
+//                } catch (ParseException e) {
+//                    //
+//                }
+            //if ( date == null ) // Stash it as a string
+            return  value.toString().trim();
+        }
     }
 
     public static String getValue(Map<String, Object> row, String expCol, ColumnDefinition colDef, Object defaultValue) {
