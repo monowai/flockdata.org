@@ -639,7 +639,7 @@ public class TestTrack extends EngineBase {
         assertNotNull(entity);
         // DAT-278
         assertNotNull(entity.getDocumentType());
-        assertEquals(inputBean.getDocumentType().toLowerCase(), entity.getDocumentType());
+        assertEquals(inputBean.getDocumentName().toLowerCase(), entity.getDocumentType());
         assertEquals(metaKey, entity.getMetaKey());
     }
 

@@ -52,7 +52,7 @@ public class LogResultBean {
 //        this.entity =entity;
 //        if ( entity !=null ) {
 //            setMetaKey(entity.getMetaKey());
-//            setDocumentType(entity.getDocumentType());
+//            setDocumentName(entity.getDocumentName());
 //            setCallerRef(entity.getCallerRef());
 //            setFortress(fortress.getName());
 //        }

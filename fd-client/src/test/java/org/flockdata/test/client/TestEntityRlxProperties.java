@@ -62,7 +62,7 @@ public class TestEntityRlxProperties {
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/properties-rlx.txt", 0, fdWriter, null, configuration);
-
+        assertEquals(4, rows);
 
     }
 

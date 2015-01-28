@@ -362,7 +362,7 @@ public class FileProcessor {
                                 entityInputBean.setContent(contentInputBean);
                             }
                             if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
                                 rows = rows + entityInputBean.getCrossReferences().size();
                             }
 

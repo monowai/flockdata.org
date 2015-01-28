@@ -78,7 +78,7 @@ public class TrackResultBean {
 //        // ToDo: Do we need these instance variables or just get straight from the entity?
 //        if (entity != null) {
 //            this.fortressName = entityBean.getFortressCode();
-//            this.documentType = entityBean.getDocumentType();
+//            this.documentType = entityBean.getDocumentName();
 //            this.callerRef = entityBean.getCallerRef();
 //            this.metaKey = entityBean.getMetaKey();
 //        }

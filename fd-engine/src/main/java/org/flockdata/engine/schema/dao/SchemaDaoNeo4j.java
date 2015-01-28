@@ -32,7 +32,6 @@ import org.flockdata.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -99,18 +98,18 @@ public class SchemaDaoNeo4j {
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
      * @param fortress        fortress generating
-     * @param docCode         name of the Label
+     * @param docName         name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String docCode, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, docCode);
+    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docName);
 
         if (docResult == null && createIfMissing) {
-            docResult = documentExists(fortress, docCode);
+            docResult = documentExists(fortress, docName);
             if (docResult == null) {
 
-                docResult = template.save(new DocumentTypeNode(fortress, docCode));
+                docResult = template.save(new DocumentTypeNode(fortress, docName));
             }
         }
         return docResult;
@@ -131,8 +130,8 @@ public class SchemaDaoNeo4j {
         assert fortress != null;
         String arg = new StringBuilder().append(fortress.getCompany().getId()).append(".").append(DocumentTypeNode.parse(fortress, docCode)).toString();
         return documentTypeRepo.findFortressDocCode(arg);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
-        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
+        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docName));
+        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docName));
 //        return dt;
     }
 

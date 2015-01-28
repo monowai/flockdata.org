@@ -380,11 +380,11 @@ public class TrackServiceNeo4j implements TrackService {
 
 
     @Override
-    public Entity findByCallerRef(Fortress fortress, String documentCode, String callerRef) {
+    public Entity findByCallerRef(Fortress fortress, String documentName, String callerRef) {
 
-        DocumentType doc = schemaService.resolveByDocCode(fortress, documentCode, false);
+        DocumentType doc = schemaService.resolveByDocCode(fortress, documentName, false);
         if (doc == null) {
-            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentCode, callerRef);
+            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentName, callerRef);
             return null;
         }
         return findByCallerRef(fortress, doc, callerRef);
@@ -445,10 +445,10 @@ public class TrackServiceNeo4j implements TrackService {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
-            if (documentType == null || documentType.getCode() == null ||!(documentType.getCode().equalsIgnoreCase(inputBean.getDocumentType())))
-                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentType());
+            if (documentType == null || documentType.getCode() == null ||!(documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())))
+                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
             TrackResultBean result = createEntity(fortress, documentType, inputBean);
-            logger.trace("Batch Processed {}, callerRef=[{}], documentType=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentType());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
             arb.add(result);
         }
 

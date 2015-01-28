@@ -81,7 +81,7 @@ public class TestJsonEntity {
             entity.setData(theMap, params, reader);
             assertEquals(11, entity.getTags().size());
             assertEquals("hr4015-113", entity.getCallerRef());
-            assertEquals("hr", entity.getDocumentType());
+            assertEquals("hr", entity.getDocumentName());
             assertNotNull(entity.getName());
             for (TagInputBean tagInputBean : entity.getTags()) {
                 if ( tagInputBean.getEntityLinks().get("sponsors")!=null ) {

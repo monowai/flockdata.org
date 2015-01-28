@@ -147,7 +147,7 @@ public class TrackEP {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
-        input.setDocumentType(recordType);
+        input.setDocumentName(recordType);
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);

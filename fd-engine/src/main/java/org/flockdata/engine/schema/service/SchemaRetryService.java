@@ -50,6 +50,6 @@ public class SchemaRetryService {
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public void createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
 
-        schemaService.resolveByDocCode(fortress, inputBean.getDocumentType());
+        schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
     }
 }

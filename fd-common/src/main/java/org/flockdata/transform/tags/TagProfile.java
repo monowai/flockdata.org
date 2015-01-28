@@ -108,10 +108,6 @@ public class TagProfile {
                 '}';
     }
 
-    public boolean getMustExist() {
-        return mustExist;
-    }
-
     public void setMustExist(boolean mustExist) {
         this.mustExist = mustExist;
     }
