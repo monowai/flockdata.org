@@ -104,13 +104,13 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
         Map<String,Object> rlxProperties = new HashMap<>();
 
         if ( colDef.hasRelationshipProps() ) {
-            for (String rlx : colDef.getRelationshipProps()) {
-                if (!thisNode.get(rlx).hasNonNull(rlx))
-                    rlxProperties.put(rlx, thisNode.get(rlx).textValue());
+            for (ColumnDefinition rlx : colDef.getRlxProperties()) {
+                if (!thisNode.get(rlx.getSourceProperty()).hasNonNull(rlx.getSourceProperty()))
+                    rlxProperties.put(rlx.getTargetProperty(), thisNode.get(rlx.getSourceProperty()).textValue());
             }
         }
         setSubTags(tag, colDef.getTargets(), thisNode);
-        String rlx = colDef.getRelationshipName();
+        String rlx = colDef.getRelationship();
 
         if ( rlx==null )
             rlx = "undefined";

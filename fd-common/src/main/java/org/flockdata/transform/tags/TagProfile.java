@@ -45,6 +45,7 @@ public class TagProfile {
     private String condition;// boolean expression that determines if this tag will be created
     private ArrayList<TagProfile> targets;
     private ArrayList<ColumnDefinition>properties;
+    private ArrayList<ColumnDefinition>rlxProperties;
 
     private boolean mustExist;
 
@@ -145,6 +146,10 @@ public class TagProfile {
 
     public ArrayList<ColumnDefinition> getProperties() {
         return properties;
+    }
+
+    public ArrayList<ColumnDefinition> getRlxProperties() {
+        return rlxProperties;
     }
 
     public String getNameExp() {

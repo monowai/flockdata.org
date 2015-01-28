@@ -1,4 +1,3 @@
-
     {
         "documentName": "Bill",
         "contentType": "json",
@@ -17,7 +16,7 @@
                 "tag": true,
                 "code": "thomas_id",
                 "label": "Person",
-                "relationshipName": "sponsored",
+                "relationship": "sponsored",
                 "name": "name",
                 "targets": [
                     {
@@ -43,15 +42,15 @@
                 "tag": true,
                 "delimiter": "array",
                 "label": "Subject",
-                "relationshipName": "covers"
+                "relationship": "covers"
             },
             "cosponsors": {
                 "tag": true,
                 "code": "thomas_id",
                 "name": "name",
                 "label": "Person",
-                "relationshipName": "cosponsors",
-                "relationshipProps": ["sponsored_at"],
+                "relationship": "cosponsors",
+                "rlxProperties": [ {"sourceProperty":"sponsored_at"}],
                 "targets": [
                     {
                         "column": "state",

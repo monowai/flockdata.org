@@ -59,10 +59,11 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     private Map<String, Object> toMap(ProfileConfiguration importProfile, String[] headerRow, String[] line) {
         int col = 0;
+        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, ColumnDefinition> content = importProfile.getContent();
 
-        Map<String, Object> row = new HashMap<>();
-        for (String column : headerRow) {
-            ColumnDefinition colDef = importProfile.getColumnDef(column);
+        for (String column : content.keySet()) {
+            ColumnDefinition colDef = content.get(column);
             if ( line[col]==null || line[col].equals("null"))
                 row.put(column, null);
             else if (NumberUtils.isNumber(line[col])) {
@@ -91,21 +92,24 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
-        Map<String, Object> row = toMap(importProfile, headerRow, line);
+        //Map<String, Object> row = toMap(importProfile, headerRow, line);
         setArchiveTags(importProfile.isArchiveTags());
+        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, ColumnDefinition> content = importProfile.getContent();
 
-        for (String column : headerRow) {
+        for (String column : content.keySet()) {
             column = column.trim();
             ColumnDefinition colDef = importProfile.getColumnDef(column);
 
-            if (colDef != null) {
+            if (colDef != null ) {
                 Object o = row.get(column);
                 String value = null ;
                 if ( o !=null )
                     value = o.toString().trim();
 
                 if (colDef.isDescription()) {
-                    setDescription(row.get(column).toString());
+
+                    setDescription(TransformationHelper.getValue(row, colDef.getNameExp(), colDef, value));
                 }
                 if ( colDef.isCreateDate()){
                     if ( colDef.isDateEpoc()) {
@@ -122,12 +126,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
                 if (colDef.isCallerRef()) {
-                    String callerRef = getCallerRef();
-                    if (callerRef == null)
-                        callerRef = value;
-                    else
-                        callerRef = callerRef + "." + value;
-
+                    String callerRef = TransformationHelper.getValue(row, "callerRefExp", colDef, value);
                     setCallerRef(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
@@ -139,7 +138,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setMustExist(colDef.isMustExist());
                         tagProfile.setColumn(column);
                         tagProfile.setDelimiter(colDef.getDelimiter());
-                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, colDef.getRelationshipName());
+                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, colDef.getRelationship());
                         for (TagInputBean tag : tags) {
                             addTag(tag);
                         }
@@ -147,8 +146,16 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
-                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value))
-                        addTag(tag);
+
+                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value)) {
+                       // if ( colDef.getRelationship()!=null) {
+                         //   tag.addEntityLink(colDef.getRelationship());
+                        //} else {
+                            addTag(tag);
+                        //}
+
+
+                    }
                 }
                 if (colDef.isTitle()) {
                     setName(value);

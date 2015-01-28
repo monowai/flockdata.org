@@ -18,7 +18,7 @@
         "NumberAsString": {
             "type": "String",
             "tag":true,
-            "relationshipName": "subject"
+            "relationship": "subject"
         },
         "created": {
             "createDate":true,
