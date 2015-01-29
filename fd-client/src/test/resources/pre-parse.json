@@ -1,0 +1,44 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "documentName": "PAC",
+  "fortressUser": "mike",
+  "preParseRowExp": "#value.replace('|', ' ').trim()",
+  "header": false,
+  "content": {
+    "1": {
+      "callerRef": true
+    },
+    "3": {
+      "tag": true,
+      "label": "Politician",
+      "mustExist": true,
+      "relationship": "receives",
+      "rlxProperties": [
+        {
+          "sourceProperty": "4",
+          "targetProperty": "amount"
+        }
+      ]
+    },
+    "2": {
+      "tag": true,
+      "label": "InterestGroup",
+      "mustExist": true,
+      "rlxExp": "#row['8']=='D' ?'direct':'indirect'",
+      "properties": [
+        {
+          "sourceProperty": "4",
+          "targetProperty": "amount"
+        }
+      ]
+    },
+    "6": {
+      "tag": true,
+      "label": "OSCategory",
+      "mustExist": true,
+      "relationship": "category"
+    }
+  }
+}

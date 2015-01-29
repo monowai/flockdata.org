@@ -60,6 +60,7 @@ public class ImportProfile implements ProfileConfiguration {
     private FdReader staticDataResolver;
     private String entityKey;
     private String event = null;
+    private String preParseRowExp;
 
     public ImportProfile() {
 
@@ -109,6 +110,13 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
+    public String getPreParseRowExp() {
+        if (preParseRowExp != null && preParseRowExp.equalsIgnoreCase("null"))
+            return null;
+        return preParseRowExp;
+    }
+
+    @Override
     public ContentType getContentType() {
         return contentType;
     }
@@ -128,7 +136,7 @@ public class ImportProfile implements ProfileConfiguration {
 
     @Override
     public char getDelimiter() {
-        if ( delimiter.equals( "\t"))
+        if ( delimiter.equals("\t"))
                 return '\t';
         return delimiter.charAt(0);
     }
@@ -255,5 +263,9 @@ public class ImportProfile implements ProfileConfiguration {
 
     public String getStaticDataClazz() {
         return staticDataClazz;
+    }
+
+    public void setPreParseRowExp(String preParseRowExp) {
+        this.preParseRowExp = preParseRowExp;
     }
 }
