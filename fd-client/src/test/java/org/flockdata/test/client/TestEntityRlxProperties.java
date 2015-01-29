@@ -91,15 +91,22 @@ public class TestEntityRlxProperties {
             assertEquals(4, entityBatch.size());
             for (EntityInputBean entityInputBean : entityBatch) {
                 assertFalse("Expression not parsed for callerRef",entityInputBean.getCallerRef().contains("|"));
-                assertTrue("Tag not set", entityInputBean.getTags().size() == 1);
-                TagInputBean tag = entityInputBean.getTags().iterator().next();
-                assertTrue("Incorrect Label", tag.getLabel().equals("Politician"));
-                assertFalse("Expression not parsed for code", tag.getCode().contains("|"));
-                assertFalse("Expression not parsed for name", tag.getName().contains("|"));
-                HashMap link = (HashMap) tag.getEntityLinks().get("receives");
+                assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
+                TagInputBean politician= null;
+                for (TagInputBean tagInputBean : entityInputBean.getTags()) {
+                    assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
+                    assertEquals("Code and Name should be the same", tagInputBean.getCode(), tagInputBean.getName());
+                    if ( tagInputBean.getLabel().equals("Politician"))
+                        politician= tagInputBean;
+                    if ( tagInputBean.getLabel().equals("InterestGroup")){
+                        assertEquals("direct", tagInputBean.getEntityLinks().keySet().iterator().next());
+                    }
+                }
+                assertNotNull(politician);
+                HashMap link = (HashMap) politician.getEntityLinks().get("receives");
                 assertNotNull(link);
                 assertNotNull(link.get("amount"));
-                Integer.parseInt(link.get("amount").toString());
+                assertTrue("Amount not calculated as a value", Integer.parseInt(link.get("amount").toString()) >0);
 
             }
             ObjectMapper om = new ObjectMapper();

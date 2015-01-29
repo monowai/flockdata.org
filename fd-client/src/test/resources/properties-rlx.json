@@ -2,8 +2,8 @@
   "contentType": "csv",
   "tagOrEntity": "entity",
   "fortressName": "GovTrack",
-  "fortressUser": "mike",
   "documentName": "PAC",
+  "fortressUser": "mike",
   "header": false,
   "content": {
     "1": {
@@ -12,9 +12,10 @@
     },
     "3": {
       "tag": true,
+      "label": "Politician",
       "codeExp": "#row['3'].replace('|', ' ').trim()",
       "nameExp": "#row['3'].replace('|', ' ').trim()",
-      "label": "Politician",
+      "mustExist": true,
       "relationship": "receives",
       "rlxProperties": [
         {
@@ -22,6 +23,28 @@
           "targetProperty": "amount"
         }
       ]
+    },
+    "2": {
+      "tag": true,
+      "label": "InterestGroup",
+      "codeExp": "#row['2'].replace('|', ' ').trim()",
+      "nameExp": "#row['2'].replace('|', ' ').trim()",
+      "mustExist": true,
+      "rlxExp": "#row['8']=='|D|' ?'direct':'indirect'",
+      "properties": [
+        {
+          "sourceProperty": "4",
+          "targetProperty": "amount"
+        }
+      ]
+    },
+    "6": {
+      "tag": true,
+      "label": "OSCategory",
+      "mustExist": true,
+      "codeExp": "#row['6'].replace('|', ' ').trim()",
+      "nameExp": "#row['6'].replace('|', ' ').trim()",
+      "relationship": "category"
     }
   }
 }

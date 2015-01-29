@@ -76,7 +76,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                 if (colDef.isDescription()) {
 
-                    setDescription(TransformationHelper.getValue(row, colDef.getNameExp(), colDef, value));
+                    setDescription(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                 }
                 if ( colDef.isCreateDate()){
                     if ( colDef.isDateEpoc()) {
@@ -93,7 +93,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
                 if (colDef.isCallerRef()) {
-                    String callerRef = TransformationHelper.getValue(row, "callerRefExp", colDef, value);
+                    String callerRef = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CALLER_REF, colDef, value);
                     setCallerRef(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
@@ -105,7 +105,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setMustExist(colDef.isMustExist());
                         tagProfile.setColumn(column);
                         tagProfile.setDelimiter(colDef.getDelimiter());
-                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, colDef.getRelationship());
+                        String relationship = TransformationHelper.getRelationshipName(row, colDef);
+                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship );
                         for (TagInputBean tag : tags) {
                             addTag(tag);
                         }
