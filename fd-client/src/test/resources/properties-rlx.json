@@ -5,16 +5,14 @@
   "documentName": "PAC",
   "fortressUser": "mike",
   "header": false,
+  "quoteCharacter": "|",
   "content": {
     "1": {
-      "callerRef": true,
-      "callerRefExp": "#row['1'].replace('|', ' ').trim()"
+      "callerRef": true
     },
     "3": {
       "tag": true,
       "label": "Politician",
-      "codeExp": "#row['3'].replace('|', ' ').trim()",
-      "nameExp": "#row['3'].replace('|', ' ').trim()",
       "mustExist": true,
       "relationship": "receives",
       "rlxProperties": [
@@ -27,10 +25,8 @@
     "2": {
       "tag": true,
       "label": "InterestGroup",
-      "codeExp": "#row['2'].replace('|', ' ').trim()",
-      "nameExp": "#row['2'].replace('|', ' ').trim()",
       "mustExist": true,
-      "rlxExp": "#row['8']=='|D|' ?'direct':'indirect'",
+      "rlxExp": "#row['8']=='D' ?'direct':'indirect'",
       "properties": [
         {
           "sourceProperty": "4",
@@ -42,8 +38,6 @@
       "tag": true,
       "label": "OSCategory",
       "mustExist": true,
-      "codeExp": "#row['6'].replace('|', ' ').trim()",
-      "nameExp": "#row['6'].replace('|', ' ').trim()",
       "relationship": "category"
     }
   }

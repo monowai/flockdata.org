@@ -98,6 +98,11 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (column != null&& !column.isNull())
             importProfile.setDelimiter(column.asText());
 
+        column = node.get("quoteCharacter");
+        if (column != null&& !column.isNull())
+            importProfile.setQuoteCharacter(column.asText());
+
+
         column = node.get("entityKey");
         if ( column == null )
             column = node.get("metaHeader");// legacy value
