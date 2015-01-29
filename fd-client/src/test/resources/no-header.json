@@ -5,6 +5,7 @@
   "fortressUser": "mike",
   "header": false,
   "delimiter": ",",
+  "quoteCharacter": "|",
   "content": {
     "Institution": {
       "tag": true,

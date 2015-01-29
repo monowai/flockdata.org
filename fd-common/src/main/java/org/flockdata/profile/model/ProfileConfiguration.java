@@ -72,6 +72,8 @@ public interface ProfileConfiguration {
 
     String getPreParseRowExp();
 
+    String getQuoteCharacter();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

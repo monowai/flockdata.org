@@ -50,6 +50,7 @@ public class ImportProfile implements ProfileConfiguration {
     private String clazz = null;
     private String staticDataClazz;
     private String delimiter = ",";
+    private String quoteCharacter = null;
     private boolean header = true;
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportProfile.class);
@@ -65,17 +66,6 @@ public class ImportProfile implements ProfileConfiguration {
     public ImportProfile() {
 
     }
-
-//    public ImportProfile(IStaticDataResolver restClient) {
-//        this.restClient = restClient;
-//    }
-//
-//    public ImportProfile(String clazz, IStaticDataResolver restClient) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-//        this(restClient);
-//        this.clazz = clazz;
-//        this.contentType = ((Mappable) Class.forName(getClazz()).newInstance()).getImporter();
-//
-//    }
 
     public void setHeader(boolean header) {
         this.header = header;
@@ -114,6 +104,15 @@ public class ImportProfile implements ProfileConfiguration {
         if (preParseRowExp != null && preParseRowExp.equalsIgnoreCase("null"))
             return null;
         return preParseRowExp;
+    }
+
+    @Override
+    public String getQuoteCharacter() {
+        return quoteCharacter;
+    }
+
+    public void setQuoteCharacter(String quoteCharacter) {
+        this.quoteCharacter = quoteCharacter;
     }
 
     @Override

@@ -320,7 +320,11 @@ public class FileProcessor {
         List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
-            CSVReader csvReader = new CSVReader(br, importProfile.getDelimiter());
+            CSVReader csvReader ;
+            if ( importProfile.getQuoteCharacter() !=null )
+                csvReader = new CSVReader(br, importProfile.getDelimiter(),importProfile.getQuoteCharacter().charAt(0) );
+            else
+                csvReader = new CSVReader(br, importProfile.getDelimiter());
 
             String[] headerRow = null;
             String[] nextLine;
@@ -338,7 +342,7 @@ public class FileProcessor {
             ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
 
             while ((nextLine = csvReader.readNext()) != null) {
-                if (!nextLine[0].startsWith("#")) {
+                if (!ignoreRow(nextLine)) {
                     rows++;
                     if (rows >= skipCount) {
                         if (rows == skipCount)
@@ -384,10 +388,10 @@ public class FileProcessor {
                             if (!writer.isSimulateOnly())
                                 logger.info("Processed {} ", rows);
                         }
+                    } else {
+                        if (rows % 500 == 0 && !writer.isSimulateOnly())
+                            logger.info("Skipping {} of {}", rows, skipCount);
                     }
-                } else {
-                    if (rows % 500 == 0 && !writer.isSimulateOnly())
-                        logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }
         } finally {
@@ -411,6 +415,10 @@ public class FileProcessor {
         }
 
         return endProcess(watch, rows);
+    }
+
+    private boolean ignoreRow(String[] nextLine) {
+        return nextLine[0].startsWith("#");
     }
 
     private String[] preProcess(String[] row, ProfileConfiguration importProfile) {

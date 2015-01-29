@@ -1,5 +1,4 @@
 #Arbitary test file. See no-header.json for how the profile is handled.
-#Tests that the import process works when no header is present and that the | delimiters are removed
 #
 |2012|,|C00000042|,|Illinois Tool Works|,,|Illinois Tool Works|,|C00000042|,|PB|,||,,|M2300|,|Hoovers|,|N|,|0|,1
 |2012|,|C00000059|,|Hallmark Cards|,,|Hallmark Cards|,|C00000059|,|PB|,||,,|C1400|,|Hvr09|,|N|,|0|,1
