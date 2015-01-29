@@ -227,12 +227,22 @@ public class TransformationHelper {
         if (headerRow == null) {
             // No header row so we will name the columns, starting at 0, by their ordinal
             for (String lineCol : line) {
-                row.put(Integer.toString(col), lineCol);
+                Object value = lineCol;
+                if (NumberUtils.isNumber(lineCol)){
+                     value =NumberUtils.createNumber(lineCol);
+                }
+
+                row.put(Integer.toString(col), value);
                 col++;
             }
         } else {
             for (String column : headerRow) {
-                row.put(column, line[col]);
+                Object value = line[col];
+                if (NumberUtils.isNumber(line[col])){
+                    value =NumberUtils.createNumber(line[col]);
+                }
+
+                row.put(column, value);
                 col++;
             }
         }
@@ -277,11 +287,6 @@ public class TransformationHelper {
 
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
         StandardEvaluationContext context = new StandardEvaluationContext();
-//        try {
-//            context.registerFunction("replace", StringParser.class.getDeclaredMethod("replace", String.class, Character.class));
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
         context.setVariable("row", row);
         return parser.parseExpression(expression).getValue(context);
     }

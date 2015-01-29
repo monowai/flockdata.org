@@ -70,6 +70,8 @@ public interface ProfileConfiguration {
 
     void setDocumentName(String name);
 
+    String getPreParseRowExp();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

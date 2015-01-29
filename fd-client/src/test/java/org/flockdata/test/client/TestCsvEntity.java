@@ -347,7 +347,7 @@ public class TestCsvEntity {
         assertTrue("Title was wrong", colDef.isTitle());
 
         Object o = json.get("NumberAsString");
-        Assert.assertTrue(o instanceof String);
+        Assert.assertTrue(o instanceof Number);
 
         colDef= params.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
