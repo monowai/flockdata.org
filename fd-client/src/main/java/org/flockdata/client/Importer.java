@@ -179,6 +179,8 @@ public class Importer {
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
+                if ( su == null )
+                    throw new FlockException("Unable to connect to FlockData. Is the service running at ["+configuration.getEngineURL()+"]?");
                 if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
