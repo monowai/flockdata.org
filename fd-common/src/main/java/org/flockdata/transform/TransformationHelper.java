@@ -22,6 +22,7 @@ package org.flockdata.transform;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionParser;
@@ -57,34 +58,47 @@ public class TransformationHelper {
         if (colDef.isValueAsProperty()) {
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
-            tag.setName(getValue(row, "nameExp", colDef, column));
-            tag.setCode(getValue(row, "codeExp", colDef, column));
-            if (column != null && value != null)
-                if (Integer.decode(value) != 0) {
+            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
+            tag.setCode(getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
+            if (column != null && value != null) {
+                String relationship = getRelationshipName(row, colDef);
+
+                if (Integer.decode(value) != 0) {  // ToDo? Why is this decoding a 0 from a value??
                     properties.put("value", Integer.decode(value));
                     if (colDef.getName() != null) {
                         tag.addEntityLink(row.get(colDef.getName()).toString(), properties);
-                    } else if (colDef.getRelationship() != null) {
-                        tag.addEntityLink(colDef.getRelationship(), properties);
+                    } else if (relationship != null) {
+                        tag.addEntityLink(relationship, properties);
                     } else
                         tag.addEntityLink("undefined", properties);
                 } else {
                     return false;
                 }
+            }
         } else {
             String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
             String codeValue;
             if (colDef.getCode() != null)
-                codeValue = getValue(row, "codeExp", colDef, row.get(colDef.getCode()).toString());
+                codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, row.get(colDef.getCode()).toString());
             else
-                codeValue = getValue(row, "codeExp", colDef, value);
+                codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
-            if (value == null && colDef.getName() != null)
-                value = row.get(colDef.getName()).toString();
-            tag.setName(getValue(row, "nameExp", colDef, value))
-                    .setMustExist(colDef.isMustExist())
-                    .setLabel(colDef.isCountry() ? "Country" : label);
-            if (colDef.getRelationship() != null) {
+
+            String defaultVal = codeValue;
+
+            if ( colDef.getNameExp()== null && colDef.getName() == null )
+                defaultVal = value; // default to the value passed in
+            else if ( colDef.getName() != null )
+                defaultVal = row.get(colDef.getName()).toString();
+
+            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, defaultVal));
+
+            tag.setMustExist(colDef.isMustExist())
+               .setLabel(colDef.isCountry() ? "Country" : label);
+
+            String relationship = getRelationshipName(row, colDef);
+
+            if (relationship != null) {
                 Map<String, Object> rlxProperties = new HashMap<>();
                 if (colDef.getRlxProperties() != null) {
                     for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
@@ -93,7 +107,7 @@ public class TransformationHelper {
                     }
                 }
 
-                tag.addEntityLink(colDef.getRelationship(), rlxProperties);
+                tag.addEntityLink(relationship, rlxProperties);
             }
 
 
@@ -101,7 +115,7 @@ public class TransformationHelper {
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
                     String sourceCol = thisCol.getSourceProperty();
-                    value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
+                    value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
                     tag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
                 }
             }
@@ -110,8 +124,20 @@ public class TransformationHelper {
         if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row, staticDataResolver);
+        setNestedTags(tag, colDef.getTargets(), row, staticDataResolver
+
+        );
         return true;
+    }
+
+    public static String getRelationshipName(Map<String, Object> row, ColumnDefinition colDef) {
+        if (colDef.getRelationship() != null )
+            return colDef.getRelationship();
+
+        if ( colDef.getRlxExp() == null)
+            return null;
+
+        return getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, Tag.UNDEFINED);
     }
 
     private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {
@@ -139,7 +165,7 @@ public class TransformationHelper {
                     }
                     if (value == null || value.equals("")) {
                         logger.error("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getColumn());
-                        value= "";
+                        value = "";
                         //throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
                     }
                 }
@@ -165,9 +191,9 @@ public class TransformationHelper {
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
                         String sourceCol = thisCol.getSourceProperty();
-                        value = TransformationHelper.getValue(row, "codeExp", thisCol, row.get(sourceCol));
+                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
                         if (newTag != null)
-                            newTag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value,thisCol));
+                            newTag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
                     }
                 }
 
@@ -184,16 +210,14 @@ public class TransformationHelper {
         List<String> tags = Arrays.asList(row.get(tagProfile.getColumn()).toString().split(tagProfile.getDelimiter()));
         Collection<TagInputBean> results = new ArrayList<>();
 
-        for (String tag : tags) {
-            if (tag != null) {
-                TagInputBean newTag = new TagInputBean(tag, entityRelationship)
-                        .setLabel(tagProfile.getLabel());
-                newTag.setReverse(tagProfile.getReverse());
-                newTag.setMustExist(tagProfile.isMustExist());
-                newTag.setLabel(tagProfile.getLabel());
-                results.add(newTag);
-            }
-        }
+        tags.stream().filter(tag -> tag != null).forEach(tag -> {
+            TagInputBean newTag = new TagInputBean(tag, entityRelationship)
+                    .setLabel(tagProfile.getLabel());
+            newTag.setReverse(tagProfile.getReverse());
+            newTag.setMustExist(tagProfile.isMustExist());
+            newTag.setLabel(tagProfile.getLabel());
+            results.add(newTag);
+        });
         return results;
     }
 
@@ -234,11 +258,11 @@ public class TransformationHelper {
 //                    //
 //                }
             //if ( date == null ) // Stash it as a string
-            return  value.toString().trim();
+            return value.toString().trim();
         }
     }
 
-    public static String getValue(Map<String, Object> row, String expCol, ColumnDefinition colDef, Object defaultValue) {
+    public static String getValue(Map<String, Object> row, ColumnDefinition.ExpressionType expCol, ColumnDefinition colDef, Object defaultValue) {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, colDef);
         String expression = colDef.getExpression(expCol);

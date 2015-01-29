@@ -50,7 +50,7 @@ public class TestCSVConcepts {
         assertNotNull(allTargets);
         assertEquals(3, allTargets.size());
         assertEquals("Should have overridden the column name of device_name", "Device", mappedTag.getLabel());
-        assertEquals("Palaxy", mappedTag.getName());
+        assertEquals("Name value should be that of the defined column", "Palaxy", mappedTag.getName());
         assertEquals("PX", mappedTag.getCode());
         assertEquals("Device", mappedTag.getLabel());
         assertNotNull(mappedTag.getProperties().get("RAM"));

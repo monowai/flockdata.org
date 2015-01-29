@@ -35,6 +35,7 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, CALLER_REF}
 
     // Flags that profile the properties of a column
     private boolean callerRef;
@@ -75,17 +76,18 @@ public class ColumnDefinition {
 
     private String[] refColumns;
 
-    private String relationship;
+    private String relationship; // Explicit relationship name
+    private String rlxExp; // Relationship expression
 
     private String delimiter;
 
     private String code;
     private String codeExp;
-    private String targetProperty;
+    private String sourceProperty; // property to read from
+    private String targetProperty; // property to write to (essentially rename the target
 
     private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
-    private String sourceProperty;
 
     public String getLabel() {
         return label;
@@ -178,8 +180,6 @@ public class ColumnDefinition {
     }
 
     public String getRelationship() {
-        if (relationship == null)
-            return (isCountry() ? null : "undefined");
         return relationship;
 
     }
@@ -293,10 +293,6 @@ public class ColumnDefinition {
         return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
     }
 
-//    public void setDateFormat(String dateFormat) {
-//        this.dateFormat = dateFormat;
-//    }
-
     public ArrayList<ColumnDefinition> getRlxProperties() {
         return rlxProperties;
     }
@@ -314,16 +310,20 @@ public class ColumnDefinition {
         return (delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
-    public String getExpression(String expCol) {
+    public String getExpression(ExpressionType expCol) {
         if (expCol == null)
             return null;
         switch (expCol) {
-            case "nameExp":
+            case NAME:
                 return nameExp;
-            case "codeExp":
+            case CODE:
                 return codeExp;
-            case "callerRefExp":
+            case CALLER_REF:
                 return callerRefExp;
+            case RELATIONSHIP:
+                return rlxExp;
+//            case PROP_EXP:
+//                return propExp;
         }
 
         return null;
@@ -355,4 +355,17 @@ public class ColumnDefinition {
         return callerRefExp;
     }
 
+    public String getRlxExp() {
+        return rlxExp;
+    }
+
+    @Override
+    public String toString() {
+        return "ColumnDefinition{" +
+                "label='" + label + '\'' +
+                ", sourceProperty='" + sourceProperty + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }

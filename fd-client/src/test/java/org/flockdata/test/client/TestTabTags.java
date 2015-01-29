@@ -44,8 +44,8 @@ public class TestTabTags {
         Map<String, Object> json = mapper.setData(headers, data, params, reader);
         assertNotNull(json);
         assertNotNull(mapper);
-        assertEquals("F2600", mapper.getCode());
-        assertEquals("Private Equity & Investment Firms", mapper.getName());
+        assertEquals("Code does not match", "F2600", mapper.getCode());
+        assertEquals("Name does not match", "Private Equity & Investment Firms", mapper.getName());
         assertNotNull(mapper.getProperties().get("order"));
         assertEquals(1, mapper.getTargets().size());
     }
