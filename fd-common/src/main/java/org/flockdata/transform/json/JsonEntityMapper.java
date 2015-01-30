@@ -122,7 +122,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
     private void setSubTags(TagInputBean parentTag, ArrayList<TagProfile> subTags, JsonNode jsonNode){
         if ( subTags != null && !subTags.isEmpty()) {
             for (TagProfile subTag : subTags) {
-                String codeValue = jsonNode.get(subTag.getColumn()).textValue();
+                String codeValue = jsonNode.get(subTag.getCode()).textValue();
                 if ( codeValue !=null ) {
                     TagInputBean tagInputBean = new TagInputBean(codeValue);
                     tagInputBean.setLabel(subTag.getLabel());

@@ -103,7 +103,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setLabel(colDef.getLabel());
                         tagProfile.setReverse(colDef.getReverse());
                         tagProfile.setMustExist(colDef.isMustExist());
-                        tagProfile.setColumn(column);
+                        tagProfile.setCode(column);
                         tagProfile.setDelimiter(colDef.getDelimiter());
                         String relationship = TransformationHelper.getRelationshipName(row, colDef);
                         Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship );

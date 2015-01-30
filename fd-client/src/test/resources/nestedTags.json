@@ -18,17 +18,17 @@
             "targets": [
                 {
                     "relationship": "located",
-                    "column": "city",
+                    "code": "city",
                     "label": "City",
                     "targets": [
                         {
                             "relationship": "city",
-                            "column": "state",
+                            "code": "state",
                             "label": "State",
                             "targets": [
                                 {
                                     "relationship": "state",
-                                    "column": "country",
+                                    "code": "country",
                                     "label": "Country",
                                     "mustExist": true
                                 }

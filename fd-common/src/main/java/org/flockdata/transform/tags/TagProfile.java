@@ -29,11 +29,9 @@ import java.util.ArrayList;
  * Time: 3:51 PM
  */
 public class TagProfile {
-    private String column;
     private String name;
     private String nameExp;
     private String code;
-
     private String codeExp;
 
     private Boolean reverse =false;
@@ -48,14 +46,6 @@ public class TagProfile {
     private ArrayList<ColumnDefinition>rlxProperties;
 
     private boolean mustExist;
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(String name) {
-        this.column = name;
-    }
 
     public Boolean getReverse() {
         return reverse;
@@ -83,7 +73,7 @@ public class TagProfile {
      */
     public String getLabel() {
         if ( label == null)
-            return column;
+            return code;
         return label;
     }
 
@@ -102,7 +92,7 @@ public class TagProfile {
     @Override
     public String toString() {
         return "CsvTag{" +
-                "column='" + column + '\'' +
+                "code='" + code + '\'' +
                 ", relationship='" + relationship + '\'' +
                 ", label='" + label + '\'' +
                 '}';

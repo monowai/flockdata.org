@@ -20,14 +20,14 @@
                 "name": "name",
                 "targets": [
                     {
-                        "column": "state",
+                        "code": "state",
                         "label": "State",
                         "relationship": "located",
                         "mustExist": true,
                         "targets": [
                             {
                                 "label": "District",
-                                "column": "district",
+                                "code": "district",
                                 "relationship": "represents"
                             }
                         ]
@@ -53,14 +53,14 @@
                 "rlxProperties": [ {"sourceProperty":"sponsored_at"}],
                 "targets": [
                     {
-                        "column": "state",
+                        "code": "state",
                         "label": "State",
                         "relationship": "located",
                         "mustExist": true,
                         "targets": [
                             {
                                 "label": "District",
-                                "column": "district",
+                                "code": "district",
                                 "relationship": "represents"
                             }
                         ]

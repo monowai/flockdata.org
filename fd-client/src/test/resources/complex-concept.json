@@ -20,7 +20,7 @@
             "mustExist": false,
             "targets": [
                 {
-                    "column": "Athlete",
+                    "code": "Athlete",
                     "relationship": "competes-in",
                     "reverse": true
                 }
@@ -31,7 +31,7 @@
             "mustExist": false,
             "targets": [
                 {
-                    "column": "Athlete",
+                    "code": "Athlete",
                     "relationship": "at-age"
                 }
             ]
