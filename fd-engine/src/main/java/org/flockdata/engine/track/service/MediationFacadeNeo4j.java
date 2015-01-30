@@ -22,6 +22,7 @@ package org.flockdata.engine.track.service;
 import com.google.common.collect.Lists;
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.engine.schema.service.SchemaRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
@@ -36,7 +37,8 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.search.model.*;
+import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -121,6 +123,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
     TagRetryService tagRetryService;
 
     @Autowired
+    IndexRetryService IndexRetryService;
+
+    @Autowired
     KvService kvService;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
@@ -138,7 +143,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         //Collection<String> existing = tagService.getExistingIndexes();
-        schemaService.ensureUniqueIndexes(company, tagInputs);
+        IndexRetryService.ensureUniqueIndexes(company, tagInputs);
         Collection<Tag> results;
         try {
             results = tagRetryService.createTags(company, tagInputs);

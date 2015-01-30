@@ -147,9 +147,9 @@ public class SchemaDaoNeo4j {
      * @param company   who owns the tags
      * @param tagInputs collection to process
      */
-    @Async("fd-engine")
+    //@Async("fd-engine")
     @Transactional
-    public Future<Boolean> ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
+    public Boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
         Collection<String> toCreate = new ArrayList<>();
 
 
@@ -180,17 +180,16 @@ public class SchemaDaoNeo4j {
 
         if (toCreate.size() > 0) {
             try {
-                labelLock.lock();
-                return new AsyncResult<>(
-                        makeLabelIndexes(toCreate)
-                );
+                //labelLock.lock();
+                return
+                        makeLabelIndexes(toCreate);
 
             } finally {
-                labelLock.unlock();
+                //labelLock.unlock();
             }
 
         }
-        return new AsyncResult<>(Boolean.TRUE);
+        return true ;
     }
 
 

@@ -210,7 +210,7 @@ public class LogRetryService {
             content.setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLog newLog = entityDao.addLog(entity, preparedLog, contentWhen, lastLog);
+        EntityLog newLog = entityDao.addLog(entity, preparedLog, contentWhen);
 
         resultBean.setFdWhen(newLog.getSysWhen());
 

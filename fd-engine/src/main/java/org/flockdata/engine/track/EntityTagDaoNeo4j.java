@@ -90,7 +90,7 @@ public class EntityTagDaoNeo4j {
     public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
         // ToDo: this will only set properties for the "current" tag to Entity. it will not version it.
         if (relationshipName == null) {
-            relationshipName = "GENERAL_TAG";
+            relationshipName = Tag.UNDEFINED;
         }
         if (tag == null)
             throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
@@ -114,10 +114,12 @@ public class EntityTagDaoNeo4j {
         Node start = (isReversed ? entityNode : tagNode);
         Node end = (isReversed ? tagNode : entityNode);
 
-        Relationship r = template.getRelationshipBetween(start, end, relationshipName);
+        if ( !entity.isNew()) {
+            Relationship r = template.getRelationshipBetween(start, end, relationshipName);
 
-        if (r != null) {
-            return rel;
+            if (r != null) {
+                return rel;
+            }
         }
 
         long lastUpdate = entity.getFortressDateUpdated();

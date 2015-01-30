@@ -21,7 +21,7 @@ package org.flockdata.kv.memory;
 
 import org.flockdata.kv.KvRepo;
 import org.flockdata.kv.bean.KvContentBean;
-import org.flockdata.track.bean.EntityBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +44,12 @@ public class MapRepo implements KvRepo {
         map.put(contentBean.getLogId(), contentBean.getEntityContent());
     }
 
-    public byte[] getValue(EntityBean entity, Log forLog) {
+    public byte[] getValue(Entity entity, Log forLog) {
 
         return map.get(forLog.getId());
     }
 
-    public void delete(EntityBean entity, Log log) {
+    public void delete(Entity entity, Log log) {
         map.remove(log.getId());
     }
 

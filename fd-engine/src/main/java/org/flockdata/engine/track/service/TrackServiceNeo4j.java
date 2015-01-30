@@ -125,7 +125,9 @@ public class TrackServiceNeo4j implements TrackService {
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
-            arb.setTags(entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
+            arb.setTags(
+                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags())
+            );
             return arb;
         }
 
@@ -135,8 +137,14 @@ public class TrackServiceNeo4j implements TrackService {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
+        // Flag the entity as having been newly created. The flag is transient and
+        // this saves on having to pass the property as a method variable when
+        // associating the tags
+        entity.setNew();
         TrackResultBean resultBean = new TrackResultBean(entity, entityInputBean);
-        resultBean.setTags(entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags()));
+        resultBean.setTags(
+                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
+        );
 
         resultBean.setContentInput(entityInputBean.getLog());
         return resultBean;

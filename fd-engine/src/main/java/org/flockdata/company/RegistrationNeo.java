@@ -25,6 +25,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -48,6 +49,7 @@ public class RegistrationNeo implements RegistrationDao {
         return suRepo.save((SystemUserNode) systemUser);
     }
 
+    @Cacheable (value = "sysUserApiKey", unless = "#result==null")
     public SystemUser findByApiKey(String apiKey){
         if ( apiKey == null )
             return null;
