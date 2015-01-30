@@ -64,8 +64,6 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Non transactional coordinator for mediation services
@@ -139,10 +137,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        Collection<String> existing = tagService.getExistingIndexes();
-        schemaService.ensureUniqueIndexes(company, tagInputs, existing);
+        //Collection<String> existing = tagService.getExistingIndexes();
+        schemaService.ensureUniqueIndexes(company, tagInputs);
         Collection<Tag> results;
-        //for (TagInputBean tag : tagInputs) {
         try {
             results = tagRetryService.createTags(company, tagInputs);
         } catch (IOException e) {
