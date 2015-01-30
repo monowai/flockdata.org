@@ -8,14 +8,15 @@
             timeToLiveSeconds="120"
             memoryStoreEvictionPolicy="LRU"/>
 
-
-
     <cache name="fortressDocType"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
-
+    <cache name="sysUserApiKey"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="fortressUser"
            maxElementsInMemory="200"

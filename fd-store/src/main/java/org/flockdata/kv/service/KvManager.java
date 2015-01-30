@@ -34,7 +34,6 @@ import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.Log;
@@ -193,7 +192,7 @@ public class KvManager implements KvService {
         if (log == null)
             return null;
         try {
-            byte[] entityContent = getKvRepo(log).getValue(new EntityBean(entity), log);
+            byte[] entityContent = getKvRepo(log).getValue(entity, log);
             if (entityContent != null)
                 return new EntityContentData(entityContent, log);
 
@@ -206,7 +205,7 @@ public class KvManager implements KvService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(new EntityBean(entity), change);
+        getKvRepo(change).delete(entity, change);
     }
 
 
@@ -228,6 +227,11 @@ public class KvManager implements KvService {
         while (content == null && count < timeout) {
             count++;
             content = getContent(entity, compareFrom);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                throw new FlockServiceException("Interrupted while retrieving KVContent");
+            }
         }
 
         if (count >= timeout)

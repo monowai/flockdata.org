@@ -84,7 +84,7 @@ public class RiakRepo implements KvRepo {
         return entity.getFortress().getIndexName() + "/" + entity.getDocumentType().toLowerCase();
     }
 
-    public byte[] getValue(EntityBean entity, Log forLog) {
+    public byte[] getValue(Entity entity, Log forLog) {
         try {
             Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
@@ -101,7 +101,7 @@ public class RiakRepo implements KvRepo {
         return null;
     }
 
-    public void delete(EntityBean entity, Log log) {
+    public void delete(Entity entity, Log log) {
         try {
             Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
             bucket.delete(String.valueOf(log.getId())).execute();

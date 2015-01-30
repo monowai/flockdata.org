@@ -107,7 +107,7 @@
             "type": "multi_field",
 
             "fields": {
-              "code": {
+              "name": {
                 "index": "not_analyzed",
                 "type": "string",
                 "doc_values": true,

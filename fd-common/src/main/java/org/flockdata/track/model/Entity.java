@@ -138,4 +138,8 @@ public interface Entity {
     void bumpSearch();
 
     void addLabel(String label);
+
+    boolean isNew();
+
+    void setNew();
 }
