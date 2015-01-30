@@ -151,37 +151,46 @@ public class SchemaDaoNeo4j {
     @Transactional
     public Future<Boolean> ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
         Collection<String> toCreate = new ArrayList<>();
-        try {
-            labelLock.lock();
-            Collection<String> knownLabels = template.getGraphDatabase().getAllLabelNames();
-            for (TagInputBean tagInput : tagInputs) {
-                if (tagInput != null) {
-                    logger.trace("Checking label for {}", tagInput);
-                    String label = tagInput.getLabel();
-                    if (!knownLabels.contains(label) && !toCreate.contains(label)) {
-                        logger.debug("Creating label for {}", tagInput);
-                        //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
-                        if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
-                            //makeIndexForTag(tagInput);
-                            toCreate.add(tagInput.getLabel());
-                            knownLabels.add(tagInput.getLabel());
-                        }
-                    }
-                    if (!tagInput.getTargets().isEmpty()) {
-                        for (String key : tagInput.getTargets().keySet()) {
-                            if (key != null)
-                                ensureUniqueIndexes(company, tagInput.getTargets().get(key));
-                        }
-                    }
-                } else
-                    logger.debug("Why is this null?");
 
-            }
-            return new AsyncResult<>(makeLabelIndexes(toCreate));
-        } finally {
-            labelLock.unlock();
+
+        Collection<String> knownLabels = template.getGraphDatabase().getAllLabelNames();
+        for (TagInputBean tagInput : tagInputs) {
+            if (tagInput != null) {
+                logger.trace("Checking label for {}", tagInput);
+                String label = tagInput.getLabel();
+                if (!knownLabels.contains(label) && !toCreate.contains(label)) {
+                    logger.debug("Creating label for {}", tagInput);
+                    //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
+                    if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
+                        //makeIndexForTag(tagInput);
+                        toCreate.add(tagInput.getLabel());
+                        knownLabels.add(tagInput.getLabel());
+                    }
+                }
+                if (!tagInput.getTargets().isEmpty()) {
+                    for (String key : tagInput.getTargets().keySet()) {
+                        if (key != null)
+                            ensureUniqueIndexes(company, tagInput.getTargets().get(key));
+                    }
+                }
+            } else
+                logger.debug("Why is this null?");
+
         }
 
+        if (toCreate.size() > 0) {
+            try {
+                labelLock.lock();
+                return new AsyncResult<>(
+                        makeLabelIndexes(toCreate)
+                );
+
+            } finally {
+                labelLock.unlock();
+            }
+
+        }
+        return new AsyncResult<>(Boolean.TRUE);
     }
 
 
