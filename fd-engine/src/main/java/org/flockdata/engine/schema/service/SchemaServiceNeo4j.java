@@ -172,12 +172,10 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
-    public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes) {
+    public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
         try {
-            return schemaDao.ensureUniqueIndexes(company, tagInputs, existingIndexes).get();
-        } catch (InterruptedException e) {
-            logger.error("Unexpected", e);
-        } catch (ExecutionException e) {
+            return schemaDao.ensureUniqueIndexes(company, tagInputs).get();
+        } catch (InterruptedException | ExecutionException e) {
             logger.error("Unexpected", e);
         }
         return false;
