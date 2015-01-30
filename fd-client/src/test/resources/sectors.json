@@ -12,11 +12,11 @@
       "name": "Catname",
       "targets": [
         {
-          "column": "Industry",
+          "code": "Industry",
           "label": "OSIndustry",
           "relationship": "comprises",
           "targets": [{
-            "column": "Sector",
+            "code": "Sector",
             "name": "Sector Long",
             "label": "OSSector",
             "relationship": "industry"

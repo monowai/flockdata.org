@@ -20,7 +20,7 @@
             ],
             "targets": [
                 {
-                    "column": "BGN_capital",
+                    "code": "BGN_capital",
                     "label": "City",
                     "relationship": "capital",
                     "condition": "#row[HasCapital].trim().equals('1')",

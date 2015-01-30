@@ -156,7 +156,7 @@ public class TransformationHelper {
 
         for (TagProfile tagProfile : tagsToAnalyse) {
             if (evaluateTag(tagProfile, row)) {
-                Object value = row.get(tagProfile.getColumn());
+                Object value = row.get(tagProfile.getCode());
 
                 if (value == null || value.equals("")) {
                     String codeExp = tagProfile.getCodeExp();
@@ -164,7 +164,7 @@ public class TransformationHelper {
                         value = evaluateExpression(row, codeExp);
                     }
                     if (value == null || value.equals("")) {
-                        logger.error("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getColumn());
+                        logger.error("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         value = "";
                         //throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
                     }
@@ -207,7 +207,7 @@ public class TransformationHelper {
     }
 
     public static Collection<TagInputBean> getTagsFromList(TagProfile tagProfile, Map<String, Object> row, String entityRelationship) {
-        List<String> tags = Arrays.asList(row.get(tagProfile.getColumn()).toString().split(tagProfile.getDelimiter()));
+        List<String> tags = Arrays.asList(row.get(tagProfile.getCode()).toString().split(tagProfile.getDelimiter()));
         Collection<TagInputBean> results = new ArrayList<>();
 
         tags.stream().filter(tag -> tag != null).forEach(tag -> {
