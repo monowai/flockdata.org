@@ -123,7 +123,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     TagRetryService tagRetryService;
 
     @Autowired
-    IndexRetryService IndexRetryService;
+    IndexRetryService indexRetryService;
 
     @Autowired
     KvService kvService;
@@ -141,9 +141,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
+    @Async ("fd-engine")
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        //Collection<String> existing = tagService.getExistingIndexes();
-        IndexRetryService.ensureUniqueIndexes(company, tagInputs);
+        indexRetryService.ensureUniqueIndexes(company, tagInputs);
         Collection<Tag> results;
         try {
             results = tagRetryService.createTags(company, tagInputs);

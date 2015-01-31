@@ -221,21 +221,9 @@ public class KvManager implements KvService {
     public boolean isSame(Entity entity, Log compareFrom, Log compareTo) {
         if (compareFrom == null)
             return false;
-        EntityContent content = null;
-        int count = 0;
-        int timeout = 10;
-        while (content == null && count < timeout) {
-            count++;
-            content = getContent(entity, compareFrom);
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                throw new FlockServiceException("Interrupted while retrieving KVContent");
-            }
-        }
 
-        if (count >= timeout)
-            logger.error("Timeout looking for KV What data for [{}] [{}]", entity, compareFrom);
+        // ToDo: Retryable - what if KV store is down?
+        EntityContent content = getContent(entity, compareFrom);
 
         if (content == null)
             return false;

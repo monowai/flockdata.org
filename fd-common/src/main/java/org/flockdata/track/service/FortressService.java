@@ -52,7 +52,6 @@ public interface FortressService {
 
     FortressUser getFortressUser(Fortress fortress, String fortressUser);
 
-    //    @Cacheable(value = "fortressUser", unless = "#result==null" )
     FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
 
     Collection<Fortress> findFortresses() throws FlockException;
