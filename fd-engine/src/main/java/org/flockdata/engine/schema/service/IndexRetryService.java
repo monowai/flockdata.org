@@ -51,8 +51,8 @@ public class IndexRetryService {
     private SchemaService schemaService;
 
     @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
-    public void ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
-        schemaService.ensureUniqueIndexes(company, tagInputs);
+    public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
+        return schemaService.ensureUniqueIndexes(company, tagInputs);
     }
 
 }

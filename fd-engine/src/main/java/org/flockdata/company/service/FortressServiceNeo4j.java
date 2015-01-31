@@ -21,22 +21,23 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.company.FortressDaoNeo;
+import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
+import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.helper.SecurityHelper;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,7 +114,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p/>
+     * <p>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -132,7 +133,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p/>
+     * <p>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -141,20 +142,20 @@ public class FortressServiceNeo4j implements FortressService {
      * @return fortressUser identity
      */
     @Override
+    @Cacheable(value = "fortressUser", unless = "#result==null")
     public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
     }
 
-    //    @Cacheable(value = "fortressUser", unless = "#result==null" )
     @Override
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
             throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
 
-        FortressUser fu = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
-        if (createIfMissing && fu == null)
-            fu = addFortressUser(fortress, fortressUser.toLowerCase().trim());
-        return fu;
+        FortressUser result = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
+        if (createIfMissing && result == null)
+            result = addFortressUser(fortress, fortressUser.toLowerCase().trim());
+        return result;
     }
 
     private FortressUser addFortressUser(Fortress fortress, String fortressUser) {

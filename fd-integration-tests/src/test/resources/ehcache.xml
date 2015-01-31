@@ -23,4 +23,11 @@
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
+    <!--Caching the fact we have created this label index already-->
+    <cache name="labels"
+           maxElementsInMemory="1000"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
+
 </ehcache>

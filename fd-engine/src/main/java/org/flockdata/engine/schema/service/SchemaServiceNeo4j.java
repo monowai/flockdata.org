@@ -34,11 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -172,7 +172,8 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
-    public boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
+    @Async("fd-engine")
+    public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
         //try {
             return schemaDao.ensureUniqueIndexes(company, tagInputs);
 //        } catch (InterruptedException | ExecutionException e) {
