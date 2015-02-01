@@ -321,9 +321,12 @@ public class EntityDaoNeo {
         } else {
             newChange = template.save(newChange);
             setLatest(entity);
+            // Need to refresh the log
+//            template.fetch(newChange.getEntityLog());
         }
 
         logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
+        // Saving the entity causes the Log properties to be lazy initialised. If the caller wants these, then they need to fetch the object
         return newChange.getEntityLog();
     }
 

@@ -105,22 +105,22 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Allows the fd-engine services to be tested against fd-search with actual integration.
  * fd-search is stated by Cargo as a Tomcat server.
  * fd-engine runs as a usual Spring test runner.
- * <p/>
+ * <p>
  * This approach requires RabbitMQ and REDIS to be installed to allow integration to occur.
- * <p/>
+ * <p>
  * No web interface is launched for fd-engine
- * <p/>
+ * <p>
  * Make sure that you create unique User ids for your test.
- * <p/>
+ * <p>
  * To run the integration suite:
  * mvn clean install -P integration
- * <p/>
+ * <p>
  * If you want to debug engine then you add to your command line
  * -Dfd.debug=true -DforkCount=0
- * <p/>
+ * <p>
  * To debug the search service refer to the commented line in pom.xml where the
  * default port is set to 8000
- * <p/>
+ * <p>
  * User: nabil, mike
  * Date: 16/07/13
  * Time: 22:51
@@ -282,7 +282,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_companyAndFortressWithSpaces() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## track_companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -527,11 +527,12 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
 
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
-        // ensure that non-analysed tags work
+        // ensure non-analysed tags work
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
-        // Exact match...
+        // Analyzed tags require exact match...
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Happy Days", 1);
-        // We now have 1 content with tags validated in ES
+        doEsQuery( result.getEntity().getFortress().getIndexName(), "happy days", 1);
+        // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
         content = new ContentInputBean("wally", new DateTime(), getRandomMap());
@@ -541,19 +542,38 @@ public class TestFdIntegration {
         entityInput.setContent(content);
         result = mediationFacade.trackEntity(su.getCompany(), entityInput);
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
+
+        Entity entity = result.getEntity();
+        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        assertEquals(2, tags.size());
+        boolean sadFound = false, daysFound = false;
+
+        for (EntityTag tag : tags) {
+            if (tag.getTag().getCode().equalsIgnoreCase("sad days"))
+                sadFound = true;
+            else if (tag.getTag().getCode().equalsIgnoreCase("days bay"))
+                daysFound = true;
+        }
+        assertTrue("Did not find the days tag", daysFound);
+        assertTrue("Did not find the sad tag", sadFound);
         // We now have 2 logs, sad tags, no happy tags
 
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 1);
+        // If this fails, search changes are probably not being dispatched
+        String json = doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 1);
+        Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
+        Long whenDate = Long.parseLong(searchDoc.get("when").toString());
+        assertTrue("Fortress when was not set in to searchDoc", whenDate > 0);
+        assertEquals(whenDate, entity.getFortressDateUpdated());
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 1);
         // These were removed in the update
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 0);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code.raw", "happy days", 0);
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 0);
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code.raw", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
-        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
-        assertEquals(2, tags.size());
+        Collection<EntityTag> entityTags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
+        assertEquals(2, entityTags.size());
 
         // These should have been added back in due to the cancel operation
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
@@ -618,7 +638,7 @@ public class TestFdIntegration {
         qp.setSimpleQuery("*");
         String queryResult = runMetaQuery(qp);
         assertNotNull(queryResult);
-        assertTrue ( "Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,") );
+        assertTrue("Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,"));
 //        logger.info(queryResult);
 
         // Two search docs,but one without a metaKey
@@ -769,7 +789,7 @@ public class TestFdIntegration {
 
     @Test
     public void tag_ReturnsSingleSearchResult() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
@@ -923,7 +943,7 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void amqp_TrackEntity () throws Exception {
+    public void amqp_TrackEntity() throws Exception {
         assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
@@ -939,7 +959,7 @@ public class TestFdIntegration {
                 "localhost",
                 "int.fd.track.exchange",
                 "int.fd.track.queue",
-                "int.fd.track.binding" );
+                "int.fd.track.binding");
 
         AmqpHelper helper = new AmqpHelper(configuration);
 

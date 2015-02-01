@@ -202,7 +202,6 @@ public class LogRetryService {
         // Prepares the change
         content.setChangeEvent(preparedLog.getEvent());
         resultBean.setWhatLog(preparedLog);
-//        resultBean.setEntity(entity);
 
         if (entity.getId() == null)
             content.setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
@@ -214,7 +213,7 @@ public class LogRetryService {
 
         resultBean.setFdWhen(newLog.getSysWhen());
 
-        boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(newLog.getFortressWhen()) <= 0);
+        boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(contentWhen.getMillis()) <= 0);
 
         if (moreRecent && fortress.isSearchActive())
             resultBean.setLogToIndex(newLog);  // Notional log to index.
