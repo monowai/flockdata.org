@@ -101,7 +101,7 @@ public class KvManager implements KvService {
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
      */
-    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"}, requiresReply = "false")
+    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"kv.retry"}, requiresReply = "false")
     public Boolean doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
@@ -113,6 +113,7 @@ public class KvManager implements KvService {
             logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
             //           resolve the underlying DB problem
             throw new FlockServiceException(errorMsg, e); // Keep the message on the queue
+            // ToDo: The exception above will attempt redelivery ~immediately.
         }
         return Boolean.TRUE;
     }
