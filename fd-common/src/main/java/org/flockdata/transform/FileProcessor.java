@@ -258,14 +258,15 @@ public class FileProcessor {
             mappable.positionReader(xsr);
             List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
-            String docType = mappable.getDataType();
+            String dataType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
-                while (xsr.getLocalName().equals(docType)) {
+                while (xsr.getLocalName().equals(dataType)) {
 
                     XmlMappable row = mappable.newInstance(writer.isSimulateOnly());
-                    ContentInputBean contentInputBean = row.setXMLData(xsr, getStaticDataResolver(importProfile, writer));
+
+                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile, getStaticDataResolver(importProfile, writer));
                     EntityInputBean entityInputBean = (EntityInputBean) row;
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
