@@ -19,7 +19,7 @@
     <int:gateway id="kvGateway" async-executor="fd-store"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
-    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
+    <int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
     </int:handler-retry-advice>
 
