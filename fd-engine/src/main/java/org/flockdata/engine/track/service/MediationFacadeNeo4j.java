@@ -141,7 +141,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    @Async ("fd-engine")
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
         indexRetryService.ensureUniqueIndexes(company, tagInputs);
         Collection<Tag> results;
@@ -166,7 +165,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException illegal input
      * @throws IOException                         json processing exception
      */
-    @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"retrier"})
+    @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
     public TrackResultBean trackEntity(EntityInputBean inputBean, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: A collection??
         logger.debug("trackEntity activation");

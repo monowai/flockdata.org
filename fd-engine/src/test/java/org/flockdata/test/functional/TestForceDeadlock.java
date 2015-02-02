@@ -26,7 +26,7 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -104,38 +103,48 @@ public class TestForceDeadlock extends EngineBase {
         String monowai = "Monowai";
         SystemUser su = registerSystemUser(monowai, mike_admin);
         setSecurity();
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
-        String docType = "TestAuditX";
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+        String docType = "entitiesUnderLoad";
         Thread.sleep(500);
 
-        //CountDownLatch latch = new CountDownLatch(4);
-        ArrayList<TagInputBean> tags = getTags(10);
 
-        Map<Integer, CallerRefRunner> runners = new HashMap<>();
-        int threadMax = 15;
-        Map<Integer, Future<Collection<TrackResultBean>>> futures = new HashMap<>();
-        for (int i = 0; i < threadMax; i++) {
-            CallerRefRunner runner = addRunner(fortress, docType, "ABC" + i, 20, tags);
-            runners.put(i, runner);
-            List<EntityInputBean> inputBeans = runners.get(i).getInputBeans();
-            Future<Collection<TrackResultBean>> runResult = (Future<Collection<TrackResultBean>>) mediationFacade.trackEntitiesAsync(su.getCompany(), inputBeans);
-            futures.put(i,runResult );
+        int tagCount = 4; // unique tags per entity - tags are shared across the entities
+        int docCount = 1; // how many entities per run
+        int threadMax = 10; // Each thread will create a unique document type
+        ArrayList<TagInputBean> tags = getTags(tagCount);
+
+
+        Map<Integer, EntityRunner> runners = new HashMap<>();
+
+        CountDownLatch latch = new CountDownLatch(threadMax);
+        //Map<Integer, Future<Collection<TrackResultBean>>> futures = new HashMap<>();
+        for (int thread = 0; thread < threadMax; thread++) {
+            EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch);
+            runners.put(thread, runner);
         }
-
+        latch.await();
         for (int i = 0; i < threadMax; i++) {
-            Future<Collection<TrackResultBean>> future = futures.get(i);
-            if (future != null) {
-                while (!future.isDone()) {
-                    Thread.yield();
-                }
-                doFutureWorked(future, runners.get(i).getMaxRun());
+            while (runners.get(i) == null || !runners.get(i).isDone()) {
+                Thread.yield();
             }
+            assertEquals("Error occurred creating entities under load", true, runners.get(i).isWorked());
+        }
+        for (Integer integer : runners.keySet()) {
+            assertEquals(true, runners.get(integer).isWorked());
         }
         assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
 
         Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
         assertEquals(false, createdTags.isEmpty());
-        assertEquals(10, createdTags.size());
+        assertEquals(tagCount, createdTags.size());
+
+        for (int thread = 0; thread < threadMax; thread++) {
+            for ( int count =0; count < docCount; count ++ ) {
+                Entity entity = trackService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                assertNotNull(entity);
+                assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
+            }
+        }
     }
 
     private ArrayList<TagInputBean> getTags(int tagCount) {
@@ -143,25 +152,19 @@ public class TestForceDeadlock extends EngineBase {
         for (int i = 0; i < tagCount; i++) {
             TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
             tag.setLabel("Deadlock");
-            TagInputBean subTag = new TagInputBean("subtag" +i);
+            TagInputBean subTag = new TagInputBean("subtag" + i);
             subTag.setLabel("DeadlockSub");
-            tag.setTargets("subtag",subTag);
+            tag.setTargets("subtag", subTag);
             tags.add(tag);
         }
         return tags;
     }
 
-    private void doFutureWorked(Future<Collection<TrackResultBean>> future, int count) throws Exception {
-        while (!future.isDone()) {
-            Thread.yield();
-        }
-        assertEquals(count, future.get().size());
-
-    }
-
-    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags) {
-
-        return new CallerRefRunner(callerRef, docType, fortress, tags, docCount);
+    private EntityRunner addEntityRunner(SystemUser su, Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags, CountDownLatch latch) {
+        EntityRunner runner = new EntityRunner(su, callerRef, docType, fortress, tags, docCount, latch);
+        Thread thread = new Thread(runner);
+        thread.start();
+        return runner;
     }
 
     private TagRunner addTagRunner(Fortress fortress, int docCount, List<TagInputBean> tags, CountDownLatch latch) {
@@ -172,47 +175,72 @@ public class TestForceDeadlock extends EngineBase {
         return runner;
     }
 
-    class CallerRefRunner  {
+    class EntityRunner implements Runnable {
         String docType;
         String callerRef;
         Fortress fortress;
         int maxRun = 30;
         List<EntityInputBean> inputBeans;
         Collection<TagInputBean> tags;
+        SystemUser su;
+        CountDownLatch latch;
+        int count = 0;
 
         boolean worked = false;
+        private boolean done;
 
-        public CallerRefRunner(String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun) {
+        public EntityRunner(SystemUser su, String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun, CountDownLatch latch) {
             this.callerRef = callerRef;
             this.docType = docType;
             this.fortress = fortress;
             this.tags = tags;
+            this.latch = latch;
             this.maxRun = maxRun;
-            inputBeans = new ArrayList<>(maxRun);
+            this.su = su;
+            inputBeans = new ArrayList<>();
+            int count = 0;
+            while (count < maxRun) {
+                EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
+                inputBean.setTags(tags);
+                inputBeans.add(inputBean);
+                count ++;
+            }
         }
 
         public int getMaxRun() {
             return maxRun;
         }
 
-        public List<EntityInputBean> getInputBeans() {
-            int count = 0;
-            setSecurity();
-            try {
-                while (count < maxRun) {
-                    EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
-                    inputBean.setTags(tags);
-                    inputBeans.add(inputBean);
-                    count++;
-                }
-                worked = true;
-            } catch (Exception e) {
-                worked = false;
-                logger.error("Help!!", e);
-            }
-            return inputBeans;
+        public boolean isWorked() {
+            return worked;
         }
 
+        @Override
+        public void run() {
+            try {
+                worked = false;
+                for (EntityInputBean inputBean : inputBeans) {
+                    mediationFacade.trackEntity(inputBean, su.getApiKey());
+                }
+
+                worked = true;
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            } finally {
+                done = true;
+                latch.countDown();
+            }
+
+
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public boolean isDone() {
+            return done;
+        }
 
     }
 
@@ -255,8 +283,6 @@ public class TestForceDeadlock extends EngineBase {
                 latch.countDown();
                 done = true;
             }
-
-
         }
 
         public boolean isDone() {

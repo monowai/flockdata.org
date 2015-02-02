@@ -439,12 +439,13 @@ public class FdRestWriter implements FdWriter {
 
     private void logServerMessages(ResponseEntity<ArrayList> response) {
         ArrayList x = response.getBody();
-        for (Object val : x) {
-            Map map = (Map) val;
-            Object serviceMessage = map.get("serviceMessage");
-            if (serviceMessage != null)
-                logger.error("Service returned [{}]", serviceMessage.toString());
-        }
+        if ( x!=null )
+            for (Object val : x) {
+                Map map = (Map) val;
+                Object serviceMessage = map.get("serviceMessage");
+                if (serviceMessage != null)
+                    logger.error("Service returned [{}]", serviceMessage.toString());
+            }
     }
 
     public void ensureFortress(String fortressName) throws FlockException {
