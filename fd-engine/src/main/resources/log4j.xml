@@ -126,7 +126,7 @@
         <level value="${fd.logLevel}"/>
     </logger>
     <logger name="org.flockdata.engine.tag">
-        <level value="info"/>
+        <level value="${fd.logLevel}"/>
     </logger>
     <logger name="org.flockdata.engine.schema">
         <level value="${fd.logLevel}"/>

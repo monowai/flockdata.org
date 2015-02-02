@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,17 +140,13 @@ public class SchemaDaoNeo4j {
     /**
      * Make sure a unique index exists for the tag
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
-     *
      * @param company   who owns the tags
      * @param tagInputs collection to process
+     * @param knownLabels All labels already known to exist in Neo4j
      */
-    //@Async("fd-engine")
-    @Transactional
-    public Boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs) {
+    public Boolean ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
         Collection<String> toCreate = new ArrayList<>();
 
-
-        Collection<String> knownLabels = template.getGraphDatabase().getAllLabelNames();
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
                 logger.trace("Checking label for {}", tagInput);
@@ -166,7 +163,7 @@ public class SchemaDaoNeo4j {
                 if (!tagInput.getTargets().isEmpty()) {
                     for (String key : tagInput.getTargets().keySet()) {
                         if (key != null)
-                            ensureUniqueIndexes(company, tagInput.getTargets().get(key));
+                            ensureUniqueIndexes(company, tagInput.getTargets().get(key), knownLabels);
                     }
                 }
             } else
@@ -175,13 +172,18 @@ public class SchemaDaoNeo4j {
         }
 
         if (toCreate.size() > 0) {
-                return makeLabelIndexes(toCreate);
+            return makeLabelIndexes(toCreate);
 
         }
-        return Boolean.TRUE ;
+        return Boolean.TRUE;
     }
 
+    @Transactional
+    public Collection<String> getAllLabels() {
+        return template.getGraphDatabase().getAllLabelNames();
+    }
 
+    @Transactional
     public Boolean makeLabelIndexes(Collection<String> labels) {
         for (String label : labels) {
             makeLabelIndex(label);
@@ -191,10 +193,15 @@ public class SchemaDaoNeo4j {
 
     @Cacheable("labels")
     public boolean makeLabelIndex(String label) {
-        template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
-        // Tag alias also have a unique key
-        template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
-        logger.debug("Tag constraint created - [{}]", label);
+        try {
+            template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
+            // Tag alias also have a unique key
+            template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
+            logger.debug("Tag constraint created - [{}]", label);
+        } catch (DataAccessException e) {
+            logger.debug("Data Access Exception. Retry should occur - " + e.getLocalizedMessage());
+
+        }
         return true;
     }
 

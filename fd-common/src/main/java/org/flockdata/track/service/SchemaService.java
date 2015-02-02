@@ -56,4 +56,6 @@ public interface SchemaService {
 
     Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs);
 
+    public Collection<String> getKnownLabels();
+
 }

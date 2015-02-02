@@ -164,8 +164,9 @@ public class TransformationHelper {
                         value = evaluateExpression(row, codeExp);
                     }
                     if (value == null || value.equals("")) {
-                        logger.error("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
-                        value = "";
+                        logger.debug("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
+//                        value = "";
+                        return setInTo;
                         //throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
                     }
                 }

@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +64,7 @@ public class SchemaServiceNeo4j implements SchemaService {
      */
     @Override
     @Transactional
-    @Cacheable(value="fortressDocType", key="#fortress.id+#documentCode ", unless = "#result==null")
+    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
@@ -130,7 +129,7 @@ public class SchemaServiceNeo4j implements SchemaService {
      * Locates all tags in use by the associated document types
      *
      * @param company           who the caller works for
-     * @param documentNames         labels to restrict the search by
+     * @param documentNames     labels to restrict the search by
      * @param withRelationships should the relationships also be returned
      * @return tags that are actually in use
      */
@@ -172,13 +171,12 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
-    @Async("fd-engine")
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
-        //try {
-            return schemaDao.ensureUniqueIndexes(company, tagInputs);
-//        } catch (InterruptedException | ExecutionException e) {
-//            logger.error("Unexpected", e);
-//        }
-        //return false;
+        return schemaDao.ensureUniqueIndexes(company, tagInputs, schemaDao.getAllLabels());
+    }
+
+    @Transactional
+    public Collection<String> getKnownLabels() {
+        return schemaDao.getAllLabels();
     }
 }

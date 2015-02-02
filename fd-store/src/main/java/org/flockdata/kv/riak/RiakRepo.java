@@ -34,29 +34,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class RiakRepo implements KvRepo {
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private IRiakClient client = null;
-    private Lock lock = new ReentrantLock();
 
+    RiakRepo () {
+        try {
+            getClient();
+        } catch (RiakException e) {
+            logger.error(e.getLocalizedMessage());
+        }
+    }
     private IRiakClient getClient() throws RiakException {
         if (client == null) {
-            try {
-                lock.lock();
-                if (client == null) {
-                    // ToDo: set server and host
-                    client = RiakFactory.pbcClient();
-                    client.generateAndSetClientId();
-
-                }
-            } finally {
-                lock.unlock();
-            }
+            // ToDo: set server and host
+            client = RiakFactory.pbcClient();
+            client.generateAndSetClientId();
 
         }
         return client;

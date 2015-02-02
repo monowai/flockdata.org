@@ -31,7 +31,6 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
@@ -44,15 +43,17 @@ import java.util.List;
  */
 @EnableRetry
 @Service
-@Async("fd-engine")
 public class IndexRetryService {
 
     @Autowired
     private SchemaService schemaService;
 
-    @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+    @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
+            maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
         return schemaService.ensureUniqueIndexes(company, tagInputs);
     }
+
+
 
 }
