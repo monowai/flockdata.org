@@ -171,11 +171,11 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
+    @Transactional
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
-        return schemaDao.ensureUniqueIndexes(company, tagInputs, schemaDao.getAllLabels());
+        return schemaDao.ensureUniqueIndexes(tagInputs, schemaDao.getAllLabels());
     }
 
-    @Transactional
     public Collection<String> getKnownLabels() {
         return schemaDao.getAllLabels();
     }

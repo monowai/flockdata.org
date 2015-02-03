@@ -22,10 +22,12 @@ package org.flockdata.engine.schema.service;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.service.SchemaService;
-import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
@@ -48,12 +50,21 @@ public class IndexRetryService {
     @Autowired
     private SchemaService schemaService;
 
-    @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
+    private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
+
+    @Retryable(include =  {HeuristicRollbackException.class,
+            DataRetrievalFailureException.class,
+            InvalidDataAccessResourceUsageException.class,
+            ConcurrencyFailureException.class,
+            DataAccessException.class,
+            DeadlockDetectedException.class},
             maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
-        return schemaService.ensureUniqueIndexes(company, tagInputs);
+        logger.debug("Checking tag uniqueness");
+        Boolean result =  schemaService.ensureUniqueIndexes(company, tagInputs);
+        logger.debug("result " + result);
+        return result;
     }
-
-
 
 }

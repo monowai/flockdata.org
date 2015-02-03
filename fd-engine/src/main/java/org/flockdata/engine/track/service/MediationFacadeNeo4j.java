@@ -142,7 +142,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        indexRetryService.ensureUniqueIndexes(company, tagInputs);
+        boolean schemaReady = false;
+        do {
+            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputs);
+        } while (!schemaReady);
+        logger.debug("Schema Indexes appear to be in place");
         Collection<Tag> results;
         try {
             results = tagRetryService.createTags(company, tagInputs);
@@ -168,7 +172,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
     public TrackResultBean trackEntity(EntityInputBean inputBean, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: A collection??
-        logger.debug("trackEntity activation");
+        logger.trace("trackEntity activation");
         //EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
