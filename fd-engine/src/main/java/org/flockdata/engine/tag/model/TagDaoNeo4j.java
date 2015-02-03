@@ -158,7 +158,7 @@ public class TagDaoNeo4j {
         // ToDo - idea = create all tagInputs first then just create the relationships
         Tag tag = save(company, associatedTag, createdValues, suppressRelationships);
         if (suppressRelationships)
-            return ;
+            return;
         Node endNode = template.getNode(tag.getId());
 
         Long startId = (!associatedTag.isReverse() ? startNode : endNode.getId());
@@ -166,7 +166,7 @@ public class TagDaoNeo4j {
 
         String key = rlxName + ":" + startId + ":" + endId;
         if (createdValues.contains(key))
-            return ;
+            return;
 
         //logger.info("Creating RLX {}, {}, {}", rlxName, startId, endId);
         String cypher = "match startNode, endNode where " +
@@ -244,6 +244,21 @@ public class TagDaoNeo4j {
      */
     @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findTag(Company company, String tagCode, String label) {
+        Node n = findTagNode(company, tagCode, label);
+        Tag tagResult ;
+
+        if (n == null) {
+            logger.debug("findTag notFound {}, {}", tagCode, label);
+            return null;
+        }
+        tagResult = template.projectTo(n, TagNode.class);
+
+        return tagResult;// No tag found
+
+    }
+
+    //@Cacheable(value = "companyTag", unless = "#result == null")
+    public Node findTagNode(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
@@ -263,39 +278,38 @@ public class TagDaoNeo4j {
         params.put("tagKey", parseKey(tagCode));
         Result<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
-        Tag tagResult = null;
+        Node node = null;
+        Node nodeResult = null;
         while (results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
             //
             if (mapResult != null) {
 
-                Node n = null;
                 if (mapResult.get("t") != null)
-                    n = (Node) mapResult.get("t");
+                    node = (Node) mapResult.get("t");
                 else if (mapResult.get("tag") != null)
-                    n = (Node) mapResult.get("tag");
+                    node = (Node) mapResult.get("tag");
 
-                if (n == null) {
+                if (node == null) {
                     logger.debug("findTag notFound {}, {}", tagCode, label);
                     return null;
                 }
-                if (tagResult == null) {
-                    tagResult = template.projectTo(n, TagNode.class);
-                    logger.trace("findTag found {}, {}", tagResult.getCode(), label);
+                if (nodeResult == null) {
+                    nodeResult = node;
+                    logger.trace("findTag found {}, {}", tagCode, label);
                 } else {
                     //ToDo: Constraints occur "eventually" in Neo4j.
                     // under concurrent load you could wind up with multiple tags for the same code even
                     // in a transaction!
                     // here we ensure only one is ever returned and we will tidy up the extras
-                    Tag toDelete = template.projectTo(n, TagNode.class);
-                    template.delete(toDelete);
-                    logger.debug("delete the duplicate " + toDelete);
+                    //Tag toDelete = template.projectTo(n, TagNode.class);
+                    template.delete(node);
+                    logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
                 }
             }
         }
-        //logger.debug("findTag notFound {}, {}", tagCode, label);
-        return tagResult;// No tag found
+        return nodeResult;
 
     }
 

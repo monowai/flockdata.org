@@ -69,7 +69,8 @@ public class EntityBean {
             fortressDateCreated = entity.getFortressDateCreated();
             if (entity.getLastUser()!=null )
                 lastUser = entity.getLastUser().getCode();
-            createdUser= entity.getCreatedBy().getCode();
+            if ( createdUser !=null )
+                createdUser= entity.getCreatedBy().getCode();
         }
     }
 
