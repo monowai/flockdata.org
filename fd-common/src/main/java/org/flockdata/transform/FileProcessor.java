@@ -40,6 +40,9 @@ import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StopWatch;
 
 import javax.xml.bind.JAXBException;
@@ -255,14 +258,15 @@ public class FileProcessor {
             mappable.positionReader(xsr);
             List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
-            String docType = mappable.getDataType();
+            String dataType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
-                while (xsr.getLocalName().equals(docType)) {
+                while (xsr.getLocalName().equals(dataType)) {
 
                     XmlMappable row = mappable.newInstance(writer.isSimulateOnly());
-                    ContentInputBean contentInputBean = row.setXMLData(xsr, getStaticDataResolver(importProfile, writer));
+
+                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile, getStaticDataResolver(importProfile, writer));
                     EntityInputBean entityInputBean = (EntityInputBean) row;
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
@@ -317,15 +321,21 @@ public class FileProcessor {
         List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
-            CSVReader csvReader = new CSVReader(br, importProfile.getDelimiter());
+            CSVReader csvReader ;
+            if ( importProfile.getQuoteCharacter() !=null )
+                csvReader = new CSVReader(br, importProfile.getDelimiter(),importProfile.getQuoteCharacter().charAt(0) );
+            else
+                csvReader = new CSVReader(br, importProfile.getDelimiter());
 
             String[] headerRow = null;
             String[] nextLine;
-            if (mappable.hasHeader()) {
+            if (importProfile.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!((!nextLine[0].equals("") && (nextLine[0].charAt(0) == '#')||nextLine[0].charAt(1)=='#'))) {
-                        headerRow = nextLine;
-                        break;
+                    if (!nextLine[0].equals("")) {
+                        if (!(((nextLine[0].charAt(0) == '#') || nextLine[0].charAt(1) == '#'))) {
+                            headerRow = nextLine;
+                            break;
+                        }
                     }
                 }
             }
@@ -333,14 +343,14 @@ public class FileProcessor {
             ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
 
             while ((nextLine = csvReader.readNext()) != null) {
-                if (!nextLine[0].startsWith("#")) {
+                if (!ignoreRow(nextLine)) {
                     rows++;
                     if (rows >= skipCount) {
                         if (rows == skipCount)
                             logger.info("Starting to process from row {}", skipCount);
 
                         row = (DelimitedMappable) importProfile.getMappable();
-
+                        nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile, getStaticDataResolver(importProfile, writer));
                         //logger.info(jsonData);
@@ -360,7 +370,7 @@ public class FileProcessor {
                                 entityInputBean.setContent(contentInputBean);
                             }
                             if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
                                 rows = rows + entityInputBean.getCrossReferences().size();
                             }
 
@@ -379,10 +389,10 @@ public class FileProcessor {
                             if (!writer.isSimulateOnly())
                                 logger.info("Processed {} ", rows);
                         }
+                    } else {
+                        if (rows % 500 == 0 && !writer.isSimulateOnly())
+                            logger.info("Skipping {} of {}", rows, skipCount);
                     }
-                } else {
-                    if (rows % 500 == 0 && !writer.isSimulateOnly())
-                        logger.info("Skipping {} of {}", rows, skipCount);
                 }
             }
         } finally {
@@ -406,6 +416,35 @@ public class FileProcessor {
         }
 
         return endProcess(watch, rows);
+    }
+
+    private boolean ignoreRow(String[] nextLine) {
+        return nextLine[0].startsWith("#");
+    }
+
+    private String[] preProcess(String[] row, ProfileConfiguration importProfile) {
+        String[] result = new String[row.length];
+        String exp = importProfile.getPreParseRowExp();
+        if ((exp == null || exp.equals("")))
+            return row;
+        int i = 0;
+        for (String column : row) {
+
+            Object value = evaluateExpression(column, exp);
+            result[i] = value.toString();
+            i++;
+
+
+        }
+        return result;
+    }
+
+    private static final ExpressionParser parser = new SpelExpressionParser();
+
+    private static Object evaluateExpression(Object value, String expression) {
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("value", value);
+        return parser.parseExpression(expression).getValue(context);
     }
 
     private static Reader getReader(String file) throws NotFoundException {

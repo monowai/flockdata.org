@@ -84,7 +84,7 @@ public class SearchServiceFacade {
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
     //
-    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"retrier"})
+    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
     public Boolean searchDocSyncResult(byte[] searchResults) throws IOException {
         return searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
@@ -264,7 +264,6 @@ public class SearchServiceFacade {
                 changes.add(change);
         }
         makeChangesSearchable(changes);
-//        return new AsyncResult<>(null);
     }
 
     private SearchChange getSearchChange(Fortress fortress, TrackResultBean trackResultBean) {

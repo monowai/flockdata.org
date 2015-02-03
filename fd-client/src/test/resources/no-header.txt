@@ -1,0 +1,8 @@
+#Arbitary test file. See no-header.json for how the profile is handled.
+#
+|2012|,|C00000042|,|Illinois Tool Works|,,|Illinois Tool Works|,|C00000042|,|PB|,||,,|M2300|,|Hoovers|,|N|,|0|,1
+|2012|,|C00000059|,|Hallmark Cards|,,|Hallmark Cards|,|C00000059|,|PB|,||,,|C1400|,|Hvr09|,|N|,|0|,1
+|2012|,|C00000422|,|American Medical Assn|,|American Medical Assn|,|American Medical Assn|,|C00000422|,|PB|,||,,|H1100|,|AFP88|,|N|,|0|,1
+|2012|,|C00000489|,|Teamsters Local 886|,|Teamsters Union|,|Teamsters Union|,|C00000489|,|PL|,||,,|LT300|,|Name|,|N|,|0|,1
+|2012|,|C00000547|,|Kansas Medical Assn|,|American Medical Assn|,|American Medical Assn|,|C00000547|,|PB|,||,,|H1100|,|AFP88|,|N|,|0|,1
+|2014|,|C00094581|,|Mutual of Omaha|,|Mutual of Omaha|,|Mutual of Omaha|,|C00094581|,|PB|,,,|F3100|,|Hoovers|,|N|,|0|,1

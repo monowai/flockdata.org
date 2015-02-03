@@ -21,34 +21,7 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${org.springframework-version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.security</groupId>-->
-            <!--<artifactId>spring-security-core</artifactId>-->
-            <!--<version>${org.springsecurity-version}</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-aop</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-beans</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-core</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-framework</artifactId>-->
-                <!--</exclusion>-->
 
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework</groupId>-->
-                    <!--<artifactId>spring-expression</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -96,6 +69,12 @@
             <artifactId>spring-batch-core</artifactId>
             <version>${org.springbatch-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+
         <dependency>
             <groupId>de.grundid.opendatalab</groupId>
             <artifactId>geojson-jackson</artifactId>

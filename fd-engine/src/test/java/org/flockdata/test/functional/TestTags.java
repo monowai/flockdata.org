@@ -410,5 +410,38 @@ public class TestTags extends EngineBase {
         assertTrue(found);
     }
 
+    @Test
+    public void add_newRelationshipExistingTag() throws Exception {
+        engineConfig.setMultiTenanted(false);
+
+        SystemUser iSystemUser = registerSystemUser("sameKeyForDifferentTagTypes", mike_admin);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setLabel(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        List<TagInputBean> tagInputs = new ArrayList<>();
+        tagInputs.add(tagInputA);
+        Collection<Tag>tagResults ;
+        tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
+        assertEquals(1, tagResults.size());
+        Tag tagA = tagResults.iterator().next();
+
+        tagInputA.setTargets("blah", new TagInputBean("BBBB").setLabel(":TB"));
+        mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
+
+        Tag subTag = tagService.findTag(iSystemUser.getCompany(), "TB", "BBBB");
+        assertNotNull(subTag);
+        tagService.findTag(iSystemUser.getCompany(), "BBBB");
+        assertNotNull(subTag);
+
+        Collection<Tag> tags = tagService.findDirectedTags(tagA);
+        assertEquals(1, tags.size());
+        for (Tag tag : tags) {
+            assertEquals("BBBB", tag.getCode());
+        }
+
+    }
+
 
 }

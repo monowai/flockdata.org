@@ -10,7 +10,7 @@
             "code": "code",
             "targets": [
                 {
-                    "column": "country",
+                    "code": "country",
                     "label": "Country",
                     "mustExist": true,
                     "relationship": "region"

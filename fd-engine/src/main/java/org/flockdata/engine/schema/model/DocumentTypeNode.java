@@ -62,10 +62,10 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     protected DocumentTypeNode() {
     }
 
-    public DocumentTypeNode(Fortress fortress, String documentType) {
+    public DocumentTypeNode(Fortress fortress, String documentName) {
         this();
-        this.name = documentType;
-        this.code = parse(fortress, documentType);
+        this.name = documentName;
+        this.code = parse(fortress, documentName);
 
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
@@ -136,7 +136,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     }
 
     public static String parse(Fortress fortress, String documentType) {
-//        return documentType.toLowerCase().replaceAll("\\s", ".");
+//        return documentName.toLowerCase().replaceAll("\\s", ".");
         return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 

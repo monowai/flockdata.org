@@ -61,7 +61,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
                         if ( colDef.isDescription())
                             setDescription(nodeField.asText());
                         if ( colDef.isDocument())
-                            setDocumentType(nodeField.asText());
+                            setDocumentName(nodeField.asText());
                         if ( colDef.isTag())
                             addTag(getTagFromNode(nodeField, colDef));
 
@@ -104,13 +104,13 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
         Map<String,Object> rlxProperties = new HashMap<>();
 
         if ( colDef.hasRelationshipProps() ) {
-            for (String rlx : colDef.getRelationshipProps()) {
-                if (!thisNode.get(rlx).hasNonNull(rlx))
-                    rlxProperties.put(rlx, thisNode.get(rlx).textValue());
+            for (ColumnDefinition rlx : colDef.getRlxProperties()) {
+                if (!thisNode.get(rlx.getSourceProperty()).hasNonNull(rlx.getSourceProperty()))
+                    rlxProperties.put(rlx.getTargetProperty(), thisNode.get(rlx.getSourceProperty()).textValue());
             }
         }
         setSubTags(tag, colDef.getTargets(), thisNode);
-        String rlx = colDef.getRelationshipName();
+        String rlx = colDef.getRelationship();
 
         if ( rlx==null )
             rlx = "undefined";
@@ -122,7 +122,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
     private void setSubTags(TagInputBean parentTag, ArrayList<TagProfile> subTags, JsonNode jsonNode){
         if ( subTags != null && !subTags.isEmpty()) {
             for (TagProfile subTag : subTags) {
-                String codeValue = jsonNode.get(subTag.getColumn()).textValue();
+                String codeValue = jsonNode.get(subTag.getCode()).textValue();
                 if ( codeValue !=null ) {
                     TagInputBean tagInputBean = new TagInputBean(codeValue);
                     tagInputBean.setLabel(subTag.getLabel());

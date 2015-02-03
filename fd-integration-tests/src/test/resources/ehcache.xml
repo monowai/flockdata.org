@@ -8,18 +8,26 @@
             timeToLiveSeconds="120"
             memoryStoreEvictionPolicy="LRU"/>
 
-
-
     <cache name="fortressDocType"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
-
+    <cache name="sysUserApiKey"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="fortressUser"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
+
+    <!--Caching the fact we have created this label index already-->
+    <cache name="labels"
+           maxElementsInMemory="1000"
+           eternal="true"
+           memoryStoreEvictionPolicy="LRU"/>
+
 
 </ehcache>

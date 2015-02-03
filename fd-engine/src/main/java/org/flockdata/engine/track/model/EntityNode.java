@@ -89,7 +89,6 @@ public class EntityNode implements Entity {
 
     private long fortressCreate;
 
-
     @GraphId
     private Long id;
 
@@ -115,6 +114,10 @@ public class EntityNode implements Entity {
 
     @Transient
     private String indexName;
+
+    @Transient
+    boolean isNew = false;
+
 
     EntityNode() {
 
@@ -142,7 +145,8 @@ public class EntityNode implements Entity {
 
         if ( docType == null )
             throw new RuntimeException("Unable to resolve the doc type code ["+documentType+"] for  "+entityInput)  ;
-        assert docType != null;
+
+        isNew = true;
 
         docType = docType.toLowerCase();
         callerRef = entityInput.getCallerRef();
@@ -361,5 +365,14 @@ public class EntityNode implements Entity {
 
     public void addLabel(String label){
         labels.add(label);
+    }
+
+    public void setNew() {
+        this.isNew = true;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
     }
 }

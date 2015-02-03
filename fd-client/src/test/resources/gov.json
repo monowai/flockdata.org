@@ -1,4 +1,3 @@
-
     {
         "documentName": "Bill",
         "contentType": "json",
@@ -17,18 +16,18 @@
                 "tag": true,
                 "code": "thomas_id",
                 "label": "Person",
-                "relationshipName": "sponsored",
+                "relationship": "sponsored",
                 "name": "name",
                 "targets": [
                     {
-                        "column": "state",
+                        "code": "state",
                         "label": "State",
                         "relationship": "located",
                         "mustExist": true,
                         "targets": [
                             {
                                 "label": "District",
-                                "column": "district",
+                                "code": "district",
                                 "relationship": "represents"
                             }
                         ]
@@ -43,25 +42,25 @@
                 "tag": true,
                 "delimiter": "array",
                 "label": "Subject",
-                "relationshipName": "covers"
+                "relationship": "covers"
             },
             "cosponsors": {
                 "tag": true,
                 "code": "thomas_id",
                 "name": "name",
                 "label": "Person",
-                "relationshipName": "cosponsors",
-                "relationshipProps": ["sponsored_at"],
+                "relationship": "cosponsors",
+                "rlxProperties": [ {"sourceProperty":"sponsored_at"}],
                 "targets": [
                     {
-                        "column": "state",
+                        "code": "state",
                         "label": "State",
                         "relationship": "located",
                         "mustExist": true,
                         "targets": [
                             {
                                 "label": "District",
-                                "column": "district",
+                                "code": "district",
                                 "relationship": "represents"
                             }
                         ]

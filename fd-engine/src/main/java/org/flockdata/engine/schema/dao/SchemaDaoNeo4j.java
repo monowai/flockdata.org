@@ -29,25 +29,23 @@ import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
+import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
  * based on Entities, DocumentTypes, Tags and Relationships
- * <p/>
+ * <p>
  * User: mike
  * Date: 3/04/14
  * Time: 7:30 AM
@@ -99,18 +97,18 @@ public class SchemaDaoNeo4j {
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
      * @param fortress        fortress generating
-     * @param docCode         name of the Label
+     * @param docName         name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String docCode, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, docCode);
+    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docName);
 
         if (docResult == null && createIfMissing) {
-            docResult = documentExists(fortress, docCode);
+            docResult = documentExists(fortress, docName);
             if (docResult == null) {
 
-                docResult = template.save(new DocumentTypeNode(fortress, docCode));
+                docResult = template.save(new DocumentTypeNode(fortress, docName));
             }
         }
         return docResult;
@@ -131,8 +129,8 @@ public class SchemaDaoNeo4j {
         assert fortress != null;
         String arg = new StringBuilder().append(fortress.getCompany().getId()).append(".").append(DocumentTypeNode.parse(fortress, docCode)).toString();
         return documentTypeRepo.findFortressDocCode(arg);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docCode));
-        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docCode));
+        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docName));
+        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docName));
 //        return dt;
     }
 
@@ -144,70 +142,101 @@ public class SchemaDaoNeo4j {
     /**
      * Make sure a unique index exists for the tag
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
-     *
-     * @param company   who owns the tags
-     * @param tagInputs collection to process
+     *  @param tagInputs   collection to process
+     * @param knownLabels All labels already known to exist in Neo4j
      */
-    @Async("fd-engine")
-    public Future<Boolean> ensureUniqueIndexes(Company company, Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
-        Collection<String> toCreate = new ArrayList<>();
+    public Boolean ensureUniqueIndexes(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
+        Collection<String> toCreate = getLabelsToCreate(tagInputs, knownLabels);
+        int size = toCreate.size();
 
+        if (size > 0) {
+            logger.debug("Made " + size + " labels");
+            return makeConstraints(toCreate);
+        }
+        logger.debug("No label constraints required");
+
+        return Boolean.TRUE;
+    }
+
+    private Collection<String> getLabelsToCreate(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
+        Collection<String> toCreate = new ArrayList<>();
         for (TagInputBean tagInput : tagInputs) {
             if (tagInput != null) {
                 logger.trace("Checking label for {}", tagInput);
                 String label = tagInput.getLabel();
                 if (!knownLabels.contains(label) && !toCreate.contains(label)) {
-                    logger.debug("Creating label for {}", tagInput);
-                    //if (index != null && !tagExists(company, index)) { // This check causes deadlocks in TagEP ?
                     if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
-                        //makeIndexForTag(tagInput);
+                        logger.debug("Calculated candidate label index for [" + tagInput.getLabel() + "]");
                         toCreate.add(tagInput.getLabel());
                         knownLabels.add(tagInput.getLabel());
                     }
                 }
                 if (!tagInput.getTargets().isEmpty()) {
-                    for (String key : tagInput.getTargets().keySet()) {
-                        if (key != null)
-                            ensureUniqueIndexes(company, tagInput.getTargets().get(key), knownLabels);
-                    }
+                    tagInput.getTargets()
+                            .keySet()
+                            .stream()
+                            .filter(key
+                                    -> key != null)
+                            .forEach(key
+                                    -> toCreate.addAll(getLabelsToCreate(tagInput.getTargets().get(key), knownLabels)));
                 }
             } else
                 logger.debug("Why is this null?");
 
         }
-        return new AsyncResult<>(makeLabelIndexes(toCreate));
+        return toCreate;
 
     }
 
     @Transactional
-    public Boolean makeLabelIndexes(Collection<String> labels) {
+    public Collection<String> getAllLabels() {
+//        logger.debug(ArrayUtils.toString(template.getGraphDatabase().getAllLabelNames()));
+        return template.getGraphDatabase().getAllLabelNames();
+    }
+
+    @Transactional
+    public Boolean makeConstraints(Collection<String> labels) {
+        boolean made = false;
         for (String label : labels) {
-            makeLabelIndex(label);
+            if (!made && makeLabelConstraint(label))
+                made = true;
         }
-        return true;
+//        if (made) {
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        return Boolean.TRUE;
     }
 
-    boolean makeIndexForTag(TagInputBean tagInput) {
-        // _Tag is a special label that can be used to find all tags so we have to allow it to handle duplicates
-        String label = tagInput.getLabel();
-
-        makeLabelIndex(label);
-        return true;
-
-    }
-
-    Lock labelLock = new ReentrantLock();
-
-    private void makeLabelIndex(String label) {
+    @Cacheable("labels")
+    @Transactional
+    public boolean makeLabelConstraint(String label) {
         try {
-            labelLock.lock();
+//            http://neo4j.com/docs/stable/graphdb-neo4j-schema.html#graphdb-neo4j-schema-indexes
+            logger.debug("Begin tag constraint - [{}]", label);
+
+            // Constraint automatically creates and index
             template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
+
             // Tag alias also have a unique key
             template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
             logger.debug("Tag constraint created - [{}]", label);
-        } finally {
-            labelLock.unlock();
+            Iterable<ConstraintDefinition> result;
+            //do {
+//            result = template.getGraphDatabaseService().schema().getConstraints(DynamicLabel.label(label));
+//            for (ConstraintDefinition constraintDefinition : result) {
+//
+//            }
+            //}while (writeable);
+
+        } catch (DataAccessException e) {
+            logger.debug("Tag constraint error. Retry should occur - " + e.getLocalizedMessage());
+            throw (e);
         }
+        return true;
     }
 
     public Boolean ensureSystemIndexes(Company company, String suffix) {

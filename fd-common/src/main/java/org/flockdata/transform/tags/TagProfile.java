@@ -29,7 +29,6 @@ import java.util.ArrayList;
  * Time: 3:51 PM
  */
 public class TagProfile {
-    private String column;
     private String name;
     private String nameExp;
     private String code;
@@ -44,16 +43,9 @@ public class TagProfile {
     private String condition;// boolean expression that determines if this tag will be created
     private ArrayList<TagProfile> targets;
     private ArrayList<ColumnDefinition>properties;
+    private ArrayList<ColumnDefinition>rlxProperties;
 
     private boolean mustExist;
-
-    public String getColumn() {
-        return column;
-    }
-
-    public void setColumn(String name) {
-        this.column = name;
-    }
 
     public Boolean getReverse() {
         return reverse;
@@ -81,7 +73,7 @@ public class TagProfile {
      */
     public String getLabel() {
         if ( label == null)
-            return column;
+            return code;
         return label;
     }
 
@@ -100,14 +92,10 @@ public class TagProfile {
     @Override
     public String toString() {
         return "CsvTag{" +
-                "column='" + column + '\'' +
+                "code='" + code + '\'' +
                 ", relationship='" + relationship + '\'' +
                 ", label='" + label + '\'' +
                 '}';
-    }
-
-    public boolean getMustExist() {
-        return mustExist;
     }
 
     public void setMustExist(boolean mustExist) {
@@ -144,6 +132,22 @@ public class TagProfile {
 
     public ArrayList<ColumnDefinition> getProperties() {
         return properties;
+    }
+
+    public ArrayList<ColumnDefinition> getRlxProperties() {
+        return rlxProperties;
+    }
+
+    public String getNameExp() {
+        return nameExp;
+    }
+
+    public String getCodeExp() {
+        return codeExp;
+    }
+
+    public boolean isMustExist() {
+        return mustExist;
     }
 
     public boolean hasProperites() {

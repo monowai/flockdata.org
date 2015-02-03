@@ -233,11 +233,17 @@ public class EntitySearchChange implements SearchChange {
             Map<String, Object> tagValues = this.tagValues.get(tag.getTagType().toLowerCase());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
+                // ToDo: Figure out if we need the Tags label as a property
+                // tag.relationship.label.code - too long?
+                // -or-
+                // tag.label.relationship.code
+                // If label and relationship are equal then only one property is written
                 this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
             }
 
-//            setTagValue("name", tag.getTag().getName(), tagValues);
             setTagValue("code", tag.getTag().getCode(), tagValues);
+            if ( !tag.getTag().getCode().equals(tag.getTag().getName()))
+                setTagValue("name", tag.getTag().getName(), tagValues);
 
             if (tag.getGeoData() != null) {
                 setTagValue("iso", tag.getGeoData().getIsoCode().toUpperCase(), tagValues);
@@ -250,6 +256,15 @@ public class EntitySearchChange implements SearchChange {
             if (!tag.getTagProperties().isEmpty())
                 tagValues.put("props", tag.getTagProperties());
         }
+    }
+
+    private String parseTagType(EntityTag tag) {
+        String code = tag.getTag().getCode();
+        String type = tag.getTagType();
+        if ( code.equals(type))
+            return code;
+
+        return null;
     }
 
     private void setTagValue(String key, Object value, Map<String, Object> masterValues) {

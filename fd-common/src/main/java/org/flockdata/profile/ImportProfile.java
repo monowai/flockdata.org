@@ -49,7 +49,8 @@ public class ImportProfile implements ProfileConfiguration {
     private DataType tagOrEntity;
     private String clazz = null;
     private String staticDataClazz;
-    private char delimiter = ',';
+    private String delimiter = ",";
+    private String quoteCharacter = null;
     private boolean header = true;
     private String fortressUser;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportProfile.class);
@@ -60,21 +61,11 @@ public class ImportProfile implements ProfileConfiguration {
     private FdReader staticDataResolver;
     private String entityKey;
     private String event = null;
+    private String preParseRowExp;
 
     public ImportProfile() {
 
     }
-
-//    public ImportProfile(IStaticDataResolver restClient) {
-//        this.restClient = restClient;
-//    }
-//
-//    public ImportProfile(String clazz, IStaticDataResolver restClient) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-//        this(restClient);
-//        this.clazz = clazz;
-//        this.contentType = ((Mappable) Class.forName(getClazz()).newInstance()).getImporter();
-//
-//    }
 
     public void setHeader(boolean header) {
         this.header = header;
@@ -109,6 +100,22 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
+    public String getPreParseRowExp() {
+        if (preParseRowExp != null && preParseRowExp.equalsIgnoreCase("null"))
+            return null;
+        return preParseRowExp;
+    }
+
+    @Override
+    public String getQuoteCharacter() {
+        return quoteCharacter;
+    }
+
+    public void setQuoteCharacter(String quoteCharacter) {
+        this.quoteCharacter = quoteCharacter;
+    }
+
+    @Override
     public ContentType getContentType() {
         return contentType;
     }
@@ -128,10 +135,12 @@ public class ImportProfile implements ProfileConfiguration {
 
     @Override
     public char getDelimiter() {
-        return delimiter;
+        if ( delimiter.equals("\t"))
+                return '\t';
+        return delimiter.charAt(0);
     }
 
-    public void setDelimiter(char delimiter) {
+    public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -253,5 +262,9 @@ public class ImportProfile implements ProfileConfiguration {
 
     public String getStaticDataClazz() {
         return staticDataClazz;
+    }
+
+    public void setPreParseRowExp(String preParseRowExp) {
+        this.preParseRowExp = preParseRowExp;
     }
 }

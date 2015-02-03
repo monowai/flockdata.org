@@ -74,8 +74,11 @@ public class TrackBatcher {
             if (entityInputBean != null) {
                 if (entityInputBean.getFortress() == null)
                     entityInputBean.setFortress(importProfile.getFortressName());
-                if ( entityInputBean.getFortress() == null )
-                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile.");
+                if ( entityInputBean.getFortress() == null || entityInputBean.getFortress().equals(""))
+                    throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
+
+                if ( entityInputBean.getDocumentName() == null ||  entityInputBean.getDocumentName().equals("") )
+                    throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via your import profile with the documentName attribute.");
 
                 entityBatch.add(entityInputBean);
                 batchTags(entityInputBean);
@@ -108,15 +111,16 @@ public class TrackBatcher {
 
         synchronized (tagSync) {
             if (tagInputBean != null)
-                tagBatch.put(tagInputBean.getName() + tagInputBean.getLabel(), tagInputBean);
+                tagBatch.put(getTagKey(tagInputBean), tagInputBean);
 
-            if (flush || tagBatch.size() == clientConfiguration.getBatchSize()) {
-                logger.debug("Flushing " + message + " Tag Batch [{}]", tagBatch.size());
-                if (tagBatch.size() >= 0)
-                    fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
-                logger.debug("Tag Batch Flushed");
-                tagBatch = new HashMap<>();
-            }
+            if ( tagBatch.size() >0 )
+                if (flush || tagBatch.size() >= clientConfiguration.getBatchSize()) {
+                    logger.debug("Flushing " + message + " Tag Batch [{}]", tagBatch.size());
+                    if (tagBatch.size() > 0)
+                        fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
+                    logger.debug("Tag Batch Flushed");
+                    tagBatch = new HashMap<>();
+                }
         }
 
     }
@@ -124,14 +128,18 @@ public class TrackBatcher {
     private void batchTags(EntityInputBean entityInputBeans) {
 
         for (TagInputBean tag : entityInputBeans.getTags()) {
-            String indexKey = tag.getCode() + tag.getLabel();
-            TagInputBean cachedTag = tagBatch.get(indexKey);
+            String tagKey = getTagKey(tag);
+            TagInputBean cachedTag = tagBatch.get(tagKey);
             if (cachedTag == null)
-                tagBatch.put(indexKey, tag);
+                tagBatch.put(tagKey, tag);
             else {
                 cachedTag.mergeTags(tag);
             }
         }
+    }
+
+    private String getTagKey(TagInputBean tag) {
+        return tag.getCode() + tag.getLabel();
     }
 
     public void flush() throws FlockException {
