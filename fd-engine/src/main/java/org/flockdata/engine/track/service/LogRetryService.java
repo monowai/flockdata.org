@@ -140,8 +140,10 @@ public class LogRetryService {
         //entity = trackService.getEntity(entity);
         Fortress fortress = entity.getFortress();
         // ToDo: ??? noticed during tracking over AMQP
-        if ( thisFortressUser.getFortress() == null )
-            thisFortressUser.setFortress(entity.getFortress());
+        if ( thisFortressUser != null ) {
+            if (thisFortressUser.getFortress() == null)
+                thisFortressUser.setFortress(entity.getFortress());
+        }
 
         LogResultBean resultBean = new LogResultBean(content);
         //ToDo: May want to track a "View" event which would not change the What data.
@@ -170,7 +172,7 @@ public class LogRetryService {
             content.setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
         }
 
-        Log preparedLog = entityDao.prepareLog(thisFortressUser, content, txRef, (lastLog != null ? lastLog.getLog() : null));
+        Log preparedLog = entityDao.prepareLog(fortress.getCompany(), thisFortressUser, content, txRef, (lastLog != null ? lastLog.getLog() : null));
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);

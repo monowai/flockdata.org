@@ -149,7 +149,8 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing) {
         if (fortressUser == null || fortress == null)
-            throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
+            //throw new IllegalArgumentException("Don't go throwing null in here [" + (fortressUser == null ? "FortressUserNode]" : "FortressNode]"));
+            return null;
 
         FortressUser result = fortressDao.getFortressUser(fortress.getId(), fortressUser.toLowerCase());
         if (createIfMissing && result == null)

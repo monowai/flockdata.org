@@ -157,7 +157,7 @@ public class TrackServiceNeo4j implements TrackService {
             fortressUser = entityInput.getLog().getFortressUser();
 
         FortressUser fu = fortressService.getFortressUser(fortress, fortressUser);
-        Entity entity = entityDao.create(entityInput, fu, documentType);
+        Entity entity = entityDao.create(entityInput, fortress, fu, documentType);
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + fortress.getId()); // We ain't tracking this
 

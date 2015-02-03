@@ -114,7 +114,8 @@ public class LogNode implements Log {
         this.madeBy = (FortressUserNode) madeBy;
 
         String event = contentBean.getEvent();
-        this.name = event + COLON + madeBy.getCode();
+
+        this.name = event + COLON + (madeBy==null ? "na" : madeBy.getCode());
         this.fileName = contentBean.getFileName();
         this.contentType = contentBean.getContentType();
         setTxRef(txRef);
