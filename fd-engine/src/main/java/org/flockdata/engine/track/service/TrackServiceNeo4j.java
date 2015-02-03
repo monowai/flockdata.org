@@ -187,7 +187,7 @@ public class TrackServiceNeo4j implements TrackService {
         if (company == null)
             return null;
 
-        return getEntity(company, metaKey, false);
+        return getEntity(company, metaKey, true);
     }
 
     @Override

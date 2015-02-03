@@ -122,6 +122,7 @@ public class EntityDaoNeo {
         Entity entity = getCachedEntity(key);
         if (inflate && entity != null) {
             fetch(entity);
+
         }
         return entity;
     }
@@ -152,10 +153,15 @@ public class EntityDaoNeo {
             logger.trace("findByCallerRef fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
         String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
-        return entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+        Entity result= entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+
+        fetch(result);
+        return result;
     }
 
     public Entity fetch(Entity entity) {
+        if (entity == null )
+            return entity;
         template.fetch(entity.getCreatedBy());
         template.fetch(entity.getLastUser());
 

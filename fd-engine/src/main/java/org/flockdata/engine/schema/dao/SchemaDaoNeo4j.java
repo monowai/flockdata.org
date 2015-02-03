@@ -224,13 +224,6 @@ public class SchemaDaoNeo4j {
             // Tag alias also have a unique key
             template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
             logger.debug("Tag constraint created - [{}]", label);
-            Iterable<ConstraintDefinition> result;
-            //do {
-//            result = template.getGraphDatabaseService().schema().getConstraints(DynamicLabel.label(label));
-//            for (ConstraintDefinition constraintDefinition : result) {
-//
-//            }
-            //}while (writeable);
 
         } catch (DataAccessException e) {
             logger.debug("Tag constraint error. Retry should occur - " + e.getLocalizedMessage());
@@ -239,12 +232,12 @@ public class SchemaDaoNeo4j {
         return true;
     }
 
-    public Boolean ensureSystemIndexes(Company company, String suffix) {
-        logger.debug("Creating System Indexes for {} ", company.getName());
+    public Boolean ensureSystemConstraints(Company company, String suffix) {
+        logger.debug("Creating system constraints for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
         template.query("create constraint on (t:City) assert t.key is unique", null);
-        logger.debug("Created the indexes");
+        logger.debug("Created system constraints");
         return true;
     }
 

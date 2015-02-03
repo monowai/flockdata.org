@@ -34,7 +34,7 @@ public class EntityBean {
     private Long id ;
     private String searchKey;
     private String metaKey;
-//    private String fortressCode;
+    private String fortressCode;
     private String callerRef;
     private String documentType;
     private long whenCreated;
