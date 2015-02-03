@@ -37,7 +37,6 @@ import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -142,7 +141,7 @@ public class FortressServiceNeo4j implements FortressService {
      * @return fortressUser identity
      */
     @Override
-    @Cacheable(value = "fortressUser", unless = "#result==null")
+//    @Cacheable(value = "fortressUser", unless = "#result==null")
     public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
     }

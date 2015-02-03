@@ -259,26 +259,40 @@ public class TagDaoNeo4j {
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", parseKey(tagCode));
         Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.singleOrNull();
-        if (mapResult != null) {
+        Iterator<Map<String, Object>> results = result.iterator();
+        Tag tagResult = null;
+        while (results.hasNext()) {
+            Map<String, Object> mapResult = results.next();
 
-            Node n = null;
-            if (mapResult.get("t") != null)
-                n = (Node) mapResult.get("t");
-            else if (mapResult.get("tag") != null)
-                n = (Node) mapResult.get("tag");
+            //
+            if (mapResult != null) {
 
-            if (n == null) {
-                logger.debug("findTag notFound {}, {}", tagCode, label);
-                return null;
+                Node n = null;
+                if (mapResult.get("t") != null)
+                    n = (Node) mapResult.get("t");
+                else if (mapResult.get("tag") != null)
+                    n = (Node) mapResult.get("tag");
+
+                if (n == null) {
+                    logger.debug("findTag notFound {}, {}", tagCode, label);
+                    return null;
+                }
+                if (tagResult == null) {
+                    tagResult = template.projectTo(n, TagNode.class);
+                    logger.trace("findTag found {}, {}", tagResult.getCode(), label);
+                } else {
+                    //ToDo: Constraints occur "eventually" in Neo4j.
+                    // under concurrent load you could wind up with multiple tags for the same code even
+                    // in a transaction!
+                    // here we ensure only one is ever returned and we will tidy up the extras
+                    Tag toDelete = template.projectTo(n, TagNode.class);
+                    template.delete(toDelete);
+                    logger.debug("delete the duplicate " + toDelete);
+                }
             }
-
-            Tag tag = template.projectTo(n, TagNode.class);
-            logger.trace("findTag found {}, {}", tag.getCode(), label);
-            return tag;
         }
-        logger.debug("findTag notFound {}, {}", tagCode, label);
-        return null;// No tag found
+        //logger.debug("findTag notFound {}, {}", tagCode, label);
+        return tagResult;// No tag found
 
     }
 

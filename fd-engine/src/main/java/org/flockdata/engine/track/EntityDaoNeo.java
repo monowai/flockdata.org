@@ -112,7 +112,6 @@ public class EntityDaoNeo {
         return template.save((TxRefNode) tagRef);
     }
 
-    //    @Cacheable(value = "metaKey", unless = "#result==null")
     private Entity getCachedEntity(String key) {
         if (key == null)
             return null;
@@ -148,7 +147,6 @@ public class EntityDaoNeo {
 
     }
 
-    //@Cacheable(value = "callerKey", unless = "#result==null")
     public Entity findByCallerRef(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
             logger.trace("findByCallerRef fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
@@ -157,7 +155,6 @@ public class EntityDaoNeo {
         return entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
     }
 
-    //@Cacheable(value = "entityId", key = "p0.id", unless = "#result==null")
     public Entity fetch(Entity entity) {
         template.fetch(entity.getCreatedBy());
         template.fetch(entity.getLastUser());
@@ -199,7 +196,6 @@ public class EntityDaoNeo {
     public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
         return entityRepo.findTxTag(txTag, company.getId());
     }
-
 
     public TxRef beginTransaction(String id, Company company) {
 
@@ -294,7 +290,6 @@ public class EntityDaoNeo {
             }
         return null;
     }
-
 
     public Entity getEntity(Long pk) {
         return entityRepo.findOne(pk);

@@ -38,21 +38,25 @@ public class EntityErrorHandler {
     public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
         // ToDo: How to persist failed messages
         MessageHandlingException payLoad = message.getPayload();
-        Object msgPayload = payLoad.getFailedMessage().getPayload();
-        if ( payLoad.getCause()!= null )
-            logger.error(payLoad.getCause().getMessage());
-        else
-            logger.error(payLoad.getMessage());
+        if (payLoad != null) {
+            Object msgPayload = payLoad.getFailedMessage().getPayload();
+            String errorMessage ;
+            if (payLoad.getCause() != null) {
+                errorMessage = payLoad.getCause().getMessage();
+                logger.error(payLoad.getCause().getMessage());
+            }else
+                errorMessage = payLoad.getMessage();
 
-        if (msgPayload instanceof String)
-            logger.debug(msgPayload.toString());
-        else {
-            Object o = ((MessageHandlingException) msgPayload).getFailedMessage().getPayload();
-            logger.info(o.toString());
+            if (msgPayload instanceof String)
+                logger.debug(errorMessage + " [" +msgPayload.toString()+"]");
+            else {
+                Object o = payLoad.getFailedMessage().getPayload();
+                logger.info(errorMessage + ". " + o.toString());
 
+            }
         }
-
         throw payLoad;
+
 
     }
     @ServiceActivator
