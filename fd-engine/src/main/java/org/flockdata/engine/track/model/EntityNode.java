@@ -93,11 +93,11 @@ public class EntityNode implements Entity {
     private Long id;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
-    @Fetch
+//    @Fetch
     private FortressUserNode createdBy;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
-    @Fetch
+//    @Fetch
     private FortressUserNode lastWho;
 
     @RelatedTo(elementClass = LogNode.class, type = "LAST_CHANGE", direction = Direction.OUTGOING)

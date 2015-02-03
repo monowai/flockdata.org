@@ -42,12 +42,12 @@
     </logger>
 
     <logger name="org.flockdata">
-        <level value="debug"/>
+        <level value="${fd.logLevel}"/>
     </logger>
 
     <!-- Root Logger. If you're diagnosing integration test issues, up this value to debug -->
     <root>
-        <priority value="debug"/>
+        <priority value="${fd.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

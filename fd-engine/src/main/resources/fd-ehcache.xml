@@ -8,6 +8,22 @@
             memoryStoreEvictionPolicy="LRU"/>
 
 
+    <cache name="fortress"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="company"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+
+    <cache name="companyTag"
+           maxElementsInMemory="2000"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
     <cache name="fortressDocType"
            maxElementsInMemory="200"
            eternal="true"
@@ -35,10 +51,15 @@
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="sysUserApiKey"
+    <cache name="companyEvent"
            maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
+
+    <cache name="sysUserApiKey"
+           maxElementsInMemory="200"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
 
     <!--Caching the fact we have created this label index already-->
     <cache name="labels"
