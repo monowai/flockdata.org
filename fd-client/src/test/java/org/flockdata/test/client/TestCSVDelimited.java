@@ -63,10 +63,10 @@ public class TestCSVDelimited {
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/no-header.txt", 0, fdWriter, null, configuration);
-        assertEquals(5l, rows);
+        assertEquals(expectedRows, rows);
 
     }
-
+    private int expectedRows =6;
     FdWriter fdWriter = new FdWriter() {
         @Override
         public SystemUserResultBean me() {
@@ -75,7 +75,7 @@ public class TestCSVDelimited {
 
         @Override
         public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            TestCase.assertEquals(5, tagInputBeans.size());
+            TestCase.assertEquals(expectedRows, tagInputBeans.size());
             for (TagInputBean tagInputBean : tagInputBeans) {
                 assertFalse(tagInputBean.getCode().contains("|"));
                 assertFalse(tagInputBean.getName().contains("|"));
