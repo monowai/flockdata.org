@@ -99,7 +99,31 @@
             }
           }
         }
+      },
+      {
+        "fd.tag-name-template": {
+          "path_match": "tag.*.name",
+          "mapping": {
+            "type": "multi_field",
+
+            "fields": {
+              "name": {
+                "index": "not_analyzed",
+                "type": "string",
+                "doc_values": true,
+                "boost": 3.0,
+                "store": "true"
+              },
+              "raw": {
+                "index": "analyzed",
+                "type": "string",
+                "store": "true"
+              }
+            }
+          }
+        }
       }
+
     ]
   }
 }

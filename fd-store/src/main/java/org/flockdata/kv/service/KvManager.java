@@ -34,7 +34,6 @@ import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.Log;
@@ -102,7 +101,7 @@ public class KvManager implements KvService {
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
      */
-    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"retrier"}, requiresReply = "false")
+    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"kv.retry"}, requiresReply = "false")
     public Boolean doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
@@ -114,6 +113,7 @@ public class KvManager implements KvService {
             logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
             //           resolve the underlying DB problem
             throw new FlockServiceException(errorMsg, e); // Keep the message on the queue
+            // ToDo: The exception above will attempt redelivery ~immediately.
         }
         return Boolean.TRUE;
     }
@@ -193,7 +193,7 @@ public class KvManager implements KvService {
         if (log == null)
             return null;
         try {
-            byte[] entityContent = getKvRepo(log).getValue(new EntityBean(entity), log);
+            byte[] entityContent = getKvRepo(log).getValue(entity, log);
             if (entityContent != null)
                 return new EntityContentData(entityContent, log);
 
@@ -206,7 +206,7 @@ public class KvManager implements KvService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(new EntityBean(entity), change);
+        getKvRepo(change).delete(entity, change);
     }
 
 
@@ -222,16 +222,9 @@ public class KvManager implements KvService {
     public boolean isSame(Entity entity, Log compareFrom, Log compareTo) {
         if (compareFrom == null)
             return false;
-        EntityContent content = null;
-        int count = 0;
-        int timeout = 10;
-        while (content == null && count < timeout) {
-            count++;
-            content = getContent(entity, compareFrom);
-        }
 
-        if (count >= timeout)
-            logger.error("Timeout looking for KV What data for [{}] [{}]", entity, compareFrom);
+        // ToDo: Retryable - what if KV store is down?
+        EntityContent content = getContent(entity, compareFrom);
 
         if (content == null)
             return false;

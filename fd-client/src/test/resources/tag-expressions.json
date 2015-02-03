@@ -12,12 +12,12 @@
       "code": "thomas_id",
       "targets": [
         {
-          "column": "wikipedia_id",
+          "code": "wikipedia_id",
           "label": "WikipediaAlias",
           "relationship": "HAS_ALIAS"
         },
         {
-          "column": "party",
+          "code": "party",
           "label": "Party",
           "relationship": "affiliation"
         }

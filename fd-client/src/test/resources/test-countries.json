@@ -20,10 +20,10 @@
       ],
       "targets": [
         {
-          "column": "BGN_capital",
+          "code": "BGN_capital",
           "label": "City",
           "relationship": "capital",
-          "condition": "#row[HasCapital].equals('1')",
+          "condition": "#row[HasCapital].equals(1)",
           "properties": [
             {
               "sourceProperty": "UNc_latitude",

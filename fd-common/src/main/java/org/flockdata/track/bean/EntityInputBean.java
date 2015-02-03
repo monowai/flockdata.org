@@ -36,7 +36,7 @@ public class EntityInputBean {
     private String callerRef;
     private String fortress;
     private String fortressUser;
-    private String documentType;
+    private String documentName;
     private Date when = null;
     private ContentInputBean log;
     private List<TagInputBean> tags = new ArrayList<>();
@@ -69,7 +69,7 @@ public class EntityInputBean {
             setWhen(fortressWhen);
         setFortress(fortressName);
         setFortressUser( fortressUser);
-        setDocumentType(documentCode);
+        setDocumentName(documentCode);
         setCallerRef(callerRef);
     }
 
@@ -81,7 +81,7 @@ public class EntityInputBean {
     public EntityInputBean(String fortressName, String docTypeName) {
         this();
         this.fortress= fortressName;
-        this.documentType = docTypeName;
+        this.documentName = docTypeName;
     }
 
     public void setMetaKey(String metaKey) {
@@ -146,17 +146,17 @@ public class EntityInputBean {
         this.fortressUser = fortressUser;
     }
 
-    public String getDocumentType() {
-        return documentType;
+    public String getDocumentName() {
+        return documentName;
     }
 
     /**
      * Fortress unique type of document that categorizes this type of change.
      *
-     * @param documentType relationshipName of the document
+     * @param documentName relationshipName of the document
      */
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
     }
 
 
@@ -307,9 +307,9 @@ public class EntityInputBean {
 
     @Override
     public String toString() {
-        return "MetaInputBean{" +
+        return "EntityInputBean{" +
                 "fortressName='" + getFortress() + '\'' +
-                ", documentCode='" + getDocumentType() + '\'' +
+                ", documentName='" + getDocumentName() + '\'' +
                 ", name='" + getName() + '\'' +
                 ", callerRef='" + getCallerRef() + '\'' +
                 ", metaKey='" + getMetaKey() + '\'' +
@@ -393,7 +393,7 @@ public class EntityInputBean {
         EntityInputBean that = (EntityInputBean) o;
 
         if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
-        if (!documentType.equals(that.documentType)) return false;
+        if (!documentName.equals(that.documentName)) return false;
         if (!fortress.equals(that.fortress)) return false;
         if (fortressUser != null ? !fortressUser.equals(that.fortressUser) : that.fortressUser != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
@@ -407,7 +407,7 @@ public class EntityInputBean {
         result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
         result = 31 * result + fortress.hashCode();
         result = 31 * result + (fortressUser != null ? fortressUser.hashCode() : 0);
-        result = 31 * result + documentType.hashCode();
+        result = 31 * result + documentName.hashCode();
         return result;
     }
 

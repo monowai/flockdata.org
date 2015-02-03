@@ -35,6 +35,7 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, CALLER_REF}
 
     // Flags that profile the properties of a column
     private boolean callerRef;
@@ -51,44 +52,48 @@ public class ColumnDefinition {
     private boolean updateUser;
     private boolean reverse = false;
 
-    private String   dateFormat;
-    private String   strategy = null;
-    private String   fortress = null;
-    private String   documentType = null;
-    private String   label;
-    private String   type; //datatype
-    private String   name;
+    private String dateFormat;
+
+    private String callerRefExp; // Supports the caller ref as an expression
+    private String strategy = null;
+    private String fortress = null;
+    private String documentType = null;
+    private String label;
+    private String type; //datatype
+    private String name;
 
 
-    private String   nameExp;
-    private String   nullOrEmpty;
-    private String   appendJoinText = " ";
-    private String   relationshipName;
-    private String[] relationshipProps;
+    private String nameExp;
+    private String nullOrEmpty;
+    private String appendJoinText = " ";
+//    private String relationshipName;
+
+    @JsonDeserialize(using = ColumnDeserializer.class)
+    private ArrayList<ColumnDefinition> rlxProperties;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
 
     private String[] refColumns;
 
-    private String relationship;
+    private String relationship; // Explicit relationship name
+    private String rlxExp; // Relationship expression
 
     private String delimiter;
 
     private String code;
     private String codeExp;
-    private String targetProperty;
+    private String sourceProperty; // property to read from
+    private String targetProperty; // property to write to (essentially rename the target
 
-    private ArrayList<Map<String,String>>crossReferences = new ArrayList<>();
+    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
-    private String sourceProperty;
 
     public String getLabel() {
         return label;
     }
 
     /**
-     *
      * @param label Noun that describes the tag
      */
     public void setLabel(String label) {
@@ -99,7 +104,6 @@ public class ColumnDefinition {
     private ArrayList<TagProfile> targets = new ArrayList<>();
 
     /**
-     *
      * @return Columns used to create a callerReference where there is otherwise no identifiable key
      */
     public String[] getRefColumns() {
@@ -107,7 +111,6 @@ public class ColumnDefinition {
     }
 
     /**
-     *
      * @param tag flags this column as being an identifying tag.
      */
     public void setTag(boolean tag) {
@@ -142,11 +145,6 @@ public class ColumnDefinition {
         return name;
     }
 
-    public String getRelationshipName() {
-        if (relationshipName == null)
-            return (isCountry() ? null : "undefined");
-        return relationshipName;
-    }
 
     public ArrayList<TagProfile> getTargets() {
         return targets;
@@ -175,11 +173,15 @@ public class ColumnDefinition {
 
     // Overrides the value name of the property
     public String getTargetProperty() {
-        return targetProperty;
+        if (targetProperty == null)
+            return sourceProperty;
+        else
+            return targetProperty;
     }
 
     public String getRelationship() {
         return relationship;
+
     }
 
     public Boolean getReverse() {
@@ -193,6 +195,7 @@ public class ColumnDefinition {
     /**
      * if a delimiter is specified, then the column value will be treated as a delimited string and
      * a Tag.code will be created for each delimited value
+     *
      * @return default is a ,
      */
     public String getDelimiter() {
@@ -220,7 +223,6 @@ public class ColumnDefinition {
     }
 
     /**
-     *
      * @return is this column carrying the value for the Creating user
      */
     public boolean isCreateUser() {
@@ -232,7 +234,6 @@ public class ColumnDefinition {
     }
 
     /**
-     *
      * @return is this column carrying the value for the Last Update user
      */
     public boolean isUpdateUser() {
@@ -244,7 +245,6 @@ public class ColumnDefinition {
     }
 
     /**
-     *
      * @param mustExist if true, FdServer will throw an error if the tag does not exist
      */
     public void setMustExist(boolean mustExist) {
@@ -252,7 +252,6 @@ public class ColumnDefinition {
     }
 
     /**
-     *
      * @return is this column carrying the value for the Created Date
      */
     public boolean isCreateDate() {
@@ -262,6 +261,7 @@ public class ColumnDefinition {
     /**
      * Defines the literal to set the Tag.code value to if the value is not present
      * Treats null & "" as equivalent
+     *
      * @return literal
      */
     public String getNullOrEmpty() {
@@ -289,16 +289,12 @@ public class ColumnDefinition {
     }
 
     @JsonIgnore
-    public boolean isDateEpoc(){
+    public boolean isDateEpoc() {
         return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
     }
 
-//    public void setDateFormat(String dateFormat) {
-//        this.dateFormat = dateFormat;
-//    }
-
-    public String[] getRelationshipProps() {
-        return relationshipProps;
+    public ArrayList<ColumnDefinition> getRlxProperties() {
+        return rlxProperties;
     }
 
     public boolean isDocument() {
@@ -306,21 +302,29 @@ public class ColumnDefinition {
     }
 
     public boolean hasRelationshipProps() {
-        return relationshipProps!=null ;
+        return rlxProperties != null;
     }
 
     @JsonIgnore
     public boolean isArrayDelimited() {
-        return ( delimiter != null && delimiter.equalsIgnoreCase("array"));
+        return (delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
-    public String getExpression(String expCol) {
-        if ( expCol == null )
+    public String getExpression(ExpressionType expCol) {
+        if (expCol == null)
             return null;
-        if ( expCol.equals("nameExp"))
-            return nameExp;
-        else if ( expCol.equals("codeExp"))
-            return codeExp;
+        switch (expCol) {
+            case NAME:
+                return nameExp;
+            case CODE:
+                return codeExp;
+            case CALLER_REF:
+                return callerRefExp;
+            case RELATIONSHIP:
+                return rlxExp;
+//            case PROP_EXP:
+//                return propExp;
+        }
 
         return null;
     }
@@ -331,7 +335,7 @@ public class ColumnDefinition {
 
 
     public boolean hasProperites() {
-        return this.properties !=null && properties.size()>0;
+        return this.properties != null && properties.size() > 0;
     }
 
 
@@ -347,5 +351,21 @@ public class ColumnDefinition {
         return codeExp;
     }
 
+    public String getCallerRefExp() {
+        return callerRefExp;
+    }
 
+    public String getRlxExp() {
+        return rlxExp;
+    }
+
+    @Override
+    public String toString() {
+        return "ColumnDefinition{" +
+                "label='" + label + '\'' +
+                ", sourceProperty='" + sourceProperty + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }

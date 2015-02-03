@@ -85,13 +85,23 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (column != null)
             importProfile.setHeader(Boolean.parseBoolean(column.asText()));
 
+        column = node.get("preParseRowExp");
+        if (column != null)
+            importProfile.setPreParseRowExp(column.asText());
+
+
         column = node.get("archiveTags");
         if (column != null)
             importProfile.setArchiveTags(Boolean.parseBoolean(column.asText()));
 
         column = node.get("delimiter");
         if (column != null&& !column.isNull())
-            importProfile.setDelimiter(column.toString().charAt(1));
+            importProfile.setDelimiter(column.asText());
+
+        column = node.get("quoteCharacter");
+        if (column != null&& !column.isNull())
+            importProfile.setQuoteCharacter(column.asText());
+
 
         column = node.get("entityKey");
         if ( column == null )

@@ -379,9 +379,9 @@ public class FdRestWriter implements FdWriter {
             Map<String,Object>params = new HashMap<>();
             for (EntityInputBean entityInput : entityInputs) {
                 params.put("fortress", entityInput.getFortress());
-                params.put("documentType", entityInput.getDocumentType());
+                params.put("documentName", entityInput.getDocumentName());
                 params.put("callerRef", entityInput.getCallerRef());
-                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentType}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentName}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
                 //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
@@ -439,12 +439,13 @@ public class FdRestWriter implements FdWriter {
 
     private void logServerMessages(ResponseEntity<ArrayList> response) {
         ArrayList x = response.getBody();
-        for (Object val : x) {
-            Map map = (Map) val;
-            Object serviceMessage = map.get("serviceMessage");
-            if (serviceMessage != null)
-                logger.error("Service returned [{}]", serviceMessage.toString());
-        }
+        if ( x!=null )
+            for (Object val : x) {
+                Map map = (Map) val;
+                Object serviceMessage = map.get("serviceMessage");
+                if (serviceMessage != null)
+                    logger.error("Service returned [{}]", serviceMessage.toString());
+            }
     }
 
     public void ensureFortress(String fortressName) throws FlockException {

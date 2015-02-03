@@ -54,6 +54,8 @@ public interface SchemaService {
 
     void purge(Fortress fortress);
 
-    boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs, Collection<String> existingIndexes);
+    Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs);
+
+    public Collection<String> getKnownLabels();
 
 }

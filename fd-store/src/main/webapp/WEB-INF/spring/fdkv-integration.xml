@@ -23,9 +23,9 @@ Transformers, gateways and channels -->
     </bean>
 
 
-    <!--<int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="entityErrors">-->
-        <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />-->
-    <!--</int:handler-retry-advice>-->
+    <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+    </int:handler-retry-advice>
 
     <int:json-to-object-transformer id="jsonToKvContent"
                                     input-channel="writeKvContent"

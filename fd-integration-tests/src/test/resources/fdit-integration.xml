@@ -27,17 +27,26 @@
 
     <int:service-activator id="fdEntityErrorLogger"
                            input-channel="entityErrors"
-                           ref="fdEntityErrorHandler"/>
-
-    <bean id="fdEntityErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
-
-
+                           ref="fdeErrorHandler"/>
 
     <int:service-activator id="fdKvErrorLogger"
                            input-channel="kvErrors"
-                           ref="fdKvErrorHandler"/>
+                           ref="fdkvErrorHandler"/>
 
-    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+    <bean id="fdkvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+    <bean id="fdeErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
+
+    <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+    </int:handler-retry-advice>
+
+    <int:handler-retry-advice id="fde.retry" max-attempts="4" recovery-channel="entityErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+    </int:handler-retry-advice>
+
+    <int:handler-retry-advice id="fds.retry" max-attempts="4" recovery-channel="kvErrors">
+        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+    </int:handler-retry-advice>
 
     <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>

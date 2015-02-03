@@ -47,7 +47,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
 
     public CsvEntityMapper(ImportProfile importProfile) {
-        setDocumentType(importProfile.getDocumentName());
+        setDocumentName(importProfile.getDocumentName());
         setFortress(importProfile.getFortressName());
         setFortressUser(importProfile.getFortressUser());
     }
@@ -57,55 +57,26 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         return ProfileConfiguration.ContentType.CSV;
     }
 
-    private Map<String, Object> toMap(ProfileConfiguration importProfile, String[] headerRow, String[] line) {
-        int col = 0;
-
-        Map<String, Object> row = new HashMap<>();
-        for (String column : headerRow) {
-            ColumnDefinition colDef = importProfile.getColumnDef(column);
-            if ( line[col]==null || line[col].equals("null"))
-                row.put(column, null);
-            else if (NumberUtils.isNumber(line[col])) {
-                if ( colDef !=null &&  colDef.getType()!=null && colDef.getType().equalsIgnoreCase("string"))
-                    row.put(column.trim(), String.valueOf(line[col]));
-                else
-                    row.put(column.trim(), NumberUtils.createNumber(line[col]));
-            } else {
-//                Date date = null;
-//                try {
-//                    if ( colDef!=null && colDef.getDateFormat()!=null ) {
-//                        date = DateUtils.parseDate(line[col], colDef.getDateFormat());
-//                        row.put(column, date.getTime());
-//                    }
-//                } catch (ParseException e) {
-//                    //
-//                }
-                //if ( date == null ) // Stash it as a string
-                row.put(column.trim(), (line[col]==null ? null :line[col].trim()));
-            }
-
-            col++;
-        }
-        return row;
-    }
-
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
-        Map<String, Object> row = toMap(importProfile, headerRow, line);
+        //Map<String, Object> row = toMap(importProfile, headerRow, line);
         setArchiveTags(importProfile.isArchiveTags());
+        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, ColumnDefinition> content = importProfile.getContent();
 
-        for (String column : headerRow) {
+        for (String column : content.keySet()) {
             column = column.trim();
             ColumnDefinition colDef = importProfile.getColumnDef(column);
 
-            if (colDef != null) {
+            if (colDef != null ) {
                 Object o = row.get(column);
                 String value = null ;
                 if ( o !=null )
                     value = o.toString().trim();
 
                 if (colDef.isDescription()) {
-                    setDescription(row.get(column).toString());
+
+                    setDescription(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                 }
                 if ( colDef.isCreateDate()){
                     if ( colDef.isDateEpoc()) {
@@ -122,12 +93,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
                 if (colDef.isCallerRef()) {
-                    String callerRef = getCallerRef();
-                    if (callerRef == null)
-                        callerRef = value;
-                    else
-                        callerRef = callerRef + "." + value;
-
+                    String callerRef = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CALLER_REF, colDef, value);
                     setCallerRef(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
@@ -137,9 +103,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setLabel(colDef.getLabel());
                         tagProfile.setReverse(colDef.getReverse());
                         tagProfile.setMustExist(colDef.isMustExist());
-                        tagProfile.setColumn(column);
+                        tagProfile.setCode(column);
                         tagProfile.setDelimiter(colDef.getDelimiter());
-                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, colDef.getRelationshipName());
+                        String relationship = TransformationHelper.getRelationshipName(row, colDef);
+                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship );
                         for (TagInputBean tag : tags) {
                             addTag(tag);
                         }
@@ -147,8 +114,16 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
-                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value))
-                        addTag(tag);
+
+                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value)) {
+                       // if ( colDef.getRelationship()!=null) {
+                         //   tag.addEntityLink(colDef.getRelationship());
+                        //} else {
+                            addTag(tag);
+                        //}
+
+
+                    }
                 }
                 if (colDef.isTitle()) {
                     setName(value);

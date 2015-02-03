@@ -23,6 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -54,12 +55,12 @@ public class TagRetryService {
     @Autowired
     private TagService tagService;
 
+
     @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
 
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
         return tagService.createTags(company, tagInputBeans);
     }
-
 //    @Retryable( include =  {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
 //    public Tag createTag(Company company,TagInputBean tagInputBean) {
 //        return tagDao.save(company, tagInputBean);

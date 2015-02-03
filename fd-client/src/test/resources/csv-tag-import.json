@@ -10,25 +10,25 @@
             "mustExist": false,
             "targets": [
                 {
-                    "column": "company_name",
+                    "code": "company_name",
                     "label": "Manufacturer",
                     "relationship": "makes",
                     "reverse": true,
                     "targets": [
                         {
                             "relationship": "located",
-                            "column": "city",
+                            "code": "city",
                             "label": "City"
                         }
                     ]
                 },
                 {
-                    "column": "type",
+                    "code": "type",
                     "relationship": "of-type",
                     "reverse": true
                 } ,
                 {
-                    "column": "tags",
+                    "code": "tags",
                     "label":"_Tag",
                     "relationship": "mentions",
                     "delimiter": ","

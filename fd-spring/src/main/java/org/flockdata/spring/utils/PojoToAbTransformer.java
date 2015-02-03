@@ -73,9 +73,9 @@ public class PojoToAbTransformer {
                 // Class Is annotated for being send to AB
                 Trackable auditableAnnotation = (Trackable) annotation;
                 if (auditableAnnotation.documentType().equals("")) {
-                    entityInputBean.setDocumentType(aClass.getSimpleName().toLowerCase());
+                    entityInputBean.setDocumentName(aClass.getSimpleName().toLowerCase());
                 } else {
-                    entityInputBean.setDocumentType(auditableAnnotation.documentType());
+                    entityInputBean.setDocumentName(auditableAnnotation.documentType());
                 }
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {

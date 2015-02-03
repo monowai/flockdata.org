@@ -80,7 +80,7 @@ public interface TrackService {
 
     Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) throws NotFoundException;
 
-    Entity findByCallerRef(Fortress fortress, String documentCode, String callerRef);
+    Entity findByCallerRef(Fortress fortress, String documentName, String callerRef);
 
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 

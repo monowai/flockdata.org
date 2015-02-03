@@ -34,29 +34,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class RiakRepo implements KvRepo {
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private IRiakClient client = null;
-    private Lock lock = new ReentrantLock();
 
+    RiakRepo () {
+        try {
+            getClient();
+        } catch (RiakException e) {
+            logger.error(e.getLocalizedMessage());
+        }
+    }
     private IRiakClient getClient() throws RiakException {
         if (client == null) {
-            try {
-                lock.lock();
-                if (client == null) {
-                    // ToDo: set server and host
-                    client = RiakFactory.pbcClient();
-                    client.generateAndSetClientId();
-
-                }
-            } finally {
-                lock.unlock();
-            }
+            // ToDo: set server and host
+            client = RiakFactory.pbcClient();
+            client.generateAndSetClientId();
 
         }
         return client;
@@ -84,7 +80,7 @@ public class RiakRepo implements KvRepo {
         return entity.getFortress().getIndexName() + "/" + entity.getDocumentType().toLowerCase();
     }
 
-    public byte[] getValue(EntityBean entity, Log forLog) {
+    public byte[] getValue(Entity entity, Log forLog) {
         try {
             Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
@@ -101,7 +97,7 @@ public class RiakRepo implements KvRepo {
         return null;
     }
 
-    public void delete(EntityBean entity, Log log) {
+    public void delete(Entity entity, Log log) {
         try {
             Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
             bucket.delete(String.valueOf(log.getId())).execute();

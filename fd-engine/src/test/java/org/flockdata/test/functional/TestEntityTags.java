@@ -106,7 +106,6 @@ public class TestEntityTags extends EngineBase {
 
     }
 
-
     @Test
     public void simpleTagAgainstEntity() throws Exception {
         SystemUser su = registerSystemUser("simpleTagAgainstEntity", mike_admin);
@@ -191,7 +190,6 @@ public class TestEntityTags extends EngineBase {
         }
 
     }
-
 
     @Test
     public void renameRelationship() throws Exception {
@@ -390,6 +388,7 @@ public class TestEntityTags extends EngineBase {
         }
 
     }
+
     @Test
     public void createLogForValidEntityWithNoContent() throws Exception{
         SystemUser su = registerSystemUser("createLogForValidEntityWithNoContent", mike_admin);
@@ -1064,7 +1063,6 @@ public class TestEntityTags extends EngineBase {
         }
         assertTrue("The expected tag ["+ tagName +"] was not found", found);
     }
-
 
     @Test
     public void scenario_AliasFound ()throws Exception{

@@ -13,22 +13,22 @@
         },
         "zip": {
             "tag": true,
-            "relationshipName": "lives",
+            "relationship": "lives",
             "label": "ZipCode",
             "targets": [
                 {
                     "relationship": "located",
-                    "column": "city",
+                    "code": "city",
                     "label": "City",
                     "targets": [
                         {
                             "relationship": "city",
-                            "column": "state",
+                            "code": "state",
                             "label": "State",
                             "targets": [
                                 {
                                     "relationship": "state",
-                                    "column": "country",
+                                    "code": "country",
                                     "label": "Country",
                                     "mustExist": true
                                 }
@@ -42,7 +42,7 @@
 
         "name": {
             "tag" :true,
-            "relationshipName":"blah",
+            "relationship":"blah",
             "label": "Wow"
         }
     }
