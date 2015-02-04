@@ -599,7 +599,7 @@ public class TestFdIntegration {
         inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
         inputBean.setContent(log);
-        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForEntitiesToUpdate(su.getCompany(), result.getEntity());
         // ensure that non-analysed tags work
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
@@ -607,6 +607,26 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 1);
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 1);
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.code.raw", "days", 1);
+
+    }
+
+    @Test
+    public void user_NoFortressUserWorks() throws Exception {
+        // DAT-317
+        //assumeTrue(runMe);
+        logger.info("## user_NoFortressUserWorks");
+        SystemUser su = registerSystemUser("piper");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("user_NoFortressUserWorks"));
+
+        // FortressUser cannot be resolved from the entity or the log
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), null, "UniqueKey", new DateTime(), "ABC123");
+        ContentInputBean log = new ContentInputBean(null, new DateTime(), getRandomMap());
+        inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
+        inputBean.setContent(log);
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        waitForInitialSearchResult(su.getCompany(), result.getEntity().getMetaKey());
+        // ensure that non-analysed tags work
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.code.raw", "happy", 1);
 
     }
 

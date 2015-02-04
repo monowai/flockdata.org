@@ -184,7 +184,8 @@ public class Importer {
                 if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
-                importProfile.setFortressUser(su.getLogin());
+                // DAT-317 making the fortressUser optional
+                //importProfile.setFortressUser(su.getLogin());
 
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importProfile, batchSize, skipCount);
 

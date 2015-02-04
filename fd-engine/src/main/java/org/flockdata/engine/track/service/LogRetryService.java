@@ -217,7 +217,7 @@ public class LogRetryService {
 
         boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(contentWhen.getMillis()) <= 0);
 
-        if (moreRecent && fortress.isSearchActive())
+        if (moreRecent )
             resultBean.setLogToIndex(newLog);  // Notional log to index.
 
         return resultBean;
