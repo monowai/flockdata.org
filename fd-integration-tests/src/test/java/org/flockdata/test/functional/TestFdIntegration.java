@@ -194,13 +194,17 @@ public class TestFdIntegration {
         waitAWhile(null, 3000);
     }
 
-    public static void waitAWhile(String message) throws Exception {
+    static long getSleepSeconds(){
         String ss = System.getProperty("sleepSeconds");
         if (ss == null || ss.equals(""))
             ss = "2";
+        return Long.decode(ss) * 1000;
+    }
+
+    public static void waitAWhile(String message) throws Exception {
         if (message == null)
             message = "Slept for {} seconds";
-        waitAWhile(message, Long.decode(ss) * 1000);
+        waitAWhile(message, getSleepSeconds());
     }
 
     @BeforeClass
@@ -430,11 +434,9 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("111"));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        TrackResultBean auditResult;
-        auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        metaKey = auditResult.getEntityBean().getMetaKey();
+        TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        assertNotNull(metaKey);
+        metaKey = trackResult.getEntityBean().getMetaKey();
 
         Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
@@ -449,16 +451,13 @@ public class TestFdIntegration {
         watch.start();
         while (i < max) {
             mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), getSimpleMap("blah", i))).getEntity();
+
             i++;
         }
         waitForLogCount(su.getCompany(), entity, max);
-        waitAWhile("Give ES a chance to catch up");
+        waitForInitialSearchResult(su.getCompany(), metaKey);
 
         watch.stop();
-        // Test that we get the expected number of log events
-        if (!"rest".equals(System.getProperty("neo4j"))) // Don't check if running over rest
-            assertEquals("This will fail if the DB is not cleared down, i.e. testing over REST", max, trackService.getLogCount(su.getCompany(), metaKey));
-
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".blah", "*", 1);
     }
 
@@ -656,11 +655,13 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
 
-        mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
+        TrackResultBean result =mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertNotNull ( result) ;
+        waitForEntitiesToUpdate(su.getCompany(), result.getEntity()); // 2nd document in the index
 
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
-        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
@@ -671,13 +672,9 @@ public class TestFdIntegration {
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
         runMetaQuery(qp);
-        //EsSearchResult queryResults =runSearchQuery(su, qp);
-        //EsSearchResult queryResults =mediationFacade.search(su.getCompany(), qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
         assertEquals(2, queryResults.getResults().size());
-
-        // Two search docs,but one without a metaKey
 
     }
 
@@ -1181,23 +1178,31 @@ public class TestFdIntegration {
 
     private Entity waitForInitialSearchResult(Company company, String metaKey) throws Exception {
         // Looking for the first searchKey to be logged against the entity
-        int i = 0;
+        int i = 1;
 
+        Thread.yield();
         Entity entity = trackService.getEntity(company, metaKey);
         if (entity == null)
             return null;
-        int timeout = 50;
+
+        int timeout = 20;
+
         while (entity.getSearchKey() == null && i <= timeout) {
-            Thread.sleep(20);
+
             entity = trackService.getEntity(company, metaKey);
-            if (i > 20)
-                waitAWhile("Sleeping for the entity to update {}");
+            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
+            if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
+                waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
+            else if ( entity.getSearchKey() == null )
+                Thread.yield(); // Small pause to let things happen
+
             i++;
         }
-        if (i > 22)
-            logger.info("Wait for search got to [{}] for metaId [{}]", i, entity.getId());
-        boolean searchWorking = entity.getSearchKey() != null;
-        assertTrue("Search reply not received from fd-search", searchWorking);
+
+        if ( entity.getSearchKey() ==null ) {
+            logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
+            fail("Search reply not received from fd-search");
+        }
         return entity;
     }
 
@@ -1269,7 +1274,7 @@ public class TestFdIntegration {
         JestResult jResult;
         do {
             if (runCount > 0)
-                waitAWhile("Sleep {} for ES Query to work");
+                waitAWhile("Sleep {} for fd-search to catch up");
             String query = "{\n" +
                     "    query: {\n" +
                     "          query_string : {\n" +
@@ -1278,7 +1283,6 @@ public class TestFdIntegration {
                     "      }\n" +
                     "}";
 
-            //
             Search search = new Search.Builder(query)
                     .addIndex(index)
                     .build();
@@ -1305,8 +1309,6 @@ public class TestFdIntegration {
         assertNotNull(jResult);
         assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
         return jResult.getJsonString();
-
-        //return result.getJsonString();
     }
 
     private String getMapping(String indexName) throws Exception {
@@ -1461,8 +1463,10 @@ public class TestFdIntegration {
      * @throws Exception
      */
     public static void waitAWhile(String message, long milliseconds) throws Exception {
-        Thread.sleep(milliseconds);
         logger.debug(message, milliseconds / 1000d);
+        Thread.sleep(milliseconds);
+        Thread.yield();
+
     }
 
     public static Map<String, Object> getSimpleMap(String key, Object value) {
@@ -1490,9 +1494,7 @@ public class TestFdIntegration {
         int i = 0;
         int timeout = 100;
         int count = 0;
-        //int sleepCount = 90;
-        //logger.debug("Sleep Count {}", sleepCount);
-        //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
+
         while (i <= timeout) {
             Entity updatedEntity = trackService.getEntity(company, entity.getMetaKey());
             count = trackService.getLogCount(company, updatedEntity.getMetaKey());
@@ -1503,11 +1505,11 @@ public class TestFdIntegration {
                 return log;
             Thread.yield();
             if (i > 20)
-                waitAWhile("Waiting for the log to update {}");
+                waitAWhile("Waiting {} seconds for the log to update");
             i++;
         }
         if (i > 22)
-            logger.info("Wait for log got to [{}] for metaId [{}]", i,
+            logger.info("Wait for log got to [{}] for entityId [{}]", i,
                     entity.getId());
         throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }

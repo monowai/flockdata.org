@@ -124,7 +124,8 @@ public class TrackDaoES implements TrackSearchDao {
             searchChange.setSearchKey(ir.getId());
 
             if (logger.isDebugEnabled())
-                logger.debug("Save:Document [{}], logId= [{}] searchKey [{}] index [{}/{}]",
+                logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
+                        searchChange.getEntityId(),
                         searchChange.getMetaKey(),
                         searchChange.getLogId(),
                         ir.getId(),

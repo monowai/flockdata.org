@@ -605,7 +605,9 @@ public class TrackServiceNeo4j implements TrackService {
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
-            logger.trace("Updating Entity {} search searchResult =[{}]", entity.getMetaKey(), searchResult);
+            logger.debug("Updated Entity {}. searchKey {} search searchResult =[{}]", entity.getId(), entity.getSearchKey(), searchResult);
+        }  else {
+            logger.debug("No need to update searchKey");
         }
 
         if (searchResult.getLogId() == null) {
@@ -628,9 +630,10 @@ public class TrackServiceNeo4j implements TrackService {
         // Another thread may have processed this so save an update
         if (!entityLog.isIndexed()) {
             // We need to know that the change we requested to index has been indexed.
-            logger.trace("Updating index status for {}", entityLog);
+            logger.debug("Updating index status for {}", entityLog);
             entityLog.setIsIndexed();
             entityDao.save(entityLog);
+            logger.debug("Updated index status for {}", entityLog);
 
         } else {
             logger.trace("Skipping {} as it is already indexed", entityLog);

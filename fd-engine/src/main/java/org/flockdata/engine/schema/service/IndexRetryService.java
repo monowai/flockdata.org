@@ -61,10 +61,7 @@ public class IndexRetryService {
             maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
 
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
-        logger.debug("Checking tag uniqueness");
-        Boolean result =  schemaService.ensureUniqueIndexes(company, tagInputs);
-        logger.debug("result " + result);
-        return result;
+        return schemaService.ensureUniqueIndexes(company, tagInputs);
     }
 
 }
