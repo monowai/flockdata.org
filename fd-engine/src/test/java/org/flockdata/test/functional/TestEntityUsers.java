@@ -108,13 +108,14 @@ public class TestEntityUsers extends EngineBase {
         EntityInputBean entityBean = new EntityInputBean(fortress.getName(), null, "CompanyNode", DateTime.now(), callerRef);
 
         // No fortress user
-        entityBean.setContent(new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer");
+        entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
         logger.info("Tracked...");
         Entity entity = trackService.findByCallerRef(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
-        SearchChange searchChange = searchService.getSearchChange(fortress.getCompany(), resultBean);
+        SearchChange searchChange = searchService.prepareSearchDocument(su.getCompany(), resultBean.getEntityBean(),resultBean.getContentInput(), resultBean.getLogResult().getLogToIndex());
         assertNotNull(searchChange);
 
     }

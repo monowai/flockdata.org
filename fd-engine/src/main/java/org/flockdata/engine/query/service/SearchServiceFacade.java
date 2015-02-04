@@ -172,7 +172,8 @@ public class SearchServiceFacade {
             return null;
         SearchChange searchDocument;
         searchDocument = new EntitySearchChange(entity, contentInput, entityLog.getLog() );
-        searchDocument.setWho(entityLog.getLog().getWho().getCode());
+        if ( entityLog.getLog().getWho() !=null )
+            searchDocument.setWho(entityLog.getLog().getWho().getCode());
         searchDocument.setTags(entityTagService.getEntityTags(company, entity.getId()));
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
