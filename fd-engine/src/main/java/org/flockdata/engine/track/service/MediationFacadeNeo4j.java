@@ -142,7 +142,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        boolean schemaReady = false;
+        boolean schemaReady ;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputs);
         } while (!schemaReady);

@@ -691,7 +691,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> tags = entityTagService.findEntityTags(resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
-        SearchChange searchChange = searchService.getSearchChange(fortress.getCompany(), resultBean, "Blah", new Date());
+        SearchChange searchChange = searchService.getSearchChange(fortress.getCompany(), resultBean);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }

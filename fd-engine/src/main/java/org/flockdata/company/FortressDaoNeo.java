@@ -28,6 +28,7 @@ import org.flockdata.registration.model.FortressUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -60,6 +61,7 @@ public class FortressDaoNeo  {
         return fortressRepo.findOne(fortressId);
     }
 
+    @Cacheable(value = "fortressUser", unless = "#result==null")
     public FortressUser getFortressUser(Long fortressId, String name) {
         return fortressUserRepo.findBySchemaPropertyValue("key", fortressId + "." + name);
     }

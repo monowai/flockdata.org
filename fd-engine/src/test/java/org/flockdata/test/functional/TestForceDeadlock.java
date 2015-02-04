@@ -130,12 +130,12 @@ public class TestForceDeadlock extends EngineBase {
         }
         startSignal.countDown();
         latch.await();
-        for (int i = 0; i < threadMax; i++) {
-            while (runners.get(i) == null || !runners.get(i).isDone()) {
-                Thread.yield();
-            }
-            assertEquals("Error occurred creating entities under load", true, runners.get(i).isWorked());
-        }
+//        for (int i = 0; i < threadMax; i++) {
+//            while (runners.get(i) == null || !runners.get(i).isDone()) {
+//                Thread.yield();
+//            }
+//            assertEquals("Error occurred creating entities under load", true, runners.get(i).isWorked());
+//        }
         for (Integer integer : runners.keySet()) {
             assertEquals(true, runners.get(integer).isWorked());
         }

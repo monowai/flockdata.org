@@ -34,7 +34,7 @@ public class EntityBean {
     private Long id ;
     private String searchKey;
     private String metaKey;
-//    private String fortressCode;
+    private String fortressCode;
     private String callerRef;
     private String documentType;
     private long whenCreated;
@@ -69,7 +69,8 @@ public class EntityBean {
             fortressDateCreated = entity.getFortressDateCreated();
             if (entity.getLastUser()!=null )
                 lastUser = entity.getLastUser().getCode();
-            createdUser= entity.getCreatedBy().getCode();
+            if ( createdUser !=null )
+                createdUser= entity.getCreatedBy().getCode();
         }
     }
 

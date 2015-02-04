@@ -49,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 /**
  * Search Service interactions
@@ -102,11 +101,11 @@ public class SearchServiceFacade {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
-        logger.trace("handleSearchResult processing {} incoming search results", size);
+        logger.debug("searchDocSyncResult processing {} incoming search results", size);
         for (SearchResult searchResult : theResults) {
             count ++;
-            logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
-            Long entityId = searchResult.getMetaId();
+            logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
+            Long entityId = searchResult.getEntityId();
             if (entityId == null)
                 return false;
 
@@ -122,14 +121,27 @@ public class SearchServiceFacade {
 
 
     public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
-        SearchChange searchChange = null;
+        SearchChange searchDocument ;
         Entity entity = resultBean.getEntity();
-        if (!(entity.isSearchSuppressed() || !entity.getFortress().isSearchActive())) {
-            searchChange = getSearchChange(company, resultBean, resultBean.getEntityInputBean().getEvent(), resultBean.getEntityInputBean().getWhen());
-        }
-        return searchChange;
+            if (entity.getLastUser() != null)
+                fortressService.fetch(entity.getLastUser());
+            Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getWhatLog());
+            searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
+            if (resultBean.getTags() != null) {
+                searchDocument.setTags(resultBean.getTags());
+                searchDocument.setSearchKey(entity.getSearchKey());
 
+                if (entity.getId() == null) {
+                    logger.debug("No entityId so we are not expecting a reply");
+                    searchDocument.setWhen(null);
+                    searchDocument.setReplyRequired(false);
+                }
+                searchDocument.setSysWhen(entity.getWhenCreated());
 
+            } else {
+                searchDocument.setTags(entityTagService.getEntityTags(company, entity));
+            }
+        return searchDocument;
     }
 
     public void makeChangeSearchable(SearchChange searchChange) {
@@ -144,34 +156,14 @@ public class SearchServiceFacade {
         if (searchDocument.isEmpty())
           //  return new AsyncResult<>(null);
             return false;
-        logger.debug("Sending request to index [{}]] logs", searchDocument.size());
+
+        if ( searchDocument.size() == 1)
+            logger.debug("Sending request to index entity [{}]]", searchDocument.iterator().next().getEntityId());
+        else
+            logger.debug("Sending request to index [{}]] logs", searchDocument.size());
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
         logger.debug("[{}] log requests sent to search", searchDocument.size());
         return true;
-    }
-
-    public SearchChange getSearchChange(Company company, TrackResultBean resultBean, String event, Date when) {
-        Entity entity = resultBean.getEntity();
-
-        if (entity.getLastUser() != null)
-            fortressService.fetch(entity.getLastUser());
-        Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getWhatLog());
-        SearchChange searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
-        if (resultBean.getTags() != null) {
-            searchDocument.setTags(resultBean.getTags());
-            //searchDocument.setSearchKey(entity.getCallerRef());
-
-            if (entity.getId() == null) {
-                logger.debug("No entityId so we are not expecting a reply");
-                searchDocument.setWhen(null);
-                searchDocument.setReplyRequired(false);
-            }
-            searchDocument.setSysWhen(entity.getWhenCreated());
-
-        } else {
-            searchDocument.setTags(entityTagService.getEntityTags(company, entity));
-        }
-        return searchDocument;
     }
 
     public SearchChange prepareSearchDocument(Company company, EntityBean entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
@@ -180,7 +172,8 @@ public class SearchServiceFacade {
             return null;
         SearchChange searchDocument;
         searchDocument = new EntitySearchChange(entity, contentInput, entityLog.getLog() );
-        searchDocument.setWho(entityLog.getLog().getWho().getCode());
+        if ( entityLog.getLog().getWho() !=null )
+            searchDocument.setWho(entityLog.getLog().getWho().getCode());
         searchDocument.setTags(entityTagService.getEntityTags(company, entity.getId()));
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
@@ -259,22 +252,24 @@ public class SearchServiceFacade {
         logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
-            SearchChange change = getSearchChange(fortress, resultBean);
+            SearchChange change = getChangeToPublish(fortress, resultBean);
             if (change!=null )
                 changes.add(change);
         }
         makeChangesSearchable(changes);
     }
 
-    private SearchChange getSearchChange(Fortress fortress, TrackResultBean trackResultBean) {
+    SearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
         if ( trackResultBean == null )
             return null;
-        if (trackResultBean.getEntityInputBean()!=null && trackResultBean.getEntityInputBean().isMetaOnly()){
-            return getSearchChange(fortress.getCompany(), trackResultBean);
-        }
 
         if ( trackResultBean.getEntity()== null || !fortress.isSearchActive())
             return null;
+
+        if (trackResultBean.getEntityInputBean()!=null && trackResultBean.getEntityInputBean().isMetaOnly()){
+                return getSearchChange(fortress.getCompany(), trackResultBean);
+        }
+
 
         LogResultBean logResultBean = trackResultBean.getLogResult();
         ContentInputBean input = trackResultBean.getContentInput();
