@@ -25,6 +25,7 @@ import org.flockdata.engine.schema.model.ChangeEventNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.ChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -52,6 +53,7 @@ public class TrackEventDaoNeo implements TrackEventDao {
     }
 
     @Override
+    @Cacheable(value = "companyEvent", unless = "#result == null")
     public ChangeEvent createEvent(Company company, String eventCode) {
         ChangeEvent ev = findEvent(company, eventCode);
         if (ev == null ) {

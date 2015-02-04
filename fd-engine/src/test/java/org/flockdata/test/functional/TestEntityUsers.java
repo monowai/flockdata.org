@@ -22,11 +22,13 @@ package org.flockdata.test.functional;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.SearchChange;
 import org.junit.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
+import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
@@ -94,4 +97,26 @@ public class TestEntityUsers extends EngineBase {
 
 
         }
+
+    @Test
+    public void created_EntityWithNoUser() throws Exception {
+        logger.debug("### created_EntityWithNoUser");
+        String callerRef = "mk1hz";
+        SystemUser su = registerSystemUser("created_EntityWithNoUser");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
+        EntityInputBean entityBean = new EntityInputBean(fortress.getName(), null, "CompanyNode", DateTime.now(), callerRef);
+
+        // No fortress user
+        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer");
+        entityBean.setContent(contentInputBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
+        logger.info("Tracked...");
+        Entity entity = trackService.findByCallerRef(fortress, "CompanyNode", callerRef);
+        Assert.assertEquals(null, entity.getCreatedBy());
+
+        SearchChange searchChange = searchService.prepareSearchDocument(su.getCompany(), resultBean.getEntityBean(),resultBean.getContentInput(), resultBean.getLogResult().getLogToIndex());
+        assertNotNull(searchChange);
+
+    }
 }

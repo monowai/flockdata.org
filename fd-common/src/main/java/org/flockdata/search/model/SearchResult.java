@@ -37,7 +37,7 @@ public class SearchResult {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long logId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long metaId;
+    private Long entityId;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, String[]> fragments;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -78,7 +78,7 @@ public class SearchResult {
 
     public SearchResult(SearchChange thisChange) {
         this();
-        this.metaId = thisChange.getEntityId();
+        this.entityId = thisChange.getEntityId();
         this.fortress = thisChange.getFortressName();
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
@@ -154,7 +154,7 @@ public class SearchResult {
     @Override
     public String toString() {
         return "SearchResult{" +
-                "metaId='" + metaId + '\'' +
+                "entityId='" + entityId + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
@@ -170,12 +170,12 @@ public class SearchResult {
         this.logId = logId;
     }
 
-    public Long getMetaId() {
-        return metaId;
+    public Long getEntityId() {
+        return entityId;
     }
 
-    public void setMetaId(Long metaId) {
-        this.metaId = metaId;
+    public void setEntityId(Long entityId) {
+        this.entityId = entityId;
     }
 
     public void setSearchKey(String searchKey) {

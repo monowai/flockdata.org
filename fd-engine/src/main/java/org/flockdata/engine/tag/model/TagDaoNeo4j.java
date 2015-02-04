@@ -30,6 +30,7 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -106,11 +107,12 @@ public class TagDaoNeo4j {
         for (String rlxName : targets.keySet()) {
             Collection<TagInputBean> associatedTag = targets.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                createRelationship(company, start, tagInputBean, rlxName, createdValues, suppressRelationships);
+                createRelationship(company, start.getId(), tagInputBean, rlxName, createdValues, suppressRelationships);
             }
 
         }
-        return template.findOne(start.getId(), TagNode.class);
+
+        return start;
     }
 
     private Tag createTag(Company company, TagInputBean tagInput, String suffix) {
@@ -151,20 +153,20 @@ public class TagDaoNeo4j {
      * @param suppressRelationships
      * @return the created tag
      */
-    Tag createRelationship(Company company, Tag startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
+    void createRelationship(Company company, Long startNode, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
         // Careful - this save can be recursive
         // ToDo - idea = create all tagInputs first then just create the relationships
         Tag tag = save(company, associatedTag, createdValues, suppressRelationships);
         if (suppressRelationships)
-            return tag;
+            return;
         Node endNode = template.getNode(tag.getId());
 
-        Long startId = (!associatedTag.isReverse() ? startNode.getId() : endNode.getId());
-        Long endId = (!associatedTag.isReverse() ? endNode.getId() : startNode.getId());
+        Long startId = (!associatedTag.isReverse() ? startNode : endNode.getId());
+        Long endId = (!associatedTag.isReverse() ? endNode.getId() : startNode);
 
         String key = rlxName + ":" + startId + ":" + endId;
         if (createdValues.contains(key))
-            return tag;
+            return;
 
         //logger.info("Creating RLX {}, {}, {}", rlxName, startId, endId);
         String cypher = "match startNode, endNode where " +
@@ -177,7 +179,7 @@ public class TagDaoNeo4j {
         //params.put("timestamp", System.currentTimeMillis());
         template.query(cypher, params);
         createdValues.add(key);
-        return tag;
+        //return tag;
     }
 
     public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
@@ -240,7 +242,23 @@ public class TagDaoNeo4j {
      * @param label   Neo4j label for the node
      * @return null if not found
      */
+    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findTag(Company company, String tagCode, String label) {
+        Node n = findTagNode(company, tagCode, label);
+        Tag tagResult ;
+
+        if (n == null) {
+            logger.debug("findTag notFound {}, {}", tagCode, label);
+            return null;
+        }
+        tagResult = template.projectTo(n, TagNode.class);
+
+        return tagResult;// No tag found
+
+    }
+
+    //@Cacheable(value = "companyTag", unless = "#result == null")
+    public Node findTagNode(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
@@ -260,39 +278,38 @@ public class TagDaoNeo4j {
         params.put("tagKey", parseKey(tagCode));
         Result<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
-        Tag tagResult = null;
+        Node node = null;
+        Node nodeResult = null;
         while (results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
             //
             if (mapResult != null) {
 
-                Node n = null;
                 if (mapResult.get("t") != null)
-                    n = (Node) mapResult.get("t");
+                    node = (Node) mapResult.get("t");
                 else if (mapResult.get("tag") != null)
-                    n = (Node) mapResult.get("tag");
+                    node = (Node) mapResult.get("tag");
 
-                if (n == null) {
+                if (node == null) {
                     logger.debug("findTag notFound {}, {}", tagCode, label);
                     return null;
                 }
-                if (tagResult == null) {
-                    tagResult = template.projectTo(n, TagNode.class);
-                    logger.trace("findTag found {}, {}", tagResult.getCode(), label);
+                if (nodeResult == null) {
+                    nodeResult = node;
+                    logger.trace("findTag found {}, {}", tagCode, label);
                 } else {
                     //ToDo: Constraints occur "eventually" in Neo4j.
                     // under concurrent load you could wind up with multiple tags for the same code even
                     // in a transaction!
                     // here we ensure only one is ever returned and we will tidy up the extras
-                    Tag toDelete = template.projectTo(n, TagNode.class);
-                    template.delete(toDelete);
-                    logger.debug("delete the duplicate " + toDelete);
+                    //Tag toDelete = template.projectTo(n, TagNode.class);
+                    template.delete(node);
+                    logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
                 }
             }
         }
-        //logger.debug("findTag notFound {}, {}", tagCode, label);
-        return tagResult;// No tag found
+        return nodeResult;
 
     }
 

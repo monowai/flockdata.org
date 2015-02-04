@@ -80,9 +80,9 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public Entity create(EntityInputBean inputBean, FortressUser fortressUser, DocumentType documentType) throws FlockException {
+    public Entity create(EntityInputBean inputBean, Fortress fortress, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
-        Entity entity = new EntityNode(metaKey, fortressUser.getFortress(), inputBean, documentType);
+        Entity entity = new EntityNode(metaKey, fortress, inputBean, documentType);
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
         if (!inputBean.isTrackSuppressed()) {
@@ -122,6 +122,7 @@ public class EntityDaoNeo {
         Entity entity = getCachedEntity(key);
         if (inflate && entity != null) {
             fetch(entity);
+
         }
         return entity;
     }
@@ -152,10 +153,15 @@ public class EntityDaoNeo {
             logger.trace("findByCallerRef fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
         String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
-        return entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+        Entity result= entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+
+        fetch(result);
+        return result;
     }
 
     public Entity fetch(Entity entity) {
+        if (entity == null )
+            return entity;
         template.fetch(entity.getCreatedBy());
         template.fetch(entity.getLastUser());
 
@@ -265,8 +271,8 @@ public class EntityDaoNeo {
         return "Neo4J is OK";
     }
 
-    public Log prepareLog(FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws FlockException {
-        ChangeEvent event = trackEventService.processEvent(fUser.getFortress().getCompany(), entityContent.getEvent());
+    public Log prepareLog(Company company, FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws FlockException {
+        ChangeEvent event = trackEventService.processEvent(company, entityContent.getEvent());
         Log changeLog = new LogNode(fUser, entityContent, txRef);
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
