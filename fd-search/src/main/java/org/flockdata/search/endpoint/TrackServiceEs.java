@@ -86,13 +86,16 @@ public class TrackServiceEs implements TrackService {
     public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
+//        if ( changes.getChanges().size() ==1){
+//            logger.debug("Contains one change with an entityID of [{}]", changes.getChanges().iterator().next().getEntityId());
+//        }
         SearchResults results = new SearchResults();
         for (EntitySearchChange searchChange : thisChange) {
             if ( searchChange == null ) {
                 logger.error("Null search change received. Retry your operation with data!");
                 return results;
             }
-            logger.trace("searchRequest received for {}", searchChange);
+            logger.debug("searchRequest received for {}", searchChange);
 
             if (searchChange.isDelete()) {
                 logger.debug("Delete request");
@@ -104,7 +107,7 @@ public class TrackServiceEs implements TrackService {
 
             // Used to tie the fact that the doc was updated back to the engine
             result.setLogId(searchChange.getLogId());
-            result.setMetaId(searchChange.getEntityId());
+            result.setEntityId(searchChange.getEntityId());
             if (searchChange.isReplyRequired()) {
                 results.addSearchResult(result);
                 logger.trace("Dispatching searchResult to fd-engine {}", result);

@@ -101,11 +101,11 @@ public class SearchServiceFacade {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
-        logger.trace("handleSearchResult processing {} incoming search results", size);
+        logger.debug("searchDocSyncResult processing {} incoming search results", size);
         for (SearchResult searchResult : theResults) {
             count ++;
-            logger.trace("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
-            Long entityId = searchResult.getMetaId();
+            logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
+            Long entityId = searchResult.getEntityId();
             if (entityId == null)
                 return false;
 
@@ -129,7 +129,7 @@ public class SearchServiceFacade {
             searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
             if (resultBean.getTags() != null) {
                 searchDocument.setTags(resultBean.getTags());
-                //searchDocument.setSearchKey(entity.getCallerRef());
+                searchDocument.setSearchKey(entity.getSearchKey());
 
                 if (entity.getId() == null) {
                     logger.debug("No entityId so we are not expecting a reply");
@@ -156,7 +156,11 @@ public class SearchServiceFacade {
         if (searchDocument.isEmpty())
           //  return new AsyncResult<>(null);
             return false;
-        logger.debug("Sending request to index [{}]] logs", searchDocument.size());
+
+        if ( searchDocument.size() == 1)
+            logger.debug("Sending request to index entity [{}]]", searchDocument.iterator().next().getEntityId());
+        else
+            logger.debug("Sending request to index [{}]] logs", searchDocument.size());
         searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
         logger.debug("[{}] log requests sent to search", searchDocument.size());
         return true;
