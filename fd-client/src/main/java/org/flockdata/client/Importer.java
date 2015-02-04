@@ -209,7 +209,6 @@ public class Importer {
         System.exit(0);
     }
 
-
     private static FdWriter getRestClient(ClientConfiguration configuration) {
         FdRestWriter fdClient = new FdRestWriter(configuration);
         String ping = fdClient.ping();

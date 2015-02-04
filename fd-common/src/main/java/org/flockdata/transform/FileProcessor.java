@@ -246,7 +246,6 @@ public class FileProcessor {
 
     }
 
-
     private long processXMLFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
@@ -488,7 +487,6 @@ public class FileProcessor {
             return staticDataResolver;// Unit testing
         }
     }
-
 
     public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
         Reader reader = getReader(pathToBatch);
