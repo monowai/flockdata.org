@@ -6,7 +6,7 @@ You only need to interact with fd-engine. By default, fd-engine will also write 
 
 When fd-engine runs embedded Neo4J the REST api is exposed on port 7474 so exploration tools will work with fd-engine just as they do with Neo4j stand-alone. You can also interact with the database via neo4j-shell which is part of the standard distribution of Neo4J. 
 
-The concepts and calls are explained in the [Audit Service Call Wiki](https://github.com/monowai/auditbucket/wiki/Audit-Service-Calls)
+The concepts and calls are explained in the [Flock Service Call Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
 
 Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and convenient way of making REST calls to AuditBucket.
 
@@ -19,7 +19,7 @@ Start RabbitMQ
 ## Installation
 Get the source
 ```
-$ git clone https://bitbucket.org/monowai/auditbucket
+$ git clone https://bitbucket.org/monowai/flockdata.org
 ```
 
 Build with dependencies, including running the tests
@@ -62,7 +62,7 @@ Default HTTP port for fd-engine is 8080 and for fd-search its 8081. If you are u
 
 Once you have the .war file installed in your app server, you can start firing off urls to test things.
 
-## Interacting with AuditBucket
+## Interacting with FlockData
 HTTP, REST and JSON is the lingua franca.
 
 ### Authorisation
@@ -96,7 +96,7 @@ curl -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/
 curl -u batch:123 -X GET http://localhost:8080/fd-engine/v1/profiles/me/
 ```
 ### Create an Application Fortress
-This is one of your computer systems that you want to audit
+This is one of your computer systems that you want to track information coming from
 ```
 curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
 ```
@@ -130,5 +130,5 @@ curl -H "Content-Type:application/json" -X POST http://localhost:9201/fd.*/_sear
 ### Next steps....
 Track one of your entities to the service via [API](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790) documentation. Understand and add [Tags](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172831). Process a batch of changes. Log a single change to an existing entity.
 
-You will want to look at the various Bean packages in [fd-common](https://bitbucket.org/monowai/auditbucket/src/abdb12458b5537567546aa2ba6ffe01bc83cc521/fd-common/?at=develop) to find the various properties you can set while we continue to enhance the documents.
+You will want to look at the various Bean packages in [fd-common](https://bitbucket.org/monowai/flockdata/src/abdb12458b5537567546aa2ba6ffe01bc83cc521/fd-common/?at=develop) to find the various properties you can set while we continue to enhance the documents.
 
