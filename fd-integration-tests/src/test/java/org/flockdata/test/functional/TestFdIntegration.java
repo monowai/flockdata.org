@@ -1532,7 +1532,7 @@ public class TestFdIntegration {
             i++;
         }
         if (i > 22)
-            logger.info("Wait for log got to [{}] for entityId [{}]", i,
+            logger.info("Wait for log got to [{}] for entity            logger.info("Wait for log got to [{}] for entityId [{}]", i,
                     entity.getId());
         throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }
