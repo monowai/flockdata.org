@@ -19,9 +19,12 @@
 
 package org.flockdata.track.model;
 
+import org.flockdata.search.model.SearchTag;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,7 +51,7 @@ public interface SearchChange {
 
     public Map<String, Object> getWhat();
 
-    public java.util.HashMap<String, Map<String, Object>> getTagValues();
+    public HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
     public void setTags(Iterable<EntityTag> tagSet);
 

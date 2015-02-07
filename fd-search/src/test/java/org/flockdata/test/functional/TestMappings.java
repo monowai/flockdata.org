@@ -99,7 +99,7 @@ public class TestMappings extends ESBase {
 
         // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
         // We also expect the code to be lower case
-        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my TAG", 1, "Full text match of tag codes is not working");
+        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag._tag.code.facet", "my TAG", 1, "Full text match of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -218,9 +218,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code", "my TAG", 1);
-        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.code", "my TAG", 1);
-        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag.code", "my TAG", 2);
+        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag._tag.code.facet", "my TAG", 1);
+        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag._tag.code.facet", "my TAG", 1);
+        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag._tag.code.facet", "my TAG", 2);
 
     }
 

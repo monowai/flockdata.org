@@ -98,7 +98,7 @@ public class TestTrack extends EngineBase {
     }
 
     @Test
-    public void logChangeWithNullAuditKeyButCallerRefExists() throws Exception {
+    public void logChangeWithNullMetaKeyButCallerRefExists() throws Exception {
         SystemUser su = registerSystemUser("logChangeWithNullAuditKeyButCallerRefExists");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest",true));
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
@@ -842,6 +842,7 @@ public class TestTrack extends EngineBase {
 
         logger.info(lastLog.toString());
     }
+
     @Test
     public void date_FortressDateFields() throws Exception {
         // DAT-196
@@ -869,6 +870,7 @@ public class TestTrack extends EngineBase {
         EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getEntityBean().getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
+
     @Test
     public void clientInDifferentTZ() throws Exception {
         // DAT-196
@@ -942,7 +944,6 @@ public class TestTrack extends EngineBase {
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(tz)));
     }
 
-
     @Test
     public void event_NullWhenMetaOnlyIsFalse() throws Exception {
         // DAT-276
@@ -977,7 +978,6 @@ public class TestTrack extends EngineBase {
         assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
 
     }
-
 
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
