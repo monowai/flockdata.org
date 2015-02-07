@@ -125,10 +125,15 @@ public class EngineConfig implements FdEngineConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    /**
-     * Only users with a pre-validated api-key should be calling this
-     * @return system configuration details
-     */
+    @Secured({"ROLE_AB_ADMIN","ROLE_AB_USER"})
+    public Map<String, String> getHealthAuth() {
+     return getHealth();
+    }
+
+        /**
+         * Only users with a pre-validated api-key should be calling this
+         * @return system configuration details
+         */
     @Override
     public Map<String, String> getHealth() {
         if ( System.getProperty("neo4j")!=null )
