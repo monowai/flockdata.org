@@ -109,7 +109,6 @@ public class TestCallerRef extends EngineBase {
      */
     @Test
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
-        try {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "dupex");
 
@@ -125,13 +124,13 @@ public class TestCallerRef extends EngineBase {
             }
 
             latch.await();
+            Thread.yield();
             assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
+            Thread.sleep(200);
             for (CallerRefRunner runner : runners) {
                 assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
             }
-        } finally {
             cleanUpGraph(); // No transaction so need to clear down the graph
-        }
 
 
     }
