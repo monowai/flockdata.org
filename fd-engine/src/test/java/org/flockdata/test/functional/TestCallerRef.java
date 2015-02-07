@@ -125,6 +125,7 @@ public class TestCallerRef extends EngineBase {
             }
 
             latch.await();
+            Thread.yield();
             assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
             for (CallerRefRunner runner : runners) {
                 assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
