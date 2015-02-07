@@ -118,5 +118,8 @@ public class TestEntityUsers extends EngineBase {
         SearchChange searchChange = searchService.prepareSearchDocument(su.getCompany(), resultBean.getEntityBean(),resultBean.getContentInput(), resultBean.getLogResult().getLogToIndex());
         assertNotNull(searchChange);
 
+        searchChange = searchService.rebuild(su.getCompany(), entity, resultBean.getLogResult().getLogToIndex() );
+        assertNotNull(searchChange);
+
     }
 }

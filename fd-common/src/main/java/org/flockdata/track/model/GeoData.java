@@ -19,7 +19,12 @@
 
 package org.flockdata.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Geographic type data
@@ -33,9 +38,10 @@ public class GeoData {
 
     private String state;
     private String city;
-    Double lat, lon;
+    private Map<String, Double>coord = new HashMap<>();
 
     public GeoData(String isoCode, String countryName, String city, String stateName, Double lat, Double lon) {
+        this();
         if (city != null)
             setCity(city);
 
@@ -50,6 +56,9 @@ public class GeoData {
             setState(stateName);
     }
 
+    GeoData() {}
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getState() {
         return state;
     }
@@ -58,6 +67,7 @@ public class GeoData {
         this.state = state;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCity() {
         return city;
     }
@@ -66,6 +76,7 @@ public class GeoData {
         this.city = city;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getCountry() {
         return country;
     }
@@ -74,6 +85,7 @@ public class GeoData {
         this.country = country;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIsoCode() {
         return isoCode;
     }
@@ -82,33 +94,39 @@ public class GeoData {
         this.isoCode = isoCode;
     }
 
-    public Double[] getGeoJson() {
-        return new Double[]{lon,lat};
+    @JsonIgnore
+    public Collection<Double> getGeoJson() {
+        return coord.values();
     }
 
     public void setLatLong(Double lat, Double lon) {
         // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
         if (lat!=null && lon !=null ) {
-            this.lat = lat;
-            this.lon = lon;
+            coord.put("lat", lat);
+            coord.put("lon", lon);
+            geoPoint=  lat.toString() +","+lon.toString();
         }
     }
 
+    String geoPoint = null;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getGeoPoint() {
-        if ( lat == null ||lon ==null)
-            return null;
-
-        return lat.toString() +","+lon.toString();
+        return geoPoint;
     }
 
-    public HashMap<String,Object> getGeoMap() {
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("lat", lat);
-        hashMap.put("lon", lon);
-        return hashMap;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Map<String,Double> getGeoMap() {
+        return coord;
     }
 
+    @JsonIgnore
     public boolean isValid() {
-        return lat!=null && lon!=null;
+        if ( coord.isEmpty())
+            return false;
+
+        return coord.get("lat") !=null && coord.get("lon") !=null;
     }
+
+
 }

@@ -15,10 +15,6 @@
           }
         }
       },
-      "tags": {
-        "type": "string",
-        "dynamic": true
-      },
       "metaKey": {
         "type": "string",
         "index": "not_analyzed"
@@ -76,24 +72,54 @@
         "index": "not_analyzed"
       }
     },
+
     "dynamic_templates": [
       {
-        "fd.tag-template": {
+        "nested_tag": {
+          "match": "tag.*",
+          "mapping": {
+            "type": "nested"
+          }
+        }
+      },
+      {
+        "nested_tag_code_template": {
           "path_match": "tag.*.code",
+          "match_mapping_type": "string",
           "mapping": {
             "type": "multi_field",
             "fields": {
-              "code": {
-                "index": "not_analyzed",
-                "type": "string",
-                "doc_values": true,
-                "boost": 3.0,
-                "store": "true"
+              "{name}": {
+                "type": "{dynamic_type}",
+                "boost": "3.0",
+                "index": "analyzed"
               },
-              "analyzed": {
-                "index": "analyzed",
-                "type": "string",
-                "store": "true"
+              "facet": {
+                "type": "{dynamic_type}",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
+      }, {
+        "nested_tag_name_template": {
+          "path_match": "tag.*.name",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "{dynamic_type}",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "{dynamic_type}",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
               }
             }
           }
@@ -101,7 +127,7 @@
       },
       {
         "geo_tag": {
-          "path_match": "tag.*.geo",
+          "path_match": "tag.*.geo.geoPoint",
           "match_mapping_type": "string",
           "mapping": {
             "type": "geo_point",
