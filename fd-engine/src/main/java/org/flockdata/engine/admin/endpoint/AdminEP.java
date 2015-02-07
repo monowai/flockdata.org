@@ -85,7 +85,7 @@ public class AdminEP {
             apiKey = null;
         if ( request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
                  apiKey == null )
-            throw new SecurityException("You are not authorized to perform this request");
+            return engineConfig.getHealthAuth();// Caller may have admin role but not belong to a company
         return engineConfig.getHealth();
     }
 
