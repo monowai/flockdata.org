@@ -35,6 +35,8 @@ public interface FdEngineConfig {
 
     Map<String, String> getHealth();
 
+    public Map<String, String> getHealthAuth();
+
     boolean isMultiTenanted();
 
     void setMultiTenanted(boolean multiTenanted);
