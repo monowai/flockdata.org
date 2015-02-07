@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * User: mike
@@ -58,21 +59,24 @@ public class TestEntitySearch {
         Collection<EntityTag> tags = new ArrayList<>();
 
         Entity e = getEntity("test", "blah", "asdf", "don'tcare");
+        String relationship = "dupe";
 
         // ToDo: What is the diff between these relationships
-        tags.add( new EntityTagRelationship(e, getTag("NameA", "dupe"), "dupe", null ));
+        tags.add( new EntityTagRelationship(e, getTag("NameA", relationship), relationship, null ));
         tags.add( new EntityTagRelationship(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add( new EntityTagRelationship(e, getTag("NameC", "dupe"), "dupe", null ));
+        tags.add( new EntityTagRelationship(e, getTag("NameC", relationship), relationship, null ));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(new EntityBean(e));
         entitySearchChange.setTags(tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
-        Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get("dupe");
+        Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
         //assertTrue (values.get("code") instanceof Collection);
-        Collection mValues = (Collection) values.get("code");
+
+        Collection mValues = (Collection) values.get("_tag");
         // Each entry has a Name and Code value
-        assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3,mValues.size() );
+        assertNotNull("Could not find the Tag in the result set", mValues);
+        assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size() );
 
         System.out.println(entitySearchChange.getTagValues());
     }

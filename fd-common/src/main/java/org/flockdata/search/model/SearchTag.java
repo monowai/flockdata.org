@@ -49,7 +49,7 @@ public class SearchTag {
         if (this.name != null && this.name.equalsIgnoreCase(code))
             this.name = null; // Prefer code over name
 
-        if (!tag.getProperties().isEmpty())
+        if (tag.getProperties()!=null && !tag.getProperties().isEmpty())
             this.properties = tag.getTag().getProperties();
 
         if (tag.getGeoData() != null) {
