@@ -143,7 +143,6 @@ public class TestTags extends EngineBase {
 
     }
 
-
     @Test
     public void tagWithProperties() throws Exception {
         SystemUser iSystemUser = registerSystemUser("tagWithProperties", mike_admin);
@@ -443,5 +442,18 @@ public class TestTags extends EngineBase {
 
     }
 
+    @Test
+    public void label_UserDefined() throws Exception {
+        SystemUser iSystemUser = registerSystemUser("label_UserDefined", mike_admin);
 
+        assertNotNull(iSystemUser);
+
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
+        Tag tag ;
+
+        tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setLabel("MyLabel"));
+        assertNotNull(tag);
+        assertEquals ("MyLabel", tag.getLabel());
+
+    }
 }

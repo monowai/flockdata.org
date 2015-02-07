@@ -57,7 +57,7 @@ public class EntitySearchChange implements SearchChange {
     private String metaKey;
     private String callerRef;
     private Long logId;
-    private HashMap<String, Map<String,Object>> tagValues = new HashMap<>();
+    private HashMap<String, Map<String,ArrayList<SearchTag>>> tagValues = new HashMap<>();
     private Long entityId;
 
     private String indexName;
@@ -223,38 +223,54 @@ public class EntitySearchChange implements SearchChange {
         return metaKey;
     }
 
-    public HashMap<String, Map<String, Object>> getTagValues() {
+    public HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues() {
         return tagValues;
     }
 
-    public void setTags(Iterable<EntityTag> tagSet) {
+    public void setTags(Iterable<EntityTag> entityTags) {
         tagValues = new HashMap<>();
-        for (EntityTag tag : tagSet) {
-            Map<String, Object> tagValues = this.tagValues.get(tag.getTagType().toLowerCase());
+        for (EntityTag entityTag : entityTags) {
+            Map<String, ArrayList<SearchTag>> tagValues = this.tagValues.get(entityTag.getTagType().toLowerCase());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
                 // ToDo: Figure out if we need the Tags label as a property
-                // tag.relationship.label.code - too long?
+                // entityTag.relationship.label.code - too long?
                 // -or-
-                // tag.label.relationship.code
+                // entityTag.label.relationship.code
                 // If label and relationship are equal then only one property is written
-                this.tagValues.put(tag.getTagType().toLowerCase(), tagValues);
+                this.tagValues.put(entityTag.getTagType().toLowerCase(), tagValues);
             }
+            mapTag(entityTag, tagValues);
+//            setTagValue("code", entityTag.getTag().getCode(), tagValues);
+//            if ( !entityTag.getTag().getCode().equals(entityTag.getTag().getName()))
+//                setTagValue("name", entityTag.getTag().getName(), tagValues);
+//
+//            if (entityTag.getGeoData() != null) {
+//                setTagValue("iso", entityTag.getGeoData().getIsoCode().toUpperCase(), tagValues);
+//                setTagValue("country", entityTag.getGeoData().getCountry(), tagValues);
+//                setTagValue("state", entityTag.getGeoData().getState(), tagValues);
+//                setTagValue("city", entityTag.getGeoData().getCity(), tagValues);
+//                if ( entityTag.getGeoData().isValid())
+//                    setTagValue("geo", entityTag.getGeoData().getGeoPoint(),tagValues);
+//            }
+//            if (!entityTag.getTagProperties().isEmpty())
+//                tagValues.put("props", entityTag.getTagProperties());
+        }
+    }
 
-            setTagValue("code", tag.getTag().getCode(), tagValues);
-            if ( !tag.getTag().getCode().equals(tag.getTag().getName()))
-                setTagValue("name", tag.getTag().getName(), tagValues);
+    private void mapTag(EntityTag value, Map<String, ArrayList<SearchTag>> masterValues) {
 
-            if (tag.getGeoData() != null) {
-                setTagValue("iso", tag.getGeoData().getIsoCode().toUpperCase(), tagValues);
-                setTagValue("country", tag.getGeoData().getCountry(), tagValues);
-                setTagValue("state", tag.getGeoData().getState(), tagValues);
-                setTagValue("city", tag.getGeoData().getCity(), tagValues);
-                if ( tag.getGeoData().isValid())
-                    setTagValue("geo", tag.getGeoData().getGeoPoint(),tagValues);
-            }
-            if (!tag.getTagProperties().isEmpty())
-                tagValues.put("props", tag.getTagProperties());
+        if (value != null) {
+            ArrayList<SearchTag> object = masterValues.get(value.getTag().getLabel().toLowerCase());
+            ArrayList<SearchTag> values;
+            if (object == null) {
+                values = new ArrayList<>();
+            } else
+                values = object;
+
+            values.add(new SearchTag(value));
+            // ToDo: Convert to a "search tag"
+            masterValues.put(value.getTag().getLabel().toLowerCase(), values);
         }
     }
 

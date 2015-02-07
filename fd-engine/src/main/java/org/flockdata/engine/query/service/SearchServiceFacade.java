@@ -202,14 +202,15 @@ public class SearchServiceFacade {
             if (lastLog != null)
                 lastChange = lastLog.getLog();
 
-            if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
+            //if () {
                 // Update against the Entity only by re-indexing the search document
                 EntitySearchChange searchDocument;
                 EntityBean entityBean = new EntityBean(entity);
                 if (lastChange != null) {
                     EntityContent content = kvGateway.getContent(entity, lastChange);
                     searchDocument = new EntitySearchChange(entityBean, content, lastChange);
-                    searchDocument.setWho(lastChange.getWho().getCode());
+                    if ( lastChange.getWho()!=null )
+                        searchDocument.setWho(lastChange.getWho().getCode());
                 } else {
                     searchDocument = new EntitySearchChange(entityBean);
                     if (entity.getCreatedBy() != null)
@@ -220,7 +221,7 @@ public class SearchServiceFacade {
                 searchDocument.setReplyRequired(false);
 
                 return searchDocument;
-            }
+            //}
         } catch (Exception e) {
             logger.error("error", e);
         }
@@ -295,7 +296,7 @@ public class SearchServiceFacade {
 
         for (Entity entity : entitiesSet) {
             SearchChange change = rebuild(company, entity, trackService.getLastEntityLog(entity.getId()));
-            if ( change !=null )
+            if ( change !=null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed() )
                 searchChanges.add(change);
         }
         makeChangesSearchable(searchChanges);

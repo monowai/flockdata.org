@@ -19,20 +19,21 @@
 
 package org.flockdata.test.unit;
 
+import org.flockdata.company.model.CompanyNode;
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
@@ -44,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -68,8 +68,8 @@ public class TestEntitySearch {
         entitySearchChange.setTags(tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
-        Map<String, Object> values = entitySearchChange.getTagValues().get("dupe");
-        assertTrue (values.get("code") instanceof Collection);
+        Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get("dupe");
+        //assertTrue (values.get("code") instanceof Collection);
         Collection mValues = (Collection) values.get("code");
         // Each entry has a Name and Code value
         assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3,mValues.size() );
