@@ -44,4 +44,6 @@ public interface Tag {
     public Map<String, Object> getProperties();
 
     String getCode();
+
+    String getLabel();
 }

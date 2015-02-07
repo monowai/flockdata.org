@@ -443,7 +443,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         for (Entity entity : entities) {
             EntityLog lastLog = trackService.getLastEntityLog(entity.getId());
             EntitySearchChange searchDoc = searchService.rebuild(company, entity, lastLog);
-            if  (searchDoc!=null)
+            if  (searchDoc!=null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed() )
                 searchDocuments.add(searchDoc);
             skipCount++;
         }

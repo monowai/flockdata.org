@@ -126,6 +126,16 @@ public class TagNode implements Tag {
         return code;
     }
 
+    @Override
+    public String getLabel() {
+
+        for (String label : labels) {
+            if ( !label.equals("_Tag") && ! label.equals("Tag"))
+                return label;
+        }
+        return "_Tag";
+    }
+
 
     public void setId(Long id) {
         this.id = id;
