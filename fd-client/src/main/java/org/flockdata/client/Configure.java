@@ -224,14 +224,12 @@ public class Configure {
             logger.error("The Login name [{}] is already in use with another company. Login names must be unique per company. Try using an email address", user);
             System.exit(-1);
         }
-        if (suResult != null) {
-            defaults.setDefaultUser(user);
-            defaults.setCompany(suResult.getCompanyName());
-            defaults.setApiKey(suResult.getApiKey());
-        }
-
-
+        defaults.setEngineURL(engineURL);
+        defaults.setDefaultUser(user);
+        defaults.setCompany(suResult.getCompanyName());
+        defaults.setApiKey(suResult.getApiKey());
         writeConfiguration(file, defaults);
+
         return true;
     }
 

@@ -69,7 +69,7 @@ public class QueryDaoES implements QueryDao {
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
     private String[] getTagFields(String[] concepts) {
-        if (concepts==null || concepts.length == 0)
+        if (concepts == null || concepts.length == 0)
             return new String[]{EntitySearchSchema.TAG + ".*.code"};
 
         String[] result = new String[concepts.length];
@@ -81,9 +81,10 @@ public class QueryDaoES implements QueryDao {
         return result;
 
     }
+
     private Collection<String> getTagArray(String[] concepts) {
         Collection<String> result = new ArrayList<>();
-        if (concepts==null || concepts.length == 0)
+        if (concepts == null || concepts.length == 0)
             return result;
 
         for (String concept : concepts) {
@@ -94,7 +95,7 @@ public class QueryDaoES implements QueryDao {
 
     }
 
-    private String parseConcept(String tag ){
+    private String parseConcept(String tag) {
         return EntitySearchSchema.TAG + "." + tag.toLowerCase() + ".code";
     }
 
@@ -128,7 +129,7 @@ public class QueryDaoES implements QueryDao {
 //            }
 //        }
 
-        SearchRequestBuilder searchRequest=
+        SearchRequestBuilder searchRequest =
                 client.prepareSearch(index)
                         .setTypes(tagCloudParams.getTypes())
                         .setQuery(
@@ -143,7 +144,7 @@ public class QueryDaoES implements QueryDao {
 
         TagCloud tagcloud = new TagCloud();
         Aggregations tagCloudFacet = response.getAggregations();
-        if ( tagCloudFacet == null ) {
+        if (tagCloudFacet == null) {
             // ToDo: support "ALL" tag fields
             return tagcloud;
         }
@@ -233,9 +234,10 @@ public class QueryDaoES implements QueryDao {
     }
 
     private void getEntityResults(Collection<SearchResult> results, SearchResponse response, QueryParams queryParams) {
+        logger.debug("Processing [{}] SearchResults from ElasticSearch", results.size());
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
-                // This function returns only information tracked by AB which will always have  a metaKey
+                // This function returns only information tracked by FD which will always have  a metaKey
                 SearchHitField metaKeyCol = searchHitFields.getFields().get(EntitySearchSchema.META_KEY);
                 if (metaKeyCol != null) {
                     Object metaKey = metaKeyCol.getValue();
@@ -245,34 +247,38 @@ public class QueryDaoES implements QueryDao {
                         SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
                                 metaKey.toString(),
-                                searchHitFields.getFields().get(EntitySearchSchema.FORTRESS).getValue().toString(),
-                                searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT).getValue().toString(),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.FORTRESS)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT)),
                                 searchHitFields.getType(),
-                                searchHitFields.getFields().get(EntitySearchSchema.WHO).getValue().toString(),
-                                searchHitFields.getFields().get(EntitySearchSchema.WHEN).getValue().toString(),
-                                searchHitFields.getFields().get(EntitySearchSchema.CREATED).getValue().toString(),
-                                searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP).getValue().toString(),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHO)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHEN)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CREATED)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP)),
                                 fragments);
-                        SearchHitField esField = searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION);
-                        if (esField != null)
-                            sr.setDescription(esField.getValue().toString());
 
-                        esField = searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF);
-                        if (esField != null)
-                            sr.setCallerRef(esField.getValue().toString());
+                        sr.setDescription(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION)));
+
+                        sr.setCallerRef(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF)));
                         if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {
-                                esField = searchHitFields.getFields().get(field);
-                                if (esField != null)
-                                    sr.addFieldValue(field, esField.getValue());
+                                sr.addFieldValue(field, getHitValue(searchHitFields.getFields().get(field)));
                             }
                         }
                         results.add(sr);
 
                     }
                 }
+            } else {
+                logger.debug("Skipping row due to no column");
             }
         }
+    }
+
+    private String getHitValue(SearchHitField field) {
+        if (field == null || field.getValue() == null)
+            return null;
+
+        return field.getValue().toString();
     }
 
     private Map<String, String[]> convertHighlightToMap(Map<String, HighlightField> highlightFields) {

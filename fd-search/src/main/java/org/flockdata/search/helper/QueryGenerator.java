@@ -40,15 +40,10 @@ public class QueryGenerator {
             queryString = StringEscapeUtils.escapeJson(queryString);
         }
 
-        simpleQuery.append("{" + "  query: {"
-                + "    bool: { "
-                + "      should: ["
-                + "        {query_string: { "
-                + "            query: " + '"').append(queryString).append('"')
+        simpleQuery.append("{ \"query\": {"
+                + "        \"query_string\": { "
+                + "            \"query\": " + '"').append(queryString).append('"')
                 .append("          }")
-                .append("        }")
-                .append("      ]")
-                .append("    }")
                 .append("  }");
 
         if (highlightEnabled) {
