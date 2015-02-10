@@ -16,8 +16,14 @@ function findBaseDirAndCdThere {
     done
 
   FD_HOME=`cd $( dirname "$SCRIPT" )/.. && dirs -l +0`
-  AB_CONFIG=$FD_HOME/conf
-  AB_APP=$FD_HOME/app
+  FD_CONFIG=$FD_HOME/conf
+  FD_APP=$FD_HOME/app
+  FD_LOG=$FD_HOME/log
+
+    if [ ! -d "$FD_LOG" ]; then
+        mkdir "$FD_LOG"
+    fi
+
 
   cd "$FD_HOME"
 }
@@ -33,4 +39,4 @@ if [ ! -x "$JAVA" ]; then
 fi
 findBaseDirAndCdThere
 
-$JAVA -classpath $AB_APP/fd-client.jar org.flockdata.client.Configure -c ${AB_CONFIG} $1 $2 $3
+$JAVA -classpath $FD_APP/fd-client* org.flockdata.client.Configure -Dlog4j.configuration=file://${FD_CONFIG}/log4j.xml -c ${FD_CONFIG} $1 $2 $3
