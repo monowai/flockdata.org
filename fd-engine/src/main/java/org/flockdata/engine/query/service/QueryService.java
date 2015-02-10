@@ -113,6 +113,7 @@ public class QueryService {
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult = searchGateway.search(queryParams);
         watch.stop();
+        logger.info ("Result Count " + (esSearchResult.getResults() == null ? 0:esSearchResult.getResults().size()));
         logger.info(watch.prettyPrint());
 
         return esSearchResult;

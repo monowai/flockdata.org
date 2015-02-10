@@ -632,6 +632,13 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
         // ensure that non-analysed tags work
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 1);
+        QueryParams queryParams = new QueryParams();
+        queryParams.setCompany(su.getCompany().getName());
+        queryParams.setFortress(fo.getName());
+        queryParams.setSimpleQuery("*");
+        EsSearchResult results = queryService.search(su.getCompany(), queryParams);
+        assertNotNull(results);
+        assertEquals(1, results.getResults().size());
 
     }
 
@@ -753,8 +760,8 @@ public class TestFdIntegration {
             assertEquals(lastUpdated, new DateTime(searchResult.getLastUpdate(), ftz));
             logger.info("lastUpdate  ftz-{}", new DateTime(searchResult.getLastUpdate(), ftz));
             assertEquals(new DateTime(lastUpdated, utz), new DateTime(searchResult.getLastUpdate(), utz));
-            assertNotNull(searchResult.getAbTimestamp());
-            logger.info("timestamp   ltz-{}", new DateTime(searchResult.getAbTimestamp(), ltz));
+            assertNotNull(searchResult.getFdTimestamp());
+            logger.info("timestamp   ltz-{}", new DateTime(searchResult.getFdTimestamp(), ltz));
 
         }
 
