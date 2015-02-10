@@ -44,7 +44,7 @@ public class SearchResult {
     private Map<String, Object> data;
     private String callerRef;
     private String createdBy;
-    private Long abTimestamp;
+    private Long fdTimestamp;
 
     public String getLastUser() {
         return lastUser;
@@ -111,7 +111,7 @@ public class SearchResult {
             this.lastUpdate = Long.decode(lastUpdate);
 
         if ( abTimestamp !=null )
-            this.abTimestamp = Long.decode(abTimestamp);
+            this.fdTimestamp = Long.decode(abTimestamp);
 
     }
 
@@ -194,8 +194,8 @@ public class SearchResult {
         return createdBy;
     }
 
-    public Long getAbTimestamp() {
-        return abTimestamp;
+    public Long getFdTimestamp() {
+        return fdTimestamp;
     }
 
     public void setDescription(String description) {
