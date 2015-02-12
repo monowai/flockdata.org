@@ -27,6 +27,7 @@ package org.flockdata.test.functional;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
@@ -1065,13 +1066,49 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
-    public void scenario_AliasFound ()throws Exception{
+    public void scenario_SimpleAliasFound ()throws Exception{
         SystemUser su = registerSystemUser("scenario_AliasFound", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
-        TagInputBean tag = new TagInputBean("Holdsworth, Mike");
+        TagInputBean tag = new TagInputBean("Holdsworth, Mike")
+                .setLabel("Person");
 
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        tagService.createAlias(su.getCompany(), tagResult, "Person", "xxx");
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), "xxx");
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+    }
+    @Test
+    public void scenario_AliasCollectionCreated ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasCollectionCreated", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasCollectionCreated", true));
+
+        TagInputBean tag = new TagInputBean("Holdsworth, Mike")
+                .setLabel("Person");
+
+        // The alias will be a "PersonAlias" - ToDo: allow for other types??
+        // We can find the Tag by any of the 2 aliases we define below
+        AliasInputBean alias1 = new AliasInputBean("Mikey");
+        AliasInputBean alias2 = new AliasInputBean("Mike Holdsworth");
+        Collection<AliasInputBean>aliases = new ArrayList<>();
+        aliases.add(alias1);
+        aliases.add(alias2);
+        tag.setAliases(aliases);
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
 
 
     }
+
 }
