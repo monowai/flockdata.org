@@ -22,6 +22,7 @@ package org.flockdata.engine.tag.model;
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockDataTagException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -133,6 +134,9 @@ public class TagDaoNeo4j {
         try {
             logger.trace("Saving {}", tag);
             tag = template.save(tag);
+            if ( tagInput.hasAliases()){
+                makeAliases(company, tag, label, tagInput.getAliases());
+            }
             logger.debug("Saved {}", tag);
             return tag;
         } catch (ConstraintViolationException e) {
@@ -140,6 +144,12 @@ public class TagDaoNeo4j {
             throw e;
         }
 
+    }
+
+    private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
+        for (AliasInputBean alias : aliases) {
+            makeAlias(company,tag,label, alias);
+        }
     }
 
     /**
@@ -342,8 +352,14 @@ public class TagDaoNeo4j {
             return label;
         return label + tagSuffix;
     }
+    public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        if (doesAliasExist(tag.getId(), theLabel, aliasInput.getCode()))
+            return;
 
-    public void createAlias(Company company, Tag tag, String label, String aliasKeyValue) {
+        makeAlias(company, tag, label, aliasInput);
+    }
+    void makeAlias(Company company, Tag tag, String theLabel, AliasInputBean aliasInput) {
         // ToDo
         // match (c:Country) where c.code="NZ" create (ac:CountryAlias {name:"New Zealand", code:"New Zealand"}) , (c)-[:HAS_ALIAS]->(ac) return c, ac
 
@@ -352,13 +368,10 @@ public class TagDaoNeo4j {
         // optional match (a:CountryAlias {code:"New Zealand"})
         // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
         // return c, a,tag
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
-        if (doesAliasExist(tag.getId(), theLabel, aliasKeyValue))
-            return;
 
         String query = "match (t:" + theLabel + ") where id(t)={id} create (alias:`" + theLabel + "Alias" + "` {key:{key}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
         Map<String, Object> params = new HashMap<>();
-        params.put("key", parseKey(aliasKeyValue));
+        params.put("key", parseKey(aliasInput.getCode()));
         params.put("id", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();

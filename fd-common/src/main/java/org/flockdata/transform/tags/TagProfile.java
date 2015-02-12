@@ -19,6 +19,7 @@
 
 package org.flockdata.transform.tags;
 
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class TagProfile {
     private ArrayList<TagProfile> targets;
     private ArrayList<ColumnDefinition>properties;
     private ArrayList<ColumnDefinition>rlxProperties;
+
+    private ArrayList<AliasInputBean>aliases;
 
     private boolean mustExist;
 
@@ -152,5 +155,17 @@ public class TagProfile {
 
     public boolean hasProperites() {
         return properties!=null && properties.size()>0;
+    }
+
+    public void setAliases(ArrayList<AliasInputBean> aliases) {
+        this.aliases = aliases;
+    }
+
+    public ArrayList<AliasInputBean> getAliases() {
+        return aliases;
+    }
+
+    public boolean hasAliases (){
+        return aliases!=null && aliases.size()>0;
     }
 }
