@@ -86,6 +86,8 @@ public class TestTagAliases extends AbstractImport {
             return null;
         }
 
+
+
         @Override
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             return null;

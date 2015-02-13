@@ -22,6 +22,7 @@ package org.flockdata.engine.tag.model;
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockDataTagException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
@@ -148,7 +149,7 @@ public class TagDaoNeo4j {
 
     private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
         for (AliasInputBean alias : aliases) {
-            makeAlias(company,tag,label, alias);
+            createAlias(company, tag,label, alias);
         }
     }
 
@@ -290,7 +291,7 @@ public class TagDaoNeo4j {
         Iterator<Map<String, Object>> results = result.iterator();
         Node node = null;
         Node nodeResult = null;
-        while (results.hasNext()) {
+        while ( results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
             //
@@ -313,9 +314,10 @@ public class TagDaoNeo4j {
                     // under concurrent load you could wind up with multiple tags for the same code even
                     // in a transaction!
                     // here we ensure only one is ever returned and we will tidy up the extras
-                    //Tag toDelete = template.projectTo(n, TagNode.class);
-                    template.delete(node);
-                    logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
+                    if (node.getId()!=nodeResult.getId()) {
+                        template.delete(node);
+                        logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
+                    }
                 }
             }
         }
@@ -357,9 +359,9 @@ public class TagDaoNeo4j {
         if (doesAliasExist(tag.getId(), theLabel, aliasInput.getCode()))
             return;
 
-        makeAlias(company, tag, label, aliasInput);
+        makeAlias(tag, label, aliasInput);
     }
-    void makeAlias(Company company, Tag tag, String theLabel, AliasInputBean aliasInput) {
+    void makeAlias(Tag tag, String theLabel, AliasInputBean aliasInput) {
         // ToDo
         // match (c:Country) where c.code="NZ" create (ac:CountryAlias {name:"New Zealand", code:"New Zealand"}) , (c)-[:HAS_ALIAS]->(ac) return c, ac
 
@@ -369,9 +371,11 @@ public class TagDaoNeo4j {
         // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
         // return c, a,tag
 
-        String query = "match (t:" + theLabel + ") where id(t)={id} create (alias:`" + theLabel + "Alias" + "` {key:{key}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
+        String query = "match (t:" + theLabel + ") where id(t)={id} create (alias:`" + theLabel + "Alias" + "` {key:{key}, code:{code}, description:{description}}) ,(t)-[:HAS_ALIAS]->(alias) return t, alias";
         Map<String, Object> params = new HashMap<>();
         params.put("key", parseKey(aliasInput.getCode()));
+        params.put("code", aliasInput.getCode());
+        params.put("description", aliasInput.getDescription());
         params.put("id", tag.getId());
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
@@ -392,5 +396,27 @@ public class TagDaoNeo4j {
 
     public static String parseKey(String key) {
         return key.toLowerCase().replaceAll("\\s", "");
+    }
+
+    public Collection<AliasInputBean> findTagAliases(Company company, String theLabel, String sourceTag) throws NotFoundException {
+        Tag source = findTag(company, sourceTag, theLabel);
+        if ( source == null )
+            throw new NotFoundException("Unable to find the requested tag " + sourceTag);
+        theLabel = resolveLabel(theLabel, engineAdmin.getTagSuffix(company));
+        String query = "match (t:" + theLabel + " ) -[:HAS_ALIAS]->(alias) where id(t)={id}  return alias";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", source.getId());
+        Result<Map<String, Object>> result = template.query(query, params);
+        Collection<AliasInputBean> aliasResults = new ArrayList<>();
+        for (Map<String, Object> mapResult : result) {
+            Node n = (Node)mapResult.get("alias");
+            AliasInputBean alias = new AliasInputBean(n.getProperty("code").toString());
+            if (n.hasProperty("description") ) {
+                alias.setDescription(n.getProperty("description").toString());
+            }
+            aliasResults.add(alias);
+
+        }
+        return aliasResults;
     }
 }

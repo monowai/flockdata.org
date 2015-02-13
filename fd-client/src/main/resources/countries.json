@@ -35,7 +35,24 @@
                         }
                     ]
                 }
-            ]
+            ],
+          "aliases": [
+
+            {
+              "code": "BGN_name",
+              "description": "'BGN_name'"
+            },
+            {
+              "code": "BGN_proper",
+              "description": "'BGN_proper'"
+            },
+            {
+              "code": "BGN_longname",
+              "description": "'BGN_longname'"
+            }
+
+
+          ]
         }
     }
 }
