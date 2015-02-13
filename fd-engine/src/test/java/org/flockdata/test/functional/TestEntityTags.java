@@ -1011,6 +1011,7 @@ public class TestEntityTags extends EngineBase {
         validateTag(entity, "TagB", 2);
 
     }
+
     @Test
     public void search() throws Exception{
         SystemUser su = registerSystemUser("search", mike_admin);
@@ -1082,6 +1083,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(tagAlias.getId(), tagResult.getId());
 
     }
+
     @Test
     public void scenario_AliasCollectionCreated ()throws Exception{
         SystemUser su = registerSystemUser("scenario_AliasCollectionCreated", mike_admin);
@@ -1107,6 +1109,43 @@ public class TestEntityTags extends EngineBase {
         tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
+    }
+
+    @Test
+    public void scenario_MultipleAliases ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_MultipleAliases", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_MultipleAliases", true));
+
+        TagInputBean tag = new TagInputBean("Peoples Republic of Iran")
+                .setLabel("Country");
+
+        // The alias will be a "PersonAlias" - ToDo: allow for other types??
+        // We can find the Tag by any of the 2 aliases we define below
+        AliasInputBean alias1 = new AliasInputBean("Iran").setDescription("TestA");
+        AliasInputBean alias2 = new AliasInputBean("Islamic Republic").setDescription("TestB");
+        /// Alias 3 should not be created as it's the same as alias 1
+        AliasInputBean alias3 = new AliasInputBean("Iran").setDescription("TestC");
+        Collection<AliasInputBean>aliases = new ArrayList<>();
+        aliases.add(alias1);
+        aliases.add(alias2);
+        tag.setAliases(aliases);
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias3.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagService.findTag(su.getCompany(), tag.getLabel(), "iran");
+        Collection<AliasInputBean> inputs = tagService.findTagAliases(su.getCompany(), tag.getLabel(), "iran");
+        assertEquals ("Alias nodes are uniquely differentiated by code value only", 2, inputs.size());
 
 
     }

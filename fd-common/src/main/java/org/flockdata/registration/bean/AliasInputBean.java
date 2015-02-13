@@ -40,16 +40,18 @@ public class AliasInputBean {
         return code;
     }
 
-    public void setCode(String code) {
+    public AliasInputBean setCode(String code) {
         this.code = code;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public AliasInputBean setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     @Override
@@ -60,7 +62,6 @@ public class AliasInputBean {
         AliasInputBean that = (AliasInputBean) o;
 
         if (!code.equals(that.code)) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
 
         return true;
     }
@@ -68,7 +69,6 @@ public class AliasInputBean {
     @Override
     public int hashCode() {
         int result = code.hashCode();
-        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 }

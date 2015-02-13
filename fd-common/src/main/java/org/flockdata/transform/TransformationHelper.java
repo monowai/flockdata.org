@@ -155,7 +155,7 @@ public class TransformationHelper {
         for (AliasInputBean aliasInputBean : aliases) {
             Object o = row.get(aliasInputBean.getCode());
             if ( o != null ) {
-                AliasInputBean alias = new AliasInputBean(o.toString());
+                AliasInputBean alias = new AliasInputBean(StringUtils.trim(o.toString()));
                 String d = aliasInputBean.getDescription();
                 if (StringUtils.trim(d)!=null)
                     alias.setDescription(evaluateExpression(row, d).toString());
