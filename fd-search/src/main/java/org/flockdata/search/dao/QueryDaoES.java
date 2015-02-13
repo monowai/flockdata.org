@@ -68,66 +68,48 @@ public class QueryDaoES implements QueryDao {
 
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
-    private String[] getTagFields(String[] concepts) {
-        if (concepts == null || concepts.length == 0)
-            return new String[]{EntitySearchSchema.TAG + ".*.code"};
+//    private String[] getTagFields(String[] relationships) {
+//        if (relationships == null || relationships.length == 0)
+//            return new String[]{EntitySearchSchema.TAG + ".*.code"};
+//
+//        String[] result = new String[relationships.length];
+//        int i = 0;
+//        for (String concept : relationships) {
+//            result[i] = parseConcept(concept, params.getTags());
+//            i++;
+//        }
+//        return result;
+//
+//    }
 
-        String[] result = new String[concepts.length];
-        int i = 0;
-        for (String concept : concepts) {
-            result[i] = parseConcept(concept);
-            i++;
-        }
-        return result;
-
-    }
-
-    private Collection<String> getTagArray(String[] concepts) {
+    private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
-        if (concepts == null || concepts.length == 0)
+
+        if (params.getRelationships()== null || params.getRelationships().length == 0)
             return result;
 
-        for (String concept : concepts) {
-            result.add(parseConcept(concept));
+        for (String relationship : params.getRelationships()) {
+            if (params.getTags().length ==0)
+                result.add(parseConcept(relationship, "*"));
+            else
+                for ( String tag : params.getTags() )
+                    result.add(parseConcept(relationship, tag));
         }
 
         return result;
 
     }
 
-    private String parseConcept(String tag) {
-        return EntitySearchSchema.TAG + "." + tag.toLowerCase() + ".code";
+    private String parseConcept(String relationship, String tag) {
+        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".code.facet";
     }
 
     @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
         // Getting all tag and What fields
         String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress());
-//        GetFieldMappingsResponse esIndex;
-//        try {
-//            esIndex = client.admin()
-//                    .indices()
-//                    .prepareGetFieldMappings(index)
-//                    .setTypes(getDocumentTypes(tagCloudParams.getType()))
-//                    .setFields(getTagFields(tagCloudParams.getRelationships()))
-//                    .get();
-//        } catch (IndexMissingException ie) {
-//            logger.error("Requested data from a missing index {}", index);
-//            throw new NotFoundException("The requested index does not exist in the Search Service", ie);
-//        }
 
-//        ImmutableMap<String, ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData>>
-//                mappings = esIndex.mappings().get(index);
-        //List<String> whatAndTagFields = new ArrayList<>();
-        Collection<String> whatAndTagFields = getTagArray(tagCloudParams.getRelationships());
-
-
-//        for (String s : mappings.keySet()) {
-//            ImmutableMap<String, GetFieldMappingsResponse.FieldMappingMetaData> var = mappings.get(s);
-//            for (String field : var.keySet()) {
-//                whatAndTagFields.add(field);
-//            }
-//        }
+        Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
         SearchRequestBuilder searchRequest =
                 client.prepareSearch(index)
