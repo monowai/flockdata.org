@@ -78,7 +78,7 @@ public class SchemaDaoNeo4j {
 
             String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
                     "with tag " +
-                    "match (c:ABCompany) where id(c) = {cid} " +
+                    "match (c:FDCompany) where id(c) = {cid} " +
                     "merge (c)<-[:TAG_INDEX]-(tag) " +
                     "return tag";
             Map<String, Object> params = new HashMap<>();

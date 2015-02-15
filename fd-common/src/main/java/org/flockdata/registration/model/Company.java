@@ -19,6 +19,8 @@
 
 package org.flockdata.registration.model;
 
+import java.util.ArrayList;
+
 public interface Company {
 
     public Long getId();
@@ -30,5 +32,9 @@ public interface Company {
     String getApiKey();
 
     public String getCode();
+
+    public ArrayList<String> getLabels();
+
+    public void setLabels(ArrayList<String> labels);
 
 }

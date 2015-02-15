@@ -77,7 +77,7 @@ public class SearchAdmin {
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({"ROLE_FD_ADMIN"})
     public Map<String, Object> getHealth() {
         String version = VersionHelper.getABVersion();
 

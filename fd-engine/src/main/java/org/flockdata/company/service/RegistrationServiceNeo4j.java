@@ -59,7 +59,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Override
     @Transactional
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -74,7 +74,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     }
 
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
         Company company = companyService.findByName(regBean.getCompanyName());

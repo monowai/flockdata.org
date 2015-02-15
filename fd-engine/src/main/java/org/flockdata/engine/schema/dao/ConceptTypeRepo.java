@@ -34,7 +34,7 @@ public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
 
     @Query(elementClass = ConceptNode.class,
             value =
-                    "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
+                    "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
                             " -[:HAS_CONCEPT]->(concept:_Concept)" +
                             "        where id(company)={0} and doc.name in{1}" +
                             "       return concept")

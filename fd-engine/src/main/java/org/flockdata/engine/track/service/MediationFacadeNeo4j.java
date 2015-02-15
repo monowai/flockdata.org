@@ -241,7 +241,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public void mergeTags(Company company, Tag source, Tag target) {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
@@ -376,7 +376,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public Long reindex(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -418,7 +418,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     @Async("fd-engine")
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public void reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
@@ -458,7 +458,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
 
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public void purge(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -469,7 +469,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    @Secured("ROLE_AB_ADMIN")
+    @Secured(SecurityHelper.ADMIN)
     public void purge(Fortress fortress) throws FlockException {
         purge(fortress.getCompany(), fortress);
     }

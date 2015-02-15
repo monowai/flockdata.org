@@ -37,12 +37,12 @@ public interface FortressRepository extends GraphRepository<FortressNode> {
 	@Query(elementClass = FortressNode.class, value = "start company=node({0}) match company-[:OWNS]->f return f")
 	List<Fortress> findCompanyFortresses(Long companyID);
 
-	@Query(elementClass = FortressNode.class, value = "match (company:ABCompany)-[r:OWNS]->(fortress:Fortress) "
+	@Query(elementClass = FortressNode.class, value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where id(company)={0} and fortress.name ={1} "
 			+ "return fortress")
 	FortressNode getFortressByName(Long companyId, String fortressName);
 
-	@Query(elementClass = FortressNode.class, value = "match (company:ABCompany)-[r:OWNS]->(fortress:Fortress) "
+	@Query(elementClass = FortressNode.class, value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where  id(company)={0}  and fortress.code ={1} "
 			+ "return fortress")
 	FortressNode getFortressByCode(Long companyId, String fortressCode);
