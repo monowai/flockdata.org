@@ -24,10 +24,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.Labels;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
+import java.util.ArrayList;
+
 @NodeEntity
-@TypeAlias(value ="ABCompany")
+@TypeAlias(value ="FDCompany")
 public class CompanyNode implements Company {
     @GraphId
     Long id;
@@ -40,6 +43,10 @@ public class CompanyNode implements Company {
 
     @Indexed
     String apiKey;
+
+    @Labels
+    private ArrayList<String> labels = new ArrayList<>();
+
 
     protected CompanyNode() {
     }
@@ -112,4 +119,13 @@ public class CompanyNode implements Company {
         result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
         return result;
     }
+
+    public ArrayList<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(ArrayList<String> labels) {
+        this.labels = labels;
+    }
+
 }

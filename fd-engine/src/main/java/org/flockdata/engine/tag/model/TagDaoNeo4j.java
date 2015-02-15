@@ -226,8 +226,8 @@ public class TagDaoNeo4j {
     public Collection<Tag> findTags(Company company, String label) {
         Collection<Tag> tagResults = new ArrayList<>();
         // ToDo: Match to company - something like this.....
-        //match (t:Law)-[:_TagLabel]-(c:ABCompany) where id(c)=0  return t,c;
-        //match (t:Law)-[*..2]-(c:ABCompany) where id(c)=0  return t,c;
+        //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
+        //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
         String query = "match (tag:`" + label + "`) return tag";
         // Look at PAGE
         Result<Map<String, Object>> results = template.query(query, null);
@@ -330,7 +330,7 @@ public class TagDaoNeo4j {
         String query = "match (tag" + Tag.DEFAULT + ") delete tag";
         template.query(query, null);
 
-        query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:_ABCompany) where id(c)={company} delete r, tag";
+        query = "match (tag:_Tag)-[r:TAG_INDEX]-(c:_FDCompany) where id(c)={company} delete r, tag";
         Map<String, Object> params = new HashMap<>();
         params.put("company", company.getId());
         template.query(query, params);

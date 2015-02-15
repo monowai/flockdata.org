@@ -19,9 +19,9 @@
 
 package org.flockdata.helper;
 
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.registration.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +34,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SecurityHelper {
+    public static final String ADMIN = "ROLE_FD_ADMIN";
+    public static final String USER  = "ROLE_FD_USER";
+
     @Autowired
     private SystemUserService sysUserService;
 

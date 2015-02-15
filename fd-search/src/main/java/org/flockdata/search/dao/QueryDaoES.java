@@ -68,28 +68,22 @@ public class QueryDaoES implements QueryDao {
 
     private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
-//    private String[] getTagFields(String[] relationships) {
-//        if (relationships == null || relationships.length == 0)
-//            return new String[]{EntitySearchSchema.TAG + ".*.code"};
-//
-//        String[] result = new String[relationships.length];
-//        int i = 0;
-//        for (String concept : relationships) {
-//            result[i] = parseConcept(concept, params.getTags());
-//            i++;
-//        }
-//        return result;
-//
-//    }
-
     private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
 
-        if (params.getRelationships()== null || params.getRelationships().length == 0)
-            return result;
+        if (params.getRelationships()== null || params.getRelationships().length == 0) {
+            if (params.getTags() == null || params.getTags().length == 0)
+                return result;
+            else {
+                for (String tag : params.getTags())
+                    result.add(parseConcept("*", tag));
+                return result;
+            }
+        }
+
 
         for (String relationship : params.getRelationships()) {
-            if (params.getTags().length ==0)
+            if (params.getTags() == null || params.getTags().length ==0)
                 result.add(parseConcept(relationship, "*"));
             else
                 for ( String tag : params.getTags() )

@@ -28,8 +28,8 @@
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="${fd.auth.stormpath.group.user}" value="ROLE_AB_USER" />
-            	<beans:entry key="${fd.auth.stormpath.group.admin}" value="ROLE_AB_ADMIN" />
+            	<beans:entry key="${fd.auth.stormpath.group.user}" value="ROLE_FD_USER" />
+            	<beans:entry key="${fd.auth.stormpath.group.admin}" value="ROLE_FD_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>
@@ -53,7 +53,7 @@
     </beans:bean>
 
     <http auto-config='true' use-expressions="true" >
-        <intercept-url pattern="pattern=/v**" access="hasRole('ROLE_AB_USER')" />
+        <intercept-url pattern="pattern=/v**" access="hasRole('ROLE_FD_USER')" />
         <logout logout-url="/logout" logout-success-url="/index.jsp"/>
     </http>
 

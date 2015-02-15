@@ -59,7 +59,7 @@ public class TrackEventDaoNeo implements TrackEventDao {
         if (ev == null ) {
             String cypher = "merge (event:_Event :Event{code:{code}, name:{name}}) " +
                     "with event " +
-                    "match (c:ABCompany) where id(c) = {coId} " +
+                    "match (c:FDCompany) where id(c) = {coId} " +
                     "merge (c)-[:COMPANY_EVENT]->(event) " +
                     "return event";
 
