@@ -19,8 +19,10 @@
 
 package org.flockdata.transform;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
@@ -86,17 +88,19 @@ public class TransformationHelper {
 
             String defaultVal = codeValue;
 
-            if ( colDef.getNameExp()== null && colDef.getName() == null )
+            if (colDef.getNameExp() == null && colDef.getName() == null)
                 defaultVal = value; // default to the value passed in
-            else if ( colDef.getName() != null )
+            else if (colDef.getName() != null)
                 defaultVal = row.get(colDef.getName()).toString();
 
             tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, defaultVal));
 
             tag.setMustExist(colDef.isMustExist())
-               .setLabel(colDef.isCountry() ? "Country" : label);
+                    .setLabel(colDef.isCountry() ? "Country" : label);
 
             String relationship = getRelationshipName(row, colDef);
+
+            setAliases(tag, colDef, row);
 
             if (relationship != null) {
                 Map<String, Object> rlxProperties = new HashMap<>();
@@ -130,11 +134,43 @@ public class TransformationHelper {
         return true;
     }
 
+    private static void setAliases(TagInputBean tag, ColumnDefinition colDef, Map<String, Object> row) {
+        if (colDef.hasAliases()) {
+            tag.setAliases(getTagAliasValues(colDef.getAliases(), row));
+        }
+    }
+
+    private static void setAliases(TagInputBean tag, TagProfile tagDef, Map<String, Object> row) {
+        if (tagDef.hasAliases()) {
+            tag.setAliases(getTagAliasValues(tag.getAliases(), row));
+
+        }
+    }
+    private static Collection<AliasInputBean> getTagAliasValues(Collection<AliasInputBean> aliases, Map<String, Object> row){
+
+        if ( aliases == null )
+            return new ArrayList<>();
+        Collection<AliasInputBean>results = new ArrayList<>(aliases.size());
+
+        for (AliasInputBean aliasInputBean : aliases) {
+            Object o = row.get(aliasInputBean.getCode());
+            if ( o != null ) {
+                AliasInputBean alias = new AliasInputBean(StringUtils.trim(o.toString()));
+                String d = aliasInputBean.getDescription();
+                if (StringUtils.trim(d)!=null)
+                    alias.setDescription(evaluateExpression(row, d).toString());
+                results.add(alias);
+            }
+        }
+        return results;
+
+    }
+
     public static String getRelationshipName(Map<String, Object> row, ColumnDefinition colDef) {
-        if (colDef.getRelationship() != null )
+        if (colDef.getRelationship() != null)
             return colDef.getRelationship();
 
-        if ( colDef.getRlxExp() == null)
+        if (colDef.getRlxExp() == null)
             return null;
 
         return getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, Tag.UNDEFINED);
@@ -165,12 +201,10 @@ public class TransformationHelper {
                     }
                     if (value == null || value.equals("")) {
                         logger.debug("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
-//                        value = "";
                         return setInTo;
-                        //throw new FlockException(String.format("Undefined row value for %s", tagProfile.getColumn()));
                     }
                 }
-
+                //
                 if (tagProfile.getDelimiter() != null) {
                     // No known entity relationship
                     setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
@@ -188,6 +222,7 @@ public class TransformationHelper {
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
+
                 }
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
@@ -197,7 +232,9 @@ public class TransformationHelper {
                             newTag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
                     }
                 }
-
+                if ( tagProfile.hasAliases()){
+                    setAliases(newTag, tagProfile, row);
+                }
                 if (tagProfile.getTargets() != null) {
                     setNestedTags(newTag, tagProfile.getTargets(), row, reader);
                 }
@@ -217,6 +254,7 @@ public class TransformationHelper {
             newTag.setReverse(tagProfile.getReverse());
             newTag.setMustExist(tagProfile.isMustExist());
             newTag.setLabel(tagProfile.getLabel());
+            newTag.setAliases(getTagAliasValues(tagProfile.getAliases(), row));
             results.add(newTag);
         });
         return results;
@@ -229,8 +267,8 @@ public class TransformationHelper {
             // No header row so we will name the columns, starting at 0, by their ordinal
             for (String lineCol : line) {
                 Object value = lineCol;
-                if (NumberUtils.isNumber(lineCol)){
-                     value =NumberUtils.createNumber(lineCol);
+                if (NumberUtils.isNumber(lineCol)) {
+                    value = NumberUtils.createNumber(lineCol);
                 }
 
                 row.put(Integer.toString(col), value);
@@ -238,13 +276,18 @@ public class TransformationHelper {
             }
         } else {
             for (String column : headerRow) {
-                Object value = line[col];
-                if (NumberUtils.isNumber(line[col])){
-                    value =NumberUtils.createNumber(line[col]);
-                }
+                try {
+                    Object value = line[col];
+                    if (NumberUtils.isNumber(line[col])) {
+                        value = NumberUtils.createNumber(line[col]);
+                    }
 
-                row.put(column, value);
-                col++;
+                    row.put(column, value);
+                    col++;
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    // Column does not exist for this row
+                    return row;
+                }
             }
         }
         return row;

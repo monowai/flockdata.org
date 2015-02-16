@@ -59,7 +59,7 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
                     " return entity ")
     Collection<Entity> findByCallerRef(Long fortressId, String callerRef);
 
-    @Query (elementClass = EntityNode.class, value = "match (company:ABCompany), (entities:_Entity) " +
+    @Query (elementClass = EntityNode.class, value = "match (company:FDCompany), (entities:_Entity) " +
             " where id(company)={0} " +
             "   and entities.metaKey in {1}  " +
             "  with company, entities match (company)-[*..2]-(entities) " +

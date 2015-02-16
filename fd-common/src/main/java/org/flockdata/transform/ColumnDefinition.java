@@ -22,6 +22,7 @@ package org.flockdata.transform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.flockdata.transform.tags.TagProfileDeserializer;
 
@@ -35,6 +36,7 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
+
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, CALLER_REF}
 
     // Flags that profile the properties of a column
@@ -70,6 +72,8 @@ public class ColumnDefinition {
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
+
+    private ArrayList<AliasInputBean> aliases;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
@@ -333,7 +337,6 @@ public class ColumnDefinition {
         return properties;
     }
 
-
     public boolean hasProperites() {
         return this.properties != null && properties.size() > 0;
     }
@@ -368,4 +371,14 @@ public class ColumnDefinition {
                 ", type='" + type + '\'' +
                 '}';
     }
+
+    public ArrayList<AliasInputBean> getAliases() {
+        return aliases;
+    }
+
+    @JsonIgnore
+    public boolean hasAliases() {
+        return ( aliases != null && !aliases.isEmpty());
+    }
+
 }

@@ -128,8 +128,8 @@ public class TestAuthenticationEP {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(JsonUtils.getJSON(loginReq)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.userRoles[0]", is("ROLE_AB_ADMIN")))
-				.andExpect(jsonPath("$.userRoles[1]", is("ROLE_AB_USER")))
+				.andExpect(jsonPath("$.userRoles[0]", is("ROLE_FD_ADMIN")))
+				.andExpect(jsonPath("$.userRoles[1]", is("ROLE_FD_USER")))
 				.andReturn();
 	}
 

@@ -22,7 +22,9 @@ package org.flockdata.engine.tag.service;
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.tag.model.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -116,7 +118,18 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public void createAlias(Company company, Tag tag, String label, String aliasKeyValue) {
-        tagDao.createAlias(company, tag, label, aliasKeyValue);
+    public void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue) {
+        AliasInputBean aliasInputBean = new AliasInputBean(aliasKeyValue);
+        createAlias(company, tag, forLabel, aliasInputBean);
+    }
+
+    public void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput) {
+
+        tagDao.createAlias(company, tag, forLabel, aliasInput);
+    }
+
+    @Override
+    public Collection<AliasInputBean> findTagAliases(Company company, String label, String sourceTag) throws NotFoundException {
+        return tagDao.findTagAliases(company, label, sourceTag);
     }
 }

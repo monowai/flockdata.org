@@ -121,7 +121,7 @@ public abstract class EngineBase {
     KvService kvService;
 
 	@Autowired
-	CompanyService companyService;
+	public CompanyService companyService;
 
 	@Autowired
     @Deprecated // Use companyService instead

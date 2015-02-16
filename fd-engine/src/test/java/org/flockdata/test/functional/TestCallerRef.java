@@ -96,7 +96,7 @@ public class TestCallerRef extends EngineBase {
         // Should be a total of 2, both for the same fortress but different document types
         for (Entity result : results) {
             assertEquals("ABC123", result.getCallerRef());
-            count ++;
+            count++;
         }
         assertEquals(2, count);
 
@@ -109,35 +109,36 @@ public class TestCallerRef extends EngineBase {
      */
     @Test
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
-            cleanUpGraph();
-            SystemUser su = registerSystemUser(monowai, "dupex");
+        cleanUpGraph();
+        SystemUser su = registerSystemUser(monowai, "dupex");
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
-            String docType = "TestAuditX";
-            String callerRef = "ABC123X";
-            int runnersToCreate = 3;
-            Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
-            CountDownLatch latch = new CountDownLatch(runnersToCreate);
-            for (int i = 0; i < runnersToCreate; i++) {
-                runners.add(addRunner(fortress, docType, callerRef, latch));
-            }
+        String docType = "TestAuditX";
+        String callerRef = "ABC123X";
+        int runnersToCreate = 3;
+        Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
 
-            latch.await();
-            Thread.yield();
-            assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
-            Thread.sleep(200);
-            for (CallerRefRunner runner : runners) {
-                assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
-            }
-            cleanUpGraph(); // No transaction so need to clear down the graph
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(runnersToCreate);
+        for (int i = 0; i < runnersToCreate; i++) {
+            runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
+        }
+        startLatch.countDown();
+        Thread.yield();
+        latch.await();
+        assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
+        Thread.yield();
+        for (CallerRefRunner runner : runners) {
+            assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
+        }
 
 
     }
 
-    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, CountDownLatch latch) {
+    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, CountDownLatch latch, CountDownLatch startLatch) {
 
-        CallerRefRunner runner = new CallerRefRunner(callerRef, docType, fortress, latch);
+        CallerRefRunner runner = new CallerRefRunner(callerRef, docType, fortress, latch, startLatch);
         Thread thread = new Thread(runner);
         thread.start();
         return runner;
@@ -148,14 +149,16 @@ public class TestCallerRef extends EngineBase {
         String callerRef;
         Fortress fortress;
         CountDownLatch latch;
+        CountDownLatch startLatch;
         int maxRun = 20;
         boolean worked = false;
 
-        public CallerRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch) {
+        public CallerRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch, CountDownLatch startLatch) {
             this.callerRef = callerRef;
             this.docType = docType;
             this.fortress = fortress;
             this.latch = latch;
+            this.startLatch = startLatch;
             this.worked = false;
         }
 
@@ -167,10 +170,12 @@ public class TestCallerRef extends EngineBase {
         public void run() {
             int count = 0;
             setSecurity();
+
             try {
+                startLatch.await();
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
-                    assert (docType!=null);
+                    assert (docType != null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getEntityBean().getCallerRef().toLowerCase());
@@ -183,7 +188,7 @@ public class TestCallerRef extends EngineBase {
                     count++;
                 }
                 worked = true;
-                logger.info ("{} completed", this.toString());
+                logger.info("{} completed", this.toString());
             } catch (RuntimeException | ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);
             } finally {

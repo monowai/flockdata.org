@@ -57,6 +57,7 @@ public class TagInputBean {
     private String entityLink = null;
     private boolean mustExist = false;
     private String serviceMessage;
+    private Collection<AliasInputBean> aliases;
 
 
     public TagInputBean() {
@@ -339,4 +340,15 @@ public class TagInputBean {
         return thisLabel;
     }
 
+    public boolean hasAliases() {
+        return ( aliases!=null && !aliases.isEmpty());
+    }
+
+    public Collection<AliasInputBean> getAliases() {
+        return aliases;
+    }
+
+    public void setAliases(Collection<AliasInputBean> aliases) {
+        this.aliases = aliases;
+    }
 }

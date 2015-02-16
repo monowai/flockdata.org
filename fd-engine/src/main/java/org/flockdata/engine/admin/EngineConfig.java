@@ -21,6 +21,7 @@ package org.flockdata.engine.admin;
 
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
@@ -64,8 +65,6 @@ public class EngineConfig implements FdEngineConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     private Boolean multiTenanted = false;
-
-    private KvService.KV_STORE kvStore = null;
 
     @Qualifier("fdMonitoringGateway")
     @Autowired
@@ -125,7 +124,7 @@ public class EngineConfig implements FdEngineConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({"ROLE_AB_ADMIN","ROLE_AB_USER"})
+    @Secured({SecurityHelper.ADMIN,SecurityHelper.USER})
     public Map<String, String> getHealthAuth() {
      return getHealth();
     }
@@ -185,7 +184,7 @@ public class EngineConfig implements FdEngineConfig {
 //    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
 //            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
     @Override
-    @Secured({"ROLE_AB_ADMIN"})
+    @Secured({SecurityHelper.ADMIN})
     public void resetCache() {
         logger.info("Reset the cache");
     }
@@ -211,7 +210,7 @@ public class EngineConfig implements FdEngineConfig {
     }
 
     @Override
-    @Secured({"ROLE_AB_ADMIN","ROLE_AB_USER"})
+    @Secured({SecurityHelper.ADMIN,SecurityHelper.USER})
     public String authPing() {
         return  "Pong!";
     }
