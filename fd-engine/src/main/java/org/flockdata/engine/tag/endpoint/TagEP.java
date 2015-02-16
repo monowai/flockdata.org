@@ -22,6 +22,7 @@ package org.flockdata.engine.tag.endpoint;
 import org.flockdata.helper.ApiKeyHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -127,6 +128,14 @@ public class TagEP {
             throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
         mediationFacade.createAlias(company, label, source, akaValue);
 
+    }
+
+    @RequestMapping(value = "/{label}/{code}/alias", produces = "application/json", method = RequestMethod.GET)
+    public Collection<AliasInputBean> getTagAliases(@PathVariable("label") String label,
+                                                    String apiKey,
+                                                    @RequestHeader(value = "api-key", required = false) String apiHeaderKey, @PathVariable("code") String code) throws FlockException {
+        Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return tagService.findTagAliases(company, label, code);
     }
 
 }

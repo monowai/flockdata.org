@@ -20,7 +20,6 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.company.model.FortressNode;
-import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Company;
@@ -31,8 +30,6 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;
 import java.util.TimeZone;
@@ -143,62 +140,7 @@ public class TestRegistration extends EngineBase {
 
     }
 
-    @Test
-    public void companyLocators () throws Exception{
-        setSecurity(mike_admin);
-        SystemUser su = registerSystemUser("companyLocators", "mike");
 
-        Collection<Company> companies = companyService.findCompanies();
-        assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = companyService.findByName(listCompany.getName());
-        assertEquals(null, listCompany.getId(), foundCompany.getId());
-        try {
-            org.junit.Assert.assertEquals(null, companyEP.getCompany(foundCompany.getName(), "illegal", "illegal"));
-            fail("Illegal API key parsed in. This should not have worked");
-        } catch (FlockException e ){
-            // Illegal API key so this is good.
-        }
-        ResponseEntity re = companyEP.getCompany("IllegalCompany Name", su.getApiKey(), su.getApiKey());
-        assertEquals(HttpStatus.NOT_FOUND, re.getStatusCode());
-        assertEquals(null, re.getBody());
-    }
-
-    @Test
-    public void differentUsersCantAccessKnownCompany () throws Exception{
-        setSecurity(mike_admin);
-        String apiKeyMike = registerSystemUser("coA123", mike_admin).getApiKey();
-
-        Collection<Company> companies = companyService.findCompanies();
-        assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = companyEP.getCompany(listCompany.getName(), apiKeyMike, apiKeyMike).getBody();
-        assertEquals(null, listCompany.getId(), foundCompany.getId());
-
-        setSecurity(sally_admin);
-        String apiKeySally = registerSystemUser("coB123", sally_admin).getApiKey();
-
-        try {
-            org.junit.Assert.assertEquals("Sally's APIKey cannot see Mikes company record", null, companyEP.getCompany("coA123", apiKeySally, apiKeySally));
-            fail("Security Check failed");
-        } catch (FlockException e ){
-            // Illegal API key so this is good.
-        }
-        // Happy path
-        assertNotNull ( companyEP.getCompany("coB123", apiKeySally, apiKeySally));
-        assertNotNull ( companyEP.getCompany("coB123", null, null));
-        setSecurity(mike_admin);
-        try {
-            org.junit.Assert.assertEquals("Mike's APIKey cannot see Sally's company record", null, companyEP.getCompany("coB123", apiKeyMike, apiKeyMike));
-            fail("Security Check failed");
-        } catch (FlockException e ){
-            // Illegal API key so this is good.
-        }
-        // Happy path
-        assertNotNull ( companyEP.getCompany("coA123", apiKeyMike, apiKeyMike));
-        assertNotNull ( companyEP.getCompany("coA123", null, null));
-
-    }
 
     @Test
     public void testRegistration() throws Exception {
@@ -209,13 +151,6 @@ public class TestRegistration extends EngineBase {
 
         // Create the company.
         setSecurityEmpty();
-//        try {
-//            // Unauthenticated users can't register accounts
-//            regService.registerSystemUser(new RegistrationBean(companyName, userName, "Arbitrary Full Name"));
-//            fail("logged in user check failed");
-//        } catch (Exception e) {
-//            // this is good
-//        }
 
         // Now the user has now logged in.
         setSecurity(mike_admin);

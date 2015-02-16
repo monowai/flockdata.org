@@ -41,7 +41,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
 
     @Query(elementClass = DocumentTypeNode.class,
             value =
-                    "MATCH (company:ABCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
+                    "MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
                             "        where id(company)={0} and tag.companyKey ={1}" +
                             "       return tag")
     DocumentTypeNode findCompanyTag(Long companyId, String companyKey);
@@ -54,7 +54,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     Collection<DocumentType> getFortressDocumentsInUse(Long fortressId);
 
     @Query(elementClass = DocumentTypeNode.class,
-            value = "match (docTypes:_DocType)-[*..2]-(company:ABCompany) " +
+            value = "match (docTypes:_DocType)-[*..2]-(company:FDCompany) " +
                     "where id(company) = {0} return docTypes")
     Collection<DocumentType> getCompanyDocumentsInUse(Long companyId);
 
@@ -63,13 +63,13 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     void purgeFortressDocuments(Long fortressId);
 
     @Query(elementClass = DocumentTypeNode.class,
-            value = "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
+            value = "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
                     "        where id(company)={0} and doc.name in{1}" +
                     "       return doc")
     Set<DocumentType> findDocuments(Company company, Collection<String> documents);
 
     @Query(elementClass = DocumentTypeNode.class,
-            value = "MATCH (company:ABCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
+            value = "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
                     "        where id(company)={0} " +
                     "       return doc")
     Set<DocumentType> findAllDocuments(Company company);

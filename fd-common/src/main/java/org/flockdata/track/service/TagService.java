@@ -20,6 +20,8 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
@@ -57,5 +59,9 @@ public interface TagService {
 
     public void purgeLabel(Company company, String label);
 
-    void createAlias(Company company, Tag tag, String label, String aliasKeyValue);
+    void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
+
+    void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput );
+
+    Collection<AliasInputBean> findTagAliases(Company company, String label, String sourceTag) throws NotFoundException;
 }

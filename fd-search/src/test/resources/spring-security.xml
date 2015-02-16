@@ -20,7 +20,7 @@
         <authentication-provider>
             <user-service>
                 <user name="mike" password="123" authorities="ROLE_USER"/>
-                <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_AB_ADMIN"/>
+                <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_FD_ADMIN"/>
             </user-service>
         </authentication-provider>
     </authentication-manager>

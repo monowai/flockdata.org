@@ -1,0 +1,4 @@
+name,code,country,us-census
+Alabama,AL,US,1
+Alaska,AK,US,2
+Blah,AB,NZ

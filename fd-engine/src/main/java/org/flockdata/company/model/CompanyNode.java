@@ -19,15 +19,15 @@
 
 package org.flockdata.company.model;
 
-import org.flockdata.registration.model.Company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.registration.model.Company;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
 @NodeEntity
-@TypeAlias(value ="ABCompany")
+@TypeAlias(value ="FDCompany")
 public class CompanyNode implements Company {
     @GraphId
     Long id;
@@ -112,4 +112,6 @@ public class CompanyNode implements Company {
         result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
         return result;
     }
+
+
 }
