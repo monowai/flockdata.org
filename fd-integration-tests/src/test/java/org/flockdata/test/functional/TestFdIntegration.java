@@ -295,7 +295,7 @@ public class TestFdIntegration {
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Track Test"));
-        String docType = "TestAuditX";
+        String docType = "ZZDocCode";
         String callerRef = "ABC123X";
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
@@ -597,7 +597,7 @@ public class TestFdIntegration {
         logger.info("## tag_UniqueKeySearch");
         SystemUser su = registerSystemUser("Cameron");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagKeySearch"));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKey", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "ABC123");
         ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
@@ -1139,10 +1139,11 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test"));
 
         ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
-        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "Query", new DateTime(), "abzz");
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "UtfTextCode", new DateTime(), "abzz");
         input.setContent(log);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+        logger.info("Track request made. About to wait for first search result");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
     }

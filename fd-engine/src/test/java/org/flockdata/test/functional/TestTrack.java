@@ -318,7 +318,7 @@ public class TestTrack extends EngineBase {
         // Registering the internal admin as a data access user
         SystemUser su = registerSystemUser("updateByCallerRefNoAuditKeyMultipleClients");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(),true));
-        String docType = "TestAuditX";
+        String docType = "MultiClient";
         String callerRef = "ABC123X";
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
         String keyA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
@@ -351,7 +351,7 @@ public class TestTrack extends EngineBase {
         logger.info ( "## companyAndFortressWithSpaces");
         SystemUser su = registerSystemUser("companyAndFortressWithSpaces", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track Test" + System.currentTimeMillis(), true));
-        String docType = "TestAuditX";
+        String docType = "companyAndFortressWithSpaces";
         String callerRef = "ABC123X";
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
         String keyA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
