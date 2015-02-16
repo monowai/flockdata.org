@@ -114,7 +114,7 @@ public class TestCallerRef extends EngineBase {
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
-        String docType = "TestAuditX";
+        String docType = "StressDupe";
         String callerRef = "ABC123X";
         int runnersToCreate = 3;
         Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
