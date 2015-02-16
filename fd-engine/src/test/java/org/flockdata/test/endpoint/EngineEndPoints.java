@@ -20,17 +20,19 @@
 package org.flockdata.test.endpoint;
 
 import org.flockdata.authentication.LoginRequest;
-import org.flockdata.helper.ApiKeyInterceptor;
-import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.company.model.CompanyNode;
 import org.flockdata.company.model.FortressNode;
+import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.SystemUserResultBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.http.MediaType;
@@ -161,6 +163,38 @@ public class EngineEndPoints {
 
         return JsonUtils.getBytesAsObject(json, TrackResultBean.class);
     }
+
+    public Company getCompany(String name, SystemUser su) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/" + name)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+        return JsonUtils.getBytesAsObject(json, CompanyNode.class);
+    }
+
+    public boolean findCompanyIllegal(String name, SystemUser su) throws Exception {
+        getMockMvc().perform(MockMvcRequestBuilders.get("/company/"+name)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        return true;
+    }
+
+
+    public Collection<CompanyNode> findCompanies(SystemUser su) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+        return JsonUtils.getAsCollection(json, CompanyNode.class);
+
+    }
+
 
     public String adminPing()throws Exception {
         ResultActions result = getMockMvc()

@@ -17,18 +17,17 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.model;
+package org.flockdata.helper;
 
-public interface Company {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public Long getId();
+@ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Resource not found ")  // 404
+public class FdRestNotFoundException extends RuntimeException {
+    String code = null;
 
-    public String getName();
-
-    public void setName(String name);
-
-    String getApiKey();
-
-    public String getCode();
+    public FdRestNotFoundException(String code){
+        this.code = code;
+    }
 
 }

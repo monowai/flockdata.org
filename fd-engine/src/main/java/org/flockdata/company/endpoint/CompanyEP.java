@@ -19,22 +19,21 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.track.service.SchemaService;
-import org.flockdata.helper.ApiKeyHelper;
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
+import org.flockdata.helper.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -66,23 +65,25 @@ public class CompanyEP {
         return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
-    @RequestMapping(value = "/{companyName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{companyName}",  produces = "application/json", method = RequestMethod.GET)
+    public Company getCompany(@PathVariable("companyName") String companyName,
+                                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
-    public ResponseEntity<Company> getCompany(@PathVariable("companyName") String companyName,
-                                              String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        // curl -u mike:123 -X GET http://localhost:8080/ab/company/Monowai
+        Company callersCompany = CompanyResolver.resolveCompany(request);
+        if ( callersCompany == null )
+            throw new FdRestNotFoundException(companyName);
 
-        Company callersCompany = getCompany(apiHeaderKey, apiKey);
-        Company company = companyService.findByName(companyName);
-        if (company == null)
-            return new ResponseEntity<>(company, HttpStatus.NOT_FOUND);
-        //ToDo figure out companyName strategy
-        if (!callersCompany.getId().equals(company.getId())) {
-            //Not Authorised
-            throw new FlockException("Company ["+companyName+"] could not be found");
-        } else {
-            return new ResponseEntity<>(company, HttpStatus.OK);
-        }
+        // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
+        //   so why bother letting them chose another one?
+        return callersCompany;
+        //Company requestedCompany = companyService.findByName(companyName);
+
+//        if (requestedCompany== null ) {
+//            //Not Authorised
+//            throw new FlockException("Company ["+companyName+"] could not be found");
+//        } else {
+//            return requestedCompany;
+//        }
     }
 
 
@@ -92,17 +93,13 @@ public class CompanyEP {
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
 
     public Collection<DocumentResultBean> getDocumentsInUse(
-            String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
+            HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
-        // ToDo: figure out if the API Key can resolve to multiple companies
-        Company company = getCompany(apiHeaderKey, apiKey);
+        Company company = CompanyResolver.resolveCompany(request);
         return schemaService.getDocumentsInUse(company);
 
     }
 
-    private Company getCompany(String apiHeaderKey, String apiRequestKey) throws FlockException {
-        return registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiRequestKey));
-    }
 
 
 }
