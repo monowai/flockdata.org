@@ -111,14 +111,11 @@ public class TestForceDeadlock extends EngineBase {
         setSecurity();
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
         String docType = "entitiesUnderLoad";
-        Thread.sleep(500);
-
 
         int tagCount = 1; // unique tags per entity - tags are shared across the entities
         int docCount = 1; // how many entities to create per thread
         int threadMax = 35; // Each thread will create a unique document type
         ArrayList<TagInputBean> tags = getTags(tagCount,false);
-
 
         Map<Integer, EntityRunner> runners = new HashMap<>();
 
@@ -130,7 +127,7 @@ public class TestForceDeadlock extends EngineBase {
         }
         startSignal.countDown();
         latch.await();
-        Thread.yield();
+
         for (Integer integer : runners.keySet()) {
             assertEquals(true, runners.get(integer).isWorked());
         }
@@ -144,6 +141,7 @@ public class TestForceDeadlock extends EngineBase {
             for ( int count =0; count < docCount; count ++ ) {
                 Entity entity = trackService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
+                assertNotNull(su.getCompany());
                 assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
             }
         }
@@ -185,7 +183,7 @@ public class TestForceDeadlock extends EngineBase {
         int maxRun = 30;
         List<EntityInputBean> inputBeans;
         Collection<TagInputBean> tags;
-        SystemUser su;
+        String apiKey;
         CountDownLatch latch;
         CountDownLatch startSignal;
         int count = 0;
@@ -201,7 +199,7 @@ public class TestForceDeadlock extends EngineBase {
             this.latch = latch;
             this.startSignal = startSignal;
             this.maxRun = maxRun;
-            this.su = su;
+            this.apiKey = su.getApiKey();
             inputBeans = new ArrayList<>();
             int count = 0;
             while (count < maxRun) {
@@ -222,17 +220,19 @@ public class TestForceDeadlock extends EngineBase {
 
         @Override
         public void run() {
+            worked = false;
             try {
                 startSignal.await();
-                worked = false;
+                Thread.yield();
                 for (EntityInputBean inputBean : inputBeans) {
-                    mediationFacade.trackEntity(inputBean, su.getApiKey());
+                    mediationFacade.trackEntity(inputBean, apiKey);
                 }
 
                 worked = true;
             } catch (Exception e) {
                 logger.error(e.getLocalizedMessage());
             } finally {
+                Thread.yield();
                 done = true;
                 latch.countDown();
             }
