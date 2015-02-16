@@ -295,7 +295,7 @@ public class TestFdIntegration {
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Track Test"));
-        String docType = "TestAuditX";
+        String docType = "ZZDocCode";
         String callerRef = "ABC123X";
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
