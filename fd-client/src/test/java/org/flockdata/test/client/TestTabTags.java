@@ -19,10 +19,8 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 
@@ -41,7 +39,7 @@ public class TestTabTags {
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};
-        Map<String, Object> json = mapper.setData(headers, data, params, reader);
+        Map<String, Object> json = mapper.setData(headers, data, params);
         assertNotNull(json);
         assertNotNull(mapper);
         assertEquals("Code does not match", "F2600", mapper.getCode());
@@ -49,15 +47,5 @@ public class TestTabTags {
         assertNotNull(mapper.getProperties().get("order"));
         assertEquals(1, mapper.getTargets().size());
     }
-    FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
 
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
-        }
-    };
 }

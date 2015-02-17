@@ -31,7 +31,6 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.json.JsonEntityMapper;
@@ -43,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -57,18 +55,6 @@ public class TestJsonEntity {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestCsvEntity.class);
 
-    FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
-
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
-        }
-    };
-
     @Test
     public void entity_JsonStructure() throws Exception {
         ImportProfile params = ClientConfiguration.getImportParams("/gov.json");
@@ -78,7 +64,7 @@ public class TestJsonEntity {
             ObjectMapper mapper = new ObjectMapper();
             InputStream file = TestCsvEntity.class.getResourceAsStream("/object-example.json");
             JsonNode theMap = mapper.readTree(file);
-            entity.setData(theMap, params, reader);
+            entity.setData(theMap, params);
             assertEquals(11, entity.getTags().size());
             assertEquals("hr4015-113", entity.getCallerRef());
             assertEquals("hr", entity.getDocumentName());
@@ -110,7 +96,7 @@ public class TestJsonEntity {
 
     @Test
     public void object_ImportJsonEntity() throws Exception{
-        FileProcessor fileProcessor = new FileProcessor(reader);
+        FileProcessor fileProcessor = new FileProcessor();
         ImportProfile profile = ClientConfiguration.getImportParams("/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
@@ -124,7 +110,7 @@ public class TestJsonEntity {
 
     @Test
     public void array_ImportJsonEntities() throws Exception{
-        FileProcessor fileProcessor = new FileProcessor(reader);
+        FileProcessor fileProcessor = new FileProcessor();
         ImportProfile profile = ClientConfiguration.getImportParams("/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setFortressName("testing");

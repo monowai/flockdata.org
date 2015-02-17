@@ -38,7 +38,7 @@ public interface ProfileConfiguration {
 
     public Map<String, ColumnDefinition> getContent();
 
-    String getClazz();
+    String getHandler();
 
     char getDelimiter();
 
@@ -61,8 +61,6 @@ public interface ProfileConfiguration {
     boolean isArchiveTags();
 
     String getEvent();
-
-    String getStaticDataClazz();
 
     ColumnDefinition getColumnDef(String column);
 

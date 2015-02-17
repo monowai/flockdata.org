@@ -20,13 +20,12 @@
 package org.flockdata.transform.xml;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.transform.FdReader;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -46,17 +45,17 @@ public interface XmlMappable extends Mappable {
     @JsonIgnore
     public String getDataType();
 
-    XmlMappable newInstance(boolean simulateOnly);
-
-    public ContentInputBean setXMLData(XMLStreamReader xsr, ProfileConfiguration importProfile, FdReader FdReader) throws JAXBException, JsonProcessingException, FlockException;
+    public ContentInputBean setXMLData(XMLStreamReader xsr, ProfileConfiguration importProfile) throws JAXBException, JsonProcessingException, FlockException;
 
     /**
-     * Some XML files require skipping.
+     * XML files require skipping.
      * Use this to position the reader to the collection of elements
      *
      * @param xsr stream
      * @throws XMLStreamException
      */
     void positionReader(XMLStreamReader xsr) throws XMLStreamException;
+
+    XmlMappable newInstance(ProfileConfiguration importProfile);
 }
 

@@ -19,10 +19,9 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.client.rest.FdRestReader;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.csv.CsvTagMapper;
 
 import java.util.Collection;
@@ -43,8 +42,8 @@ public class TestCSVConcepts {
         CsvTagMapper mappedTag = new CsvTagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
-        FdRestReader fdRestReader = new FdRestReader(null);
-        Map<String,Object> json = mappedTag.setData(headers, data, params, fdRestReader);
+
+        Map<String,Object> json = mappedTag.setData(headers, data, params);
         assertNotNull (json);
         Map<String, Collection<TagInputBean>> allTargets = mappedTag.getTargets();
         assertNotNull(allTargets);

@@ -30,7 +30,6 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
@@ -39,7 +38,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -52,7 +50,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 public class TestEntityRlxProperties {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor(reader);
+        FileProcessor fileProcessor = new FileProcessor();
         File file = new File("/properties-rlx.json");
         ClientConfiguration configuration = Configure.readConfiguration(file);
         assertNotNull(configuration);
@@ -142,15 +140,5 @@ public class TestEntityRlxProperties {
         }
     };
 
-    FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
 
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
-        }
-    };
 }

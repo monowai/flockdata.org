@@ -23,7 +23,6 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.flockdata.client.rest.FdRestReader;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
@@ -191,7 +190,7 @@ public class Importer {
 
 
                 if (fileProcessor == null)
-                    fileProcessor = new FileProcessor(new FdRestReader(restClient));
+                    fileProcessor = new FileProcessor();
 
                 // Importer does not know what the company is
                 totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, configuration);

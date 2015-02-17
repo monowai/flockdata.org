@@ -48,7 +48,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 public class TestImporterPreparsing extends AbstractImport {
     @Test
     public void string_PreParseRow() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor(reader);
+        FileProcessor fileProcessor = new FileProcessor();
         ClientConfiguration configuration = getClientConfiguration("/pre-parse.json");
         configuration.setDefaultUser("test");
 

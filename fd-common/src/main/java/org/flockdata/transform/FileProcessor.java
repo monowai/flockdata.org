@@ -51,8 +51,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,17 +68,15 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
     private TrackBatcher trackBatcher;
-    private FdReader defaultStaticDataResolver = null;
-    private FdReader staticDataResolver = null; // Instance specific
 
     public FileProcessor() {
 
     }
 
-    public FileProcessor(FdReader staticDataResolver) {
-        this();
-        this.defaultStaticDataResolver = staticDataResolver;
-    }
+//    public FileProcessor(FdReader staticDataResolver) {
+//        this();
+//        this.defaultStaticDataResolver = staticDataResolver;
+//    }
 
     public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
@@ -148,7 +144,7 @@ public class FileProcessor {
                 trackBatcher.flush();
 
         }
-        return tags.size();  //To change body of created methods use File | Settings | File Templates.
+        return tags.size();
     }
 
     private long processJsonEntities(String fileName, ProfileConfiguration importProfile, int skipCount, FdWriter writer) throws FlockException {
@@ -227,7 +223,7 @@ public class FileProcessor {
 
     private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
         JsonEntityMapper entityInputBean = new JsonEntityMapper();
-        entityInputBean.setData(node, importProfile, getStaticDataResolver(importProfile, writer));
+        entityInputBean.setData(node, importProfile);
         if (entityInputBean.getFortress() == null)
             entityInputBean.setFortress(importProfile.getFortressName());
 
@@ -263,10 +259,16 @@ public class FileProcessor {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
 
-                    XmlMappable row = mappable.newInstance(writer.isSimulateOnly());
-
-                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile, getStaticDataResolver(importProfile, writer));
+                    XmlMappable row = mappable.newInstance(importProfile);
+                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
                     EntityInputBean entityInputBean = (EntityInputBean) row;
+
+                    if (entityInputBean.getFortress() == null )
+                        entityInputBean.setFortress(importProfile.getFortressName());
+
+                    if ( entityInputBean.getFortressUser() == null )
+                        entityInputBean.setFortressUser(importProfile.getFortressUser());
+
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
                         referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
                         entityInputBean.getCrossReferences().size();
@@ -351,7 +353,7 @@ public class FileProcessor {
                         row = (DelimitedMappable) importProfile.getMappable();
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
-                        Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile, getStaticDataResolver(importProfile, writer));
+                        Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile);
                         //logger.info(jsonData);
                         if (DataType == ProfileConfiguration.DataType.ENTITY) {
                             EntityInputBean entityInputBean = (EntityInputBean) row;
@@ -471,22 +473,22 @@ public class FileProcessor {
         return rows;
     }
 
-    public FdReader getStaticDataResolver(ProfileConfiguration importProfile, FdWriter writer) {
-        if (staticDataResolver != null)
-            return staticDataResolver;
-
-        if (importProfile.getStaticDataClazz() == null)
-            return defaultStaticDataResolver;
-        else {
-            try {
-                Constructor<FdReader> constructor = (Constructor<FdReader>) Class.forName(importProfile.getStaticDataClazz()).getConstructor(FdWriter.class);
-                staticDataResolver = constructor.newInstance(writer);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                logger.error("Unexpected", e);
-            }
-            return staticDataResolver;// Unit testing
-        }
-    }
+//    public FdReader getStaticDataResolver(ProfileConfiguration importProfile, FdWriter writer) {
+//        if (staticDataResolver != null)
+//            return staticDataResolver;
+//
+//        if (importProfile.getStaticDataClazz() == null)
+//            return defaultStaticDataResolver;
+//        else {
+//            try {
+//                Constructor<FdReader> constructor = (Constructor<FdReader>) Class.forName(importProfile.getStaticDataClazz()).getConstructor(FdWriter.class);
+//                staticDataResolver = constructor.newInstance(writer);
+//            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+//                logger.error("Unexpected", e);
+//            }
+//            return staticDataResolver;// Unit testing
+//        }
+//    }
 
     public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
         Reader reader = getReader(pathToBatch);

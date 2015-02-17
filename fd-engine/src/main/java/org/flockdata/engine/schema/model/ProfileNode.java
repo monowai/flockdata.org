@@ -118,7 +118,7 @@ public class ProfileNode implements Profile {
 //    }
 //
 //    @Override
-//    public String getClazz() {
+//    public String getHandler() {
 //        return clazz;
 //    }
 //
@@ -180,7 +180,7 @@ public class ProfileNode implements Profile {
 //    public void setFromProfile(ProfileConfiguration fromProfile) {
 //        this.event = fromProfile.getEvent();
 //        this.archiveTags = fromProfile.isArchiveTags();
-//        this.clazz = fromProfile.getClazz();
+//        this.clazz = fromProfile.getHandler();
 //        this.contentType = fromProfile.getContentType();
 //        this.delimiter = fromProfile.getDelimiter();
 //        this.strategyCols = fromProfile.getStrategyCols();

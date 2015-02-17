@@ -25,7 +25,6 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
         return ProfileConfiguration.ContentType.JSON;
     }
 
-    public void setData(JsonNode node, ProfileConfiguration profile, FdReader reader) {
+    public void setData(JsonNode node, ProfileConfiguration profile) {
         for (Map.Entry<String, ColumnDefinition> entry : profile.getContent().entrySet()) {
             JsonNode nodeField = node.get(entry.getKey());
             if ( nodeField!=null )

@@ -23,7 +23,6 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.DelimitedMappable;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.csv.CsvTagMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -47,7 +46,7 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration staticDataResolver, FdReader dataResolver) throws JsonProcessingException {
+    public Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException {
         return null;
     }
 
