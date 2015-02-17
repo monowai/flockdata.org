@@ -65,11 +65,11 @@ public class TestProfiles extends EngineBase {
         assertNotNull(column);
         assertEquals(true, column.isMustExist());
         assertEquals(true, column.isTag());
-        assertNull(savedProfile.getClazz());
+        assertNull(savedProfile.getHandler());
         column.setMustExist(false);
         profileService.save(fortress,docType, savedProfile);
         savedProfile = profileService.get(fortress, docType);
-        assertNull(savedProfile.getClazz());
+        assertNull(savedProfile.getHandler());
         assertFalse("Updating the mustExist attribute did not persist",savedProfile.getContent().get("TagVal").isMustExist());
 
 

@@ -110,8 +110,15 @@ public class TrackBatcher {
     private void batchTag(TagInputBean tagInputBean, boolean flush, String message) throws FlockException {
 
         synchronized (tagSync) {
-            if (tagInputBean != null)
+            if (tagInputBean != null) {
+                if ( tagInputBean.getCode()==null || tagInputBean.getCode().equals("")) {
+                    logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
+                    return ;
+                }
+
                 tagBatch.put(getTagKey(tagInputBean), tagInputBean);
+
+            }
 
             if ( tagBatch.size() >0 )
                 if (flush || tagBatch.size() >= clientConfiguration.getBatchSize()) {

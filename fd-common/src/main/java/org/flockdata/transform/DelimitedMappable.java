@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public interface DelimitedMappable extends Mappable {
 
-    Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration staticDataResolver, FdReader dataResolver) throws JsonProcessingException, FlockException;
+    Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException, FlockException;
 
     @JsonIgnore
     boolean hasHeader();

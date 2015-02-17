@@ -46,15 +46,14 @@ public class TransformationHelper {
     private static final ExpressionParser parser = new SpelExpressionParser();
 
     public static boolean getTagInputBean(TagInputBean tag,
-                                          FdReader staticDataResolver,
                                           Map<String, Object> row,
                                           String column,
                                           Map<String, ColumnDefinition> content,
                                           String value) throws FlockException {
         ColumnDefinition colDef = content.get(column);
-        if (colDef.isCountry()) {
-            value = staticDataResolver.resolveCountryISOFromName(value);
-        }
+//        if (colDef.isCountry()) {
+//            value = staticDataResolver.resolveCountryISOFromName(value);
+//        }
         Map<String, Object> properties = new HashMap<>();
 
         if (colDef.isValueAsProperty()) {
@@ -79,7 +78,7 @@ public class TransformationHelper {
                 }
             }
         } else {
-            String label =resolveLabel(tag, column, colDef, row);
+            String label = resolveValue(colDef.getLabel(), column, colDef, row);
             String codeValue;
             if (colDef.getCode() != null)
                 codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, row.get(colDef.getCode()).toString());
@@ -129,22 +128,21 @@ public class TransformationHelper {
         if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row, staticDataResolver
+        setNestedTags(tag, colDef.getTargets(), row
 
         );
         return true;
     }
 
-    private static String resolveLabel(TagInputBean tag, String column, ColumnDefinition colDef, Map<String, Object> row) {
-        String label =colDef.getLabel();
-        if ( label == null  )
+    private static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
+        if ( value == null  )
             return column; // Default to the column Name
 
         // Label could be a constant or an expression
-        if ( row.containsKey(label))
-            label = row.get(label).toString();
+        if ( row.containsKey(value))
+            value = row.get(value).toString();
 
-        Object result =  getValue(label, colDef);
+        Object result =  getValue(value, colDef);
         if ( result == null )
             return null;
         return result.toString();
@@ -200,7 +198,7 @@ public class TransformationHelper {
         return Boolean.parseBoolean(result.toString());
     }
 
-    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row, FdReader reader) throws FlockException {
+    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row) throws FlockException {
         if (tagsToAnalyse == null)
             return null;
 
@@ -225,9 +223,8 @@ public class TransformationHelper {
                     // No known entity relationship
                     setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
                 } else if (tagProfile.isCountry()) {
-                    String iso = reader.resolveCountryISOFromName(value.toString());
-                    if (iso == null) // Regression tests
-                        iso = value.toString();
+                    String iso = value.toString();
+
                     newTag = new TagInputBean(iso)
                             .setLabel(tagProfile.getLabel());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
@@ -252,7 +249,7 @@ public class TransformationHelper {
                     setAliases(newTag, tagProfile, row);
                 }
                 if (tagProfile.getTargets() != null) {
-                    setNestedTags(newTag, tagProfile.getTargets(), row, reader);
+                    setNestedTags(newTag, tagProfile.getTargets(), row);
                 }
             }
 
