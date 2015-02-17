@@ -1,0 +1,13 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "header": true,
+  "content": {
+    "label": {
+      "tag": true,
+      "name": "value",
+      "code": "code",
+      "label": "label"
+    }
+  }
+}

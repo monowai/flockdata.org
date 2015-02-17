@@ -58,6 +58,7 @@ public class TransformationHelper {
         Map<String, Object> properties = new HashMap<>();
 
         if (colDef.isValueAsProperty()) {
+            // ToDo: Eliminate this block. Twas only in place to support the way we handle labels
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
             tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
@@ -78,7 +79,7 @@ public class TransformationHelper {
                 }
             }
         } else {
-            String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
+            String label =resolveLabel(tag, column, colDef, row);
             String codeValue;
             if (colDef.getCode() != null)
                 codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, row.get(colDef.getCode()).toString());
@@ -132,6 +133,21 @@ public class TransformationHelper {
 
         );
         return true;
+    }
+
+    private static String resolveLabel(TagInputBean tag, String column, ColumnDefinition colDef, Map<String, Object> row) {
+        String label =colDef.getLabel();
+        if ( label == null  )
+            return column; // Default to the column Name
+
+        // Label could be a constant or an expression
+        if ( row.containsKey(label))
+            label = row.get(label).toString();
+
+        Object result =  getValue(label, colDef);
+        if ( result == null )
+            return null;
+        return result.toString();
     }
 
     private static void setAliases(TagInputBean tag, ColumnDefinition colDef, Map<String, Object> row) {
