@@ -58,7 +58,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
+    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
         //Map<String, Object> row = toMap(importProfile, headerRow, line);
         setArchiveTags(importProfile.isArchiveTags());
         Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
@@ -115,7 +115,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
 
-                    if (TransformationHelper.getTagInputBean(tag, dataResolver, row, column, importProfile.getContent(), value)) {
+                    if (TransformationHelper.getTagInputBean(tag, row, column, importProfile.getContent(), value)) {
                        // if ( colDef.getRelationship()!=null) {
                          //   tag.addEntityLink(colDef.getRelationship());
                         //} else {
@@ -146,11 +146,13 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         Collection<String> strategyCols = importProfile.getStrategyCols();
         for (String strategyCol : strategyCols) {
             ColumnDefinition colDef = importProfile.getColumnDef(strategyCol);
-            String callerRef = dataResolver.resolve(strategyCol, getColumnValues(colDef, row));
+            logger.error("This routine has no test and has not been figured out");
+            // ToDo: Figure this out
+            //String callerRef = dataResolver.resolve(strategyCol, getColumnValues(colDef, row));
 
-            if (callerRef != null) {
-                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), callerRef));
-            }
+            //if (callerRef != null) {
+//                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), callerRef));
+//            }
         }
 
         if (importProfile.getEntityKey() != null) {

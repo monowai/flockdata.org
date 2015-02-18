@@ -19,13 +19,12 @@
 
 package org.flockdata.profile;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.FdReader;
-import org.flockdata.transform.tags.TagMapper;
 import org.flockdata.transform.csv.CsvEntityMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.flockdata.transform.tags.TagMapper;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -47,8 +46,7 @@ public class ImportProfile implements ProfileConfiguration {
     private String documentName;
     private ContentType contentType;
     private DataType tagOrEntity;
-    private String clazz = null;
-    private String staticDataClazz;
+    private String handler = null;
     private String delimiter = ",";
     private String quoteCharacter = null;
     private boolean header = true;
@@ -58,7 +56,6 @@ public class ImportProfile implements ProfileConfiguration {
     private boolean archiveTags = true;
 
     private Map<String, ColumnDefinition> content;
-    private FdReader staticDataResolver;
     private String entityKey;
     private String event = null;
     private String preParseRowExp;
@@ -85,7 +82,7 @@ public class ImportProfile implements ProfileConfiguration {
                 "documentName='" + documentName + '\'' +
                 ", contentType=" + contentType +
                 ", tagOrEntity='" + tagOrEntity + '\'' +
-                ", clazz='" + clazz + '\'' +
+                ", handler='" + handler + '\'' +
                 ", delimiter=" + delimiter +
                 '}';
     }
@@ -125,12 +122,12 @@ public class ImportProfile implements ProfileConfiguration {
     }
 
     @Override
-    public String getClazz() {
-        return clazz;
+    public String getHandler() {
+        return handler;
     }
 
-    public void setClazz(String clazz) {
-        this.clazz = clazz;
+    public void setHandler(String handler) {
+        this.handler = handler;
     }
 
     @Override
@@ -171,8 +168,8 @@ public class ImportProfile implements ProfileConfiguration {
     public Mappable getMappable() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Mappable mappable = null;
 
-        if (!(clazz == null || clazz.equals("")))
-            mappable = (Mappable) Class.forName(getClazz()).newInstance();
+        if (!(handler == null || handler.equals("")))
+            mappable = (Mappable) Class.forName(getHandler()).newInstance();
         else if (getTagOrEntity()== DataType.ENTITY) {
             mappable = CsvEntityMapper.newInstance(this);
         } else if (getTagOrEntity()== DataType.TAG) {
@@ -203,10 +200,6 @@ public class ImportProfile implements ProfileConfiguration {
         if (content == null)
             return null;
         return content.get(column);
-    }
-
-    public void setStaticDataResolver(FdReader staticDataResolver) {
-        this.staticDataResolver = staticDataResolver;
     }
 
     public void setEntityKey(String entityKey) {
@@ -254,14 +247,6 @@ public class ImportProfile implements ProfileConfiguration {
 
     public void setEvent(String event) {
         this.event = event;
-    }
-
-    public void setStaticDataClazz(String staticDataClazz) {
-        this.staticDataClazz = staticDataClazz;
-    }
-
-    public String getStaticDataClazz() {
-        return staticDataClazz;
     }
 
     public void setPreParseRowExp(String preParseRowExp) {

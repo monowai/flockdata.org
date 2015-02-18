@@ -19,16 +19,13 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -51,7 +48,7 @@ public class TestGeography {
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params, reader);
+        tag.setData(headers, data, params);
         assertNotNull(tag);
 
         assertEquals("NZ", tag.getCode() );
@@ -81,14 +78,14 @@ public class TestGeography {
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params, reader);
+        tag.setData(headers, data, params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
         tag = new CsvTagMapper(); // Clear down the object
-        tag.setData(headers, data, params, reader);
+        tag.setData(headers, data, params);
         assertEquals("Capital city was not suppressed", 0, tag.getTargets().size());
     }
 
@@ -102,7 +99,7 @@ public class TestGeography {
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params, reader);
+        tag.setData(headers, data, params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -114,15 +111,4 @@ public class TestGeography {
     }
 
 
-    FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
-
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
-        }
-    };
 }

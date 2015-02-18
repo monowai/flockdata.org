@@ -30,17 +30,13 @@ import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.FdWriter;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -49,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:47 AM
  */
 @Service
-public class FdServerWriter implements FdWriter, FdReader {
+public class FdServerWriter implements FdWriter {
 
     @Autowired
     GeographyService geoService;
@@ -59,12 +55,6 @@ public class FdServerWriter implements FdWriter, FdReader {
 
     @Autowired
     SecurityHelper securityHelper;
-
-    // ToDo: Yes this is useless - fix me!
-    final String lock = "countryLock";
-    private Map<String, Tag> countries = new HashMap<>();
-
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdServerWriter.class);
 
     @Override
     public SystemUserResultBean me() {
@@ -111,36 +101,5 @@ public class FdServerWriter implements FdWriter, FdReader {
     @Override
     public void close() {
 
-    }
-
-    @Override
-    public String resolveCountryISOFromName(String name) throws FlockException {
-        // 2 char country? it's already ISO
-        if (name.length() == 2)
-            return name;
-
-        if (countries.isEmpty()) {
-            synchronized (lock) {
-                if (countries.isEmpty()) {
-                    Collection<Tag> results = getCountries();
-
-                    for (Tag next : results) {
-                        countries.put(next.getName().toLowerCase(), next);
-                    }
-                }
-            }
-        }
-        Tag tag = countries.get(name.toLowerCase());
-        if (tag == null) {
-            logger.error("Unable to resolve country name [{}]", name);
-            return null;
-        }
-        return tag.getCode();
-
-    }
-
-    @Override
-    public String resolve(String type, Map<String, Object> args) {
-        return null;
     }
 }

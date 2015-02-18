@@ -129,7 +129,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         ProfileConfiguration profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
-        FileProcessor fileProcessor = new FileProcessor(fdServerWriter);
+        FileProcessor fileProcessor = new FileProcessor();
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setAsync(async);
