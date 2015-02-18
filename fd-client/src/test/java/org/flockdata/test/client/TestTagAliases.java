@@ -45,7 +45,7 @@ import static org.junit.Assert.assertFalse;
 public class TestTagAliases extends AbstractImport {
     @Test
     public void string_csvTagAliases() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor(reader);
+        FileProcessor fileProcessor = new FileProcessor();
         String paramFile = "/csv-tag-alias.json";
         ClientConfiguration configuration = getClientConfiguration(paramFile);
 

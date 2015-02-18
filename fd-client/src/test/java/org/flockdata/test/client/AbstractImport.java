@@ -29,13 +29,11 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdReader;
 import org.flockdata.transform.FdWriter;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mike on 12/02/15.
@@ -78,17 +76,6 @@ public class AbstractImport {
         @Override
         public void close() {
 
-        }
-    };
-    static FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
-
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
         }
     };
 

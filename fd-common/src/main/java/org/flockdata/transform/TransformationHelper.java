@@ -46,18 +46,18 @@ public class TransformationHelper {
     private static final ExpressionParser parser = new SpelExpressionParser();
 
     public static boolean getTagInputBean(TagInputBean tag,
-                                          FdReader staticDataResolver,
                                           Map<String, Object> row,
                                           String column,
                                           Map<String, ColumnDefinition> content,
                                           String value) throws FlockException {
         ColumnDefinition colDef = content.get(column);
-        if (colDef.isCountry()) {
-            value = staticDataResolver.resolveCountryISOFromName(value);
-        }
+//        if (colDef.isCountry()) {
+//            value = staticDataResolver.resolveCountryISOFromName(value);
+//        }
         Map<String, Object> properties = new HashMap<>();
 
         if (colDef.isValueAsProperty()) {
+            // ToDo: Eliminate this block. Twas only in place to support the way we handle labels
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
             tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
@@ -78,7 +78,7 @@ public class TransformationHelper {
                 }
             }
         } else {
-            String label = (colDef.getLabel() != null ? colDef.getLabel() : column);
+            String label = resolveValue(colDef.getLabel(), column, colDef, row);
             String codeValue;
             if (colDef.getCode() != null)
                 codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, row.get(colDef.getCode()).toString());
@@ -128,10 +128,24 @@ public class TransformationHelper {
         if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row, staticDataResolver
+        setNestedTags(tag, colDef.getTargets(), row
 
         );
         return true;
+    }
+
+    private static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
+        if ( value == null  )
+            return column; // Default to the column Name
+
+        // Label could be a constant or an expression
+        if ( row.containsKey(value))
+            value = row.get(value).toString();
+
+        Object result =  getValue(value, colDef);
+        if ( result == null )
+            return null;
+        return result.toString();
     }
 
     private static void setAliases(TagInputBean tag, ColumnDefinition colDef, Map<String, Object> row) {
@@ -184,7 +198,7 @@ public class TransformationHelper {
         return Boolean.parseBoolean(result.toString());
     }
 
-    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row, FdReader reader) throws FlockException {
+    public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row) throws FlockException {
         if (tagsToAnalyse == null)
             return null;
 
@@ -209,9 +223,8 @@ public class TransformationHelper {
                     // No known entity relationship
                     setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
                 } else if (tagProfile.isCountry()) {
-                    String iso = reader.resolveCountryISOFromName(value.toString());
-                    if (iso == null) // Regression tests
-                        iso = value.toString();
+                    String iso = value.toString();
+
                     newTag = new TagInputBean(iso)
                             .setLabel(tagProfile.getLabel());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
@@ -236,7 +249,7 @@ public class TransformationHelper {
                     setAliases(newTag, tagProfile, row);
                 }
                 if (tagProfile.getTargets() != null) {
-                    setNestedTags(newTag, tagProfile.getTargets(), row, reader);
+                    setNestedTags(newTag, tagProfile.getTargets(), row);
                 }
             }
 

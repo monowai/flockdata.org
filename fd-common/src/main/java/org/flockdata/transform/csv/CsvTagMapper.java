@@ -24,7 +24,6 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
-import org.flockdata.transform.FdReader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.transform.TransformationHelper;
 
@@ -44,7 +43,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile, FdReader dataResolver) throws JsonProcessingException, FlockException {
+    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
         Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
@@ -60,7 +59,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
             if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    TransformationHelper.getTagInputBean(this, dataResolver, row, column, content, value);
+                    TransformationHelper.getTagInputBean(this, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
                     setName(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));

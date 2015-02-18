@@ -21,13 +21,14 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityKey;
-import org.flockdata.transform.*;
+import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.csv.CsvEntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,17 +50,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Time: 11:29 AM
  */
 public class TestCsvEntity {
-    FdReader reader = new FdReader() {
-        @Override
-        public String resolveCountryISOFromName(String name) throws FlockException {
-            return name;
-        }
 
-        @Override
-        public String resolve(String type, Map<String, Object> args) {
-            return null;
-        }
-    };
     @Test
     public void entityRow() throws Exception {
         ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
@@ -68,7 +59,7 @@ public class TestCsvEntity {
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
-        Map<String, Object> json = mapper.setData(headers, data, params, reader);
+        Map<String, Object> json = mapper.setData(headers, data, params);
         assertNotNull(json);
 
         assertTrue("Title Missing", json.containsKey("Title"));
@@ -204,7 +195,7 @@ public class TestCsvEntity {
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
         EntityInputBean header = (EntityInputBean) row;
-        row.setData(headers, values, params, reader);
+        row.setData(headers, values, params);
         assertEquals(values[0] + "." + values[3], header.getCallerRef());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
@@ -259,22 +250,11 @@ public class TestCsvEntity {
     @Test
     public void nestedTags() throws Exception {
         ImportProfile params = getImportParams("/nestedTags.json");
-        params.setStaticDataResolver(new FdReader() {
-            @Override
-            public String resolveCountryISOFromName(String name) throws FlockException {
-                return name;
-            }
-
-            @Override
-            public String resolve(String type, Map<String, Object> args) {
-                return null;
-            }
-        });
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "San Francisco", "United States"};
-        Map<String, Object> json = mapper.setData(headers, data, params, reader);
+        Map<String, Object> json = mapper.setData(headers, data, params);
         assertNotNull(json);
 
         List<TagInputBean> tags = mapper.getTags();
@@ -312,7 +292,7 @@ public class TestCsvEntity {
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
         ImportProfile params = getImportParams("/csv-entity-tags.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
-        mapper.setData(headers, data, params, reader);
+        mapper.setData(headers, data, params);
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -339,7 +319,7 @@ public class TestCsvEntity {
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
-        Map<String,Object> json = mapper.setData(headers, data, params, reader);
+        Map<String,Object> json = mapper.setData(headers, data, params);
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -381,7 +361,7 @@ public class TestCsvEntity {
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field"};
         String[] data = new String[]{"TitleTests", null };
-        Map<String, Object> jsonMap = mapper.setData(headers, data, params, reader);
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params);
         assertNotNull(jsonMap);
 
         assertEquals(null, jsonMap.get("Field"));

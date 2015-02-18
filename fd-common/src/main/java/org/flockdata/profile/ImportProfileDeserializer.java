@@ -51,9 +51,9 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (column != null)
             importProfile.setDocumentName(column.asText());
 
-        column = node.get("clazz");
+        column = node.get("handler");
         if (column != null && !column.isNull())
-            importProfile.setClazz(column.asText());
+            importProfile.setHandler(column.asText());
 
         column = node.get("fortressName");
         if (column != null&& !column.isNull())
@@ -69,11 +69,6 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         column = node.get("fortressUser");
         if (column != null&& !column.isNull())
             importProfile.setFortressUser(column.asText());
-
-        column = node.get("staticDataClazz");
-        if (column != null&& !column.isNull())
-            importProfile.setStaticDataClazz(column.asText());
-
 
         column = node.get("entityOnly");
         if ( column != null&& !column.isNull() )
