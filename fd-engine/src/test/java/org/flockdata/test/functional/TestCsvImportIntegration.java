@@ -20,6 +20,7 @@
 package org.flockdata.test.functional;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -47,6 +48,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -63,12 +65,13 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestCsvImportIntegration extends EngineBase {
 
-
     @Test
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 //        engineConfig.setConceptsEnabled(false);
         logger.info("Starting ## csvImport_DuplicateLogsNotCreated");
+        engineConfig.setTestMode(true);
+        assertTrue(engineConfig.getKvStore().equals(KvService.KV_STORE.MEMORY));
         setSecurity();
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
 
