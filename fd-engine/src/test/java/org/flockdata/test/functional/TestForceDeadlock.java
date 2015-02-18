@@ -68,7 +68,7 @@ public class TestForceDeadlock extends EngineBase {
         String monowai = "Monowai";
         SystemUser su = registerSystemUser(monowai, "tagsUnderLoad");
         setSecurity();
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagsUnderLoad", true));
         int tagCount = 1;
         int runCount = 1;
         int threadMax = 10;
@@ -85,10 +85,8 @@ public class TestForceDeadlock extends EngineBase {
 
         startSignal.countDown();
         latch.await();
+        Thread.yield();
         for (int i = 0; i < threadMax; i++) {
-            while (runners.get(i) == null || !runners.get(i).isDone()) {
-                Thread.yield();
-            }
             assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
         }
         for (Integer integer : runners.keySet()) {
@@ -109,7 +107,7 @@ public class TestForceDeadlock extends EngineBase {
         String monowai = "Monowai";
         SystemUser su = registerSystemUser(monowai, mike_admin);
         setSecurity();
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
         String docType = "entitiesUnderLoad";
 
         int tagCount = 1; // unique tags per entity - tags are shared across the entities
@@ -276,7 +274,7 @@ public class TestForceDeadlock extends EngineBase {
         public void run() {
             int count = 0;
             setSecurity();
-
+            worked = false;
             try {
                 startSignal.await();
                 while (count < maxRun) {
@@ -285,7 +283,8 @@ public class TestForceDeadlock extends EngineBase {
                 }
                 worked = true;
             } catch (Exception e) {
-                worked = false;
+
+                e.getStackTrace();
 
             } finally {
                 latch.countDown();
