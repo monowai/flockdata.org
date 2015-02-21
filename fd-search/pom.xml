@@ -13,7 +13,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>1.4.2</es.version>
+        <es.version>1.4.4</es.version>
         <start-class>org.flockdata.search.FdSearch</start-class>
         <spring-boot.version>1.2.0.RELEASE</spring-boot.version>
     </properties>
