@@ -87,8 +87,8 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
-    private String sourceProperty; // property to read from
-    private String targetProperty; // property to write to (essentially rename the target
+    private String source; // property to read from
+    private String target; // property to write to (essentially rename the column)
 
     private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
@@ -149,7 +149,6 @@ public class ColumnDefinition {
         return name;
     }
 
-
     public ArrayList<TagProfile> getTargets() {
         return targets;
     }
@@ -176,11 +175,11 @@ public class ColumnDefinition {
     }
 
     // Overrides the value name of the property
-    public String getTargetProperty() {
-        if (targetProperty == null)
-            return sourceProperty;
+    public String getTarget() {
+        if (target == null)
+            return source;
         else
-            return targetProperty;
+            return target;
     }
 
     public String getRelationship() {
@@ -343,8 +342,8 @@ public class ColumnDefinition {
     }
 
 
-    public String getSourceProperty() {
-        return sourceProperty;
+    public String getSource() {
+        return source;
     }
 
     public String getCallerRefExp() {
@@ -359,7 +358,7 @@ public class ColumnDefinition {
     public String toString() {
         return "ColumnDefinition{" +
                 "label='" + label + '\'' +
-                ", sourceProperty='" + sourceProperty + '\'' +
+                ", source='" + source + '\'' +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 '}';
