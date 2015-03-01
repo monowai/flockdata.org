@@ -22,20 +22,11 @@ package org.flockdata.test.client;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
 
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertEquals;
@@ -45,7 +36,7 @@ import static org.junit.Assert.assertEquals;
  *
  * Created by mike on 28/01/15.
  */
-public class TestImportProfileValidation {
+public class TestImportProfileValidation extends AbstractImport{
     @Test
     public void valid_Properties() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
@@ -59,7 +50,7 @@ public class TestImportProfileValidation {
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, fdWriter, null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -67,7 +58,7 @@ public class TestImportProfileValidation {
         // Should also fail with blank
         params.setFortressName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, fdWriter, null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -77,7 +68,7 @@ public class TestImportProfileValidation {
 
         params.setDocumentName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, fdWriter, null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));
@@ -85,7 +76,7 @@ public class TestImportProfileValidation {
 
         params.setDocumentName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, fdWriter, null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));
@@ -93,42 +84,5 @@ public class TestImportProfileValidation {
 
     }
 
-    FdWriter fdWriter = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
-
-        @Override
-        public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            throw new FlockException("Should never get here due to invalid parameters");
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            throw new FlockException("Should never get here due to invalid parameters");
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
 
 }

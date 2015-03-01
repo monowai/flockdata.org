@@ -20,18 +20,11 @@
 package org.flockdata.test.client;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -47,8 +40,26 @@ public class TestLabels extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
 
         fileProcessor.processFile(ClientConfiguration.getImportParams("/tag-labels.json"),
-                "/tag-labels.csv", 0, labelDef, null, configuration);
+                "/tag-labels.csv", 0, getFdWriter(), null, configuration);
 
+        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        assertEquals(2, tagInputBeans.size());
+        boolean loanType=false, occupancy= false;
+        for (TagInputBean tagInputBean : tagInputBeans) {
+            if ( tagInputBean.getLabel().equals("Occupancy")) {
+                occupancy = true;
+                assertEquals("1", tagInputBean.getCode());
+                assertEquals(null, tagInputBean.getName());
+            }else if ( tagInputBean.getLabel().equals("Loan Type")) {
+                loanType = true;
+                assertEquals("blah", tagInputBean.getCode());
+                assertEquals(null, tagInputBean.getName());
+            } else
+                throw new FlockException("Unexpected tag - " + tagInputBean.toString());
+
+        }
+        assertTrue("Occupancy Not Found", occupancy);
+        assertTrue("loanType Not Found", loanType);
     }
 
     @Test
@@ -56,120 +67,30 @@ public class TestLabels extends AbstractImport {
         ClientConfiguration configuration= getClientConfiguration("/tag-label-expressions.json");
         FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ClientConfiguration.getImportParams("/tag-label-expressions.json"),
-                "/tag-label-expressions.csv", 0, expressionsAndConstants, null, configuration);
+                "/tag-label-expressions.csv", 0, getFdWriter(), null, configuration);
 
+        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        // 1 Politician
+        //
+        assertEquals(4, tagInputBeans.size());
+        for (TagInputBean tagInputBean : tagInputBeans) {
+            if ( tagInputBean.getLabel().equals("Agency"))
+                assertEquals("1", tagInputBean.getCode());
+            else if ( tagInputBean.getLabel().equals("Edit Status"))
+                assertEquals("7", tagInputBean.getCode());
+            else if ( tagInputBean.getLabel().equals("MSA/MD"))
+                assertEquals("10180", tagInputBean.getCode());
+            else if ( tagInputBean.getLabel().equals("County"))
+                assertEquals("9", tagInputBean.getCode());
+            else
+                throw new FlockException("Unexpected tag - " + tagInputBean.toString());
+
+        }
     }
 
-    static FdWriter expressionsAndConstants = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
 
-        @Override
-        public  String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            // 1 Politician
-            //
-            assertEquals(4, tagInputBeans.size());
-            for (TagInputBean tagInputBean : tagInputBeans) {
-                if ( tagInputBean.getLabel().equals("Agency"))
-                    assertEquals("1", tagInputBean.getCode());
-                else if ( tagInputBean.getLabel().equals("Edit Status"))
-                    assertEquals("7", tagInputBean.getCode());
-                else if ( tagInputBean.getLabel().equals("MSA/MD"))
-                    assertEquals("10180", tagInputBean.getCode());
-                else if ( tagInputBean.getLabel().equals("County"))
-                    assertEquals("9", tagInputBean.getCode());
-                else
-                    throw new FlockException("Unexpected tag - " + tagInputBean.toString());
 
-            }
-            return null;
-        }
 
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            return null;
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
-
-    static FdWriter labelDef = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
-
-        @Override
-        public  String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            // 1 Politician
-            //
-            assertEquals(2, tagInputBeans.size());
-            boolean loanType=false, occupancy= false;
-            for (TagInputBean tagInputBean : tagInputBeans) {
-                if ( tagInputBean.getLabel().equals("Occupancy")) {
-                    occupancy = true;
-                    assertEquals("1", tagInputBean.getCode());
-                    assertEquals(null, tagInputBean.getName());
-                }else if ( tagInputBean.getLabel().equals("Loan Type")) {
-                    loanType = true;
-                    assertEquals("blah", tagInputBean.getCode());
-                    assertEquals(null, tagInputBean.getName());
-                } else
-                    throw new FlockException("Unexpected tag - " + tagInputBean.toString());
-
-            }
-            assertTrue("Occupancy Not Found", occupancy);
-            assertTrue("loanType Not Found", loanType);
-            return null;
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            return null;
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
 
 
 }

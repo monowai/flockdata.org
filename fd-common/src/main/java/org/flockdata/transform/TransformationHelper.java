@@ -81,14 +81,17 @@ public class TransformationHelper {
             else
                 label = resolveValue(colDef.getLabel(), column, colDef, row);
             //
-            String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
-            tag.setCode(codeValue);
-            String name = getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
-            if ( name!=null && !name.equals(codeValue))
-                tag.setName(name );
-
             tag.setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);
+
+            String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
+            tag.setCode(codeValue);
+
+            if (!colDef.isMustExist()) {     // Must exists only resolves the Code, so don't waste time setting the name
+                String name = getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
+                if (name != null && !name.equals(codeValue))
+                    tag.setName(name);
+            }
 
             String relationship = getRelationshipName(row, colDef);
 
@@ -281,11 +284,17 @@ public class TransformationHelper {
                     String dataType = null;
                     if (importProfile.getColumnDef(column) != null)
                         dataType = importProfile.getColumnDef(column).getDataType();
-                    if (dataType != null && dataType.equalsIgnoreCase("string"))
-                        tryAsNumber = false;
+                    if (dataType != null)
+                        if (dataType.equalsIgnoreCase("string"))
+                            tryAsNumber = false;
+                        else if (dataType.equalsIgnoreCase("number"))
+                            tryAsNumber = true;
                     if (tryAsNumber)
                         if (NumberUtils.isNumber(line[col])) {
                             value = NumberUtils.createNumber(line[col]);
+                        } else if (dataType!=null && dataType.equalsIgnoreCase("number")) {
+                            // Force to a number as it was not detected
+                            value = NumberUtils.createNumber(importProfile.getColumnDef(column).getValueOnError());
                         }
                     row.put(column, value);
                     col++;
@@ -334,7 +343,9 @@ public class TransformationHelper {
 
 
     }
+
     static StandardEvaluationContext context = new StandardEvaluationContext();
+
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
         if (expression == null)
             return null;

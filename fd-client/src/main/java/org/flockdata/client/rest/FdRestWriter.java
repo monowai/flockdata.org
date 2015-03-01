@@ -21,8 +21,6 @@ package org.flockdata.client.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.helper.CompressionHelper;
@@ -30,12 +28,12 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.TrackBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -285,33 +283,9 @@ public class FdRestWriter implements FdWriter {
 
     }
 
-    public Collection<Tag> getCountries() throws FlockException {
-//        if (simulateOnly)
-//            return null;
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(httpHeaders);
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(COUNTRIES, HttpMethod.GET, requestEntity, String.class);
-            TypeFactory typeFactory = mapper.getTypeFactory();
-            CollectionType collectionType = typeFactory.constructCollectionType(ArrayList.class, TagInputBean.class);
-            return mapper.readValue(response.getBody(), collectionType);
-        } catch (HttpClientErrorException e) {
-            // ToDo: Rest error handling pretty useless. need to know why it's failing
-            logger.error("Client tracking error {}", getErrorMessage(e));
-            return null;
-        } catch (HttpServerErrorException e) {
-            logger.error("Client tracking error {}", getErrorMessage(e));
-            return null;
-
-        } catch (IOException e) {
-            logger.error("Unexpected", e);
-        }
-        return null;
-    }
-
     @Override
-    public void close() {
+    public void close(TrackBatcher trackBatcher) throws FlockException {
+        trackBatcher.flush();
         if (amqpHelper !=null )
             amqpHelper.close();
     }

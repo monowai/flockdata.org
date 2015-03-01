@@ -23,11 +23,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -54,7 +52,5 @@ public interface FdWriter {
      */
     boolean isSimulateOnly();
 
-    Collection<Tag> getCountries()  throws FlockException ;
-
-    void close();
+    void close(TrackBatcher trackBatcher) throws FlockException;
 }

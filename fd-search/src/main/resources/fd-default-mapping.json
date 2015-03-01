@@ -80,12 +80,12 @@
             "type": "multi_field",
             "fields": {
               "{name}": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "3.0",
                 "index": "analyzed"
               },
               "facet": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "5.0",
                 "doc_values": true,
                 "index": "not_analyzed"
@@ -101,12 +101,12 @@
             "type": "multi_field",
             "fields": {
               "{name}": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "3.0",
                 "index": "analyzed"
               },
               "facet": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "5.0",
                 "doc_values": true,
                 "index": "not_analyzed"

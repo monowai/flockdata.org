@@ -17,82 +17,70 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track.service;
+package org.flockdata.test.client;
 
-import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.TrackBatcher;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
- * User: mike
- * Date: 8/10/14
- * Time: 8:47 AM
+ * Created by mike on 1/03/15.
  */
-@Service
-public class FdServerWriter implements FdWriter {
+public class MockFdWriter implements FdWriter {
 
-    @Autowired
-    GeographyService geoService;
+    public List<EntityInputBean> getEntities() {
+        return entities;
+    }
 
-    @Autowired
-    MediationFacade mediationFacade;
+    public List<TagInputBean> getTags() {
+        return tags;
+    }
 
-    @Autowired
-    SecurityHelper securityHelper;
+    public List<EntityInputBean> entities = null;
+    public List<TagInputBean> tags = null;
+
 
     @Override
     public SystemUserResultBean me() {
-        return new SystemUserResultBean(securityHelper.getSysUser(true));
+        return null;
     }
 
     @Override
     public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
+        this.tags = tagInputBeans;
         return null;
     }
 
     @Override
     public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-        try {
-            for (EntityInputBean entityInputBean : entityBatch) {
-                mediationFacade.trackEntity(company, entityInputBean);
-            }
-            return "ok";
-        } catch (InterruptedException e) {
-            throw new FlockException("Interrupted", e);
-        } catch (ExecutionException e) {
-            throw new FlockException("Execution Problem", e);
-        } catch (IOException e) {
-            throw new FlockException("IO Exception", e);
-        }
+        this.entities = entityBatch;
+        return null;
     }
 
     @Override
     public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
         return 0;
     }
-
+    private boolean simulateOnly = false;
     @Override
     public boolean isSimulateOnly() {
-        return false;
+        // Setting this to true will mean that the flush routines above are not called
+        return simulateOnly;
     }
 
     @Override
     public void close(TrackBatcher trackBatcher) throws FlockException {
-        trackBatcher.flush();
+        this.entities = trackBatcher.getEntities();
+        this.tags = trackBatcher.getTags();
+//        simulateOnly = true;
+//        trackBatcher.flush();
     }
 }

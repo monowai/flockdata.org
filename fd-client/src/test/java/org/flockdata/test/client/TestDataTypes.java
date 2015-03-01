@@ -19,23 +19,16 @@
 
 package org.flockdata.test.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.List;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -49,65 +42,23 @@ public class TestDataTypes extends AbstractImport {
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
         ImportProfile params = ClientConfiguration.getImportParams(fileName);
-        fileProcessor.processFile(params, "/data/data-types.csv", 0, fdWriter, null, configuration);
+        fileProcessor.processFile(params, "/data/data-types.csv", 0, getFdWriter(), null, configuration);
+        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        assertEquals(1, tagInputBeans.size());
+        for (TagInputBean tagInputBean : tagInputBeans) {
+            if (tagInputBean.getLabel().equals("as-string"))
+                assertEquals("00165", tagInputBean.getCode());
+        }
+        EntityInputBean entity = getFdWriter().getEntities().iterator().next();
+        assertNotNull ( entity.getLog());
+        assertEquals("The N/A string should have been set to the default of 0", 0, entity.getLog().getWhat().get("illegal-num"));
+
 
     }
 
-    FdWriter fdWriter = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
 
-        @Override
-        public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            assertEquals(1, tagInputBeans.size());
-            for (TagInputBean tagInputBean : tagInputBeans) {
-                assertEquals("00165", tagInputBean.getCode());
-            }
 
-            // Check that the payload will serialize
-            ObjectMapper om = new ObjectMapper();
-            try {
-                om.writeValueAsString(tagInputBeans);
-            } catch (Exception e) {
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
-        }
 
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
 
-            ObjectMapper om = new ObjectMapper();
-            try {
-                om.writeValueAsString(entityBatch);
-            } catch (Exception e) {
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
 
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
 }

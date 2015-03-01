@@ -238,7 +238,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public void trackEntities(String userApiKey, List<EntityInputBean> inputBeans) {
         logger.debug("Request to process {} entities", inputBeans.size());
         for (EntityInputBean inputBean : inputBeans) {
-            Future<?> r = trackGateway.doTrackEntity(inputBean, userApiKey);
+            trackGateway.doTrackEntity(inputBean, userApiKey);
 
         }
         logger.debug("Dispatched {} entities", inputBeans.size());
