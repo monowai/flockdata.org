@@ -28,6 +28,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
+import org.springframework.expression.ExpressionException;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -74,11 +75,17 @@ public class TransformationHelper {
                 }
             }
         } else {
-            String label = resolveValue(colDef.getLabel(), column, colDef, row);
+            String label;
+            if (colDef.getLabel() != null && colDef.getLabel().equals(column))
+                label = colDef.getLabel();
+            else
+                label = resolveValue(colDef.getLabel(), column, colDef, row);
+            //
             String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
-
-            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue));
+            String name = getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
+            if ( name!=null && !name.equals(codeValue))
+                tag.setName(name );
 
             tag.setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);
@@ -120,15 +127,10 @@ public class TransformationHelper {
     }
 
     private static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
-        if ( value == null  )
+        if (value == null)
             return column; // Default to the column Name
-
-        // Label could be a constant or an expression
-        if ( row.containsKey(value))
-            value = row.get(value).toString();
-
-        Object result =  getValue(value, colDef);
-        if ( result == null )
+        Object result = getValue(row, ColumnDefinition.ExpressionType.LABEL, colDef, value);
+        if (result == null)
             return null;
         return result.toString();
     }
@@ -145,18 +147,19 @@ public class TransformationHelper {
 
         }
     }
-    private static Collection<AliasInputBean> getTagAliasValues(Collection<AliasInputBean> aliases, Map<String, Object> row){
 
-        if ( aliases == null )
+    private static Collection<AliasInputBean> getTagAliasValues(Collection<AliasInputBean> aliases, Map<String, Object> row) {
+
+        if (aliases == null)
             return new ArrayList<>();
-        Collection<AliasInputBean>results = new ArrayList<>(aliases.size());
+        Collection<AliasInputBean> results = new ArrayList<>(aliases.size());
 
         for (AliasInputBean aliasInputBean : aliases) {
             Object o = row.get(aliasInputBean.getCode());
-            if ( o != null ) {
+            if (o != null) {
                 AliasInputBean alias = new AliasInputBean(StringUtils.trim(o.toString()));
                 String d = aliasInputBean.getDescription();
-                if (StringUtils.trim(d)!=null)
+                if (StringUtils.trim(d) != null)
                     alias.setDescription(evaluateExpression(row, d).toString());
                 results.add(alias);
             }
@@ -227,7 +230,7 @@ public class TransformationHelper {
                             newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
                     }
                 }
-                if ( tagProfile.hasAliases()){
+                if (tagProfile.hasAliases()) {
                     setAliases(newTag, tagProfile, row);
                 }
                 if (tagProfile.getTargets() != null) {
@@ -275,15 +278,15 @@ public class TransformationHelper {
                 try {
                     Object value = line[col];
                     Boolean tryAsNumber = true;
-                    String dataType = null ;
-                    if ( importProfile.getColumnDef(column)!=null )
+                    String dataType = null;
+                    if (importProfile.getColumnDef(column) != null)
                         dataType = importProfile.getColumnDef(column).getDataType();
-                    if ( dataType!=null && dataType.equalsIgnoreCase("string"))
+                    if (dataType != null && dataType.equalsIgnoreCase("string"))
                         tryAsNumber = false;
-                    if (  tryAsNumber )
-                    if (NumberUtils.isNumber(line[col])) {
-                        value = NumberUtils.createNumber(line[col]);
-                    }
+                    if (tryAsNumber)
+                        if (NumberUtils.isNumber(line[col])) {
+                            value = NumberUtils.createNumber(line[col]);
+                        }
                     row.put(column, value);
                     col++;
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -315,20 +318,27 @@ public class TransformationHelper {
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }
-        Object result ;
-        if ( row.containsKey(expression))
-            result = row.get(expression);  // Pull value straight from the row
-        else
-            result = evaluateExpression(row, expression);
+        Object result;
+        try {
+            if (row.containsKey(expression))
+                result = row.get(expression);  // Pull value straight from the row
+            else
+                result = evaluateExpression(row, expression);
+        } catch (ExpressionException e) {
+            logger.trace("Expression error parsing " + colDef + ". Returning default value");
+            result = null;
+        }
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString().trim();
-    }
 
+
+    }
+    static StandardEvaluationContext context = new StandardEvaluationContext();
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
-        if ( expression== null )
+        if (expression == null)
             return null;
-        StandardEvaluationContext context = new StandardEvaluationContext();
+
         context.setVariable("row", row);
         return parser.parseExpression(expression).getValue(context);
     }

@@ -89,7 +89,6 @@ public class TestImporterPreparsing extends AbstractImport {
                 TagInputBean politician= null;
                 for (TagInputBean tagInputBean : entityInputBean.getTags()) {
                     assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
-                    assertEquals("Code and Name should be the same", tagInputBean.getCode(), tagInputBean.getName());
                     if ( tagInputBean.getLabel().equals("Politician"))
                         politician= tagInputBean;
                     if ( tagInputBean.getLabel().equals("InterestGroup")){

@@ -12,7 +12,7 @@
     },
     "3": {
       "tag": true,
-      "label": "Politician",
+      "label": "'Politician'",
       "mustExist": false,
       "relationship": "received",
       "properties": [
@@ -24,7 +24,7 @@
     },
     "2": {
       "tag": true,
-      "label": "InterestGroup",
+      "label": "'InterestGroup'",
       "mustExist": true,
       "relationship": "contributed",
       "rlxProperties": [
@@ -36,13 +36,13 @@
     },
     "6": {
       "tag": true,
-      "label": "OSCategory",
+      "label": "'OSCategory'",
       "mustExist": true,
       "relationship": "industry"
     },
     "8": {
       "tag": true,
-      "label": "Expenditure",
+      "label": "'Expenditure'",
       "code": "#row['8']=='ID' ?'I':'D'",
       "name": "#row['8']=='ID' ?'Indirect':'Direct'",
       "relationship": "classified"

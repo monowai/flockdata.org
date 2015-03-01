@@ -1,0 +1,17 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "documentName": "test" ,
+  "fortressName":"WhoCares",
+  "header": true,
+  "content": {
+    "Occupancy": {
+      "tag": true,
+      "label": "Occupancy"
+    } ,
+    "Loan_Type": {
+      "tag": true,
+      "label": "Loan Type"
+    }
+  }
+}
