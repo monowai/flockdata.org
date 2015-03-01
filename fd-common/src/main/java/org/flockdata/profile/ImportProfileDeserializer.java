@@ -80,6 +80,11 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (column != null)
             importProfile.setHeader(Boolean.parseBoolean(column.asText()));
 
+        column = node.get("emptyIgnored");
+        if (column != null)
+            importProfile.setEmptyIgnored(Boolean.parseBoolean(column.asText()));
+
+
         column = node.get("preParseRowExp");
         if (column != null)
             importProfile.setPreParseRowExp(column.asText());
