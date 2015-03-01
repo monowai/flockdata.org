@@ -91,8 +91,8 @@ public class TransformationHelper {
                 Map<String, Object> rlxProperties = new HashMap<>();
                 if (colDef.getRlxProperties() != null) {
                     for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
-                        rlxProperties.put(columnDefinition.getTargetProperty(),
-                                getValue(row.get(columnDefinition.getSourceProperty()), columnDefinition));
+                        rlxProperties.put(columnDefinition.getTarget(),
+                                getValue(row.get(columnDefinition.getSource()), columnDefinition));
                     }
                 }
 
@@ -103,9 +103,9 @@ public class TransformationHelper {
             tag.setReverse(colDef.getReverse());
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
-                    String sourceCol = thisCol.getSourceProperty();
+                    String sourceCol = thisCol.getSource();
                     value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                    tag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
+                    tag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
                 }
             }
         }
@@ -221,10 +221,10 @@ public class TransformationHelper {
                 }
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
-                        String sourceCol = thisCol.getSourceProperty();
+                        String sourceCol = thisCol.getSource();
                         value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
                         if (newTag != null)
-                            newTag.setProperty(thisCol.getTargetProperty() == null ? sourceCol : thisCol.getTargetProperty(), getValue(value, thisCol));
+                            newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
                     }
                 }
                 if ( tagProfile.hasAliases()){
