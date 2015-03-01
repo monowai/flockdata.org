@@ -47,6 +47,8 @@ public class ImportProfile implements ProfileConfiguration {
     private ContentType contentType;
     private DataType tagOrEntity;
     private String handler = null;
+
+    private boolean emptyIgnored;
     private String delimiter = ",";
     private String quoteCharacter = null;
     private boolean header = true;
@@ -230,6 +232,9 @@ public class ImportProfile implements ProfileConfiguration {
         return strategyColumns;
     }
 
+    public void setEmptyIgnored(boolean emptyIgnored) {
+        this.emptyIgnored = emptyIgnored;
+    }
 
     @Override
     public boolean isArchiveTags() {
@@ -252,4 +257,14 @@ public class ImportProfile implements ProfileConfiguration {
     public void setPreParseRowExp(String preParseRowExp) {
         this.preParseRowExp = preParseRowExp;
     }
+
+    /**
+     *
+     * @return should we ignore columns with empty values
+     */
+    public boolean isEmptyIgnored() {
+        return emptyIgnored;
+    }
+
+
 }

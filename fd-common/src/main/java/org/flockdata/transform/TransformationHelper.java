@@ -296,7 +296,16 @@ public class TransformationHelper {
                             // Force to a number as it was not detected
                             value = NumberUtils.createNumber(importProfile.getColumnDef(column).getValueOnError());
                         }
-                    row.put(column, value);
+
+                    boolean addValue = true;
+                    if ( importProfile.isEmptyIgnored()){
+                        if (value == null || value.toString().trim().equals(""))
+                            addValue = false;
+                    }
+                    if ( addValue) {
+                        row.put(column, (value instanceof String ? ((String) value).trim():value));
+                    }
+
                     col++;
                 } catch (ArrayIndexOutOfBoundsException e) {
                     // Column does not exist for this row

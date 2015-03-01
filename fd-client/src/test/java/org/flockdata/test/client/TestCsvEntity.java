@@ -373,5 +373,42 @@ public class TestCsvEntity {
 
     }
 
+    @Test
+    public void empty_ColumnWithASpace() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers = new String[]{"Title",  "Year"};
+        String[] data = new String[]{" ",  "2009" };
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params);
+        assertNotNull(jsonMap);
+
+        assertEquals("", jsonMap.get("Title"));
+        String json = JsonUtils.getJSON(jsonMap);
+        jsonMap = JsonUtils.getAsMap(json);
+        assertNotNull(jsonMap);
+        assertFalse (jsonMap.isEmpty());
+        assertEquals("", jsonMap.get("Title"));
+
+    }
+    @Test
+    public void empty_ColumnWithASpaceIsIgnored() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/csvtest-emptyisignored.json");
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers = new String[]{"Title",  "Year"};
+        String[] data = new String[]{" ",  "2009" };
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params);
+        assertNotNull(jsonMap);
+
+        assertNull(jsonMap.get("Title"));
+        String json = JsonUtils.getJSON(jsonMap);
+        jsonMap = JsonUtils.getAsMap(json);
+        assertNotNull(jsonMap);
+        assertFalse (jsonMap.isEmpty());
+        assertNull(jsonMap.get("Title"));
+
+    }
 
 }
