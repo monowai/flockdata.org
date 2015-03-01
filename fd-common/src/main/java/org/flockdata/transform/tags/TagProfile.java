@@ -31,9 +31,7 @@ import java.util.ArrayList;
  */
 public class TagProfile {
     private String name;
-    private String nameExp;
     private String code;
-    private String codeExp;
 
     private Boolean reverse =false;
     private String relationship;
@@ -139,14 +137,6 @@ public class TagProfile {
 
     public ArrayList<ColumnDefinition> getRlxProperties() {
         return rlxProperties;
-    }
-
-    public String getNameExp() {
-        return nameExp;
-    }
-
-    public String getCodeExp() {
-        return codeExp;
     }
 
     public boolean isMustExist() {

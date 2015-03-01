@@ -22,7 +22,7 @@
         },
         "created": {
             "createDate":true,
-            "dateFormat":"epoc"
+            "format":"epoc"
         },
 
         "updated": {

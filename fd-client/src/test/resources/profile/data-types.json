@@ -1,0 +1,15 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "fortress": "GovTrack",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "as-string": {
+      "code": "as-string",
+      "label": "AsString",
+      "dataType": "string",
+      "tag": true
+    }
+  }
+}
