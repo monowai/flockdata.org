@@ -178,7 +178,7 @@ public class TestCsvEntity {
 
         colDef = params.getColumnDef(headers[6]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertEquals("Year", colDef.getName());
+        assertEquals("'Gold Medals'", colDef.getName()); // This has not been parsed by SPEL so it literal
         assertTrue("Tag to value", colDef.isValueAsProperty());
         assertFalse("Shouldn't be a title", colDef.isTitle());
         assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
@@ -359,8 +359,8 @@ public class TestCsvEntity {
         ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title",  "Field"};
-        String[] data = new String[]{"TitleTests", null };
+        String[] headers = new String[]{"Title",  "Field", "Year"};
+        String[] data = new String[]{"TitleTests", null, "2009" };
         Map<String, Object> jsonMap = mapper.setData(headers, data, params);
         assertNotNull(jsonMap);
 

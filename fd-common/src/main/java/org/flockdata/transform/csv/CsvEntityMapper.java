@@ -61,7 +61,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
         //Map<String, Object> row = toMap(importProfile, headerRow, line);
         setArchiveTags(importProfile.isArchiveTags());
-        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String column : content.keySet()) {

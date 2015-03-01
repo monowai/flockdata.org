@@ -43,8 +43,8 @@
     "8": {
       "tag": true,
       "label": "Expenditure",
-      "codeExp": "#row['8']=='ID' ?'Indirect':'Direct'",
-      "nameExp": "#row['8']=='ID' ?'Indirect':'Direct'",
+      "code": "#row['8']=='ID' ?'I':'D'",
+      "name": "#row['8']=='ID' ?'Indirect':'Direct'",
       "relationship": "classified"
     }
   }

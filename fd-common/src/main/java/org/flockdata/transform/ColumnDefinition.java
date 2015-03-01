@@ -54,7 +54,9 @@ public class ColumnDefinition {
     private boolean updateUser;
     private boolean reverse = false;
 
-    private String dateFormat;
+    private String format;
+
+    private String dataType;
 
     private String callerRefExp; // Supports the caller ref as an expression
     private String strategy = null;
@@ -65,7 +67,6 @@ public class ColumnDefinition {
     private String name;
 
 
-    private String nameExp;
     private String nullOrEmpty;
     private String appendJoinText = " ";
 //    private String relationshipName;
@@ -86,7 +87,6 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
-    private String codeExp;
     private String sourceProperty; // property to read from
     private String targetProperty; // property to write to (essentially rename the target
 
@@ -288,13 +288,13 @@ public class ColumnDefinition {
         this.updateDate = updateDate;
     }
 
-    public String getDateFormat() {
-        return dateFormat;
+    public String getFormat() {
+        return format;
     }
 
     @JsonIgnore
     public boolean isDateEpoc() {
-        return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
+        return format != null && format.equalsIgnoreCase("epoc");
     }
 
     public ArrayList<ColumnDefinition> getRlxProperties() {
@@ -314,14 +314,15 @@ public class ColumnDefinition {
         return (delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
+    @JsonIgnore
     public String getExpression(ExpressionType expCol) {
         if (expCol == null)
             return null;
         switch (expCol) {
             case NAME:
-                return nameExp;
+                return name;
             case CODE:
-                return codeExp;
+                return code;
             case CALLER_REF:
                 return callerRefExp;
             case RELATIONSHIP:
@@ -344,14 +345,6 @@ public class ColumnDefinition {
 
     public String getSourceProperty() {
         return sourceProperty;
-    }
-
-    public String getNameExp() {
-        return nameExp;
-    }
-
-    public String getCodeExp() {
-        return codeExp;
     }
 
     public String getCallerRefExp() {
@@ -379,6 +372,16 @@ public class ColumnDefinition {
     @JsonIgnore
     public boolean hasAliases() {
         return ( aliases != null && !aliases.isEmpty());
+    }
+
+    /**
+     * Forces a column to a specifc datatype. By default strings that look like "numbers" will be converted
+     * to numbers. To preserve the value as a string set this to "string"
+     *
+     * @return null if default behavior to be used
+     */
+    public String getDataType() {
+        return dataType;
     }
 
 }

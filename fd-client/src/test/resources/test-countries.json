@@ -8,6 +8,7 @@
       "tag": true,
       "label": "Country",
       "code": "ISO3166A2",
+      "name": "ISOen_name",
       "properties": [
         {
           "sourceProperty": "UNc_latitude",
@@ -21,6 +22,7 @@
       "targets": [
         {
           "code": "BGN_capital",
+          "name": "ISOen_name",
           "label": "City",
           "relationship": "capital",
           "condition": "#row[HasCapital].equals(1)",

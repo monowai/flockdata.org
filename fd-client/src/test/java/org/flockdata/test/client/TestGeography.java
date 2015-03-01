@@ -58,7 +58,9 @@ public class TestGeography {
         for (String key : tag.getProperties().keySet()) {
             if ( key.equals("latitude")) {
                 latitudeSet = true;
+                assertEquals(-41.27f, tag.getProperties().get("latitude"));
             } else if ( key.equals("longitude")){
+                assertEquals(174.71f, tag.getProperties().get("longitude"));
                 longitudeSet = true;
             }
         }

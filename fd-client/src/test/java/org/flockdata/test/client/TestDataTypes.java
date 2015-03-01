@@ -19,7 +19,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.client.Configure;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.SystemUserResultBean;
@@ -33,32 +33,23 @@ import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
- * Created by mike on 27/01/15.
+ * Created by mike on 27/02/15.
  */
-public class TestCSVColumnParsing {
-
+public class TestDataTypes extends AbstractImport {
     @Test
-    public void string_NoHeaderWithDelimiter() throws Exception {
+    public void preserve_NumberValueAsString() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/profile/column-parsing.json");
-        ClientConfiguration configuration = Configure.readConfiguration(file);
-        assertNotNull(configuration);
-        configuration.setDefaultUser("test");
+        String fileName = "/profile/data-types.json";
+        ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile params = ClientConfiguration.getImportParams("/profile/column-parsing.json");
-        //assertEquals('|', params.getDelimiter());
-        assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/pac.txt", 0, fdWriter, null, configuration);
-        assertEquals(1l, rows);
+        ImportProfile params = ClientConfiguration.getImportParams(fileName);
+        fileProcessor.processFile(params, "/data/data-types.csv", 0, fdWriter, null, configuration);
 
     }
 
@@ -70,38 +61,32 @@ public class TestCSVColumnParsing {
 
         @Override
         public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            assertEquals(4, tagInputBeans.size());
-            boolean foundA = false, foundB= false,foundC= false, foundD= false;
+            assertEquals(1, tagInputBeans.size());
             for (TagInputBean tagInputBean : tagInputBeans) {
-                if ( tagInputBean.getLabel().equals("OSCategory")){
-                    foundA = true;
-                    assertEquals("E1140", tagInputBean.getCode());
-                } else if ( tagInputBean.getLabel().equals("Expenditure")){
-                    foundB = true;
-                    assertEquals("D", tagInputBean.getCode());
-                    assertEquals("Direct", tagInputBean.getName());
-                }  else if ( tagInputBean.getLabel().equals("InterestGroup")){
-                    foundC = true;
-                    assertEquals("C00485250", tagInputBean.getCode());
-                }  else if ( tagInputBean.getLabel().equals("Politician")){
-                    foundD = true;
-                    assertEquals("N00031647", tagInputBean.getCode());
-                }
-
+                assertEquals("00165", tagInputBean.getCode());
             }
-            assertTrue("Failed to find OS Category Tag", foundA);
-            assertTrue("Failed to find Expenditure Tag", foundB);
-            assertTrue("Failed to find InterestGroup Tag", foundC);
-            assertTrue("Failed to find Politician Tag", foundD);
+
+            // Check that the payload will serialize
+            ObjectMapper om = new ObjectMapper();
+            try {
+                om.writeValueAsString(tagInputBeans);
+            } catch (Exception e) {
+                throw new FlockException("Failed to serialize");
+            }
             return null;
         }
 
         @Override
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            for (EntityInputBean entityInputBean : entityBatch) {
-                assertEquals("4111320141231324700", entityInputBean.getCallerRef());
+
+            ObjectMapper om = new ObjectMapper();
+            try {
+                om.writeValueAsString(entityBatch);
+            } catch (Exception e) {
+                throw new FlockException("Failed to serialize");
             }
             return null;
+
         }
 
         @Override
@@ -125,5 +110,4 @@ public class TestCSVColumnParsing {
 
         }
     };
-
 }

@@ -30,8 +30,9 @@
             "valueAsProperty": true
         },
         "Gold Medals": {
-            "name": "Year",
+            "name": "'Gold Medals'",
             "tag": true,
+            "rlxExp": "Year",
             "valueAsProperty": true
         },
         "Category": {

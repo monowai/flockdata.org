@@ -22,6 +22,7 @@ package org.flockdata.transform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
@@ -51,9 +52,6 @@ public class TransformationHelper {
                                           Map<String, ColumnDefinition> content,
                                           String value) throws FlockException {
         ColumnDefinition colDef = content.get(column);
-//        if (colDef.isCountry()) {
-//            value = staticDataResolver.resolveCountryISOFromName(value);
-//        }
         Map<String, Object> properties = new HashMap<>();
 
         if (colDef.isValueAsProperty()) {
@@ -67,9 +65,7 @@ public class TransformationHelper {
 
                 if (Integer.decode(value) != 0) {  // ToDo? Why is this decoding a 0 from a value??
                     properties.put("value", Integer.decode(value));
-                    if (colDef.getName() != null) {
-                        tag.addEntityLink(row.get(colDef.getName()).toString(), properties);
-                    } else if (relationship != null) {
+                    if (relationship != null) {
                         tag.addEntityLink(relationship, properties);
                     } else
                         tag.addEntityLink("undefined", properties);
@@ -79,21 +75,10 @@ public class TransformationHelper {
             }
         } else {
             String label = resolveValue(colDef.getLabel(), column, colDef, row);
-            String codeValue;
-            if (colDef.getCode() != null)
-                codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, row.get(colDef.getCode()).toString());
-            else
-                codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
+            String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
 
-            String defaultVal = codeValue;
-
-            if (colDef.getNameExp() == null && colDef.getName() == null)
-                defaultVal = value; // default to the value passed in
-            else if (colDef.getName() != null)
-                defaultVal = row.get(colDef.getName()).toString();
-
-            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, defaultVal));
+            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue));
 
             tag.setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label);
@@ -209,16 +194,13 @@ public class TransformationHelper {
                 Object value = row.get(tagProfile.getCode());
 
                 if (value == null || value.equals("")) {
-                    String codeExp = tagProfile.getCodeExp();
-                    if (codeExp != null) {
-                        value = evaluateExpression(row, codeExp);
-                    }
+                    value = evaluateExpression(row, tagProfile.getCode());
                     if (value == null || value.equals("")) {
-                        logger.debug("No code or codeExp could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
+                        logger.debug("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         return setInTo;
                     }
                 }
-                //
+
                 if (tagProfile.getDelimiter() != null) {
                     // No known entity relationship
                     setInTo.setTargets(tagProfile.getRelationship(), getTagsFromList(tagProfile, row, null));
@@ -273,9 +255,10 @@ public class TransformationHelper {
         return results;
     }
 
-    public static Map<String, Object> convertToMap(String[] headerRow, String[] line) {
+    public static Map<String, Object> convertToMap(ProfileConfiguration importProfile, String[] headerRow, String[] line) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
+        // ToDo: Absent a header, create a default one - (0,1,2,3,4......)
         if (headerRow == null) {
             // No header row so we will name the columns, starting at 0, by their ordinal
             for (String lineCol : line) {
@@ -291,10 +274,16 @@ public class TransformationHelper {
             for (String column : headerRow) {
                 try {
                     Object value = line[col];
+                    Boolean tryAsNumber = true;
+                    String dataType = null ;
+                    if ( importProfile.getColumnDef(column)!=null )
+                        dataType = importProfile.getColumnDef(column).getDataType();
+                    if ( dataType!=null && dataType.equalsIgnoreCase("string"))
+                        tryAsNumber = false;
+                    if (  tryAsNumber )
                     if (NumberUtils.isNumber(line[col])) {
                         value = NumberUtils.createNumber(line[col]);
                     }
-
                     row.put(column, value);
                     col++;
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -315,34 +304,30 @@ public class TransformationHelper {
             else
                 return NumberUtils.createNumber(value.toString());
         } else {
-//                Date date = null;
-//                try {
-//                    if ( colDef!=null && colDef.getDateFormat()!=null ) {
-//                        date = DateUtils.parseDate(line[col], colDef.getDateFormat());
-//                        row.put(column, date.getTime());
-//                    }
-//                } catch (ParseException e) {
-//                    //
-//                }
-            //if ( date == null ) // Stash it as a string
             return value.toString().trim();
         }
     }
 
     public static String getValue(Map<String, Object> row, ColumnDefinition.ExpressionType expCol, ColumnDefinition colDef, Object defaultValue) {
         if (colDef == null)
-            return getNullSafeDefault(defaultValue, colDef);
+            return getNullSafeDefault(defaultValue, null);
         String expression = colDef.getExpression(expCol);
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }
-        Object result = evaluateExpression(row, expression);
+        Object result ;
+        if ( row.containsKey(expression))
+            result = row.get(expression);  // Pull value straight from the row
+        else
+            result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString().trim();
     }
 
     private static Object evaluateExpression(Map<String, Object> row, String expression) {
+        if ( expression== null )
+            return null;
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("row", row);
         return parser.parseExpression(expression).getValue(context);
