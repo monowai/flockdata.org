@@ -66,6 +66,8 @@ public class ColumnDefinition {
     private String type; //datatype
     private String name;
 
+    private String valueOnError;// Value to set to if the format causes an exception
+
 
     private String nullOrEmpty;
     private String appendJoinText = " ";
@@ -384,5 +386,10 @@ public class ColumnDefinition {
     public String getDataType() {
         return dataType;
     }
+
+    public String getValueOnError() {
+        return valueOnError;
+    }
+
 
 }

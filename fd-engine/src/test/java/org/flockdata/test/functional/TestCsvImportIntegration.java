@@ -27,7 +27,6 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.test.utils.Helper;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -37,6 +36,7 @@ import org.flockdata.track.model.EntityLog;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.TrackBatcher;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -133,12 +133,6 @@ public class TestCsvImportIntegration extends EngineBase {
                     MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
                     executor.execute(runner);
                 }
-//            } else {
-//                logger.info( "Processing as a batch of {}", configuration.getBatchSize());
-//                MyRunner runner = new MyRunner(entityBatch);
-//                executor.execute(runner);
-//
-//            }
 
             while (executor.getActiveCount() != 0)
                 logger.trace("Executor at {}", executor.getActiveCount());
@@ -158,12 +152,7 @@ public class TestCsvImportIntegration extends EngineBase {
         }
 
         @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
+        public void close(TrackBatcher trackBatcher) {
 
         }
     }
