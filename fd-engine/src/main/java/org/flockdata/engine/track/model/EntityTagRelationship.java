@@ -186,7 +186,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     public int compareTo(EntityTag o) {
         int val = getTagType().compareTo(o.getTagType());
         if ( val == 0 )
-            return getTag().getName().compareTo(o.getTag().getName());
+            return getTag().getCode().compareTo(o.getTag().getCode());
         return val;
 
     }
