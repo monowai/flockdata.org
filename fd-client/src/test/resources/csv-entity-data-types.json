@@ -3,10 +3,7 @@
     "contentType": "csv",
     "tagOrEntity": "entity",
     "entityOnly": true,
-    "fortress": {
-        "name": "Olympic",
-        "search": true
-    },
+    "fortressName": "Olympic",
     "fortressUser": "mike",
     "batchSize": -1,
     "header": true,

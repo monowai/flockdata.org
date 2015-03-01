@@ -24,11 +24,11 @@
       ],
       "properties": [
         {
-          "sourceProperty": "birthday",
-          "targetProperty": "dob"
+          "source": "birthday",
+          "target": "dob"
         },
-        {"sourceProperty": "url"},
-        {"sourceProperty": "gender"}
+        {"source": "url"},
+        {"source": "gender"}
       ]
     }
   }

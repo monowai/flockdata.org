@@ -42,6 +42,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
@@ -94,7 +95,7 @@ public class TestEntityRlxProperties {
                 TagInputBean politician= null;
                 for (TagInputBean tagInputBean : entityInputBean.getTags()) {
                     assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
-                    assertEquals("Code and Name should be the same", tagInputBean.getCode(), tagInputBean.getName());
+                    assertNull("Name should be null if it equals the code", tagInputBean.getName());
                     if ( tagInputBean.getLabel().equals("Politician"))
                         politician= tagInputBean;
                     if ( tagInputBean.getLabel().equals("InterestGroup")){

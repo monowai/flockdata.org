@@ -50,7 +50,7 @@
                 "name": "name",
                 "label": "Person",
                 "relationship": "cosponsors",
-                "rlxProperties": [ {"sourceProperty":"sponsored_at"}],
+                "rlxProperties": [ {"source":"sponsored_at"}],
                 "targets": [
                     {
                         "code": "state",

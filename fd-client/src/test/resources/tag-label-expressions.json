@@ -7,7 +7,7 @@
       "tag": true,
       "name": "value",
       "code": "code",
-      "label": "label"
+      "label": "#row[label]"
     }
   }
 }

@@ -37,7 +37,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
 
-    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, CALLER_REF}
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
     private boolean callerRef;
@@ -322,6 +322,8 @@ public class ColumnDefinition {
                 return name;
             case CODE:
                 return code;
+            case LABEL:
+                return label;
             case CALLER_REF:
                 return callerRefExp;
             case RELATIONSHIP:

@@ -95,7 +95,7 @@ public class TestCsvEntity {
         boolean nullCategoryFound = false;
         for (TagInputBean tag : tags) {
 
-            switch (tag.getName()) {
+            switch (tag.getCode()) {
                 case "Gold Medals":
                     Object o = tag.getEntityLinks().get("2008");
                     assertNotNull(o);
@@ -124,7 +124,7 @@ public class TestCsvEntity {
                     break;
                 case "TitleTests":
                     callerRefFoundAsATag = true;
-                    assertEquals("TitleTests", tag.getName());
+                    assertNull("Name should be null as it is the same as the code", tag.getName());
                     tagsFound ++;
                     break;
                 case "Undefined":
@@ -200,28 +200,28 @@ public class TestCsvEntity {
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
-            if (tagInputBean.getName().equals("Gold Medals")) {
+            if (tagInputBean.getCode().equals("Gold Medals")) {
                 assertEquals("Gold Medals", tagInputBean.getLabel());
                 Object o = tagInputBean.getEntityLinks().get("competed");
                 assertNotNull("Custom relationship name not working", o);
                 assertEquals(8, ((HashMap) o).get("value"));
                 goldTag = true;
             }
-            if (tagInputBean.getName().equals("Michael Phelps")) {
+            if (tagInputBean.getCode().equals("Michael Phelps")) {
                 assertNotNull("Custom relationship name not working", tagInputBean.getEntityLinks().containsKey("won"));
                 assertEquals("Athlete", tagInputBean.getLabel());
                 athleteTag = true;
             }
-            if (tagInputBean.getName().equals("Swimming")) {
+            if (tagInputBean.getCode().equals("Swimming")) {
                 assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("undefined"));
                 assertEquals("Sport", tagInputBean.getLabel());
                 sportTag = true;
             }
-            if (tagInputBean.getName().equals("United States")) {
+            if (tagInputBean.getCode().equals("United States")) {
                 assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("Country"));
                 countryTag = true;
             }
-            if (tagInputBean.getName().equals("Sport")) {
+            if (tagInputBean.getCode().equals("Sport")) {
                 assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
                 TagInputBean athlete = tagInputBean.getTargets().get("competes-in").iterator().next();
                 assertNotNull(athlete);
@@ -230,7 +230,7 @@ public class TestCsvEntity {
                 assertTrue("Direction not reversed", athlete.isReverse());
             }
 
-            if (tagInputBean.getName().equals("23")) {
+            if (tagInputBean.getCode().equals("23")) {
                 assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
                 TagInputBean athlete = tagInputBean.getTargets().get("at-age").iterator().next();
                 assertNotNull(athlete);
@@ -261,7 +261,7 @@ public class TestCsvEntity {
         assertEquals(1, tags.size());
 
         TagInputBean zipTag = tags.iterator().next();
-        assertEquals("123", zipTag.getName());
+        assertEquals("Name is not set if it is the same as the code", null, zipTag.getName());
         assertEquals("ZipCode", zipTag.getLabel());
 
         Map<String, Collection<TagInputBean>> locatedTags = zipTag.getTargets();

@@ -38,7 +38,7 @@
             ]
         },
         "ram": {
-            "targetProperty": "RAM"
+            "target": "RAM"
         }
 
     }
