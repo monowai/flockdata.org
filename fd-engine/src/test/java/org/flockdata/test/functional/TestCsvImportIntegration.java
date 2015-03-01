@@ -152,8 +152,8 @@ public class TestCsvImportIntegration extends EngineBase {
         }
 
         @Override
-        public void close(TrackBatcher trackBatcher) {
-
+        public void close(TrackBatcher trackBatcher) throws FlockException {
+            trackBatcher.flush();
         }
     }
 
