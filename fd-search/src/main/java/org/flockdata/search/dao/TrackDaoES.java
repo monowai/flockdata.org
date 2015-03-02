@@ -396,6 +396,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
+        // DAT-328
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
         for (String s : tagValues.keySet()) {
