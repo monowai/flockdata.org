@@ -38,6 +38,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
@@ -51,9 +52,7 @@ import org.springframework.stereotype.Repository;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -390,10 +389,33 @@ public class TrackDaoES implements TrackSearchDao {
             indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
-            indexMe.put(EntitySearchSchema.TAG, searchChange.getTagValues());
+            setTags(indexMe, searchChange.getTagValues());
+            //indexMe.put(EntitySearchSchema.TAG, searchChange.getTagValues());
 
         return indexMe;
     }
+
+    private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
+        Map<String, Object> byRelationship = new HashMap<>();
+        Map<String, Object> squash = new HashMap<>();
+        for (String s : tagValues.keySet()) {
+            if ( tagValues.get(s).containsKey(s))
+            {
+                squash.put(s, tagValues.get(s).get(s));
+            }
+            else {
+                byRelationship.put(s, tagValues.get(s));
+
+            }
+        }
+        if ( !squash.isEmpty())
+            byRelationship.putAll(squash);
+        if ( !byRelationship.isEmpty()) {
+            indexMe.put(EntitySearchSchema.TAG, byRelationship);
+        }
+        //indexMe.put(EntitySearchSchema.TAG, tagValues);
+    }
+
 
     private Map<String, Object> defaultSettings = null;
 

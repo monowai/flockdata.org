@@ -98,6 +98,7 @@ public class TagNode implements Tag {
     public String toString() {
         return "TagNode{" +
                 "id=" + id +
+                ", label='" + getLabel() + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }
