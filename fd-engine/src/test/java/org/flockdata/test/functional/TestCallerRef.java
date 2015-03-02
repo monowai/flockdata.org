@@ -190,7 +190,7 @@ public class TestCallerRef extends EngineBase {
                 }
                 worked = true;
                 logger.info("{} completed", this.toString());
-            } catch (RuntimeException | ExecutionException | InterruptedException | IOException | FlockException e) {
+            } catch ( ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);
             } finally {
                 try {
