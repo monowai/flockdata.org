@@ -132,18 +132,18 @@ public class KvServiceTest {
 //
 //        //When
 //        try {
-//            EntityContent entityContent = kvService.getContent(entity, entityLog.getLog());
+//            EntityContent entityContent = kvService.getContent(entity, entityLog.getContent());
 //
 //            assertNotNull(entityContent);
 //            // Redis should always be available. RIAK is trickier to install
 //            if (kvConfig.getKvStore().equals(KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
 //                validateWhat(what, entityContent);
 //                //new EntityContentData(compareTo.getEntityContent(), compareTo)
-//                //assertEquals(true, kvService.isSame(entity, entityLog.getLog(), contentInputBean));
+//                //assertEquals(true, kvService.isSame(entity, entityLog.getContent(), contentInputBean));
 //                // Testing that cancel works
 //                trackService.cancelLastLog(fortressA.getCompany(), entity);
 //                TestCase.assertNull(logService.getLastLog(entity));
-//                assertNull("This log should have been deleted and nothing returned", kvService.getContent(entity, entityLog.getLog()));
+//                assertNull("This log should have been deleted and nothing returned", kvService.getContent(entity, entityLog.getContent()));
 //                assertTrue(kvService.sameJson(entityContent, contentInputBean));
 //            } else {
 //                // ToDo: Mock RIAK
@@ -226,14 +226,14 @@ public class KvServiceTest {
 //        assertNotNull(entityLog);
 //
 //        try {
-//            EntityContent entityContent = kvService.getContent(entity, entityLog.getLog());
+//            EntityContent entityContent = kvService.getContent(entity, entityLog.getContent());
 //
 //            assertNotNull(entityContent);
 //            // Redis should always be available. RIAK is trickier to install
 //
 //
-//            assertEquals(contentInputBean.getFileName(), entityLog.getLog().getFileName());
-//            assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
+//            assertEquals(contentInputBean.getFileName(), entityLog.getContent().getFileName());
+//            assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getContent().getContentType());
 //            assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
 //        } catch (Exception ies) {
 //            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());

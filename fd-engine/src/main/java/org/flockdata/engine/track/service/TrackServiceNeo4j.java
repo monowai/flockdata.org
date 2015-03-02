@@ -117,10 +117,10 @@ public class TrackServiceNeo4j implements TrackService {
             logger.trace("Existing entity [{}]", entity);
             TrackResultBean arb = new TrackResultBean(entity, entityInputBean);
             arb.entityExisted();
-            arb.setContentInput(entityInputBean.getLog());
-            if ( entityInputBean.getLog()!=null && entityInputBean.getLog().getWhen()!=null) {
+            arb.setContentInput(entityInputBean.getContent());
+            if ( entityInputBean.getContent()!=null && entityInputBean.getContent().getWhen()!=null) {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
-                entity.setFortressLastWhen(entityInputBean.getLog().getWhen().getTime());
+                entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
             }
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
@@ -146,15 +146,15 @@ public class TrackServiceNeo4j implements TrackService {
                 entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
         );
 
-        resultBean.setContentInput(entityInputBean.getLog());
+        resultBean.setContentInput(entityInputBean.getContent());
         return resultBean;
 
     }
 
     public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
         String fortressUser = entityInput.getFortressUser();
-        if ( fortressUser == null && entityInput.getLog()!=null )
-            fortressUser = entityInput.getLog().getFortressUser();
+        if ( fortressUser == null && entityInput.getContent()!=null )
+            fortressUser = entityInput.getContent().getFortressUser();
 
         FortressUser fu = fortressService.getFortressUser(fortress, fortressUser);
         Entity entity = entityDao.create(entityInput, fortress, fu, documentType);
