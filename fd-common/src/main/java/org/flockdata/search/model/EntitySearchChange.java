@@ -234,27 +234,13 @@ public class EntitySearchChange implements SearchChange {
             if (tagValues == null) {
                 tagValues = new HashMap<>();
                 // ToDo: Figure out if we need the Tags label as a property
-                // entityTag.relationship.label.code - too long?
+                // tag.relationship.label.code
                 // -or-
-                // entityTag.label.relationship.code
+                // tag.label.relationship.code
                 // If label and relationship are equal then only one property is written
                 this.tagValues.put(entityTag.getTagType().toLowerCase(), tagValues);
             }
             mapTag(entityTag, tagValues);
-//            setTagValue("code", entityTag.getTag().getCode(), tagValues);
-//            if ( !entityTag.getTag().getCode().equals(entityTag.getTag().getName()))
-//                setTagValue("name", entityTag.getTag().getName(), tagValues);
-//
-//            if (entityTag.getGeoData() != null) {
-//                setTagValue("iso", entityTag.getGeoData().getIsoCode().toUpperCase(), tagValues);
-//                setTagValue("country", entityTag.getGeoData().getCountry(), tagValues);
-//                setTagValue("state", entityTag.getGeoData().getState(), tagValues);
-//                setTagValue("city", entityTag.getGeoData().getCity(), tagValues);
-//                if ( entityTag.getGeoData().isValid())
-//                    setTagValue("geo", entityTag.getGeoData().getGeoPoint(),tagValues);
-//            }
-//            if (!entityTag.getTagProperties().isEmpty())
-//                tagValues.put("props", entityTag.getTagProperties());
         }
     }
 
