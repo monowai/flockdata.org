@@ -193,6 +193,11 @@ public class TestCallerRef extends EngineBase {
             } catch (RuntimeException | ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);
             } finally {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 latch.countDown();
             }
 
