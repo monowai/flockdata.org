@@ -112,5 +112,26 @@ public class TestGeography {
 
     }
 
+    @Test
+    public void null_PropertyValuesNotSaved() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/test-countries.json");
+        CsvTagMapper tag = new CsvTagMapper();
+
+        // We will purposefully suppress the capital city to test the conditional expressions
+        String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
+
+        String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
+
+        tag.setData(headers, data, params);
+        assertNotNull(tag);
+
+        assertEquals("Capital city was not present", 1, tag.getTargets().size());
+        Collection<TagInputBean> capitals = tag.getTargets().get("capital");
+        for (TagInputBean next : capitals) {
+            assertEquals(0, next.getProperties().size());
+        }
+
+    }
+
 
 }

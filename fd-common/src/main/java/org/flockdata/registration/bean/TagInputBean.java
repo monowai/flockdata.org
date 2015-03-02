@@ -46,11 +46,8 @@ public class TagInputBean {
 
     private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
 
-    Map<String, Object> properties = null;
+    Map<String, Object> properties = new HashMap<>();
     private String label = "";
-
-    @Deprecated
-    private String index = "";
 
     Map<String, Object> entityLinks = new HashMap<>();
 
