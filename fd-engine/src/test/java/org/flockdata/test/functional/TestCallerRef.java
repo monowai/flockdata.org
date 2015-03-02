@@ -121,15 +121,15 @@ public class TestCallerRef extends EngineBase {
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(runnersToCreate);
+
         for (int i = 0; i < runnersToCreate; i++) {
             runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
         }
         startLatch.countDown();
+        latch.await();
         Thread.yield();
         latch.await();
         assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
-        Thread.yield();
-        Thread.sleep(300);
         for (CallerRefRunner runner : runners) {
             assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
         }
