@@ -362,10 +362,11 @@ public class EntityTagDaoNeo4j {
                 //geoData.setCity((String) loc.getProperty("name"));
                 String city = (String) loc.getProperty("name");
 
-                if (country != null && country.hasProperty("name")) {
+                if (country != null && country.hasProperty("code")) {
                     // ToDo: Need a Country object
                     isoCode = (String) country.getProperty("code");
-                    countryName = (String) country.getProperty("name");
+                    if ( country.hasProperty("name"))
+                        countryName = (String) country.getProperty("name");
                     Object latitude = null;
                     Object longitude = null;
 

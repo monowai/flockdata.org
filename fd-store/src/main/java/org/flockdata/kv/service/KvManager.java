@@ -247,7 +247,8 @@ public class KvManager implements KvService {
 
     @Override
     public boolean sameJson(EntityContent compareFrom, EntityContent compareTo) {
-
+        if ( compareFrom.getWhat().size() != compareTo.getWhat().size())
+            return false;
         logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
         JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
         JsonNode jCompareWith = om.valueToTree(compareTo.getWhat());

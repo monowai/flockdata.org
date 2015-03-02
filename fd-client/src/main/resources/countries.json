@@ -8,6 +8,7 @@
             "tag": true,
             "label": "Country",
             "code": "ISO3166A2",
+            "name": "ISOen_name",
             "properties": [
                 {
                     "source": "UNc_latitude",
