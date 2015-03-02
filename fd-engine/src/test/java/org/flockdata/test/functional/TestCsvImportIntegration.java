@@ -131,12 +131,19 @@ public class TestCsvImportIntegration extends EngineBase {
                 for (EntityInputBean entityInputBean : entityBatch) {
 
 
-                    MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
-                    executor.execute(runner);
+                    //MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
+                    //executor.execute(runner);
+                    try {
+                        if (entityInputBean != null) {
+                            logger.debug("My Date {}", entityInputBean.getWhen());
+                            mediationFacade.trackEntity(entityInputBean, su.getApiKey());
+                        }
+                    } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
+                        logger.error("Unexpected", e);
+                    }
                 }
 
-            while (executor.getActiveCount() != 0)
-                logger.trace("Executor at {}", executor.getActiveCount());
+
             logger.debug("Executor at {}", executor.getActiveCount());
 
             return "";
@@ -158,37 +165,33 @@ public class TestCsvImportIntegration extends EngineBase {
         }
     }
 
-    private class MyRunner implements Runnable {
-        private EntityInputBean entityInputBean;
-        Collection<EntityInputBean> entityInputBeans;
-        private String apiKey;
-
-        MyRunner(EntityInputBean entityInputBean, String apiKey) {
-            this.entityInputBean = entityInputBean;
-            this.apiKey = apiKey;
-        }
-
-        MyRunner(Collection<EntityInputBean> entityInputBeans) {
-            this.entityInputBeans = entityInputBeans;
-        }
-
-        @Override
-        public void run() {
-
-            try {
-                if (entityInputBean != null) {
-                    logger.debug("My Date {}", entityInputBean.getWhen());
-                    mediationFacade.trackEntity(entityInputBean, apiKey);
-                } else {
-                    mediationFacade.trackEntity(entityInputBean, apiKey);
-                }
-            } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
-                logger.error("Unexpected", e);
-            }
-
-
-        }
-    }
+//    private class MyRunner implements Runnable {
+//        private EntityInputBean entityInputBean;
+//        Collection<EntityInputBean> entityInputBeans;
+//        private String apiKey;
+//
+//        MyRunner(EntityInputBean entityInputBean, String apiKey) {
+//            this.entityInputBean = entityInputBean;
+//            this.apiKey = apiKey;
+//        }
+//
+//        @Override
+//        public void run() {
+//
+//            try {
+//                if (entityInputBean != null) {
+//                    logger.debug("My Date {}", entityInputBean.getWhen());
+//                    mediationFacade.trackEntity(entityInputBean, apiKey);
+//                } else {
+//                    mediationFacade.trackEntity(entityInputBean, apiKey);
+//                }
+//            } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
+//                logger.error("Unexpected", e);
+//            }
+//
+//
+//        }
+//    }
 
 
 }
