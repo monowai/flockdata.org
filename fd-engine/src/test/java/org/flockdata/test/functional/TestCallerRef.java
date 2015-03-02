@@ -114,7 +114,7 @@ public class TestCallerRef extends EngineBase {
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
-        String docType = "StressDupe";
+        String docType = "StressDupez";
         String callerRef = "ABC123X";
         int runnersToCreate = 3;
         Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
@@ -129,6 +129,7 @@ public class TestCallerRef extends EngineBase {
         latch.await();
         assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
         Thread.yield();
+        Thread.sleep(300);
         for (CallerRefRunner runner : runners) {
             assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
         }
