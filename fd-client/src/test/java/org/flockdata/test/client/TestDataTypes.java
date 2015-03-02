@@ -50,9 +50,9 @@ public class TestDataTypes extends AbstractImport {
                 assertEquals("00165", tagInputBean.getCode());
         }
         EntityInputBean entity = getFdWriter().getEntities().iterator().next();
-        assertNotNull ( entity.getLog());
-        assertEquals("The N/A string should have been set to the default of 0", 0, entity.getLog().getWhat().get("illegal-num"));
-        assertEquals("The Blank string should have been set to the default of 0", 0, entity.getLog().getWhat().get("blank-num"));
+        assertNotNull ( entity.getContent());
+        assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getWhat().get("illegal-num"));
+        assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getWhat().get("blank-num"));
 
 
     }

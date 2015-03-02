@@ -145,7 +145,7 @@ public class TestJsonEntity extends AbstractImport{
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             ObjectMapper om = new ObjectMapper();
             assertEquals(1, entityBatch.size());
-            assertNotNull(entityBatch.iterator().next().getLog());
+            assertNotNull(entityBatch.iterator().next().getContent());
             try {
                 om.writeValueAsString(entityBatch);
             } catch (Exception e) {

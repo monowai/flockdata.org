@@ -38,7 +38,7 @@ public class EntityInputBean {
     private String fortressUser;
     private String documentName;
     private Date when = null;
-    private ContentInputBean log;
+    private ContentInputBean content;
     private List<TagInputBean> tags = new ArrayList<>();
     private Map<String,List<EntityKey>> crossReferences = new HashMap<>();
 
@@ -102,14 +102,14 @@ public class EntityInputBean {
     public Date getWhen() {
         if (when !=null )
             return when;
-        // Default to the log date
-        if (log != null && log.getWhen() != null && log.getWhen().getTime() > 0)
-            return log.getWhen();
+        // Default to the content date
+        if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0)
+            return content.getWhen();
         return null;
     }
 
     /**
-     * This date is ignored if a valid one is set in a present log
+     * This date is ignored if a valid one is set in a present content
      *
      * @param when when the caller says this occurred
      */
@@ -177,17 +177,21 @@ public class EntityInputBean {
         this.callerRef = callerRef;
     }
 
+    @Deprecated
+    public void setLog(ContentInputBean content){
+        setContent(content);
+    }
     public void setContent(ContentInputBean content) {
-        this.log = content;
+        this.content = content;
         if (content != null) {
             this.metaOnly = false;
-            //this.when = log.getWhen();
+            //this.when = content.getWhen();
         }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public ContentInputBean getLog() {
-        return log;
+    public ContentInputBean getContent() {
+        return content;
     }
 
 
@@ -325,10 +329,10 @@ public class EntityInputBean {
     }
 
     /**
-     * Flags that this Entity will never have a log. It will still be tracked through
+     * Flags that this Entity will never have a content. It will still be tracked through
      * in to the Search Service.
      *
-     * @param metaOnly if false then the entity will not be indexed in search until a log is added
+     * @param metaOnly if false then the entity will not be indexed in search until a content is added
      */
     public void setMetaOnly(boolean metaOnly) {
         this.metaOnly = metaOnly;
@@ -359,20 +363,20 @@ public class EntityInputBean {
     }
 
     /**
-     * Instructs FlockData to Move tags already associated with an entity to the log
+     * Instructs FlockData to Move tags already associated with an entity to the content
      * if they are NOT present in this track request.
      *
      * Only applies to updating existing entities.
      *
      * @param archiveTags default False - tags not present in this request but are recorded
-     *                    against the entity will be MOVED to the log
+     *                    against the entity will be MOVED to the content
      */
     public void setArchiveTags(boolean archiveTags) {
         this.archiveTags = archiveTags;
     }
 
     /**
-     * Supports the situation where an entity and it's log are being created and parsed from a single row.
+     * Supports the situation where an entity and it's content are being created and parsed from a single row.
      * The mapping process is responsible for mapping the value to the Log as the entity does not have it
      *
      * @param updateUser fortressUser
