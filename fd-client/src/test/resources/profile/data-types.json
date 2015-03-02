@@ -15,6 +15,10 @@
     "illegal-num": {
       "dataType": "number",
       "valueOnError": "0"
+    },
+    "blank-num": {
+      "dataType": "number",
+      "valueOnError": "0"
     }
   }
 }
