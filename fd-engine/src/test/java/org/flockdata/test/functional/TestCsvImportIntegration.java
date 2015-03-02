@@ -96,6 +96,7 @@ public class TestCsvImportIntegration extends EngineBase {
                 logger.info("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
+            Thread.yield();
             assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
             assertEquals( "Run "+i+" has wrong log count", 6, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
             i++;
