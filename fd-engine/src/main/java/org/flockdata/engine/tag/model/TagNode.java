@@ -72,6 +72,8 @@ public class TagNode implements Tag {
         if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
+        if ( !(tagInput.getLabel() == null) )
+            this.labels.add(tagInput.getLabel());
     }
 
     public TagNode(TagInputBean tagInput, String tagLabel) {

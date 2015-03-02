@@ -596,8 +596,8 @@ public class TestFdIntegration {
         assumeTrue(runMe);
         logger.info("## tag_UniqueKeySearch");
         SystemUser su = registerSystemUser("Cameron");
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagKeySearch"));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "ABC123");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tag_UniqueKeySearch"));
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "tag_UniqueKeySearch");
         ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));

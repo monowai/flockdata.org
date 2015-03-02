@@ -99,7 +99,7 @@ public class TestMappings extends ESBase {
 
         // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
         // We also expect the code to be lower case
-        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag._tag.code.facet", "my TAG", 1, "Full text match of tag codes is not working");
+        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Full text match of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -218,9 +218,38 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag._tag.code.facet", "my TAG", 1);
-        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag._tag.code.facet", "my TAG", 1);
-        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag._tag.code.facet", "my TAG", 2);
+        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", "my TAG", 1);
+        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", "my TAG", 1);
+        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 2);
+
+    }
+
+    @Test
+    public void tagWithRelationshipNamesMatchingNodeNames() throws Exception {
+        Map<String, Object> json = Helper.getBigJsonText(20);
+        Entity entityA = getEntity("cust", "fort", "anyuser", "fortdoc");
+
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+
+        TagNode tag = new TagNode(new TagInputBean("aValue", "myTag", "myTag"));
+        tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
+
+        ArrayList<EntityTag> tags = new ArrayList<>();
+        tags.add(new EntityTagRelationship(66l, tag));
+        changeA.setTags(tags);
+
+        deleteEsIndex(entityA.getFortress().getIndexName());
+
+        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
+
+        changeA = searchRepo.update(changeA);
+
+        Thread.sleep(1000);
+        assertNotNull(changeA);
+        assertNotNull(changeA.getSearchKey());
+
+        // DAT-328
+        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
