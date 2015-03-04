@@ -392,13 +392,14 @@ public class TrackDaoES implements TrackSearchDao {
 
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
-        indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
+        if ( searchChange.getCallerRef()!=null )
+            indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
+
         if (searchChange.getDescription() != null)
             indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
             setTags(indexMe, searchChange.getTagValues());
-            //indexMe.put(EntitySearchSchema.TAG, searchChange.getTagValues());
 
         return indexMe;
     }
