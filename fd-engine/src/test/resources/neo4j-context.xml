@@ -27,7 +27,7 @@ http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.spr
 
     <util:map id="config">
         <entry key="remote_shell_enabled" value="false"/>
-        <entry key="cache_type" value="soft"/>
+        <entry key="cache_type" value="hpc"/>
     </util:map>
 
     <bean id="graphDbBuilderFinal" factory-bean="graphDbBuilder" factory-method="setConfig">

@@ -286,14 +286,20 @@ public class TransformationHelper {
                     Object value = line[col];
                     Boolean tryAsNumber = true;
                     String dataType = null;
-                    if (importProfile.getColumnDef(column) != null)
+                    ColumnDefinition colDef = importProfile.getColumnDef(column);
+                    if ( colDef != null) {
                         dataType = importProfile.getColumnDef(column).getDataType();
+
+                        // ToDo: Analyze the tag structures. Codes should not be converted
+                        if (colDef.isTag())
+                            dataType = "string";
+                    }
                     if (dataType != null)
                         if (dataType.equalsIgnoreCase("string"))
                             tryAsNumber = false;
                         else if (dataType.equalsIgnoreCase("number"))
                             tryAsNumber = true;
-                    if (tryAsNumber)
+                    if (tryAsNumber )
                         if (NumberUtils.isNumber(line[col])) {
                             value = NumberUtils.createNumber(line[col]);
                         } else if (dataType!=null && dataType.equalsIgnoreCase("number")) {

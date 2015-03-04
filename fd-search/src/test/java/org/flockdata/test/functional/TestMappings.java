@@ -284,7 +284,8 @@ public class TestMappings extends ESBase {
 
 
         EntityTagRelationship entityTag = new EntityTagRelationship(66l, tag );
-        GeoData geoData = new GeoData("NZ", "New Zealand", "Wellington", null, 174.0, -41.0);
+        GeoData geoData = new GeoData("NZ", "New Zealand", "Wellington", null);
+        geoData.setLatLong(174.0, -41.0);
         entityTag.setGeoData(geoData);
 
         change.setTags(tags);
