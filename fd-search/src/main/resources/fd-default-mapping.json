@@ -117,13 +117,13 @@
       },
       {
         "geo_tag": {
-          "path_match": "tag.*.geo.geoPoint",
+          "path_match": "tag.*.geo.points.*",
           "match_mapping_type": "string",
           "mapping": {
             "type": "geo_point",
             "lat_lon": true,
             "geohash": true,
-            "geohash_precision": "10km"
+            "geohash_precision": "1km"
           }
         }
       }

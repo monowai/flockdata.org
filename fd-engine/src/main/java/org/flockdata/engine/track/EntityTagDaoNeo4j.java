@@ -32,7 +32,6 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
-import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.optional;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -355,7 +354,7 @@ public class EntityTagDaoNeo4j {
                 String countryName = null;
                 Double lat = null;
                 Double lon = null;
-                String stateName = null;
+                String stateName = null, stateCode=null;
 
                 Node country = (Node) row.get("country");
                 Node state = (Node) row.get("state");
@@ -383,8 +382,12 @@ public class EntityTagDaoNeo4j {
                 }
                 if (state != null && state.hasProperty("name"))
                     stateName = (String) state.getProperty("name");
+                if (state != null && state.hasProperty("code"))
+                    stateCode =(String) state.getProperty("code");
 
-                GeoData geoData = new GeoData(isoCode, countryName, city, stateName, lat, lon);
+                GeoData geoData = new GeoData(isoCode, countryName, city, stateName);
+                geoData.setLatLong("country", lat, lon );
+                geoData.setStateCode(stateCode);
                 entityTag.setGeoData(geoData);
             }
             tagResults.add(entityTag);

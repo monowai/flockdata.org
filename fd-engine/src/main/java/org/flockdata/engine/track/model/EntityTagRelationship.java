@@ -42,6 +42,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     private Long primaryKey;
     private String tagType;
     private Map<String, Object> properties = new HashMap<>();
+    //private Map<String, GeoData>geoData = new HashMap<>();
     private GeoData geoData;
 
     protected EntityTagRelationship() {
@@ -147,11 +148,6 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         return (Integer)getProperty("weight");
     }
 
-//    @Override
-//    public int compareTo(Object o) {
-//        //ToDo: What?????
-//        return 1;
-//    }
     private void addProperty(String key, Object value){
         if ( key == null )
             return;
@@ -172,7 +168,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         return this;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public GeoData getGeoData() {
         return geoData;
     }
