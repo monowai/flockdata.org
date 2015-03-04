@@ -7,7 +7,7 @@
     "name": {
       "tag": true,
       "label": "State",
-      "code": "code",
+      "code": "#row[country]+'-'+#row[code]",
       "name": "name",
       "targets": [
         {
