@@ -314,8 +314,8 @@ public class TestCsvEntity {
     @Test
     public void csv_NumberParsesAsString() throws Exception {
         //
-        String[] headers = new String[]{"Title", "NumberAsString", "created", "updated"};
-        String[] data = new String[]{"TitleTests", "123", "1235015570", "1235015805"};
+        String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
+        String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
@@ -326,8 +326,14 @@ public class TestCsvEntity {
         assertTrue("CallerRef was wrong", colDef.isCallerRef());
         assertTrue("Title was wrong", colDef.isTitle());
 
-        Object o = json.get("NumberAsString");
-        Assert.assertTrue(o instanceof Number);
+        Object o = json.get("TagNumberAsString");
+        Assert.assertTrue("Could be converted to a string but it's a Tag so should be preserved",o instanceof String);
+
+        o = json.get("TagValueAsNumber");
+        Assert.assertTrue("Forced conversion to a number for a Tag (overriding default behaviour)",o instanceof Number);
+
+        o = json.get("StringAsNumber");
+        Assert.assertTrue("Should not have been converted to a number", o instanceof Number);
 
         colDef= params.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
