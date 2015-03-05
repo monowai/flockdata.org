@@ -290,8 +290,12 @@ public class TransformationHelper {
                     if ( colDef != null) {
                         dataType = importProfile.getColumnDef(column).getDataType();
 
-                        // ToDo: Analyze the tag structures. Codes should not be converted
-                        if (colDef.isTag())
+                        // ToDo: Analyze nested tags to see that codes are not be converted
+                        // To force a numeric looking tag ("001") to a number you must create a
+                        // columnDefinition specifying it as a string.
+                        // { "myCol": {"dataType":"string"}}
+
+                        if (dataType == null && colDef.isTag())
                             dataType = "string";
                     }
                     if (dataType != null)

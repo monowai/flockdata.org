@@ -12,11 +12,21 @@
             "callerRef": true,
             "title": true
         },
-        "NumberAsString": {
-            "type": "String",
+
+        "TagNumberAsString": {
             "tag":true,
             "relationship": "subject"
         },
+      "TagValueAsNumber": {
+        "tag":true,
+        "dataType": "number",
+        "relationship": "subject"
+      },
+
+      "StringAsNumber": {
+          "relationship": "subject"
+        },
+
         "created": {
             "createDate":true,
             "format":"epoc"

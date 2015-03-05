@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test;
+package org.flockdata.store.test;
 
 import java.util.HashMap;
 import java.util.Map;
