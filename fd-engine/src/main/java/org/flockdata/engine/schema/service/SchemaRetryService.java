@@ -21,6 +21,7 @@ package org.flockdata.engine.schema.service;
 
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,11 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -48,8 +51,9 @@ public class SchemaRetryService {
     SchemaService schemaService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public void createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
+    public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
 
-        schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+        DocumentType result = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+        return new AsyncResult<>(result);
     }
 }
