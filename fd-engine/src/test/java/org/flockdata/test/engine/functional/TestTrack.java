@@ -519,13 +519,13 @@ public class TestTrack extends EngineBase {
         Entity entity = trackService.getEntity(su.getCompany(), metaKey);
         LogResultBean firstLog  = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), firstDate, Helper.getSimpleMap("house", "house1"))).getLogResult();
         LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2"))).getLogResult();
-        assertNotSame(0l, firstLog.getWhatLog().getEntityLog().getFortressWhen());
-        assertNotSame(0l, secondLog.getWhatLog().getEntityLog().getFortressWhen());
+        assertNotSame(0l, firstLog.getLog().getEntityLog().getFortressWhen());
+        assertNotSame(0l, secondLog.getLog().getEntityLog().getFortressWhen());
         Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey);
         compareUser(entity, secondLog.getFortressUser());
-        assertEquals(secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(secondLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Test block
         trackService.cancelLastLog(fortress.getCompany(), entity);
@@ -533,7 +533,7 @@ public class TestTrack extends EngineBase {
         assertEquals(1, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey, true); // Refresh the entity
         compareUser(entity, firstLog.getFortressUser());
-        assertEquals(firstLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(firstLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Last change cancelled
         trackService.cancelLastLog(fortress.getCompany(), entity);

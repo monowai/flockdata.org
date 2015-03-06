@@ -43,9 +43,9 @@ public class KvContentBean {
     public KvContentBean(TrackResultBean trackResultBean) {
         this();
         this.entityBean = new EntityBean(trackResultBean.getEntity());
-        if (trackResultBean.getLogResult().getWhatLog() != null) {
-            this.logId = trackResultBean.getLogResult().getWhatLog().getId();
-            this.entityContent = trackResultBean.getLogResult().getWhatLog().getEntityContent();
+        if (trackResultBean.getLogResult().getLog() != null) {
+            this.logId = trackResultBean.getLogResult().getLog().getId();
+            this.entityContent = trackResultBean.getLogResult().getLog().getEntityContent();
         }
         trackResultBean.getEntity().getMetaKey();
     }
