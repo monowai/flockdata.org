@@ -146,10 +146,9 @@ public class KvServiceTest {
         trackResultBean.setLogResult( logResult);
 
 
-        KvContentBean kvContent = new KvContentBean(trackResultBean);
-        kvService.doKvWrite(kvContent);
-
         try {
+            KvContentBean kvContent = new KvContentBean(trackResultBean);
+            kvService.doKvWrite(kvContent);
             EntityContent entityContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
 
             assertNotNull(entityContent);
