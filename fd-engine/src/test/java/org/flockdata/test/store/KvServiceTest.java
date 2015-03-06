@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,13 +17,25 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.test;
+package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.kv.FdKvConfig;
+import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.kv.service.KvService;
+import org.flockdata.test.engine.Helper;
+import org.flockdata.test.engine.SimpleLog;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.LogResultBean;
+import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityContent;
+import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.Log;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,17 +53,18 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
+
+//import redis.embedded.RedisServer;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:fdkv-root-context.xml",
-         })
+})
 
 public class KvServiceTest {
 
-    //@Autowired
-    //private KvService kvService;
 
     @Autowired
     private FdKvConfig kvConfig;
@@ -59,6 +72,9 @@ public class KvServiceTest {
     private Logger logger = LoggerFactory.getLogger(KvServiceTest.class);
 
     private static RedisServer redisServer;
+
+    @Autowired
+    private KvService kvService;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -106,52 +122,49 @@ public class KvServiceTest {
 
 
     private void kvMapTest() throws Exception {
-//        setSecurity();
-//        logger.debug("Registering system user!");
-//        SystemUser su = registerSystemUser("Company", EngineBase.mike_admin);
-//        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
-//        String docType = "TestAuditX";
-//        String callerRef = "ABC123R";
-//        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
-//        Map<String, Object> what = getWhatMap();
-//        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), what);
-//        inputBean.setContent(contentInputBean);
-//
-//        Entity entity;
-//
-//
-//        //String whatString = getJsonFromObject(what);
-//        try {
-//            entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-//        } catch (Exception e) {
-//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-//            return;
-//        }
-//        EntityLog entityLog = trackService.getLastEntityLog(entity.getId());
-//        assertNotNull(entityLog);
-//
-//        //When
-//        try {
-//            EntityContent entityContent = kvService.getContent(entity, entityLog.getContent());
-//
-//            assertNotNull(entityContent);
-//            // Redis should always be available. RIAK is trickier to install
-//            if (kvConfig.getKvStore().equals(KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
-//                validateWhat(what, entityContent);
-//                //new EntityContentData(compareTo.getEntityContent(), compareTo)
-//                //assertEquals(true, kvService.isSame(entity, entityLog.getContent(), contentInputBean));
-//                // Testing that cancel works
-//                trackService.cancelLastLog(fortressA.getCompany(), entity);
-//                TestCase.assertNull(logService.getLastLog(entity));
-//                assertNull("This log should have been deleted and nothing returned", kvService.getContent(entity, entityLog.getContent()));
-//                assertTrue(kvService.sameJson(entityContent, contentInputBean));
-//            } else {
-//                // ToDo: Mock RIAK
-//                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
-//            }
-//        } catch (Exception ies) {
-//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-//        }
+        logger.debug("Registering system user!");
+        //SystemUser su = registerSystemUser("Company", EngineBase.mike_admin);
+        //Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
+        String fortress = "Entity Test";
+        String docType = "TestAuditX";
+        String callerRef = "ABC123R";
+        String company = "company";
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
+
+        Map<String, Object> what = getWhatMap();
+        inputBean.setContent( new ContentInputBean("wally", new DateTime(), what));
+
+        Entity entity = Helper.getEntity(company, fortress, "wally", docType);
+
+        TrackResultBean trackResultBean = new TrackResultBean(entity, inputBean);
+
+        Log graphLog = new SimpleLog(System.currentTimeMillis());
+        graphLog = kvService.prepareLog(graphLog, inputBean.getContent());
+
+        LogResultBean logResult = new LogResultBean(inputBean.getContent());
+        logResult.setLog(graphLog);
+        trackResultBean.setLogResult( logResult);
+
+
+        KvContentBean kvContent = new KvContentBean(trackResultBean);
+        kvService.doKvWrite(kvContent);
+
+        try {
+            EntityContent entityContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
+
+            assertNotNull(entityContent);
+            // Redis should always be available. RIAK is trickier to install
+            if (kvConfig.getKvStore().equals(KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
+                validateWhat(what, entityContent);
+                // Testing that cancel works
+                kvService.delete(entity, trackResultBean.getLogResult().getLog());
+            } else {
+                // ToDo: Mock RIAK
+                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+            }
+        } catch (Exception ies) {
+            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
+        }
     }
 
     private void validateWhat(Map<String, Object> what, EntityContent entityContent) throws InterruptedException {
@@ -204,41 +217,35 @@ public class KvServiceTest {
     }
 
     private void kvAttachmentTest() throws Exception {
-//        setSecurity();
-//        logger.debug("Registering system user!");
-//        SystemUser su = registerSystemUser("Company", EngineBase.mike_admin);
-//        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
-//        String docType = "TestAuditX";
-//        String callerRef = "ABC123R";
-//        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
-//        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
-//        contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
-//        inputBean.setContent(contentInputBean);
-//
-//        Entity entity;
-//        try {
-//            entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-//        } catch (Exception e) {
-//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-//            return;
-//        }
-//        EntityLog entityLog = trackService.getLastEntityLog(entity.getId());
-//        assertNotNull(entityLog);
-//
-//        try {
-//            EntityContent entityContent = kvService.getContent(entity, entityLog.getContent());
-//
-//            assertNotNull(entityContent);
-//            // Redis should always be available. RIAK is trickier to install
-//
-//
-//            assertEquals(contentInputBean.getFileName(), entityLog.getContent().getFileName());
-//            assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getContent().getContentType());
-//            assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
-//        } catch (Exception ies) {
-//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-//        }
+        logger.debug("Registering system user!");
+
+        String docType = "KvTest";
+        String callerRef = "ABC123R";
+        Entity entity = Helper.getEntity("myco", "myfort", "myuser", docType);
+
+        EntityInputBean inputBean = Helper.getEntityInputBean(docType, "myfort", "myuser", callerRef, DateTime.now());
+        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
+        contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
+        //inputBean.setContent(contentInputBean);
+
+        try {
+            TrackResultBean tr = new TrackResultBean(entity, inputBean);
+            KvContentBean kvContent = new KvContentBean(tr);
+            kvService.doKvWrite(kvContent);
+            EntityLog entityLog = tr.getLogResult().getLogToIndex();
+            EntityContent entityContent = kvService.getContent(entity, entityLog.getLog());
+
+            assertNotNull(entityContent);
+            // Redis should always be available. RIAK is trickier to install
+
+            assertEquals(contentInputBean.getFileName(), entityLog.getLog().getFileName());
+            assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
+            assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
+        } catch (Exception ies) {
+            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
+        }
     }
 
 
 }
+

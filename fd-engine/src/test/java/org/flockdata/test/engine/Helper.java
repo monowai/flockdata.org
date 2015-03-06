@@ -52,17 +52,6 @@ public class Helper {
 
     }
 
-    public static EntityInputBean getEntityInputBean(Entity entity, String callerRef, DateTime when) {
-
-        return new EntityInputBean(entity.getFortress().getName(),
-                entity.getCreatedBy().getCode(),
-                entity.getDocumentType(),
-                when,
-                callerRef);
-
-    }
-
-
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();

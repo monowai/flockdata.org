@@ -41,7 +41,7 @@ public class LogResultBean {
     private String txReference = null;
     private Long fdWhen;
     private EntityLog logToIndex;
-    private Log whatLog;
+    private Log log;
     private boolean logIgnored = false;
 
     private LogResultBean() {
@@ -49,13 +49,6 @@ public class LogResultBean {
 
     public LogResultBean(ContentInputBean content) {
         this();
-//        this.entity =entity;
-//        if ( entity !=null ) {
-//            setMetaKey(entity.getMetaKey());
-//            setDocumentName(entity.getDocumentName());
-//            setCallerRef(entity.getCallerRef());
-//            setFortress(fortress.getName());
-//        }
         setFortressUser(content.getFortressUser());
 
     }
@@ -142,12 +135,12 @@ public class LogResultBean {
     }
 
     @JsonIgnore
-    public void setWhatLog(Log whatLog) {
-        this.whatLog = whatLog;
+    public void setLog(Log log) {
+        this.log = log;
     }
 
-    public Log getWhatLog() {
-        return whatLog;
+    public Log getLog() {
+        return log;
     }
 
 //    @JsonIgnore

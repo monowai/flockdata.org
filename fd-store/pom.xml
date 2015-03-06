@@ -19,6 +19,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.flockdata</groupId>-->
+            <!--<artifactId>fd-engine</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>test</scope>-->
+            <!--<type>test-jar</type>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -99,12 +107,12 @@
             <version>1.1.1.RELEASE</version>
         </dependency>
 
-        <dependency>
-            <groupId>redis.embedded</groupId>
-            <artifactId>embedded-redis</artifactId>
-            <version>0.3</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>redis.embedded</groupId>-->
+            <!--<artifactId>embedded-redis</artifactId>-->
+            <!--<version>0.3</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>

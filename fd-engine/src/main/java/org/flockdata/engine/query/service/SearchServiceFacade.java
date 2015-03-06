@@ -125,7 +125,7 @@ public class SearchServiceFacade {
         Entity entity = resultBean.getEntity();
             if (entity.getLastUser() != null)
                 fortressService.fetch(entity.getLastUser());
-            Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getWhatLog());
+            Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getLog());
             searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
             if (resultBean.getTags() != null) {
                 searchDocument.setTags(resultBean.getTags());
@@ -280,7 +280,7 @@ public class SearchServiceFacade {
 
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
-                return prepareSearchDocument(fortress.getCompany(), trackResultBean.getEntityBean(), input, logResultBean.getWhatLog().getEntityLog());
+                return prepareSearchDocument(fortress.getCompany(), trackResultBean.getEntityBean(), input, logResultBean.getLog().getEntityLog());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);

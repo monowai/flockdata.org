@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.test;
+package org.flockdata.test.store;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +27,7 @@ import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.kv.KvContentData;
+import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.KvContent;
 import org.joda.time.DateTime;

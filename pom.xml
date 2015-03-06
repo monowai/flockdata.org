@@ -70,39 +70,19 @@
         </dependency>
     </dependencies>
 
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>clojars.org</id>-->
-            <!--<url>http://clojars.org/repo</url>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>spring-milestones</id>-->
-            <!--<name>Spring Milestones</name>-->
-            <!--<url>http://repo.spring.io/libs-milestone/</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>neo4j-releases</id>-->
-            <!--<name>Neo4j Releases</name>-->
-            <!--<url>http://m2.neo4j.org/content/repositories/releases/</url>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>spring-snapshots</id>-->
-            <!--<name>Spring Snapshots</name>-->
-            <!--<url>http://repo.spring.io/snapshot</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-    <!--</repositories>-->
-<!--
-Useful links on maven distribution to sonatype
-    http://ruleoftech.com/2014/distribute-projects-artifacts-in-maven-central-with-ossrh
-    http://central.sonatype.org/pages/working-with-pgp-signatures.html
-    http://axelfontaine.com/blog/final-nail.html
--->
+    <repositories>
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
+
+    </repositories>
+    <!--
+    Useful links on maven distribution to sonatype
+        http://ruleoftech.com/2014/distribute-projects-artifacts-in-maven-central-with-ossrh
+        http://central.sonatype.org/pages/working-with-pgp-signatures.html
+        http://axelfontaine.com/blog/final-nail.html
+    -->
     <scm>
         <connection>scm:git:ssh://git@bitbucket.org/monowai/flockdata.org.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/monowai/flockdata.org.git</developerConnection>
