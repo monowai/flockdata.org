@@ -25,15 +25,14 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.TrackBatcher;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -89,7 +88,6 @@ public class TestImporterPreparsing extends AbstractImport {
                 TagInputBean politician= null;
                 for (TagInputBean tagInputBean : entityInputBean.getTags()) {
                     assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
-                    assertEquals("Code and Name should be the same", tagInputBean.getCode(), tagInputBean.getName());
                     if ( tagInputBean.getLabel().equals("Politician"))
                         politician= tagInputBean;
                     if ( tagInputBean.getLabel().equals("InterestGroup")){
@@ -125,12 +123,7 @@ public class TestImporterPreparsing extends AbstractImport {
         }
 
         @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
+        public void close(TrackBatcher trackBatcher) {
 
         }
     };

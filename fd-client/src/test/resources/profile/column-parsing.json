@@ -12,39 +12,39 @@
     },
     "3": {
       "tag": true,
-      "label": "Politician",
+      "label": "'Politician'",
       "mustExist": false,
       "relationship": "received",
       "properties": [
         {
-          "sourceProperty": "4",
-          "targetProperty": "amount"
+          "source": "4",
+          "target": "amount"
         }
       ]
     },
     "2": {
       "tag": true,
-      "label": "InterestGroup",
+      "label": "'InterestGroup'",
       "mustExist": true,
       "relationship": "contributed",
       "rlxProperties": [
         {
-          "sourceProperty": "4",
-          "targetProperty": "amount"
+          "source": "4",
+          "target": "amount"
         }
       ]
     },
     "6": {
       "tag": true,
-      "label": "OSCategory",
+      "label": "'OSCategory'",
       "mustExist": true,
       "relationship": "industry"
     },
     "8": {
       "tag": true,
-      "label": "Expenditure",
-      "codeExp": "#row['8']=='ID' ?'Indirect':'Direct'",
-      "nameExp": "#row['8']=='ID' ?'Indirect':'Direct'",
+      "label": "'Expenditure'",
+      "code": "#row['8']=='ID' ?'I':'D'",
+      "name": "#row['8']=='ID' ?'Indirect':'Direct'",
       "relationship": "classified"
     }
   }

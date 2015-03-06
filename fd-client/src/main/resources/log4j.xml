@@ -44,7 +44,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.flockdata">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
 

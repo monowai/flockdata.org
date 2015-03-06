@@ -21,63 +21,19 @@ package org.flockdata.test.client;
 
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
 
 /**
+ * Simple ancestor for encapsulating profile and writer functionality
+ *
  * Created by mike on 12/02/15.
  */
 public class AbstractImport {
-    // You will likely want to reimplement this in order to validate your data in the flush routines
+    // Re-implement an FdWriter class if you want to validate data in the flush routines
 
-    static FdWriter fdWriter = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
-
-        @Override
-        public  String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            return null;
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            return null;
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
+    private static MockFdWriter fdWriter = new MockFdWriter();
 
     static ClientConfiguration getClientConfiguration(String jsonConfig) {
         File file = new File(jsonConfig);
@@ -87,4 +43,9 @@ public class AbstractImport {
             configuration.setDefaultUser("test");
         return configuration;
     }
+
+    public static MockFdWriter getFdWriter() {
+        return fdWriter;
+    }
+
 }

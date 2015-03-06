@@ -17,8 +17,8 @@
       "relationship": "receives",
       "rlxProperties": [
         {
-          "sourceProperty": "4",
-          "targetProperty": "amount"
+          "source": "4",
+          "target": "amount"
         }
       ]
     },
@@ -29,8 +29,8 @@
       "rlxExp": "#row['8']=='D' ?'direct':'indirect'",
       "properties": [
         {
-          "sourceProperty": "4",
-          "targetProperty": "amount"
+          "source": "4",
+          "target": "amount"
         }
       ]
     },

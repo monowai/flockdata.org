@@ -72,6 +72,8 @@ public interface ProfileConfiguration {
 
     String getQuoteCharacter();
 
+    boolean isEmptyIgnored();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

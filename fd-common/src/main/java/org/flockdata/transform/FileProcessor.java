@@ -101,8 +101,8 @@ public class FileProcessor {
 
         } finally {
             if (result > 0) {
-                trackBatcher.flush();
-                writer.close();
+                //trackBatcher.flush();
+                writer.close(trackBatcher);
             }
         }
         logger.info("Processed {}", file);
@@ -211,7 +211,7 @@ public class FileProcessor {
 
         } finally {
             trackBatcher.flush();
-            writer.close();
+            writer.close(trackBatcher);
         }
         if (!referenceInputBeans.isEmpty()) {
             logger.debug("Wrote [{}] cross references",
@@ -287,7 +287,7 @@ public class FileProcessor {
                 }
             } finally {
                 trackBatcher.flush();
-                writer.close();
+                writer.close(trackBatcher);
             }
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
@@ -397,8 +397,8 @@ public class FileProcessor {
                 }
             }
         } finally {
-            trackBatcher.flush();
-            writer.close();
+
+            writer.close(trackBatcher);
 
             if (!referenceInputBeans.isEmpty()) {
                 // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...

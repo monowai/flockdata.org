@@ -29,8 +29,6 @@ import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,18 +194,11 @@ public class SchemaDaoNeo4j {
 
     @Transactional
     public Boolean makeConstraints(Collection<String> labels) {
-        boolean made = false;
+        //boolean made = false;
         for (String label : labels) {
-            if (!made && makeLabelConstraint(label))
-                made = true;
+            makeLabelConstraint(label);
         }
-//        if (made) {
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
+
         return Boolean.TRUE;
     }
 

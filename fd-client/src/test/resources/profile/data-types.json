@@ -1,0 +1,24 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "documentName": "test",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "as-string": {
+      "code": "as-string",
+      "label": "AsString",
+      "dataType": "string",
+      "tag": true
+    },
+    "illegal-num": {
+      "dataType": "number",
+      "valueOnError": "0"
+    },
+    "blank-num": {
+      "dataType": "number",
+      "valueOnError": "0"
+    }
+  }
+}

@@ -37,10 +37,11 @@ public class GeoData {
     private String country;
 
     private String state;
+    private String stateCode;
     private String city;
     private Map<String, Double>coord = new HashMap<>();
 
-    public GeoData(String isoCode, String countryName, String city, String stateName, Double lat, Double lon) {
+    public GeoData(String isoCode, String countryName, String city, String stateName) {
         this();
         if (city != null)
             setCity(city);
@@ -49,8 +50,8 @@ public class GeoData {
             // ToDo: Needs to be a Country object
             setIsoCode(isoCode);
             setCountry(countryName);
-            if (lon != null && lat != null)
-                setLatLong(lat, lon);
+//            if (lon != null && lat != null)
+//                setLatLong(lat, lon);
         }
         if (stateName != null)
             setState(stateName);
@@ -99,6 +100,8 @@ public class GeoData {
         return coord.values();
     }
 
+    String geoPoint;
+
     public void setLatLong(Double lat, Double lon) {
         // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
         if (lat!=null && lon !=null ) {
@@ -108,14 +111,12 @@ public class GeoData {
         }
     }
 
-    String geoPoint = null;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getGeoPoint() {
         return geoPoint;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore
     public Map<String,Double> getGeoMap() {
         return coord;
     }
@@ -128,5 +129,19 @@ public class GeoData {
         return coord.get("lat") !=null && coord.get("lon") !=null;
     }
 
+    public void setStateCode(String stateCode) {
+        this.stateCode = stateCode;
+    }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<String, String> getPoints() {
+        return points;
+    }
+
+    Map<String,String>points = new HashMap<>();
+
+    public void setLatLong(String key, Double lat, Double lon) {
+        if ( lat!=null && lon!=null )
+            points.put(key,lat.toString() +","+lon.toString() );
+    }
 }

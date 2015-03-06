@@ -90,6 +90,7 @@ public class TrackServiceEs implements TrackService {
 //            logger.debug("Contains one change with an entityID of [{}]", changes.getChanges().iterator().next().getEntityId());
 //        }
         SearchResults results = new SearchResults();
+        boolean mappingChecked = false;
         for (EntitySearchChange searchChange : thisChange) {
             if ( searchChange == null ) {
                 logger.error("Null search change received. Retry your operation with data!");
@@ -101,6 +102,10 @@ public class TrackServiceEs implements TrackService {
                 logger.debug("Delete request");
                 trackSearch.delete(searchChange);
                 return results;
+            }
+            if ( !mappingChecked) {
+                trackSearch.purgeCache();
+                mappingChecked = true;
             }
             trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
             SearchResult result = new SearchResult(trackSearch.update(searchChange));

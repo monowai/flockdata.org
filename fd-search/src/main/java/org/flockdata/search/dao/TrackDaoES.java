@@ -38,6 +38,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
@@ -45,12 +46,12 @@ import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,8 +140,8 @@ public class TrackDaoES implements TrackSearchDao {
         }
 
     }
-
-    @Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
+    // ToDo: Fix this. Caching is not resetting after the index is deleted
+    //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
     public boolean ensureIndex(String indexName, String documentType) throws IOException {
 
         if (hasIndex(indexName)) {
@@ -292,9 +293,15 @@ public class TrackDaoES implements TrackSearchDao {
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
             logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
+            purgeCache();
             return save(searchChange, source);
         }
         return searchChange;
+    }
+
+    //@CacheEvict(value = {"mappedIndexes"}, allEntries = true)
+    public void purgeCache() {
+
     }
 
     public Map<String, Object> findOne(Entity entity) {
@@ -385,15 +392,56 @@ public class TrackDaoES implements TrackSearchDao {
 
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
-        indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
+        if ( searchChange.getCallerRef()!=null )
+            indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
+
         if (searchChange.getDescription() != null)
             indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
-            indexMe.put(EntitySearchSchema.TAG, searchChange.getTagValues());
+            setTags(indexMe, searchChange.getTagValues());
 
         return indexMe;
     }
+
+    private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
+
+        Map<String, Object> byRelationship = new HashMap<>();
+        Map<String, Object> squash = new HashMap<>();
+        for (String s : tagValues.keySet()) {
+            if ( tagValues.get(s).containsKey(s)){
+                // DAT-328 - the relationship and label have the same name
+                ArrayList<SearchTag> values = tagValues.get(s).get(s);
+                if ( values.size() == 1 ) {
+                    // DAT-329
+                    squash.put(s, values.iterator().next());
+                }else {
+                    squash.put(s, tagValues.get(s).get(s));
+                }
+            }
+            else {
+                Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(s);
+                Map<String, Object> newValues = new HashMap<>();
+                for (String s1 : mapValues.keySet()) {
+                    if ( mapValues.get(s1).size() == 1 ){
+                        // DAT-329 if only one value, don't store as a collection
+                        newValues.put(s1, mapValues.get(s1).iterator().next());
+                    } else {
+                        newValues.put(s1, mapValues.get(s1));
+                    }
+                }
+                byRelationship.put(s, newValues);
+
+            }
+        }
+        if ( !squash.isEmpty())
+            byRelationship.putAll(squash);
+        if ( !byRelationship.isEmpty()) {
+            indexMe.put(EntitySearchSchema.TAG, byRelationship);
+        }
+        //indexMe.put(EntitySearchSchema.TAG, tagValues);
+    }
+
 
     private Map<String, Object> defaultSettings = null;
 

@@ -9,11 +9,11 @@
   "content": {
     "Institution": {
       "tag": true,
-      "nameExp": "#row['2'].replace('|', ' ').trim()",
-      "codeExp": "#row['1'].replace('|', ' ').trim()",
+      "name": "#row['2'].replace('|', ' ').trim()",
+      "code": "#row['1'].replace('|', ' ').trim()",
       "targets": [
         {
-          "codeExp": "#row['5'].replace('|', ' ').trim()",
+          "code": "#row['5'].replace('|', ' ').trim()",
           "label": "OSSector",
           "mustExist": true,
           "relationship": "represents"

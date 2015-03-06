@@ -8,30 +8,32 @@
       "tag": true,
       "label": "Country",
       "code": "ISO3166A2",
+      "name": "ISOen_name",
       "properties": [
         {
-          "sourceProperty": "UNc_latitude",
-          "targetProperty": "latitude"
+          "source": "UNc_latitude",
+          "target": "latitude"
         },
         {
-          "sourceProperty": "UNc_longitude",
-          "targetProperty": "longitude"
+          "source": "UNc_longitude",
+          "target": "longitude"
         }
       ],
       "targets": [
         {
           "code": "BGN_capital",
+          "name": "ISOen_name",
           "label": "City",
           "relationship": "capital",
           "condition": "#row[HasCapital].equals(1)",
           "properties": [
             {
-              "sourceProperty": "UNc_latitude",
-              "targetProperty": "latitude"
+              "source": "UNc_latitude",
+              "target": "latitude"
             },
             {
-              "sourceProperty": "UNc_longitude",
-              "targetProperty": "longitude"
+              "source": "UNc_longitude",
+              "target": "longitude"
             }
           ]
         }

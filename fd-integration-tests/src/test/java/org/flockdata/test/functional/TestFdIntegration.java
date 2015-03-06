@@ -596,8 +596,8 @@ public class TestFdIntegration {
         assumeTrue(runMe);
         logger.info("## tag_UniqueKeySearch");
         SystemUser su = registerSystemUser("Cameron");
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagKeySearch"));
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "ABC123");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tag_UniqueKeySearch"));
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "tag_UniqueKeySearch");
         ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
@@ -865,12 +865,12 @@ public class TestFdIntegration {
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
 
         LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
-        assertNotSame(0l, secondLog.getWhatLog().getEntityLog().getFortressWhen());
+        assertNotSame(0l, secondLog.getLog().getEntityLog().getFortressWhen());
         Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = trackService.getEntity(su.getCompany(), metaKey);
         waitAWhile("Cancel 1");
-        Assert.assertEquals("Last Updated dates don't match", secondLog.getWhatLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        Assert.assertEquals("Last Updated dates don't match", secondLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block

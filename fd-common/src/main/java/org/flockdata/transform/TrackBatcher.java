@@ -26,10 +26,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,6 +46,7 @@ public class TrackBatcher {
     private ProfileConfiguration importProfile;
     private ClientConfiguration  clientConfiguration;
     FdWriter fdWriter;
+    private List<EntityInputBean> entities;
 
     public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, ClientConfiguration configuration, Company company) {
         this.importProfile = importProfile;
@@ -164,5 +162,13 @@ public class TrackBatcher {
             entityLock.unlock();
         }
 
+    }
+
+    public List<EntityInputBean> getEntities() {
+        return entityBatch;
+    }
+
+    public List<TagInputBean> getTags() {
+        return new ArrayList<>(tagBatch.values());
     }
 }

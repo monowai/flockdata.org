@@ -203,7 +203,7 @@ public class LogRetryService {
 
         // Prepares the change
         content.setChangeEvent(preparedLog.getEvent());
-        resultBean.setWhatLog(preparedLog);
+        resultBean.setLog(preparedLog);
 
         if (entity.getId() == null)
             content.setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
