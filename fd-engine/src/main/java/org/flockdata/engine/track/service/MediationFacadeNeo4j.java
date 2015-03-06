@@ -43,6 +43,7 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
@@ -307,12 +308,17 @@ public class MediationFacadeNeo4j implements MediationFacade {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
 
-        schemaRetryService.createDocTypes(fortress, inputBeans.iterator().next());
+        logger.debug("About to create docTypes");
+        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, inputBeans.iterator().next());
+        logger.debug("Dispatch docTypes request. About to create tags");
 
         createTags(fortress.getCompany(), getTags(inputBeans));
+        logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
+        // We have to wait for the docType before proceeding to create entities
+        docType.get();
         StopWatch watch = new StopWatch();
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
