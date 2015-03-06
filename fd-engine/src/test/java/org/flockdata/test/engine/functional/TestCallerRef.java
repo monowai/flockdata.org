@@ -122,7 +122,7 @@ public class TestCallerRef extends EngineBase {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(runnersToCreate);
 
-        for (int i = 0; i < runnersToCreate; i++) {
+        for (int i = 1; i <= runnersToCreate; i++) {
             runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
         }
         startLatch.countDown();
