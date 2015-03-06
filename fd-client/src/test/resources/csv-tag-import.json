@@ -7,6 +7,7 @@
             "tag": true,
             "label": "Device",
             "code": "device_code",
+            "name": "device_name",
             "mustExist": false,
             "targets": [
                 {
@@ -37,7 +38,7 @@
             ]
         },
         "ram": {
-            "targetProperty": "RAM"
+            "target": "RAM"
         }
 
     }

@@ -142,11 +142,15 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+
+        if ( tagInputs.isEmpty())
+            return null;
         boolean schemaReady ;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputs);
         } while (!schemaReady);
-        logger.debug("Schema Indexes appear to be in place");
+            logger.debug("Schema Indexes appear to be in place");
+
         Collection<Tag> results;
         try {
             results = tagRetryService.createTags(company, tagInputs);
@@ -234,7 +238,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public void trackEntities(String userApiKey, List<EntityInputBean> inputBeans) {
         logger.debug("Request to process {} entities", inputBeans.size());
         for (EntityInputBean inputBean : inputBeans) {
-            Future<?> r = trackGateway.doTrackEntity(inputBean, userApiKey);
+            trackGateway.doTrackEntity(inputBean, userApiKey);
 
         }
         logger.debug("Dispatched {} entities", inputBeans.size());
@@ -330,7 +334,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
     private List<TagInputBean> getTags(List<EntityInputBean> entityInputBeans) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
-            tags.addAll(entityInputBean.getTags());
+            entityInputBean.getTags().stream().filter(tag -> !tag.isMustExist() && !tags.contains(tag)).forEach(tags::add);
+
         }
         return tags;
     }

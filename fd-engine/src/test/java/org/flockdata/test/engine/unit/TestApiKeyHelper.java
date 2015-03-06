@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2012-2014 "FlockData LLC"
+ *
+ * This file is part of FlockData.
+ *
+ * FlockData is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FlockData is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.flockdata.test.engine.unit;
+
+import org.flockdata.helper.ApiKeyHelper;
+import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * User: mike
+ * Date: 28/07/14
+ * Time: 11:44 AM
+ */
+public class TestApiKeyHelper {
+    @org.junit.Test
+    @Deprecated
+    public void testApiKeyOrder(){
+        String metaKey = "httpHeader";
+        String requestKey = "httpRequest";
+        String nullReturned = "{{hello}}";
+        String headerReturned = "{{hello";
+
+        Assert.assertEquals("HttpHeader key take precedence over request key", metaKey, ApiKeyHelper.resolveKey(metaKey, requestKey));
+        assertEquals(requestKey, ApiKeyHelper.resolveKey(null, requestKey));
+        assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyHelper.resolveKey(nullReturned, null));
+        assertEquals(requestKey, ApiKeyHelper.resolveKey(nullReturned, requestKey));
+        assertEquals("HttpHeader key is valid as it doesn't end in }}", headerReturned, ApiKeyHelper.resolveKey(headerReturned, null));
+    }
+}

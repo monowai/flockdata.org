@@ -8,14 +8,15 @@
             "tag": true,
             "label": "Country",
             "code": "ISO3166A2",
+            "name": "ISOen_name",
             "properties": [
                 {
-                    "sourceProperty": "UNc_latitude",
-                    "targetProperty": "latitude"
+                    "source": "UNc_latitude",
+                    "target": "latitude"
                 },
                 {
-                    "sourceProperty": "UNc_longitude",
-                    "targetProperty": "longitude"
+                    "source": "UNc_longitude",
+                    "target": "longitude"
                 }
             ],
             "targets": [
@@ -26,12 +27,12 @@
                     "condition": "#row[HasCapital].trim().equals('1')",
                     "properties": [
                         {
-                            "sourceProperty": "UNc_latitude",
-                            "targetProperty": "latitude"
+                            "source": "UNc_latitude",
+                            "target": "latitude"
                         },
                         {
-                            "sourceProperty": "UNc_longitude",
-                            "targetProperty": "longitude"
+                            "source": "UNc_longitude",
+                            "target": "longitude"
                         }
                     ]
                 }

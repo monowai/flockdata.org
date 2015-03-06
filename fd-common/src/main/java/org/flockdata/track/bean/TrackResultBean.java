@@ -71,19 +71,6 @@ public class TrackResultBean {
 
     }
 
-//    public TrackResultBean(LogResultBean logResultBean, ContentInputBean input) {
-//        this.logResult = logResultBean;
-//        this.contentInput = input;
-//        this.entityBean = logResultBean.getEntity();
-//        // ToDo: Do we need these instance variables or just get straight from the entity?
-//        if (entity != null) {
-//            this.fortressName = entityBean.getFortressCode();
-//            this.documentType = entityBean.getDocumentName();
-//            this.callerRef = entityBean.getCallerRef();
-//            this.metaKey = entityBean.getMetaKey();
-//        }
-//    }
-
     public EntityBean getEntityBean() {
         return entityBean;
     }

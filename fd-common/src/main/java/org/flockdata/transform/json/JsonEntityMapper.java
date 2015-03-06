@@ -104,8 +104,8 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
 
         if ( colDef.hasRelationshipProps() ) {
             for (ColumnDefinition rlx : colDef.getRlxProperties()) {
-                if (!thisNode.get(rlx.getSourceProperty()).hasNonNull(rlx.getSourceProperty()))
-                    rlxProperties.put(rlx.getTargetProperty(), thisNode.get(rlx.getSourceProperty()).textValue());
+                if (!thisNode.get(rlx.getSource()).hasNonNull(rlx.getSource()))
+                    rlxProperties.put(rlx.getTarget(), thisNode.get(rlx.getSource()).textValue());
             }
         }
         setSubTags(tag, colDef.getTargets(), thisNode);

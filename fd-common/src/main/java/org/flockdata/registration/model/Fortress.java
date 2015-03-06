@@ -20,6 +20,8 @@
 package org.flockdata.registration.model;
 
 
+import org.flockdata.registration.bean.FortressInputBean;
+
 public interface Fortress {
 
     public abstract Long getId();
@@ -59,4 +61,6 @@ public interface Fortress {
     Boolean isSystem();
 
     String getIndexName();
+
+    Fortress setFortressInput(FortressInputBean fib);
 }

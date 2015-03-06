@@ -80,12 +80,12 @@
             "type": "multi_field",
             "fields": {
               "{name}": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "3.0",
                 "index": "analyzed"
               },
               "facet": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "5.0",
                 "doc_values": true,
                 "index": "not_analyzed"
@@ -101,12 +101,12 @@
             "type": "multi_field",
             "fields": {
               "{name}": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "3.0",
                 "index": "analyzed"
               },
               "facet": {
-                "type": "{dynamic_type}",
+                "type": "string",
                 "boost": "5.0",
                 "doc_values": true,
                 "index": "not_analyzed"
@@ -115,15 +115,74 @@
           }
         }
       },
-      {
-        "geo_tag": {
-          "path_match": "tag.*.geo.geoPoint",
+      {"geo_points": {
+          "path_match": "tag.*.geo.points.*",
           "match_mapping_type": "string",
           "mapping": {
             "type": "geo_point",
             "lat_lon": true,
             "geohash": true,
-            "geohash_precision": "10km"
+            "geohash_precision": "1km"
+          }
+        }
+      },
+      {
+        "geo_city": {
+          "path_match": "tag.*.geo.city",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+        }
+      }
+      },
+      {
+        "geo_iso": {
+          "path_match": "tag.*.geo.iso*",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
+      },
+      {
+        "geo_country": {
+          "path_match": "tag.*.geo.country",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
           }
         }
       }

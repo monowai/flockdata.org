@@ -44,7 +44,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
 
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
-        Map<String, Object> row = TransformationHelper.convertToMap(headerRow, line);
+        Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String column : content.keySet()) {
@@ -66,8 +66,8 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if (colDef.getTargetProperty() != null)
-                    setProperty(colDef.getTargetProperty(), TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.PROP_EXP, colDef, value));
+                if (colDef.getTarget() != null)
+                    setProperty(colDef.getTarget(), TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.PROP_EXP, colDef, value));
 
 
             } // ignoreMe

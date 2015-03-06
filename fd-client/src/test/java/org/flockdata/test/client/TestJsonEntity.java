@@ -27,12 +27,12 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.TrackBatcher;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -51,7 +51,7 @@ import static org.junit.Assert.assertNotNull;
  * Date: 10/12/14
  * Time: 1:43 PM
  */
-public class TestJsonEntity {
+public class TestJsonEntity extends AbstractImport{
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestCsvEntity.class);
 
@@ -145,7 +145,7 @@ public class TestJsonEntity {
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             ObjectMapper om = new ObjectMapper();
             assertEquals(1, entityBatch.size());
-            assertNotNull(entityBatch.iterator().next().getLog());
+            assertNotNull(entityBatch.iterator().next().getContent());
             try {
                 om.writeValueAsString(entityBatch);
             } catch (Exception e) {
@@ -166,12 +166,7 @@ public class TestJsonEntity {
         }
 
         @Override
-        public Collection<Tag> getCountries() throws FlockException {
-            return null;
-        }
-
-        @Override
-        public void close() {
+        public void close(TrackBatcher trackBatcher) {
 
         }
     };

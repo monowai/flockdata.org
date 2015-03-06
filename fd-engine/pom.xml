@@ -273,6 +273,14 @@
         </dependency>
 
         <dependency>
+            <groupId>redis.embedded</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>0.3</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
             <version>${project.version}</version>
@@ -356,11 +364,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.5</version>
                 <executions>
                     <execution>
-                        <id>make-a-jar</id>
-                        <phase>compile</phase>
                         <goals>
                             <goal>test-jar</goal>
                             <goal>jar</goal>

@@ -37,7 +37,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
 
-    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, CALLER_REF}
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
     private boolean callerRef;
@@ -54,7 +54,9 @@ public class ColumnDefinition {
     private boolean updateUser;
     private boolean reverse = false;
 
-    private String dateFormat;
+    private String format;
+
+    private String dataType;
 
     private String callerRefExp; // Supports the caller ref as an expression
     private String strategy = null;
@@ -64,8 +66,9 @@ public class ColumnDefinition {
     private String type; //datatype
     private String name;
 
+    private String valueOnError;// Value to set to if the format causes an exception
 
-    private String nameExp;
+
     private String nullOrEmpty;
     private String appendJoinText = " ";
 //    private String relationshipName;
@@ -86,9 +89,8 @@ public class ColumnDefinition {
     private String delimiter;
 
     private String code;
-    private String codeExp;
-    private String sourceProperty; // property to read from
-    private String targetProperty; // property to write to (essentially rename the target
+    private String source; // property to read from
+    private String target; // property to write to (essentially rename the column)
 
     private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
@@ -149,7 +151,6 @@ public class ColumnDefinition {
         return name;
     }
 
-
     public ArrayList<TagProfile> getTargets() {
         return targets;
     }
@@ -176,11 +177,11 @@ public class ColumnDefinition {
     }
 
     // Overrides the value name of the property
-    public String getTargetProperty() {
-        if (targetProperty == null)
-            return sourceProperty;
+    public String getTarget() {
+        if (target == null)
+            return source;
         else
-            return targetProperty;
+            return target;
     }
 
     public String getRelationship() {
@@ -288,13 +289,13 @@ public class ColumnDefinition {
         this.updateDate = updateDate;
     }
 
-    public String getDateFormat() {
-        return dateFormat;
+    public String getFormat() {
+        return format;
     }
 
     @JsonIgnore
     public boolean isDateEpoc() {
-        return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
+        return format != null && format.equalsIgnoreCase("epoc");
     }
 
     public ArrayList<ColumnDefinition> getRlxProperties() {
@@ -314,14 +315,17 @@ public class ColumnDefinition {
         return (delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
+    @JsonIgnore
     public String getExpression(ExpressionType expCol) {
         if (expCol == null)
             return null;
         switch (expCol) {
             case NAME:
-                return nameExp;
+                return name;
             case CODE:
-                return codeExp;
+                return code;
+            case LABEL:
+                return label;
             case CALLER_REF:
                 return callerRefExp;
             case RELATIONSHIP:
@@ -342,16 +346,8 @@ public class ColumnDefinition {
     }
 
 
-    public String getSourceProperty() {
-        return sourceProperty;
-    }
-
-    public String getNameExp() {
-        return nameExp;
-    }
-
-    public String getCodeExp() {
-        return codeExp;
+    public String getSource() {
+        return source;
     }
 
     public String getCallerRefExp() {
@@ -366,7 +362,7 @@ public class ColumnDefinition {
     public String toString() {
         return "ColumnDefinition{" +
                 "label='" + label + '\'' +
-                ", sourceProperty='" + sourceProperty + '\'' +
+                ", source='" + source + '\'' +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 '}';
@@ -380,5 +376,20 @@ public class ColumnDefinition {
     public boolean hasAliases() {
         return ( aliases != null && !aliases.isEmpty());
     }
+
+    /**
+     * Forces a column to a specifc datatype. By default strings that look like "numbers" will be converted
+     * to numbers. To preserve the value as a string set this to "string"
+     *
+     * @return null if default behavior to be used
+     */
+    public String getDataType() {
+        return dataType;
+    }
+
+    public String getValueOnError() {
+        return valueOnError;
+    }
+
 
 }

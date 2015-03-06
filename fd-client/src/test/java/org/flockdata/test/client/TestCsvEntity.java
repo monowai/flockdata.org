@@ -95,7 +95,7 @@ public class TestCsvEntity {
         boolean nullCategoryFound = false;
         for (TagInputBean tag : tags) {
 
-            switch (tag.getName()) {
+            switch (tag.getCode()) {
                 case "Gold Medals":
                     Object o = tag.getEntityLinks().get("2008");
                     assertNotNull(o);
@@ -124,7 +124,7 @@ public class TestCsvEntity {
                     break;
                 case "TitleTests":
                     callerRefFoundAsATag = true;
-                    assertEquals("TitleTests", tag.getName());
+                    assertNull("Name should be null as it is the same as the code", tag.getName());
                     tagsFound ++;
                     break;
                 case "Undefined":
@@ -178,7 +178,7 @@ public class TestCsvEntity {
 
         colDef = params.getColumnDef(headers[6]);
         assertTrue("Should be a tag", colDef.isTag());
-        assertEquals("Year", colDef.getName());
+        assertEquals("'Gold Medals'", colDef.getName()); // This has not been parsed by SPEL so it literal
         assertTrue("Tag to value", colDef.isValueAsProperty());
         assertFalse("Shouldn't be a title", colDef.isTitle());
         assertFalse("Shouldn't be a callerRef", colDef.isCallerRef());
@@ -200,28 +200,28 @@ public class TestCsvEntity {
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
-            if (tagInputBean.getName().equals("Gold Medals")) {
+            if (tagInputBean.getCode().equals("Gold Medals")) {
                 assertEquals("Gold Medals", tagInputBean.getLabel());
                 Object o = tagInputBean.getEntityLinks().get("competed");
                 assertNotNull("Custom relationship name not working", o);
                 assertEquals(8, ((HashMap) o).get("value"));
                 goldTag = true;
             }
-            if (tagInputBean.getName().equals("Michael Phelps")) {
+            if (tagInputBean.getCode().equals("Michael Phelps")) {
                 assertNotNull("Custom relationship name not working", tagInputBean.getEntityLinks().containsKey("won"));
                 assertEquals("Athlete", tagInputBean.getLabel());
                 athleteTag = true;
             }
-            if (tagInputBean.getName().equals("Swimming")) {
+            if (tagInputBean.getCode().equals("Swimming")) {
                 assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("undefined"));
                 assertEquals("Sport", tagInputBean.getLabel());
                 sportTag = true;
             }
-            if (tagInputBean.getName().equals("United States")) {
+            if (tagInputBean.getCode().equals("United States")) {
                 assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("Country"));
                 countryTag = true;
             }
-            if (tagInputBean.getName().equals("Sport")) {
+            if (tagInputBean.getCode().equals("Sport")) {
                 assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
                 TagInputBean athlete = tagInputBean.getTargets().get("competes-in").iterator().next();
                 assertNotNull(athlete);
@@ -230,7 +230,7 @@ public class TestCsvEntity {
                 assertTrue("Direction not reversed", athlete.isReverse());
             }
 
-            if (tagInputBean.getName().equals("23")) {
+            if (tagInputBean.getCode().equals("23")) {
                 assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
                 TagInputBean athlete = tagInputBean.getTargets().get("at-age").iterator().next();
                 assertNotNull(athlete);
@@ -261,7 +261,7 @@ public class TestCsvEntity {
         assertEquals(1, tags.size());
 
         TagInputBean zipTag = tags.iterator().next();
-        assertEquals("123", zipTag.getName());
+        assertEquals("Name is not set if it is the same as the code", null, zipTag.getName());
         assertEquals("ZipCode", zipTag.getLabel());
 
         Map<String, Collection<TagInputBean>> locatedTags = zipTag.getTargets();
@@ -314,8 +314,8 @@ public class TestCsvEntity {
     @Test
     public void csv_NumberParsesAsString() throws Exception {
         //
-        String[] headers = new String[]{"Title", "NumberAsString", "created", "updated"};
-        String[] data = new String[]{"TitleTests", "123", "1235015570", "1235015805"};
+        String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
+        String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
@@ -326,8 +326,14 @@ public class TestCsvEntity {
         assertTrue("CallerRef was wrong", colDef.isCallerRef());
         assertTrue("Title was wrong", colDef.isTitle());
 
-        Object o = json.get("NumberAsString");
-        Assert.assertTrue(o instanceof Number);
+        Object o = json.get("TagNumberAsString");
+        Assert.assertTrue("Could be converted to a string but it's a Tag so should be preserved",o instanceof String);
+
+        o = json.get("TagValueAsNumber");
+        Assert.assertTrue("Forced conversion to a number for a Tag (overriding default behaviour)",o instanceof Number);
+
+        o = json.get("StringAsNumber");
+        Assert.assertTrue("Should not have been converted to a number", o instanceof Number);
 
         colDef= params.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
@@ -359,8 +365,8 @@ public class TestCsvEntity {
         ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"Title",  "Field"};
-        String[] data = new String[]{"TitleTests", null };
+        String[] headers = new String[]{"Title",  "Field", "Year"};
+        String[] data = new String[]{"TitleTests", null, "2009" };
         Map<String, Object> jsonMap = mapper.setData(headers, data, params);
         assertNotNull(jsonMap);
 
@@ -373,5 +379,42 @@ public class TestCsvEntity {
 
     }
 
+    @Test
+    public void empty_ColumnWithASpace() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers = new String[]{"Title",  "Year"};
+        String[] data = new String[]{" ",  "2009" };
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params);
+        assertNotNull(jsonMap);
+
+        assertEquals("", jsonMap.get("Title"));
+        String json = JsonUtils.getJSON(jsonMap);
+        jsonMap = JsonUtils.getAsMap(json);
+        assertNotNull(jsonMap);
+        assertFalse (jsonMap.isEmpty());
+        assertEquals("", jsonMap.get("Title"));
+
+    }
+    @Test
+    public void empty_ColumnWithASpaceIsIgnored() throws Exception {
+        ImportProfile params = ClientConfiguration.getImportParams("/csvtest-emptyisignored.json");
+        CsvEntityMapper mapper = new CsvEntityMapper(params);
+        assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
+        // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
+        String[] headers = new String[]{"Title",  "Year"};
+        String[] data = new String[]{" ",  "2009" };
+        Map<String, Object> jsonMap = mapper.setData(headers, data, params);
+        assertNotNull(jsonMap);
+
+        assertNull(jsonMap.get("Title"));
+        String json = JsonUtils.getJSON(jsonMap);
+        jsonMap = JsonUtils.getAsMap(json);
+        assertNotNull(jsonMap);
+        assertFalse (jsonMap.isEmpty());
+        assertNull(jsonMap.get("Title"));
+
+    }
 
 }
