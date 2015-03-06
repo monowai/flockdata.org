@@ -60,7 +60,7 @@ import static org.junit.Assert.assertEquals;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:fdkv-root-context.xml",
+@ContextConfiguration(locations = {"classpath:/store/fdkv-root-context.xml",
 })
 
 public class KvServiceTest {
