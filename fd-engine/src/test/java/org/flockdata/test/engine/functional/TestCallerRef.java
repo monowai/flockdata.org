@@ -117,7 +117,7 @@ public class TestCallerRef extends EngineBase {
         String docType = "StressDupez";
         String callerRef = "ABC123X";
         int runnersToCreate = 3;
-        Collection<CallerRefRunner> runners = new ArrayList<>(runnersToCreate);
+        Collection<CallerRefRunner> runners = new ArrayList<>();
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(runnersToCreate);
@@ -128,7 +128,7 @@ public class TestCallerRef extends EngineBase {
         startLatch.countDown();
         latch.await();
         Thread.yield();
-        latch.await();
+
         assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
         for (CallerRefRunner runner : runners) {
             assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
