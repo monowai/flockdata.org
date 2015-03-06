@@ -134,9 +134,8 @@ public class TagInputBean {
         return name;
     }
 
-    public TagInputBean setName(String name) {
+    public void setName(String name) {
         this.name = name;
-        return this;
     }
 
     @JsonIgnore

@@ -66,9 +66,22 @@ public class FortressNode implements Fortress {
         getTimeZone();
         getLanguageTag();
 
+        setFortressInput(fortressInputBean);
+
+        setCompany(ownedBy);
+
+    }
+    @Override
+    public String getIndexName() {
+        if ( indexName == null )
+            indexName = EntitySearchSchema.parseIndex(this);
+        return indexName;
+    }
+
+    @Override
+    public Fortress setFortressInput(FortressInputBean fortressInputBean) {
         setName(fortressInputBean.getName().trim());
         setSearchActive(fortressInputBean.getSearchActive());
-        setCompany(ownedBy);
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
         if (fortressInputBean.getTimeZone() != null) {
@@ -81,9 +94,11 @@ public class FortressNode implements Fortress {
         else
             getLanguageTag();
 
-        this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
 
+        return this;
     }
+
+
 
     public Long getId() {
         return id;
@@ -106,6 +121,7 @@ public class FortressNode implements Fortress {
 
     @Override
     public void setCompany(Company ownedBy) {
+        this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
         this.company = (CompanyNode) ownedBy;
 
     }
@@ -179,13 +195,6 @@ public class FortressNode implements Fortress {
     @Override
     public Boolean isSystem() {
         return system;
-    }
-
-    @Override
-    public String getIndexName() {
-        if ( indexName == null )
-         indexName = EntitySearchSchema.parseIndex(this);
-        return indexName;
     }
 
     @Override

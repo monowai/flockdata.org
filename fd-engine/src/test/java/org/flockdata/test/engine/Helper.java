@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,9 +19,16 @@
 
 package org.flockdata.test.engine;
 
-import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.profile.ImportProfile;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockException;
+import org.flockdata.profile.ImportProfile;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.Entity;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,15 +42,26 @@ import java.util.Map;
  * Time: 7:56 PM
  */
 public class Helper {
-    public static Map<String, Object> getSimpleMap(String key, Object value){
-        Map<String, Object> result = new HashMap<>();
-        result.put(key, value);
-        return result;
+    public static EntityInputBean getEntityInputBean(String docType, String fortress, String fortressUser, String callerRef, DateTime now) {
+
+        return new EntityInputBean(fortress,
+                fortressUser,
+                docType,
+                now,
+                callerRef);
+
     }
 
-    public static Map<String, Object> getRandomMap(){
-        return getSimpleMap("Key", "Test"+System.currentTimeMillis());
+    public static EntityInputBean getEntityInputBean(Entity entity, String callerRef, DateTime when) {
+
+        return new EntityInputBean(entity.getFortress().getName(),
+                entity.getCreatedBy().getCode(),
+                entity.getDocumentType(),
+                when,
+                callerRef);
+
     }
+
 
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
@@ -64,6 +82,46 @@ public class Helper {
         return importProfile;
     }
 
+    public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
+        // These are the minimum objects necessary to create Entity data
+
+        Company mockCompany = new SimpleCompany(comp);
+        mockCompany.setName(comp);
+
+        FortressInputBean fib = new FortressInputBean(fort, false);
+        Fortress fortress = new SimpleFortress(fib, mockCompany);
+        fortress.setFortressInput(fib);
+        fortress.setCompany(mockCompany);
+
+//        FortressUser user = mock(FortressUser.class);
+//        user.setCode(userName);
+//        user.setFortress(fortress);
+
+        DateTime now = new DateTime();
+        EntityInputBean mib = getEntityInputBean(docType, fort, userName, now.toString(), now);
+        return new SimpleEntity(now.toString(), fortress, mib, docType);
+
+    }
+
+    public static Map<String, Object> getSimpleMap(String key, Object value) {
+        Map<String, Object> result = new HashMap<>();
+        result.put(key, value);
+        return result;
+    }
+
+    public static Map<String, Object> getRandomMap() {
+        return getSimpleMap("Key", "Test" + System.currentTimeMillis());
+    }
+
+    public static Map<String, Object> getBigJsonText(int i) {
+        Map<String, Object> map = getSimpleMap("Key", "Random");
+        int count = 0;
+        do {
+            map.put("Key" + count, "Now is the time for all good men to come to the aid of the party");
+            count++;
+        } while (count < i);
+        return map;
+    }
 
     public static String getPdfDoc() {
         // Romeo is a keyword
@@ -518,5 +576,5 @@ public class Helper {
                 "NjBiNjMyZjFiYj4KPGYwZTc2NTU2NjI2YmJhM2E4NmJjYjc2MGI2MzJmMWJiPiBd\n" +
                 "ID4+CnN0YXJ0eHJlZgoyMDczMgolJUVPRgo=\n";
     }
-
 }
+

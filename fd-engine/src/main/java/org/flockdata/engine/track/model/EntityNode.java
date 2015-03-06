@@ -19,20 +19,18 @@
 
 package org.flockdata.engine.track.model;
 
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.track.model.Entity;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Log;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import org.flockdata.company.model.FortressNode;
+import org.flockdata.company.model.FortressUserNode;
+import org.flockdata.helper.FlockException;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.FortressUser;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.Log;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -93,11 +91,9 @@ public class EntityNode implements Entity {
     private Long id;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
-//    @Fetch
     private FortressUserNode createdBy;
 
     @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
-//    @Fetch
     private FortressUserNode lastWho;
 
     @RelatedTo(elementClass = LogNode.class, type = "LAST_CHANGE", direction = Direction.OUTGOING)
@@ -175,7 +171,7 @@ public class EntityNode implements Entity {
 
     }
 
-    public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentTypeNode doc, FortressUser user) throws FlockException {
+    public EntityNode(String guid, Fortress fortress, EntityInputBean mib, DocumentType doc, FortressUser user) throws FlockException {
         this(guid, fortress, mib, doc);
         setCreatedBy(user);
     }

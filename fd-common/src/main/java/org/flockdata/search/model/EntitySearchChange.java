@@ -195,7 +195,9 @@ public class EntitySearchChange implements SearchChange {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIndexName() {
-        return indexName;
+        if ( indexName== null )
+            return indexName;
+        return indexName.toLowerCase();
     }
 
     void setFortressName(String fortressName) {
