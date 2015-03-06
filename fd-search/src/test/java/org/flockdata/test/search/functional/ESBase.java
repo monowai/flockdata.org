@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.search.functional;
 
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -26,18 +26,6 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -304,40 +292,5 @@ public class ESBase {
             return null;
         return jResult.getJsonString();
     }
-
-    /**
-     * @param comp     company
-     * @param fort     fortress
-     * @param userName username
-     * @return entity with a document type of the same name as fort
-     * @throws org.flockdata.helper.FlockException
-     */
-    Entity getEntity(String comp, String fort, String userName) throws FlockException {
-        return getEntity(comp, fort, userName, fort);
-    }
-
-    Entity getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
-        // These are the minimum objects necessary to create Entity data
-        Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
-        FortressUser user = new FortressUserNode(fortress, userName);
-        DocumentTypeNode doc = new DocumentTypeNode(fortress, doctype);
-
-        DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
-
-        return new EntityNode(now.toString(), fortress, mib, doc, user);
-
-    }
-
-    EntityInputBean getEntityInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
-
-        return new EntityInputBean(fortressUser.getFortress().getName(),
-                fortressUser.getCode(),
-                docType.getName(),
-                now,
-                callerRef);
-
-    }
-
 
 }

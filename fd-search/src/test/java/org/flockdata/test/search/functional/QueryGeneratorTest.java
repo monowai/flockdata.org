@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.search.functional;
 
 import org.flockdata.search.helper.QueryGenerator;
 import org.junit.Assert;

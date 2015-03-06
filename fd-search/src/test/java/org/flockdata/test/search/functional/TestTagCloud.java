@@ -17,30 +17,22 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.search.functional;
 
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.engine.track.model.EntityTagRelationship;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
-import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.test.engine.Helper;
+import org.flockdata.test.engine.SimpleEntityTagRelationship;
+import org.flockdata.test.engine.SimpleTag;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,24 +65,21 @@ public class TestTagCloud extends ESBase {
     public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
-        // These are the minimum objects necessary to create Entity data
-        Fortress fortress = new FortressNode(new FortressInputBean("fort1", false), new CompanyNode("comp")) ;
-        FortressUser user = new FortressUserNode(fortress, "mikey");
-        DocumentTypeNode doc = new DocumentTypeNode(fortress, fortress.getName());
+        String fort = "fort1";
+        String comp = "comp";
+        String user = "user";
+        String doc = fort;
 
-        DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(doc, user, "zzaa99", now);
+        Entity entity = Helper.getEntity(comp, fort, user, doc);
 
-        Entity entity = new EntityNode("zzUnique", fortress, mib, doc, user);
-
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        TagNode tag = new TagNode(new TagInputBean("myTag", "TheLabel", "rlxname"));
+        SimpleTag tag = new SimpleTag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
-        tags.add(new EntityTagRelationship(66l, tag));
+        tags.add(new SimpleEntityTagRelationship(entity, tag, "rlxname", null));
         change.setTags(tags);
 
         deleteEsIndex(entity.getFortress().getIndexName());

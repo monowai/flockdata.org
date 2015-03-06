@@ -17,10 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.search.functional;
 
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
@@ -52,7 +53,7 @@ public class AttachmentTests extends ESBase {
     @Test
     public void attachment_PdfIndexedAndFound() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity entity = getEntity("cust", "fort", "anyuser");
+        Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
 
         SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json));
         changeA.setAttachment(Helper.getPdfDoc());
