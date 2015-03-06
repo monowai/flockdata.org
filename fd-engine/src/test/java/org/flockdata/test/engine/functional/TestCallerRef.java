@@ -122,7 +122,7 @@ public class TestCallerRef extends EngineBase {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch latch = new CountDownLatch(runnersToCreate);
 
-        for (int i = 1; i <= runnersToCreate; i++) {
+        for (int i = 0; i < runnersToCreate; i++) {
             runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
         }
         startLatch.countDown();
@@ -190,14 +190,9 @@ public class TestCallerRef extends EngineBase {
                 }
                 worked = true;
                 logger.info("{} completed", this.toString());
+                latch.countDown();
             } catch ( ExecutionException | InterruptedException | IOException | FlockException e) {
                 logger.error("Help!!", e);
-            } finally {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 latch.countDown();
             }
 
