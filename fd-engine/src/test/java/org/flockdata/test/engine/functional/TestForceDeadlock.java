@@ -126,9 +126,6 @@ public class TestForceDeadlock extends EngineBase {
         startSignal.countDown();
         latch.await();
 
-        for (Integer integer : runners.keySet()) {
-            assertEquals(true, runners.get(integer).isWorked());
-        }
         assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
 
         Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
@@ -136,6 +133,7 @@ public class TestForceDeadlock extends EngineBase {
         assertEquals(tagCount, createdTags.size());
 
         for (int thread = 0; thread < threadMax; thread++) {
+            assertEquals(true, runners.get(thread).isWorked());
             for ( int count =0; count < docCount; count ++ ) {
                 Entity entity = trackService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
@@ -256,7 +254,6 @@ public class TestForceDeadlock extends EngineBase {
         List<TagInputBean> tags;
 
         boolean worked = false;
-        private boolean done;
 
         public TagRunner(Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
             this.fortress = fortress;
@@ -282,19 +279,15 @@ public class TestForceDeadlock extends EngineBase {
                     count++;
                 }
                 worked = true;
-            } catch (Exception e) {
-
-                e.getStackTrace();
-
-            } finally {
                 latch.countDown();
-                done = true;
+
+            } catch (Exception e) {
+                e.getStackTrace();
+                latch.countDown();
+
             }
         }
 
-        public boolean isDone() {
-            return done;
-        }
 
     }
 }
