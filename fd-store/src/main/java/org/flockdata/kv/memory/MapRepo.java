@@ -57,11 +57,6 @@ public class MapRepo extends AbstractKvRepo{
     }
 
     @Override
-    public String getBucket(Entity entity) {
-        return null;
-    }
-
-    @Override
     public String ping() {
 
         return "MemMap is OK";

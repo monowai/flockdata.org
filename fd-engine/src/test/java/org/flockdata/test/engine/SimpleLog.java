@@ -121,8 +121,8 @@ public class SimpleLog implements Log {
     }
 
     @Override
-    public double getProfileVersion() {
-        return 0;
+    public Double getProfileVersion() {
+        return 0d;
     }
 
     @Override

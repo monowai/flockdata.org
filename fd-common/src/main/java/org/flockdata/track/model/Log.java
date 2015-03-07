@@ -78,7 +78,7 @@ public interface Log {
 
     void setContent(KvContent entityContent);
 
-    public double getProfileVersion();
+    public Double getProfileVersion();
 
     KvContent getContent();
 

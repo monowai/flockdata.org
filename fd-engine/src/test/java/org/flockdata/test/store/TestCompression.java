@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.test.engine.Helper;
@@ -47,9 +47,9 @@ public class TestCompression {
     @Test
     public void compressed_Utf8() throws Exception{
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        CompressionResult dataBlock = CompressionHelper.compress(json);
+        CompressionResult dataBlock = ObjectHelper.compress(json);
 
-        String uncompressed = CompressionHelper.decompress(dataBlock);
+        String uncompressed = ObjectHelper.decompress(dataBlock);
         Assert.assertEquals(uncompressed, json);
 
     }
@@ -61,15 +61,15 @@ public class TestCompression {
 //        KvContent content = new KvContentBean(json);
         //System.out.println("JSON Node (unpretty) - " + log.getLogInputBean().);
         ContentInputBean content = new ContentInputBean(json);
-        CompressionResult result = CompressionHelper.compress(content);
+        CompressionResult result = ObjectHelper.compress(content);
         System.out.println("Compress Pretty      - " + result.length());
-        result = CompressionHelper.compress(content);
+        result = ObjectHelper.compress(content);
         System.out.println("Compressed JSON      - " + result.length());
 
         Assert.assertEquals(CompressionResult.Method.GZIP, result.getMethod());
 
         //json = TestHelper.getBigJsonText(99);
-        String uncompressed = CompressionHelper.decompress(result);
+        String uncompressed = ObjectHelper.decompress(result);
 
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         JsonNode compareTo = mapper.valueToTree(content);
@@ -83,11 +83,11 @@ public class TestCompression {
         String json = "{\"colname\": \"tinytext.......................\"}";
         System.out.println("Before Compression" + json.getBytes("UTF-8").length);
 
-        CompressionResult result = CompressionHelper.compress(json);
+        CompressionResult result = ObjectHelper.compress(json);
         Assert.assertEquals(CompressionResult.Method.NONE, result.getMethod());
         System.out.println("Compressed " + result.length());
 
-        String uncompressed = CompressionHelper.decompress(result);
+        String uncompressed = ObjectHelper.decompress(result);
 
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
@@ -112,8 +112,8 @@ public class TestCompression {
     public void compressionDisabled(){
         ContentInputBean content = new ContentInputBean("mike", new DateTime());
         content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
-        System.setProperty(CompressionHelper.PROP_COMPRESSION, "true");
-        CompressionResult result = CompressionHelper.compress(content);
+        System.setProperty(ObjectHelper.PROP_COMPRESSION, "true");
+        CompressionResult result = ObjectHelper.compress(content);
         assertTrue(result.getMethod().equals(CompressionResult.Method.NONE));
 
     }

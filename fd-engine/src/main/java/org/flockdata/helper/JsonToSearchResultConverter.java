@@ -41,7 +41,7 @@ public class JsonToSearchResultConverter extends SimpleMessageConverter {
         try {
             if (content instanceof String) {
                 ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
-                return mapper.readValue(((String) content).getBytes(CompressionHelper.charSet), SearchResults.class);
+                return mapper.readValue(((String) content).getBytes(ObjectHelper.charSet), SearchResults.class);
             }
         } catch (IOException e1) {
             throw new MessageConversionException("failed to convert text-based Message content", e1);

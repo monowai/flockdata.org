@@ -227,9 +227,10 @@ public class LogNode implements Log {
     }
 
     @Override
-    public double getProfileVersion() {
+    public Double getProfileVersion() {
         return profileVersion;
     }
+
 
     @Override
     @JsonIgnore

@@ -38,7 +38,7 @@ public class CompressionResult {
     public CompressionResult(String value) throws UnsupportedEncodingException {
         this();
         method = Method.NONE;
-        this.bytes = value.getBytes(CompressionHelper.charSet);// DAT-75
+        this.bytes = value.getBytes(ObjectHelper.charSet);// DAT-75
     }
 
     public int length() {

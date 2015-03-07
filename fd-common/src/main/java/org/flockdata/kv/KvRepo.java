@@ -38,8 +38,6 @@ public interface KvRepo {
 
     public void purge(String index);
 
-    public String getBucket(Entity entity);
-
     String ping();
 
     Log prepareLog(Log log, KvContent kvContent) throws IOException;
