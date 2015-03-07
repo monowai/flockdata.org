@@ -55,9 +55,11 @@ public class LogNode implements Log {
     @RelatedToVia(elementClass = EntityLogRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
     private EntityLogRelationship entityLog;
 
-    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
-    @Fetch
-    private ChangeEventNode event;
+    // DAT-344
+//    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
+//    @Fetch
+//    private ChangeEventNode event;
+    private String event;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
@@ -169,7 +171,11 @@ public class LogNode implements Log {
     }
 
     public ChangeEvent getEvent() {
-        return event;
+        // DAT-344
+        if ( event== null )
+            return null;
+
+        return new ChangeEventNode(event);
     }
 
     public boolean isCompressed() {
@@ -187,8 +193,9 @@ public class LogNode implements Log {
 
     @Override
     public void setEvent(ChangeEvent event) {
-        this.event = (ChangeEventNode) event;
-
+        // DAT-344
+        //this.event = (ChangeEventNode) event;
+        this.event = event.getName();
     }
 
     public boolean equals(Object other) {
