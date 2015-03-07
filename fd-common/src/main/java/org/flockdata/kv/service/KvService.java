@@ -39,7 +39,7 @@ public interface KvService {
 
     void purge(String indexName);
 
-    Log prepareLog(Log log, TrackResultBean content) throws IOException;
+    Log prepareLog(TrackResultBean content, Log log) throws IOException;
 
     KvContent getContent(Entity entity, Log log);
 
