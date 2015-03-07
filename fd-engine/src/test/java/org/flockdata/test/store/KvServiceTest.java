@@ -22,6 +22,7 @@ package org.flockdata.test.store;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
@@ -55,6 +56,7 @@ import java.util.Map;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 //import redis.embedded.RedisServer;
 
@@ -170,20 +172,32 @@ public class KvServiceTest {
         assertNotNull ( kvContentBean.getBucket());
 
         // Finally! the actual write occurs
-        kvService.doKvWrite(kvContentBean);
+        try {
+            kvService.doKvWrite(kvContentBean);
 
-        // Retrieve the content we just created
-        KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
+            // Retrieve the content we just created
+            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
 
-        assertNotNull(kvContent);
-        // Redis should always be available. RIAK is trickier to install
-        if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
-            validateWhat(what, kvContent);
-            // Testing that cancel works
-            kvService.delete(entity, trackResultBean.getLogResult().getLog());
-        } else {
+            assertNotNull(kvContent);
+            // Redis should always be available. RIAK is trickier to install
+            if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
+                validateWhat(what, kvContent);
+                // Testing that cancel works
+                kvService.delete(entity, trackResultBean.getLogResult().getLog());
+            } else {
+                // ToDo: Mock RIAK
+                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+            }
+
+        } catch ( FlockServiceException e){
             // ToDo: Mock RIAK
-            logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+            if ( kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
+                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+            } else {
+                logger.error("KV Error", e);
+                fail("Unexpected KV error");
+            }
+
         }
     }
 
