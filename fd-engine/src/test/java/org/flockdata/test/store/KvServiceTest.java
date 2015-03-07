@@ -135,27 +135,44 @@ public class KvServiceTest {
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
         String company = "company";
-        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
 
         Map<String, Object> what = getWhatMap();
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), what));
 
+        // Represents identifiable entity information
+        EntityInputBean entityInputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
+
+        // The "What" content
+        entityInputBean.setContent(new ContentInputBean(what));
+
+        // Emulate the creation of the entity
         Entity entity = Helper.getEntity(company, fortress, "wally", docType);
 
-        TrackResultBean trackResultBean = new TrackResultBean(entity, inputBean);
+        // Wrap the entity in a Track Result
+        // TrackResultBean represents the general accumulated payload
+        TrackResultBean trackResultBean = new TrackResultBean(entity, entityInputBean);
 
+        // Create a log with a random primary key
         Log graphLog = new SimpleLog(System.currentTimeMillis());
-        graphLog = kvService.prepareLog(graphLog, trackResultBean);
 
-        LogResultBean logResult = new LogResultBean(inputBean.getContent());
+        // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
+        // This occurs before the service persists the log
+        graphLog = kvService.prepareLog(trackResultBean, graphLog);
+
+        // Emulate the creation of the log
+        LogResultBean logResult = new LogResultBean(entityInputBean.getContent());
         logResult.setLog(graphLog);
+
+        // Wrap the log result in to the TrackResult
         trackResultBean.setLogResult(logResult);
 
-        //try {
         KvContentBean kvContentBean = new KvContentBean(trackResultBean);
+        // RIAK requires a bucket. Other KV stores do not.
         assertNotNull ( kvContentBean.getBucket());
 
+        // Finally! the actual write occurs
         kvService.doKvWrite(kvContentBean);
+
+        // Retrieve the content we just created
         KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
 
         assertNotNull(kvContent);
@@ -168,9 +185,6 @@ public class KvServiceTest {
             // ToDo: Mock RIAK
             logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
         }
-//        } catch (Exception ies) {
-//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-//        }
     }
 
     private void validateWhat(Map<String, Object> what, KvContent kvContent) throws InterruptedException {

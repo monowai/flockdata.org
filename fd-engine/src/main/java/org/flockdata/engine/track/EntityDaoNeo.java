@@ -277,7 +277,7 @@ public class EntityDaoNeo {
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = kvService.prepareLog(changeLog, payLoad);
+            changeLog = kvService.prepareLog(payLoad, changeLog);
         } catch (IOException e) {
             throw new FlockException("Unexpected error talking to What Service", e);
         }

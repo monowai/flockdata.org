@@ -148,13 +148,13 @@ public class KvManager implements KvService {
      * adds what store details to the log that will be index in Neo4j
      * Subsequently, this data will make it to a KV store
      *
-     * @param log     Log
      * @param trackResult Escaped Json
+     * @param log     Log
      * @return logChange
      * @throws IOException
      */
     @Override
-    public Log prepareLog(Log log, TrackResultBean trackResult) throws IOException {
+    public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
         log.setWhatStore(String.valueOf(kvConfig.getKvStore()));
