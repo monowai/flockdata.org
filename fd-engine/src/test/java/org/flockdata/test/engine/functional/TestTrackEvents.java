@@ -35,8 +35,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-
 import static org.junit.Assert.*;
 
 
@@ -59,13 +57,14 @@ public class TestTrackEvents extends EngineBase {
         assertNotNull(event);
         Long existingId = event.getId();
         assertEquals(eventName, event.getName());
-        assertEquals(eventName.toLowerCase(), event.getCode());
-        //assertEquals(company.getId(), event.getCompany().getId());
-        Set<ChangeEvent> events = trackEventService.getCompanyEvents(company.getId());
-        assertEquals(1, events.size());
-        event = trackEventService.processEvent(eventName);
-        assertEquals(existingId, event.getId());
-        assertEquals(1, events.size());
+        // DAT-344 - this is now a property not a node so removing this
+//        assertEquals(eventName.toLowerCase(), event.getCode());
+//        //assertEquals(company.getId(), event.getCompany().getId());
+//        Set<ChangeEvent> events = trackEventService.getCompanyEvents(company.getId());
+//        assertEquals(1, events.size());
+//        event = trackEventService.processEvent(eventName);
+//        assertEquals(existingId, event.getId());
+//        assertEquals(1, events.size());
 
     }
 
