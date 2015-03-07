@@ -24,10 +24,10 @@ import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
 import com.basho.riak.client.RiakFactory;
 import com.basho.riak.client.bucket.Bucket;
-import org.flockdata.kv.KvRepo;
-import org.flockdata.kv.bean.KvContentBean;
-import org.flockdata.track.bean.EntityBean;
+import org.flockdata.helper.CompressionHelper;
+import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class RiakRepo implements KvRepo {
+public class RiakRepo extends AbstractKvRepo{
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private IRiakClient client = null;
@@ -58,10 +58,13 @@ public class RiakRepo implements KvRepo {
         return client;
     }
 
-    public void add(KvContentBean contentBean) throws IOException {
+    public void add(KvContent kvContent) throws IOException {
         try {
-            Bucket bucket = getClient().createBucket(getBucket(contentBean.getEntityBean())).execute();
-            bucket.store(String.valueOf(contentBean.getLogId()), contentBean.getEntityContent()).execute();
+            Bucket bucket = getClient().fetchBucket(kvContent.getBucket()).execute();
+            if (bucket == null )
+                bucket = getClient().createBucket(kvContent.getBucket()).execute();
+            byte[]bytes = CompressionHelper.serialize(kvContent.getContent());
+            bucket.store(String.valueOf(kvContent.getId()), bytes).execute();
         } catch (RiakException e) {
             //logger.error("RIAK Repo Error", e);
             if (client != null) {
@@ -72,21 +75,19 @@ public class RiakRepo implements KvRepo {
         }
     }
 
-    private String getBucket(EntityBean entity) {
-        return entity.getIndexName() + "/" + entity.getDocumentType().toLowerCase();
-    }
-
-    private String getBucket(Entity entity) {
+    public String getBucket(Entity entity) {
         return entity.getFortress().getIndexName() + "/" + entity.getDocumentType().toLowerCase();
     }
 
-    public byte[] getValue(Entity entity, Log forLog) {
+    public KvContent getValue(Entity entity, Log forLog) {
         try {
-            Bucket bucket = getClient().createBucket(getBucket(entity)).execute();
+            Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
-            if (result != null)
-                return result.getValue();
-        } catch (RiakException e) {
+            if (result != null) {
+                Object oResult = CompressionHelper.deserialize(result.getValue());
+                return getKvContent(forLog, oResult);
+            }
+        } catch (IOException|ClassNotFoundException|RiakException e) {
             logger.error("KV Error", e);
             if (client != null) {
                 client.shutdown();
@@ -96,6 +97,7 @@ public class RiakRepo implements KvRepo {
         }
         return null;
     }
+
 
     public void delete(Entity entity, Log log) {
         try {

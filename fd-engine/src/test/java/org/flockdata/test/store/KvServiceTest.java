@@ -32,8 +32,8 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -100,24 +100,30 @@ public class KvServiceTest {
 
     @Test
     public void riak_JsonTest() throws Exception {
-        kvConfig.setKvStore("RIAK");
+        kvConfig.setKvStore(KvService.KV_STORE.RIAK);
         kvMapTest();
-        kvConfig.setKvStore("REDIS");
+        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
     }
 
     @Test
     public void redis_JsonTest() throws Exception {
-        kvConfig.setKvStore("REDIS");
+        kvConfig.setKvStore(KvService.KV_STORE.REDIS);
         kvMapTest();
-        kvConfig.setKvStore("REDIS");
+        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+    }
+
+    @Test
+    public void memory_JsonTest() throws Exception {
+        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvMapTest();
     }
 
 
     @Test
     public void redis_AttachmentTest() throws Exception {
-        kvConfig.setKvStore("REDIS");
+        kvConfig.setKvStore(KvService.KV_STORE.REDIS);
         kvAttachmentTest();
-        kvConfig.setKvStore("REDIS");
+        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
     }
 
 
@@ -139,42 +145,42 @@ public class KvServiceTest {
         TrackResultBean trackResultBean = new TrackResultBean(entity, inputBean);
 
         Log graphLog = new SimpleLog(System.currentTimeMillis());
-        graphLog = kvService.prepareLog(graphLog, inputBean.getContent());
+        graphLog = kvService.prepareLog(graphLog, trackResultBean);
 
         LogResultBean logResult = new LogResultBean(inputBean.getContent());
         logResult.setLog(graphLog);
         trackResultBean.setLogResult( logResult);
 
 
-        try {
-            KvContentBean kvContent = new KvContentBean(trackResultBean);
-            kvService.doKvWrite(kvContent);
-            EntityContent entityContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
+        //try {
+            KvContentBean kvContentBean = (KvContentBean) graphLog.getContent();
+            kvService.doKvWrite(kvContentBean);
+            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
 
-            assertNotNull(entityContent);
+            assertNotNull(kvContent);
             // Redis should always be available. RIAK is trickier to install
-            if (kvConfig.getKvStore().equals(KvService.KV_STORE.REDIS) || entityContent.getWhat().keySet().size() > 1) {
-                validateWhat(what, entityContent);
+            if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK) ) {
+                validateWhat(what, kvContent);
                 // Testing that cancel works
                 kvService.delete(entity, trackResultBean.getLogResult().getLog());
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
             }
-        } catch (Exception ies) {
-            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
-        }
+//        } catch (Exception ies) {
+//            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
+//        }
     }
 
-    private void validateWhat(Map<String, Object> what, EntityContent entityContent) throws InterruptedException {
+    private void validateWhat(Map<String, Object> what, KvContent kvContent) throws InterruptedException {
         Thread.sleep(1500);
-        assertEquals(what.get("sval"), entityContent.getWhat().get("sval"));
-        assertEquals(what.get("lval"), entityContent.getWhat().get("lval"));
-        assertEquals(what.get("dval"), entityContent.getWhat().get("dval"));
-        assertEquals(what.get("ival"), entityContent.getWhat().get("ival"));
-        assertEquals(what.get("bval"), entityContent.getWhat().get("bval"));
+        assertEquals(what.get("sval"), kvContent.getWhat().get("sval"));
+        assertEquals(what.get("lval"), kvContent.getWhat().get("lval"));
+        assertEquals(what.get("dval"), kvContent.getWhat().get("dval"));
+        assertEquals(what.get("ival"), kvContent.getWhat().get("ival"));
+        assertEquals(what.get("bval"), kvContent.getWhat().get("bval"));
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        assertEquals(json, entityContent.getWhat().get("utf-8"));
+        assertEquals(json, kvContent.getWhat().get("utf-8"));
     }
 
 
@@ -229,10 +235,10 @@ public class KvServiceTest {
 
         try {
             TrackResultBean tr = new TrackResultBean(entity, inputBean);
-            KvContentBean kvContent = new KvContentBean(tr);
-            kvService.doKvWrite(kvContent);
+            KvContentBean kvContentBean = new KvContentBean(tr);
+            kvService.doKvWrite(kvContentBean);
             EntityLog entityLog = tr.getLogResult().getLogToIndex();
-            EntityContent entityContent = kvService.getContent(entity, entityLog.getLog());
+            KvContent entityContent = kvService.getContent(entity, entityLog.getLog());
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install

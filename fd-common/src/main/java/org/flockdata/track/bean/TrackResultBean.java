@@ -67,6 +67,7 @@ public class TrackResultBean {
 
     public TrackResultBean(Entity entity) {
         this.entityBean = new EntityBean(entity);
+
         this.entity = entity;
 
     }
@@ -146,9 +147,18 @@ public class TrackResultBean {
 
     @JsonIgnore
     public ContentInputBean getContentInput() {
-        return contentInput;
+        // ToDo: Why are we tracking input in 2 places? It's something to
+        // do with the "trackLog" endpoint
+        if (contentInput != null )
+            return contentInput;
+        else
+            return getEntityInputBean().getContent();
     }
 
+    /**
+     * How this call was made
+     * @param contentInputBean content provided as input to the track process
+     */
     public void setContentInput(ContentInputBean contentInputBean) {
         this.contentInput = contentInputBean;
     }

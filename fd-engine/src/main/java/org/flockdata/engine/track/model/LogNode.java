@@ -24,10 +24,7 @@ import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.model.ChangeEvent;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
@@ -66,6 +63,8 @@ public class LogNode implements Log {
     private String comment;
     private String storage;
     private String checkSum=null;
+    private Double profileVersion = 1d;
+
     @Indexed (unique =  true)
     private String logKey;
 
@@ -215,19 +214,27 @@ public class LogNode implements Log {
     }
 
     @Transient
-    private byte[] entityContent = null;
+    private KvContent content = null;
 
     @Override
     @JsonIgnore
-    public void setEntityContent(byte[] entityContent) {
-        this.entityContent = entityContent;
+    public void setContent(KvContent kvContent) {
+        this.content = kvContent;
+        if ( kvContent.getContent()!=null ){
+            this.profileVersion = kvContent.getContent().getProfileVersion();
+        }
 
     }
 
     @Override
+    public double getProfileVersion() {
+        return profileVersion;
+    }
+
+    @Override
     @JsonIgnore
-    public byte[] getEntityContent() {
-        return entityContent;
+    public KvContent getContent() {
+        return content;
     }
 
     @Override

@@ -26,10 +26,8 @@ import com.google.common.collect.Maps;
 import org.flockdata.helper.CompressionHelper;
 import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.kv.KvContentData;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.model.KvContent;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +35,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -59,9 +57,10 @@ public class TestCompression {
     public void compressed_bytesAreSquashed() throws Exception {
         Map<String,Object> json = Helper.getBigJsonText(99);
         //System.out.println("Pretty JSON          - " + json.getBytes("UTF-8").length);
-        KvContent content = new KvContentData(json);
+        //ContentInputBean content = ;
+//        KvContent content = new KvContentBean(json);
         //System.out.println("JSON Node (unpretty) - " + log.getLogInputBean().);
-
+        ContentInputBean content = new ContentInputBean(json);
         CompressionResult result = CompressionHelper.compress(content);
         System.out.println("Compress Pretty      - " + result.length());
         result = CompressionHelper.compress(content);
@@ -78,29 +77,6 @@ public class TestCompression {
         Assert.assertTrue(compareTo.equals(other));
     }
 
-    @Test
-    public void checksum_Constant() throws Exception{
-        ContentInputBean content = new ContentInputBean("mike", new DateTime());
-        content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
-        KvContent kvContent = new KvContentData(content);
-        CompressionResult result = CompressionHelper.compress(kvContent);
-        final String checksum = result.getChecksum();
-        assertNotNull(checksum);
-
-
-        result = CompressionHelper.compress(kvContent);
-        assertTrue("re-compressing should yield same checksum", checksum.equals(result.getChecksum()));
-
-        content.setAttachment(Helper.getPdfDoc() + "a", "pdf", "test.pdf");
-        kvContent = new KvContentData(content);
-        result = CompressionHelper.compress(kvContent);
-        assertFalse(checksum.equals(result.getChecksum()));
-
-        content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
-        kvContent = new KvContentData(content);
-        result = CompressionHelper.compress(kvContent);
-        assertTrue("re-compressing should yield same checksum", checksum.equals(result.getChecksum()));
-    }
 
     @Test
     public void uncompressed_notCompressed() throws Exception {
@@ -136,11 +112,9 @@ public class TestCompression {
     public void compressionDisabled(){
         ContentInputBean content = new ContentInputBean("mike", new DateTime());
         content.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
-        KvContent kvContent = new KvContentData(content);
         System.setProperty(CompressionHelper.PROP_COMPRESSION, "true");
-        CompressionResult result = CompressionHelper.compress(kvContent);
+        CompressionResult result = CompressionHelper.compress(content);
         assertTrue(result.getMethod().equals(CompressionResult.Method.NONE));
-
 
     }
 

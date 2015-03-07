@@ -20,25 +20,29 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.model.ChangeEvent;
 import org.flockdata.track.model.EntityContent;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
 /**
  * Tracked in the KV Store this object tracks meta data and the actual content being tracked
- *
+ * <p>
  * User: Mike Holdsworth
  * Date: 8/05/13
  * Time: 7:41 PM
  */
-public class ContentInputBean implements EntityContent {
+public class ContentInputBean implements EntityContent, Serializable {
     private LogStatus fdStatus;
     private String fdMessage;
     private Boolean isTransactional = false;
+
+    private double profileVersion=1d;
 
     // Use either metaKey or CallerRef strategy
     // Required if not updating via a Entity
@@ -48,20 +52,15 @@ public class ContentInputBean implements EntityContent {
     private String documentType;
     private String callerRef;
     private String fortress;
-
     private String txRef;
     private String comment;
     private String fortressUser;
     private String event;
     private Date when;
-
     private Map<String, Object> what = null;
-
     private String attachment = null;
-
     private boolean forceReindex;
     private boolean status;
-
     private String contentType = "json";
     private String fileName;
 
@@ -78,8 +77,8 @@ public class ContentInputBean implements EntityContent {
 
     /**
      * @param fortressUser -user name recognisable in the fortress
-     * @param metaKey     -guid
-     * @param fortressWhen         -fortress view of DateTime
+     * @param metaKey      -guid
+     * @param fortressWhen -fortress view of DateTime
      * @param what         -escaped JSON
      */
     public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, Boolean isTransactional) throws FlockException {
@@ -91,7 +90,7 @@ public class ContentInputBean implements EntityContent {
 
     /**
      * @param fortressUser -user name recognisable in the fortress
-     * @param metaKey     -guid
+     * @param metaKey      -guid
      * @param fortressWhen -fortress view of DateTime
      * @param what         - Map
      * @param event        -how the caller would like to catalog this change (create, update etc)
@@ -123,7 +122,7 @@ public class ContentInputBean implements EntityContent {
         this.what = what;
     }
 
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMetaKey() {
         return metaKey;
     }
@@ -160,12 +159,13 @@ public class ContentInputBean implements EntityContent {
         return what;
     }
 
-
-    public void setWhat( Map<String, Object> what) throws FlockException {
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public void setWhat(Map<String, Object> what) throws FlockException {
         this.what = what;
 
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getComment() {
         return comment;
     }
@@ -190,7 +190,7 @@ public class ContentInputBean implements EntityContent {
         this.fortress = fortress;
     }
 
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getTxRef() {
         return txRef;
     }
@@ -213,7 +213,6 @@ public class ContentInputBean implements EntityContent {
         this.fdMessage = fdMessage;
 
     }
-
 
     /**
      * event sourcing type functionality. If true, AB will create a transaction identifier
@@ -265,14 +264,15 @@ public class ContentInputBean implements EntityContent {
         return fdStatus;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getAttachment() {
         return attachment;
     }
 
     /**
-     *  @param attachment base64 encoded bytes
-     * @param contentType  valid  HTTP MediaType
-     * @param fileName   How you would like this file to be known if it's downloaded
+     * @param attachment  base64 encoded bytes
+     * @param contentType valid  HTTP MediaType
+     * @param fileName    How you would like this file to be known if it's downloaded
      */
     public void setAttachment(String attachment, String contentType, String fileName) {
         this.attachment = attachment;
@@ -280,9 +280,10 @@ public class ContentInputBean implements EntityContent {
         this.fileName = fileName;
     }
 
+    @JsonIgnore
     public boolean hasData() {
         boolean json = getWhat() != null && !getWhat().isEmpty();
-        boolean attachment = getAttachment()!=null;
+        boolean attachment = getAttachment() != null;
         return json || attachment;
     }
 
@@ -302,8 +303,19 @@ public class ContentInputBean implements EntityContent {
         this.contentType = contentType;
     }
 
+    /**
+     * TRACK_ONLY == Don't store in the graph but do write to the search service
+     */
     public enum LogStatus {
         IGNORE, OK, FORBIDDEN, NOT_FOUND, REINDEX, ILLEGAL_ARGUMENT, TRACK_ONLY
+    }
+
+    /**
+     *
+     * @return version of the contentProfile used to create this payload
+     */
+    public Double getProfileVersion() {
+        return profileVersion;
     }
 
     @Override

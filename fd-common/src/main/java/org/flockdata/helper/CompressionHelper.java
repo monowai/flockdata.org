@@ -19,9 +19,9 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.track.model.KvContent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.track.model.EntityContent;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -35,6 +35,19 @@ import java.util.zip.GZIPOutputStream;
 public class CompressionHelper {
     public static final String PROP_COMPRESSION = "disableCompression";
     public static Charset charSet = Charset.forName("UTF-8");
+
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutputStream o = new ObjectOutputStream(b);
+        o.writeObject(obj);
+        return b.toByteArray();
+    }
+
+    public static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream b = new ByteArrayInputStream(bytes);
+        ObjectInputStream o = new ObjectInputStream(b);
+        return o.readObject();
+    }
 
     public static CompressionResult compress(String text) {
 
@@ -57,7 +70,7 @@ public class CompressionHelper {
         }
     }
 
-    public static CompressionResult compress(KvContent content) {
+    public static CompressionResult compress(EntityContent content) {
         ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
         JsonNode node = om.valueToTree(content);
         String text = node.toString();

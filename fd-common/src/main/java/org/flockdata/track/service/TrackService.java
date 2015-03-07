@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 4:22 PM
  */
 public interface TrackService {
-    EntityContent getWhat(Entity entity, Log change);
+    KvContent getWhat(Entity entity, Log change);
 
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);
