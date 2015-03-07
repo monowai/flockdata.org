@@ -97,8 +97,6 @@ public class LogRetryService {
     @Transactional
     TrackResultBean writeLogTx(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         ContentInputBean content = trackResultBean.getContentInput();
-        content.setMetaKey(trackResultBean.getEntity().getMetaKey());
-        content.setCallerRef(trackResultBean.getEntity().getCallerRef());
 
         boolean entityExists = (trackResultBean.getEntityInputBean() != null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
 
