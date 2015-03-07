@@ -138,7 +138,7 @@ public class KvServiceTest {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
 
         Map<String, Object> what = getWhatMap();
-        inputBean.setContent( new ContentInputBean("wally", new DateTime(), what));
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), what));
 
         Entity entity = Helper.getEntity(company, fortress, "wally", docType);
 
@@ -149,24 +149,25 @@ public class KvServiceTest {
 
         LogResultBean logResult = new LogResultBean(inputBean.getContent());
         logResult.setLog(graphLog);
-        trackResultBean.setLogResult( logResult);
-
+        trackResultBean.setLogResult(logResult);
 
         //try {
-            KvContentBean kvContentBean = (KvContentBean) graphLog.getContent();
-            kvService.doKvWrite(kvContentBean);
-            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
+        KvContentBean kvContentBean = new KvContentBean(trackResultBean);
+        assertNotNull ( kvContentBean.getBucket());
 
-            assertNotNull(kvContent);
-            // Redis should always be available. RIAK is trickier to install
-            if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK) ) {
-                validateWhat(what, kvContent);
-                // Testing that cancel works
-                kvService.delete(entity, trackResultBean.getLogResult().getLog());
-            } else {
-                // ToDo: Mock RIAK
-                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
-            }
+        kvService.doKvWrite(kvContentBean);
+        KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
+
+        assertNotNull(kvContent);
+        // Redis should always be available. RIAK is trickier to install
+        if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
+            validateWhat(what, kvContent);
+            // Testing that cancel works
+            kvService.delete(entity, trackResultBean.getLogResult().getLog());
+        } else {
+            // ToDo: Mock RIAK
+            logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+        }
 //        } catch (Exception ies) {
 //            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
 //        }
