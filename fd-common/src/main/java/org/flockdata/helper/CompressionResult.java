@@ -20,8 +20,6 @@
 package org.flockdata.helper;
 
 import java.io.UnsupportedEncodingException;
-import java.util.zip.CRC32;
-import java.util.zip.Checksum;
 
 /**
  * User: Mike Holdsworth
@@ -31,26 +29,16 @@ public class CompressionResult {
     private Method method;
     private byte[] bytes;
 
-    private String checkSum;
-
     public CompressionResult(byte[] bytes, boolean compressed) {
         this(bytes);
         if (!compressed)
             this.method = Method.NONE;
     }
 
-
     public CompressionResult(String value) throws UnsupportedEncodingException {
         this();
         method = Method.NONE;
         this.bytes = value.getBytes(CompressionHelper.charSet);// DAT-75
-        this.checkSum = calculateChecksum(bytes); // DAT-159
-    }
-
-    private static String calculateChecksum(byte[]bytes) {
-        Checksum checksum = new CRC32();
-        checksum.update(bytes, 0, bytes.length);
-        return Long.toHexString(checksum.getValue()).toUpperCase();
     }
 
     public int length() {
@@ -71,7 +59,6 @@ public class CompressionResult {
     public CompressionResult(byte[] bytes) {
         this();
         method = Method.GZIP;
-        this.checkSum = calculateChecksum(bytes);
         this.bytes = bytes;
     }
 
@@ -83,11 +70,5 @@ public class CompressionResult {
     public Method getMethod() {
         return method;
     }
-
-    public String getChecksum() {
-        return checkSum;
-    }
-
-
 
 }

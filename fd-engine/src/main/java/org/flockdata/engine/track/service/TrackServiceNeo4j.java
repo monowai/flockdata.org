@@ -92,7 +92,7 @@ public class TrackServiceNeo4j implements TrackService {
     private Logger logger = LoggerFactory.getLogger(TrackServiceNeo4j.class);
 
     @Override
-    public EntityContent getWhat(Entity entity, Log change) {
+    public KvContent getWhat(Entity entity, Log change) {
         return kvService.getContent(entity, change);
     }
 
@@ -311,9 +311,9 @@ public class TrackServiceNeo4j implements TrackService {
         // Sync the update to fd-search.
         if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
-            EntityContent priorContent = kvService.getContent(entity, fromLog);
+            KvContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(new EntityBean(entity), priorContent, fromLog);
+            searchDocument = new EntitySearchChange(new EntityBean(entity), fromLog, priorContent);
             searchDocument.setTags(entityTagService.getEntityTags(company, entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -429,7 +429,7 @@ public class TrackServiceNeo4j implements TrackService {
 
         EntityLog log = entityDao.getLog(logId);
         entityDao.fetch(log.getLog());
-        EntityContent what = kvService.getContent(entity, log.getLog());
+        KvContent what = kvService.getContent(entity, log.getLog());
 
         return new LogDetailBean(log, what);
     }

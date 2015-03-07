@@ -23,19 +23,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.helper.CompressionHelper;
-import org.flockdata.helper.CompressionResult;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockServiceException;
-import org.flockdata.kv.*;
+import org.flockdata.kv.FdKvConfig;
+import org.flockdata.kv.KvGateway;
+import org.flockdata.kv.KvRepo;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityContent;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ import java.util.concurrent.Future;
 /**
  * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
  * for various KV stores. Also provides retry and integration capabilities
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
@@ -120,7 +120,7 @@ public class KvManager implements KvService {
 
     /**
      * Persists the payload
-     * <p/>
+     * <p>
      * if fd-engine.kv.async== true, then this will be handed off to an integration gateway
      * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
      * will have to deal with any errors
@@ -149,21 +149,17 @@ public class KvManager implements KvService {
      * Subsequently, this data will make it to a KV store
      *
      * @param log     Log
-     * @param content Escaped Json
+     * @param trackResult Escaped Json
      * @return logChange
      * @throws IOException
      */
     @Override
-    public Log prepareLog(Log log, ContentInputBean content) throws IOException {
+    public Log prepareLog(Log log, TrackResultBean trackResult) throws IOException {
         // Compress the Value of JSONText
-        CompressionResult compressionResult = CompressionHelper.compress(new KvContentData(content));
-        Boolean compressed = (compressionResult.getMethod() == CompressionResult.Method.GZIP);
+        KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
+        kvContent.setBucket(getKvRepo().getBucket(trackResult.getEntity()));
         log.setWhatStore(String.valueOf(kvConfig.getKvStore()));
-        log.setCompressed(compressed);
-        log.setChecksum(compressionResult.getChecksum());
-        log.setEntityContent(compressionResult.getAsBytes());
-
-        return log;
+        return getKvRepo().prepareLog(log, kvContent);
     }
 
     private KvRepo getKvRepo() {
@@ -189,13 +185,11 @@ public class KvManager implements KvService {
     }
 
     @Override
-    public EntityContent getContent(Entity entity, Log log) {
+    public KvContent getContent(Entity entity, Log log) {
         if (log == null)
             return null;
         try {
-            byte[] entityContent = getKvRepo(log).getValue(entity, log);
-            if (entityContent != null)
-                return new EntityContentData(entityContent, log);
+            return getKvRepo(log).getValue(entity, log);
 
         } catch (RuntimeException re) {
             logger.error("KV Error Entity[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
@@ -224,7 +218,7 @@ public class KvManager implements KvService {
             return false;
 
         // ToDo: Retryable - what if KV store is down?
-        EntityContent content = getContent(entity, compareFrom);
+        KvContent content = getContent(entity, compareFrom);
 
         if (content == null)
             return false;
@@ -235,7 +229,7 @@ public class KvManager implements KvService {
             return false;
 
         if (compareFrom.getContentType().equals("json"))
-            return sameJson(content, new EntityContentData(compareTo.getEntityContent(), compareTo));
+            return sameJson(content, compareTo.getContent());
         else
             return sameCheckSum(compareFrom, compareTo);
     }
@@ -246,8 +240,10 @@ public class KvManager implements KvService {
 
 
     @Override
-    public boolean sameJson(EntityContent compareFrom, EntityContent compareTo) {
-        if ( compareFrom.getWhat().size() != compareTo.getWhat().size())
+    public boolean sameJson(KvContent compareFrom, KvContent compareTo) {
+//        if ( compareTo == null )
+//            return false;
+        if (compareFrom.getWhat().size() != compareTo.getWhat().size())
             return false;
         logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
         JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
@@ -260,8 +256,8 @@ public class KvManager implements KvService {
     public DeltaBean getDelta(Entity entity, Log from, Log to) {
         if (entity == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        EntityContent source = getContent(entity, from);
-        EntityContent dest = getContent(entity, to);
+        KvContent source = getContent(entity, from);
+        KvContent dest = getContent(entity, to);
         MapDifference<String, Object> diffMap = Maps.difference(source.getWhat(), dest.getWhat());
         DeltaBean result = new DeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));

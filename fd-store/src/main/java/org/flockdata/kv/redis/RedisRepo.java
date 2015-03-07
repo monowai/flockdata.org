@@ -19,9 +19,10 @@
 
 package org.flockdata.kv.redis;
 
-import org.flockdata.kv.bean.KvContentBean;
-import org.flockdata.kv.KvRepo;
+import org.flockdata.helper.CompressionHelper;
+import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,22 +30,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Date;
 
 @Component
-public class RedisRepo implements KvRepo {
+public class RedisRepo extends AbstractKvRepo {
 
     @Autowired
     private RedisTemplate<Long, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
 
-    public void add(KvContentBean contentBean) {
-        template.opsForValue().set(contentBean.getLogId(), contentBean.getEntityContent());
+    public void add(KvContent kvContent) throws IOException {
+        byte[] bytes = CompressionHelper.serialize(kvContent.getContent());
+        template.opsForValue().set(kvContent.getId(), bytes);
     }
 
-    public byte[] getValue(Entity entity, Log forLog) {
+    public KvContent getValue(Entity entity, Log forLog) {
+        byte[] bytes = template.opsForValue().get(forLog.getId());
 
-        return template.opsForValue().get(forLog.getId());
+        try {
+            Object oResult = CompressionHelper.deserialize(bytes);
+            return getKvContent(forLog, oResult);
+        } catch (ClassNotFoundException | IOException e) {
+            logger.error("Error extracting content for " + forLog, e);
+        }
+        return null;
     }
 
     public void delete(Entity entity, Log log) {
@@ -53,7 +63,7 @@ public class RedisRepo implements KvRepo {
 
     @Override
     public void purge(String index) {
-        logger.debug("Purge not supported for REDIS. Ignoring this request") ;
+        logger.debug("Purge not supported for REDIS. Ignoring this request");
     }
 
     @Override
@@ -63,4 +73,5 @@ public class RedisRepo implements KvRepo {
         template.opsForValue().getOperations().delete(-99999l);
         return "Redis is OK";
     }
+
 }

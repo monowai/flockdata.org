@@ -20,7 +20,6 @@
 package org.flockdata.kv;
 
 import org.flockdata.helper.VersionHelper;
-import org.flockdata.kv.service.KvService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.flockdata.kv.service.KvService.KV_STORE;
 
 /**
  * User: Mike Holdsworth
@@ -47,7 +48,7 @@ public class KvConfig implements FdKvConfig {
 
     private Boolean multiTenanted = false;
 
-    private KvService.KV_STORE kvStore = null;
+    private KV_STORE kvStore = null;
 
 
     @Value("${rabbit.host:@null}")
@@ -68,11 +69,11 @@ public class KvConfig implements FdKvConfig {
     @Value("${fd-engine.kv.store}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
-            this.kvStore = KvService.KV_STORE.REDIS;
+            setKvStore( KV_STORE.REDIS);
         else if (kvStore.equalsIgnoreCase("riak"))
-            this.kvStore = KvService.KV_STORE.RIAK;
+            setKvStore( KV_STORE.RIAK);
         else if (kvStore.equalsIgnoreCase("MEMORY"))
-            this.kvStore = KvService.KV_STORE.MEMORY;
+            setKvStore( KV_STORE.MEMORY);
         else {
             logger.error("Unable to resolve the fd-engine.kv.store property [" + kvStore + "]. Defaulting to REDIS");
         }
@@ -80,7 +81,13 @@ public class KvConfig implements FdKvConfig {
     }
 
     @Override
-    public KvService.KV_STORE getKvStore() {
+    public void setKvStore(KV_STORE kvStore) {
+        this.kvStore = kvStore;
+
+    }
+
+    @Override
+    public KV_STORE getKvStore() {
         return kvStore;
     }
 
@@ -98,6 +105,7 @@ public class KvConfig implements FdKvConfig {
 
     /**
      * Only users with a pre-validated api-key should be calling this
+     *
      * @return system configuration details
      */
     @Override

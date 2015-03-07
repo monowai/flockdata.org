@@ -19,12 +19,12 @@
 
 package org.flockdata.kv.memory;
 
-import org.flockdata.kv.KvRepo;
+import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -34,19 +34,17 @@ import java.util.Map;
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
  */
 @Component
-public class MapRepo implements KvRepo {
+public class MapRepo extends AbstractKvRepo{
 
-    private static Logger logger = LoggerFactory.getLogger(MapRepo.class);
+    Map<Long, ContentInputBean> map = new HashMap <>();
 
-    Map<Long, byte[]> map = new HashMap <>();
-
-    public void add(KvContentBean contentBean) {
-        map.put(contentBean.getLogId(), contentBean.getEntityContent());
+    public void add(KvContent contentBean) {
+        map.put(contentBean.getId(), contentBean.getContent());
     }
 
-    public byte[] getValue(Entity entity, Log forLog) {
+    public KvContent getValue(Entity entity, Log forLog) {
 
-        return map.get(forLog.getId());
+        return new KvContentBean(forLog, map.get(forLog.getId()));
     }
 
     public void delete(Entity entity, Log log) {
@@ -56,6 +54,11 @@ public class MapRepo implements KvRepo {
     @Override
     public void purge(String index) {
         map.clear() ;
+    }
+
+    @Override
+    public String getBucket(Entity entity) {
+        return null;
     }
 
     @Override

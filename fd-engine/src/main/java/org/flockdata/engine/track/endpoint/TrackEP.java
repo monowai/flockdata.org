@@ -279,7 +279,7 @@ public class TrackEP {
             if (lastLog == null) {
                 logger.debug("Unable to find last log for {}", entity);
             } else {
-                EntityContent log = kvService.getContent(entity, lastLog.getLog());
+                KvContent log = kvService.getContent(entity, lastLog.getLog());
                 return DatatypeConverter.parseBase64Binary(log.getAttachment());
             }
         }

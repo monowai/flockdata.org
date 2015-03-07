@@ -19,6 +19,9 @@
 
 package org.flockdata.track.model;
 
+import org.flockdata.track.bean.ContentInputBean;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -31,4 +34,14 @@ public interface KvContent {
     public String getAttachment();
 
     public Map<String, Object> getWhat() ;
+
+    public String getChecksum() throws IOException;
+
+    public Long getId();
+
+    String getBucket();
+
+    void setBucket(String bucket);
+
+    public ContentInputBean getContent();
 }
