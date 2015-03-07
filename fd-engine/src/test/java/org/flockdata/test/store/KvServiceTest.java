@@ -179,6 +179,9 @@ public class KvServiceTest {
             KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
 
             assertNotNull(kvContent);
+            assertNotNull ( kvContent.getContent().getMetaKey());
+            assertNotNull ( kvContent.getContent().getCallerRef());
+
             // Redis should always be available. RIAK is trickier to install
             if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
                 validateWhat(what, kvContent);
