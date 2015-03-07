@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 
@@ -44,18 +45,23 @@ public class KvContentBean implements KvContent, Serializable{
     private ContentInputBean content = null;
     private String bucket = null;
 
+    KvContentBean() {
+    }
+
     public KvContentBean(Log log, ContentInputBean contentInput) {
         this.content = contentInput;
         if ( log!=null )
             id = log.getId();
     }
+    public KvContentBean(Log log, Map<String, Object> oResult) {
+        this(oResult);
+        if ( log!=null )
+            id = log.getId();
+
+    }
 
     public KvContentBean(Map<String, Object> json) {
         this.content = new ContentInputBean(json);
-    }
-
-
-    KvContentBean() {
     }
 
     public KvContentBean(Long key, ContentInputBean content){
@@ -67,7 +73,7 @@ public class KvContentBean implements KvContent, Serializable{
 
     public KvContentBean(TrackResultBean trackResultBean) {
         this();
-        //this.entityBean = new EntityBean(trackResultBean.getEntity());
+        this.bucket = parseBucket(trackResultBean.getEntity());
         if (trackResultBean.getLogResult().getLog() != null) {
             this.id = trackResultBean.getLogResult().getLog().getId();
             this.content = trackResultBean.getContentInput();
@@ -75,13 +81,12 @@ public class KvContentBean implements KvContent, Serializable{
         trackResultBean.getEntity().getMetaKey();
     }
 
-    public KvContentBean(Log log, Map<String, Object> oResult) {
-        this(oResult);
-        if ( log!=null )
-            id = log.getId();
-
-
+    public static String parseBucket(Entity entity) {
+        if ( entity == null )
+            return null;
+        return (entity.getFortress().getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
     }
+
 
     public ContentInputBean getContent() {
         return content;

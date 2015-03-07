@@ -19,7 +19,7 @@
 
 package org.flockdata.kv.redis;
 
-import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
@@ -41,7 +41,7 @@ public class RedisRepo extends AbstractKvRepo {
     private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
 
     public void add(KvContent kvContent) throws IOException {
-        byte[] bytes = CompressionHelper.serialize(kvContent.getContent());
+        byte[] bytes = ObjectHelper.serialize(kvContent.getContent());
         template.opsForValue().set(kvContent.getId(), bytes);
     }
 
@@ -49,7 +49,7 @@ public class RedisRepo extends AbstractKvRepo {
         byte[] bytes = template.opsForValue().get(forLog.getId());
 
         try {
-            Object oResult = CompressionHelper.deserialize(bytes);
+            Object oResult = ObjectHelper.deserialize(bytes);
             return getKvContent(forLog, oResult);
         } catch (ClassNotFoundException | IOException e) {
             logger.error("Error extracting content for " + forLog, e);

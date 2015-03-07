@@ -157,8 +157,8 @@ public class KvManager implements KvService {
     public Log prepareLog(Log log, TrackResultBean trackResult) throws IOException {
         // Compress the Value of JSONText
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
-        kvContent.setBucket(getKvRepo().getBucket(trackResult.getEntity()));
         log.setWhatStore(String.valueOf(kvConfig.getKvStore()));
+
         return getKvRepo().prepareLog(log, kvContent);
     }
 

@@ -24,8 +24,9 @@ import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
 import com.basho.riak.client.RiakFactory;
 import com.basho.riak.client.bucket.Bucket;
-import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.AbstractKvRepo;
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
@@ -63,7 +64,7 @@ public class RiakRepo extends AbstractKvRepo{
             Bucket bucket = getClient().fetchBucket(kvContent.getBucket()).execute();
             if (bucket == null )
                 bucket = getClient().createBucket(kvContent.getBucket()).execute();
-            byte[]bytes = CompressionHelper.serialize(kvContent.getContent());
+            byte[]bytes = ObjectHelper.serialize(kvContent.getContent());
             bucket.store(String.valueOf(kvContent.getId()), bytes).execute();
         } catch (RiakException e) {
             //logger.error("RIAK Repo Error", e);
@@ -75,16 +76,13 @@ public class RiakRepo extends AbstractKvRepo{
         }
     }
 
-    public String getBucket(Entity entity) {
-        return entity.getFortress().getIndexName() + "/" + entity.getDocumentType().toLowerCase();
-    }
 
     public KvContent getValue(Entity entity, Log forLog) {
         try {
-            Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
+            Bucket bucket = getClient().fetchBucket(KvContentBean.parseBucket(entity)).execute();
             IRiakObject result = bucket.fetch(String.valueOf(forLog.getId())).execute();
             if (result != null) {
-                Object oResult = CompressionHelper.deserialize(result.getValue());
+                Object oResult = ObjectHelper.deserialize(result.getValue());
                 return getKvContent(forLog, oResult);
             }
         } catch (IOException|ClassNotFoundException|RiakException e) {
@@ -101,7 +99,7 @@ public class RiakRepo extends AbstractKvRepo{
 
     public void delete(Entity entity, Log log) {
         try {
-            Bucket bucket = getClient().fetchBucket(getBucket(entity)).execute();
+            Bucket bucket = getClient().fetchBucket(KvContentBean.parseBucket(entity)).execute();
             bucket.delete(String.valueOf(log.getId())).execute();
         } catch (RiakException e) {
             logger.error("RIAK Repo Error", e);

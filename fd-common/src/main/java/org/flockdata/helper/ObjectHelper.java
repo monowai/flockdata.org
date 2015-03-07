@@ -32,7 +32,7 @@ import java.util.zip.GZIPOutputStream;
  * User: Mike Holdsworth
  * Since: 20/07/13
  */
-public class CompressionHelper {
+public class ObjectHelper {
     public static final String PROP_COMPRESSION = "disableCompression";
     public static Charset charSet = Charset.forName("UTF-8");
 
