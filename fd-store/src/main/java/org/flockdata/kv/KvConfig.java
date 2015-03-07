@@ -103,6 +103,19 @@ public class KvConfig implements FdKvConfig {
         return asyncWrite;
     }
 
+    @Override
+
+    public String getRiakUrl() {
+        return riakUrl;
+    }
+    private String riakUrl="127.0.0.1";
+    @Value("${riak.host:@null}")
+    public void setRiakUrl(String url){
+        if (!"@null".equals(url))
+            this.riakUrl = url;
+
+    }
+
     /**
      * Only users with a pre-validated api-key should be calling this
      *

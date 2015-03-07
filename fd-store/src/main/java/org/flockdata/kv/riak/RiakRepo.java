@@ -33,12 +33,14 @@ import com.basho.riak.client.core.query.RiakObject;
 import com.basho.riak.client.core.util.BinaryValue;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.AbstractKvRepo;
+import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -51,22 +53,22 @@ import java.util.concurrent.ExecutionException;
 public class RiakRepo extends AbstractKvRepo{
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
-    private static RiakClient client = null;
+    private RiakClient client = null;
+    @Autowired
+    FdKvConfig kvConfig;
 
-    RiakRepo () {
-        try {
-            getClient();
-        } catch (RiakException| UnknownHostException e) {
-            logger.error(e.getLocalizedMessage());
-        }
-    }
+
     private RiakClient getClient() throws RiakException, UnknownHostException {
+        if (client!= null )
+            return client;
+
         RiakNode.Builder builder = new RiakNode.Builder();
         builder.withMinConnections(10);
         builder.withMaxConnections(50);
 
         List<String> addresses = new LinkedList<>();
-        addresses.add("127.0.0.1");
+
+        addresses.add(kvConfig.getRiakUrl());
 
         List<RiakNode> nodes = RiakNode.Builder.buildNodes(builder, addresses);
         RiakCluster cluster = new RiakCluster.Builder(nodes).build();
@@ -77,7 +79,7 @@ public class RiakRepo extends AbstractKvRepo{
 
     public void add(KvContent kvContent) throws IOException {
         try {
-            Namespace ns = new Namespace("default", kvContent.getBucket());
+            Namespace ns = new Namespace(bucketType, kvContent.getBucket());
             Location location = new Location(ns, kvContent.getId().toString());
             RiakObject riakObject = new RiakObject();
             byte[]bytes = ObjectHelper.serialize(kvContent.getContent());
@@ -85,10 +87,10 @@ public class RiakRepo extends AbstractKvRepo{
             StoreValue store = new StoreValue.Builder(riakObject)
                     .withLocation(location)
                     .withOption(StoreValue.Option.W, new Quorum(3)).build();
-            client.execute(store);
+            getClient().execute(store);
 
 
-        } catch (ExecutionException|InterruptedException e) {
+        } catch (RiakException|UnknownHostException|ExecutionException|InterruptedException e) {
             if (client != null) {
                 client.shutdown();
                 client = null;
@@ -97,13 +99,13 @@ public class RiakRepo extends AbstractKvRepo{
         }
     }
 
-
+    static final String bucketType = "default";
     public KvContent getValue(Entity entity, Log forLog) {
         try {
-            Namespace ns = new Namespace("default", KvContentBean.parseBucket(entity));
+            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(entity));
             Location location = new Location(ns, forLog.getId().toString());
             FetchValue fv = new FetchValue.Builder(location).build();
-            FetchValue.Response response = client.execute(fv);
+            FetchValue.Response response = getClient().execute(fv);
 
             RiakObject result = response.getValue(RiakObject.class);
 
@@ -111,15 +113,13 @@ public class RiakRepo extends AbstractKvRepo{
                 Object oResult = ObjectHelper.deserialize(result.getValue().getValue());
                 return getKvContent(forLog, oResult);
             }
-        } catch (ExecutionException|IOException|ClassNotFoundException e) {
+        } catch (InterruptedException|RiakException|ExecutionException|IOException|ClassNotFoundException e) {
             logger.error("KV Error", e);
             if (client != null) {
                 client.shutdown();
                 client = null;
             }
             return null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -127,16 +127,14 @@ public class RiakRepo extends AbstractKvRepo{
 
     public void delete(Entity entity, Log log) {
         try {
-            Namespace ns = new Namespace("default", KvContentBean.parseBucket(entity));
+            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(entity));
             Location location = new Location(ns, log.getId().toString());
             DeleteValue dv = new DeleteValue.Builder(location).build();
-            client.execute(dv);
-        } catch (ExecutionException e) {
+            getClient().execute(dv);
+        } catch (UnknownHostException|RiakException|InterruptedException|ExecutionException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();
             client = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
 
     }

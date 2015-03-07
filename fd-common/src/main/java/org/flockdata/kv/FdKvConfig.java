@@ -20,7 +20,6 @@
 package org.flockdata.kv;
 
 import org.flockdata.kv.service.KvService;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -40,4 +39,5 @@ public interface FdKvConfig {
 
     boolean isAsyncWrite();
 
+    String getRiakUrl();
 }
