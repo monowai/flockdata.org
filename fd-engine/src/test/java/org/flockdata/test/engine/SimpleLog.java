@@ -20,10 +20,7 @@
 package org.flockdata.test.engine;
 
 import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.model.ChangeEvent;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.track.model.*;
 
 /**
  * Created by mike on 6/03/15.
@@ -117,15 +114,20 @@ public class SimpleLog implements Log {
         return entityLog;
     }
 
-    private byte[] bytes;
+    private KvContent kvContent;
     @Override
-    public void setEntityContent(byte[] entityContent) {
-        this.bytes = entityContent;
+    public void setContent(KvContent kvContent) {
+        this.kvContent = kvContent;
     }
 
     @Override
-    public byte[] getEntityContent() {
-        return bytes;
+    public Double getProfileVersion() {
+        return 0d;
+    }
+
+    @Override
+    public KvContent getContent() {
+        return kvContent;
     }
 
     @Override

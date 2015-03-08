@@ -19,7 +19,7 @@
 
 package org.flockdata.search.service;
 
-import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.springframework.amqp.core.Message;
@@ -42,7 +42,7 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
-                return FlockDataJsonFactory.getObjectMapper().readValue(((String) content).getBytes(CompressionHelper.charSet), EntitySearchChanges.class);
+                return FlockDataJsonFactory.getObjectMapper().readValue(((String) content).getBytes(ObjectHelper.charSet), EntitySearchChanges.class);
             }
         } catch (IOException e1) {
             e1.printStackTrace();

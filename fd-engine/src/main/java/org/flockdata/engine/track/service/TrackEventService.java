@@ -20,6 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.TrackEventDao;
+import org.flockdata.engine.schema.model.ChangeEventNode;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.ChangeEvent;
@@ -53,13 +54,14 @@ public class TrackEventService {
      */
     @Transactional(propagation =  Propagation.SUPPORTS)
     public ChangeEvent processEvent(String eventCode) {
-        Company company = securityHelper.getCompany();
-        return processEvent(company, eventCode);
+        //Company company = securityHelper.getCompany();
+        return processEvent(null, eventCode);
     }
 
     @Transactional(propagation =  Propagation.SUPPORTS)
     public ChangeEvent processEvent(Company company, String eventCode) {
-        return trackEventDao.createEvent(company, eventCode);
+        //return trackEventDao.createEvent(company, eventCode);
+        return new ChangeEventNode(eventCode);
     }
 
     public Set<ChangeEvent> getCompanyEvents(Long id) {

@@ -19,10 +19,12 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
@@ -55,7 +57,7 @@ public class AttachmentTests extends ESBase {
         Map<String, Object> json = Helper.getBigJsonText(20);
         Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entity), new KvContentBean(1l, new ContentInputBean(json)));
         changeA.setAttachment(Helper.getPdfDoc());
 
         // FortB will have

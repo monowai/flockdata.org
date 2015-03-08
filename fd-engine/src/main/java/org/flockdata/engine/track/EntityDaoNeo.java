@@ -29,11 +29,11 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.service.KeyGenService;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -271,13 +271,13 @@ public class EntityDaoNeo {
         return "Neo4J is OK";
     }
 
-    public Log prepareLog(Company company, FortressUser fUser, ContentInputBean entityContent, TxRef txRef, Log previousChange) throws FlockException {
-        ChangeEvent event = trackEventService.processEvent(company, entityContent.getEvent());
-        Log changeLog = new LogNode(fUser, entityContent, txRef);
+    public Log prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, Log previousChange) throws FlockException {
+        ChangeEvent event = trackEventService.processEvent(company, payLoad.getContentInput().getEvent());
+        Log changeLog = new LogNode(fUser, payLoad.getContentInput(), txRef);
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = kvService.prepareLog(changeLog, entityContent);
+            changeLog = kvService.prepareLog(payLoad, changeLog);
         } catch (IOException e) {
             throw new FlockException("Unexpected error talking to What Service", e);
         }

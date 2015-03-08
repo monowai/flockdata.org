@@ -58,6 +58,11 @@ public class ChangeEventNode implements ChangeEvent {
     protected ChangeEventNode() {
     }
 
+    public ChangeEventNode(String name) {
+        this.name = name;
+        this.code = name;
+    }
+
     @JsonIgnore
     public Long getId() {
         return id;

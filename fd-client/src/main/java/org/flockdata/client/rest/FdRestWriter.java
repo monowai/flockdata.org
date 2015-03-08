@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpHelper;
-import org.flockdata.helper.CompressionHelper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.*;
@@ -479,7 +479,7 @@ public class FdRestWriter implements FdWriter {
         return new HttpHeaders() {
             {
                 setContentType(MediaType.APPLICATION_JSON);
-                set("charset", CompressionHelper.charSet.toString());
+                set("charset", ObjectHelper.charSet.toString());
 
                 if (compress)
                     set("Accept-Encoding", "gzip,deflate");
@@ -507,7 +507,7 @@ public class FdRestWriter implements FdWriter {
                     set("api-key", apiKey);
 
                 setContentType(MediaType.APPLICATION_JSON);
-                set("charset", CompressionHelper.charSet.toString());
+                set("charset", ObjectHelper.charSet.toString());
 
                 if (compress)
                     set("Accept-Encoding", "gzip,deflate");

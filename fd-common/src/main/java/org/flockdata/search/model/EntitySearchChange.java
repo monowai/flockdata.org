@@ -22,7 +22,6 @@ package org.flockdata.search.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
@@ -73,15 +72,7 @@ public class EntitySearchChange implements SearchChange {
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
     }
-    /**
-     *
-     * @param entity  server side entity
-     * @param content content the user wants stored
-     * @deprecated use the EntityBean version of this
-     */
-    public EntitySearchChange(Entity entity, ContentInputBean content) {
-        this ( new EntityBean(entity), content);
-    }
+
     /**
      *
      * @param entity  server side entity
@@ -117,7 +108,7 @@ public class EntitySearchChange implements SearchChange {
         setWhen(new DateTime(entity.getWhenCreated()));
     }
 
-    public EntitySearchChange(EntityBean entity, EntityContent content) {
+    public EntitySearchChange(EntityBean entity, KvContent content) {
         this(entity);
         if ( content != null ) {
             //ToDo: this attachment might be compressed
@@ -127,7 +118,7 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    public EntitySearchChange(EntityBean entity, EntityContent content, Log log) {
+    public EntitySearchChange(EntityBean entity, Log log, KvContent content) {
         this(entity, content);
         if ( log !=null ) {
             this.event= log.getEvent().getCode();

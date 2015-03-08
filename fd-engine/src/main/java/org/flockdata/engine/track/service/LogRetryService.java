@@ -97,13 +97,10 @@ public class LogRetryService {
     @Transactional
     TrackResultBean writeLogTx(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         ContentInputBean content = trackResultBean.getContentInput();
+
         boolean entityExists = (trackResultBean.getEntityInputBean() != null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
 
-        Entity entity;
-//        if (entityExists)
-//            entity = entityDao.findEntity(trackResultBean.getEntity().getId(), true);
-//        else
-        entity = trackResultBean.getEntity();
+        Entity entity = trackResultBean.getEntity();
 
         assert entity != null;
 
@@ -120,7 +117,7 @@ public class LogRetryService {
         }
         //resultBean.setEntity(entity);
         trackResultBean.setLogResult(
-                createLog(entity, content, thisFortressUser)
+                createLog(trackResultBean, thisFortressUser)
         );
         return trackResultBean;
 
@@ -129,25 +126,24 @@ public class LogRetryService {
     /**
      * Event log record for the supplied entity from the supplied input
      *
-     * @param entity           entity the caller is authorised to work with
-     * @param content          trackLog details containing the data to log
+     * @param payLoad          trackLog details containing the data to log
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
     @Transactional
-    LogResultBean createLog(Entity entity, ContentInputBean content, FortressUser thisFortressUser) throws FlockException, IOException {
+    LogResultBean createLog(TrackResultBean payLoad, FortressUser thisFortressUser) throws FlockException, IOException {
         // Warning - making this private means it doesn't get a transaction!
         //entity = trackService.getEntity(entity);
-        Fortress fortress = entity.getFortress();
+        Fortress fortress = payLoad.getEntity().getFortress();
         // ToDo: ??? noticed during tracking over AMQP
         if (thisFortressUser != null) {
             if (thisFortressUser.getFortress() == null)
-                thisFortressUser.setFortress(entity.getFortress());
+                thisFortressUser.setFortress(payLoad.getEntity().getFortress());
         }
 
-        LogResultBean resultBean = new LogResultBean(content);
+        LogResultBean resultBean = new LogResultBean(payLoad.getContentInput());
         //ToDo: May want to track a "View" event which would not change the What data.
-        if (!content.hasData()) {
+        if (!payLoad.getContentInput().hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
             resultBean.setMessage("No content information provided. Ignoring this request");
             logger.debug(resultBean.getMessage());
@@ -155,32 +151,32 @@ public class LogRetryService {
         }
 
         // Transactions checks
-        TxRef txRef = txService.handleTxRef(content, fortress.getCompany());
+        TxRef txRef = txService.handleTxRef(payLoad.getContentInput(), fortress.getCompany());
         resultBean.setTxReference(txRef);
 
-        EntityLog lastLog = getLastLog(entity);
-        logger.debug("createLog ContentWhen {}, lastLogWhen {}, log {}", new DateTime(content.getWhen()),
+        EntityLog lastLog = getLastLog(payLoad.getEntity());
+        logger.debug("createLog ContentWhen {}, lastLogWhen {}, log {}", new DateTime(payLoad.getContentInput().getWhen()),
                 (lastLog == null ? "[null]" : new DateTime(lastLog.getFortressWhen()))
                 , lastLog);
 
-        DateTime contentWhen = (content.getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(content.getWhen()));
+        DateTime contentWhen = (payLoad.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(payLoad.getContentInput().getWhen()));
 
         // Is this content historic relative to what we know?
-        lastLog = resolveHistoricLog(entity, lastLog, contentWhen);
+        lastLog = resolveHistoricLog(payLoad.getEntity(), lastLog, contentWhen);
 
-        if (content.getEvent() == null) {
-            content.setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
+        if (payLoad.getContentInput().getEvent() == null) {
+            payLoad.getContentInput().setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
         }
 
-        Log preparedLog = entityDao.prepareLog(fortress.getCompany(), thisFortressUser, content, txRef, (lastLog != null ? lastLog.getLog() : null));
+        Log preparedLog = entityDao.prepareLog( fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);
-            boolean unchanged = kvService.isSame(entity, lastLog.getLog(), preparedLog);
+            boolean unchanged = kvService.isSame(payLoad.getEntity(), lastLog.getLog(), preparedLog);
             if (unchanged) {
-                logger.debug("Ignoring a change we already have {}", content);
+                logger.debug("Ignoring a change we already have {}", payLoad);
                 resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
-                if (content.isForceReindex()) { // Caller is recreating the search index
+                if (payLoad.getContentInput().isForceReindex()) { // Caller is recreating the search index
                     resultBean.setStatus((ContentInputBean.LogStatus.REINDEX));
                     resultBean.setLogToIndex(lastLog);
                     resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
@@ -195,23 +191,23 @@ public class LogRetryService {
         } else { // first ever log for the entity
             logger.debug("createLog - first log created {}", contentWhen);
             //if (!entity.getLastUser().getId().equals(thisFortressUser.getId())){
-            entity.setLastUser(thisFortressUser);
-            entity.setCreatedBy(thisFortressUser);
-            if (entity.getCreatedBy() == null)
-                entity.setCreatedBy(thisFortressUser);
+            payLoad.getEntity().setLastUser(thisFortressUser);
+            payLoad.getEntity().setCreatedBy(thisFortressUser);
+            if (payLoad.getEntity().getCreatedBy() == null)
+                payLoad.getEntity().setCreatedBy(thisFortressUser);
         }
 
         // Prepares the change
-        content.setChangeEvent(preparedLog.getEvent());
+        payLoad.getContentInput().setChangeEvent(preparedLog.getEvent());
         resultBean.setLog(preparedLog);
 
-        if (entity.getId() == null)
-            content.setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
+        if (payLoad.getEntity().getId() == null)
+            payLoad.getContentInput().setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
         else
-            content.setStatus(ContentInputBean.LogStatus.OK);
+            payLoad.getContentInput().setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLog newLog = entityDao.addLog(entity, preparedLog, contentWhen);
+        EntityLog newLog = entityDao.addLog(payLoad.getEntity(), preparedLog, contentWhen);
 
         resultBean.setFdWhen(newLog.getSysWhen());
 
