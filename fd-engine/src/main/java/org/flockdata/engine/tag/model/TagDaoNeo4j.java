@@ -268,7 +268,7 @@ public class TagDaoNeo4j {
 
     }
 
-    //@Cacheable(value = "companyTag", unless = "#result == null")
+    @Cacheable(value = "companyTag", unless = "#result == null")
     public Node findTagNode(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
