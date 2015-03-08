@@ -24,7 +24,7 @@
         },
         {
           "code": "#row[country]+'-'+#row[name]",
-          "description": "'CountryName'"
+          "description": "'StateName'"
         }
 
       ]
