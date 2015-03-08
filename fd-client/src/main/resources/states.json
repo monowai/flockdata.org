@@ -21,7 +21,12 @@
         {
           "code": "us-census",
           "description": "'USCensus'"
+        },
+        {
+          "code": "#row[country]+'-'+#row[name]",
+          "description": "'StateName'"
         }
+
       ]
     },
     "us-census":{
