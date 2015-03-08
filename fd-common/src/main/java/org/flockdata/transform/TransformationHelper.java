@@ -161,15 +161,23 @@ public class TransformationHelper {
         Collection<AliasInputBean> results = new ArrayList<>(aliases.size());
 
         for (AliasInputBean aliasInputBean : aliases) {
-            Object o = row.get(aliasInputBean.getCode());
-            if (o != null) {
-                AliasInputBean alias = new AliasInputBean(StringUtils.trim(o.toString()));
-                String d = aliasInputBean.getDescription();
-                if (StringUtils.trim(d) != null)
-                    alias.setDescription(evaluateExpression(row, d).toString());
-                results.add(alias);
+            Object colValue = row.get(aliasInputBean.getCode());
+            //if (colValue != null) {
+                Object code;
+                if ( row.containsKey(aliasInputBean.getCode()))
+                    code = colValue.toString();
+                else
+                    code = getValue(row, aliasInputBean.getCode());
+                if ( code != null ) {
+                    String codeValue = code.toString();
+                    AliasInputBean alias = new AliasInputBean(codeValue);
+                    String d = aliasInputBean.getDescription();
+                    if (StringUtils.trim(d) != null)
+                        alias.setDescription(evaluateExpression(row, d).toString());
+                    results.add(alias);
+                }
             }
-        }
+        //}
         return results;
 
     }
@@ -350,6 +358,15 @@ public class TransformationHelper {
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }
+        Object result = getValue(row, expression);
+        if (result == null)
+            return getNullSafeDefault(defaultValue, colDef);
+        return result.toString().trim();
+
+
+    }
+
+    private static Object getValue(Map<String, Object> row, String expression) {
         Object result;
         try {
             if (row.containsKey(expression))
@@ -357,14 +374,10 @@ public class TransformationHelper {
             else
                 result = evaluateExpression(row, expression);
         } catch (ExpressionException e) {
-            logger.trace("Expression error parsing " + colDef + ". Returning default value");
+            logger.trace("Expression error parsing [" + expression + "]. Returning default value");
             result = null;
         }
-        if (result == null)
-            return getNullSafeDefault(defaultValue, colDef);
-        return result.toString().trim();
-
-
+        return result;
     }
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
