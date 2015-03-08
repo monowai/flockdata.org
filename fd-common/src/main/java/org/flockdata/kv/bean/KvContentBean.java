@@ -19,59 +19,130 @@
 
 package org.flockdata.kv.bean;
 
-import org.flockdata.track.bean.EntityBean;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.KvContent;
+import org.flockdata.track.model.Log;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 /**
+ * Encapsulate KV Content properties
  * User: mike
  * Date: 19/11/14
  * Time: 2:41 PM
  */
-public class KvContentBean {
-    private byte[] entityContent;
-    private Long logId;
+public class KvContentBean implements KvContent, Serializable{
+    private Long id;
+    private String checksum;
+    private ContentInputBean content = null;
+    private String bucket = null;
 
-    public EntityBean getEntityBean() {
-        return entityBean;
+    KvContentBean() {
     }
 
-    private EntityBean entityBean;
-
-    public KvContentBean() {
+    public KvContentBean(Log log, ContentInputBean contentInput) {
+        this.content = contentInput;
+        if ( log!=null )
+            id = log.getId();
     }
+    public KvContentBean(Log log, Map<String, Object> oResult) {
+        this(oResult);
+        if ( log!=null )
+            id = log.getId();
+
+    }
+
+    public KvContentBean(Map<String, Object> json) {
+        this.content = new ContentInputBean(json);
+    }
+
+    public KvContentBean(Long key, ContentInputBean content){
+        this();
+        this.content = content;
+        this.id = key;
+    }
+
 
     public KvContentBean(TrackResultBean trackResultBean) {
         this();
-        this.entityBean = new EntityBean(trackResultBean.getEntity());
+        this.bucket = parseBucket(trackResultBean.getEntity());
         if (trackResultBean.getLogResult().getLog() != null) {
-            this.logId = trackResultBean.getLogResult().getLog().getId();
-            this.entityContent = trackResultBean.getLogResult().getLog().getEntityContent();
+            this.id = trackResultBean.getLogResult().getLog().getId();
+            this.content = trackResultBean.getContentInput();
+            content.setCallerRef(trackResultBean.getEntity().getCallerRef());
+            content.setMetaKey(trackResultBean.getEntity().getMetaKey());
         }
-        trackResultBean.getEntity().getMetaKey();
+    }
+
+    public static String parseBucket(Entity entity) {
+        if ( entity == null )
+            return null;
+        return (entity.getFortress().getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
     }
 
 
-    public byte[] getEntityContent() {
-        return entityContent;
+    public ContentInputBean getContent() {
+        return content;
     }
 
-    public void setEntityContent(byte[] entityContent) {
-        this.entityContent = entityContent;
+    @JsonIgnore
+    public String getAttachment() {
+        if ( content == null )
+            return null;
+        return content.getAttachment();
     }
 
-    public Long getLogId() {
-        return logId;
+    @JsonIgnore
+    public Map<String, Object> getWhat() {
+        if ( content == null )
+            return null;
+
+        return content.getWhat();
     }
 
-    public void setLogId(Long logId) {
-        this.logId = logId;
+    @JsonIgnore
+    /**
+     *
+     * returns the version of the contentProfile used to create the payload
+     */
+    public Double getVersion(){
+        return content.getProfileVersion();
+    }
+
+    public String getChecksum() throws IOException {
+        if ( checksum!=null )
+            return checksum;
+        Checksum crcChecksum = new CRC32();
+        byte[] bytes;
+        if ( getAttachment() != null )
+            bytes =getAttachment().getBytes();
+        else
+            bytes= JsonUtils.getObjectAsJsonBytes(getWhat());
+        crcChecksum.update(bytes, 0, bytes.length);
+        checksum = Long.toHexString(crcChecksum.getValue()).toUpperCase();
+        return checksum;
     }
 
     @Override
-    public String toString() {
-        return "KvContentBean{" +
-                "logId=" + logId +
-                ", entityBean=" + entityBean +
-                '}';
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public String getBucket() {
+        return bucket;
+    }
+
+    @Override
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
     }
 }

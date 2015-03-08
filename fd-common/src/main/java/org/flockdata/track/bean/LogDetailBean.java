@@ -19,8 +19,8 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.EntityContent;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.KvContent;
 
 /**
  * User: Mike Holdsworth
@@ -31,7 +31,7 @@ public class LogDetailBean {
     private LogDetailBean() {
     }
 
-    public LogDetailBean(EntityLog log, EntityContent what) {
+    public LogDetailBean(EntityLog log, KvContent what) {
         this();
         this.log = log;
         this.what = what;
@@ -39,13 +39,13 @@ public class LogDetailBean {
     }
 
     private EntityLog log;
-    private EntityContent what;
+    private KvContent what;
 
     public EntityLog getLog() {
         return this.log;
     }
 
-    public EntityContent getWhat() {
+    public KvContent getWhat() {
         return this.what;
     }
 

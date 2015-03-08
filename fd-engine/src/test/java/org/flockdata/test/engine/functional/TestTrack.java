@@ -23,13 +23,10 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityContent;
+import org.flockdata.track.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -258,7 +255,7 @@ public class TestTrack extends EngineBase {
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         for (EntityLog entityLog : logs) {
-            EntityContent content = kvService.getContent(entity, entityLog.getLog());
+            KvContent content = kvService.getContent(entity, entityLog.getLog());
             assertNotNull(content);
             assertNotNull(content.getWhat());
             assertFalse(content.getWhat().isEmpty());
@@ -554,7 +551,7 @@ public class TestTrack extends EngineBase {
         EntityLog lastLog = trackService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getLogInputBean());
-        EntityContent content = trackService.getWhat(entity, lastLog.getLog());
+        KvContent content = trackService.getWhat(entity, lastLog.getLog());
         assertNotNull(content);
         assertTrue(content.getWhat().containsKey("house"));
     }
@@ -739,7 +736,7 @@ public class TestTrack extends EngineBase {
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
 
-        EntityContent content = kvService.getContent(trackResultBean.getEntity(), lastLog.getLog());
+        KvContent content = kvService.getContent(trackResultBean.getEntity(), lastLog.getLog());
         assertEquals(json.get("Athlete"), content.getWhat().get("Athlete"));
 
         // Second call should say that nothing has changed
@@ -772,7 +769,7 @@ public class TestTrack extends EngineBase {
             Log change = log.getLog();
             assertNotNull(change.getEvent());
             assertNotNull(change.getWho().getCode());
-            EntityContent whatResult = trackService.getWhat(entity, change);
+            KvContent whatResult = trackService.getWhat(entity, change);
             assertTrue(whatResult.getWhat().containsKey("house"));
         }
     }
@@ -814,7 +811,7 @@ public class TestTrack extends EngineBase {
         entity = trackService.findByCallerRef(fortress, "TestTrack", callerRef );
         EntityLog lastLog = trackService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
-        EntityContent what = kvService.getContent(entity, lastLog.getLog());
+        KvContent what = kvService.getContent(entity, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getWhat().get("col");

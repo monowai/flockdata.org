@@ -25,6 +25,7 @@ import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -126,7 +127,7 @@ public class SearchServiceFacade {
             if (entity.getLastUser() != null)
                 fortressService.fetch(entity.getLastUser());
             Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getLog());
-            searchDocument = new EntitySearchChange(new EntityBean(entity), resultBean.getContentInput(), log);
+            searchDocument = new EntitySearchChange(new EntityBean(entity), log, new KvContentBean(log, resultBean.getContentInput()));
             if (resultBean.getTags() != null) {
                 searchDocument.setTags(resultBean.getTags());
                 searchDocument.setSearchKey(entity.getSearchKey());
@@ -171,7 +172,7 @@ public class SearchServiceFacade {
         if (entity.isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new EntitySearchChange(entity, contentInput, entityLog.getLog() );
+        searchDocument = new EntitySearchChange(entity, entityLog.getLog(), new KvContentBean(entityLog.getLog(), contentInput));
         if ( entityLog.getLog().getWho() !=null )
             searchDocument.setWho(entityLog.getLog().getWho().getCode());
         searchDocument.setTags(entityTagService.getEntityTags(company, entity.getId()));
@@ -207,8 +208,8 @@ public class SearchServiceFacade {
                 EntitySearchChange searchDocument;
                 EntityBean entityBean = new EntityBean(entity);
                 if (lastChange != null) {
-                    EntityContent content = kvGateway.getContent(entity, lastChange);
-                    searchDocument = new EntitySearchChange(entityBean, content, lastChange);
+                    KvContent content = kvGateway.getContent(entity, lastChange);
+                    searchDocument = new EntitySearchChange(entityBean, lastChange, content);
                     if ( lastChange.getWho()!=null )
                         searchDocument.setWho(lastChange.getWho().getCode());
                 } else {

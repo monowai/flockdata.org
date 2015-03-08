@@ -20,7 +20,6 @@
 package org.flockdata.kv;
 
 import org.flockdata.kv.service.KvService;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -30,13 +29,15 @@ import java.util.Map;
  * Time: 1:22 PM
  */
 public interface FdKvConfig {
-    @Value("${fd-engine.kv.store}")
-    void setKvStore(String kvStore);
 
+    void setKvStore(KvService.KV_STORE kvStore);
+
+    public void setKvStore(String kvStore);
     KvService.KV_STORE getKvStore();
 
     Map<String, String> getHealth();
 
     boolean isAsyncWrite();
 
+    String getRiakUrl();
 }

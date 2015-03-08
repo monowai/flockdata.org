@@ -24,10 +24,7 @@ import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.model.ChangeEvent;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Direction;
@@ -58,14 +55,18 @@ public class LogNode implements Log {
     @RelatedToVia(elementClass = EntityLogRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
     private EntityLogRelationship entityLog;
 
-    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
-    @Fetch
-    private ChangeEventNode event;
+    // DAT-344
+//    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
+//    @Fetch
+//    private ChangeEventNode event;
+    private String event;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
     private String storage;
     private String checkSum=null;
+    private Double profileVersion = 1d;
+
     @Indexed (unique =  true)
     private String logKey;
 
@@ -170,7 +171,11 @@ public class LogNode implements Log {
     }
 
     public ChangeEvent getEvent() {
-        return event;
+        // DAT-344
+        if ( event== null )
+            return null;
+
+        return new ChangeEventNode(event);
     }
 
     public boolean isCompressed() {
@@ -188,8 +193,9 @@ public class LogNode implements Log {
 
     @Override
     public void setEvent(ChangeEvent event) {
-        this.event = (ChangeEventNode) event;
-
+        // DAT-344
+        //this.event = (ChangeEventNode) event;
+        this.event = event.getName();
     }
 
     public boolean equals(Object other) {
@@ -215,19 +221,28 @@ public class LogNode implements Log {
     }
 
     @Transient
-    private byte[] entityContent = null;
+    private KvContent content = null;
 
     @Override
     @JsonIgnore
-    public void setEntityContent(byte[] entityContent) {
-        this.entityContent = entityContent;
+    public void setContent(KvContent kvContent) {
+        this.content = kvContent;
+        if ( kvContent.getContent()!=null ){
+            this.profileVersion = kvContent.getContent().getProfileVersion();
+        }
 
     }
 
     @Override
+    public Double getProfileVersion() {
+        return profileVersion;
+    }
+
+
+    @Override
     @JsonIgnore
-    public byte[] getEntityContent() {
-        return entityContent;
+    public KvContent getContent() {
+        return content;
     }
 
     @Override

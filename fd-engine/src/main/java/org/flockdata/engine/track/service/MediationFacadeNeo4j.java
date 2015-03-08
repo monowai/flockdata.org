@@ -67,6 +67,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Non transactional coordinator for mediation services
@@ -309,7 +311,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
 
         logger.debug("About to create docTypes");
-        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, inputBeans.iterator().next());
+        EntityInputBean first = inputBeans.iterator().next();
+        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, first );
         logger.debug("Dispatch docTypes request. About to create tags");
 
         createTags(fortress.getCompany(), getTags(inputBeans));
@@ -318,7 +321,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
         List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
         // We have to wait for the docType before proceeding to create entities
-        docType.get();
+        try {
+            docType.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            logger.error("Time out looking/creating docType " + first.getDocumentName());
+            return null;
+        }
+
         StopWatch watch = new StopWatch();
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());

@@ -76,9 +76,11 @@ public interface Log {
 
     EntityLog getEntityLog();
 
-    void setEntityContent(byte[] entityContent);
+    void setContent(KvContent entityContent);
 
-    byte[] getEntityContent();
+    public Double getProfileVersion();
+
+    KvContent getContent();
 
     void setEntityLog(EntityLog newLog);
 
