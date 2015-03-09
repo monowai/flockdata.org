@@ -182,7 +182,7 @@ public class FileProcessor {
                 JsonToken currentToken = jParser.nextToken();
                 long then = new DateTime().getMillis();
                 JsonNode node;
-                if (currentToken == JsonToken.START_ARRAY) {
+                if (currentToken == JsonToken.START_ARRAY || currentToken == JsonToken.START_OBJECT) {
                     while (currentToken != null && currentToken != JsonToken.END_OBJECT) {
 
                         while (currentToken != null && jParser.nextToken() != JsonToken.END_ARRAY) {
@@ -210,7 +210,6 @@ public class FileProcessor {
 
 
         } finally {
-            trackBatcher.flush();
             writer.close(trackBatcher);
         }
         if (!referenceInputBeans.isEmpty()) {
@@ -286,7 +285,6 @@ public class FileProcessor {
 
                 }
             } finally {
-                trackBatcher.flush();
                 writer.close(trackBatcher);
             }
             if (!referenceInputBeans.isEmpty()) {
