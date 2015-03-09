@@ -367,6 +367,8 @@
                 <version>2.5</version>
                 <executions>
                     <execution>
+                        <id>make-a-jar</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>test-jar</goal>
                             <goal>jar</goal>
