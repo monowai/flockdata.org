@@ -21,18 +21,12 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.TrackBatcher;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -105,7 +98,8 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        fileProcessor.processFile(profile, "/object-example.json", 0, writer,company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/object-example.json", 0, getFdWriter(),company, defaults  );
+        assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
 
     @Test
@@ -119,55 +113,10 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        fileProcessor.processFile(profile, "/array-example.json", 0, writer,company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/array-example.json", 0, getFdWriter(),company, defaults  );
+        assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 
 
-    FdWriter writer = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
 
-        @Override
-        public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            ObjectMapper om = new ObjectMapper();
-            try {
-                om.writeValueAsString(tagInputBeans);
-            } catch (Exception e) {
-                logger.error("Unexpected", e);
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            ObjectMapper om = new ObjectMapper();
-            assertEquals(1, entityBatch.size());
-            assertNotNull(entityBatch.iterator().next().getContent());
-            try {
-                om.writeValueAsString(entityBatch);
-            } catch (Exception e) {
-                logger.error("Unexpected", e);
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
-        }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            return false;
-        }
-
-        @Override
-        public void close(TrackBatcher trackBatcher) {
-
-        }
-    };
 }
