@@ -127,6 +127,12 @@
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+
                 </executions>
             </plugin>
         </plugins>
