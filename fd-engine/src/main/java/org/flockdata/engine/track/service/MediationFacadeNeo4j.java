@@ -322,10 +322,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Collection<TrackResultBean> allResults = new ArrayList<>();
         // We have to wait for the docType before proceeding to create entities
         try {
-            docType.get(5, TimeUnit.SECONDS);
+            // A long time, but this is to avoid test issues on the low spec build box
+            docType.get(10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             logger.error("Time out looking/creating docType " + first.getDocumentName());
-            return null;
+            throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
         }
 
         StopWatch watch = new StopWatch();
