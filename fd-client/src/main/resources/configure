@@ -39,4 +39,4 @@ if [ ! -x "$JAVA" ]; then
 fi
 findBaseDirAndCdThere
 
-$JAVA -classpath $FD_APP/fd-client* org.flockdata.client.Configure -Dlog4j.configuration=file://${FD_CONFIG}/log4j.xml -c ${FD_CONFIG} $1 $2 $3
+$JAVA -Dlog4j.configuration=file://${FD_CONFIG}/log4j.xml -classpath $FD_APP/fd-* org.flockdata.client.Configure  -c ${FD_CONFIG} $1 $2 $3
