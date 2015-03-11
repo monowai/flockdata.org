@@ -22,11 +22,11 @@ function findBaseDirAndCdThere {
 
   cd "$FD_HOME"
   FD_LOG=$FD_HOME/log
-
-      if [ ! -d "$FD_LOG" ]; then
-          mkdir "$FD_LOG"
-      fi
+  if [ ! -d "$FD_LOG" ]; then
+    mkdir "$FD_LOG"
+  fi
 }
+
 if [ -x "$JAVA_HOME/bin/java" ]; then
     JAVA="$JAVA_HOME/bin/java"
 else
@@ -40,7 +40,7 @@ fi
 
 findBaseDirAndCdThere
 for fileParam in "$@"
-    do $JAVA -classpath $FD_APP/fd-client.jar org.flockdata.client.Importer -Dlog4j.configuration=file://${FD_CONFIG}/log4j.xml -c ${FD_CONFIG} "$fileParam"
+        do $JAVA -Dlog4j.configuration=file://${FD_CONFIG}/log4j.xml -classpath $FD_APP/fd-* org.flockdata.client.Importer -c ${FD_CONFIG} "$fileParam"
 done
 
 
