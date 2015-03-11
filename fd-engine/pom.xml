@@ -362,16 +362,24 @@
             </plugin>
 
             <plugin>
-                <!--Including a JAR goal causes the Tomcat7 artifact to build incorrectly-->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.6</version>
                 <executions>
                     <execution>
+                        <id>make-test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>make-engine-jar</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+
                 </executions>
             </plugin>
 
@@ -381,6 +389,7 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
+                        <id>test-jar</id>
                         <phase>install</phase>
                         <goals>
                             <goal>install-file</goal>
@@ -392,6 +401,22 @@
                             <version>${project.version}</version>
                             <file>
                                 ${project.build.directory}/${project.artifactId}-${project.version}-tests.jar
+                            </file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>engine-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <groupId>${project.groupId}</groupId>
+                            <version>${project.version}</version>
+                            <file>
+                                ${project.build.directory}/${project.artifactId}-${project.version}.jar
                             </file>
                         </configuration>
                     </execution>
