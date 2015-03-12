@@ -109,7 +109,7 @@ public class TestCallerRef extends EngineBase {
      * @throws Exception
      */
     @Test
-    @Repeat(5)
+    //@Repeat(5)
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser(monowai, "dupex");
