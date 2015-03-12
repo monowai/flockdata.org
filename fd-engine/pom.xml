@@ -364,20 +364,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>
-
-
+                <version>2.6</version>
                 <executions>
                     <execution>
-                        <id>make-a-test-jar</id>
-                        <phase>package</phase>
+                        <id>make-test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>make-a-jar</id>
-                        <phase>package</phase>
+                        <id>make-engine-jar</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -385,13 +382,30 @@
 
                 </executions>
             </plugin>
-            <!--This plugin will deploy the jar in local repository-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>2.4</version>
                 <executions>
                     <execution>
+                        <id>test-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <groupId>${project.groupId}</groupId>
+                            <version>${project.version}</version>
+                            <file>
+                                ${project.build.directory}/${project.artifactId}-${project.version}-tests.jar
+                            </file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>engine-jar</id>
                         <phase>install</phase>
                         <goals>
                             <goal>install-file</goal>
@@ -408,18 +422,20 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <!--http://tomcat.apache.org/maven-plugin-trunk/tomcat7-maven-plugin/exec-war-only-mojo.html#accessLogValveFormat-->
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.1</version>
+
                 <executions>
                     <execution>
                         <id>tomcat-run</id>
                         <goals>
                             <goal>exec-war-only</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>install</phase>
                         <configuration>
                             <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->
@@ -482,7 +498,6 @@
                     </warRunDependencies>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 

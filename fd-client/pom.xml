@@ -123,20 +123,13 @@
                 <version>2.5</version>
                 <executions>
                     <execution>
-                        <id>make-a-test-jar</id>
+                        <id>make-jars</id>
                         <phase>package</phase>
                         <goals>
                             <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>make-a-jar</id>
-                        <phase>package</phase>
-                        <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
-
                 </executions>
             </plugin>
         </plugins>
