@@ -19,10 +19,11 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 
 import java.util.Collection;
 
@@ -59,9 +60,9 @@ public class TrackResultBean {
      * @param entity  internal node
      * @param entityInputBean user supplied content to create entity
      */
-    public TrackResultBean(Entity entity, EntityInputBean entityInputBean) {
+    public TrackResultBean(Fortress fortress, Entity entity, EntityInputBean entityInputBean) {
         this.entity = entity;
-        this.entityBean = new EntityBean(entity);
+        this.entityBean = new EntityBean(fortress, entity);
         this.entityInputBean = entityInputBean;
     }
 
@@ -71,6 +72,7 @@ public class TrackResultBean {
         this.entity = entity;
 
     }
+
 
     public EntityBean getEntityBean() {
         return entityBean;

@@ -21,6 +21,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
 
@@ -51,6 +52,11 @@ public class EntityBean {
     EntityBean (){
 
     }
+    public EntityBean(Fortress fortress, Entity entity){
+        this (entity);
+        if ( indexName == null && fortress !=null )
+            indexName = fortress.getIndexName();
+    }
     public EntityBean(Entity entity){
         this();
         if ( entity != null ) {
@@ -60,7 +66,9 @@ public class EntityBean {
             documentType = entity.getDocumentType();
             callerRef = entity.getCallerRef();
             whenCreated = entity.getWhenCreated();
-            indexName = entity.getFortress().getIndexName();
+            if ( entity.getFortress()!=null )
+                indexName = entity.getFortress().getIndexName();
+
             description = entity.getDescription();
             searchSuppressed = entity.isSearchSuppressed();
             name = entity.getName();

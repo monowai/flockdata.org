@@ -31,9 +31,7 @@ import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
-import org.flockdata.engine.query.endpoint.QueryEP;
 import org.flockdata.engine.query.service.QueryService;
-import org.flockdata.engine.track.endpoint.TrackEP;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;
@@ -135,8 +133,7 @@ public class TestFdIntegration {
 
     @Autowired
     TrackService trackService;
-    @Autowired
-    TrackEP trackEP;
+
     @Autowired
     RegistrationService regService;
 
@@ -161,9 +158,6 @@ public class TestFdIntegration {
 
     @Autowired
     QueryService queryService;
-
-    @Autowired
-    QueryEP queryEP;
 
     @Autowired
     KvService kvService;
@@ -767,7 +761,6 @@ public class TestFdIntegration {
 
     }
 
-
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
                         .header("api-key", su.getApiKey())
@@ -777,7 +770,6 @@ public class TestFdIntegration {
 
         return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), EsSearchResult.class);
     }
-
 
     /**
      * Suppresses the indexing of a log record even if the fortress is set to index everything

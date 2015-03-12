@@ -151,7 +151,7 @@ public class KvServiceTest {
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
-        TrackResultBean trackResultBean = new TrackResultBean(entity, entityInputBean);
+        TrackResultBean trackResultBean = new TrackResultBean(null, entity, entityInputBean);
 
         // Create a log with a random primary key
         Log graphLog = new SimpleLog(System.currentTimeMillis());
@@ -266,7 +266,7 @@ public class KvServiceTest {
         //inputBean.setContent(contentInputBean);
 
         try {
-            TrackResultBean tr = new TrackResultBean(entity, inputBean);
+            TrackResultBean tr = new TrackResultBean(null, entity, inputBean);
             KvContentBean kvContentBean = new KvContentBean(tr);
             kvService.doKvWrite(kvContentBean);
             EntityLog entityLog = tr.getLogResult().getLogToIndex();
