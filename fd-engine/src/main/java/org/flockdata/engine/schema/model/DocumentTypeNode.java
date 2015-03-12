@@ -69,7 +69,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
 
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
-            addFortress(fortress);
+            setFortress(fortress);
         }
 
     }
@@ -79,7 +79,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
         this.id = document.getId();
     }
 
-    private void addFortress(Fortress fortress) {
+    public void setFortress(Fortress fortress) {
         this.fortress = (FortressNode) fortress;
     }
 

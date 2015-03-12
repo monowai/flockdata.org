@@ -32,6 +32,8 @@ public interface DocumentType {
 
     public String getName();
 
+    public void setFortress(Fortress fortress);
+
     Long getId();
 
     String getCode();

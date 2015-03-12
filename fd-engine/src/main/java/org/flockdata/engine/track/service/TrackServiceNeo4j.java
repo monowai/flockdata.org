@@ -453,7 +453,7 @@ public class TrackServiceNeo4j implements TrackService {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
-            if (documentType == null || documentType.getCode() == null )
+            if (documentType == null || documentType.getCode() == null || documentType.getId()==null)
                 documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
             else if ( ! documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName()) ){
                 documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());

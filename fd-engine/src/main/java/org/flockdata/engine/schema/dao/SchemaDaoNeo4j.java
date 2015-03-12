@@ -109,6 +109,9 @@ public class SchemaDaoNeo4j {
                 docResult = template.save(new DocumentTypeNode(fortress, docName));
             }
         }
+        if ( docResult!=null && docResult.getFortress() == null ){
+            docResult.setFortress(fortress);
+        }
         return docResult;
 
     }
