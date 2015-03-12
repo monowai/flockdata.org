@@ -120,18 +120,25 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
                 <executions>
                     <execution>
-                        <id>make-jars</id>
-                        <phase>package</phase>
+                        <id>make-test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>make-client-jar</id>
+                        <phase>compile</phase>
+                        <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
+
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 

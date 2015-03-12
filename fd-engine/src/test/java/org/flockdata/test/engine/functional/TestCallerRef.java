@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Repeat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -108,6 +109,7 @@ public class TestCallerRef extends EngineBase {
      * @throws Exception
      */
     @Test
+    //@Repeat(5)
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser(monowai, "dupex");
@@ -116,22 +118,29 @@ public class TestCallerRef extends EngineBase {
 
         String docType = "StressDupez";
         String callerRef = "ABC123X";
-        int runnersToCreate = 3;
+        int runnersToRun = 3;
         Collection<CallerRefRunner> runners = new ArrayList<>();
 
         CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch latch = new CountDownLatch(runnersToCreate);
+        CountDownLatch latch = new CountDownLatch(runnersToRun);
 
-        for (int i = 0; i < runnersToCreate; i++) {
+        for (int i = 0; i < runnersToRun; i++) {
             runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
         }
         startLatch.countDown();
         latch.await();
-        Thread.yield();
 
-        assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
-        for (CallerRefRunner runner : runners) {
-            assertEquals("failed to get a good result when checking if the runner worked", true, runner.getWorked());
+        try {
+            assertNotNull(trackService.findByCallerRef(fortress, docType, callerRef));
+            logger.info ("Runner Count {}", runners.size());
+            int i =1;
+
+            for (CallerRefRunner runner : runners) {
+                assertEquals("failed to get a good result when checking if the runner worked " + i, true, runner.getWorked());
+                i++;
+            }
+        } finally {
+            cleanUpGraph();
         }
 
 
@@ -151,7 +160,7 @@ public class TestCallerRef extends EngineBase {
         Fortress fortress;
         CountDownLatch latch;
         CountDownLatch startLatch;
-        int maxRun = 20;
+        int maxRun = 10;
         boolean worked = false;
 
         public CallerRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch, CountDownLatch startLatch) {
@@ -183,17 +192,16 @@ public class TestCallerRef extends EngineBase {
                     Entity byCallerRef = trackService.findByCallerRef(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
                     Assert.assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());
-                    // disabled as SDN appears to update the metaKey if multiple threads create the same callerKeyRef
-                    // https://groups.google.com/forum/#!topic/neo4j/l35zBVUA4eA
-//                    assertEquals("Entities don't match!", trackResult.getMetaKey(), byCallerRef.getMetaKey());
                     count++;
                 }
                 worked = true;
                 logger.info("{} completed", this.toString());
                 latch.countDown();
-            } catch ( ExecutionException | InterruptedException | IOException | FlockException e) {
-                logger.error("Help!!", e);
+            } catch ( ExecutionException | IOException | FlockException e) {
+                logger.error("Help!! ["+count +"]", e);
                 latch.countDown();
+            } catch (InterruptedException e){
+                logger.error("Interrupted [" + count + "]", e);
             }
 
 
