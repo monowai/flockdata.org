@@ -1,4 +1,4 @@
-[FlockData](http://FlockData.com) - Data platform and information integration service
+[FlockData](http://FlockData.com) - Powering Systems of Insight
 ===========
 
 ## Use Cases
