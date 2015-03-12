@@ -459,6 +459,7 @@ public class TrackServiceNeo4j implements TrackService {
                 documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
             }
             assert ( documentType!= null );
+            assert ( documentType.getCode() != null );
             TrackResultBean result = createEntity(fortress, documentType, inputBean);
             logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
             arb.add(result);
