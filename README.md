@@ -1,16 +1,21 @@
-[FlockData](http://FlockData.com) - Data Framework and Mediation Service
+[FlockData](http://FlockData.com) - Data platform and information integration service
 ===========
+
+## Use Cases
+* System of Insight - Power statistical based analysis such as recommendations, fraud analytics, sales patterns etc.
+* Data Lineage - what data is changing and by whom across your systems
+* System migration - move data from legacy systems and keep it available for insight purposes.
+* Information Integration - Connect your data across systems to find patterns
+* Free text searching of your business information
+* Keeping the audit data out of your transaction processing systems and provide users with full history tracking of their data
+* Recommendation engine - With your information connected, you can ask "people who brought this also brought...." questions
+* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environments.
+
 ## Project Status
 Full support for ElasticSearch 1.4x and Neo4j 2.1.x in place.
+Significant enhancements to the way FlockData profiles information to create insight.
 Resilience and reliability have been the watchwords of the day. RIAK and RabbitMQ are now supported by default.
-Working on performance and scalability.
-
-## How to get going
-You need to gain a brief understanding of two of the key FlockData scalable micro services
-* [fd-engine](fd-engine/README.md) - track changes to your Entity information - think LogStash for business data
-* [fd-search](fd-search/README.md) - find entity information tracked by fd-search into ElasticSearch
-
-Familiarise yourself with the general API on our [Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
+Working on write performance.
 
 ## Overview
 Collect, Connect Compare and Explore  - FlockData helps you find what you're looking for.
@@ -32,7 +37,7 @@ FD follows the design concepts of a [Microservice](http://martinfowler.com/artic
 
 FlockData is inspired by Domain Driven Design, ROA & SOA architectures. It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information.
 
-As loosely coupled services become the normal way to build services, tracking the information that flows across these services becomes vital when it comes to analysing issues both technically and from the business experience. FD supports this initatie by using [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) techniques. FD takes the view that activities spans your systems as a series of events. 
+Loosely coupled services have become the way to build systems to support independent scaling and reduce impact of change. Tracking the information that flows across these services becomes vital when it comes to analysing issues both technically and from the user's experience. FD supports this approach by using [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) techniques.
 
 ##Datastores
 FlockData coordinates and directs information to various highly scalable data sources to achieve its benefits. These teams are genius. 
@@ -42,16 +47,6 @@ FlockData coordinates and directs information to various highly scalable data so
 * [riak](http://basho.com/riak/)
 * [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
 
-## Use Cases
-* System of Insight - Power statistical based analysis such as recommendations, fraud analytics, sales patterns etc.
-* Data Lineage - what data is changing and by whom across your systems
-* Information Integration - Connect your data across systems to find patterns
-* Free text searching of your business information
-* Keep the audit data out of your transaction processing systems and provide users with full history tracking of their data 
-* Recommendation engine - With your information connected, you can ask "people who brought this also brought...." questions 
-* [Event Sourcing](http://martinfowler.com/eaaDev/EventSourcing.html) in complex integrated environments.
-* Discover graphs, search engines and loosely coupled application development.
-
 ## Features
 ### Search
 [ElasticSearch](htt://www.elastic.co) is a specialized database enabling you to create complex keyword queries and sophisticated aggregations that respond quickly.  Put [Kibana](http://www.elasticsearch.org/overview/kibana/) on the front and you can start to accumulate realtime dashboards that give you the pulse of change in your business. With FD tapping in to your applications, you can offer your staff Full Text Search capabilities across your actual business data - FD makes it possible to search "the latest version" of your business document, i.e. your Customer record, Invoice, Inventory item, whatever; irrespective of what underlying system created it. 
@@ -60,6 +55,14 @@ FlockData maintains your ElasticSearch data giving you cross-system search capab
 
 ### Explore
 Neo4J is a graph database that let's you explore your business information in a highly connected graph. FD will build this graph for you by using information tags that you determine to be of value. You can start exploring your enterprise information as a social graph in hours.
+
+## How to get going
+You need to gain a brief understanding of two of the key FlockData scalable micro services
+
+* [fd-engine](fd-engine/README.md) - tracks changes to your data - think LogStash for business data
+* [fd-search](fd-search/README.md) - find entity information tracked by fd-engine into ElasticSearch
+
+Familiarise yourself with the general API on our [Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
 
 ## Working with us
 Drop us a line over at [flockdata.com](http://flockdata.com/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
