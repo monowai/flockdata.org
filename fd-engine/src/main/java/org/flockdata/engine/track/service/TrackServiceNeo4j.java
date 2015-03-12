@@ -115,7 +115,7 @@ public class TrackServiceNeo4j implements TrackService {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
             entityInputBean.setMetaKey(entity.getMetaKey());
             logger.trace("Existing entity [{}]", entity);
-            TrackResultBean arb = new TrackResultBean(entity, entityInputBean);
+            TrackResultBean arb = new TrackResultBean(fortress, entity, entityInputBean);
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getContent());
             if ( entityInputBean.getContent()!=null && entityInputBean.getContent().getWhen()!=null) {
@@ -141,7 +141,7 @@ public class TrackServiceNeo4j implements TrackService {
         // this saves on having to pass the property as a method variable when
         // associating the tags
         entity.setNew();
-        TrackResultBean resultBean = new TrackResultBean(entity, entityInputBean);
+        TrackResultBean resultBean = new TrackResultBean(fortress, entity, entityInputBean);
         resultBean.setTags(
                 entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
         );
