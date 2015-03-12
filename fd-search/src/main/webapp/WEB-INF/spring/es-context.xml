@@ -7,8 +7,8 @@
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.pilato.fr/schema/elasticsearch
-       http://www.pilato.fr/schema/elasticsearch/elasticsearch-0.3.xsd
+        http://www.pilato.fr/schema/elasticsearch
+        http://www.pilato.fr/schema/elasticsearch/elasticsearch-0.3.xsd
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util.xsd">
 
