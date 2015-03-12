@@ -43,7 +43,7 @@ Loosely coupled services have become the way to build systems to support indepen
 FlockData coordinates and directs information to various highly scalable data sources to achieve its benefits. These teams are genius. 
 * [elasticsearch](https://github.com/elasticsearch/elasticsearch)
 * [neo4j](https://github.com/neo4j/neo4j)
-* [resdis](https://github.com/antirez/redis)
+* [redis](https://github.com/antirez/redis)
 * [riak](http://basho.com/riak/)
 * [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
 
