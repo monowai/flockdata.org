@@ -113,7 +113,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     @Override
     public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
         Collection<EntityTag> rlxs = new ArrayList<>();
-        Iterable<EntityTag> existingTags = getEntityTags(company, entity);
+        Iterable<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
 
         for (TagInputBean tagInput : userTags) {
 

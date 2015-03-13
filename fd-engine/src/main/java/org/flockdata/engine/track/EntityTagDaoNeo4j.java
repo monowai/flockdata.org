@@ -67,7 +67,7 @@ public class EntityTagDaoNeo4j {
     static final String FD_WHEN = "fdWhen";
 
     public EntityTag save(Entity entity, Tag tag, String relationshipName) {
-        return save(entity, tag, relationshipName, false, new HashMap<String, Object>());
+        return save(entity, tag, relationshipName, false, new HashMap<>());
     }
 
     public EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse) {
