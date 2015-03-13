@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,22 +74,25 @@ public class SchemaDaoNeo4j {
             return true;
 
         if (!tagExists(company, labelName)) {
-
-            String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
-                    "with tag " +
-                    "match (c:FDCompany) where id(c) = {cid} " +
-                    "merge (c)<-[:TAG_INDEX]-(tag) " +
-                    "return tag";
-            Map<String, Object> params = new HashMap<>();
-            params.put("name", labelName);
-            params.put("key", parseTagLabel(company, labelName));
-            params.put("cid", company.getId());
-
-            template.query(cypher, params);
-
-
+            createTagLabel(company, labelName);
         }
         return true;
+    }
+
+    @Async
+    void createTagLabel(Company company, String labelName) {
+        logger.debug("Creating Tag Labels");
+        String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
+                "with tag " +
+                "match (c:FDCompany) where id(c) = {cid} " +
+                "merge (c)<-[:TAG_INDEX]-(tag) " +
+                "return tag";
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", labelName);
+        params.put("key", parseTagLabel(company, labelName));
+        params.put("cid", company.getId());
+
+        template.query(cypher, params);
     }
 
     /**
@@ -131,9 +135,6 @@ public class SchemaDaoNeo4j {
         assert fortress != null;
         String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentTypeNode.parse(fortress, docCode);
         return documentTypeRepo.findFortressDocCode(arg);
-        //return documentTypeRepo.findBySchemaPropertyValue("companyKey", fortress.getCompany().getId() + "." +  DocumentTypeNode.parse(fortress, docName));
-        //logger.trace("Document Exists= {} - Looking for {}", dt != null, DocumentTypeNode.parse(fortress, docName));
-//        return dt;
     }
 
     private boolean tagExists(Company company, String indexName) {
@@ -227,9 +228,10 @@ public class SchemaDaoNeo4j {
         return true;
     }
 
-    public Boolean ensureSystemConstraints(Company company, String suffix) {
+    public Boolean ensureSystemConstraints(Company company) {
         logger.debug("Creating system constraints for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
+        template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
         template.query("create constraint on (t:City) assert t.key is unique", null);
         logger.debug("Created system constraints");
