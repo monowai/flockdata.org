@@ -57,7 +57,6 @@ public class RiakRepo extends AbstractKvRepo{
     @Autowired
     FdKvConfig kvConfig;
 
-
     private RiakClient getClient() throws RiakException, UnknownHostException {
         if (client!= null )
             return client;
@@ -100,6 +99,7 @@ public class RiakRepo extends AbstractKvRepo{
     }
 
     static final String bucketType = "default";
+
     public KvContent getValue(Entity entity, Log forLog) {
         try {
             Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(entity));
@@ -123,7 +123,6 @@ public class RiakRepo extends AbstractKvRepo{
         }
         return null;
     }
-
 
     public void delete(Entity entity, Log log) {
         try {

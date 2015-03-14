@@ -128,8 +128,9 @@ public class SearchServiceFacade {
                 fortressService.fetch(entity.getLastUser());
             Log log = (resultBean.getLogResult()== null ? null:resultBean.getLogResult().getLog());
             searchDocument = new EntitySearchChange(new EntityBean(entity), log, new KvContentBean(log, resultBean.getContentInput()));
-            if (resultBean.getTags() != null) {
-                searchDocument.setTags(resultBean.getTags());
+            searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, entity));
+            //if (resultBean.getTags() != null) {
+//                searchDocument.setTags(resultBean.getTags());
                 searchDocument.setSearchKey(entity.getSearchKey());
 
                 if (entity.getId() == null) {
@@ -139,9 +140,9 @@ public class SearchServiceFacade {
                 }
                 searchDocument.setSysWhen(entity.getWhenCreated());
 
-            } else {
-                searchDocument.setTags(entityTagService.getEntityTags(company, entity));
-            }
+            //} else {
+
+            //}
         return searchDocument;
     }
 
@@ -167,17 +168,17 @@ public class SearchServiceFacade {
         return true;
     }
 
-    public SearchChange prepareSearchDocument(Company company, EntityBean entity, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
-        assert entity!=null ;
-        if (entity.isSearchSuppressed())
+    public SearchChange prepareSearchDocument(Company company, TrackResultBean trackResultBean, ContentInputBean contentInput, EntityLog entityLog) throws JsonProcessingException {
+        assert trackResultBean!=null ;
+        if (trackResultBean.getEntity().isSearchSuppressed())
             return null;
         SearchChange searchDocument;
-        searchDocument = new EntitySearchChange(entity, entityLog.getLog(), new KvContentBean(entityLog.getLog(), contentInput));
+        searchDocument = new EntitySearchChange(trackResultBean.getEntityBean(), entityLog.getLog(), new KvContentBean(entityLog.getLog(), contentInput));
         if ( entityLog.getLog().getWho() !=null )
             searchDocument.setWho(entityLog.getLog().getWho().getCode());
-        searchDocument.setTags(entityTagService.getEntityTags(company, entity.getId()));
-        searchDocument.setDescription(entity.getDescription());
-        searchDocument.setName(entity.getName());
+        searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, trackResultBean.getEntity()));
+        searchDocument.setDescription(trackResultBean.getEntityBean().getDescription());
+        searchDocument.setName(trackResultBean.getEntityBean().getName());
         try {
             if (logger.isTraceEnabled())
                 logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
@@ -188,7 +189,7 @@ public class SearchServiceFacade {
         if (entityLog.getSysWhen() != 0)
             searchDocument.setSysWhen(entityLog.getSysWhen());
         else
-            searchDocument.setSysWhen(entity.getWhenCreated());
+            searchDocument.setSysWhen(trackResultBean.getEntityBean().getWhenCreated());
 
         // Used to reconcile that the change was actually indexed
         logger.trace("Preparing Search Document [{}]", entityLog);
@@ -276,12 +277,15 @@ public class SearchServiceFacade {
         LogResultBean logResultBean = trackResultBean.getLogResult();
         ContentInputBean input = trackResultBean.getContentInput();
 
-        if ( !trackResultBean.processLog())
+        if ( !trackResultBean.processLog()){
+            logger.debug("No content to send to search");
             return null;
+        }
+
 
         if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
             try {
-                return prepareSearchDocument(fortress.getCompany(), trackResultBean.getEntityBean(), input, logResultBean.getLog().getEntityLog());
+                return prepareSearchDocument(fortress.getCompany(), trackResultBean, input, logResultBean.getLog().getEntityLog());
             } catch (JsonProcessingException e) {
                 logResultBean.setMessage("Error processing JSON document");
                 logResultBean.setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);
