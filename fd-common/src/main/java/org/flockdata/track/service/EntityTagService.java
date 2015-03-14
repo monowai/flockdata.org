@@ -58,6 +58,8 @@ public interface EntityTagService {
 
     Collection<EntityTag> getEntityTags(Company company, Long entity);
 
+    Iterable<EntityTag> getEntityTagsWithGeo(Company company, Entity entity);
+
     void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
     void deleteEntityTags(Entity entity, EntityTag value) throws FlockException;
@@ -73,4 +75,6 @@ public interface EntityTagService {
     Collection<Long> mergeTags(Tag fromTag, Tag toTag);
 
     void purgeUnusedTags(String label);
+
+
 }

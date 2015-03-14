@@ -216,6 +216,11 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     }
 
     @Override
+    public Iterable<EntityTag> getEntityTagsWithGeo(Company company, Entity entity) {
+        return entityTagDao.getEntityTagsWithGeo(company, entity.getId());
+    }
+
+    @Override
     public Collection<EntityTag> findLogTags(Company company, Log log) {
         return entityTagDao.findLogTags(company, log);
     }
