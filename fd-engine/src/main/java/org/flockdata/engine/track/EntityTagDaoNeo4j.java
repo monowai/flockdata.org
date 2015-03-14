@@ -316,15 +316,30 @@ public class EntityTagDaoNeo4j {
 
     }
 
-    public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
+    public Iterable<EntityTag> getEntityTagsWithGeo(Company company, Long entityId) {
         List<EntityTag> tagResults = new ArrayList<>();
-        if (null == entityid)
+        if (null == entityId)
             return tagResults;
         String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
                 "where id(entity)={id} \n" +
                 "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
                 "optional match located-[*0..2]->(state:State) " +
                 "return tag,tagType,located,state, country " +
+                "order by type(tagType), tag.name";
+
+        //List<EntityTag> raw = getEntityTags(entity.getId(), query);
+        //Collections.sort(raw, new BeanComparator<>("tagType"));
+        return getEntityTags(entityId, query);
+
+    }
+
+    public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
+        List<EntityTag> tagResults = new ArrayList<>();
+        if (null == entityid)
+            return tagResults;
+        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
+                "where id(entity)={id} \n" +
+                "return tag,tagType " +
                 "order by type(tagType), tag.name";
 
         //List<EntityTag> raw = getEntityTags(entity.getId(), query);
@@ -447,4 +462,5 @@ public class EntityTagDaoNeo4j {
 //        }
 
     }
+
 }
