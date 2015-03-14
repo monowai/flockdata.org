@@ -612,7 +612,7 @@ public class TestFdIntegration {
     @Test
     public void user_NoFortressUserWorks() throws Exception {
         // DAT-317
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## user_NoFortressUserWorks");
         SystemUser su = registerSystemUser("piper");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("user_NoFortressUserWorks"));
@@ -993,22 +993,6 @@ public class TestFdIntegration {
 
     }
 
-    private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        Company c = companyService.create(companyName);
-        SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
-        // creating company alters the schema that sometimes throws a heuristic exception.
-        Thread.yield();
-        return su;
-
-    }
-
-
-    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
-        setDefaultAuth();
-        return registerSystemUser(company, loginToCreate);
-    }
-
     @Test
     public void stressWithHighVolume() throws Exception {
         assumeTrue(false);// Suppressing this for the time being
@@ -1138,6 +1122,61 @@ public class TestFdIntegration {
         logger.info("Track request made. About to wait for first search result");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
+    }
+
+    @Test
+    public void geo_TagsWork() throws Exception {
+        logger.info ( "geo_TagsWork");
+        assumeTrue(runMe);
+        SystemUser su = registerSystemUser( "geoTag", "geo_Tag");
+        // DAT-339
+        assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("GeoFortress"));
+
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime(), "abc");
+        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        entityInput.setContent(content);
+        String country = "USA";
+        String city = "Los Angeles";
+
+        TagInputBean countryInputTag = new TagInputBean(country, "Country", "");
+        TagInputBean cityInputTag = new TagInputBean(city, ":City", "");
+        TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
+
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "Institution", "owns");
+        // Institution is in a city
+        institutionTag.setTargets("located", cityInputTag);
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
+        entityInput.addTag(institutionTag);
+
+        // Institution<-city<-state<-country
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
+        assertNotNull(resultBean);
+        //assertNotNull(tagService.findTag(fortress.getCompany(), "Country", "USA"));
+        waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
+
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "CA", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "USA", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
+
+    }
+
+    private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        Company c = companyService.create(companyName);
+        SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
+        // creating company alters the schema that sometimes throws a heuristic exception.
+        Thread.yield();
+        return su;
+
+    }
+
+    private SystemUser registerSystemUser(String loginToCreate) throws Exception {
+        setDefaultAuth();
+        return registerSystemUser(company, loginToCreate);
     }
 
     private String runQuery(QueryParams queryParams) throws Exception {

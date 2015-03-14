@@ -225,13 +225,11 @@ public class KvManager implements KvService {
 
         logger.debug("Content found [{}]", content);
         boolean sameContentType = compareFrom.getContentType().equals(compareTo.getContentType());
-        if (!sameContentType)
-            return false;
 
-        if (compareFrom.getContentType().equals("json"))
-            return sameJson(content, compareTo.getContent());
-        else
-            return sameCheckSum(compareFrom, compareTo);
+        return sameContentType &&
+                (sameCheckSum(compareFrom, compareTo) || compareFrom.getContentType().equals("json") &&
+                        sameJson(content, compareTo.getContent()));
+
     }
 
     private boolean sameCheckSum(Log compareFrom, Log compareTo) {
