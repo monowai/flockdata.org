@@ -22,6 +22,7 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Fortress;
+import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 
@@ -41,6 +42,7 @@ public class TrackResultBean {
     private Entity entity;
     private Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
+    private DocumentType documentType;
 
     protected TrackResultBean() {
     }
@@ -172,5 +174,14 @@ public class TrackResultBean {
 
     public boolean processLog() {
         return getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+    }
+
+    @JsonIgnore
+    public DocumentType getDocumentType() {
+        return documentType;
     }
 }
