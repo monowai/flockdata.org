@@ -78,6 +78,10 @@ public class Importer {
                 .required(false)
                 .help("Default batch size");
 
+        parser.addArgument("-x", "--skip")
+                .required(false)
+                .help("Number of rows to skip");
+
         parser.addArgument("-v", "--validate")
                 .required(false)
                 .help("Runs a batch and verifies that the entities exist");
@@ -147,13 +151,18 @@ public class Importer {
             if (o != null)
                 configuration.setAmqp(Boolean.parseBoolean(o.toString()));
 
+            int skipCount = 0;
+            o = ns.get("skip");
+            if (o !=null)
+                skipCount = Integer.parseInt(o.toString());
+
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
 
             for (String thisFile : files) {
 
-                int skipCount = 0;
+
                 List<String> items = Arrays.asList(thisFile.split("\\s*,\\s*"));
 
                 int item = 0;
@@ -164,8 +173,7 @@ public class Importer {
                         fileName = itemArg;
                     } else if (item == 1) {
                         clazz = itemArg;
-                    } else if (item == 2)
-                        skipCount = Integer.parseInt(itemArg);
+                    }
 
                     item++;
                 }

@@ -154,10 +154,59 @@ public class TagDaoNeo4j {
     }
 
     private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
-        for (AliasInputBean alias : aliases) {
+        Collection<AliasInputBean>newAliases = findAliasesToCreate(label, tag, company, aliases);
+            //schemaDao.createAliasIndex(label);
+        //}
+        for (AliasInputBean alias : newAliases) {
             createAlias(company, tag, label, alias);
         }
+
     }
+
+    private Collection<AliasInputBean> findAliasesToCreate(String label, Tag tag, Company company, Collection<AliasInputBean> aliases){
+        Collection<AliasInputBean>newAliases = new ArrayList<>();
+        String suffix = engineAdmin.getTagSuffix(company);
+        for (AliasInputBean alias : aliases) {
+            String theLabel = resolveLabel(label, suffix);
+
+            // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
+            if ( ! doesAliasExist(tag.getId(), theLabel, alias.getCode()))
+                newAliases.add(alias);
+
+        }
+        return newAliases;
+
+    }
+    public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+
+        // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
+        if (doesAliasExist(tag.getId(), theLabel, aliasInput.getCode()))
+            return;
+
+        makeAlias(tag, theLabel, aliasInput);
+    }
+
+    void makeAlias(Tag tag, String theLabel, AliasInputBean aliasInput) {
+        // match (c:Country) where c.code="NZ" create (ac:CountryAlias {name:"New Zealand", code:"New Zealand"}) , (c)-[:HAS_ALIAS]->(ac) return c, ac
+
+        // This query will find the Tag, if it exists, or any alias that might exist
+        // optional match (c:Country {code:"New Zealand"})
+        // optional match (a:CountryAlias {code:"New Zealand"})
+        // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
+        // return c, a,tag
+
+        String query = "match (t:" + theLabel + ") where id(t)={id} with t " +
+                "create unique (alias:`" + theLabel + "Alias" + "` {key:{key}, code:{code}, description:{description}}) <-[:HAS_ALIAS]-(t) ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("key", parseKey(aliasInput.getCode()));
+        params.put("code", aliasInput.getCode());
+        params.put("description", aliasInput.getDescription());
+        params.put("id", tag.getId());
+        template.query(query, params);
+
+    }
+
 
     /**
      * Create unique relationship between the tag and the node
@@ -272,7 +321,6 @@ public class TagDaoNeo4j {
             logger.debug("findTag notFound {}, {}", tagCode, label);
             return null;
         }
-        ;
 
         return convertNodeToTag(n);
 
@@ -365,34 +413,6 @@ public class TagDaoNeo4j {
         return label + tagSuffix;
     }
 
-    public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
-
-        // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
-        if (doesAliasExist(tag.getId(), theLabel, aliasInput.getCode()))
-            return;
-
-        makeAlias(tag, theLabel, aliasInput);
-    }
-
-    void makeAlias(Tag tag, String theLabel, AliasInputBean aliasInput) {
-        // match (c:Country) where c.code="NZ" create (ac:CountryAlias {name:"New Zealand", code:"New Zealand"}) , (c)-[:HAS_ALIAS]->(ac) return c, ac
-
-        // This query will find the Tag, if it exists, or any alias that might exist
-        // optional match (c:Country {code:"New Zealand"})
-        // optional match (a:CountryAlias {code:"New Zealand"})
-        // with c,a optional match (tag)-[:HAS_ALIAS]->(a)
-        // return c, a,tag
-
-        String query = "match (t:" + theLabel + ") where id(t)={id} with t " +
-                "create unique (alias:`" + theLabel + "Alias" + "` {key:{key}, code:{code}, description:{description}}) <-[:HAS_ALIAS]-(t) ";
-        Map<String, Object> params = new HashMap<>();
-        params.put("key", parseKey(aliasInput.getCode()));
-        params.put("code", aliasInput.getCode());
-        params.put("description", aliasInput.getDescription());
-        params.put("id", tag.getId());
-        template.query(query, params);
-    }
 
     private boolean doesAliasExist(Long tagId, String label, String key) {
         String query = "match (t:" + label + " )-[:HAS_ALIAS]->(alias:`" + label + "Alias" + "` {key:{key}}) where id(t) = {id} return alias";
