@@ -293,7 +293,7 @@ public class EntityTagDaoNeo4j {
         params.put("logId", log.getId());
 
         Result<Map<String, Object>> results = template.query(query, params);
-        return getEntityTags(log.getId(), results);
+        return getEntityTags(log.getId(), results, false);
 
     }
 
@@ -308,53 +308,55 @@ public class EntityTagDaoNeo4j {
             return tagResults;
         String query = "match (track:_Entity)" + tagDirection + "(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
-                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
-                "optional match located-[*0..2]->(state:State) " +
-                "return tag,tagType,located,state, country";
+                "optional match (tag)-[l:located]-(located) " +
+                "return tag,tagType,located";
 
-        return getEntityTags(entity.getId(), query);
+        return getEntityTags(entity.getId(), query, true);
 
     }
 
     public Iterable<EntityTag> getEntityTagsWithGeo(Company company, Long entityId) {
-        List<EntityTag> tagResults = new ArrayList<>();
-        if (null == entityId)
-            return tagResults;
-        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
-                "where id(entity)={id} \n" +
-                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
-                "optional match located-[*0..2]->(state:State) " +
-                "return tag,tagType,located,state, country " +
-                "order by type(tagType), tag.name";
+//        List<EntityTag> tagResults = new ArrayList<>();
+//        if (null == entityId)
+//            return tagResults;
+//        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
+//                "where id(entity)={id} \n" +
+//                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
+//                "optional match located-[*0..2]->(state:State) " +
+//                "return tag,tagType,located,state, country " +
+//                "order by type(tagType), tag.name";
 
         //List<EntityTag> raw = getEntityTags(entity.getId(), query);
         //Collections.sort(raw, new BeanComparator<>("tagType"));
-        return getEntityTags(entityId, query);
+        return getEntityTags(company, entityId, true);
 
     }
-
-    public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
+    public Collection<EntityTag> getEntityTags(Company company, Long entityid){
+        return getEntityTags(company, entityid, false);
+    }
+    public Collection<EntityTag> getEntityTags(Company company, Long entityid, boolean withGeo) {
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entityid)
             return tagResults;
-        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
-                "where id(entity)={id} \n" +
-                "return tag,tagType " +
+        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
+                "where id(entity)={id}" +
+                "optional match (tag)-[l:located]-(located) " +
+                "return tag,tagType,located " +
                 "order by type(tagType), tag.name";
 
         //List<EntityTag> raw = getEntityTags(entity.getId(), query);
         //Collections.sort(raw, new BeanComparator<>("tagType"));
-        return getEntityTags(entityid, query);
+        return getEntityTags(entityid, query, withGeo);
     }
 
-    private Collection<EntityTag> getEntityTags(Long primaryKey, String query) {
+    private Collection<EntityTag> getEntityTags(Long primaryKey, String query, boolean withGeo) {
         Map<String, Object> params = new HashMap<>();
         params.put("id", primaryKey);
         Result<Map<String, Object>> queryResults = template.query(query, params);
-        return getEntityTags(primaryKey, queryResults);
+        return getEntityTags(primaryKey, queryResults, withGeo);
     }
 
-    private Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults) {
+    private Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults, boolean withGeo) {
         Set<EntityTag> tagResults = new TreeSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
@@ -362,16 +364,29 @@ public class EntityTagDaoNeo4j {
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
             EntityTagRelationship entityTag = new EntityTagRelationship(primaryKey, tag, relationship);
 
-            Node loc = (Node) row.get("located");
+            if ( withGeo ) {
+                Node loc = (Node) row.get("located");
 
-            if (loc != null) {
-                GeoData geoData = getGeoData(row, loc);
-                entityTag.setGeoData(geoData);
+                if (loc != null) {
+                    GeoData geoData = getGeoData(loc);
+                    entityTag.setGeoData(geoData);
+                }
             }
             tagResults.add(entityTag);
         }
         return tagResults;
 
+    }
+
+    GeoData getGeoData(Node loc){
+        String query = "match (located)-[*0..2]-(country:Country) where id(located)={locNode} match located-[*0..2]->(state:State) return country, state";
+        HashMap<String,Object>params = new HashMap<>();
+        params.put("locNode", loc.getId());
+        Result<Map<String, Object>> queryResults = template.query(query, params);
+        for (Map<String, Object> row : queryResults) {
+            return getGeoData(row, loc);
+        }
+        return null;
     }
 
     private GeoData getGeoData(Map<String, Object> row, Node loc) {

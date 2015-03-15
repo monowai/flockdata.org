@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -62,7 +61,8 @@ public class TagDaoNeo4j {
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<String> createdValues = new ArrayList<>();
-        return convertNodeToTag(save(company, tagInput, tagSuffix, createdValues, false));
+        return convertNodeToTag(
+                save(company, tagInput, tagSuffix, createdValues, false));
     }
 
     Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
@@ -154,8 +154,8 @@ public class TagDaoNeo4j {
     }
 
     private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
-        Collection<AliasInputBean>newAliases = findAliasesToCreate(label, tag, company, aliases);
-            //schemaDao.createAliasIndex(label);
+        Collection<AliasInputBean> newAliases = findAliasesToCreate(label, tag, company, aliases);
+        //schemaDao.createAliasIndex(label);
         //}
         for (AliasInputBean alias : newAliases) {
             createAlias(company, tag, label, alias);
@@ -163,20 +163,21 @@ public class TagDaoNeo4j {
 
     }
 
-    private Collection<AliasInputBean> findAliasesToCreate(String label, Tag tag, Company company, Collection<AliasInputBean> aliases){
-        Collection<AliasInputBean>newAliases = new ArrayList<>();
+    private Collection<AliasInputBean> findAliasesToCreate(String label, Tag tag, Company company, Collection<AliasInputBean> aliases) {
+        Collection<AliasInputBean> newAliases = new ArrayList<>();
         String suffix = engineAdmin.getTagSuffix(company);
         for (AliasInputBean alias : aliases) {
             String theLabel = resolveLabel(label, suffix);
 
             // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
-            if ( ! doesAliasExist(tag.getId(), theLabel, alias.getCode()))
+            if (!doesAliasExist(tag.getId(), theLabel, alias.getCode()))
                 newAliases.add(alias);
 
         }
         return newAliases;
 
     }
+
     public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
@@ -326,25 +327,46 @@ public class TagDaoNeo4j {
 
     }
 
-    @Cacheable(value = "companyTag", unless = "#result == null")
-    public Node findTagNode(Company company, String tagCode, String label) {
-        if (tagCode == null || company == null)
-            throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
+    Node tagByKey(Company company, String tagCode, String theLabel) {
 
-        logger.debug("findTag request [{}]:[{}]", label, tagCode);
-        if (label.startsWith(":"))
-            label = label.substring(1);
+        logger.debug("tagByKey request [{}]:[{}]", theLabel, tagCode);
         String query;
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
-        logger.trace("findTag code [{}] label [{}]", tagCode, label);
-        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
-                "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
-                "with t,a " +
-                "optional match (tag)-[:HAS_ALIAS]->(a) " +
-                "return t,a,tag ";
+//        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        logger.trace("findTag code [{}] label [{}]", tagCode, theLabel);
+        query = " match (t:`" + theLabel + "` {key:{tagKey}}) return t";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", parseKey(tagCode));
+        Result<Map<String, Object>> result = template.query(query, params);
+        Iterator<Map<String, Object>> results = result.iterator();
+        Node node = null;
+        while (results.hasNext()) {
+            Map<String, Object> mapResult = results.next();
+
+            if (mapResult != null) {
+                if (mapResult.get("t") != null)
+                    node = (Node) mapResult.get("t");
+
+                if (node == null) {
+                    logger.debug("findTag notFound {}, {}", tagCode, theLabel);
+                    return null;
+                }
+                return node;
+            }
+        }
+        return null;
+    }
+
+    Node tagByAlias(Company company, String tagCode, String label) {
+        String query;
+//        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        //logger.trace("findTag code [{}] label [{}]", tagCode, label);
+        query = "match (a:`" + label + "Alias` {key:{tagKey}}) " +
+                "<-[HAS_ALIAS]-(t:_Tag) " +
+                "return t ";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagKey", tagCode);
         Result<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
         Node node = null;
@@ -352,34 +374,86 @@ public class TagDaoNeo4j {
         while (results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
-            //
             if (mapResult != null) {
 
                 if (mapResult.get("t") != null)
                     node = (Node) mapResult.get("t");
-                else if (mapResult.get("tag") != null)
-                    node = (Node) mapResult.get("tag");
 
                 if (node == null) {
-                    logger.debug("findTag notFound {}, {}", tagCode, label);
+                    logger.debug("findAlias notFound {}, {}", tagCode, label);
                     return null;
                 }
                 if (nodeResult == null) {
                     nodeResult = node;
                     logger.trace("findTag found {}, {}", tagCode, label);
-                } else {
-                    //ToDo: Constraints occur "eventually" in Neo4j.
-                    // under concurrent load you could wind up with multiple tags for the same code even
-                    // in a transaction!
-                    // here we ensure only one is ever returned and we will tidy up the extras
-                    if (node.getId() != nodeResult.getId()) {
-                        template.delete(node);
-                        logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
-                    }
                 }
             }
         }
         return nodeResult;
+
+    }
+
+    @Cacheable(value = "companyTag", unless = "#result == null")
+    public Node findTagNode(Company company, String tagCode, String label) {
+        if (tagCode == null || company == null)
+            throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
+
+        logger.debug("findTag request [{}]:[{}]", label, tagCode);
+        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+
+        String tagKey = parseKey(tagCode);
+        Node n = tagByKey(company, tagKey, theLabel);
+        if (n == null)
+            n = tagByAlias(company, tagKey, theLabel);
+        return n;
+
+//        String query;
+//
+//        logger.trace("findTag code [{}] label [{}]", tagCode, label);
+//        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
+//                "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
+//                "with t,a " +
+//                "optional match (tag)-[:HAS_ALIAS]->(a) " +
+//                "return t,a,tag ";
+//
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("tagKey", tagKey);
+//        Node node = null;
+//        Node nodeResult = null;
+//
+//        Result<Map<String, Object>> result = template.query(query, params);
+//        Iterator<Map<String, Object>> results = result.iterator();
+//        while (results.hasNext()) {
+//            Map<String, Object> mapResult = results.next();
+//
+//            //
+//            if (mapResult != null) {
+//
+//                if (mapResult.get("t") != null)
+//                    node = (Node) mapResult.get("t");
+//                else if (mapResult.get("tag") != null)
+//                    node = (Node) mapResult.get("tag");
+//
+//                if (node == null) {
+//                    logger.debug("findTag notFound {}, {}", tagCode, label);
+//                    return null;
+//                }
+//                if (nodeResult == null) {
+//                    nodeResult = node;
+//                    logger.trace("findTag found {}, {}", tagCode, label);
+//                } else {
+//                    //ToDo: Constraints occur "eventually" in Neo4j.
+//                    // under concurrent load you could wind up with multiple tags for the same code even
+//                    // in a transaction!
+//                    // here we ensure only one is ever returned and we will tidy up the extras
+//                    if (node.getId() != nodeResult.getId()) {
+//                        template.delete(node);
+//                        logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
+//                    }
+//                }
+//            }
+//        }
+//        return nodeResult;
 
     }
 
@@ -408,6 +482,9 @@ public class TagDaoNeo4j {
     }
 
     private String resolveLabel(String label, String tagSuffix) {
+        if (label.startsWith(":"))
+            label = label.substring(1);
+
         if ("".equals(tagSuffix))
             return label;
         return label + tagSuffix;
@@ -421,7 +498,7 @@ public class TagDaoNeo4j {
         params.put("id", tagId);
         Result<Map<String, Object>> result = template.query(query, params);
         Map<String, Object> mapResult = result.singleOrNull();
-        return mapResult != null ;
+        return mapResult != null;
 
     }
 
