@@ -127,7 +127,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
             if (tagInput.getEntityLink() != null) // Simple relationship to the entity
                 // Makes it easier for the API to call
-                rlxs.add(entityTagDao.save(entity, tag, tagInput.getEntityLink(), tagInput.isReverse()));
+                rlxs.add(entityTagDao.save(entity, tag, tagInput.getEntityLink(), tagInput.isReverse(), tag.getProperties()));
         }
 
         if (!userTags.isEmpty()) {

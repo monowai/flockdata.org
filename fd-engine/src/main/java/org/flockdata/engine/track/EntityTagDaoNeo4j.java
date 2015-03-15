@@ -71,7 +71,7 @@ public class EntityTagDaoNeo4j {
     }
 
     public EntityTag save(Entity ah, Tag tag, String metaLink, boolean reverse) {
-        return save(ah, tag, metaLink, reverse, null);
+        return save(ah, tag, metaLink, reverse, new HashMap<>());
     }
 
     /**
@@ -365,50 +365,55 @@ public class EntityTagDaoNeo4j {
             Node loc = (Node) row.get("located");
 
             if (loc != null) {
-                String isoCode = null;
-                String countryName = null;
-                Double lat = null;
-                Double lon = null;
-                String stateName = null, stateCode=null;
-
-                Node country = (Node) row.get("country");
-                Node state = (Node) row.get("state");
-                //geoData.setCity((String) loc.getProperty("name"));
-                String city = (String) loc.getProperty("name");
-
-                if (country != null && country.hasProperty("code")) {
-                    // ToDo: Need a Country object
-                    isoCode = (String) country.getProperty("code");
-                    if ( country.hasProperty("name"))
-                        countryName = (String) country.getProperty("name");
-                    Object latitude = null;
-                    Object longitude = null;
-
-                    if (country.hasProperty("props-latitude"))
-                        latitude = country.getProperty("props-latitude");
-
-                    if (country.hasProperty("props-longitude"))
-                        longitude = country.getProperty("props-longitude");
-
-                    if ( (latitude != null && longitude != null) && ! (latitude.equals("") || longitude.equals(""))) {
-                        lat = Double.parseDouble(latitude.toString());
-                        lon = Double.parseDouble(longitude.toString());
-                    }
-                }
-                if (state != null && state.hasProperty("name"))
-                    stateName = (String) state.getProperty("name");
-                if (state != null && state.hasProperty("code"))
-                    stateCode =(String) state.getProperty("code");
-
-                GeoData geoData = new GeoData(isoCode, countryName, city, stateName);
-                geoData.setLatLong("country", lat, lon );
-                geoData.setStateCode(stateCode);
+                GeoData geoData = getGeoData(row, loc);
                 entityTag.setGeoData(geoData);
             }
             tagResults.add(entityTag);
         }
         return tagResults;
 
+    }
+
+    private GeoData getGeoData(Map<String, Object> row, Node loc) {
+        String isoCode = null;
+        String countryName = null;
+        Double lat = null;
+        Double lon = null;
+        String stateName = null, stateCode=null;
+
+        Node country = (Node) row.get("country");
+        Node state = (Node) row.get("state");
+        //geoData.setCity((String) loc.getProperty("name"));
+        String city = (String) loc.getProperty("name");
+
+        if (country != null && country.hasProperty("code")) {
+            // ToDo: Need a Country object
+            isoCode = (String) country.getProperty("code");
+            if ( country.hasProperty("name"))
+                countryName = (String) country.getProperty("name");
+            Object latitude = null;
+            Object longitude = null;
+
+            if (country.hasProperty("props-latitude"))
+                latitude = country.getProperty("props-latitude");
+
+            if (country.hasProperty("props-longitude"))
+                longitude = country.getProperty("props-longitude");
+
+            if ( (latitude != null && longitude != null) && ! (latitude.equals("") || longitude.equals(""))) {
+                lat = Double.parseDouble(latitude.toString());
+                lon = Double.parseDouble(longitude.toString());
+            }
+        }
+        if (state != null && state.hasProperty("name"))
+            stateName = (String) state.getProperty("name");
+        if (state != null && state.hasProperty("code"))
+            stateCode =(String) state.getProperty("code");
+
+        GeoData geoData = new GeoData(isoCode, countryName, city, stateName);
+        geoData.setLatLong("country", lat, lon );
+        geoData.setStateCode(stateCode);
+        return geoData;
     }
 
     public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {

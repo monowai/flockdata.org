@@ -31,7 +31,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.Repeat;
 
 import java.io.IOException;
 import java.util.ArrayList;

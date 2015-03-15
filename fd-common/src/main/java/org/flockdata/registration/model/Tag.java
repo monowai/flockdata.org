@@ -29,6 +29,7 @@ import java.util.Map;
 public interface Tag {
 
     public static String DEFAULT=":_Tag";
+
     String UNDEFINED = "undefined";
 
     public String getName();

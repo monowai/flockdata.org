@@ -118,6 +118,7 @@ public class TrackServiceNeo4j implements TrackService {
             TrackResultBean arb = new TrackResultBean(fortress, entity, entityInputBean);
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getContent());
+            arb.setDocumentType(documentType);
             if ( entityInputBean.getContent()!=null && entityInputBean.getContent().getWhen()!=null) {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
                 entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
@@ -142,6 +143,7 @@ public class TrackServiceNeo4j implements TrackService {
         // associating the tags
         entity.setNew();
         TrackResultBean resultBean = new TrackResultBean(fortress, entity, entityInputBean);
+        resultBean.setDocumentType(documentType);
         resultBean.setTags(
                 entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
         );
