@@ -202,9 +202,17 @@ public class SchemaDaoNeo4j {
         //boolean made = false;
         for (String label : labels) {
             makeLabelConstraint(label);
+            makeLabelConstraint(label+"Alias");
         }
 
         return Boolean.TRUE;
+    }
+
+    public void createAliasIndex(String label) {
+        // Tag alias also have a unique key
+        makeLabelConstraint(label + "Alias");
+        //template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
+
     }
 
     @Cacheable("labels")
@@ -217,8 +225,6 @@ public class SchemaDaoNeo4j {
             // Constraint automatically creates and index
             template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
 
-            // Tag alias also have a unique key
-            template.query("create constraint on (t:`" + label + "Alias`) assert t.key is unique", null);
             logger.debug("Tag constraint created - [{}]", label);
 
         } catch (DataAccessException e) {
@@ -231,6 +237,9 @@ public class SchemaDaoNeo4j {
     public Boolean ensureSystemConstraints(Company company) {
         logger.debug("Creating system constraints for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
+        template.query("create constraint on (t:CountryAlias) assert t.key is unique", null);
+        template.query("create constraint on (t:State) assert t.key is unique", null);
+        template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
         template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
         template.query("create constraint on (t:City) assert t.key is unique", null);
@@ -376,4 +385,6 @@ public class SchemaDaoNeo4j {
     public DocumentType createDocType(String documentType, Fortress fortress) {
         return findDocumentType(fortress, documentType, true);
     }
+
+
 }
