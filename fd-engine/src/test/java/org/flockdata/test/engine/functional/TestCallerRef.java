@@ -201,6 +201,7 @@ public class TestCallerRef extends EngineBase {
                 latch.countDown();
             } catch (InterruptedException e){
                 logger.error("Interrupted [" + count + "]", e);
+                latch.countDown();
             }
 
 
