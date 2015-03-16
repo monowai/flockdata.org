@@ -73,7 +73,7 @@ public class SimpleEntityTagRelationship implements EntityTag, Comparable<Entity
     }
 
     @Override
-    public String getTagType() {
+    public String getRelationship() {
         return tagType;
     }
 

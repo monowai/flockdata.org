@@ -223,7 +223,7 @@ public class EntitySearchChange implements SearchChange {
     public void setTags(Iterable<EntityTag> entityTags) {
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
-            Map<String, ArrayList<SearchTag>> tagValues = this.tagValues.get(entityTag.getTagType().toLowerCase());
+            Map<String, ArrayList<SearchTag>> tagValues = this.tagValues.get(entityTag.getRelationship().toLowerCase());
             if (tagValues == null) {
                 tagValues = new HashMap<>();
                 // ToDo: Figure out if we need the Tags label as a property
@@ -231,7 +231,7 @@ public class EntitySearchChange implements SearchChange {
                 // -or-
                 // tag.label.relationship.code
                 // If label and relationship are equal then only one property is written
-                this.tagValues.put(entityTag.getTagType().toLowerCase(), tagValues);
+                this.tagValues.put(entityTag.getRelationship().toLowerCase(), tagValues);
             }
             mapTag(entityTag, tagValues);
         }
@@ -255,7 +255,7 @@ public class EntitySearchChange implements SearchChange {
 
     private String parseTagType(EntityTag tag) {
         String code = tag.getTag().getCode();
-        String type = tag.getTagType();
+        String type = tag.getRelationship();
         if ( code.equals(type))
             return code;
 

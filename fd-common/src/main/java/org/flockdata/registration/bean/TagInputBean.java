@@ -347,4 +347,12 @@ public class TagInputBean {
     public void setAliases(Collection<AliasInputBean> aliases) {
         this.aliases = aliases;
     }
+
+    @JsonIgnore
+    /**
+     * determines if this payload has the requested relationship. Does not walk the tree!!
+     */
+    public boolean hasRelationship(String relationship) {
+        return (entityLink!=null && entityLink.equals(relationship)) || entityLinks.containsKey(relationship);
+    }
 }
