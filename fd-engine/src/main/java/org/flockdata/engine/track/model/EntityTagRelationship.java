@@ -19,12 +19,12 @@
 
 package org.flockdata.engine.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
 
     private Tag tag;
     private Long primaryKey;
-    private String tagType;
+    private String relationship;
     private Map<String, Object> properties = new HashMap<>();
     //private Map<String, GeoData>geoData = new HashMap<>();
     private GeoData geoData;
@@ -61,7 +61,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         this();
         this.primaryKey = entity.getId();
         this.tag = tag;
-        this.tagType = relationship;
+        this.relationship = relationship;
         this.id = System.currentTimeMillis() + relationship.hashCode(); // random...
         this.properties = propMap;
     }
@@ -79,7 +79,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
 
         if (primaryKey != null ? !primaryKey.equals(that.primaryKey) : that.primaryKey != null) return false;
         if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
-        if (tagType != null ? !tagType.equals(that.tagType) : that.tagType != null) return false;
+        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
 
         return true;
     }
@@ -89,7 +89,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         return "EntityTagRelationship{" +
                 "primaryKey=" + primaryKey +
                 ", tag=" + tag +
-                ", tagType='" + tagType + '\'' +
+                ", relationship='" + relationship + '\'' +
                 '}';
     }
 
@@ -97,7 +97,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     public int hashCode() {
         int result = (tag != null ? tag.hashCode() : 0);
         result = 31 * result + (primaryKey != null ? primaryKey.hashCode() : 0);
-        result = 31 * result + (tagType != null ? tagType.hashCode() : 0);
+        result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
         return result;
     }
 
@@ -105,7 +105,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         this();
         this.primaryKey = primaryKey;
         this.tag = tag;
-        this.tagType = (relationship == null ? tag.getName() : relationship.getType().name());
+        this.relationship = (relationship == null ? tag.getName() : relationship.getType().name());
         if ( relationship!= null ) {
 
             for (String rlxKey : relationship.getPropertyKeys()) {
@@ -133,8 +133,8 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     }
 
     @Override
-    public String getTagType() {
-        return tagType;
+    public String getRelationship() {
+        return relationship;
     }
 
     @Override
@@ -180,7 +180,7 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
 
     @Override
     public int compareTo(EntityTag o) {
-        int val = getTagType().compareTo(o.getTagType());
+        int val = getRelationship().compareTo(o.getRelationship());
         if ( val == 0 )
             return getTag().getCode().compareTo(o.getTag().getCode());
         return val;
