@@ -921,6 +921,28 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
+    public void add_SameTagTwiceToSameEntity() throws Exception {
+        SystemUser su = registerSystemUser("addNewTagToExistingEntity", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
+
+        //assertNotNull(result);
+        EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(),  Helper.getRandomMap());
+        inputBean.setContent(logBean);
+        // This should create the same Tag object
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+
+        assertNotNull(resultBean);
+
+        //Adding a second tag (the first is already in the entity
+        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        mediationFacade.trackEntity(su.getCompany(), inputBean);
+        validateTag(resultBean.getEntity(), "TagA", 1);
+
+    }
+
+    @Test
     public void directionalTagsAndRelationshipPropertiesPreserved() throws Exception {
         SystemUser su = registerSystemUser("directionalTagsAndRelationshipPropertiesPreserved", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
@@ -968,7 +990,7 @@ public class TestEntityTags extends EngineBase {
         validateTag(created, null, 1);
         outboundTags = entityTagService.findOutboundTags(su.getCompany(), created);
 
-        // One is reversed
+        // One remains and is reversed
         assertEquals(1, outboundTags.size());
 
         // Cancelling last change should restore the inbound tag
