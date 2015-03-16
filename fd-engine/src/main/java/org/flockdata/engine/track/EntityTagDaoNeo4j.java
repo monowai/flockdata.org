@@ -32,6 +32,7 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -379,7 +380,9 @@ public class EntityTagDaoNeo4j {
     }
 
     GeoData getGeoData(Node loc){
-        String query = "match (located)-[*0..2]-(country:Country) where id(located)={locNode} match located-[*0..2]->(state:State) return country, state";
+
+        //String query = "match (located:_Tag)-[*0..2]-(country:Country) where id(located)={locNode} optional match located-[*0..2]->(state:State) return country, state";
+        String query = "match (located)  , p= shortestPath((located)-[*1..2]-(c:Country)) where id(located)={locNode} return nodes(p)";
         HashMap<String,Object>params = new HashMap<>();
         params.put("locNode", loc.getId());
         Result<Map<String, Object>> queryResults = template.query(query, params);
@@ -395,11 +398,28 @@ public class EntityTagDaoNeo4j {
         Double lat = null;
         Double lon = null;
         String stateName = null, stateCode=null;
+        Collection<Node> nodes = (Collection) row.get("nodes(p)");
+        Node country =null;
+        Node state = null;
+        Node city = null;
+        for (Node node : nodes) {
+            if (node.hasLabel(DynamicLabel.label("Country")))
+                country = node;
+            else if ( node.hasLabel(DynamicLabel.label("State")))
+                state = node;
+            else if ( node.hasLabel(DynamicLabel.label("City")))
+                city = node;
+        }
 
-        Node country = (Node) row.get("country");
-        Node state = (Node) row.get("state");
+                //Node country = (Node) row.get("country");
+        //Node state = (Node) row.get("state");
         //geoData.setCity((String) loc.getProperty("name"));
-        String city = (String) loc.getProperty("name");
+
+        String cityName  ;
+        if ( city !=null && city.hasProperty("name"))
+            cityName = city.getProperty("name").toString();
+        else
+            cityName  = (String) loc.getProperty("name");
 
         if (country != null && country.hasProperty("code")) {
             // ToDo: Need a Country object
@@ -425,7 +445,7 @@ public class EntityTagDaoNeo4j {
         if (state != null && state.hasProperty("code"))
             stateCode =(String) state.getProperty("code");
 
-        GeoData geoData = new GeoData(isoCode, countryName, city, stateName);
+        GeoData geoData = new GeoData(isoCode, countryName, cityName, stateName);
         geoData.setLatLong("country", lat, lon );
         geoData.setStateCode(stateCode);
         return geoData;

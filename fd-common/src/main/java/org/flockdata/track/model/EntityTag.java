@@ -42,7 +42,7 @@ public interface EntityTag {
     /**
      * @return relationship name
      */
-    public String getTagType();
+    public String getRelationship();
 
     /**
      * @return property map of custom properties associated with the tag

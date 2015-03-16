@@ -81,10 +81,39 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return entityTagDao.relationshipExists(entity, tag, relationshipType);
     }
 
-    private Tag getTag(Iterable<EntityTag>existingTags, String code){
-        for (EntityTag existingTag : existingTags) {
-            if ( existingTag.getTag().getCode().equalsIgnoreCase(code))
+    /**
+     * Only returns the tag - ignores the relationship
+     * @param entityTags
+     * @param tagInputBean
+     * @return
+     */
+    private Tag getTag(Iterable<EntityTag> entityTags, TagInputBean tagInputBean){
+        for (EntityTag existingTag : entityTags) {
+            if ( existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
+                    && existingTag.getTag().getLabel().equalsIgnoreCase(tagInputBean.getLabel())
+               )
+
                 return existingTag.getTag();
+        }
+        return null;
+    }
+
+    @Deprecated
+    private EntityTag getEntityTag(Iterable<EntityTag>existingTags, Tag code){
+        for (EntityTag existingTag : existingTags) {
+            if ( existingTag.getTag().equals(code))
+                return existingTag;
+        }
+        return null;
+    }
+
+    private EntityTag getEntityTag(Iterable<EntityTag>existingTags, TagInputBean tagInputBean){
+        for (EntityTag existingTag : existingTags) {
+            if ( existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
+                    && existingTag.getTag().getLabel().equalsIgnoreCase(tagInputBean.getLabel())
+                    && tagInputBean.hasRelationship(existingTag.getRelationship())
+                    )
+                return existingTag;
         }
         return null;
     }
@@ -112,38 +141,45 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      */
     @Override
     public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
-        Collection<EntityTag> rlxs = new ArrayList<>();
-        Iterable<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
+        Collection<EntityTag> newEntityTags = new ArrayList<>();
+        Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
+        Collection<EntityTag> tagsToMove = new ArrayList<>();
 
-        for (TagInputBean tagInput : userTags) {
+        for (TagInputBean userTag : userTags) {
 
-            Tag tag = getTag(existingTags, tagInput.getCode());
-            if ( tag == null )
-                tag = tagService.createTag(company, tagInput);
+            Tag existingTag = getTag(existingTags, userTag);
+            Tag tag ;
+            if ( existingTag == null )
+                tag = tagService.createTag(company, userTag);
+            else
+                tag = existingTag;
 
-            // Handle both simple relationships type name or a map/collection of relationships
-            if (tagInput.getEntityLinks() != null) {
-                rlxs.addAll(writeRelationships(entity, tag, tagInput.getEntityLinks(), tagInput.isReverse()));
+            if ( existingTag == null) { // Reprocessing
+                // Handle both simple relationships type name or a map/collection of relationships
+                if (userTag.getEntityLinks() != null) {
+                    newEntityTags.addAll(writeRelationships(entity, tag, userTag.getEntityLinks(), userTag.isReverse()));
+                }
+                if (userTag.getEntityLink() != null) // Simple relationship to the entity
+                    // Makes it easier for the API to call
+                    newEntityTags.add(entityTagDao.save(entity, tag, userTag.getEntityLink(), userTag.isReverse(), tag.getProperties()));
+            } else {
+                newEntityTags.add(getEntityTag(existingTags, userTag));
             }
-            if (tagInput.getEntityLink() != null) // Simple relationship to the entity
-                // Makes it easier for the API to call
-                rlxs.add(entityTagDao.save(entity, tag, tagInput.getEntityLink(), tagInput.isReverse(), tag.getProperties()));
         }
 
-        if (!userTags.isEmpty()) {
+        if (!userTags.isEmpty() && !entity.isNew()) {
             // We only consider relocating tags to the log if the caller passes at least one tag set
-            Collection<EntityTag> tagsToRelocate = new ArrayList<>();
-            for (EntityTag existingTag : existingTags) {
-                if (!rlxs.contains(existingTag))
-                    tagsToRelocate.add(existingTag);
+            for (EntityTag entityTag : existingTags) {
+                if ( !newEntityTags.contains(entityTag))
+                    tagsToMove.add(entityTag);
             }
             if (archiveRemovedTags)
-                relocateTags(entity, lastLog, tagsToRelocate);
+                moveTags(entity, lastLog, tagsToMove);
         }
-        return rlxs;
+        return newEntityTags;
     }
 
-    private void relocateTags(Entity ah, EntityLog currentLog, Collection<EntityTag> tagsToRelocate) {
+    private void moveTags(Entity ah, EntityLog currentLog, Collection<EntityTag> tagsToRelocate) {
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
                 entityTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
