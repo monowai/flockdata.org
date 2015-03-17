@@ -36,12 +36,16 @@
         <entry key="remote_shell_port" value="${neo4j.remoteShellPort}"/>
         <entry key="cache-type" value="${neo4j.cacheType}"/>
         <entry key="allow_store_upgrade" value="true"/>
-        <entry key="neostore.nodestore.db.mapped_memory" value="${neostore.nodestore.db.mapped_memory}"/>
-        <entry key="neostore.relationshipstore.db.mapped_memory" value="${neostore.relationshipstore.db.mapped_memory}"/>
-        <entry key="neostore.relationshipgroupstore.db.mapped_memory" value="${neostore.relationshipgroupstore.db.mapped_memory}"/>
-        <entry key="neostore.propertystore.db.mapped_memory" value="${neostore.propertystore.db.mapped_memory}"/>
-        <entry key="neostore.propertystore.db.strings.mapped_memory" value="${neostore.propertystore.db.strings.mapped_memory}"/>
-        <entry key="neostore.propertystore.db.arrays.mapped_memory" value="${neostore.propertystore.db.arrays.mapped_memory}"/>
+        <entry key="neostore.nodestore.db.mapped_memory" value="${neostore.nodestore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipstore.db.mapped_memory" value="${neostore.relationshipstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipgroupstore.db.mapped_memory" value="${neostore.relationshipgroupstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.mapped_memory" value="${neostore.propertystore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.strings.mapped_memory" value="${neostore.propertystore.db.strings.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.arrays.mapped_memory" value="${neostore.propertystore.db.arrays.mapped_memory:#{null}}"/>
+        <entry key="node_cache_size" value="${node_cache_size:#{null}}"/>
+        <entry key="relationship_cache_size" value="${relationship_cache_size:#{null}}"/>
+        <entry key="cache.memory_ratio" value="${cache.memory_ratio:#{null}}"/>
+
         <entry key="keep_logical_logs" value="${neo.keep_logical_logs}"/>
     </util:map>
 
