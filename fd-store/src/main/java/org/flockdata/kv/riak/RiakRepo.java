@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,9 +65,7 @@ public class RiakRepo extends AbstractKvRepo{
         builder.withMinConnections(10);
         builder.withMaxConnections(50);
 
-        List<String> addresses = new LinkedList<>();
-
-        addresses.add(kvConfig.getRiakUrl());
+        List<String> addresses = Arrays.asList( kvConfig.getRiakUrl().split("\\s*,\\s*"));
 
         List<RiakNode> nodes = RiakNode.Builder.buildNodes(builder, addresses);
         RiakCluster cluster = new RiakCluster.Builder(nodes).build();
