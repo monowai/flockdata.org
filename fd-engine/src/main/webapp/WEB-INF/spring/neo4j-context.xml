@@ -30,10 +30,23 @@
     <!--<import resource="neo4j-${neo4j}.xml"/>-->
     <!--<import resource="neo4j-java.xml"/>-->
 
-    <util:map id="config">
+    <util:map id="neoConfig" >
         <entry key="remote_shell_enabled" value="${neo4j.remoteShell}"/>
+        <entry key="remote_shell_host" value="${neo4j.remoteShellHost}"/>
+        <entry key="remote_shell_port" value="${neo4j.remoteShellPort}"/>
         <entry key="cache-type" value="${neo4j.cacheType}"/>
         <entry key="allow_store_upgrade" value="true"/>
+        <entry key="neostore.nodestore.db.mapped_memory" value="${neostore.nodestore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipstore.db.mapped_memory" value="${neostore.relationshipstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipgroupstore.db.mapped_memory" value="${neostore.relationshipgroupstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.mapped_memory" value="${neostore.propertystore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.strings.mapped_memory" value="${neostore.propertystore.db.strings.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.arrays.mapped_memory" value="${neostore.propertystore.db.arrays.mapped_memory:#{null}}"/>
+        <entry key="node_cache_size" value="${node_cache_size:#{null}}"/>
+        <entry key="relationship_cache_size" value="${relationship_cache_size:#{null}}"/>
+        <entry key="cache.memory_ratio" value="${cache.memory_ratio:#{null}}"/>
+
+        <entry key="keep_logical_logs" value="${neo.keep_logical_logs}"/>
     </util:map>
 
     <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
@@ -43,7 +56,7 @@
     </bean>
 
     <bean id="graphDbBuilderFinal" factory-bean="graphDbBuilder" factory-method="setConfig">
-        <constructor-arg ref="config"/>
+        <constructor-arg ref="neoConfig"/>
     </bean>
 
     <bean id="graphDatabaseService" factory-bean="graphDbBuilderFinal" factory-method="newGraphDatabase"

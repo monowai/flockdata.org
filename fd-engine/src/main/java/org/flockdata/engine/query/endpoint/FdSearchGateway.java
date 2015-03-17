@@ -31,11 +31,10 @@ import org.springframework.scheduling.annotation.Async;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
-@MessagingGateway(asyncExecutor = "fd-search")
-
+@MessagingGateway(asyncExecutor = "fd-engine")
 public interface FdSearchGateway {
 
-    @Async("fd-track")
+    @Async("fd-engine")
     @Gateway(requestChannel = "sendEntityIndexRequest",requestTimeout = 10000)
     public void makeSearchChanges(EntitySearchChanges searchChanges);
 

@@ -333,7 +333,8 @@ public class TagDaoNeo4j {
         String query;
 //        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
         logger.trace("findTag code [{}] label [{}]", tagCode, theLabel);
-        query = " match (t:`" + theLabel + "` {key:{tagKey}}) return t";
+        //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
+        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`"+theLabel+"Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`"+theLabel+"`) return t, a";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", parseKey(tagCode));
@@ -346,6 +347,9 @@ public class TagDaoNeo4j {
             if (mapResult != null) {
                 if (mapResult.get("t") != null)
                     node = (Node) mapResult.get("t");
+                else if (mapResult.get("a")!=null )
+                    node = (Node) mapResult.get("a");
+
 
                 if (node == null) {
                     logger.debug("findTag notFound {}, {}", tagCode, theLabel);
@@ -403,8 +407,8 @@ public class TagDaoNeo4j {
 
         String tagKey = parseKey(tagCode);
         Node n = tagByKey(company, tagKey, theLabel);
-        if (n == null)
-            n = tagByAlias(company, tagKey, theLabel);
+//        if (n == null)
+//            n = tagByAlias(company, tagKey, theLabel);
         return n;
 
 //        String query;
