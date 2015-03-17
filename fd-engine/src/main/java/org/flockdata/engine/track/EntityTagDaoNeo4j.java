@@ -88,7 +88,7 @@ public class EntityTagDaoNeo4j {
      * @return Null or EntityTag
      */
     public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        // ToDo: this will only set properties for the "current" tag to Entity. it will not version it.
+        // ToDo: this will only set properties for the tag. it does not version tag data.
         if (relationshipName == null) {
             relationshipName = Tag.UNDEFINED;
         }
@@ -171,11 +171,10 @@ public class EntityTagDaoNeo4j {
     /**
      * Moves the entityTag relationships from the Entity to the Log
      * Purpose is to track at which version of a log the metadata covered2
+     *  @param log    pointer to the node we want to move the relationships to
      *
-     * @param log    pointer to the node we want to move the relationships to
-     * @param entity where the tags are currently located
      */
-    public void moveTags(Entity entity, Log log, Collection<EntityTag> entityTags) {
+    public void moveTags(Log log, Collection<EntityTag> entityTags) {
         if (log == null)
             return;
 
@@ -317,18 +316,6 @@ public class EntityTagDaoNeo4j {
     }
 
     public Iterable<EntityTag> getEntityTagsWithGeo(Company company, Long entityId) {
-//        List<EntityTag> tagResults = new ArrayList<>();
-//        if (null == entityId)
-//            return tagResults;
-//        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
-//                "where id(entity)={id} \n" +
-//                "optional match tag-[:located]-(located)-[*0..2]-(country:Country) \n" +
-//                "optional match located-[*0..2]->(state:State) " +
-//                "return tag,tagType,located,state, country " +
-//                "order by type(tagType), tag.name";
-
-        //List<EntityTag> raw = getEntityTags(entity.getId(), query);
-        //Collections.sort(raw, new BeanComparator<>("tagType"));
         return getEntityTags(company, entityId, true);
 
     }
@@ -393,6 +380,10 @@ public class EntityTagDaoNeo4j {
     }
 
     private GeoData getGeoData(Map<String, Object> row, Node loc) {
+
+        if ( !row.containsKey("nodes(p)"))
+            return null;
+
         String isoCode = null;
         String countryName = null;
         Double lat = null;
@@ -410,10 +401,6 @@ public class EntityTagDaoNeo4j {
             else if ( node.hasLabel(DynamicLabel.label("City")))
                 city = node;
         }
-
-        //Node country = (Node) row.get("country");
-        //Node state = (Node) row.get("state");
-        //geoData.setCity((String) loc.getProperty("name"));
 
         String cityName  ;
         if ( city !=null && city.hasProperty("name"))
