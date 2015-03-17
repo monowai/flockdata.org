@@ -182,7 +182,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     private void moveTags(Entity ah, EntityLog currentLog, Collection<EntityTag> tagsToRelocate) {
         if (!tagsToRelocate.isEmpty()) {
             if (currentLog != null)
-                entityTagDao.moveTags(ah, currentLog.getLog(), tagsToRelocate);
+                entityTagDao.moveTags(currentLog.getLog(), tagsToRelocate);
         }
     }
 
