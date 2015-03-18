@@ -327,11 +327,10 @@ public class TagDaoNeo4j {
 
     }
 
-    Node tagByKey(Company company, String tagCode, String theLabel) {
+    Node tagByKey(String tagCode, String theLabel) {
 
         logger.debug("tagByKey request [{}]:[{}]", theLabel, tagCode);
         String query;
-//        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
         logger.trace("findTag code [{}] label [{}]", tagCode, theLabel);
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
         query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`"+theLabel+"Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`"+theLabel+"`) return t, a";
@@ -361,42 +360,6 @@ public class TagDaoNeo4j {
         return null;
     }
 
-    Node tagByAlias(Company company, String tagCode, String label) {
-        String query;
-//        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
-        //logger.trace("findTag code [{}] label [{}]", tagCode, label);
-        query = "match (a:`" + label + "Alias` {key:{tagKey}}) " +
-                "<-[HAS_ALIAS]-(t:_Tag) " +
-                "return t ";
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", tagCode);
-        Result<Map<String, Object>> result = template.query(query, params);
-        Iterator<Map<String, Object>> results = result.iterator();
-        Node node = null;
-        Node nodeResult = null;
-        while (results.hasNext()) {
-            Map<String, Object> mapResult = results.next();
-
-            if (mapResult != null) {
-
-                if (mapResult.get("t") != null)
-                    node = (Node) mapResult.get("t");
-
-                if (node == null) {
-                    logger.debug("findAlias notFound {}, {}", tagCode, label);
-                    return null;
-                }
-                if (nodeResult == null) {
-                    nodeResult = node;
-                    logger.trace("findTag found {}, {}", tagCode, label);
-                }
-            }
-        }
-        return nodeResult;
-
-    }
-
     @Cacheable(value = "companyTag", unless = "#result == null")
     public Node findTagNode(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
@@ -406,59 +369,7 @@ public class TagDaoNeo4j {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         String tagKey = parseKey(tagCode);
-        Node n = tagByKey(company, tagKey, theLabel);
-//        if (n == null)
-//            n = tagByAlias(company, tagKey, theLabel);
-        return n;
-
-//        String query;
-//
-//        logger.trace("findTag code [{}] label [{}]", tagCode, label);
-//        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) " +
-//                "optional match (a:`" + theLabel + "Alias` {key:{tagKey}}) " +
-//                "with t,a " +
-//                "optional match (tag)-[:HAS_ALIAS]->(a) " +
-//                "return t,a,tag ";
-//
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("tagKey", tagKey);
-//        Node node = null;
-//        Node nodeResult = null;
-//
-//        Result<Map<String, Object>> result = template.query(query, params);
-//        Iterator<Map<String, Object>> results = result.iterator();
-//        while (results.hasNext()) {
-//            Map<String, Object> mapResult = results.next();
-//
-//            //
-//            if (mapResult != null) {
-//
-//                if (mapResult.get("t") != null)
-//                    node = (Node) mapResult.get("t");
-//                else if (mapResult.get("tag") != null)
-//                    node = (Node) mapResult.get("tag");
-//
-//                if (node == null) {
-//                    logger.debug("findTag notFound {}, {}", tagCode, label);
-//                    return null;
-//                }
-//                if (nodeResult == null) {
-//                    nodeResult = node;
-//                    logger.trace("findTag found {}, {}", tagCode, label);
-//                } else {
-//                    //ToDo: Constraints occur "eventually" in Neo4j.
-//                    // under concurrent load you could wind up with multiple tags for the same code even
-//                    // in a transaction!
-//                    // here we ensure only one is ever returned and we will tidy up the extras
-//                    if (node.getId() != nodeResult.getId()) {
-//                        template.delete(node);
-//                        logger.debug("delete the duplicate for " + tagCode + " with id " + node.getId());
-//                    }
-//                }
-//            }
-//        }
-//        return nodeResult;
-
+        return tagByKey(tagKey, theLabel);
     }
 
     public void purgeUnusedConcepts(Company company) {
