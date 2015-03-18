@@ -20,6 +20,10 @@ to modify the root-context.xml to point to this as appropriate -->
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
+    <cache name="geoData"
+           maxElementsInMemory="4000"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
 
     <cache name="companyTag"
            maxElementsInMemory="2000"

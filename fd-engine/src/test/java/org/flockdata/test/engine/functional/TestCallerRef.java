@@ -112,6 +112,7 @@ public class TestCallerRef extends EngineBase {
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser(monowai, "dupex");
+        setSecurity();
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
 
@@ -178,7 +179,7 @@ public class TestCallerRef extends EngineBase {
         @Override
         public void run() {
             int count = 0;
-            setSecurity();
+            //setSecurity();
 
             try {
                 startLatch.await();
@@ -195,12 +196,12 @@ public class TestCallerRef extends EngineBase {
                 }
                 worked = true;
                 logger.info("{} completed", this.toString());
-                latch.countDown();
+
             } catch ( ExecutionException | IOException | FlockException e) {
                 logger.error("Help!! ["+count +"]", e);
-                latch.countDown();
             } catch (InterruptedException e){
                 logger.error("Interrupted [" + count + "]", e);
+            } finally {
                 latch.countDown();
             }
 

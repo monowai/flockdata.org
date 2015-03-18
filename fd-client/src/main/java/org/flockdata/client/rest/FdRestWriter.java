@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpHelper;
-import org.flockdata.helper.ObjectHelper;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.CrossReferenceInputBean;
@@ -41,7 +41,10 @@ import org.springframework.web.client.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Template to support writing Entity and Tag information to a remote FlockData service
@@ -291,10 +294,6 @@ public class FdRestWriter implements FdWriter {
     }
 
     public String flushEntitiesAmqp(List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
-        if ( apiKey == null ){
-            apiKey = me().getApiKey();
-        }
-
         try {
             for (EntityInputBean entityInput : entityInputs) {
                // ToDo: Fix all of this.

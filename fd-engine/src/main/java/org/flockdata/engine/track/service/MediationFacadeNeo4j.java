@@ -532,6 +532,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
             conceptRetryService.trackConcepts(fortress, resultBeans).get();
         else
             conceptRetryService.trackConcepts(fortress, resultBeans);
+        logger.debug("Distributed changes");
     }
 
 

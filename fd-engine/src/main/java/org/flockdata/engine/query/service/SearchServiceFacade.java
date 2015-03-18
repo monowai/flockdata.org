@@ -219,7 +219,7 @@ public class SearchServiceFacade {
                         searchDocument.setWho(entity.getCreatedBy().getCode());
                 }
 
-                searchDocument.setTags(entityTagService.getEntityTags(company, entity));
+                searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, entity));
                 searchDocument.setReplyRequired(false);
 
                 return searchDocument;
@@ -260,6 +260,7 @@ public class SearchServiceFacade {
                 changes.add(change);
         }
         makeChangesSearchable(changes);
+        logger.debug("Processed request to make changes searchable {}", fortress);
     }
 
     SearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {

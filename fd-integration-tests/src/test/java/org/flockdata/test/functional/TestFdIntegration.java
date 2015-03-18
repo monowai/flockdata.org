@@ -257,7 +257,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_WhatFieldsIndexed() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## dataTypes_WhatFieldsIndexed");
 
         SystemUser su = registerSystemUser("dataTypes_WhatFieldsIndexed", "dataTypes_WhatFieldsIndexed");
@@ -982,8 +982,11 @@ public class TestFdIntegration {
                 "int.fd.track.queue",
                 "int.fd.track.binding");
 
-        AmqpHelper helper = new AmqpHelper(configuration);
 
+        AmqpHelper helper = new AmqpHelper(configuration, false);
+
+
+        // ToDo: We're not tracking the response code
         helper.publish(inputBean);
         waitAWhile("AMQP", 8000);
         helper.close();
@@ -1158,9 +1161,68 @@ public class TestFdIntegration {
         //assertNotNull(tagService.findTag(fortress.getCompany(), "Country", "USA"));
         waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
 
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "CA", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "USA", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "ca", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "usa", 1);
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
+
+    }
+
+    @Test
+    public void geo_CachingMultiLocations() throws Exception {
+        logger.info ( "geo_CachingMultiLocations");
+        assumeTrue(runMe);
+        SystemUser su = registerSystemUser( "geoTagMulti", "geo_TagMulti");
+        assertNotNull(su);
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("geo_CachingMultiLocations"));
+
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime(), "abc");
+        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        entityInput.setContent(content);
+        String country = "USA";
+        String la = "Los Angeles";
+
+        TagInputBean countryInputTag = new TagInputBean(country, "Country", "");
+        TagInputBean cityLa = new TagInputBean(la, ":City", "");
+        TagInputBean stateCa = new TagInputBean("CA", "State", "");
+
+        TagInputBean institutionTag = new TagInputBean("mikecorp", "Institution", "owns");
+        // Institution is in a city
+        institutionTag.setTargets("located", cityLa);
+        cityLa.setTargets("state", stateCa);
+        stateCa.setTargets("country", countryInputTag);
+        entityInput.addTag(institutionTag);
+        // Institution<-city<-state<-country
+        TrackResultBean resultBeanA = mediationFacade.trackEntity(su.getCompany(), entityInput);
+
+        // Create second one with different geo data
+        entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime(), "123");
+        content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        entityInput.setContent(content);
+        institutionTag = new TagInputBean("mikecorpb", "Institution", "owns");
+        // Institution is in a city
+        TagInputBean cityPo = new TagInputBean("Portland", "City", "");
+        TagInputBean stateOr = new TagInputBean("OR", "State", "");
+
+        institutionTag.setTargets("located", cityPo);
+        cityPo.setTargets("state", stateOr);
+        stateOr.setTargets("country", countryInputTag);
+        entityInput.addTag(institutionTag);
+
+        TrackResultBean resultBeanB = mediationFacade.trackEntity(su.getCompany(), entityInput);
+
+
+        assertNotNull(resultBeanA);
+        waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
+        waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
+
+
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "ca", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "or", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "usa", 2);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "portland", 1);
+
 
     }
 

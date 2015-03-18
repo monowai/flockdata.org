@@ -47,6 +47,9 @@ public class AmqpHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpHelper.class);
 
     public AmqpHelper (ClientConfiguration configuration){
+        this(configuration, true);
+    }
+    public AmqpHelper (ClientConfiguration configuration, boolean persistentDelivery){
         factory.setHost(configuration.getAmqpHostAddr());
 
         try {
@@ -65,6 +68,7 @@ public class AmqpHelper {
             builder =
                     new AMQP.BasicProperties().builder()
                             .headers(headers)
+                            .deliveryMode( persistentDelivery?2:null)
                             .replyTo("nullChannel")
                     ;
 
@@ -86,7 +90,9 @@ public class AmqpHelper {
             }
     }
 
+
     public void publish(EntityInputBean entityInput) throws IOException {
+
         channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
     }
 }
