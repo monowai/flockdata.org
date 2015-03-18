@@ -32,13 +32,14 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.traversal.Evaluators;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Uniqueness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
@@ -114,7 +115,7 @@ public class EntityTagDaoNeo4j {
         Node start = (isReversed ? entityNode : tagNode);
         Node end = (isReversed ? tagNode : entityNode);
 
-        if ( !entity.isNew()) {
+        if (!entity.isNew()) {
             Relationship r = template.getRelationshipBetween(start, end, relationshipName);
 
             if (r != null) {
@@ -171,8 +172,8 @@ public class EntityTagDaoNeo4j {
     /**
      * Moves the entityTag relationships from the Entity to the Log
      * Purpose is to track at which version of a log the metadata covered2
-     *  @param log    pointer to the node we want to move the relationships to
      *
+     * @param log pointer to the node we want to move the relationships to
      */
     public void moveTags(Log log, Collection<EntityTag> entityTags) {
         if (log == null)
@@ -319,9 +320,11 @@ public class EntityTagDaoNeo4j {
         return getEntityTags(company, entityId, true);
 
     }
-    public Collection<EntityTag> getEntityTags(Company company, Long entityid){
+
+    public Collection<EntityTag> getEntityTags(Company company, Long entityid) {
         return getEntityTags(company, entityid, false);
     }
+
     public Collection<EntityTag> getEntityTags(Company company, Long entityid, boolean withGeo) {
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entityid)
@@ -352,7 +355,7 @@ public class EntityTagDaoNeo4j {
             Relationship relationship = template.convert(row.get("tagType"), Relationship.class);
             EntityTagRelationship entityTag = new EntityTagRelationship(primaryKey, tag, relationship);
 
-            if ( withGeo ) {
+            if (withGeo) {
                 Node loc = (Node) row.get("located");
 
                 if (loc != null) {
@@ -366,52 +369,72 @@ public class EntityTagDaoNeo4j {
 
     }
 
-    GeoData getGeoData(Node loc){
+    private TraversalDescription geoTraversal =null ;
 
-        //String query = "match (located:_Tag)-[*0..2]-(country:Country) where id(located)={locNode} optional match located-[*0..2]->(state:State) return country, state";
-        String query = "match (located)  , p= shortestPath((located)-[*1..2]-(c:Country)) where id(located)={locNode} return nodes(p)";
-        HashMap<String,Object>params = new HashMap<>();
-        params.put("locNode", loc.getId());
-        Result<Map<String, Object>> queryResults = template.query(query, params);
-        for (Map<String, Object> row : queryResults) {
-            return getGeoData(row, loc);
-        }
-        return null;
+    TraversalDescription getGeoTraverser () {
+        if (geoTraversal==null )
+
+
+        geoTraversal = template.getGraphDatabaseService().traversalDescription()
+                .depthFirst()
+                .uniqueness(Uniqueness.NODE_PATH);
+        return geoTraversal;
     }
 
-    private GeoData getGeoData(Map<String, Object> row, Node loc) {
+    @Cacheable(value = "geoData", key="#loc.id", unless = "#result == null")
+    GeoData getGeoData(Node loc) {
 
-        if ( !row.containsKey("nodes(p)"))
+        return getGeoData(
+                getGeoTraverser()
+                        .evaluator(Evaluators.fromDepth(1))
+                        .evaluator(Evaluators.toDepth(2))  // Keep an eye on this - may need to be 3
+                        .traverse(loc)
+                        .nodes(), loc
+        );
+
+        //String query = "match (located:_Tag)-[*0..2]-(country:Country) where id(located)={locNode} optional match located-[*0..2]->(state:State) return country, state";
+//            String query = "match (located:_Tag)  , p= shortestPath((located:_Tag)-[*1..2]-(c:Country)) where id(located)={locNode} return nodes(p)";
+//        HashMap<String, Object> params = new HashMap<>();
+//        params.put("locNode", loc.getId());
+//        Result<Map<String, Object>> queryResults = template.query(query, params);
+//        for (Map<String, Object> row : queryResults) {
+//            return getGeoData(row, loc);
+//        }
+    }
+
+    private GeoData getGeoData(ResourceIterable<Node> row, Node loc) {
+
+        if (!row.iterator().hasNext())
             return null;
 
         String isoCode = null;
         String countryName = null;
         Double lat = null;
         Double lon = null;
-        String stateName = null, stateCode=null;
-        Collection<Node> nodes = (Collection) row.get("nodes(p)");
-        Node country =null;
+        String stateName = null, stateCode = null;
+
+        Node country = null;
         Node state = null;
         Node city = null;
-        for (Node node : nodes) {
+        for (Node node : row) {
             if (node.hasLabel(DynamicLabel.label("Country")))
                 country = node;
-            else if ( node.hasLabel(DynamicLabel.label("State")))
+            else if (node.hasLabel(DynamicLabel.label("State")))
                 state = node;
-            else if ( node.hasLabel(DynamicLabel.label("City")))
+            else if (node.hasLabel(DynamicLabel.label("City")))
                 city = node;
         }
 
-        String cityName  ;
-        if ( city !=null && city.hasProperty("name"))
+        String cityName;
+        if (city != null && city.hasProperty("name"))
             cityName = city.getProperty("name").toString();
         else
-            cityName  = (String) loc.getProperty("name");
+            cityName = (String) loc.getProperty("name");
 
         if (country != null && country.hasProperty("code")) {
             // ToDo: Need a Country object
             isoCode = (String) country.getProperty("code");
-            if ( country.hasProperty("name"))
+            if (country.hasProperty("name"))
                 countryName = (String) country.getProperty("name");
             Object latitude = null;
             Object longitude = null;
@@ -422,7 +445,7 @@ public class EntityTagDaoNeo4j {
             if (country.hasProperty("props-longitude"))
                 longitude = country.getProperty("props-longitude");
 
-            if ( (latitude != null && longitude != null) && ! (latitude.equals("") || longitude.equals(""))) {
+            if ((latitude != null && longitude != null) && !(latitude.equals("") || longitude.equals(""))) {
                 lat = Double.parseDouble(latitude.toString());
                 lon = Double.parseDouble(longitude.toString());
             }
@@ -430,10 +453,11 @@ public class EntityTagDaoNeo4j {
         if (state != null && state.hasProperty("name"))
             stateName = (String) state.getProperty("name");
         if (state != null && state.hasProperty("code"))
-            stateCode =(String) state.getProperty("code");
-
+            stateCode = (String) state.getProperty("code");
+        if (country == null)
+            return null;
         GeoData geoData = new GeoData(isoCode, countryName, cityName, stateName);
-        geoData.setLatLong("country", lat, lon );
+        geoData.setLatLong("country", lat, lon);
         geoData.setStateCode(stateCode);
         return geoData;
     }
@@ -479,7 +503,7 @@ public class EntityTagDaoNeo4j {
         //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r:HAS_ALIAS]-(a) delete t,a,r;
         //match (t:Politician ) where not (t)-[]-(:Entity) with t optional match t-[r]-() delete t,r;
 
-        String query = "optional match (t:"+label+")-[:HAS_ALIAS]-(a) where not (t)-[]-(:Entity) return t,a;";
+        String query = "optional match (t:" + label + ")-[:HAS_ALIAS]-(a) where not (t)-[]-(:Entity) return t,a;";
         template.query(query, null);
 //        Result<Map<String, Object>> result = template.query(query, null);
 //        for (Map<String, Object> row : result) {

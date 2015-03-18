@@ -18,9 +18,13 @@
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
-
     <cache name="companyTag"
            maxElementsInMemory="2000"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="geoData"
+           maxElementsInMemory="4000"
            eternal="true"
            memoryStoreEvictionPolicy="LFU"/>
 
@@ -44,7 +48,6 @@
     <cache name="com.stormpath.sdk.group.Group" maxElementsInMemory="200"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
-
 
     <cache name="fortressUser"
            maxElementsInMemory="200"
