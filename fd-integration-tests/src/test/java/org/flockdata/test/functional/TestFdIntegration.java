@@ -965,7 +965,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -984,6 +984,7 @@ public class TestFdIntegration {
 
         AmqpHelper helper = new AmqpHelper(configuration);
 
+        // ToDo: We're not tracking the response code
         helper.publish(inputBean);
         waitAWhile("AMQP", 8000);
         helper.close();

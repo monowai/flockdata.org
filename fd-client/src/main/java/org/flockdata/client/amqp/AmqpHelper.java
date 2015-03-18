@@ -65,6 +65,7 @@ public class AmqpHelper {
             builder =
                     new AMQP.BasicProperties().builder()
                             .headers(headers)
+
                             .replyTo("nullChannel")
                     ;
 
@@ -86,18 +87,9 @@ public class AmqpHelper {
             }
     }
 
-    static AMQP.BasicProperties minPersistentBasic = null;
-    public static AMQP.BasicProperties getProperties() {
-        if ( minPersistentBasic == null) {
-            AMQP.BasicProperties.Builder bob = new AMQP.BasicProperties.Builder();
-            minPersistentBasic = bob.deliveryMode(2).build();
-        }
-        return  minPersistentBasic;
-
-    }
 
     public void publish(EntityInputBean entityInput) throws IOException {
 
-        channel.basicPublish(exchange, routingKey, getProperties(), JsonUtils.getObjectAsJsonBytes(entityInput));
+        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
     }
 }
