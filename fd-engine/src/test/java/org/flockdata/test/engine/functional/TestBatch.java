@@ -58,7 +58,7 @@ public class TestBatch extends EngineBase {
         importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/batch-test.csv", false);
 
-        Entity resultBean = trackService.findByCallerRef( fortress, docType, "1");
+        Entity resultBean = entityService.findByCallerRef( fortress, docType, "1");
         assertNotNull(resultBean);
 
     }

@@ -87,18 +87,18 @@ public class TestCsvImportIntegration extends EngineBase {
 
             myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", 0, testWriter, su.getCompany(), defaults);
             Thread.yield();
-            Entity entityA = trackService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
+            Entity entityA = entityService.findByCallerRef(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
 
-            EntityLog log = trackService.getLastEntityLog(entityA.getId());
-            Collection<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(entityA.getId());
+            Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
             for (EntityLog entityLog : logs) {
                 logger.info("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();
             assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-            assertEquals( "Run "+i+" has wrong log count", 6, trackService.getLogCount(su.getCompany(), entityA.getMetaKey()));
+            assertEquals( "Run "+i+" has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getMetaKey()));
             i++;
         } while (i <= maxRuns);
     }

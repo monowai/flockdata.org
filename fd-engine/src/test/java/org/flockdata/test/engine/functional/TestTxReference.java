@@ -123,7 +123,7 @@ public class TestTxReference extends EngineBase {
 
         String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getEntityBean().getMetaKey();
         assertNotNull(metaKey);
-        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
         //assertEquals(1, entity.getTxTags().size());
         ContentInputBean alb = new ContentInputBean("charlie", metaKey, DateTime.now(), escJsonA, null, tagRef);
@@ -182,7 +182,7 @@ public class TestTxReference extends EngineBase {
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntityBean().getMetaKey();
         assertNotNull(key);
-        Entity entity = trackService.getEntity(su.getCompany(), key);
+        Entity entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
         ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());

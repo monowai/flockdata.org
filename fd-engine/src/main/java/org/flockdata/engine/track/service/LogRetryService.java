@@ -32,9 +32,8 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.model.TxRef;
+import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.TrackService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -64,7 +63,7 @@ import java.util.Set;
 public class LogRetryService {
     private Logger logger = LoggerFactory.getLogger(LogRetryService.class);
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     FortressService fortressService;
@@ -77,9 +76,6 @@ public class LogRetryService {
 
     @Autowired
     EntityDaoNeo entityDao;
-
-    @Autowired
-    LogService logService;
 
     /**
      * Attempts to gracefully handle deadlock conditions
@@ -168,7 +164,11 @@ public class LogRetryService {
             payLoad.getContentInput().setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
         }
 
-        Log preparedLog = entityDao.prepareLog( fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
+        Log preparedLog = payLoad.getPreparedLog();
+        if ( preparedLog == null  ) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
+            preparedLog = entityDao.prepareLog( fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
+        else
+            preparedLog.setTxRef(txRef);
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);

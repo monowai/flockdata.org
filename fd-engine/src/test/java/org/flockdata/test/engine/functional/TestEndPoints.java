@@ -57,7 +57,7 @@ public class TestEndPoints extends EngineBase{
         engineEndPoints.login("mike", "123");
         TrackResultBean trackResult = engineEndPoints.track(eib, su);
         assertNotNull(trackResult);
-        Entity e = trackService.getEntity(su.getCompany(), trackResult.getEntityBean().getMetaKey());
+        Entity e = entityService.getEntity(su.getCompany(), trackResult.getEntityBean().getMetaKey());
 
         assertEquals("usera", e.getLastUser().getCode());
         assertEquals("usera", e.getCreatedBy().getCode());
@@ -77,7 +77,7 @@ public class TestEndPoints extends EngineBase{
         engineEndPoints.login("mike", "123");
         TrackResultBean trackResult = engineEndPoints.track(eib, su);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        Entity e = trackService.getEntity(su.getCompany(), trackResult.getEntityBean().getMetaKey());
+        Entity e = entityService.getEntity(su.getCompany(), trackResult.getEntityBean().getMetaKey());
 
         assertEquals("usera", e.getLastUser().getCode());
         assertEquals("usera", e.getCreatedBy().getCode());

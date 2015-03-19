@@ -68,10 +68,10 @@ public class TestEntityUsers extends EngineBase {
             entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
             mediationFacade.trackEntity(su.getCompany(), entityBean);
             logger.info("Tracked...");
-            Entity entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+            Entity entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
             Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
-            Set<EntityLog> logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+            Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
             assertEquals(1, logs.size());
             EntityLog log = logs.iterator().next();
             assertEquals("billie", log.getLog().getWho().getCode().toLowerCase());
@@ -80,10 +80,10 @@ public class TestEntityUsers extends EngineBase {
             mediationFacade.trackEntity(su.getCompany(), entityBean);
             assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
-            entity = trackService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+            entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
             Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
-            logs = trackService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+            logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
             assertTrue(logs.size()==2);
             boolean billieFound = false;
             boolean nemoFound = false;
@@ -112,7 +112,7 @@ public class TestEntityUsers extends EngineBase {
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
         logger.info("Tracked...");
-        Entity entity = trackService.findByCallerRef(fortress, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
         SearchChange searchChange = searchService.prepareSearchDocument(su.getCompany(), resultBean,resultBean.getContentInput(), resultBean.getLogResult().getLogToIndex());
