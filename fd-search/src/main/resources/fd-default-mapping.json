@@ -184,6 +184,27 @@
               }
             }
           }
+        },
+      {
+        "geo_country": {
+          "path_match": "tag.*.geo.state",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
         }
       }
     ]
