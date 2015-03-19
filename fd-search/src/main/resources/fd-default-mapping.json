@@ -93,7 +93,8 @@
             }
           }
         }
-      }, {
+      },
+      {
         "nested_tag_name_template": {
           "path_match": "tag.*.name",
           "match_mapping_type": "string",
@@ -115,7 +116,8 @@
           }
         }
       },
-      {"geo_points": {
+      {
+        "geo_points": {
           "path_match": "tag.*.geo.points.*",
           "match_mapping_type": "string",
           "mapping": {
@@ -145,8 +147,8 @@
                 "index": "not_analyzed"
               }
             }
+          }
         }
-      }
       },
       {
         "geo_iso": {
@@ -184,7 +186,30 @@
               }
             }
           }
-        },
+        }
+      },
+      {
+        "geo_country": {
+          "path_match": "tag.*.geo.country",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
+      },
       {
         "geo_country": {
           "path_match": "tag.*.geo.state",
