@@ -27,7 +27,7 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.service.TrackService;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class TestForceDeadlock extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     RegistrationService regService;
@@ -135,7 +135,7 @@ public class TestForceDeadlock extends EngineBase {
         for (int thread = 0; thread < threadMax; thread++) {
             assertEquals(true, runners.get(thread).isWorked());
             for ( int count =0; count < docCount; count ++ ) {
-                Entity entity = trackService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
                 assertNotNull(su.getCompany());
                 assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());

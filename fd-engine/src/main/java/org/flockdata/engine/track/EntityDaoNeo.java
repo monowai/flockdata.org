@@ -274,6 +274,7 @@ public class EntityDaoNeo {
     public Log prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, Log previousChange) throws FlockException {
         ChangeEvent event = trackEventService.processEvent(company, payLoad.getContentInput().getEvent());
         Log changeLog = new LogNode(fUser, payLoad.getContentInput(), txRef);
+
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {

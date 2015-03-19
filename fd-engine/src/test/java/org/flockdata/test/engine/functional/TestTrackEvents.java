@@ -83,7 +83,7 @@ public class TestTrackEvents extends EngineBase {
         String metaKey = resultBean.getEntityBean().getMetaKey();
         assertNotNull(metaKey);
 
-        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity.getDocumentType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
@@ -91,13 +91,13 @@ public class TestTrackEvents extends EngineBase {
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        EntityLog when = trackService.getLastEntityLog(su.getCompany(), metaKey);
+        EntityLog when = entityService.getLastEntityLog(su.getCompany(), metaKey);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
-        EntityLog whenB = trackService.getLastEntityLog(su.getCompany(), metaKey);
+        EntityLog whenB = entityService.getLastEntityLog(su.getCompany(), metaKey);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));

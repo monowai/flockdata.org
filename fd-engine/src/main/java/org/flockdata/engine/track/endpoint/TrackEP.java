@@ -53,7 +53,7 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/track")
 public class TrackEP {
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     MediationFacade mediationFacade;
@@ -161,7 +161,7 @@ public class TrackEP {
     public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
                                                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
+        return entityService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
     }
 
 
@@ -173,7 +173,7 @@ public class TrackEP {
                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        Entity entity =  trackService.findByCallerRef(fortress, documentType, callerRef);
+        Entity entity =  entityService.findByCallerRef(fortress, documentType, callerRef);
         return new EntityBean(entity);
     }
 
@@ -183,7 +183,7 @@ public class TrackEP {
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
-        Entity result = trackService.getEntity(company, metaKey, true);
+        Entity result = entityService.getEntity(company, metaKey, true);
         if (result == null)
             throw new NotFoundException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
 
@@ -202,7 +202,7 @@ public class TrackEP {
     public @ResponseBody Collection<Entity> getEntities(@RequestBody Collection<String> toFind ,
                                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.getEntities(company, toFind).values();
+        return entityService.getEntities(company, toFind).values();
     }
 
     @RequestMapping(value = "/{metaKey}/logs", produces = "application/json", method = RequestMethod.GET)
@@ -210,7 +210,7 @@ public class TrackEP {
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}/logs
-        return trackService.getEntityLogs(company, metaKey);
+        return entityService.getEntityLogs(company, metaKey);
 
     }
 
@@ -230,7 +230,7 @@ public class TrackEP {
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
-        EntityLog changed = trackService.getLastEntityLog(company, metaKey);
+        EntityLog changed = entityService.getLastEntityLog(company, metaKey);
         if (changed != null)
             return new ResponseEntity<>(changed, HttpStatus.OK);
 
@@ -243,7 +243,7 @@ public class TrackEP {
     public @ResponseBody Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
                                                              HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.getLastLogTags(company, metaKey);
+        return entityService.getLastLogTags(company, metaKey);
     }
 
 
@@ -252,8 +252,8 @@ public class TrackEP {
                                                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
-        EntityLog tl = trackService.getEntityLog(company, metaKey, logId);
-        return trackService.getLogTags(company, tl);
+        EntityLog tl = entityService.getEntityLog(company, metaKey, logId);
+        return entityService.getLogTags(company, tl);
     }
 
     @RequestMapping(value = "/{metaKey}/tags", produces = "application/json", method = RequestMethod.GET)
@@ -262,7 +262,7 @@ public class TrackEP {
         Company company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
-        Entity result = trackService.getEntity(company, metaKey);
+        Entity result = entityService.getEntity(company, metaKey);
         return entityTagService.getEntityTags(company, result);
     }
 
@@ -273,7 +273,7 @@ public class TrackEP {
     byte[] getAttachment(@PathVariable("metaKey") String metaKey,
                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Entity entity = trackService.getEntity(company, metaKey);
+        Entity entity = entityService.getEntity(company, metaKey);
         if (entity != null) {
             EntityLog lastLog = logService.getLastLog(entity);
             if (lastLog == null) {
@@ -292,11 +292,11 @@ public class TrackEP {
     public @ResponseBody ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Entity entity = trackService.getEntity(company, metaKey);
+        Entity entity = entityService.getEntity(company, metaKey);
 
         if (entity != null) {
-            EntityLog left = trackService.getLogForEntity(entity, logId);
-            EntityLog right = trackService.getLogForEntity(entity, withId);
+            EntityLog left = entityService.getLogForEntity(entity, logId);
+            EntityLog right = entityService.getLogForEntity(entity, withId);
             if (left != null && right != null) {
                 DeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
 
@@ -314,7 +314,7 @@ public class TrackEP {
     LogDetailBean getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId,
                                                   HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        LogDetailBean change = trackService.getFullDetail(company, metaKey, logId);
+        LogDetailBean change = entityService.getFullDetail(company, metaKey, logId);
 
         if (change != null)
             return change;
@@ -328,7 +328,7 @@ public class TrackEP {
                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        Entity entity = trackService.getEntity(company, metaKey);
+        Entity entity = entityService.getEntity(company, metaKey);
         if (entity != null) {
             return mediationFacade.getLogContent(entity, logId);
         }
@@ -341,7 +341,7 @@ public class TrackEP {
     public ResponseEntity<String> cancelLastLog(@PathVariable("metaKey") String metaKey,
                                                 HttpServletRequest request) throws FlockException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
-        Entity result = trackService.getEntity(company, metaKey);
+        Entity result = entityService.getEntity(company, metaKey);
         if (result != null) {
             mediationFacade.cancelLastLog(company, result);
             return new ResponseEntity<>("OK", HttpStatus.OK);
@@ -355,10 +355,10 @@ public class TrackEP {
                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        Entity entity = trackService.getEntity(company, metaKey);
+        Entity entity = entityService.getEntity(company, metaKey);
         if (entity != null) {
 
-            EntityLog log = trackService.getLastEntityLog(entity.getId());
+            EntityLog log = entityService.getLastEntityLog(entity.getId());
             if (log != null)
                 return kvService.getContent(entity, log.getLog()).getWhat();
         }
@@ -412,7 +412,7 @@ public class TrackEP {
     public @ResponseBody Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.crossReference(company, metaKey, metaKeys, relationshipName);
+        return entityService.crossReference(company, metaKey, metaKeys, relationshipName);
     }
 
     /**
@@ -428,7 +428,7 @@ public class TrackEP {
     public @ResponseBody Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
                                                                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.getCrossReference(company, metaKey, xRefName);
+        return entityService.getCrossReference(company, metaKey, xRefName);
     }
 
     /**
@@ -450,7 +450,7 @@ public class TrackEP {
                                                                @PathVariable("xRefName") String xRefName,
                                                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.crossReferenceEntities(company, new EntityKey(fortressName, "*", callerRef), entities, xRefName);
+        return entityService.crossReferenceEntities(company, new EntityKey(fortressName, "*", callerRef), entities, xRefName);
     }
 
 
@@ -459,7 +459,7 @@ public class TrackEP {
                                                                               HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        return trackService.crossReferenceEntities(company, crossReferenceInputBeans);
+        return entityService.crossReferenceEntities(company, crossReferenceInputBeans);
         //return crossReferenceInputBeans;
     }
 
@@ -477,7 +477,7 @@ public class TrackEP {
     public @ResponseBody  Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
                                                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return trackService.getCrossReference(company, fortress, callerRef, xRefName);
+        return entityService.getCrossReference(company, fortress, callerRef, xRefName);
     }
 
 

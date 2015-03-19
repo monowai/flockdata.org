@@ -37,7 +37,7 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.TrackService;
+import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class SearchServiceFacade {
     EntityDaoNeo trackDao;
 
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Qualifier("fdSearchGateway")
     @Autowired
@@ -111,7 +111,7 @@ public class SearchServiceFacade {
                 return false;
 
             try {
-                trackService.recordSearchResult(searchResult, entityId);
+                entityService.recordSearchResult(searchResult, entityId);
             } catch (FlockException e) {
                 logger.error("Unexpected error recording searchResult for entityId "+entityId, e);
             }
@@ -297,11 +297,11 @@ public class SearchServiceFacade {
 
     public void refresh(Company company, Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets
-        Collection<Entity> entitiesSet = trackService.getEntities(entities);
+        Collection<Entity> entitiesSet = entityService.getEntities(entities);
         Collection<SearchChange>searchChanges = new ArrayList<>();
 
         for (Entity entity : entitiesSet) {
-            SearchChange change = rebuild(company, entity, trackService.getLastEntityLog(entity.getId()));
+            SearchChange change = rebuild(company, entity, entityService.getLastEntityLog(entity.getId()));
             if ( change !=null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed() )
                 searchChanges.add(change);
         }

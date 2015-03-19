@@ -178,7 +178,7 @@ public class TestTagConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust123", "purchased").setLabel("Customer"));
             Entity meta = mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
-            assertNotNull(trackService.getEntity(su.getCompany(), meta.getMetaKey()));
+            assertNotNull(entityService.getEntity(su.getCompany(), meta.getMetaKey()));
 
             input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
             input.addTag(new TagInputBean("cust124", "purchased").setLabel("Customer"));

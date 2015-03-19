@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  * Date: 5/09/14
  * Time: 4:22 PM
  */
-public interface TrackService {
+public interface EntityService {
     KvContent getWhat(Entity entity, Log change);
 
     @Deprecated

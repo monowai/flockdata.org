@@ -21,10 +21,12 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.model.Log;
 
 import java.util.Collection;
 
@@ -43,6 +45,7 @@ public class TrackResultBean {
     private Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
     private DocumentType documentType;
+    private Log preparedLog;
 
     protected TrackResultBean() {
     }
@@ -183,5 +186,21 @@ public class TrackResultBean {
     @JsonIgnore
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    /**
+     * Optimization to return a nicely prepared log if we have determined this to be a new entity
+     *
+     * @return pre-prepared log if this is a new entity
+     */
+    @JsonIgnore
+    public Log getPreparedLog() {
+        return preparedLog;
+    }
+
+    public void setPreparedLog(Log preparedLog) throws FlockException {
+        if (!entity.isNew() )
+            throw new FlockException("Prepared logs are only valid for new entities");
+        this.preparedLog = preparedLog;
     }
 }

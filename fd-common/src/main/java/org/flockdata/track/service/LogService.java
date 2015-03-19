@@ -29,6 +29,7 @@ import org.flockdata.track.model.EntityLog;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -37,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  */
 public interface LogService {
 
-    Collection<TrackResultBean> processLogsSync(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 

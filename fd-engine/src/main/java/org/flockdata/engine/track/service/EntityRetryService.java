@@ -25,7 +25,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
-import org.flockdata.track.service.TrackService;
+import org.flockdata.track.service.EntityService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
+ *
  * User: mike
  * Date: 20/09/14
  * Time: 3:38 PM
@@ -51,17 +52,13 @@ import java.util.concurrent.ExecutionException;
 @Configuration
 @EnableRetry
 @Service
-//@Transactional
 public class EntityRetryService {
 
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     LogService logService;
-
-    @Autowired
-    LogRetryService logRetryService;
 
     @Autowired
     SchemaService schemaService;
@@ -76,8 +73,9 @@ public class EntityRetryService {
     Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
 
         Iterable<TrackResultBean>
-                resultBeans = trackService.trackEntities(fortress, entityInputs);
-        return logService.processLogsSync(fortress, resultBeans);
+                resultBeans = entityService.trackEntities(fortress, entityInputs);
+        // ToDo:
+        return logService.processLogs(fortress, resultBeans).get();
 
     }
 

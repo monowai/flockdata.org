@@ -132,7 +132,7 @@ public class TestFdIntegration {
     private static JestClient esClient;
 
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     RegistrationService regService;
@@ -405,7 +405,7 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        Entity entity = trackService.getEntity(su.getCompany(), auditResult.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), auditResult.getEntityBean().getMetaKey());
         waitForFirstSearchResult(su.getCompany(), entity);
 
         doEsQuery(entity.getFortress().getIndexName(), "*");
@@ -436,9 +436,9 @@ public class TestFdIntegration {
 
         metaKey = trackResult.getEntityBean().getMetaKey();
 
-        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
-        assertNotNull(trackService.findByCallerRef(fo, inputBean.getDocumentName(), inputBean.getCallerRef()));
+        assertNotNull(entityService.findByCallerRef(fo, inputBean.getDocumentName(), inputBean.getCallerRef()));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -653,7 +653,7 @@ public class TestFdIntegration {
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         waitForFirstSearchResult(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
@@ -689,7 +689,7 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         waitForFirstSearchResult(su.getCompany(), entity); // 2nd document in the index
         // We have one with a metaKey and one without
@@ -726,12 +726,12 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
-        Entity entity = trackService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         assertEquals(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
-        EntityLog log = trackService.getLastEntityLog(su.getCompany(), result.getEntityBean().getMetaKey());
+        EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntityBean().getMetaKey());
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
 
@@ -787,7 +787,7 @@ public class TestFdIntegration {
 
         //Transaction tx = getTransaction();
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
 
         LogResultBean resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getLogResult();
         assertNotNull(resultBean);
@@ -800,7 +800,7 @@ public class TestFdIntegration {
         inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSearchSuppressed(true);
         TrackResultBean noIndex = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity noIndexEntity = trackService.getEntity(su.getCompany(), noIndex.getEntityBean().getMetaKey());
+        Entity noIndexEntity = entityService.getEntity(su.getCompany(), noIndex.getEntityBean().getMetaKey());
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", noIndexEntity.getMetaKey(), new DateTime(), getSimpleMap("who", "bob")));
         // Bob's not there because we said we didn't want to index that entity
@@ -821,7 +821,7 @@ public class TestFdIntegration {
         metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), metaInput);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
         String indexName = entity.getFortress().getIndexName();
 
         Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
@@ -851,37 +851,37 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("olivia@sunnybell.com", firstDate, getSimpleMap("house", "house1")));
         String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
 
-        Entity entity = trackService.getEntity(su.getCompany(), metaKey);
+        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
 
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
 
         LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
         assertNotSame(0l, secondLog.getLog().getEntityLog().getFortressWhen());
-        Set<EntityLog> logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
+        Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
-        entity = trackService.getEntity(su.getCompany(), metaKey);
+        entity = entityService.getEntity(su.getCompany(), metaKey);
         waitAWhile("Cancel 1");
         Assert.assertEquals("Last Updated dates don't match", secondLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Test block
         mediationFacade.cancelLastLog(su.getCompany(), entity);
-        logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
+        logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(1, logs.size());
-        entity = trackService.getEntity(su.getCompany(), metaKey); // Refresh the entity
+        entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
         waitAWhile("Cancel 2");
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
         // DAT-96
         mediationFacade.cancelLastLog(su.getCompany(), entity);
-        logs = trackService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
+        logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(true, logs.isEmpty());
         waitAWhile("Cancel 3");
         doEsQuery(entity.getFortress().getIndexName(), "*", 0);
 
-        entity = trackService.getEntity(su.getCompany(), metaKey); // Refresh the entity
+        entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
         assertEquals("Search Key wasn't set to null", null, entity.getSearchKey());
     }
 
@@ -895,7 +895,7 @@ public class TestFdIntegration {
         inputBean.setDescription("This is a description");
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        Entity entity = trackService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
 
         Map<String, Object> what = getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
@@ -990,7 +990,7 @@ public class TestFdIntegration {
         helper.publish(inputBean);
         waitAWhile("AMQP", 8000);
         helper.close();
-        Entity entityA = trackService.findByCallerRef(fortress, inputBean.getDocumentName(), inputBean.getCallerRef());
+        Entity entityA = entityService.findByCallerRef(fortress, inputBean.getDocumentName(), inputBean.getCallerRef());
         assertNotNull(entityA);
 
 
@@ -1282,8 +1282,8 @@ public class TestFdIntegration {
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress < fortressMax) {
             while (count <= countMax) {
-                Entity entity = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + count);
-                Set<EntityLog> logs = trackService.getEntityLogs(entity.getId());
+                Entity entity = entityService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + count);
+                Set<EntityLog> logs = entityService.getEntityLogs(entity.getId());
                 assertNotNull(logs);
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
                 for (EntityLog log : logs) {
@@ -1306,7 +1306,7 @@ public class TestFdIntegration {
         int i = 1;
 
         Thread.yield();
-        Entity entity = trackService.getEntity(company, metaKey);
+        Entity entity = entityService.getEntity(company, metaKey);
         if (entity == null)
             return null;
 
@@ -1314,7 +1314,7 @@ public class TestFdIntegration {
 
         while (entity.getSearchKey() == null && i <= timeout) {
 
-            entity = trackService.getEntity(company, metaKey);
+            entity = entityService.getEntity(company, metaKey);
             //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
             if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
                 waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
@@ -1349,7 +1349,7 @@ public class TestFdIntegration {
                     if (random == 0)
                         random = 1;
 
-                    Entity entity = trackService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
+                    Entity entity = entityService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, entity);
                     assertNotNull("Looks like fd-search is not sending back results", entity.getSearchKey());
                     EntityLog entityLog = logService.getLastLog(entity);
@@ -1620,10 +1620,10 @@ public class TestFdIntegration {
         int count = 0;
 
         while (i <= timeout) {
-            Entity updatedEntity = trackService.getEntity(company, entity.getMetaKey());
-            count = trackService.getLogCount(company, updatedEntity.getMetaKey());
+            Entity updatedEntity = entityService.getEntity(company, entity.getMetaKey());
+            count = entityService.getLogCount(company, updatedEntity.getMetaKey());
 
-            EntityLog log = trackService.getLastEntityLog(company, updatedEntity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, updatedEntity.getMetaKey());
             // We have at least one log?
             if (count == expectedCount)
                 return log;

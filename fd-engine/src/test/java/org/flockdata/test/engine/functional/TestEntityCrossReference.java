@@ -63,11 +63,11 @@ public class TestEntityCrossReference extends EngineBase {
 
         xRef.add(destKey);
         xRef.add("NonExistent");
-        Collection<String> notFound = trackService.crossReference(su.getCompany(), sourceKey, xRef, "cites");
+        Collection<String> notFound = entityService.crossReference(su.getCompany(), sourceKey, xRef, "cites");
         assertEquals(1, notFound.size());
         assertEquals("NonExistent", notFound.iterator().next());
 
-        Map<String, Collection<Entity>> results = trackService.getCrossReference(su.getCompany(), sourceKey, "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), sourceKey, "cites");
         assertNotNull ( results);
         assertEquals(1, results.size());
         Collection<Entity> entities = results.get("cites");
@@ -100,7 +100,7 @@ public class TestEntityCrossReference extends EngineBase {
         xRef.add(new EntityKey("Doesn't matter"));
         try {
             EntityKey entityKey = new EntityKey(fortress.getName(), "*", callerRef);
-            trackService.crossReferenceEntities(su.getCompany(), entityKey, xRef, "cites");
+            entityService.crossReferenceEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
         } catch ( FlockException e ){
             // good stuff!
@@ -126,9 +126,9 @@ public class TestEntityCrossReference extends EngineBase {
         callerRefs.add(new EntityKey("ABC333"));
 
         EntityKey entityKey = new EntityKey(fortress.getName(), "*", "ABC123")  ;
-        Collection<EntityKey> notFound = trackService.crossReferenceEntities(su.getCompany(), entityKey, callerRefs, "cites");
+        Collection<EntityKey> notFound = entityService.crossReferenceEntities(su.getCompany(), entityKey, callerRefs, "cites");
         assertEquals(0, notFound.size());
-        Map<String, Collection<Entity>> results = trackService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
         assertNotNull ( results);
         assertEquals(1, results.size());
         Collection<Entity> entities = results.get("cites");
@@ -164,13 +164,13 @@ public class TestEntityCrossReference extends EngineBase {
         List<CrossReferenceInputBean > entities = new ArrayList<>();
         entities.add(bean);
 
-        List<CrossReferenceInputBean> notFound = trackService.crossReferenceEntities(su.getCompany(), entities);
+        List<CrossReferenceInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), entities);
         assertEquals(1, notFound.size());
         for (CrossReferenceInputBean crossReferenceInputBean : notFound) {
             assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
         }
 
-        Map<String, Collection<Entity>> results = trackService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
         assertNotNull ( results);
         assertEquals(1, results.size());
         assertEquals(2, results.get("cites").size());
@@ -195,7 +195,7 @@ public class TestEntityCrossReference extends EngineBase {
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
 
-        List<CrossReferenceInputBean> notFound = trackService.crossReferenceEntities(su.getCompany(), inputs);
+        List<CrossReferenceInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
 
         // These are the two records that will cite the previously created entity
@@ -203,10 +203,10 @@ public class TestEntityCrossReference extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         EntityInputBean inputBeanC = new EntityInputBean(fortressB.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
         mediationFacade.trackEntity(su.getCompany(), inputBeanC);
-        notFound = trackService.crossReferenceEntities(su.getCompany(), inputs);
+        notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
         assertEquals(0, notFound.iterator().next().getIgnored().get("cites").size());
 
-        Map<String, Collection<Entity>> results = trackService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
         assertNotNull ( results);
         assertEquals("Unexpected cites count", 2, results.get("cites").size());
         Collection<Entity> entities = results.get("cites");
@@ -236,11 +236,11 @@ public class TestEntityCrossReference extends EngineBase {
         assertFalse(destKey.equals(sourceMetaKey));
 
         xRef.add(destKey);
-        trackService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
+        entityService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
         // Try and force a duplicate relationship - only 1 should be created
-        trackService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
+        entityService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
 
-        Map<String, Collection<Entity>> results = trackService.getCrossReference(su.getCompany(), sourceMetaKey, "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), sourceMetaKey, "cites");
         assertNotNull(results);
         assertEquals(1, results.size());
         Collection<Entity> entities = results.get("cites");
