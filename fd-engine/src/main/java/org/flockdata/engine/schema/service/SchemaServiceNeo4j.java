@@ -54,7 +54,9 @@ public class SchemaServiceNeo4j implements SchemaService {
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     public Boolean ensureSystemIndexes(Company company) {
-        return schemaDao.ensureSystemConstraints(company);
+        if (engineConfig.createSystemConstraints())
+            return schemaDao.ensureSystemConstraints(company);
+        return true;
     }
 
     /**
