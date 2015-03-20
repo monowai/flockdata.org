@@ -88,7 +88,7 @@ public interface EntityService {
 
     EntityLog getLogForEntity(Entity entity, Long logId);
 
-    Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
+    Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException;
 

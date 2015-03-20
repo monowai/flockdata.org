@@ -38,6 +38,8 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
 import org.flockdata.track.service.*;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,7 +165,12 @@ public class EntityServiceNeo4J implements EntityService {
                 entityInputBean.getContent().setEvent(Log.CREATE);
             }
             Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser!=null ?contentUser:entity.getCreatedBy()), trackResult, null, null);
-            EntityLog entityLog = new EntityLogRelationship(entity, log, entity.getFortressDateCreated());
+
+            DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
+            EntityLog entityLog = new EntityLogRelationship(entity, log, contentWhen);
+
+            //if (trackResult.getContentInput().getWhen()!= null )
+
             logger.debug("Setting preparedLog ");
             LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
             logResult.setLogToIndex(entityLog);
@@ -474,7 +481,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {

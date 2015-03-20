@@ -314,7 +314,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_pdfTrackedAndFound() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
@@ -543,7 +543,7 @@ public class TestFdIntegration {
         entityInput.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
         entityInput.setContent(content);
         result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        waitAWhile("2nd log does not update search result");
 
         Entity entity = result.getEntity();
         Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
@@ -711,7 +711,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
@@ -730,8 +730,8 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
-        Entity entity = entityService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
+        Entity entity = result.getEntity();
         assertEquals(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
@@ -739,8 +739,6 @@ public class TestFdIntegration {
         assertNotNull ( log);
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
-
-        waitForFirstSearchResult(su.getCompany(), entity);
         // We have one with a metaKey and one without
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 1);
 
@@ -756,6 +754,7 @@ public class TestFdIntegration {
             logger.info("whenCreated ftz-{}", new DateTime(searchResult.getWhenCreated(), ftz));
             assertEquals(new DateTime(fortressDateCreated, utz), new DateTime(searchResult.getWhenCreated(), utz));
             logger.info("lastUpdate  utc-{}", new DateTime(searchResult.getLastUpdate(), utz));
+            assertNotNull(searchResult.getLastUpdate());
             assertEquals(lastUpdated, new DateTime(searchResult.getLastUpdate(), ftz));
             logger.info("lastUpdate  ftz-{}", new DateTime(searchResult.getLastUpdate(), ftz));
             assertEquals(new DateTime(lastUpdated, utz), new DateTime(searchResult.getLastUpdate(), utz));
