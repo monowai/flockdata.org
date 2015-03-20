@@ -516,13 +516,13 @@ public class TestTrack extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         LogResultBean firstLog  = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), firstDate, Helper.getSimpleMap("house", "house1"))).getLogResult();
         LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2"))).getLogResult();
-        assertNotSame(0l, firstLog.getLog().getEntityLog().getFortressWhen());
-        assertNotSame(0l, secondLog.getLog().getEntityLog().getFortressWhen());
+        assertNotSame(0l, firstLog.getLogToIndex().getFortressWhen());
+        assertNotSame(0l, secondLog.getLogToIndex().getFortressWhen());
         Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey);
         compareUser(entity, secondLog.getFortressUser());
-        assertEquals(secondLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(secondLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Test block
         entityService.cancelLastLog(fortress.getCompany(), entity);
@@ -530,7 +530,7 @@ public class TestTrack extends EngineBase {
         assertEquals(1, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey, true); // Refresh the entity
         compareUser(entity, firstLog.getFortressUser());
-        assertEquals(firstLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(firstLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
 
         // Last change cancelled
         entityService.cancelLastLog(fortress.getCompany(), entity);

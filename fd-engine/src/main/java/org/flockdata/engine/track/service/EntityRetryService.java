@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
@@ -61,6 +62,9 @@ public class EntityRetryService {
     LogService logService;
 
     @Autowired
+    EngineConfig engineConfig;
+
+    @Autowired
     SchemaService schemaService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
@@ -74,8 +78,15 @@ public class EntityRetryService {
 
         Iterable<TrackResultBean>
                 resultBeans = entityService.trackEntities(fortress, entityInputs);
-        // ToDo:
-        return logService.processLogs(fortress, resultBeans).get();
+        // ToDo: DAT-343 - write via a queue
+        //if (engineConfig.isTestMode())
+            return logService.processLogs(fortress, resultBeans).get();
+
+        // DAT-342 - we already know what the content log will be so we can end
+        //           this transaction and get on with writing the search results
+        // Occurs async
+        //logService.processLogs(fortress, resultBeans);
+        //return resultBeans;
 
     }
 

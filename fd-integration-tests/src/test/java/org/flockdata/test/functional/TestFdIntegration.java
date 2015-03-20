@@ -101,10 +101,14 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Allows the fd-engine services to be tested against fd-search with actual integration.
- * fd-search is stated by Cargo as a Tomcat server.
- * fd-engine runs as a usual Spring test runner.
+ * fd-search is stated by Cargo as a Tomcat server while fd-engine is debuggable in-process.
+ *
+ * Note that Logs and Search docs are written asyncronously. For this reason you will see
+ * various "waitAWhile" loops giving other threads time to process the payloads before
+ * making assertions.
+ *
  * <p>
- * This approach requires RabbitMQ and REDIS to be installed to allow integration to occur.
+ * This approach requires RabbitMQ to be installed to allow integration to occur.
  * <p>
  * No web interface is launched for fd-engine
  * <p>
@@ -257,7 +261,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_WhatFieldsIndexed() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## dataTypes_WhatFieldsIndexed");
 
         SystemUser su = registerSystemUser("dataTypes_WhatFieldsIndexed", "dataTypes_WhatFieldsIndexed");
@@ -284,7 +288,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_companyAndFortressWithSpaces() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## track_companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -310,7 +314,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_pdfTrackedAndFound() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
@@ -725,17 +729,18 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", lastUpdated, getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
-
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntityBean().getMetaKey());
 
         assertEquals(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressDateCreated()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntityBean().getMetaKey());
+        assertNotNull ( log);
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
 
-        waitForFirstSearchResult(su.getCompany(), entity); // 2nd document in the index
+        waitForFirstSearchResult(su.getCompany(), entity);
         // We have one with a metaKey and one without
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 1);
 
@@ -854,23 +859,30 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
 
+        // Initial create
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
 
-        LogResultBean secondLog = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
-        assertNotSame(0l, secondLog.getLog().getEntityLog().getFortressWhen());
+        // Now make an amendment
+        LogResultBean secondLog =
+                mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getLogResult();
+        assertNotSame(0l, secondLog.getLogToIndex().getFortressWhen());
+
         Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey);
-        waitAWhile("Cancel 1");
-        Assert.assertEquals("Last Updated dates don't match", secondLog.getLog().getEntityLog().getFortressWhen(), entity.getFortressDateUpdated());
+
+        waitAWhile("cancel function step 1");
+        Assert.assertEquals("Last Updated dates don't match", secondLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
-        // Test block
+        // Now cancel the last log
         mediationFacade.cancelLastLog(su.getCompany(), entity);
+        waitAWhile("Cancel function step 2");
         logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(1, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
         waitAWhile("Cancel 2");
+        // Should have restored the content back to house1
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
@@ -878,7 +890,7 @@ public class TestFdIntegration {
         mediationFacade.cancelLastLog(su.getCompany(), entity);
         logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(true, logs.isEmpty());
-        waitAWhile("Cancel 3");
+        waitAWhile("Cancel function step 3");
         doEsQuery(entity.getFortress().getIndexName(), "*", 0);
 
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
@@ -1155,10 +1167,8 @@ public class TestFdIntegration {
         entityInput.addTag(institutionTag);
 
         // Institution<-city<-state<-country
-
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
-        //assertNotNull(tagService.findTag(fortress.getCompany(), "Country", "USA"));
         waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
 
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "ca", 1);

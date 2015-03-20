@@ -164,7 +164,10 @@ public class LogRetryService {
             payLoad.getContentInput().setEvent(lastLog == null ? Log.CREATE : Log.UPDATE);
         }
 
-        Log preparedLog = payLoad.getPreparedLog();
+        Log preparedLog = null;
+        if ( payLoad.getLogResult()!=null )
+            preparedLog = payLoad.getLogResult().getLogToIndex().getLog();
+
         if ( preparedLog == null  ) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
             preparedLog = entityDao.prepareLog( fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
         else
@@ -199,7 +202,7 @@ public class LogRetryService {
 
         // Prepares the change
         payLoad.getContentInput().setChangeEvent(preparedLog.getEvent());
-        resultBean.setLog(preparedLog);
+        //resultBean.setLog(preparedLog);
 
         if (payLoad.getEntity().getId() == null)
             payLoad.getContentInput().setStatus(ContentInputBean.LogStatus.TRACK_ONLY);
@@ -207,14 +210,14 @@ public class LogRetryService {
             payLoad.getContentInput().setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        EntityLog newLog = entityDao.addLog(payLoad.getEntity(), preparedLog, contentWhen);
+        Log newLog = entityDao.addLog(payLoad.getEntity(), preparedLog, contentWhen);
 
-        resultBean.setFdWhen(newLog.getSysWhen());
+        resultBean.setFdWhen(newLog.getEntityLog().getSysWhen());
 
         boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(contentWhen.getMillis()) <= 0);
 
         if (moreRecent)
-            resultBean.setLogToIndex(newLog);  // Notional log to index.
+            resultBean.setLogToIndex(newLog.getEntityLog());  // Notional log to index.
 
         return resultBean;
 

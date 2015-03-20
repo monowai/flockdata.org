@@ -307,29 +307,29 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public EntityLog addLog(Entity entity, Log newChange, DateTime fortressWhen) {
+    public Log addLog(Entity entity, Log newLog, DateTime fortressWhen) {
 
-        newChange.setEntityLog(new EntityLogRelationship(entity, newChange, fortressWhen));
+        newLog.setEntityLog(new EntityLogRelationship(entity, newLog, fortressWhen));
 
         if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
-            return newChange.getEntityLog();
+            return newLog;
 
         entity = template.fetch(entity);// latest version (according to this transaction
         if (entity.getLastChange() == null) {
-            entity.setLastUser(newChange.getWho());
-            entity.setLastChange(newChange);
+            entity.setLastUser(newLog.getWho());
+            entity.setLastChange(newLog);
             entity.setFortressLastWhen(fortressWhen.getMillis());
             template.save(entity);
         } else {
-            newChange = template.save(newChange);
+            newLog = template.save(newLog);
             setLatest(entity);
             // Need to refresh the log
-//            template.fetch(newChange.getEntityLog());
+            template.fetch(newLog.getEntityLog());
         }
 
-        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
+        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newLog.getEntityLog(), newLog.getId());
         // Saving the entity causes the Log properties to be lazy initialised. If the caller wants these, then they need to fetch the object
-        return newChange.getEntityLog();
+        return newLog;
     }
 
     void setLatest(Entity entity) {

@@ -666,7 +666,7 @@ public class TestEntityTags extends EngineBase {
     public void tagsInSearchDoc() throws Exception {
         SystemUser su = registerSystemUser("tagsInSearchDoc", mike_admin);
         assertNotNull(su);
-
+        engineConfig.setTestMode(true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC",true));
         assertNotNull(fortress);
 
@@ -684,6 +684,7 @@ public class TestEntityTags extends EngineBase {
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
         inputBean.addTag(institutionTag);
+        inputBean.setContent(new ContentInputBean(Helper.getRandomMap()));
 
         // Institution<-city<-state<-country
 

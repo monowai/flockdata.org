@@ -21,6 +21,7 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
@@ -159,10 +160,11 @@ public class KvServiceTest {
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
         graphLog = kvService.prepareLog(trackResultBean, graphLog);
-
+        EntityLog eLog = new EntityLogRelationship(entity, graphLog, new DateTime());
         // Emulate the creation of the log
         LogResultBean logResult = new LogResultBean(entityInputBean.getContent());
-        logResult.setLog(graphLog);
+        logResult.setLogToIndex(eLog);
+        //logResult.setLog(graphLog);
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setLogResult(logResult);
@@ -176,8 +178,7 @@ public class KvServiceTest {
             kvService.doKvWrite(kvContentBean);
 
             // Retrieve the content we just created
-            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLog());
-
+            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLogToIndex().getLog());
             assertNotNull(kvContent);
             assertNotNull ( kvContent.getContent().getMetaKey());
             assertNotNull ( kvContent.getContent().getCallerRef());
@@ -186,7 +187,7 @@ public class KvServiceTest {
             if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
                 validateWhat(what, kvContent);
                 // Testing that cancel works
-                kvService.delete(entity, trackResultBean.getLogResult().getLog());
+                kvService.delete(entity, trackResultBean.getLogResult().getLogToIndex().getLog());
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());

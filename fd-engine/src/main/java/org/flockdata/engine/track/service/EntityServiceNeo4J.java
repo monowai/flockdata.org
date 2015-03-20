@@ -21,6 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -161,10 +162,14 @@ public class EntityServiceNeo4J implements EntityService {
             if (entityInputBean.getContent().getEvent() == null) {
                 entityInputBean.getContent().setEvent(Log.CREATE);
             }
+            Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser!=null ?contentUser:entity.getCreatedBy()), trackResult, null, null);
+            EntityLog entityLog = new EntityLogRelationship(entity, log, entity.getFortressDateCreated());
+            logger.debug("Setting preparedLog ");
+            LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
+            logResult.setLogToIndex(entityLog);
 
-            trackResult.setPreparedLog(
-                    entityDao.prepareLog(fortress.getCompany(), (contentUser!=null ?contentUser:entity.getCreatedBy()), trackResult, null, null)
-            );
+            trackResult.setLogResult(logResult);
+            //trackResult.setPreparedLog( entityLog );
         }
 
         return trackResult;
@@ -299,10 +304,10 @@ public class EntityServiceNeo4J implements EntityService {
         Log currentLog = existingLog.getLog();
         Log fromLog = currentLog.getPreviousLog();
         String searchKey = entity.getSearchKey();
-
+        EntityLog newEntityLog = null;
         if (fromLog != null) {
             entityDao.fetch(fromLog);
-            EntityLog newEntityLog = entityDao.getLog(fromLog.getEntityLog().getId());
+             newEntityLog = entityDao.getLog(fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getWho().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
@@ -336,7 +341,7 @@ public class EntityServiceNeo4J implements EntityService {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(new EntityBean(entity), fromLog, priorContent);
+            searchDocument = new EntitySearchChange(new EntityBean(entity), newEntityLog, priorContent.getContent());
             searchDocument.setTags(entityTagService.getEntityTags(company, entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
