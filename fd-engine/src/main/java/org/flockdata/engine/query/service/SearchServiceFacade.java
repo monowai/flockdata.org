@@ -295,7 +295,7 @@ public class SearchServiceFacade {
         try {
             return prepareSearchDocument(fortress.getCompany(), trackResultBean);
         } catch (JsonProcessingException e) {
-            trackResultBean.setServiceMessage("Error processing JSON document");
+            trackResultBean.addServiceMessage("Error processing JSON document");
             if (trackResultBean.getLogResult() != null) {
                 trackResultBean.getLogResult().setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);
             }

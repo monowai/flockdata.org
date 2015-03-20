@@ -30,7 +30,6 @@ import org.flockdata.track.model.TxRef;
  */
 public class LogResultBean {
     public static final String OK = "OK";
-    private String message;
     private String fortress;
     private String documentType;
     private String callerRef;
@@ -52,18 +51,8 @@ public class LogResultBean {
 
     }
 
-
     public ContentInputBean.LogStatus getStatus() {
         return status;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public void setTxReference(TxRef txReference) {
