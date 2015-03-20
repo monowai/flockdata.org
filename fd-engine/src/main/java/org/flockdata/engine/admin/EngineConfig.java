@@ -74,6 +74,7 @@ public class EngineConfig implements FdEngineConfig {
     Neo4jTemplate template;
 
     private boolean conceptsEnabled=true;
+    private boolean systemConstraints = true;
     private boolean duplicateRegistration;
     private boolean testMode;
 
@@ -111,6 +112,12 @@ public class EngineConfig implements FdEngineConfig {
         this.conceptsEnabled = !"@null".equals(conceptsEnabled) && Boolean.parseBoolean(conceptsEnabled);
     }
 
+    @Override
+    @Value("${fd-engine.system.constraints:@null}")
+    public void setSystemConstraints(String constraints) {
+        this.systemConstraints = !"@null".equals(constraints) && Boolean.parseBoolean(constraints);
+
+    }
 
     @Override
     public KvService.KV_STORE getKvStore() {
@@ -214,6 +221,12 @@ public class EngineConfig implements FdEngineConfig {
     public String authPing() {
         return  "Pong!";
     }
+
+    @Override
+    public boolean createSystemConstraints() {
+        return systemConstraints;
+    }
+
 
     @Override
     public void setTestMode(boolean testMode) {

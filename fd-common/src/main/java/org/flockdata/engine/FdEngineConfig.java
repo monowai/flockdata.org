@@ -21,6 +21,7 @@ package org.flockdata.engine;
 
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -43,6 +44,9 @@ public interface FdEngineConfig {
 
     void resetCache();
 
+    @Value("${fd-engine.system.constraints:@null}")
+    void setSystemConstraints(String constraints);
+
     public KvService.KV_STORE getKvStore();
 
     boolean isConceptsEnabled();
@@ -58,4 +62,6 @@ public interface FdEngineConfig {
     boolean isTestMode();
 
     String authPing();
+
+    boolean createSystemConstraints();
 }
