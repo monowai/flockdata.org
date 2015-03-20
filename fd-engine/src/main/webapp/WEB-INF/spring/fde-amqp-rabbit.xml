@@ -12,6 +12,7 @@
                                host="${rabbit.host}"
                                port="${rabbit.port}"
                                channel-cache-size="${rabbit.publisherCacheSize}"
+                               requested-heartbeat="${rabbit.heartbeat.secs}"
                                publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
                                executor="fd-engine"/>
