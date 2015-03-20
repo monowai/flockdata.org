@@ -141,8 +141,8 @@ public class LogRetryService {
         //ToDo: May want to track a "View" event which would not change the What data.
         if (!payLoad.getContentInput().hasData()) {
             resultBean.setStatus(ContentInputBean.LogStatus.IGNORE);
-            resultBean.setMessage("No content information provided. Ignoring this request");
-            logger.debug(resultBean.getMessage());
+            payLoad.addServiceMessage("No content information provided. Ignoring this request");
+            //logger.debug(payLoad.getServiceMessages());
             return resultBean;
         }
 
@@ -165,7 +165,7 @@ public class LogRetryService {
         }
 
         Log preparedLog = null;
-        if ( payLoad.getLogResult()!=null )
+        if ( payLoad.getLogResult()!= null )
             preparedLog = payLoad.getLogResult().getLogToIndex().getLog();
 
         if ( preparedLog == null  ) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
@@ -182,9 +182,9 @@ public class LogRetryService {
                 if (payLoad.getContentInput().isForceReindex()) { // Caller is recreating the search index
                     resultBean.setStatus((ContentInputBean.LogStatus.REINDEX));
                     resultBean.setLogToIndex(lastLog);
-                    resultBean.setMessage("Ignoring a change we already have. Honouring request to re-index");
+                    payLoad.addServiceMessage("Ignoring a change we already have. Honouring request to re-index");
                 } else {
-                    resultBean.setMessage("Ignoring a change we already have");
+                    payLoad.addServiceMessage("Ignoring a change we already have");
                     resultBean.setLogIgnored();
                 }
 

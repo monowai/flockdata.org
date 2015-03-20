@@ -26,6 +26,7 @@ import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -33,7 +34,7 @@ import java.util.Collection;
  * Since: 11/05/13
  */
 public class TrackResultBean {
-    private String serviceMessage;
+    private Collection<String> serviceMessages = new ArrayList<>();
     private LogResultBean logResult;
     private ContentInputBean contentInput;
 
@@ -47,11 +48,11 @@ public class TrackResultBean {
     }
 
     /**
-     * @param serviceMessage server side error messgae to return to the caller
+     * @param serviceMessage server side error messages to return to the caller
      */
     public TrackResultBean(String serviceMessage) {
         this();
-        this.serviceMessage = serviceMessage;
+        addServiceMessage(serviceMessage);
     }
 
     /**
@@ -100,12 +101,12 @@ public class TrackResultBean {
         return result;
     }
 
-    public String getServiceMessage() {
-        return serviceMessage;
+    public Collection<String> getServiceMessages() {
+        return serviceMessages;
     }
 
-    public void setServiceMessage(String serviceMessage) {
-        this.serviceMessage = serviceMessage;
+    public void addServiceMessage(String serviceMessage) {
+        this.serviceMessages.add(serviceMessage);
     }
 
     @JsonIgnore

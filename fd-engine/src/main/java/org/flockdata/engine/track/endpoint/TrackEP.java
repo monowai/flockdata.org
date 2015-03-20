@@ -110,7 +110,7 @@ public class TrackEP {
             if ( trackResultBean.getLogResult()!= null && trackResultBean.getLogResult().isLogIgnored())
                 return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
 
-        trackResultBean.setServiceMessage("OK");
+        trackResultBean.addServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.CREATED);
 
     }
@@ -151,7 +151,7 @@ public class TrackEP {
         input.setCallerRef(callerRef);
         input.setMetaKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
-        trackResultBean.setServiceMessage("OK");
+        trackResultBean.addServiceMessage("OK");
         return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
 
     }
