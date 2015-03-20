@@ -359,8 +359,12 @@ public class TrackEP {
         if (entity != null) {
 
             EntityLog log = entityService.getLastEntityLog(entity.getId());
-            if (log != null)
-                return kvService.getContent(entity, log.getLog()).getWhat();
+            if (log != null) {
+                KvContent content = kvService.getContent(entity, log.getLog());
+                if ( content == null )
+                    throw new FlockException("Unable to locate the content for "+metaKey +". The log was found - " +log);
+                return content.getWhat();
+            }
         }
 
         throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", metaKey));

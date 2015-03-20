@@ -21,12 +21,11 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.Log;
 
 import java.util.Collection;
 
@@ -45,7 +44,7 @@ public class TrackResultBean {
     private Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
     private DocumentType documentType;
-    private Log preparedLog;
+    private EntityLog preparedLog;
 
     protected TrackResultBean() {
     }
@@ -146,7 +145,7 @@ public class TrackResultBean {
     @JsonIgnore
     /**
      * Only used when creating  relationships for the purpose of search
-     * that bypass the graph
+     * that bypass the graph, i.e. transient EntityTags
      */
     public Collection<EntityTag> getTags() {
         return tags;
@@ -176,7 +175,7 @@ public class TrackResultBean {
     }
 
     public boolean processLog() {
-        return getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE;
+        return  ( getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE);
     }
 
     public void setDocumentType(DocumentType documentType) {
@@ -188,19 +187,20 @@ public class TrackResultBean {
         return documentType;
     }
 
-    /**
-     * Optimization to return a nicely prepared log if we have determined this to be a new entity
-     *
-     * @return pre-prepared log if this is a new entity
-     */
-    @JsonIgnore
-    public Log getPreparedLog() {
-        return preparedLog;
-    }
-
-    public void setPreparedLog(Log preparedLog) throws FlockException {
-        if (!entity.isNew() )
-            throw new FlockException("Prepared logs are only valid for new entities");
-        this.preparedLog = preparedLog;
-    }
+//    /**
+//     * Optimization to return a nicely prepared log if we have determined this to be a new entity
+//     *
+//     * @return pre-prepared log if this is a new entity
+//     */
+//    @JsonIgnore
+//    public EntityLog getPreparedLog() {
+//        return preparedLog;
+//    }
+//
+//    public void setPreparedLog(EntityLog preparedLog) throws FlockException {
+//        if (!entity.isNew() )
+//            throw new FlockException("Prepared logs are only valid for new entities");
+//
+//        this.preparedLog = preparedLog;
+//    }
 }

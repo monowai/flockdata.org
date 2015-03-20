@@ -40,11 +40,11 @@ public class EntityLogRelationship implements EntityLog {
     private Long id;
 
     @StartNode
-    private EntityNode entity;
+    private Entity entity;
 
     @EndNode
     @Fetch
-    private LogNode log;
+    private Log log;
 
     @Indexed
     private Long sysWhen = 0l;
@@ -66,8 +66,8 @@ public class EntityLogRelationship implements EntityLog {
 
     public EntityLogRelationship(Entity entity, Log log, DateTime fortressWhen) {
         this();
-        this.entity = (EntityNode) entity;
-        this.log = (LogNode) log;
+        this.entity = entity;
+        this.log = log;
         this.timezone = entity.getFortress().getTimeZone();
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
@@ -108,7 +108,7 @@ public class EntityLogRelationship implements EntityLog {
     }
 
     public void setEntity(Entity entity){
-        this.entity = (EntityNode) entity;
+        this.entity = entity;
     }
 
     public void setChange(LogNode auditLog) {

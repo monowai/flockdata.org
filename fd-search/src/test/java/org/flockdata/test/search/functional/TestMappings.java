@@ -19,7 +19,6 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.search.endpoint.ElasticSearchEP;
@@ -28,6 +27,7 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.SimpleEntityTagRelationship;
 import org.flockdata.test.engine.SimpleTag;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
@@ -157,8 +157,8 @@ public class TestMappings extends ESBase {
         Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fort");
         Entity entityB = Helper.getEntity("cust", "fortb", "anyuser", "fortb");
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new KvContentBean(json));
-        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new KvContentBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -192,8 +192,8 @@ public class TestMappings extends ESBase {
         Entity entityB = Helper.getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new KvContentBean(json));
-        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new KvContentBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(new EntityBean(entityB), new ContentInputBean(json));
 
         SimpleTag tag = new SimpleTag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
@@ -231,7 +231,7 @@ public class TestMappings extends ESBase {
         Map<String, Object> json = Helper.getBigJsonText(20);
         Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fortdoc");
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new KvContentBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
 
         Tag tag = new SimpleTag(new TagInputBean("aValue", "myTag", "myTag"));
         tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
