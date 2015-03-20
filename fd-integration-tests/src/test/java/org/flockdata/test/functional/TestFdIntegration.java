@@ -668,15 +668,11 @@ public class TestFdIntegration {
         String queryResult = runMetaQuery(qp);
         assertNotNull(queryResult);
         assertTrue("Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,"));
-//        logger.info(queryResult);
-
-        // Two search docs,but one without a metaKey
 
     }
 
     @Test
     public void query_engineResultsReturn() throws Exception {
-        // DAT-83
         assumeTrue(runMe);
         logger.info("## query_engineResultsReturn");
         SystemUser su = registerSystemUser("Kiwi");
@@ -711,7 +707,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
