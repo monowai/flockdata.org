@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -74,19 +75,38 @@ public class EntityRetryService {
     }
 
     @Transactional
-    Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
+    Iterable<TrackResultBean> doTrack(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
 
-        Iterable<TrackResultBean>
+        Collection<TrackResultBean>
                 resultBeans = entityService.trackEntities(fortress, entityInputs);
         // ToDo: DAT-343 - write via a queue
-        //if (engineConfig.isTestMode())
-            return logService.processLogs(fortress, resultBeans).get();
+        boolean processAsync ;
 
-        // DAT-342 - we already know what the content log will be so we can end
-        //           this transaction and get on with writing the search results
-        // Occurs async
-        //logService.processLogs(fortress, resultBeans);
-        //return resultBeans;
+
+        if ( engineConfig.isTestMode() )   // We always run sync in test mode
+            processAsync = false;
+        else if ( resultBeans.size() == 1) { // When processing one result, defer to the isNew flag
+            // Existing entities are processed sync, new ones async
+            processAsync = resultBeans.iterator().next().getEntity().isNew();
+        } else { // Could have a mix of new and existing entities, so we need to split
+            // Split the batch between new and existing entities
+            Collection<TrackResultBean>newEntities = TrackBatchSplitter.splitEntityResults(resultBeans);
+            if ( !newEntities.isEmpty()) // New can be processed async
+                logService.processLogs(fortress, newEntities);
+            // Process updates synchronously
+            return logService.processLogs(fortress, resultBeans).get();
+        }
+
+        if (processAsync) {
+            // DAT-342 - we already know what the content log will be so we can end
+            //           this transaction and get on with writing the search results
+            // Occurs async
+            logService.processLogs(fortress, resultBeans);
+            return resultBeans;
+
+        } else {
+            return logService.processLogs(fortress, resultBeans).get();
+        }
 
     }
 

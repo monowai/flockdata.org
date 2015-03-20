@@ -71,7 +71,7 @@ public class LogServiceNeo4j implements LogService {
     LogRetryService logRetryService;
 
     @Override
-    @Async
+    @Async ("fd-log")
     public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
 
         Collection<TrackResultBean> logResults = new ArrayList<>();

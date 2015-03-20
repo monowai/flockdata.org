@@ -317,7 +317,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
         createTags(fortress.getCompany(), getTags(inputBeans));
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
-        List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
         // We have to wait for the docType before proceeding to create entities
         try {
@@ -327,6 +326,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.error("Time out looking/creating docType " + first.getDocumentName());
             throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
         }
+
+        List<List<EntityInputBean>>
+            splitList = Lists.partition(inputBeans, splitListInTo);
 
         StopWatch watch = new StopWatch();
         watch.start();
