@@ -124,7 +124,7 @@ public class KvConfig implements FdKvConfig {
     @Override
     public Map<String, String> getHealth() {
 
-        String version = VersionHelper.getABVersion();
+        String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("fd-store.version", version);
         String config = System.getProperty("fd.config");

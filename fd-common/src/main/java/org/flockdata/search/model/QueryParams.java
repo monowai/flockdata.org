@@ -29,6 +29,7 @@ import org.flockdata.registration.model.Fortress;
  */
 public class QueryParams {
     private String simpleQuery;
+    private String metaKey;
     private String company;
     private String fortress;
     private String[] types;
@@ -38,6 +39,7 @@ public class QueryParams {
     private boolean entityOnly;
 
     public QueryParams() {}
+
     public QueryParams(Fortress fortress) {
         this();
         setFortress(fortress.getCode());
@@ -113,4 +115,14 @@ public class QueryParams {
     public boolean isEntityOnly() {
         return entityOnly;
     }
+
+    public String getMetaKey() {
+        return metaKey;
+    }
+
+    public void setMetaKey(String metaKey) {
+        this.metaKey = metaKey;
+    }
+
+
 }

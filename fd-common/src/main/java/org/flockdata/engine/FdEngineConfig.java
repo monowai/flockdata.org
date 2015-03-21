@@ -64,4 +64,8 @@ public interface FdEngineConfig {
     String authPing();
 
     boolean createSystemConstraints();
+
+    public Boolean getVersionEnabled ();
+
+    public void setVersionEnabled (String enabled);
 }

@@ -21,6 +21,7 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.company.FortressDaoNeo;
+import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -47,6 +48,7 @@ import java.util.Collection;
 @Transactional
 public class FortressServiceNeo4j implements FortressService {
     private Logger logger = LoggerFactory.getLogger(FortressServiceNeo4j.class);
+
     @Autowired
     private FortressDaoNeo fortressDao;
 
@@ -58,6 +60,9 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Autowired
     private SecurityHelper securityHelper;
+
+    @Autowired
+    private EngineConfig engineConfig;
 
     @Override
     public Fortress getFortress(Long id) {
@@ -77,7 +82,6 @@ public class FortressServiceNeo4j implements FortressService {
         return fortressDao.getFortressByName(company.getId(), fortressName);
     }
 
-
     @Override
     public Fortress findByName(String fortressName) throws NotFoundException {
         Company ownedBy = getCompany();
@@ -95,7 +99,6 @@ public class FortressServiceNeo4j implements FortressService {
         return fortressDao.getFortressByCode(company.getId(), fortressCode);
     }
 
-
     private Company getCompany() {
         String userName = securityHelper.getUserName(true, false);
         SystemUser su = sysUserService.findByLogin(userName);
@@ -104,7 +107,6 @@ public class FortressServiceNeo4j implements FortressService {
         }
         return su.getCompany();
     }
-
 
     private Fortress save(Company company, FortressInputBean fortress) {
         return fortressDao.save(company, fortress);
@@ -141,7 +143,6 @@ public class FortressServiceNeo4j implements FortressService {
      * @return fortressUser identity
      */
     @Override
-//    @Cacheable(value = "fortressUser", unless = "#result==null")
     public FortressUser getFortressUser(Fortress fortress, String fortressUser) {
         return getFortressUser(fortress, fortressUser, true);
     }
@@ -200,7 +201,6 @@ public class FortressServiceNeo4j implements FortressService {
         fortressDao.delete(fortress);
     }
 
-
     /**
      * Creates a fortress if it's missing.
      *
@@ -217,13 +217,17 @@ public class FortressServiceNeo4j implements FortressService {
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
-
+        boolean versioningDefault = engineConfig.getVersionEnabled();
         if (fortress != null) {
-            // Already associated, get out of here
+            if (fortress.isVersioningEnabled() == null)
+                // DAT-346 - data upgrade, revert to system default
+                fortress.setVersioning(versioningDefault);
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);
             return fortress;
         }
         if (createIfMissing) {
+            if ( fib.getVersioning() == null )
+                fib.setVersioning(versioningDefault);
             fortress = save(company, fib);
             logger.trace("Created fortress {}", fortress);
             fortress.setCompany(company);
@@ -233,7 +237,6 @@ public class FortressServiceNeo4j implements FortressService {
         return null;
 
     }
-
 
     @Override
     public Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException {
@@ -251,7 +254,6 @@ public class FortressServiceNeo4j implements FortressService {
         return results;
     }
 
-
     @Override
     public Fortress getFortress(Company company, String fortressName) throws NotFoundException {
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fortressName);
@@ -259,4 +261,5 @@ public class FortressServiceNeo4j implements FortressService {
             throw new NotFoundException("Unable to locate the fortress " + fortressName);
         return fortress;
     }
+
 }

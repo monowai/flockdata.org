@@ -54,6 +54,7 @@ public class FortressNode implements Fortress {
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
+    private Boolean versioning = Boolean.TRUE;
 
     @Indexed (unique = true)
     private String indexName = null;
@@ -65,9 +66,7 @@ public class FortressNode implements Fortress {
         this();
         getTimeZone();
         getLanguageTag();
-
         setFortressInput(fortressInputBean);
-
         setCompany(ownedBy);
 
     }
@@ -78,12 +77,12 @@ public class FortressNode implements Fortress {
         return indexName;
     }
 
-    @Override
-    public Fortress setFortressInput(FortressInputBean fortressInputBean) {
+    Fortress setFortressInput(FortressInputBean fortressInputBean) {
         setName(fortressInputBean.getName().trim());
         setSearchActive(fortressInputBean.getSearchActive());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
+        versioning = fortressInputBean.getVersioning();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)
@@ -97,8 +96,6 @@ public class FortressNode implements Fortress {
 
         return this;
     }
-
-
 
     public Long getId() {
         return id;
@@ -124,6 +121,16 @@ public class FortressNode implements Fortress {
         this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
         this.company = (CompanyNode) ownedBy;
 
+    }
+
+    @Override
+    public Boolean isVersioningEnabled() {
+        return versioning;
+    }
+
+    @Override
+    public void setVersioning(Boolean enabled) {
+        this.versioning = enabled;
     }
 
     @JsonIgnore
