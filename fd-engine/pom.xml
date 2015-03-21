@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
+            <artifactId>neo4j-enterprise</artifactId>
             <version>${neo4j.version}</version>
             <exclusions>
                 <exclusion>
@@ -47,6 +47,8 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
+        <!--  -->
         <dependency>
             <groupId>org.neo4j.app</groupId>
             <artifactId>neo4j-server</artifactId>
