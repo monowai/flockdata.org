@@ -137,7 +137,6 @@ public class QueryDaoES implements QueryDao {
         return tagcloud;
     }
 
-
     @Override
     public long getHitCount(String index) {
         SearchResponse response = client.prepareSearch(index)
@@ -272,4 +271,19 @@ public class QueryDaoES implements QueryDao {
         return highlights;
     }
 
+    //@Override
+    public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
+        StopWatch watch = new StopWatch();
+
+        watch.start(queryParams.toString());
+
+        SearchResponse response = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
+                .execute()
+                .actionGet();
+
+
+        watch.stop();
+        return new EsSearchResult();
+    }
 }

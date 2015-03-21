@@ -79,7 +79,7 @@ public class SearchAdmin {
 
     @Secured({"ROLE_FD_ADMIN"})
     public Map<String, Object> getHealth() {
-        String version = VersionHelper.getABVersion();
+        String version = VersionHelper.getFdVersion();
 
         Map<String, Object> healthResults = new HashMap<>();
         healthResults.put("elasticsearch", engineDao.ping());

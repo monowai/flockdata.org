@@ -79,12 +79,6 @@ public class Helper {
 
         FortressInputBean fib = new FortressInputBean(fort, false);
         Fortress fortress = new SimpleFortress(fib, mockCompany);
-        fortress.setFortressInput(fib);
-        fortress.setCompany(mockCompany);
-
-//        FortressUser user = mock(FortressUser.class);
-//        user.setCode(userName);
-//        user.setFortress(fortress);
 
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(docType, fort, userName, now.toString(), now);

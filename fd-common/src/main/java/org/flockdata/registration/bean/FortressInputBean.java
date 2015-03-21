@@ -29,7 +29,7 @@ import java.util.TimeZone;
  * Default behaviour is
  * not to accumulate each change as a separate document
  * index document changes in the search engine
- * <p/>
+ * <p>
  * Date: 15/06/13
  * Time: 12:04 PM
  */
@@ -43,6 +43,7 @@ public class FortressInputBean {
     private Boolean enabled = true;
     private Boolean system = false;
 
+    private Boolean versioning = null;
 
     protected FortressInputBean() {
     }
@@ -62,23 +63,25 @@ public class FortressInputBean {
 
     public FortressInputBean(@NotEmpty String name) {
         this.name = name;
-        searchActive=true;
+        searchActive = true;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public FortressInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Boolean getSearchActive() {
         return searchActive;
     }
 
-    public void setSearchActive(Boolean searchActive) {
+    public FortressInputBean setSearchActive(Boolean searchActive) {
         this.searchActive = searchActive;
+        return this;
     }
 
     public void setMessage(String message) {
@@ -86,9 +89,9 @@ public class FortressInputBean {
 
     }
 
-    public void setFortressKey(String fortressKey) {
+    public FortressInputBean setFortressKey(String fortressKey) {
         this.fortressKey = fortressKey;
-
+        return this;
     }
 
     public String getTimeZone() {
@@ -119,12 +122,13 @@ public class FortressInputBean {
         return languageTag;
     }
 
-    public void setLanguageTag(String languageTag) {
+    public FortressInputBean setLanguageTag(String languageTag) {
         if (languageTag != null) {
             if ("und".equals(Locale.forLanguageTag(languageTag).toLanguageTag()))
                 throw new IllegalArgumentException(languageTag + " was not recognized");
             this.languageTag = languageTag;
         }
+        return this;
     }
 
     @Override
@@ -139,15 +143,27 @@ public class FortressInputBean {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public FortressInputBean setEnabled(Boolean enabled) {
         this.enabled = enabled;
+        return this;
     }
 
     public Boolean getSystem() {
         return system;
     }
 
-    public void setSystem(Boolean system) {
+    public FortressInputBean setSystem(Boolean system) {
         this.system = system;
+        return this;
     }
+
+    public Boolean getVersioning() {
+        return versioning;
+    }
+
+    public FortressInputBean setVersioning(Boolean enabled) {
+        this.versioning = enabled;
+        return this;
+    }
+
 }

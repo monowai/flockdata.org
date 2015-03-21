@@ -64,36 +64,40 @@ public class TestForceDeadlock extends EngineBase {
 
     @Test
     public void tagsUnderLoad() throws Exception {
-        cleanUpGraph(); // No transaction so need to clear down the graph
 
-        String monowai = "Monowai";
-        SystemUser su = registerSystemUser(monowai, "tagsUnderLoad");
-        setSecurity();
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagsUnderLoad", true));
-        int tagCount = 1;
-        int runCount = 1;
-        int threadMax = 10;
+        try {
+            String companyName = "tagsUnderLoad";
+            SystemUser su = registerSystemUser(companyName, "tagsUnderLoad");
+            setSecurity();
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagsUnderLoad", true));
+            int tagCount = 1;
+            int runCount = 1;
+            int threadMax = 10;
 
-        List<TagInputBean> tags = getTags(tagCount, false);
+            List<TagInputBean> tags = getTags(tagCount, false);
 
-        Map<Integer, TagRunner> runners = new HashMap<>();
-        CountDownLatch startSignal = new CountDownLatch(1);
+            Map<Integer, TagRunner> runners = new HashMap<>();
+            CountDownLatch startSignal = new CountDownLatch(1);
 
-        CountDownLatch latch = new CountDownLatch(threadMax);
-        for (int i = 0; i < threadMax; i++) {
-            runners.put(i, addTagRunner(fortress, runCount, tags, latch, startSignal));
-        }
+            CountDownLatch latch = new CountDownLatch(threadMax);
+            for (int i = 0; i < threadMax; i++) {
+                runners.put(i, addTagRunner(fortress, runCount, tags, latch, startSignal));
+            }
 
-        startSignal.countDown();
-        latch.await();
-        Thread.yield();
-        for (int i = 0; i < threadMax; i++) {
-            assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
-        }
-        for (Integer integer : runners.keySet()) {
-            assertEquals(true, runners.get(integer).isWorked());
+            startSignal.countDown();
+            latch.await();
+            Thread.yield();
+            for (int i = 0; i < threadMax; i++) {
+                assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
+            }
+            for (Integer integer : runners.keySet()) {
+                assertEquals(true, runners.get(integer).isWorked());
+            }
+        } finally {
+            cleanUpGraph(); // No transaction so need to clear down the graph
         }
     }
+
 
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
@@ -103,53 +107,56 @@ public class TestForceDeadlock extends EngineBase {
     @Test
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
-        cleanUpGraph(); // No transaction so need to clear down the graph
+        try {
+            String companyName = "entitiesUnderLoad";
+            SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
+//            setSecurity();
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
+            String docType = "entitiesUnderLoad";
 
-        String monowai = "Monowai";
-        SystemUser su = registerSystemUser(monowai, mike_admin);
-        setSecurity();
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
-        String docType = "entitiesUnderLoad";
+            int tagCount = 1; // unique tags per entity - tags are shared across the entities
+            int docCount = 1; // how many entities to create per thread
+            int threadMax = 35; // Each thread will create a unique document type
+            ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
-        int tagCount = 1; // unique tags per entity - tags are shared across the entities
-        int docCount = 1; // how many entities to create per thread
-        int threadMax = 35; // Each thread will create a unique document type
-        ArrayList<TagInputBean> tags = getTags(tagCount,false);
+            Map<Integer, EntityRunner> runners = new HashMap<>();
 
-        Map<Integer, EntityRunner> runners = new HashMap<>();
-
-        CountDownLatch latch = new CountDownLatch(threadMax);
-        CountDownLatch startSignal = new CountDownLatch(1);
-        for (int thread = 0; thread < threadMax; thread++) {
-            EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
-            runners.put(thread, runner);
-        }
-        startSignal.countDown();
-        latch.await();
-
-        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
-
-        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
-        assertEquals(false, createdTags.isEmpty());
-        assertEquals(tagCount, createdTags.size());
-
-        for (int thread = 0; thread < threadMax; thread++) {
-            assertEquals(true, runners.get(thread).isWorked());
-            for ( int count =0; count < docCount; count ++ ) {
-                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
-                assertNotNull(entity);
-                assertNotNull(su.getCompany());
-                assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
+            CountDownLatch latch = new CountDownLatch(threadMax);
+            CountDownLatch startSignal = new CountDownLatch(1);
+            for (int thread = 0; thread < threadMax; thread++) {
+                EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
+                runners.put(thread, runner);
             }
+            startSignal.countDown();
+            latch.await();
+
+            assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
+
+            Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+            assertEquals(false, createdTags.isEmpty());
+            assertEquals(tagCount, createdTags.size());
+
+            for (int thread = 0; thread < threadMax; thread++) {
+                assertEquals(true, runners.get(thread).isWorked());
+                for (int count = 0; count < docCount; count++) {
+                    Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                    assertNotNull(entity);
+                    assertNotNull(su.getCompany());
+                    assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
+                }
+            }
+        } finally {
+            cleanUpGraph(); // No transaction so need to clear down the graph
         }
     }
+
 
     private ArrayList<TagInputBean> getTags(int tagCount, boolean addSubTag) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < tagCount; i++) {
             TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
             tag.setLabel("Deadlock");
-            if ( addSubTag) {
+            if (addSubTag) {
                 TagInputBean subTag = new TagInputBean("subtag" + i);
                 subTag.setLabel("DeadlockSub");
                 tag.setTargets("subtag", subTag);
@@ -203,7 +210,7 @@ public class TestForceDeadlock extends EngineBase {
                 EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
                 inputBean.setTags(tags);
                 inputBeans.add(inputBean);
-                count ++;
+                count++;
             }
         }
 

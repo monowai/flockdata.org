@@ -20,19 +20,21 @@
 package org.flockdata.registration.model;
 
 
-import org.flockdata.registration.bean.FortressInputBean;
-
 public interface Fortress {
 
-    public abstract Long getId();
+    public Long getId();
 
-    public abstract String getName();
+    public String getName();
 
-    public abstract void setName(String name);
+    public void setName(String name);
 
-    public abstract Company getCompany();
+    public Company getCompany();
 
-    public abstract void setCompany(Company ownedBy);
+    public void setCompany(Company ownedBy);
+
+    public Boolean isVersioningEnabled() ;
+
+    public void setVersioning(Boolean enabled);
 
     /**
      * Are changes logged against this fortress accumulated or updated in the search engine
@@ -62,5 +64,5 @@ public interface Fortress {
 
     String getIndexName();
 
-    Fortress setFortressInput(FortressInputBean fib);
+//    Fortress setFortressInput(FortressInputBean fib);
 }
