@@ -34,7 +34,7 @@ public interface Fortress {
 
     public Boolean isVersioningEnabled() ;
 
-    public void setVersioning(Boolean enabled);
+    public void setStoreEnabled(Boolean enabled);
 
     /**
      * Are changes logged against this fortress accumulated or updated in the search engine

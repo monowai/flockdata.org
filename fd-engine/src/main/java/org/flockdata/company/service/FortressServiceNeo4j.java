@@ -217,17 +217,17 @@ public class FortressServiceNeo4j implements FortressService {
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
-        boolean versioningDefault = engineConfig.getVersionEnabled();
+        boolean versioningDefault = engineConfig.isStoreEnabled();
         if (fortress != null) {
             if (fortress.isVersioningEnabled() == null)
                 // DAT-346 - data upgrade, revert to system default
-                fortress.setVersioning(versioningDefault);
+                fortress.setStoreEnabled(versioningDefault);
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);
             return fortress;
         }
         if (createIfMissing) {
-            if ( fib.getVersioning() == null )
-                fib.setVersioning(versioningDefault);
+            if ( fib.getStore() == null )
+                fib.setStore(versioningDefault);
             fortress = save(company, fib);
             logger.trace("Created fortress {}", fortress);
             fortress.setCompany(company);

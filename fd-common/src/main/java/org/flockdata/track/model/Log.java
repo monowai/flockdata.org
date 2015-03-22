@@ -61,14 +61,14 @@ public interface Log {
     /**
      * @return mechanism used to store the what text
      */
-    public String getWhatStore();
+    public String getStorage();
 
     /**
      * defaults to Neo4j
      *
      * @param storage where to store
      */
-    public void setWhatStore(String storage);
+    public void setStorage(String storage);
 
     void setEvent(ChangeEvent event);
 

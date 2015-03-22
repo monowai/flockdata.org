@@ -54,7 +54,7 @@ public class FortressNode implements Fortress {
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
-    private Boolean versioning = Boolean.TRUE;
+    private Boolean storeEnabled = Boolean.TRUE;
 
     @Indexed (unique = true)
     private String indexName = null;
@@ -82,7 +82,7 @@ public class FortressNode implements Fortress {
         setSearchActive(fortressInputBean.getSearchActive());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
-        versioning = fortressInputBean.getVersioning();
+        storeEnabled = fortressInputBean.getStore();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)
@@ -125,12 +125,12 @@ public class FortressNode implements Fortress {
 
     @Override
     public Boolean isVersioningEnabled() {
-        return versioning;
+        return storeEnabled;
     }
 
     @Override
-    public void setVersioning(Boolean enabled) {
-        this.versioning = enabled;
+    public void setStoreEnabled(Boolean enabled) {
+        this.storeEnabled = enabled;
     }
 
     @JsonIgnore

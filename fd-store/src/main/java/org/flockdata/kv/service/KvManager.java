@@ -30,6 +30,7 @@ import org.flockdata.kv.KvGateway;
 import org.flockdata.kv.KvRepo;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.memory.MapRepo;
+import org.flockdata.kv.none.EsRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
 import org.flockdata.track.bean.DeltaBean;
@@ -77,6 +78,9 @@ public class KvManager implements KvService {
     MapRepo mapRepo;
 
     @Autowired
+    EsRepo defaultStore;
+
+    @Autowired
     FdKvConfig kvConfig;
 
     private Logger logger = LoggerFactory.getLogger(KvManager.class);
@@ -97,6 +101,8 @@ public class KvManager implements KvService {
      * Activated via an integration channel. This method goes through retry logic to handle
      * temporary failures. If the kvBean is not processed then the message is left on the queue
      * for retry
+     *
+     * For an add we write to the default store
      *
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
@@ -149,7 +155,7 @@ public class KvManager implements KvService {
      * Subsequently, this data will make it to a KV store
      *
      * @param trackResult Escaped Json
-     * @param log     Log
+     * @param log         Log
      * @return logChange
      * @throws IOException
      */
@@ -157,9 +163,9 @@ public class KvManager implements KvService {
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
-        log.setWhatStore(String.valueOf(kvConfig.getKvStore()));
+        log.setStorage(String.valueOf(kvConfig.getKvStore()));
 
-        return getKvRepo().prepareLog(log, kvContent);
+        return getKvRepo(log).prepareLog(log, kvContent);
     }
 
     private KvRepo getKvRepo() {
@@ -167,7 +173,7 @@ public class KvManager implements KvService {
     }
 
     private KvRepo getKvRepo(Log change) {
-        return getKvRepo(change.getWhatStore());
+        return getKvRepo(change.getStorage());
     }
 
     private KvRepo getKvRepo(String kvStore) {
@@ -177,6 +183,8 @@ public class KvManager implements KvService {
             return riakRepo;
         } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.MEMORY))) {
             return mapRepo;
+        } else if (kvStore.equalsIgnoreCase(String.valueOf(KV_STORE.NONE))) {
+            return defaultStore;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
             return mapRepo;
@@ -191,7 +199,7 @@ public class KvManager implements KvService {
         try {
             return getKvRepo(log).getValue(entity, log);
 
-        } catch (RuntimeException re) {
+        } catch (FlockServiceException re) {
             logger.error("KV Error Entity[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
         }
         return null;
