@@ -272,7 +272,7 @@ public class QueryDaoES implements QueryDao {
         return highlights;
     }
 
-    //@Override
+    @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
 
         GetResponse response =
@@ -282,9 +282,6 @@ public class QueryDaoES implements QueryDao {
                         .execute()
                         .actionGet();
 
-
-        Map<String,Object>source = response.getSourceAsMap();
-
-        return new EsSearchResult(source);
+        return new EsSearchResult(response.getSourceAsMap());
     }
 }

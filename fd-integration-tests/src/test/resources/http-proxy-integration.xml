@@ -16,6 +16,7 @@
     <int-http:outbound-gateway request-channel="doMetaKeyQuery"
                                reply-channel="doMetaKeyReply"
                                reply-timeout="${reply.timeout}"
+                               charset="UTF-8"
                                url="${fd-search.url}/v1/api/esSearch"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String">
@@ -27,6 +28,7 @@
                                reply-timeout="${reply.timeout}"
                                url="${fd-search.url}/v1/api/esContent"
                                extract-request-payload="true"
+                               charset="UTF-8"
                                expected-response-type="java.lang.String">
     </int-http:outbound-gateway>
 
@@ -35,6 +37,7 @@
                                reply-timeout="${reply.timeout}"
                                url="${fd-search.url}/v1/api/esTagCloud"
                                extract-request-payload="true"
+                               charset="UTF-8"
                                expected-response-type="java.lang.String" />
 
 </beans>

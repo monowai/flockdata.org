@@ -44,7 +44,7 @@ public class QueryServiceEs implements QueryService {
     private QueryDao queryDao;
 
     @Override
-    @ServiceActivator(inputChannel = "doTagCloudQuery", outputChannel = "doTagCloudReply") // Subscriber
+    @ServiceActivator(inputChannel = "doTagCloudQuery", outputChannel = "tagCloudReply") // Subscriber
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException {
         return queryDao.getCloudTag(tagCloudParams);
     }
@@ -55,13 +55,13 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "doMetaKeyReply") // Subscriber
+    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "metaKeyReply") // Subscriber
     public EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException {
             return queryDao.doEntitySearch(queryParams);
     }
 
     @Override
-    @ServiceActivator(inputChannel = "doContentQuery", outputChannel = "doContentReply") // Subscriber
+    @ServiceActivator(inputChannel = "doContentQuery", outputChannel = "contentReply") // Subscriber
     public EsSearchResult contentQuery(QueryParams queryParams) throws FlockException {
         // DAT-347 how to route the response
         return queryDao.doWhatSearch(queryParams);
