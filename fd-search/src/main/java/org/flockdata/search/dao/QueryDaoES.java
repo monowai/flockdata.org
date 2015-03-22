@@ -20,6 +20,7 @@
 package org.flockdata.search.dao;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -277,13 +278,17 @@ public class QueryDaoES implements QueryDao {
 
         watch.start(queryParams.toString());
 
-        SearchResponse response = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
-                .execute()
-                .actionGet();
+        GetResponse response =
+                client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
+                        queryParams.getTypes()[0],
+                        queryParams.getCallerRef())
+                        .execute()
+                        .actionGet();
 
 
         watch.stop();
-        return new EsSearchResult();
+        Map<String,Object>source = response.getSourceAsMap();
+
+        return new EsSearchResult(source);
     }
 }

@@ -19,6 +19,10 @@
     <int:gateway id="fdSearchGateway"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
+    <!-- DAT-347 -->
+    <int:gateway id="esGateway"
+                 service-interface="org.flockdata.kv.none.EsGateway"/>
+
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
                  service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 
@@ -34,6 +38,7 @@
                            ref="fdkvErrorHandler"/>
 
     <bean id="fdkvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+
     <bean id="fdeErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
 
     <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
@@ -53,8 +58,6 @@
     <int:handler-retry-advice id="httpRetry" max-attempts="5" >
         <int:exponential-back-off initial="500" multiplier="2.0" maximum="2000"/>
     </int:handler-retry-advice>
-
-
 
     <!--<int:json-to-object-transformer id="indexRequestReply"-->
                                     <!--input-channel="searchDocSyncResult"-->
@@ -115,7 +118,8 @@
     <int:channel id="sendSearchRequest"/>
     <int:channel id="sendSearchReply"/>
     <int:channel id="doMetaKeyQuery"/>
-
+    <!--In response to a request from fd-store-->
+    <int:channel id="kvSearchReply"/>
 
     <!-- search queries-->
     <int:channel id="doTagCloudQuery"/>

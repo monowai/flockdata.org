@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,29 +17,20 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.dao;
+package org.flockdata.kv.none;
 
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.springframework.integration.annotation.Gateway;
 
 /**
- * User: Mike Holdsworth
- * Date: 28/04/13
- * Time: 8:44 PM
+ * Created by mike on 22/03/15.
  */
-public interface QueryDao {
-    TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException;
+public interface EsGateway {
 
-    long getHitCount(String index);
+    // DAT-347
+    // ToDo: How to deal with the reply channel. Can you have the same reply channels on 2 different gateways?
+    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
+    public EsSearchResult get(QueryParams queryParams);
 
-    EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException;
-
-    // Treating Es like a current state KV store
-    EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException;
-
-    String doSearch(QueryParams queryParams) throws FlockException;
 }
