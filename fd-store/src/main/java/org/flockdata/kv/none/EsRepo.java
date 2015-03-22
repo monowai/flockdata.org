@@ -19,27 +19,53 @@
 
 package org.flockdata.kv.none;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Support for no storage engine. This will simply use elasticsearch as a store for content
+ * Support for no storage engine. This will simply use elasticsearch as a store for
+ * current state content
  */
 @Component
 public class EsRepo extends AbstractKvRepo{
+
+    @Autowired
+    EsGateway esGateway;
+
+    private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
     public void add(KvContent contentBean) {
 
     }
 
-    public KvContent getValue(Entity entity, Log forLog) {
-        // ElasticSearch query
-        return new KvContentBean(forLog, new ContentInputBean());
+    public KvContent getValue(Entity entity, Log forLog)  {
+        QueryParams queryParams = new QueryParams();
+        queryParams.setCompany(entity.getFortress().getCompany().getName());
+        queryParams.setTypes(entity.getDocumentType());
+        queryParams.setFortress(entity.getFortress().getName());
+        queryParams.setCallerRef(entity.getCallerKeyRef());
+
+        // DAT-347 - we should get the What response back here
+        EsSearchResult result = esGateway.get(queryParams);
+        ContentInputBean contentInput = new ContentInputBean();
+        if (result!=null )
+            try {
+                contentInput.setWhat(result.getWhat());
+            } catch (FlockException e) {
+                logger.error("Json issue", e);
+            }
+        return new KvContentBean(forLog, contentInput);
     }
 
     public void delete(Entity entity, Log log) {

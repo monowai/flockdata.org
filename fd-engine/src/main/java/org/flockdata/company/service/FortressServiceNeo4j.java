@@ -219,7 +219,7 @@ public class FortressServiceNeo4j implements FortressService {
         Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
         boolean versioningDefault = engineConfig.isStoreEnabled();
         if (fortress != null) {
-            if (fortress.isVersioningEnabled() == null)
+            if (fortress.isStoreEnabled() == null)
                 // DAT-346 - data upgrade, revert to system default
                 fortress.setStoreEnabled(versioningDefault);
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);

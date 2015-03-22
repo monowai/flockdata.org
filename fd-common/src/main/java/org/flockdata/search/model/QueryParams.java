@@ -37,6 +37,7 @@ public class QueryParams {
     private int rowsPerPage =15;
     private int startFrom= 0;
     private boolean entityOnly;
+    private String callerRef;
 
     public QueryParams() {}
 
@@ -125,4 +126,11 @@ public class QueryParams {
     }
 
 
+    public void setCallerRef(String callerRef) {
+        this.callerRef = callerRef;
+    }
+
+    public String getCallerRef() {
+        return callerRef;
+    }
 }

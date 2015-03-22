@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -24,16 +24,10 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
-import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Repeat;
 
 import java.util.*;
@@ -43,62 +37,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * User: Mike Holdsworth
- * Since: 1/12/13
+ * Created by mike on 22/03/15.
  */
-public class TestForceDeadlock extends EngineBase {
-
-    private Logger logger = LoggerFactory.getLogger(TestForceDeadlock.class);
-    @Autowired
-    EntityService entityService;
-
-    @Autowired
-    RegistrationService regService;
-
-    @Before
-    public void setSingleTenanted() {
-        cleanUpGraph();
-        engineConfig.setMultiTenanted(false);
-        engineConfig.setTestMode(true);
-    }
-
-    @Test
-    public void tagsUnderLoad() throws Exception {
-
-        try {
-            String companyName = "tagsUnderLoad";
-            SystemUser su = registerSystemUser(companyName, "tagsUnderLoad");
-            setSecurity();
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagsUnderLoad", true));
-            int tagCount = 1;
-            int runCount = 1;
-            int threadMax = 10;
-
-            List<TagInputBean> tags = getTags(tagCount, false);
-
-            Map<Integer, TagRunner> runners = new HashMap<>();
-            CountDownLatch startSignal = new CountDownLatch(1);
-
-            CountDownLatch latch = new CountDownLatch(threadMax);
-            for (int i = 0; i < threadMax; i++) {
-                runners.put(i, addTagRunner(fortress, runCount, tags, latch, startSignal));
-            }
-
-            startSignal.countDown();
-            latch.await();
-            Thread.yield();
-            for (int i = 0; i < threadMax; i++) {
-                assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
-            }
-            for (Integer integer : runners.keySet()) {
-                assertEquals(true, runners.get(integer).isWorked());
-            }
-        } finally {
-            cleanUpGraph(); // No transaction so need to clear down the graph
-        }
-    }
-
-
+public class TestEntityDeadlock extends EngineBase{
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
      *
@@ -119,6 +60,9 @@ public class TestForceDeadlock extends EngineBase {
             int threadMax = 35; // Each thread will create a unique document type
             ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
+            Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+            assertEquals("Database is not in a cleared down state", 0, createdTags.size());
+
             Map<Integer, EntityRunner> runners = new HashMap<>();
 
             CountDownLatch latch = new CountDownLatch(threadMax);
@@ -132,7 +76,7 @@ public class TestForceDeadlock extends EngineBase {
 
             assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
 
-            Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+            createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
             assertEquals(false, createdTags.isEmpty());
             assertEquals(tagCount, createdTags.size());
 
@@ -150,7 +94,6 @@ public class TestForceDeadlock extends EngineBase {
         }
     }
 
-
     private ArrayList<TagInputBean> getTags(int tagCount, boolean addSubTag) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < tagCount; i++) {
@@ -164,13 +107,6 @@ public class TestForceDeadlock extends EngineBase {
             tags.add(tag);
         }
         return tags;
-    }
-
-    private TagRunner addTagRunner(Fortress fortress, int maxRun, List<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
-        TagRunner runner = new TagRunner(fortress, tags, maxRun, latch, startSignal);
-        Thread thread = new Thread(runner);
-        thread.start();
-        return runner;
     }
 
     private EntityRunner addEntityRunner(SystemUser su, Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
@@ -251,51 +187,6 @@ public class TestForceDeadlock extends EngineBase {
         public boolean isDone() {
             return done;
         }
-
-    }
-
-    class TagRunner implements Runnable {
-        Fortress fortress;
-        CountDownLatch latch;
-        CountDownLatch startSignal;
-        int maxRun = 30;
-        List<TagInputBean> tags;
-
-        boolean worked = false;
-
-        public TagRunner(Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
-            this.fortress = fortress;
-            this.latch = latch;
-            this.tags = tags;
-            this.maxRun = maxRun;
-            this.startSignal = startSignal;
-        }
-
-        public boolean isWorked() {
-            return worked;
-        }
-
-        @Override
-        public void run() {
-            int count = 0;
-            setSecurity();
-            worked = false;
-            try {
-                startSignal.await();
-                while (count < maxRun) {
-                    mediationFacade.createTags(this.fortress.getCompany(), tags);
-                    count++;
-                }
-                worked = true;
-                latch.countDown();
-
-            } catch (Exception e) {
-                e.getStackTrace();
-                latch.countDown();
-
-            }
-        }
-
 
     }
 }

@@ -32,7 +32,7 @@ public interface Fortress {
 
     public void setCompany(Company ownedBy);
 
-    public Boolean isVersioningEnabled() ;
+    public Boolean isStoreEnabled() ;
 
     public void setStoreEnabled(Boolean enabled);
 

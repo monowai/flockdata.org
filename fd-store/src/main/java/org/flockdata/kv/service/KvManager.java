@@ -163,7 +163,13 @@ public class KvManager implements KvService {
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
-        log.setStorage(String.valueOf(kvConfig.getKvStore()));
+        KV_STORE storage;
+        if ( trackResult.getEntity().getFortress().isStoreEnabled())
+            storage = kvConfig.getKvStore();
+        else
+            storage = KV_STORE.NONE;
+
+        log.setStorage(String.valueOf(storage));
 
         return getKvRepo(log).prepareLog(log, kvContent);
     }

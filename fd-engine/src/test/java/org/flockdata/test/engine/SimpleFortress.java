@@ -68,7 +68,7 @@ public class SimpleFortress implements Fortress {
     Boolean version = Boolean.TRUE;
 
     @Override
-    public Boolean isVersioningEnabled() {
+    public Boolean isStoreEnabled() {
         return version;
     }
 

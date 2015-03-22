@@ -39,6 +39,7 @@ import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,8 +80,13 @@ public class KvServiceTest {
     @Autowired
     private KvService kvService;
 
+    @Before
+    public void resetKvStore(){
+        kvConfig.setStoreEnabled("true");
+    }
     @BeforeClass
     public static void setup() throws Exception {
+
         if (redisServer == null) {
             // If you are on Windows
             if (System.getProperty("os.arch").equals("amd64") && System.getProperty("os.name").startsWith("Windows")) {

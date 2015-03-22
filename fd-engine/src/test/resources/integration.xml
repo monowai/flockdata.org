@@ -17,6 +17,10 @@
     <int:gateway id="fdSearchGateway" async-executor="fd-search"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
+     <!--DAT-347-->
+    <int:gateway id="esGateway"
+                 service-interface="org.flockdata.kv.none.EsGateway"/>
+
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
                  service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 

@@ -124,7 +124,7 @@ public class FortressNode implements Fortress {
     }
 
     @Override
-    public Boolean isVersioningEnabled() {
+    public Boolean isStoreEnabled() {
         return storeEnabled;
     }
 

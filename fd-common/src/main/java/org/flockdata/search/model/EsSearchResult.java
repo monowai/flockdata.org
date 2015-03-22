@@ -20,12 +20,15 @@
 package org.flockdata.search.model;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class EsSearchResult {
 
     private Collection<SearchResult> results;
     private long totalHits;
     private int startedFrom;
+    private boolean kvResponse = false;
+    private Map<String,Object>what;
 
     public EsSearchResult() {
     }
@@ -40,6 +43,11 @@ public class EsSearchResult {
 
     public EsSearchResult(Collection<SearchResult> results) {
         this.results = results;
+    }
+
+    public EsSearchResult(Map<String, Object> source) {
+        this.what = source;
+        this.kvResponse = true;
     }
 
     public Collection<SearchResult> getResults() {
@@ -66,4 +74,11 @@ public class EsSearchResult {
         return startedFrom;
     }
 
+    public Map<String, Object> getWhat() {
+        return what;
+    }
+
+    public void setWhat(Map<String, Object> what) {
+        this.what = what;
+    }
 }
