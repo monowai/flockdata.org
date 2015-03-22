@@ -65,7 +65,7 @@ public interface FdEngineConfig {
 
     boolean createSystemConstraints();
 
-    public Boolean getVersionEnabled ();
+    public Boolean isStoreEnabled();
 
-    public void setVersionEnabled (String enabled);
+    public void setStoreEnabled(String enabled);
 }

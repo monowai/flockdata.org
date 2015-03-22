@@ -183,11 +183,11 @@ public class LogNode implements Log {
     }
 
     @JsonIgnore
-    public String getWhatStore() {
+    public String getStorage() {
         return storage;
     }
 
-    public void setWhatStore(String storage) {
+    public void setStorage(String storage) {
         this.storage = storage;
     }
 

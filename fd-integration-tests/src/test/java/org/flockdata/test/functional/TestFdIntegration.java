@@ -53,6 +53,7 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
@@ -1215,20 +1216,42 @@ public class TestFdIntegration {
         entityInput.addTag(institutionTag);
 
         TrackResultBean resultBeanB = mediationFacade.trackEntity(su.getCompany(), entityInput);
-
-
-        assertNotNull(resultBeanA);
         waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
         waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
-
 
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "ca", 1);
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "or", 1);
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "usa", 2);
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
         doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "portland", 1);
+    }
 
+    @Test
+    public void store_Disabled () throws Exception{
+        // DAT-346
+        //assumeTrue(runMe);
+        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        SystemUser su = registerSystemUser("store_Disabled");
 
+        FortressInputBean fib= new FortressInputBean("store_Disabled");
+        fib.setStore(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        ContentInputBean log = new ContentInputBean("store_Disabled", new DateTime(), json);
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
+        input.setContent(log);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+        EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
+        assertNotNull(entityLog);
+        assertEquals("NONE", entityLog.getLog().getStorage());
+        // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
+        logger.info("Track request made. About to wait for first search result");
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
+        KvContent content = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+        assertNotNull(content);
+        assertNotNull(content.getWhat());
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {

@@ -76,7 +76,7 @@ public class EngineConfig implements FdEngineConfig {
 
     private boolean conceptsEnabled=true;
     private boolean systemConstraints = true;
-    private Boolean versionEnabled = true;
+
     private boolean duplicateRegistration;
     private boolean testMode;
 
@@ -111,13 +111,13 @@ public class EngineConfig implements FdEngineConfig {
      *
      * @param versionEnabled defaults to true
      */
-    @Value("${fd-engine.system.version}")
-    public void setVersionEnabled(String versionEnabled) {
-        this.versionEnabled = !"@null".equals(versionEnabled) && Boolean.parseBoolean(versionEnabled);
+    @Value("${fd-store.enable}")
+    public void setStoreEnabled(String versionEnabled) {
+        kvConfig.setStoreEnabled(versionEnabled);
     }
 
-    public Boolean getVersionEnabled (){
-        return this.versionEnabled;
+    public Boolean isStoreEnabled(){
+        return kvConfig.getStoreEnabled();
     }
 
     /**
@@ -167,7 +167,7 @@ public class EngineConfig implements FdEngineConfig {
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("flockdata.version", version);
         healthResults.put("fd-engine", trackDAO.ping());
-        healthResults.put("fd-engine.system.version", versionEnabled.toString());
+        healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
 
         String config = System.getProperty("fd.config");
 

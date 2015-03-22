@@ -90,12 +90,12 @@ public class SimpleLog implements Log {
     }
     private String whatStore;
     @Override
-    public String getWhatStore() {
+    public String getStorage() {
         return whatStore;
     }
 
     @Override
-    public void setWhatStore(String storage) {
+    public void setStorage(String storage) {
         this.whatStore = storage;
     }
     ChangeEvent event;

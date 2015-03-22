@@ -73,7 +73,7 @@ public class SimpleFortress implements Fortress {
     }
 
     @Override
-    public void setVersioning(Boolean enabled) {
+    public void setStoreEnabled(Boolean enabled) {
         version = enabled;
     }
 

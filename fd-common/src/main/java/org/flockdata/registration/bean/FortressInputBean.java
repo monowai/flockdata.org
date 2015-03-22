@@ -43,7 +43,7 @@ public class FortressInputBean {
     private Boolean enabled = true;
     private Boolean system = false;
 
-    private Boolean versioning = null;
+    private Boolean store = null;
 
     protected FortressInputBean() {
     }
@@ -157,12 +157,12 @@ public class FortressInputBean {
         return this;
     }
 
-    public Boolean getVersioning() {
-        return versioning;
+    public Boolean getStore() {
+        return store;
     }
 
-    public FortressInputBean setVersioning(Boolean enabled) {
-        this.versioning = enabled;
+    public FortressInputBean setStore(Boolean enabled) {
+        this.store = enabled;
         return this;
     }
 
