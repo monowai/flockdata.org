@@ -49,9 +49,13 @@ public class TestEntityDeadlock extends EngineBase{
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
         try {
+            // ToDo: This test suffers from DAT-348 and has been quarantined.
+            // To me a favour and figure out what's going wrong!
+
             String companyName = "entitiesUnderLoad";
+            setSecurity();
             SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
-//            setSecurity();
+
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
             String docType = "entitiesUnderLoad";
 
