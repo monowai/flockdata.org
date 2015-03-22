@@ -25,6 +25,19 @@
         </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
 
+    <!--DAT -347 -->
+    <int-http:outbound-gateway request-channel="doContentQuery"
+                               reply-channel="doContentReply"
+                               reply-timeout="${reply.timeout}"
+                               url="${fd-search.url}/v1/api/esSearch"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
+
+
     <int-http:outbound-gateway request-channel="doTagCloudQuery"
                                reply-channel="doTagCloudReply"
                                reply-timeout="${reply.timeout}"

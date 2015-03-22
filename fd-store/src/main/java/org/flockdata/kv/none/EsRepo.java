@@ -54,7 +54,7 @@ public class EsRepo extends AbstractKvRepo{
         queryParams.setCompany(entity.getFortress().getCompany().getName());
         queryParams.setTypes(entity.getDocumentType());
         queryParams.setFortress(entity.getFortress().getName());
-        queryParams.setCallerRef(entity.getCallerKeyRef());
+        queryParams.setCallerRef(entity.getCallerRef());
 
         // DAT-347 - we should get the What response back here
         EsSearchResult result = esGateway.get(queryParams);

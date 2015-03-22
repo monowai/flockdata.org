@@ -1255,12 +1255,12 @@ public class TestFdIntegration {
         // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
         logger.info("Track request made. About to wait for first search result");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        // Want to get the latest version to obtain the search key for debugging
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
-        KvContent content = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+        KvContent content = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
         assertNotNull(content);
-//        This is not working. Needs a seperate response channel for fd-search
-        // ToDo: waiting on DAT-347
-        //assertNotNull(content.getWhat());
+        assertNotNull(content.getWhat());
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {

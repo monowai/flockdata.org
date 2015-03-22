@@ -24,11 +24,13 @@ import org.flockdata.search.model.QueryParams;
 import org.springframework.integration.annotation.Gateway;
 
 /**
+ * Interface to fd-search so support locating what data
+ *
  * Created by mike on 22/03/15.
  */
 public interface EsGateway {
 
-    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveSearchReply" )
+    @Gateway(requestChannel = "sendKvSearchRequest", replyChannel = "receiveContentReply" )
     public EsSearchResult get(QueryParams queryParams);
 
 }

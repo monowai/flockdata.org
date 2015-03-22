@@ -38,5 +38,14 @@ public interface QueryService {
 
     EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException;
 
+    /**
+     * Returns the "What" associated with the callerRef in the queryParams
+     * @param queryParams key to search for
+     * @return searchResult with the what Map populated
+     *
+     * @throws FlockException
+     */
+    EsSearchResult contentQuery(QueryParams queryParams) throws FlockException;
+
     String doSearch(QueryParams queryParams) throws FlockException;
 }

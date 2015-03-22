@@ -274,9 +274,6 @@ public class QueryDaoES implements QueryDao {
 
     //@Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
-        StopWatch watch = new StopWatch();
-
-        watch.start(queryParams.toString());
 
         GetResponse response =
                 client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
@@ -286,7 +283,6 @@ public class QueryDaoES implements QueryDao {
                         .actionGet();
 
 
-        watch.stop();
         Map<String,Object>source = response.getSourceAsMap();
 
         return new EsSearchResult(source);
