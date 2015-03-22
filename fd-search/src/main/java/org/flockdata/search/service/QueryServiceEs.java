@@ -63,7 +63,7 @@ public class QueryServiceEs implements QueryService {
     @Override
     @ServiceActivator(inputChannel = "doContentQuery", outputChannel = "contentReply") // Subscriber
     public EsSearchResult contentQuery(QueryParams queryParams) throws FlockException {
-        // DAT-347 how to route the response
+        // DAT-347 introduces this
         return queryDao.doWhatSearch(queryParams);
     }
 
