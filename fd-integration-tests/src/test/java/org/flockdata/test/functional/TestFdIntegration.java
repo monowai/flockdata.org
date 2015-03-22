@@ -1242,9 +1242,9 @@ public class TestFdIntegration {
         fib.setStore(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
-        ContentInputBean log = new ContentInputBean("store_Disabled", new DateTime(), json);
+        ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
         EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
-        input.setContent(log);
+        input.setContent(content);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitAWhile("Async log is still processing");
@@ -1258,9 +1258,10 @@ public class TestFdIntegration {
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
-        KvContent content = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
-        assertNotNull(content);
-        assertNotNull(content.getWhat());
+        KvContent kvContent = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {

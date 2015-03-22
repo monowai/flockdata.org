@@ -50,7 +50,7 @@
     <int-http:outbound-gateway request-channel="doFdEnginePingRequest"
                                reply-channel="doFdEnginePingResponse"
                                reply-timeout="${reply.timeout}"
-                               url="${abengine.ping}"
+                               url="${fd-engine.url}/ping"
                                http-method="GET"
                                expected-response-type="java.lang.String" />
 

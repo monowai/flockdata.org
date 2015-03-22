@@ -22,6 +22,7 @@ package org.flockdata.kv.none;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
@@ -32,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * Support for no storage engine. This will simply use elasticsearch as a store for
@@ -56,12 +59,12 @@ public class EsRepo extends AbstractKvRepo{
         queryParams.setFortress(entity.getFortress().getName());
         queryParams.setCallerRef(entity.getCallerRef());
 
-        // DAT-347 - we should get the What response back here
+        // DAT-347
         EsSearchResult result = esGateway.get(queryParams);
         ContentInputBean contentInput = new ContentInputBean();
         if (result!=null )
             try {
-                contentInput.setWhat(result.getWhat());
+                contentInput.setWhat((Map<String, Object>) result.getWhat().get(EntitySearchSchema.WHAT));
             } catch (FlockException e) {
                 logger.error("Json issue", e);
             }
