@@ -45,6 +45,16 @@
                                     output-channel="receiveSearchReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
 
+    <int:object-to-json-transformer id="kvSearchSend"
+                                    input-channel="sendKvSearchRequest"
+                                    output-channel="doContentQuery"/>
+
+    <int:json-to-object-transformer id="contentSearchReply"
+                                    input-channel="doContentReply"
+                                    output-channel="receiveContentReply"
+                                    type="org.flockdata.search.model.EsSearchResult"/>
+
+
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
                                     input-channel="startKvWrite"
@@ -92,6 +102,9 @@
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
     <int:channel id="kvErrors"/>
+    <int:channel id="sendKvSearchRequest"/>
+    <int:channel id="doContentQuery"/>
+    <int:channel id="receiveContentReply"/>
     <!--End KV -->
 
     <!--Entity Outbound -->

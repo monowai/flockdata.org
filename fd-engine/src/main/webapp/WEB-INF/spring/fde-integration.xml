@@ -59,11 +59,6 @@
         <int:exponential-back-off initial="500" multiplier="2.0" maximum="2000"/>
     </int:handler-retry-advice>
 
-    <!--<int:json-to-object-transformer id="indexRequestReply"-->
-                                    <!--input-channel="searchDocSyncResult"-->
-                                    <!--output-channel="searchSyncResult"-->
-                                    <!--type="org.flockdata.search.model.SearchResults"/>-->
-
     <int:object-to-json-transformer id="sendIndexRequest"
                                     input-channel="sendEntityIndexRequest"
                                     output-channel="syncSearchDocs"/>
@@ -81,9 +76,19 @@
                                     input-channel="sendSearchRequest"
                                     output-channel="doMetaKeyQuery"/>
 
+    <int:object-to-json-transformer id="kvSearchSend"
+                                    input-channel="sendKvSearchRequest"
+                                    output-channel="doContentQuery"/>
+
+
     <int:json-to-object-transformer id="simpleSearchReply"
                                     input-channel="doMetaKeyReply"
                                     output-channel="receiveSearchReply"
+                                    type="org.flockdata.search.model.EsSearchResult"/>
+
+    <int:json-to-object-transformer id="contentSearchReply"
+                                    input-channel="doContentReply"
+                                    output-channel="receiveContentReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
 
     <!--KV-->
@@ -118,6 +123,13 @@
     <int:channel id="sendSearchRequest"/>
     <int:channel id="receiveSearchReply"/>
     <int:channel id="doMetaKeyQuery"/>
+    <!--DAT-347 Requests the "what" content from the search doc-->
+    <int:channel id="doContentQuery"/>
+    <int:channel id="receiveContentReply"/>
+    <int:channel id="doContentReply"/>
+
+
+
     <!--In response to a request from fd-store-->
     <int:channel id="kvSearchReply"/>
 
@@ -134,6 +146,7 @@
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
     <int:channel id="kvErrors"/>
+    <int:channel id="sendKvSearchRequest"/>
     <!--End KV -->
 
     <!--Entity Outbound -->

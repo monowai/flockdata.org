@@ -32,6 +32,10 @@
     <int:channel id="errors"/>
     <int:channel id="doMetaKeyQuery"/>
     <int:channel id="doMetaKeyReply"/>
+    <!--DAT-347 Returns the "What" -->
+    <int:channel id="doContentQuery"/>
+    <int:channel id="doContentReply"/>
+
     <!-- TAG CLOUD CHANNEL -->
     <int:channel id="doTagCloudQuery"/>
     <int:channel id="doTagCloudReply"/>
