@@ -75,7 +75,7 @@
 
     <int:json-to-object-transformer id="simpleSearchReply"
                                     input-channel="doMetaKeyReply"
-                                    output-channel="sendSearchReply"
+                                    output-channel="receiveSearchReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
 
     <!--KV-->
@@ -108,7 +108,7 @@
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
-    <int:channel id="sendSearchReply"/>
+    <int:channel id="receiveSearchReply"/>
     <int:channel id="doMetaKeyQuery"/>
 
 

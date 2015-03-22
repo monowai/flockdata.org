@@ -28,9 +28,7 @@ import org.springframework.integration.annotation.Gateway;
  */
 public interface EsGateway {
 
-    // DAT-347
-    // ToDo: How to deal with the reply channel. Can you have the same reply channels on 2 different gateways?
-    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
+    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveSearchReply" )
     public EsSearchResult get(QueryParams queryParams);
 
 }
