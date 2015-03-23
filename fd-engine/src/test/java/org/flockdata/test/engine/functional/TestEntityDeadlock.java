@@ -61,6 +61,7 @@ public class TestEntityDeadlock extends EngineBase{
 
             int tagCount = 1; // unique tags per entity - tags are shared across the entities
             int docCount = 1; // how many entities to create per thread
+            // Tried reducing threadMax
             int threadMax = 10; // Each thread will create a unique document type
             ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
@@ -124,7 +125,8 @@ public class TestEntityDeadlock extends EngineBase{
         String docType;
         String callerRef;
         Fortress fortress;
-        int maxRun = 30;
+        // Reduce the runs
+        int maxRun = 10;
         List<EntityInputBean> inputBeans;
         Collection<TagInputBean> tags;
         String apiKey;
