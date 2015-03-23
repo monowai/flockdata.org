@@ -155,14 +155,13 @@ public class TestTagConcepts extends EngineBase {
     public void fortressConcepts() throws Exception {
         try {
             logger.debug("### fortressConcepts");
-            engineConfig.setConceptsEnabled("true");
-            engineConfig.setTestMode(true);
 
             Transaction t = beginManualTransaction();
             setSecurity();
             SystemUser su = registerSystemUser("fortressConcepts", mike_admin);
-            Thread.sleep(1000);
             assertNotNull(su);
+            engineConfig.setConceptsEnabled("true");
+            engineConfig.setTestMode(true);
 
             Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
 
