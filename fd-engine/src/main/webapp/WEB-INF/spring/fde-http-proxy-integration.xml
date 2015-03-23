@@ -31,7 +31,8 @@
                                reply-channel="doContentReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
-                               url="${fd-search.url}/v1/api/esSearch"
+                               url="${fd-search.url}/v1/api/esContent"
+                               expected-response-type="java.lang.String"
                                extract-request-payload="true">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
