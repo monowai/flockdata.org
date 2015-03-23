@@ -221,8 +221,15 @@ public class EntityDaoNeo {
         return trackLogRepo.getLogs(entityId, from.getTime(), to.getTime());
     }
 
-    public Set<EntityLog> getLogs(Long entityId) {
-        return trackLogRepo.findLogs(entityId);
+    public Set<EntityLog> getLogs(Entity entity) {
+        EntityLog mockLog = getMockLog(entity);
+        if ( mockLog != null ) {
+            Set<EntityLog> results = new HashSet<>();
+            results.add(mockLog);
+            return results;
+        }
+
+        return trackLogRepo.findLogs(entity.getId());
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -261,6 +268,9 @@ public class EntityDaoNeo {
     }
 
     public EntityLog save(EntityLog log) {
+        // DAT-349 - don't persist mocked logs
+        if ( log.isMocked())
+            return log;
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save((EntityLogRelationship) log);
     }
@@ -284,8 +294,20 @@ public class EntityDaoNeo {
         }
         return changeLog;
     }
+    private EntityLog getMockLog(Entity entity){
+        // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
+        if ( !entity.getFortress().isStoreEnabled()){
+            Log log = new LogNode(entity);
+            return new EntityLogRelationship(entity, log, entity.getFortressDateCreated());
+        }
+        return null;
+    }
+    public EntityLog getLog(Entity entity, Long logId) {
 
-    public EntityLog getLog(Long logId) {
+        EntityLog mockLog = getMockLog( entity);
+        if ( mockLog !=null )
+            return mockLog;
+
         Relationship change = template.getRelationship(logId);
         if (change != null)
             try {
@@ -304,6 +326,8 @@ public class EntityDaoNeo {
     }
 
     public Log fetch(Log lastChange) {
+        if ( lastChange.getId() == null || lastChange.getId() ==0l)
+            return lastChange;
         return template.fetch(lastChange);
     }
 
@@ -423,6 +447,10 @@ public class EntityDaoNeo {
     }
 
     public EntityLog getLastEntityLog(Entity entity) {
+
+        EntityLog mockLog = getMockLog( entity);
+        if ( mockLog !=null )
+            return mockLog;
 
         Log lastChange = entity.getLastChange();
         if (lastChange == null)

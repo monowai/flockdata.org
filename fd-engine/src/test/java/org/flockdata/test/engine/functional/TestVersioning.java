@@ -19,13 +19,16 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -33,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -93,18 +97,39 @@ public class TestVersioning extends EngineBase {
         assertEquals(Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
         EntityLog entityLog= entityService.getLastEntityLog(trackResult.getEntity().getId());
         assertNotNull ( entityLog);
-        // DAT-347 - can we mock the call to ES? It's not running here in fd-engine :o)
-//        KvContent content  = kvService.getContent(trackResult.getEntity(), entityLog.getLog());
-//        assertNotNull(content);
-        // This confirms that nothing got saved in the request to write to the kv store.
-        // The fact we have a log will mean we also have a KvContent
 
-//        assertNull(content.getAttachment());
-//        assertNull(content.getBucket());
-//        assertNull(content.getContent());
-//        assertNull(content.getWhat());
+        assertNotNull ( entityLog.getLog());
+        assertEquals(new Long(0), entityLog.getLog().getId());
+        assertNotNull ( entityLog.getId());
 
-        // Now for a full integration test
+        Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getMetaKey());
+        assertNotNull ( entity);
+
+        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getMetaKey());
+        assertFalse(logs.isEmpty());
+        assertEquals(1, logs.size());
+        // Check various properties that we still want to return
+        for (EntityLog log : logs) {
+            assertEquals (entity.getFortressDateCreated().getMillis(),log.getFortressWhen().longValue() );
+            assertNotNull ( log.getLog().getEvent());
+            assertEquals("Create", log.getLog().getEvent().getName());
+            assertNotNull(log.getFortressWhen());
+            assertNotNull(log.getLog().getWho());
+            assertTrue(log.isMocked());
+            assertTrue(log.getLog().isMocked());
+        }
+        EntityLog mockLog = entityService.getLogForEntity(entity, 0l);
+        assertNotNull (mockLog);
+        assertNotNull(mockLog.getLog());
+        assertTrue( mockLog.isMocked());
+        Assert.assertEquals(KvService.KV_STORE.NONE.name(), mockLog.getLog().getStorage());
+
+        EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getMetaKey());
+        assertNotNull ( summaryBean);
+        assertNotNull ( summaryBean.getChanges());
+        assertEquals ( 1, summaryBean.getChanges().size());
+
+        // See TestFdIntegration for a fully integrated version of this test
     }
     @Test
     public void log_ValidateValues() throws Exception{

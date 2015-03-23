@@ -22,6 +22,7 @@ package org.flockdata.engine.query.service;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EsSearchResult;
@@ -75,9 +76,9 @@ public class QueryService {
         // ToDo: Optimize via Cypher, not a java loop
         //match (f:Fortress) -[:FORTRESS_DOC]-(d) return f,d
         if (fortresses == null) {
-            Collection<Fortress> forts = fortressService.findFortresses(abCompany);
-            for (Fortress fort : forts) {
-                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getCode()));
+            Collection<FortressResultBean> forts = fortressService.findFortresses(abCompany);
+            for (FortressResultBean fort : forts) {
+                docs.addAll(fortressService.getFortressDocumentsInUse(abCompany, fort.getName()));
             }
 
         } else {

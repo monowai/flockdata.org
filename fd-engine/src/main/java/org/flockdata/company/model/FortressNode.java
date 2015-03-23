@@ -125,7 +125,14 @@ public class FortressNode implements Fortress {
 
     @Override
     public Boolean isStoreEnabled() {
+        if ( storeEnabled == null )
+            return Boolean.TRUE;
         return storeEnabled;
+    }
+
+    @Override
+    public Boolean isStoreDisabled() {
+        return !isStoreEnabled();
     }
 
     @Override

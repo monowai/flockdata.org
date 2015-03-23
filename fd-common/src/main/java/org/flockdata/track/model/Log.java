@@ -92,4 +92,6 @@ public interface Log {
 
     public void setFileName(String fileName);
 
+    boolean isMocked();
+
 }

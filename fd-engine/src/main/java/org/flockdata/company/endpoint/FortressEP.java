@@ -62,7 +62,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 
-    public Collection<Fortress> findFortresses(HttpServletRequest request) throws FlockException {
+    public Collection<FortressResultBean> findFortresses(HttpServletRequest request) throws FlockException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         Company company = CompanyResolver.resolveCompany(request);
         return fortressService.findFortresses(company);

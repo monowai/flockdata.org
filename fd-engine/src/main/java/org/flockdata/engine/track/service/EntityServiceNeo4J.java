@@ -272,14 +272,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Long entityId) {
-        return entityDao.getLogs(entityId);
+    public Set<EntityLog> getEntityLogs(Entity entity) {
+        return entityDao.getLogs(entity);
     }
 
     @Override
     public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        return entityDao.getLogs(entity.getId());
+        if ( entity.getFortress().isStoreEnabled())
+            return entityDao.getLogs(entity);
+        Set<EntityLog>logs = new HashSet<>();
+        logs.add(entityDao.getLastEntityLog(entity));
+        return logs;
     }
 
     @Override
@@ -314,7 +318,7 @@ public class EntityServiceNeo4J implements EntityService {
         EntityLog newEntityLog = null;
         if (fromLog != null) {
             entityDao.fetch(fromLog);
-             newEntityLog = entityDao.getLog(fromLog.getEntityLog().getId());
+            newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getWho().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
@@ -367,7 +371,7 @@ public class EntityServiceNeo4J implements EntityService {
     public int getLogCount(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
         logger.debug("looking for logs for Entity id [{}] - metaKey [{}]", entity.getId(), metaKey);
-        int logs = entityDao.getLogs(entity.getId()).size();
+        int logs = entityDao.getLogs(entity).size();
         logger.debug("Log count {}", logs);
         return logs;
     }
@@ -448,7 +452,7 @@ public class EntityServiceNeo4J implements EntityService {
         Entity entity = getEntity(company, metaKey, true);
         if (entity == null)
             throw new FlockException("Invalid Meta Key [" + metaKey + "]");
-        Set<EntityLog> changes = getEntityLogs(entity.getId());
+        Set<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.getEntityTags(company, entity);
         return new EntitySummaryBean(entity, changes, tags);
     }
@@ -459,7 +463,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity == null)
             return null;
 
-        EntityLog log = entityDao.getLog(logId);
+        EntityLog log = entityDao.getLog(entity, logId);
         entityDao.fetch(log.getLog());
         KvContent what = kvService.getContent(entity, log.getLog());
 
@@ -470,7 +474,7 @@ public class EntityServiceNeo4J implements EntityService {
     public EntityLog getLogForEntity(Entity entity, Long logId) {
         if (entity != null) {
 
-            EntityLog log = entityDao.getLog(logId);
+            EntityLog log = entityDao.getLog(entity, logId);
             if (!log.getEntity().getId().equals(entity.getId()))
                 return null;
 
@@ -654,7 +658,7 @@ public class EntityServiceNeo4J implements EntityService {
         EntityLog entityLog;
         // The change has been indexed
         try {
-            entityLog = entityDao.getLog(searchResult.getLogId());
+            entityLog = entityDao.getLog(entity, searchResult.getLogId());
             if (entityLog == null) {
                 logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
                 return;
@@ -700,9 +704,9 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException {
+    public EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        EntityLog log = entityDao.getLog(logId);
+        EntityLog log = entityDao.getLog(entity, logId);
 
         if (log == null)
             throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));
