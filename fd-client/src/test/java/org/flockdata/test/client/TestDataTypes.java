@@ -42,7 +42,7 @@ public class TestDataTypes extends AbstractImport {
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
         ImportProfile params = ClientConfiguration.getImportParams(fileName);
-        fileProcessor.processFile(params, "/data/data-types.csv", 0, getFdWriter(), null, configuration);
+        fileProcessor.processFile(params, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(1, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {

@@ -74,7 +74,10 @@ public class FdRestWriter implements FdWriter {
     private boolean simulateOnly;
     private boolean validateOnly=false;
     private String defaultFortress;
+    ClientConfiguration configuration ;
+
     private ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+    private AmqpHelper amqpHelper = null;
 
     /**
      * Use this version for administrative access where the username and password must exist
@@ -91,6 +94,7 @@ public class FdRestWriter implements FdWriter {
 
     public FdRestWriter (ClientConfiguration configuration){
         httpHeaders = null;
+        this.configuration = configuration;
         this.apiKey = configuration.getApiKey();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
@@ -108,7 +112,8 @@ public class FdRestWriter implements FdWriter {
         simulateOnly = batchSize < 1;
 
     }
-
+    @Deprecated
+    // Call with the configuration version
     public FdRestWriter(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
         httpHeaders = null;
         this.userName = userName;
@@ -164,8 +169,6 @@ public class FdRestWriter implements FdWriter {
         } catch (ResourceAccessException e) {
             return null;
         }
-
-
     }
 
     /**
@@ -306,7 +309,7 @@ public class FdRestWriter implements FdWriter {
         return "OK";
 
     }
-    private AmqpHelper amqpHelper = null;
+
     private AmqpHelper getAmqpHelper(ClientConfiguration configuration) {
         if ( amqpHelper == null )
             amqpHelper = new AmqpHelper(configuration);
@@ -406,7 +409,13 @@ public class FdRestWriter implements FdWriter {
         } catch (HttpServerErrorException e) {
             logger.error("FlockData server error processing Tags {}", getErrorMessage(e));
             return null;
+        } catch (ResourceAccessException e ){
+            logger.error("Unable to talk to FD over the REST interface. Can't process this tag request");
+            if (configuration !=null && configuration.isAmqp()){
+                logger.info("This has not affected payloads being sent over AMQP");
+            }
 
+            return null;
         }
     }
 
@@ -486,7 +495,6 @@ public class FdRestWriter implements FdWriter {
         };
 
     }
-
 
     public static HttpHeaders getHeaders(final String apiKey, final String userName, final String password) {
         if (httpHeaders != null)
