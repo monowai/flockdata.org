@@ -50,7 +50,7 @@ public class TestCSVColumnParsing extends AbstractImport {
         ImportProfile params = ClientConfiguration.getImportParams("/profile/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
-        long rows = fileProcessor.processFile(params, "/data/pac.txt", 0, getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
         assertEquals(1l, rows);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertNotNull ( tagInputBeans);

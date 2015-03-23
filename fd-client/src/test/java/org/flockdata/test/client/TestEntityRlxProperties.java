@@ -54,7 +54,7 @@ public class TestEntityRlxProperties extends AbstractImport{
         ImportProfile params = ClientConfiguration.getImportParams("/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
         assertEquals(4, rows);
         List<EntityInputBean> entityBatch = getFdWriter().getEntities();
         assertEquals(4, entityBatch.size());

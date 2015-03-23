@@ -134,7 +134,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setAsync(async);
         defaults.setBatchSize(5);
-        fileProcessor.processFile(profile, file, 0, fdServerWriter, company, defaults);
+        fileProcessor.processFile(profile, file, fdServerWriter, company, defaults);
     }
 
     @Override
