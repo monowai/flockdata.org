@@ -34,6 +34,7 @@
         <entry key="remote_shell_enabled" value="${neo4j.remoteShell}"/>
         <entry key="remote_shell_host" value="${neo4j.remoteShellHost}"/>
         <entry key="remote_shell_port" value="${neo4j.remoteShellPort}"/>
+        <entry key="online_backup_enabled" value="${neo4j.onlineBackup:#{null}}"/>
         <entry key="cache-type" value="${neo4j.cacheType}"/>
         <entry key="allow_store_upgrade" value="true"/>
         <entry key="neostore.nodestore.db.mapped_memory" value="${neostore.nodestore.db.mapped_memory:#{null}}"/>
