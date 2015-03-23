@@ -1262,6 +1262,18 @@ public class TestFdIntegration {
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
         assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+        // This will return a mock entity log
+        entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
+        assertNotNull ( entityLog );
+        entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
+
+        kvService.getContent(entity, entityLog.getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
@@ -1321,7 +1333,7 @@ public class TestFdIntegration {
         while (fortress < fortressMax) {
             while (count <= countMax) {
                 Entity entity = entityService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + count);
-                Set<EntityLog> logs = entityService.getEntityLogs(entity.getId());
+                Set<EntityLog> logs = entityService.getEntityLogs(entity);
                 assertNotNull(logs);
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
                 for (EntityLog log : logs) {

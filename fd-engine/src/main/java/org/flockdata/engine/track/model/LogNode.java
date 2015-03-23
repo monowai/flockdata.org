@@ -22,6 +22,7 @@ package org.flockdata.engine.track.model;
 import org.flockdata.engine.schema.model.ChangeEventNode;
 import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.company.model.FortressUserNode;
+import org.flockdata.kv.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.model.*;
@@ -97,6 +98,9 @@ public class LogNode implements Log {
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
     private LogNode previousLog;
 
+    @Transient
+    boolean isMocked = false;
+
     @Override
     public String toString() {
         return "LogNode{" +
@@ -110,11 +114,24 @@ public class LogNode implements Log {
         this.contentType = "json";
     }
 
+    /**
+     * Creates a Mock non-persistable node
+     * @param entity
+     */
+    public LogNode(Entity entity ){
+        //DAT-349 creates a mock node when storage is disabled
+        this.id = 0l;
+        this.isMocked = true;
+        this.madeBy = (entity.getCreatedBy()==null ? new FortressUserNode(entity.getFortress(), "Unknown") :(FortressUserNode)entity.getCreatedBy());
+        this.event = (entity.getEvent() == null ? "Create":entity.getEvent());
+        this.storage = KvService.KV_STORE.NONE.name();
+    }
+
     public LogNode(FortressUser madeBy, ContentInputBean contentBean, TxRef txRef) {
         this();
         this.madeBy = (FortressUserNode) madeBy;
 
-        String event = contentBean.getEvent();
+        event = contentBean.getEvent();
 
         this.name = event + COLON + (madeBy==null ? "na" : madeBy.getCode());
         this.fileName = contentBean.getFileName();
@@ -253,5 +270,9 @@ public class LogNode implements Log {
         this.entityLog = (EntityLogRelationship) entityLog;
     }
 
+    @Override
+    public boolean isMocked() {
+        return isMocked;
+    }
 
 }

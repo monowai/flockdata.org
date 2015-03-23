@@ -22,6 +22,7 @@ package org.flockdata.track.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
@@ -54,9 +55,9 @@ public interface FortressService {
 
     FortressUser getFortressUser(Fortress fortress, String fortressUser, boolean createIfMissing);
 
-    Collection<Fortress> findFortresses() throws FlockException;
+    Collection<FortressResultBean> findFortresses() throws FlockException;
 
-    Collection<Fortress> findFortresses(Company company) throws FlockException;
+    Collection<FortressResultBean> findFortresses(Company company) throws FlockException;
 
     void fetch(FortressUser lastUser);
 

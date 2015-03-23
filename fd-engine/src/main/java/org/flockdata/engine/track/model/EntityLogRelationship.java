@@ -19,12 +19,13 @@
 
 package org.flockdata.engine.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.TimeZone;
@@ -55,6 +56,9 @@ public class EntityLogRelationship implements EntityLog {
 
     private String timezone = null;
 
+    @Transient
+    private boolean isMock;
+
     //@Indexed
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
     private boolean indexed = false;
@@ -69,6 +73,10 @@ public class EntityLogRelationship implements EntityLog {
         this.entity = entity;
         this.log = log;
         this.timezone = entity.getFortress().getTimeZone();
+        if (entity.getFortress().isStoreDisabled()) {
+            id = 0l;
+            isMock = log.isMocked();
+        }
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
         } else {
@@ -157,4 +165,10 @@ public class EntityLogRelationship implements EntityLog {
                 ", indexed=" + indexed +
                 '}';
     }
+
+    public boolean isMocked() {
+        return isMock;
+    }
+
+
 }

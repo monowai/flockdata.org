@@ -73,6 +73,11 @@ public class SimpleFortress implements Fortress {
     }
 
     @Override
+    public Boolean isStoreDisabled() {
+        return !isStoreEnabled();
+    }
+
+    @Override
     public void setStoreEnabled(Boolean enabled) {
         version = enabled;
     }

@@ -60,7 +60,7 @@ public interface EntityService {
 
     EntityLog getLastEntityLog(Long entityId);
 
-    Set<EntityLog> getEntityLogs(Long entityId);
+    Set<EntityLog> getEntityLogs(Entity entity);
 
     Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException;
 
@@ -106,7 +106,7 @@ public interface EntityService {
 
     Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException;
 
-    EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException;
+    EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException;
 
     /**
      *

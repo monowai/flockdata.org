@@ -156,4 +156,9 @@ public class SimpleLog implements Log {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    @Override
+    public boolean isMocked() {
+        return false;
+    }
 }

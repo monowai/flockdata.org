@@ -19,14 +19,17 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.track.bean.*;
-import org.flockdata.track.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.FortressUser;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.*;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.KvContent;
+import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
@@ -38,13 +41,7 @@ import org.springframework.util.StopWatch;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * User: Mike Holdsworth
@@ -602,7 +599,7 @@ public class TestTrack extends EngineBase {
         log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house2"))).getLogResult();
         logger.info("2 " + new Date(log.getFdWhen()).toString());
 
-        Set<EntityLog> logs = entityService.getEntityLogs(entity.getId());
+        Set<EntityLog> logs = entityService.getEntityLogs(entity);
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
 
         // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected
@@ -615,7 +612,7 @@ public class TestTrack extends EngineBase {
         // This is being inserted after the last log
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house4")));
         logger.info("4 " + new Date(log.getFdWhen()).toString());
-        logs = entityService.getEntityLogs(entity.getId());
+        logs = entityService.getEntityLogs(entity);
         assertEquals(4, logs.size());
         for (EntityLog next : logs) {
             logger.info(next.getId() + " - " + new Date(next.getSysWhen()).toString());
@@ -623,6 +620,7 @@ public class TestTrack extends EngineBase {
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), metaKey);
         logger.info("L " + new Date(lastLog.getSysWhen()).toString());
         assertNotSame("Last log in should be the last", lastLog.getLog().getId(), thirdLog.getLog().getId());
+
     }
 
     @Test

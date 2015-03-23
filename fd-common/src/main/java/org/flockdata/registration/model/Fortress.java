@@ -34,6 +34,8 @@ public interface Fortress {
 
     public Boolean isStoreEnabled() ;
 
+    public Boolean isStoreDisabled() ;
+
     public void setStoreEnabled(Boolean enabled);
 
     /**

@@ -21,6 +21,7 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.company.model.FortressNode;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -122,7 +123,7 @@ public class TestRegistration extends EngineBase {
 
         fortressService.registerFortress(company, new FortressInputBean("FortressC")); // Forced duplicate should be ignored
 
-        Collection<Fortress> fortresses = fortressService.findFortresses(company);
+        Collection<FortressResultBean> fortresses = fortressService.findFortresses(company);
         assertFalse(fortresses.isEmpty());
         assertEquals(3, fortresses.size());
 
@@ -163,7 +164,7 @@ public class TestRegistration extends EngineBase {
         Fortress fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
 
-        Collection<Fortress> fortressList = fortressService.findFortresses(company);
+        Collection<FortressResultBean> fortressList = fortressService.findFortresses(company);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 

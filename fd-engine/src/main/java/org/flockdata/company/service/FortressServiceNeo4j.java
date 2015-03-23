@@ -27,6 +27,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
@@ -174,7 +175,7 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    public Collection<Fortress> findFortresses() throws FlockException {
+    public Collection<FortressResultBean> findFortresses() throws FlockException {
         Company company = securityHelper.getCompany();
         if (company == null)
             return new ArrayList<>();
@@ -183,10 +184,15 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    public Collection<Fortress> findFortresses(Company company) throws FlockException {
+    public Collection<FortressResultBean> findFortresses(Company company) throws FlockException {
         if (company == null)
             throw new FlockException("Unable to identify the requested company");
-        return fortressDao.findFortresses(company.getId());
+        Collection<Fortress> fortresses = fortressDao.findFortresses(company.getId());
+        Collection<FortressResultBean>results = new ArrayList<>(fortresses.size());
+        for (Fortress fortress : fortresses) {
+            results.add( new FortressResultBean(fortress));
+        }
+        return results;
 
     }
 
