@@ -186,6 +186,7 @@ public class TestCallerRef extends EngineBase {
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
+                    logger.info("This Thread - {}", count);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getEntityBean().getCallerRef().toLowerCase());
