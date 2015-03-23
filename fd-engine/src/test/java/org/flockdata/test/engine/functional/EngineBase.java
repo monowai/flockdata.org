@@ -164,6 +164,7 @@ public abstract class EngineBase {
 	public void setSecurity() {
 		engineConfig.setMultiTenanted(false);
         engineConfig.setStoreEnabled("true");
+        engineConfig.setConceptsEnabled("false");
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
