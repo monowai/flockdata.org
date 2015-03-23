@@ -49,9 +49,17 @@ public class TestCallerRef extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
     private String monowai = "Monowai";
 
+    @Override
+    public void cleanUpGraph(){
+
+        // DAT-348 Overriding the @BeforeTransaction annotation
+        super.cleanUpGraph();
+    }
+
     @Test
     public void nullCallerRefBehaviour() throws Exception {
         try {
+            cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
 
             FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis());
@@ -76,6 +84,7 @@ public class TestCallerRef extends EngineBase {
 
     @Test
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser(monowai, mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
