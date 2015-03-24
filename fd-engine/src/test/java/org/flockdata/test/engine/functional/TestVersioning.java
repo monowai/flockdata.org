@@ -24,12 +24,14 @@ import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.test.engine.SimpleLog;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
@@ -147,11 +149,38 @@ public class TestVersioning extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
         assertNotNull(entityLog);
-        Assert.assertEquals("NONE", entityLog.getLog().getStorage());
+        Assert.assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
 
         engineConfig.setStoreEnabled("false");
         assertEquals("EsStorage is OK", kvService.ping());
         engineConfig.setStoreEnabled("true");
+
+    }
+
+    @Test
+    public void storage_CorrectMechanismSelected() throws Exception {
+        // DAT-353
+        engineConfig.setStoreEnabled("true");
+        // The system default store is MEMORY
+        ContentInputBean content  = new ContentInputBean(Helper.getRandomMap());
+        // Fortress is not enabled but the overall configuration says the store is enabled
+        Entity entity = Helper.getEntity("blah", "abc", "abc", "123");
+
+        // set a default for the fortress
+        entity.getFortress().setStoreEnabled(false);
+        TrackResultBean trackResult = new TrackResultBean(entity);
+        trackResult.setContentInput(content);
+
+        Log log = new SimpleLog(entity);
+
+        log = kvService.prepareLog(trackResult, log);
+        assertEquals("Store should be set to that of the fortress", KvService.KV_STORE.NONE.name(), log.getContent().getStorage() );
+
+        entity.getFortress().setStoreEnabled(true);
+        log = kvService.prepareLog(trackResult, log);
+        // Falls back to the system default
+        assertEquals("Store should be set to the system default", KvService.KV_STORE.MEMORY.name(), log.getContent().getStorage() );
+
 
     }
 }

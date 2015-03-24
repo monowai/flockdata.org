@@ -100,8 +100,10 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getContentInput() != null
                 && !resultBean.getLogResult().isLogIgnored()) {
             if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
+//                if ( resultBean.getLogResult().getLogToIndex() == null )
+                //kvManager.getContent(resultBean.getEntity(), resultBean.getLogResult().getLogToIndex().getLog());
                 KvContentBean kvContentBean = new KvContentBean(resultBean);
-                kvManager.doWrite(kvContentBean);
+                kvManager.doWrite(resultBean.getEntity(), kvContentBean);
             }
         }
         return result;

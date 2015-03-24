@@ -64,7 +64,7 @@ public interface Log {
     public String getStorage();
 
     /**
-     * defaults to Neo4j
+     * Which storage mechanism to use, if any.
      *
      * @param storage where to store
      */

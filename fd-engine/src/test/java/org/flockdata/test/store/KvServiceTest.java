@@ -176,8 +176,9 @@ public class KvServiceTest {
         trackResultBean.setLogResult(logResult);
 
         KvContentBean kvContentBean = new KvContentBean(trackResultBean);
+        kvContentBean.setStorage(graphLog.getStorage());
         // RIAK requires a bucket. Other KV stores do not.
-        assertNotNull ( kvContentBean.getBucket());
+        assertNotNull(kvContentBean.getBucket());
 
         // Finally! the actual write occurs
         try {

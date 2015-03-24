@@ -1251,7 +1251,7 @@ public class TestFdIntegration {
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
-        assertEquals("NONE", entityLog.getLog().getStorage());
+        assertEquals(KvService.KV_STORE.NONE, entityLog.getLog().getStorage());
         // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
         logger.info("Track request made. About to wait for first search result");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
