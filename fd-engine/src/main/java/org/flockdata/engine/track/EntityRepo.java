@@ -35,47 +35,46 @@ import java.util.Set;
  */
 public interface EntityRepo extends GraphRepository<EntityNode> {
 
-    @Query(value = "start company=node({1}) " +
-            "   MATCH company-[:TX]->txTag " +
-            "   where txTag.name = {0} " +
+    @Query(value = "   MATCH (company)-[:TX]->(txTag) " +
+            "   where id(company) = {1} and txTag.name = {0} " +
             "return txTag")
     TxRefNode findTxTag(String userTag, Long company);
 
-    @Query(elementClass = EntityNode.class, value = "start tx=node({0}) " +
-            "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-entity " +
-            "return entity")
+    @Query(elementClass = EntityNode.class, value =
+            "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-entity where id(tx)= {0}" +
+                    "return entity")
     Set<Entity> findEntitiesByTxRef(Long txRef);
 
     @Query(elementClass = EntityNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(track:_Entity) " +
+            " match (fortress:Fortress)-[:TRACKS]->(track:_Entity) " +
                     " where id(fortress)={0} " +
                     " return track ORDER BY track.dateCreated ASC" +
                     " skip {1} limit 100 ")
     Set<Entity> findEntities(Long fortressId, Long skip);
 
     @Query(elementClass = EntityNode.class, value =
-                    " match (fortress:Fortress)-[:TRACKS]->(entity:_Entity) where id(fortress)={0} " +
+            " match (fortress:Fortress)-[:TRACKS]->(entity:_Entity) where id(fortress)={0} " +
                     " and entity.callerRef ={1}" +
                     " return entity ")
     Collection<Entity> findByCallerRef(Long fortressId, String callerRef);
 
-    @Query (elementClass = EntityNode.class, value = "match (company:FDCompany), (entities:_Entity) " +
+    @Query(elementClass = EntityNode.class, value = "match (company:FDCompany), (entities:_Entity) " +
             " where id(company)={0} " +
             "   and entities.metaKey in {1}  " +
             "  with company, entities match (company)-[*..2]-(entities) " +
             "return entities ")
     Collection<Entity> findEntities(Long id, Collection<String> toFind);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity)-[other]-(:FortressUser) where id(f)={0} delete other")
+    @Query(value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity)-[other]-(:FortressUser) where id(f)={0} delete other")
     public void purgePeopleRelationships(Long fortressId);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity)-[otherRlx]-(:_Entity) where id(f)={0} delete otherRlx")
+    @Query(value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity)-[otherRlx]-(:_Entity) where id(f)={0} delete otherRlx")
     public void purgeCrossReferences(Long fortressId);
 
-    @Query (value="match (f:_Fortress)-[track:TRACKS]->(meta:_Entity) where id(f)={0} delete track, meta ")
+    @Query(value = "match (f:_Fortress)-[track:TRACKS]->(meta:_Entity) where id(f)={0} delete track, meta ")
     public void purgeEntities(Long fortressId);
 
-    @Query (elementClass = EntityNode.class, value = "match (entity:_Entity) " +
+    @Query(elementClass = EntityNode.class, value = "match (entity:_Entity) " +
             " where id(entity)in {0} " +
             "return entity ")
     Collection<Entity> getEntities(Collection<Long> entities);

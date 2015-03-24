@@ -33,7 +33,7 @@ public class TestFileProcessor {
     @Test
     public void validate_RowsToProcess () throws Exception {
         FileProcessor fp = new FileProcessor();
-        assertTrue("Should process to end of file",fp.stopProcessing(1));
+        assertFalse("No check should be made",fp.stopProcessing(1));
 
         fp = new FileProcessor(50,50);
         assertFalse("Less than skip count failed", fp.stopProcessing(49));
