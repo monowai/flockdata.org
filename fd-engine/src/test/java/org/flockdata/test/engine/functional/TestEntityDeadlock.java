@@ -40,11 +40,16 @@ import static org.junit.Assert.assertNotNull;
  * Created by mike on 22/03/15.
  */
 public class TestEntityDeadlock extends EngineBase{
-    /**
-     * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
-     *
-     * @throws Exception
-     */
+    @Override
+    public void cleanUpGraph() {
+        super.cleanUpGraph();
+    }
+
+        /**
+         * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
+         *
+         * @throws Exception
+         */
     @Test
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
