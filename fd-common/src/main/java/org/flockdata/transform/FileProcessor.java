@@ -68,17 +68,18 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
     private TrackBatcher trackBatcher;
+    private int skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
 
     }
 
-//    public FileProcessor(FdReader staticDataResolver) {
-//        this();
-//        this.defaultStaticDataResolver = staticDataResolver;
-//    }
+    public FileProcessor(int skipCount, int rowsToProcess) {
+        this.skipCount = skipCount;
+        this.rowsToProcess = rowsToProcess;
+    }
 
-    public Long processFile(ProfileConfiguration importProfile, String file, int skipCount, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public Long processFile(ProfileConfiguration importProfile, String file, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
         //Mappable mappable = importProfile.getMappable();
@@ -89,19 +90,18 @@ public class FileProcessor {
         long result = 0;
         try {
             if (importProfile.getContentType() == ProfileConfiguration.ContentType.CSV)
-                result = processCSVFile(file, importProfile, skipCount, writer);
+                result = processCSVFile(file, importProfile, writer);
             else if (importProfile.getContentType() == ProfileConfiguration.ContentType.XML)
                 result = processXMLFile(file, importProfile, writer);
             else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON) {
                 if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
-                    result = processJsonEntities(file, importProfile, skipCount, writer);
+                    result = processJsonEntities(file, importProfile, writer);
                 else
-                    result = processJsonTags(file, importProfile, skipCount, writer);
+                    result = processJsonTags(file, importProfile, writer);
             }
 
         } finally {
             if (result > 0) {
-                //trackBatcher.flush();
                 writer.close(trackBatcher);
             }
         }
@@ -109,7 +109,7 @@ public class FileProcessor {
         return result;
     }
 
-    private long processJsonTags(String fileName, ProfileConfiguration importProfile, int skipCount, FdWriter restClient) throws FlockException {
+    private long processJsonTags(String fileName, ProfileConfiguration importProfile, FdWriter restClient) throws FlockException {
         Collection<TagInputBean> tags;
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         long processed = 0;
@@ -147,7 +147,7 @@ public class FileProcessor {
         return tags.size();
     }
 
-    private long processJsonEntities(String fileName, ProfileConfiguration importProfile, int skipCount, FdWriter writer) throws FlockException {
+    private long processJsonEntities(String fileName, ProfileConfiguration importProfile, FdWriter writer) throws FlockException {
         long rows = 0;
 
         File file = new File(fileName);
@@ -189,12 +189,12 @@ public class FileProcessor {
                             node = om.readTree(jParser);
                             if (node != null) {
                                 processJsonNode(node, importProfile, writer, referenceInputBeans);
-                                rows++;
+                                if (stopProcessing(rows++, then)) {
+                                    break;
+                                }
+
                             }
                             currentToken = jParser.nextToken();
-
-                            if (rows % 500 == 0 && !writer.isSimulateOnly())
-                                logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
 
                         }
                     }
@@ -204,6 +204,7 @@ public class FileProcessor {
                     node = om.readTree(jParser);
                     processJsonNode(node, importProfile, writer, referenceInputBeans);
                 }
+
             } catch (IOException e1) {
                 logger.error("Unexpected", e1);
             }
@@ -262,10 +263,10 @@ public class FileProcessor {
                     ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
                     EntityInputBean entityInputBean = (EntityInputBean) row;
 
-                    if (entityInputBean.getFortress() == null )
+                    if (entityInputBean.getFortress() == null)
                         entityInputBean.setFortress(importProfile.getFortressName());
 
-                    if ( entityInputBean.getFortressUser() == null )
+                    if (entityInputBean.getFortressUser() == null)
                         entityInputBean.setFortressUser(importProfile.getFortressUser());
 
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
@@ -280,8 +281,10 @@ public class FileProcessor {
                     rows++;
                     xsr.nextTag();
                     trackBatcher.batchEntity(entityInputBean);
-                    if (rows % 500 == 0 && !writer.isSimulateOnly())
-                        logger.info("Processed {} elapsed seconds {}", rows, (new DateTime().getMillis() - then) / 1000d);
+
+                    if (stopProcessing(rows, then)) {
+                        break;
+                    }
 
                 }
             } finally {
@@ -302,13 +305,13 @@ public class FileProcessor {
         return fdWriter.flushXReferences(referenceInputBeans);
     }
 
-    private long processCSVFile(String file, ProfileConfiguration importProfile, int skipCount, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         DelimitedMappable row;
         DelimitedMappable mappable = (DelimitedMappable) importProfile.getMappable();
 
-        int rows = 0;
+        long currentRow = 0;
         Collection<TagInputBean> tags = new ArrayList<>();
         boolean writeToFile = false; // Haven't figured out how to integrate this yet
         // purpose is to write all the tags to an import structure
@@ -320,9 +323,9 @@ public class FileProcessor {
         List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
-            CSVReader csvReader ;
-            if ( importProfile.getQuoteCharacter() !=null )
-                csvReader = new CSVReader(br, importProfile.getDelimiter(),importProfile.getQuoteCharacter().charAt(0) );
+            CSVReader csvReader;
+            if (importProfile.getQuoteCharacter() != null)
+                csvReader = new CSVReader(br, importProfile.getDelimiter(), importProfile.getQuoteCharacter().charAt(0));
             else
                 csvReader = new CSVReader(br, importProfile.getDelimiter());
 
@@ -340,14 +343,20 @@ public class FileProcessor {
             }
             watch.start();
             ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
+            if (skipCount > 0)
+                logger.info("Skipping first {} rows", skipCount);
 
+            long then = System.currentTimeMillis();
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!ignoreRow(nextLine)) {
-                    rows++;
-                    if (rows >= skipCount) {
-                        if (rows == skipCount)
-                            logger.info("Starting to process from row {}", skipCount);
+                    currentRow++;
+                    if (currentRow >= skipCount) {
+                        if (currentRow == skipCount)
+                            logger.info("Processing now begins at row {}", skipCount);
 
+                        if (stopProcessing(currentRow, then)) {
+                            break;
+                        }
                         row = (DelimitedMappable) importProfile.getMappable();
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
@@ -370,7 +379,7 @@ public class FileProcessor {
                             }
                             if (!entityInputBean.getCrossReferences().isEmpty()) {
                                 referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
-                                rows = rows + entityInputBean.getCrossReferences().size();
+                                currentRow = currentRow + entityInputBean.getCrossReferences().size();
                             }
 
                             trackBatcher.batchEntity(entityInputBean);
@@ -384,13 +393,7 @@ public class FileProcessor {
                                     trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
                             }
                         }
-                        if (rows % 500 == 0) {
-                            if (!writer.isSimulateOnly())
-                                logger.info("Processed {} ", rows);
-                        }
-                    } else {
-                        if (rows % 500 == 0 && !writer.isSimulateOnly())
-                            logger.info("Skipping {} of {}", rows, skipCount);
+
                     }
                 }
             }
@@ -414,7 +417,30 @@ public class FileProcessor {
             }
         }
 
-        return endProcess(watch, rows);
+        return endProcess(watch, currentRow);
+    }
+
+    public boolean stopProcessing(long currentRow) {
+        return stopProcessing(currentRow, 0l);
+    }
+
+    public boolean stopProcessing(long currentRow, long then) {
+        //DAT-350
+
+        if (rowsToProcess == 0) return false;
+
+        if ( currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
+            logger.info("Processed {} elapsed seconds {}", currentRow-skipCount, (new DateTime().getMillis() - then) / 1000d);
+
+        if (currentRow <= skipCount)
+            return false;
+
+        boolean stop = currentRow >= skipCount + rowsToProcess;
+
+        if (stop)
+            logger.info("Process stopping after the {} requested rows were handled", rowsToProcess);
+
+        return stop;
     }
 
     private boolean ignoreRow(String[] nextLine) {
@@ -467,7 +493,8 @@ public class FileProcessor {
     public long endProcess(StopWatch watch, long rows) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
-        logger.info("Processed {} rows in {} secs. rpm = {}", rows, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rows / mins));
+        double rowsProcessed = rows-skipCount;
+        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
         return rows;
     }
 

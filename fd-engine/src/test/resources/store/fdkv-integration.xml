@@ -19,6 +19,10 @@
     <int:gateway id="kvGateway" async-executor="fd-store"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
+    <!--DAT-347 - implement as appropriate-->
+    <int:gateway id="esGateway"
+                 service-interface="org.flockdata.kv.none.EsGateway"/>
+
     <int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
     </int:handler-retry-advice>
@@ -42,7 +46,12 @@
 
     <int:json-to-object-transformer id="simpleSearchReply"
                                     input-channel="doMetaKeyReply"
-                                    output-channel="sendSearchReply"
+                                    output-channel="receiveSearchReply"
+                                    type="org.flockdata.search.model.EsSearchResult"/>
+
+    <int:json-to-object-transformer id="contentSearchReply"
+                                    input-channel="doContentReply"
+                                    output-channel="receiveContentReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
 
     <!--KV-->
@@ -75,7 +84,7 @@
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
-    <int:channel id="sendSearchReply"/>
+    <int:channel id="receiveSearchReply"/>
     <int:channel id="doMetaKeyQuery"/>
 
 
@@ -92,6 +101,11 @@
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
     <int:channel id="kvErrors"/>
+
+    <!--DAT-347 -->
+    <int:channel id="sendKvSearchRequest"/>
+    <int:channel id="receiveContentReply"/>
+
     <!--End KV -->
 
     <!--Entity Outbound -->

@@ -52,4 +52,6 @@ public interface EntityLog {
     void setEntity(Entity entity);
 
     DateTime getFortressWhen(DateTimeZone tz);
+
+    boolean isMocked();
 }

@@ -44,6 +44,7 @@ public class KvContentBean implements KvContent, Serializable{
     private String checksum;
     private ContentInputBean content = null;
     private String bucket = null;
+    private String storage;
 
     KvContentBean() {
     }
@@ -73,9 +74,13 @@ public class KvContentBean implements KvContent, Serializable{
 
     public KvContentBean(TrackResultBean trackResultBean) {
         this();
+        // ToDo: Code Smell - seems like we should have already got this from the KvManager already prepared
         this.bucket = parseBucket(trackResultBean.getEntity());
-        if (trackResultBean.getLogResult().getLog() != null) {
-            this.id = trackResultBean.getLogResult().getLog().getId();
+        if (trackResultBean.getLogResult().getLogToIndex() != null) {
+            if ( trackResultBean.getLogResult().getLogToIndex().getLog()!=null) {
+                this.id = trackResultBean.getLogResult().getLogToIndex().getLog().getId();
+                this.storage= trackResultBean.getLogResult().getLogToIndex().getLog().getStorage();
+            }
             this.content = trackResultBean.getContentInput();
             content.setCallerRef(trackResultBean.getEntity().getCallerRef());
             content.setMetaKey(trackResultBean.getEntity().getMetaKey());
@@ -87,7 +92,6 @@ public class KvContentBean implements KvContent, Serializable{
             return null;
         return (entity.getFortress().getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
     }
-
 
     public ContentInputBean getContent() {
         return content;
@@ -144,5 +148,13 @@ public class KvContentBean implements KvContent, Serializable{
     @Override
     public void setBucket(String bucket) {
         this.bucket = bucket;
+    }
+
+    public String getStorage() {
+        return storage;
+    }
+
+    public void setStorage(String storage) {
+        this.storage = storage;
     }
 }

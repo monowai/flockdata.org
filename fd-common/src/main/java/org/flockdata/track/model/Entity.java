@@ -141,5 +141,14 @@ public interface Entity {
 
     boolean isNew();
 
+    /**
+     * Flags the entity as being new
+     */
     void setNew();
+
+    /**
+     * Force the entity to a fixed state (for unit testing)
+     * @param status true = new, false = existing
+     */
+    void setNew(boolean status);
 }

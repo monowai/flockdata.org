@@ -34,6 +34,10 @@ public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
     public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
+
+        if ( queryString== null )
+            queryString = "*";
+
         logger.debug("getSimpleQuery {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
         if ( queryString.contains("\"")) {

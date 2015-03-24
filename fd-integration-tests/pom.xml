@@ -237,8 +237,8 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
                                     <cargo.rmi.port>9086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
 <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
-                                    <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
-                                    <cargo.jvmargs>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
+                                    <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
+                                    <cargo.jvmargs>-Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                                 </properties>
                             </configuration>
                             <deployables>

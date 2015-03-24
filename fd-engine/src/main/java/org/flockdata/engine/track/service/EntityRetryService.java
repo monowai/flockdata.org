@@ -19,13 +19,14 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
-import org.flockdata.track.service.TrackService;
+import org.flockdata.track.service.EntityService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -40,10 +41,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
+ *
  * User: mike
  * Date: 20/09/14
  * Time: 3:38 PM
@@ -51,17 +54,16 @@ import java.util.concurrent.ExecutionException;
 @Configuration
 @EnableRetry
 @Service
-//@Transactional
 public class EntityRetryService {
 
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     LogService logService;
 
     @Autowired
-    LogRetryService logRetryService;
+    EngineConfig engineConfig;
 
     @Autowired
     SchemaService schemaService;
@@ -73,11 +75,38 @@ public class EntityRetryService {
     }
 
     @Transactional
-    Iterable<TrackResultBean> doTrack(Fortress fortress, List<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
+    Iterable<TrackResultBean> doTrack(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
 
-        Iterable<TrackResultBean>
-                resultBeans = trackService.trackEntities(fortress, entityInputs);
-        return logService.processLogsSync(fortress, resultBeans);
+        Collection<TrackResultBean>
+                resultBeans = entityService.trackEntities(fortress, entityInputs);
+        // ToDo: DAT-343 - write via a queue
+        boolean processAsync ;
+
+
+        if ( engineConfig.isTestMode() )   // We always run sync in test mode
+            processAsync = false;
+        else if ( resultBeans.size() == 1) { // When processing one result, defer to the isNew flag
+            // Existing entities are processed sync, new ones async
+            processAsync = resultBeans.iterator().next().getEntity().isNew();
+        } else { // Could have a mix of new and existing entities, so we need to split
+            // Split the batch between new and existing entities
+            Collection<TrackResultBean>newEntities = TrackBatchSplitter.splitEntityResults(resultBeans);
+            if ( !newEntities.isEmpty()) // New can be processed async
+                logService.processLogs(fortress, newEntities);
+            // Process updates synchronously
+            return logService.processLogs(fortress, resultBeans).get();
+        }
+
+        if (processAsync) {
+            // DAT-342 - we already know what the content log will be so we can end
+            //           this transaction and get on with writing the search results
+            // Occurs async
+            logService.processLogs(fortress, resultBeans);
+            return resultBeans;
+
+        } else {
+            return logService.processLogs(fortress, resultBeans).get();
+        }
 
     }
 

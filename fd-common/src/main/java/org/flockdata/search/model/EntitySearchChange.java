@@ -22,6 +22,7 @@ package org.flockdata.search.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.*;
 import org.joda.time.DateTime;
@@ -108,7 +109,7 @@ public class EntitySearchChange implements SearchChange {
         setWhen(new DateTime(entity.getWhenCreated()));
     }
 
-    public EntitySearchChange(EntityBean entity, KvContent content) {
+    public EntitySearchChange(EntityBean entity, ContentInputBean content) {
         this(entity);
         if ( content != null ) {
             //ToDo: this attachment might be compressed
@@ -118,13 +119,13 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    public EntitySearchChange(EntityBean entity, Log log, KvContent content) {
+    public EntitySearchChange(EntityBean entity, EntityLog entityLog, ContentInputBean content) {
         this(entity, content);
-        if ( log !=null ) {
-            this.event= log.getEvent().getCode();
-            this.fileName = log.getFileName();
-            this.contentType = log.getContentType();
-            setWhen(new DateTime(log.getEntityLog().getFortressWhen()));
+        if ( entityLog !=null ) {
+            this.event= entityLog.getLog().getEvent().getCode();
+            this.fileName = entityLog.getLog().getFileName();
+            this.contentType = entityLog.getLog().getContentType();
+            setWhen(new DateTime(entityLog.getFortressWhen()));
         } else {
             event = entity.getEvent();
             setWhen(entity.getFortressDateCreated());

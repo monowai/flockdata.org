@@ -78,9 +78,13 @@ public class Importer {
                 .required(false)
                 .help("Default batch size");
 
-        parser.addArgument("-x", "--skip")
+        parser.addArgument("-s", "--skip")
                 .required(false)
-                .help("Number of rows to skip");
+                .help("Start processing from this record");
+
+        parser.addArgument("-x", "--stop")
+                .required(false)
+                .help("Stop after this many have been processed");
 
         parser.addArgument("-v", "--validate")
                 .required(false)
@@ -156,6 +160,10 @@ public class Importer {
             if (o !=null)
                 skipCount = Integer.parseInt(o.toString());
 
+            int rowsToProcess = -1;
+            o = ns.get("stop");
+            if (o !=null)
+                rowsToProcess = Integer.parseInt(o.toString());
 
             watch.start();
             //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
@@ -186,9 +194,12 @@ public class Importer {
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
-                if ( su == null )
-                    throw new FlockException("Unable to connect to FlockData. Is the service running at ["+configuration.getEngineURL()+"]?");
-                if (su.getApiKey() == null)
+                if ( su == null ) {
+                    if ( !configuration.isAmqp())
+                        throw new FlockException("Unable to connect to FlockData. Is the service running at [" + configuration.getEngineURL() + "]?");
+                    else
+                        logger.warn( "Http communications with FlockData are not working. Is the service running at [" + configuration.getEngineURL() + "]?");
+                } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
                 // DAT-317 making the fortressUser optional
@@ -198,10 +209,10 @@ public class Importer {
 
 
                 if (fileProcessor == null)
-                    fileProcessor = new FileProcessor();
+                    fileProcessor = new FileProcessor(skipCount, rowsToProcess);
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, skipCount, restClient, null, configuration);
+                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, restClient, null, configuration);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
@@ -221,10 +232,12 @@ public class Importer {
         FdRestWriter fdClient = new FdRestWriter(configuration);
         String ping = fdClient.ping();
         if (!ping.equalsIgnoreCase("pong!")) {
-            logger.error("Error communicating with fd-engine");
+            logger.warn("Error communicating over http with fd-engine {} ", configuration.getEngineURL());
+            if ( configuration.isAmqp()){
+                logger.info( "Data can still be sent over AMQP");
+            }
         }
-        boolean simulateOnly = configuration.getBatchSize() <= 0;
-        fdClient.setSimulateOnly(simulateOnly);
+        fdClient.setSimulateOnly(configuration.getBatchSize() <= 0);
         return fdClient;
 
     }

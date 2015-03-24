@@ -25,7 +25,7 @@
                               error-channel="kvErrors"
                               task-executor="fd-engine"
                               concurrent-consumers="30"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              prefetch-count="${rabbit.kv.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 

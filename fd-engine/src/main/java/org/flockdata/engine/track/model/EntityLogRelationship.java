@@ -19,12 +19,13 @@
 
 package org.flockdata.engine.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.Log;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.TimeZone;
@@ -40,11 +41,11 @@ public class EntityLogRelationship implements EntityLog {
     private Long id;
 
     @StartNode
-    private EntityNode entity;
+    private Entity entity;
 
     @EndNode
     @Fetch
-    private LogNode log;
+    private Log log;
 
     @Indexed
     private Long sysWhen = 0l;
@@ -54,6 +55,9 @@ public class EntityLogRelationship implements EntityLog {
     private Long fortressWhen = 0l;
 
     private String timezone = null;
+
+    @Transient
+    private boolean isMock;
 
     //@Indexed
     // ToDo: Associated with a node if Not Indexed. This is for maintenance and rebuilding missing docs.
@@ -66,9 +70,13 @@ public class EntityLogRelationship implements EntityLog {
 
     public EntityLogRelationship(Entity entity, Log log, DateTime fortressWhen) {
         this();
-        this.entity = (EntityNode) entity;
-        this.log = (LogNode) log;
+        this.entity = entity;
+        this.log = log;
         this.timezone = entity.getFortress().getTimeZone();
+        if (entity.getFortress().isStoreDisabled()) {
+            id = 0l;
+            isMock = log.isMocked();
+        }
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {
             setFortressWhen(fortressWhen);
         } else {
@@ -108,7 +116,7 @@ public class EntityLogRelationship implements EntityLog {
     }
 
     public void setEntity(Entity entity){
-        this.entity = (EntityNode) entity;
+        this.entity = entity;
     }
 
     public void setChange(LogNode auditLog) {
@@ -157,4 +165,10 @@ public class EntityLogRelationship implements EntityLog {
                 ", indexed=" + indexed +
                 '}';
     }
+
+    public boolean isMocked() {
+        return isMock;
+    }
+
+
 }

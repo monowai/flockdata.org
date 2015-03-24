@@ -39,7 +39,6 @@ public class ElasticSearchEP {
     @Autowired
     QueryService searchService;
 
-
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
 
     public String simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
@@ -51,6 +50,12 @@ public class ElasticSearchEP {
     public EsSearchResult metaKeys(@RequestBody QueryParams queryParams) throws FlockException {
 
         return searchService.metaKeySearch(queryParams);
+    }
+
+    @RequestMapping(value = "/what", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public EsSearchResult whatContent(@RequestBody QueryParams queryParams) throws FlockException {
+
+        return searchService.contentQuery(queryParams);
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

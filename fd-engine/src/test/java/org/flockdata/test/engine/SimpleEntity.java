@@ -194,8 +194,6 @@ public class SimpleEntity implements Entity {
         return new DateTime(fortressCreate);
     }
 
-
-
     @Override
     public String getEvent() {
         return event;
@@ -238,6 +236,11 @@ public class SimpleEntity implements Entity {
 
     @Override
     public void setNew() {
+        setNew(true);
+    }
 
+    @Override
+    public void setNew(boolean status) {
+        isNew = status;
     }
 }

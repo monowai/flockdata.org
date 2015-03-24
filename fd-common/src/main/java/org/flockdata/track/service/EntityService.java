@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  * Date: 5/09/14
  * Time: 4:22 PM
  */
-public interface TrackService {
+public interface EntityService {
     KvContent getWhat(Entity entity, Log change);
 
     @Deprecated
@@ -60,7 +60,7 @@ public interface TrackService {
 
     EntityLog getLastEntityLog(Long entityId);
 
-    Set<EntityLog> getEntityLogs(Long entityId);
+    Set<EntityLog> getEntityLogs(Entity entity);
 
     Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException;
 
@@ -88,7 +88,7 @@ public interface TrackService {
 
     EntityLog getLogForEntity(Entity entity, Long logId);
 
-    Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
+    Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> inputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException;
 
@@ -106,7 +106,7 @@ public interface TrackService {
 
     Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException;
 
-    EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException;
+    EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException;
 
     /**
      *

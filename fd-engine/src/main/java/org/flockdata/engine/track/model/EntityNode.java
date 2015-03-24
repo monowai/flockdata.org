@@ -364,7 +364,11 @@ public class EntityNode implements Entity {
     }
 
     public void setNew() {
-        this.isNew = true;
+        setNew(true);
+    }
+
+    public void setNew(boolean status) {
+        this.isNew = status;
     }
 
     @Override

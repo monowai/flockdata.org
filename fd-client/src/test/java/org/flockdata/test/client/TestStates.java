@@ -42,7 +42,7 @@ public class TestStates extends AbstractImport {
         ClientConfiguration configuration = getClientConfiguration(profile);
         FileProcessor fileProcessor = new FileProcessor();
         ImportProfile params = ClientConfiguration.getImportParams(profile);
-        fileProcessor.processFile(params, "/states.csv", 0, getFdWriter(), null, configuration);
+        fileProcessor.processFile(params, "/states.csv", getFdWriter(), null, configuration);
         assertEquals(69, getFdWriter().getTags().size());
 
         for (TagInputBean stateTag : getFdWriter().getTags()) {

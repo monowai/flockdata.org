@@ -50,6 +50,7 @@ public class KvConfig implements FdKvConfig {
 
     private KV_STORE kvStore = null;
 
+    private Boolean versionEnabled = true;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -88,6 +89,9 @@ public class KvConfig implements FdKvConfig {
 
     @Override
     public KV_STORE getKvStore() {
+        if ( !getStoreEnabled() )
+            return KV_STORE.NONE;
+
         return kvStore;
     }
 
@@ -108,12 +112,28 @@ public class KvConfig implements FdKvConfig {
     public String getRiakUrl() {
         return riakUrl;
     }
+
     private String riakUrl="127.0.0.1";
+
     @Value("${riak.host:@null}")
     public void setRiakUrl(String url){
         if (!"@null".equals(url))
             this.riakUrl = url;
 
+    }
+    /**
+     * Default property for a fortress if not explicitly set.
+     * When true (default) KV versions of information will be tracked
+     *
+     * @param versionEnabled defaults to true
+     */
+    @Value("${fd-engine.system.version}")
+    public void setStoreEnabled(String versionEnabled) {
+        this.versionEnabled = !"@null".equals(versionEnabled) && Boolean.parseBoolean(versionEnabled);
+    }
+
+    public Boolean getStoreEnabled(){
+        return this.versionEnabled;
     }
 
     /**
@@ -124,7 +144,7 @@ public class KvConfig implements FdKvConfig {
     @Override
     public Map<String, String> getHealth() {
 
-        String version = VersionHelper.getABVersion();
+        String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("fd-store.version", version);
         String config = System.getProperty("fd.config");

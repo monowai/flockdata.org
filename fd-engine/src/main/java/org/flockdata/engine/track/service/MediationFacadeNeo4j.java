@@ -83,7 +83,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     // Default behaviour when creating a new fortress
     private static final boolean IGNORE_SEARCH_ENGINE = false;
     @Autowired
-    TrackService trackService;
+    EntityService entityService;
 
     @Autowired
     EntityTagService entityTagService;
@@ -117,7 +117,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Autowired
     ConceptRetryService conceptRetryService;
-
 
     @Autowired
     SecurityHelper securityHelper;
@@ -264,7 +263,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Map<String, Object> getLogContent(Entity entity, Long logId) {
-        EntityLog log = trackService.getLogForEntity(entity, logId);
+        EntityLog log = entityService.getLogForEntity(entity, logId);
         if (log != null)
             return kvService.getContent(entity, log.getLog()).getWhat();
 
@@ -318,7 +317,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
         createTags(fortress.getCompany(), getTags(inputBeans));
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
-        List<List<EntityInputBean>> splitList = Lists.partition(inputBeans, splitListInTo);
         Collection<TrackResultBean> allResults = new ArrayList<>();
         // We have to wait for the docType before proceeding to create entities
         try {
@@ -328,6 +326,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.error("Time out looking/creating docType " + first.getDocumentName());
             throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
         }
+
+        List<List<EntityInputBean>>
+            splitList = Lists.partition(inputBeans, splitListInTo);
 
         StopWatch watch = new StopWatch();
         watch.start();
@@ -382,9 +383,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public TrackResultBean doTrackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         Entity entity;
         if (input.getMetaKey() != null)
-            entity = trackService.getEntity(company, input.getMetaKey());
+            entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = trackService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);
@@ -424,7 +425,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     private long reindex(Fortress fortress, Long skipCount) {
-        Collection<Entity> entities = trackService.getEntities(fortress, skipCount);
+        Collection<Entity> entities = entityService.getEntities(fortress, skipCount);
         if (entities.isEmpty())
             return skipCount;
         skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
@@ -451,7 +452,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
 
-        Collection<Entity> entities = trackService.getEntities(fortress, docType, skipCount);
+        Collection<Entity> entities = entityService.getEntities(fortress, docType, skipCount);
         if (entities.isEmpty())
             return skipCount;
         skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
@@ -462,7 +463,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     private Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
-            EntityLog lastLog = trackService.getLastEntityLog(entity.getId());
+            EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
             EntitySearchChange searchDoc = searchService.rebuild(company, entity, lastLog);
             if  (searchDoc!=null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed() )
                 searchDocuments.add(searchDoc);
@@ -474,7 +475,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
-        return trackService.getEntitySummary(company, metaKey);
+        return entityService.getEntitySummary(company, metaKey);
     }
 
 
@@ -500,7 +501,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
 
         String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
-        trackService.purge(fortress);
+        entityService.purge(fortress);
         kvService.purge(indexName);
         fortressService.purge(fortress);
         engineConfig.resetCache();
@@ -514,8 +515,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public void cancelLastLog(Company company, Entity entity) throws IOException, FlockException {
         EntitySearchChange searchChange;
         // Refresh the entity
-        entity = trackService.getEntity(entity);
-        searchChange = trackService.cancelLastLog(company, entity);
+        entity = entityService.getEntity(entity);
+        searchChange = entityService.cancelLastLog(company, entity);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
         } else {

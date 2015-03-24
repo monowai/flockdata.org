@@ -65,6 +65,23 @@ public class SimpleFortress implements Fortress {
         this.company = ownedBy;
     }
 
+    Boolean version = Boolean.TRUE;
+
+    @Override
+    public Boolean isStoreEnabled() {
+        return version;
+    }
+
+    @Override
+    public Boolean isStoreDisabled() {
+        return !isStoreEnabled();
+    }
+
+    @Override
+    public void setStoreEnabled(Boolean enabled) {
+        version = enabled;
+    }
+
     @Override
     public Boolean isAccumulatingChanges() {
         return true;
@@ -115,10 +132,4 @@ public class SimpleFortress implements Fortress {
         return EntitySearchSchema.parseIndex(this);
     }
 
-    @Override
-    public Fortress setFortressInput(FortressInputBean fib) {
-        this.fib = fib;
-        return this;
-
-    }
 }

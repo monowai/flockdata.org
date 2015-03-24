@@ -19,6 +19,10 @@
     <int:gateway id="fdSearchGateway"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
+    <!--DAT-347 want to minimize the amount of changes we have to integration-->
+    <int:gateway id="esGateway"
+                 service-interface="org.flockdata.kv.none.EsGateway"/>
+
     <int:gateway id="fdTrackGateway"
                  service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
 
@@ -71,8 +75,19 @@
 
     <int:json-to-object-transformer id="simpleSearchReply"
                                     input-channel="doMetaKeyReply"
-                                    output-channel="sendSearchReply"
+                                    output-channel="receiveSearchReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
+
+    <!--DAT-347 -->
+    <int:object-to-json-transformer id="kvSearchSend"
+                                    input-channel="sendKvSearchRequest"
+                                    output-channel="doContentQuery"/>
+
+    <int:json-to-object-transformer id="contentSearchReply"
+                                    input-channel="doContentReply"
+                                    output-channel="receiveContentReply"
+                                    type="org.flockdata.search.model.EsSearchResult"/>
+    <!--End DAT-347 -->
 
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
@@ -82,14 +97,6 @@
     <int:object-to-json-transformer id="entityInputToJson"
                                     input-channel="startEntityWrite"
                                     output-channel="writeEntityContent"/>
-
-    <!--<int:json-to-object-transformer id="jsonToKvContent"-->
-    <!--input-channel="writeKvContent"-->
-    <!--output-channel="doKvWrite"-->
-    <!--type="org.flockdata.kv.bean.KvContentBean">-->
-    <!--</int:json-to-object-transformer>-->
-
-
 
     <!--End KV-->
 
@@ -104,9 +111,15 @@
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
-    <int:channel id="sendSearchReply"/>
+    <int:channel id="receiveSearchReply"/>
     <int:channel id="doMetaKeyQuery"/>
+    <int:channel id="sendKvSearchRequest"/>
 
+    <!--DAT-347 -->
+    <int:channel id="doContentQuery"/>
+    <int:channel id="doContentReply"/>
+    <int:channel id="receiveContentReply"/>
+    <!--End DAT-347 -->
 
     <!-- search queries-->
     <int:channel id="doTagCloudQuery"/>

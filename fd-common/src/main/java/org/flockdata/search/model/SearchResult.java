@@ -95,7 +95,7 @@ public class SearchResult {
                         String lastUser,
                         String lastUpdate,
                         String whenCreated,
-                        String abTimestamp,
+                        String fdTimestamp,
                         Map<String, String[]> fragments) {
         this.metaKey = metaKey;
         this.documentType = type;
@@ -110,8 +110,8 @@ public class SearchResult {
         if ( lastUpdate != null && !lastUpdate.equals(whenCreated) )
             this.lastUpdate = Long.decode(lastUpdate);
 
-        if ( abTimestamp !=null )
-            this.fdTimestamp = Long.decode(abTimestamp);
+        if ( fdTimestamp !=null )
+            this.fdTimestamp = Long.decode(fdTimestamp);
 
     }
 

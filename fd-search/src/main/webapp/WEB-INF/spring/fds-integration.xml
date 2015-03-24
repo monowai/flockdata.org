@@ -22,9 +22,27 @@
 
     <import resource="fds-amqp-integration.xml"/>
     <!--Outbound result of the request to index the entity -->
-    <int:object-to-json-transformer id="searchReplyToJson"
+    <int:object-to-json-transformer id="trackReplyToJson"
                                     input-channel="searchReply"
                                     output-channel="searchDocSyncResult"/>
+
+
+    <int:object-to-json-transformer id="kvReplyToJson"
+                                    content-type="application/json; charset=utf-8"
+                                    input-channel="contentReply"
+                                    output-channel="doContentReply"/>
+
+    <int:object-to-json-transformer id="searchReplyToJson"
+                                    content-type="application/json; charset=utf-8"
+                                    input-channel="metaKeyReply"
+                                    output-channel="doMetaKeyReply"/>
+
+    <int:object-to-json-transformer id="tagCloudReplyToJson"
+                                    content-type="application/json; charset=utf-8"
+                                    input-channel="tagCloudReply"
+                                    output-channel="doTagCloudReply"/>
+
+
 
     <int:channel id="syncSearchDocs"/>
     <int:channel id="searchDocSyncResult"/>
@@ -32,6 +50,10 @@
     <int:channel id="errors"/>
     <int:channel id="doMetaKeyQuery"/>
     <int:channel id="doMetaKeyReply"/>
+    <!--DAT-347 Returns the "What" -->
+    <int:channel id="doContentQuery"/>
+    <int:channel id="doContentReply"/>
+
     <!-- TAG CLOUD CHANNEL -->
     <int:channel id="doTagCloudQuery"/>
     <int:channel id="doTagCloudReply"/>

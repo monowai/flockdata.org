@@ -61,14 +61,14 @@ public interface Log {
     /**
      * @return mechanism used to store the what text
      */
-    public String getWhatStore();
+    public String getStorage();
 
     /**
-     * defaults to Neo4j
+     * Which storage mechanism to use, if any.
      *
      * @param storage where to store
      */
-    public void setWhatStore(String storage);
+    public void setStorage(String storage);
 
     void setEvent(ChangeEvent event);
 
@@ -91,5 +91,7 @@ public interface Log {
     public String getFileName() ;
 
     public void setFileName(String fileName);
+
+    boolean isMocked();
 
 }

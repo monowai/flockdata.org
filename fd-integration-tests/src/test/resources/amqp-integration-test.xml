@@ -31,7 +31,7 @@
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${fd-search.concurrentConsumers}"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              prefetch-count="${rabbit.search.prefetchCount}"
                               task-executor="fd-engine"
 
                               connection-factory="connectionFactory"
@@ -63,7 +63,7 @@
                               error-channel="kvErrors"
                               task-executor="fd-store"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
-                              prefetch-count="2"
+                              prefetch-count="${rabbit.kv.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
@@ -79,7 +79,7 @@
                               error-channel="entityErrors"
                               message-converter="jsonToEntityInput"
                               concurrent-consumers="${fd-track.concurrentConsumers}"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              prefetch-count="${rabbit.entity.prefetchCount}"
                               connection-factory="connectionFactory"/>
 
 </beans>

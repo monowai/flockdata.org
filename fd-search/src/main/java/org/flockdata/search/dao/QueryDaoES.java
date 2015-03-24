@@ -20,6 +20,7 @@
 package org.flockdata.search.dao;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -136,7 +137,6 @@ public class QueryDaoES implements QueryDao {
         tagcloud.scale(); // Scale the results suitable for presentation
         return tagcloud;
     }
-
 
     @Override
     public long getHitCount(String index) {
@@ -272,4 +272,16 @@ public class QueryDaoES implements QueryDao {
         return highlights;
     }
 
+    @Override
+    public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
+
+        GetResponse response =
+                client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
+                        queryParams.getTypes()[0],
+                        queryParams.getCallerRef())
+                        .execute()
+                        .actionGet();
+
+        return new EsSearchResult(response.getSourceAsMap());
+    }
 }

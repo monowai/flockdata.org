@@ -19,8 +19,6 @@
 
 package org.flockdata.client;
 
-import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -31,6 +29,8 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.slf4j.LoggerFactory;
 
@@ -324,7 +324,7 @@ public class Configure {
         if (result == null || result.get("error") != null)
             return null;
 
-        return result.get("fd-engine.version").toString();
+        return result.get("flockdata.version").toString();
     }
 
     private static String getPassword(String userName) {
