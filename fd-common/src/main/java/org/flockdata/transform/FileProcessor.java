@@ -494,7 +494,7 @@ public class FileProcessor {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         double rowsProcessed = rows-skipCount;
-        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped {} rows", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount);
+        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows+skipCount);
         return rows;
     }
 
