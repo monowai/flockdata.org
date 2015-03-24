@@ -115,6 +115,28 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-neo4j</artifactId>
+            <classifier>tests</classifier>
+            <version>${org.springdata.neo4j}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-cypher</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-kernel</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.2</version>
