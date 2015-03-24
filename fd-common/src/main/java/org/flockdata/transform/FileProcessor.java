@@ -68,7 +68,7 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
     private TrackBatcher trackBatcher;
-    private int skipCount, rowsToProcess = -1;
+    private int skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
 
@@ -427,7 +427,7 @@ public class FileProcessor {
     public boolean stopProcessing(long currentRow, long then) {
         //DAT-350
 
-        if (rowsToProcess == -1) return true;
+        if (rowsToProcess == 0) return false;
 
         if ( currentRow != skipCount && then > 0 && currentRow % 500 == 0)
             logger.info("Processed {} elapsed seconds {}", currentRow-skipCount, (new DateTime().getMillis() - then) / 1000d);
@@ -438,7 +438,7 @@ public class FileProcessor {
         boolean stop = currentRow >= skipCount + rowsToProcess;
 
         if (stop)
-            logger.info("Process stopping after {} rows were handled", rowsToProcess);
+            logger.info("Process stopping after the {} requested rows were handled", rowsToProcess);
 
         return stop;
     }
