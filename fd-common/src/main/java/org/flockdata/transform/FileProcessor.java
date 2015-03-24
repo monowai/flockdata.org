@@ -344,7 +344,7 @@ public class FileProcessor {
             watch.start();
             ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
             if (skipCount > 0)
-                logger.info("Skipping {} rows", skipCount);
+                logger.info("Skipping first {} rows", skipCount);
 
             long then = System.currentTimeMillis();
             while ((nextLine = csvReader.readNext()) != null) {
@@ -429,7 +429,7 @@ public class FileProcessor {
 
         if (rowsToProcess == 0) return false;
 
-        if ( currentRow != skipCount && then > 0 && currentRow % 500 == 0)
+        if ( currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
             logger.info("Processed {} elapsed seconds {}", currentRow-skipCount, (new DateTime().getMillis() - then) / 1000d);
 
         if (currentRow <= skipCount)
@@ -494,7 +494,7 @@ public class FileProcessor {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         double rowsProcessed = rows-skipCount;
-        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows+skipCount);
+        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
         return rows;
     }
 
