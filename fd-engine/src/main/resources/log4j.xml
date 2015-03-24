@@ -118,6 +118,10 @@
         <level value="info"/>
     </logger>
 
+    <logger name="org.flockdata.geography">
+        <level value="${fd.logLevel}"/>
+    </logger>
+
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>

@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track;
+package org.flockdata.geography;
 
 import org.flockdata.registration.model.Tag;
 import org.neo4j.graphdb.DynamicLabel;
