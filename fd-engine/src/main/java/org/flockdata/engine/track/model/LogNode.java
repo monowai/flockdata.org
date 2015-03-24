@@ -64,7 +64,7 @@ public class LogNode implements Log {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String comment;
-    private String storage;
+    private String storage;  // ENUMS are not serializable
     private String checkSum=null;
     private Double profileVersion = 1d;
 

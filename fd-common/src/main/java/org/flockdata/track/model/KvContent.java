@@ -48,4 +48,8 @@ public interface KvContent {
     void setBucket(String bucket);
 
     public ContentInputBean getContent();
+
+    void setStorage(String storage);
+
+    String getStorage();
 }

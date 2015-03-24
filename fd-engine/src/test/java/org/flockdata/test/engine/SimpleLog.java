@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine;
 
+import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.model.*;
 
@@ -28,6 +29,15 @@ import org.flockdata.track.model.*;
 public class SimpleLog implements Log {
     String checkSum;
     long id;
+    boolean isMocked = false;
+    private String storage;
+
+    public SimpleLog(Entity entity){
+        this.id = 0l;
+        this.isMocked= true;
+        this.storage = KvService.KV_STORE.NONE.name();
+
+    }
 
     public SimpleLog(long l) {
         this.id = l;
@@ -88,15 +98,15 @@ public class SimpleLog implements Log {
     public Long getId() {
         return id;
     }
-    private String whatStore;
+
     @Override
     public String getStorage() {
-        return whatStore;
+        return storage;
     }
 
     @Override
     public void setStorage(String storage) {
-        this.whatStore = storage;
+        this.storage = storage;
     }
     ChangeEvent event;
     @Override
