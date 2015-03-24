@@ -21,6 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -37,6 +38,8 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
 import org.flockdata.track.service.*;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +59,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 @Transactional
-public class TrackServiceNeo4j implements TrackService {
+public class EntityServiceNeo4J implements EntityService {
     private static final String EMPTY = "";
     @Autowired
     FortressService fortressService;
@@ -89,7 +92,7 @@ public class TrackServiceNeo4j implements TrackService {
     @Autowired
     TagService tagService;
 
-    private Logger logger = LoggerFactory.getLogger(TrackServiceNeo4j.class);
+    private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
     @Override
     public KvContent getWhat(Entity entity, Log change) {
@@ -102,7 +105,7 @@ public class TrackServiceNeo4j implements TrackService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType ,EntityInputBean entityInputBean) {
+    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType ,EntityInputBean entityInputBean) throws FlockException {
 
         Entity entity = null;
         if (entityInputBean.getMetaKey() != null) {
@@ -142,14 +145,41 @@ public class TrackServiceNeo4j implements TrackService {
         // this saves on having to pass the property as a method variable when
         // associating the tags
         entity.setNew();
-        TrackResultBean resultBean = new TrackResultBean(fortress, entity, entityInputBean);
-        resultBean.setDocumentType(documentType);
-        resultBean.setTags(
+        TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
+        trackResult.setDocumentType(documentType);
+        trackResult.setTags(
                 entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
         );
 
-        resultBean.setContentInput(entityInputBean.getContent());
-        return resultBean;
+        trackResult.setContentInput(entityInputBean.getContent());
+        if ( entity.isNew() && entityInputBean.getContent()!=null) {
+            // DAT-342
+            // We prep the content up-front in order to get it distributed to other services
+            // ASAP
+            // Minimal defaults that are otherwise set in the LogService
+            FortressUser contentUser = null;
+            if ( entityInputBean.getContent().getFortressUser() != null)
+                contentUser = fortressService.getFortressUser(fortress, entityInputBean.getContent().getFortressUser());
+
+            if (entityInputBean.getContent().getEvent() == null) {
+                entityInputBean.getContent().setEvent(Log.CREATE);
+            }
+            Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser!=null ?contentUser:entity.getCreatedBy()), trackResult, null, null);
+
+            DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
+            EntityLog entityLog = new EntityLogRelationship(entity, log, contentWhen);
+
+            //if (trackResult.getContentInput().getWhen()!= null )
+
+            logger.debug("Setting preparedLog ");
+            LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
+            logResult.setLogToIndex(entityLog);
+
+            trackResult.setLogResult(logResult);
+            //trackResult.setPreparedLog( entityLog );
+        }
+
+        return trackResult;
 
     }
 
@@ -158,8 +188,13 @@ public class TrackServiceNeo4j implements TrackService {
         if ( fortressUser == null && entityInput.getContent()!=null )
             fortressUser = entityInput.getContent().getFortressUser();
 
-        FortressUser fu = fortressService.getFortressUser(fortress, fortressUser);
-        Entity entity = entityDao.create(entityInput, fortress, fu, documentType);
+        FortressUser entityUser = null;
+        if ( fortressUser !=null)
+            entityUser =fortressService.getFortressUser(fortress, fortressUser);
+
+
+
+        Entity entity = entityDao.create(entityInput, fortress, entityUser, documentType);
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + fortress.getId()); // We ain't tracking this
 
@@ -222,11 +257,9 @@ public class TrackServiceNeo4j implements TrackService {
         return entityDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
-
     Entity getEntity(Long id) {
         return entityDao.getEntity(id);
     }
-
 
     @Override
     public void updateEntity(Entity entity) {
@@ -239,14 +272,18 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Long entityId) {
-        return entityDao.getLogs(entityId);
+    public Set<EntityLog> getEntityLogs(Entity entity) {
+        return entityDao.getLogs(entity);
     }
 
     @Override
     public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        return entityDao.getLogs(entity.getId());
+        if ( entity.getFortress().isStoreEnabled())
+            return entityDao.getLogs(entity);
+        Set<EntityLog>logs = new HashSet<>();
+        logs.add(entityDao.getLastEntityLog(entity));
+        return logs;
     }
 
     @Override
@@ -278,10 +315,10 @@ public class TrackServiceNeo4j implements TrackService {
         Log currentLog = existingLog.getLog();
         Log fromLog = currentLog.getPreviousLog();
         String searchKey = entity.getSearchKey();
-
+        EntityLog newEntityLog = null;
         if (fromLog != null) {
             entityDao.fetch(fromLog);
-            EntityLog newEntityLog = entityDao.getLog(fromLog.getEntityLog().getId());
+            newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getWho().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
@@ -315,7 +352,7 @@ public class TrackServiceNeo4j implements TrackService {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(new EntityBean(entity), fromLog, priorContent);
+            searchDocument = new EntitySearchChange(new EntityBean(entity), newEntityLog, priorContent.getContent());
             searchDocument.setTags(entityTagService.getEntityTags(company, entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -334,7 +371,7 @@ public class TrackServiceNeo4j implements TrackService {
     public int getLogCount(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
         logger.debug("looking for logs for Entity id [{}] - metaKey [{}]", entity.getId(), metaKey);
-        int logs = entityDao.getLogs(entity.getId()).size();
+        int logs = entityDao.getLogs(entity).size();
         logger.debug("Log count {}", logs);
         return logs;
     }
@@ -388,7 +425,6 @@ public class TrackServiceNeo4j implements TrackService {
         return entityDao.findByCallerRef(fortress.getId(), callerRef.trim());
     }
 
-
     @Override
     public Entity findByCallerRef(Fortress fortress, String documentName, String callerRef) {
 
@@ -411,17 +447,15 @@ public class TrackServiceNeo4j implements TrackService {
         return entityDao.findByCallerRef(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
-
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey, true);
         if (entity == null)
             throw new FlockException("Invalid Meta Key [" + metaKey + "]");
-        Set<EntityLog> changes = getEntityLogs(entity.getId());
+        Set<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.getEntityTags(company, entity);
         return new EntitySummaryBean(entity, changes, tags);
     }
-
 
     @Override
     public LogDetailBean getFullDetail(Company company, String metaKey, Long logId) {
@@ -429,7 +463,7 @@ public class TrackServiceNeo4j implements TrackService {
         if (entity == null)
             return null;
 
-        EntityLog log = entityDao.getLog(logId);
+        EntityLog log = entityDao.getLog(entity, logId);
         entityDao.fetch(log.getLog());
         KvContent what = kvService.getContent(entity, log.getLog());
 
@@ -440,7 +474,7 @@ public class TrackServiceNeo4j implements TrackService {
     public EntityLog getLogForEntity(Entity entity, Long logId) {
         if (entity != null) {
 
-            EntityLog log = entityDao.getLog(logId);
+            EntityLog log = entityDao.getLog(entity, logId);
             if (!log.getEntity().getId().equals(entity.getId()))
                 return null;
 
@@ -451,7 +485,7 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public Iterable<TrackResultBean> trackEntities(Fortress fortress, Iterable<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
@@ -624,7 +658,7 @@ public class TrackServiceNeo4j implements TrackService {
         EntityLog entityLog;
         // The change has been indexed
         try {
-            entityLog = entityDao.getLog(searchResult.getLogId());
+            entityLog = entityDao.getLog(entity, searchResult.getLogId());
             if (entityLog == null) {
                 logger.error("Illegal node requested from handleSearchResult [{}]", searchResult.getLogId());
                 return;
@@ -670,9 +704,9 @@ public class TrackServiceNeo4j implements TrackService {
     }
 
     @Override
-    public EntityLog getEntityLog(Company company, String metaKey, long logId) throws FlockException {
+    public EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        EntityLog log = entityDao.getLog(logId);
+        EntityLog log = entityDao.getLog(entity, logId);
 
         if (log == null)
             throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));

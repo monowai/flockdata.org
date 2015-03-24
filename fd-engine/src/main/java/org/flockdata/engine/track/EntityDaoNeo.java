@@ -221,8 +221,15 @@ public class EntityDaoNeo {
         return trackLogRepo.getLogs(entityId, from.getTime(), to.getTime());
     }
 
-    public Set<EntityLog> getLogs(Long entityId) {
-        return trackLogRepo.findLogs(entityId);
+    public Set<EntityLog> getLogs(Entity entity) {
+        EntityLog mockLog = getMockLog(entity);
+        if ( mockLog != null ) {
+            Set<EntityLog> results = new HashSet<>();
+            results.add(mockLog);
+            return results;
+        }
+
+        return trackLogRepo.findLogs(entity.getId());
     }
 
     public Map<String, Object> findByTransaction(TxRef txRef) {
@@ -261,6 +268,9 @@ public class EntityDaoNeo {
     }
 
     public EntityLog save(EntityLog log) {
+        // DAT-349 - don't persist mocked logs
+        if ( log.isMocked())
+            return log;
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
         return template.save((EntityLogRelationship) log);
     }
@@ -274,6 +284,7 @@ public class EntityDaoNeo {
     public Log prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, Log previousChange) throws FlockException {
         ChangeEvent event = trackEventService.processEvent(company, payLoad.getContentInput().getEvent());
         Log changeLog = new LogNode(fUser, payLoad.getContentInput(), txRef);
+
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
@@ -283,8 +294,20 @@ public class EntityDaoNeo {
         }
         return changeLog;
     }
+    private EntityLog getMockLog(Entity entity){
+        // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
+        if ( !entity.getFortress().isStoreEnabled()){
+            Log log = new LogNode(entity);
+            return new EntityLogRelationship(entity, log, entity.getFortressDateCreated());
+        }
+        return null;
+    }
+    public EntityLog getLog(Entity entity, Long logId) {
 
-    public EntityLog getLog(Long logId) {
+        EntityLog mockLog = getMockLog( entity);
+        if ( mockLog !=null )
+            return mockLog;
+
         Relationship change = template.getRelationship(logId);
         if (change != null)
             try {
@@ -303,32 +326,34 @@ public class EntityDaoNeo {
     }
 
     public Log fetch(Log lastChange) {
+        if ( lastChange.getId() == null || lastChange.getId() ==0l)
+            return lastChange;
         return template.fetch(lastChange);
     }
 
-    public EntityLog addLog(Entity entity, Log newChange, DateTime fortressWhen) {
+    public Log addLog(Entity entity, Log newLog, DateTime fortressWhen) {
 
-        newChange.setEntityLog(new EntityLogRelationship(entity, newChange, fortressWhen));
+        newLog.setEntityLog(new EntityLogRelationship(entity, newLog, fortressWhen));
 
         if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
-            return newChange.getEntityLog();
+            return newLog;
 
         entity = template.fetch(entity);// latest version (according to this transaction
         if (entity.getLastChange() == null) {
-            entity.setLastUser(newChange.getWho());
-            entity.setLastChange(newChange);
+            entity.setLastUser(newLog.getWho());
+            entity.setLastChange(newLog);
             entity.setFortressLastWhen(fortressWhen.getMillis());
             template.save(entity);
         } else {
-            newChange = template.save(newChange);
+            newLog = template.save(newLog);
             setLatest(entity);
             // Need to refresh the log
-//            template.fetch(newChange.getEntityLog());
+            template.fetch(newLog.getEntityLog());
         }
 
-        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newChange.getEntityLog(), newChange.getId());
+        logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newLog.getEntityLog(), newLog.getId());
         // Saving the entity causes the Log properties to be lazy initialised. If the caller wants these, then they need to fetch the object
-        return newChange.getEntityLog();
+        return newLog;
     }
 
     void setLatest(Entity entity) {
@@ -422,6 +447,10 @@ public class EntityDaoNeo {
     }
 
     public EntityLog getLastEntityLog(Entity entity) {
+
+        EntityLog mockLog = getMockLog( entity);
+        if ( mockLog !=null )
+            return mockLog;
 
         Log lastChange = entity.getLastChange();
         if (lastChange == null)

@@ -19,7 +19,6 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
@@ -57,7 +56,7 @@ public class AttachmentTests extends ESBase {
         Map<String, Object> json = Helper.getBigJsonText(20);
         Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entity), new KvContentBean(1l, new ContentInputBean(json)));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entity),  new ContentInputBean(json));
         changeA.setAttachment(Helper.getPdfDoc());
 
         // FortB will have

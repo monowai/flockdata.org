@@ -40,7 +40,7 @@ public class TestLabels extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
 
         fileProcessor.processFile(ClientConfiguration.getImportParams("/tag-labels.json"),
-                "/tag-labels.csv", 0, getFdWriter(), null, configuration);
+                "/tag-labels.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -67,7 +67,7 @@ public class TestLabels extends AbstractImport {
         ClientConfiguration configuration= getClientConfiguration("/tag-label-expressions.json");
         FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ClientConfiguration.getImportParams("/tag-label-expressions.json"),
-                "/tag-label-expressions.csv", 0, getFdWriter(), null, configuration);
+                "/tag-label-expressions.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         // 1 Politician

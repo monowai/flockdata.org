@@ -34,6 +34,8 @@ import org.flockdata.track.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -68,20 +71,25 @@ public class LogServiceNeo4j implements LogService {
     LogRetryService logRetryService;
 
     @Override
-    public Collection<TrackResultBean> processLogsSync(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
+    @Async ("fd-log")
+    public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
 
         Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             logResults.add(processLogFromResult(fortress, resultBean));
         }
 
-        return logResults;
+        return new AsyncResult<>(logResults);
 
     }
 
+    @Transactional
     TrackResultBean processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         if (resultBean.getContentInput() == null)
             return resultBean;
+
+        if ( !resultBean.getEntity().getFortress().isStoreEnabled())
+            return resultBean; // DAT-349 - No log store
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
@@ -92,8 +100,10 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getContentInput() != null
                 && !resultBean.getLogResult().isLogIgnored()) {
             if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
+//                if ( resultBean.getLogResult().getLogToIndex() == null )
+                //kvManager.getContent(resultBean.getEntity(), resultBean.getLogResult().getLogToIndex().getLog());
                 KvContentBean kvContentBean = new KvContentBean(resultBean);
-                kvManager.doWrite(kvContentBean);
+                kvManager.doWrite(resultBean.getEntity(), kvContentBean);
             }
         }
         return result;
@@ -106,7 +116,7 @@ public class LogServiceNeo4j implements LogService {
         resultBean.setContentInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
-        Collection<TrackResultBean> results = processLogsSync(entity.getFortress(), logs);
+        Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
         //logService.distributeChanges(entity.getFortress().getCompany(), results);
         return results.iterator().next();
     }

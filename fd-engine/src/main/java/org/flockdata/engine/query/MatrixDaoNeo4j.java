@@ -54,7 +54,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
-        String toRlx = CypherHelper.getRelationships(input.getToRlxs()); // ToDo: Can we have diff from and too?
+        String toRlx = CypherHelper.getRelationships(input.getToRlxs());
         String conceptString = "";
         if (!conceptsFrom.equals(""))
             conceptString = "where (" + conceptsFrom + ")";
@@ -67,10 +67,10 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 " with meta " +
                 "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
                 conceptString +
-                "with tag1.name as tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
-                "order by links desc, tag2 " +
+                "with tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
+//                "order by links desc, tag2 " +
                 (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
-                "return tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
+                "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
                 "collect( links) as occurrenceCount";
 
         Map<String, Object> params = new HashMap<>();

@@ -26,6 +26,7 @@ import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -33,10 +34,9 @@ import java.util.Collection;
  * Since: 11/05/13
  */
 public class TrackResultBean {
-    private String serviceMessage;
+    private Collection<String> serviceMessages = new ArrayList<>();
     private LogResultBean logResult;
     private ContentInputBean contentInput;
-
 
     private EntityBean entityBean;
     private Entity entity;
@@ -48,11 +48,11 @@ public class TrackResultBean {
     }
 
     /**
-     * @param serviceMessage server side error messgae to return to the caller
+     * @param serviceMessage server side error messages to return to the caller
      */
     public TrackResultBean(String serviceMessage) {
         this();
-        this.serviceMessage = serviceMessage;
+        addServiceMessage(serviceMessage);
     }
 
     /**
@@ -101,12 +101,12 @@ public class TrackResultBean {
         return result;
     }
 
-    public String getServiceMessage() {
-        return serviceMessage;
+    public Collection<String> getServiceMessages() {
+        return serviceMessages;
     }
 
-    public void setServiceMessage(String serviceMessage) {
-        this.serviceMessage = serviceMessage;
+    public void addServiceMessage(String serviceMessage) {
+        this.serviceMessages.add(serviceMessage);
     }
 
     @JsonIgnore
@@ -143,7 +143,7 @@ public class TrackResultBean {
     @JsonIgnore
     /**
      * Only used when creating  relationships for the purpose of search
-     * that bypass the graph
+     * that bypass the graph, i.e. transient EntityTags
      */
     public Collection<EntityTag> getTags() {
         return tags;
@@ -160,20 +160,28 @@ public class TrackResultBean {
     }
 
     /**
-     * How this call was made
+     * Content being tracked
+     *
      * @param contentInputBean content provided as input to the track process
      */
     public void setContentInput(ContentInputBean contentInputBean) {
         this.contentInput = contentInputBean;
     }
 
+    /**
+     * EntityInput information provided when the track call was made
+     */
     @JsonIgnore
     public EntityInputBean getEntityInputBean() {
         return entityInputBean;
     }
 
+    /**
+     *
+     * @return true if this log should be processed by the search service
+     */
     public boolean processLog() {
-        return getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE;
+        return  ( getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE);
     }
 
     public void setDocumentType(DocumentType documentType) {
@@ -184,4 +192,5 @@ public class TrackResultBean {
     public DocumentType getDocumentType() {
         return documentType;
     }
+
 }

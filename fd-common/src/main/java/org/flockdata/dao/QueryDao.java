@@ -38,5 +38,8 @@ public interface QueryDao {
 
     EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException;
 
+    // Treating Es like a current state KV store
+    EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException;
+
     String doSearch(QueryParams queryParams) throws FlockException;
 }

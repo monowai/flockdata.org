@@ -54,7 +54,7 @@ public class TestCSVDelimited extends AbstractImport {
         ImportProfile params = ClientConfiguration.getImportParams("/no-header.json");
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/no-header.txt", 0, getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/no-header.txt", getFdWriter(), null, configuration);
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();

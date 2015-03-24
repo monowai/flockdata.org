@@ -27,7 +27,7 @@ import java.util.Properties;
  * Since: 29/08/13
  */
 public class VersionHelper {
-    public static String getABVersion() {
+    public static String getFdVersion() {
         String path = "/version.properties";
 
         String version = null;

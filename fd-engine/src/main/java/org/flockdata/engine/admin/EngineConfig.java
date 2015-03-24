@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.access.annotation.Secured;
@@ -74,6 +75,8 @@ public class EngineConfig implements FdEngineConfig {
     Neo4jTemplate template;
 
     private boolean conceptsEnabled=true;
+    private boolean systemConstraints = true;
+
     private boolean duplicateRegistration;
     private boolean testMode;
 
@@ -101,6 +104,22 @@ public class EngineConfig implements FdEngineConfig {
     protected void setMultiTenanted(String multiTenanted) {
         this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
     }
+
+    /**
+     * Default property for a fortress if not explicitly set.
+     * When true (default) KV versions of information will be tracked
+     *
+     * @param versionEnabled defaults to true
+     */
+    @Value("${fd-store.enable}")
+    public void setStoreEnabled(String versionEnabled) {
+        kvConfig.setStoreEnabled(versionEnabled);
+    }
+
+    public Boolean isStoreEnabled(){
+        return kvConfig.getStoreEnabled();
+    }
+
     /**
      * Should be disabled for testing purposes
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
@@ -111,6 +130,12 @@ public class EngineConfig implements FdEngineConfig {
         this.conceptsEnabled = !"@null".equals(conceptsEnabled) && Boolean.parseBoolean(conceptsEnabled);
     }
 
+    @Override
+    @Value("${fd-engine.system.constraints:@null}")
+    public void setSystemConstraints(String constraints) {
+        this.systemConstraints = !"@null".equals(constraints) && Boolean.parseBoolean(constraints);
+
+    }
 
     @Override
     public KvService.KV_STORE getKvStore() {
@@ -137,10 +162,13 @@ public class EngineConfig implements FdEngineConfig {
     public Map<String, String> getHealth() {
         if ( System.getProperty("neo4j")!=null )
             logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
-        String version = VersionHelper.getABVersion();
+
+        String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
-        healthResults.put("fd-engine.version", version);
+        healthResults.put("flockdata.version", version);
         healthResults.put("fd-engine", trackDAO.ping());
+        healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
+
         String config = System.getProperty("fd.config");
 
         if (config == null || config.equals(""))
@@ -181,8 +209,8 @@ public class EngineConfig implements FdEngineConfig {
         this.multiTenanted = multiTenanted;
     }
 
-//    @CacheEvict(value = {"companyFortress", "fortressName", "trackLog", "companyKeys", "companyTag", "companyTagManager",
-//            "fortressUser", "callerKey", "metaKey", "headerId" }, allEntries = true)
+    @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
+            "companyEvent", "labels" }, allEntries = true)
     @Override
     @Secured({SecurityHelper.ADMIN})
     public void resetCache() {
@@ -214,6 +242,12 @@ public class EngineConfig implements FdEngineConfig {
     public String authPing() {
         return  "Pong!";
     }
+
+    @Override
+    public boolean createSystemConstraints() {
+        return systemConstraints;
+    }
+
 
     @Override
     public void setTestMode(boolean testMode) {

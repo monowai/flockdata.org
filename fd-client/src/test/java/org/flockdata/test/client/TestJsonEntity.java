@@ -98,7 +98,7 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/object-example.json", 0, getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/object-example.json", getFdWriter(),company, defaults  );
         assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
 
@@ -113,7 +113,7 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/array-example.json", 0, getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/array-example.json", getFdWriter(),company, defaults  );
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 

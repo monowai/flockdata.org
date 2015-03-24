@@ -50,7 +50,7 @@ public class TestImportProfileValidation extends AbstractImport{
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -58,7 +58,7 @@ public class TestImportProfileValidation extends AbstractImport{
         // Should also fail with blank
         params.setFortressName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -68,7 +68,7 @@ public class TestImportProfileValidation extends AbstractImport{
 
         params.setDocumentName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));
@@ -76,7 +76,7 @@ public class TestImportProfileValidation extends AbstractImport{
 
         params.setDocumentName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", 0, getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));

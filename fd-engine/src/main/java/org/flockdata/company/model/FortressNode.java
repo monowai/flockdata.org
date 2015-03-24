@@ -54,6 +54,7 @@ public class FortressNode implements Fortress {
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
+    private Boolean storeEnabled = Boolean.TRUE;
 
     @Indexed (unique = true)
     private String indexName = null;
@@ -65,9 +66,7 @@ public class FortressNode implements Fortress {
         this();
         getTimeZone();
         getLanguageTag();
-
         setFortressInput(fortressInputBean);
-
         setCompany(ownedBy);
 
     }
@@ -78,12 +77,12 @@ public class FortressNode implements Fortress {
         return indexName;
     }
 
-    @Override
-    public Fortress setFortressInput(FortressInputBean fortressInputBean) {
+    Fortress setFortressInput(FortressInputBean fortressInputBean) {
         setName(fortressInputBean.getName().trim());
         setSearchActive(fortressInputBean.getSearchActive());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
+        storeEnabled = fortressInputBean.getStore();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)
@@ -97,8 +96,6 @@ public class FortressNode implements Fortress {
 
         return this;
     }
-
-
 
     public Long getId() {
         return id;
@@ -124,6 +121,23 @@ public class FortressNode implements Fortress {
         this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
         this.company = (CompanyNode) ownedBy;
 
+    }
+
+    @Override
+    public Boolean isStoreEnabled() {
+        if ( storeEnabled == null )
+            return Boolean.TRUE;
+        return storeEnabled;
+    }
+
+    @Override
+    public Boolean isStoreDisabled() {
+        return !isStoreEnabled();
+    }
+
+    @Override
+    public void setStoreEnabled(Boolean enabled) {
+        this.storeEnabled = enabled;
     }
 
     @JsonIgnore

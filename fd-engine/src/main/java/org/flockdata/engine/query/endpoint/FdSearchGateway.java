@@ -38,7 +38,7 @@ public interface FdSearchGateway {
     @Gateway(requestChannel = "sendEntityIndexRequest",requestTimeout = 10000)
     public void makeSearchChanges(EntitySearchChanges searchChanges);
 
-    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "sendSearchReply" )
+    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveSearchReply")
     public EsSearchResult search(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "sendTagCloudReply")

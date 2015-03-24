@@ -23,7 +23,7 @@
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${fd-search.concurrentConsumers}"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              prefetch-count="${rabbit.search.prefetchCount}"
                               task-executor="fd-search"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
@@ -33,6 +33,7 @@
             request-channel="writeEntityContent"
             reply-channel="nullChannel"
             requires-reply="false"
+            lazy-connect="false"
             routing-key="${fd.track.binding}"
             mapped-request-headers="apiKey"
             exchange-name="${fd.track.exchange}"
@@ -43,6 +44,7 @@
             request-channel="syncSearchDocs"
             reply-channel="nullChannel"
             requires-reply="false"
+            lazy-connect="false"
             routing-key="${fd.search.binding}"
             exchange-name="${fd.search.exchange}"
             amqp-template="amqpTemplate"/>
@@ -52,6 +54,7 @@
             request-channel="writeKvContent"
             requires-reply="false"
             routing-key="${fd.kv.binding}"
+            lazy-connect="false"
             exchange-name="${fd.kv.exchange}"
             amqp-template="amqpTemplate"/>
 
@@ -65,7 +68,7 @@
                               error-channel="kvErrors"
                               task-executor="fd-store"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
-                              prefetch-count="2"
+                              prefetch-count="${rabbit.kv.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
@@ -83,6 +86,6 @@
                               error-channel="entityErrors"
                               message-converter="jsonToEntityInput"
                               concurrent-consumers="${fd-track.concurrentConsumers}"
-                              prefetch-count="${rabbit.prefetchCount}"
+                              prefetch-count="${rabbit.entity.prefetchCount}"
                               />
 </beans>

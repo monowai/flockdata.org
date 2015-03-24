@@ -63,6 +63,7 @@ public class TestInputBeans {
 
         FortressInputBean fib = new FortressInputBean("ABC");
         assertTrue(fib.getSearchActive());
+        assertEquals (null, fib.getStore());
 
         fib = new FortressInputBean("ABC", false);
         assertTrue(fib.getSearchActive());
@@ -73,9 +74,12 @@ public class TestInputBeans {
         fib = new FortressInputBean("ABC", false);
         assertTrue(fib.getSearchActive());
 
+        fib.setStore(false);
+        assertFalse(fib.getStore());
+
+        fib.setStore(null);
+        assertEquals (null, fib.getStore());
     }
-
-
 
     @Test
     public void testEntityInputBean() throws Exception {

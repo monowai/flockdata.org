@@ -22,7 +22,6 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
 import org.flockdata.track.model.TxRef;
 
 /**
@@ -31,7 +30,6 @@ import org.flockdata.track.model.TxRef;
  */
 public class LogResultBean {
     public static final String OK = "OK";
-    private String message;
     private String fortress;
     private String documentType;
     private String callerRef;
@@ -41,7 +39,7 @@ public class LogResultBean {
     private String txReference = null;
     private Long fdWhen;
     private EntityLog logToIndex;
-    private Log log;
+    //private Log log;
     private boolean logIgnored = false;
 
     private LogResultBean() {
@@ -53,18 +51,8 @@ public class LogResultBean {
 
     }
 
-
     public ContentInputBean.LogStatus getStatus() {
         return status;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public void setTxReference(TxRef txReference) {
@@ -134,14 +122,14 @@ public class LogResultBean {
         return logToIndex;
     }
 
-    @JsonIgnore
-    public void setLog(Log log) {
-        this.log = log;
-    }
+//    @JsonIgnore
+//    public void setLog(Log log) {
+//        this.log = log;
+//    }
 
-    public Log getLog() {
-        return log;
-    }
+    //public Log getLog() {
+    //    return log;
+    //}
 
 //    @JsonIgnore
 //    @Deprecated

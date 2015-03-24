@@ -33,6 +33,7 @@ public interface FdKvConfig {
     void setKvStore(KvService.KV_STORE kvStore);
 
     public void setKvStore(String kvStore);
+
     KvService.KV_STORE getKvStore();
 
     Map<String, String> getHealth();
@@ -40,4 +41,9 @@ public interface FdKvConfig {
     boolean isAsyncWrite();
 
     String getRiakUrl();
+
+    public Boolean getStoreEnabled();
+
+    public void setStoreEnabled(String enabled);
+
 }

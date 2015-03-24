@@ -81,7 +81,7 @@ public abstract class EngineBase {
 
 	@Autowired
     protected
-    TrackService trackService;
+    EntityService entityService;
 
 	@Autowired
     EntityTagService entityTagService;
@@ -154,14 +154,18 @@ public abstract class EngineBase {
     @Rollback(false)
 	@BeforeTransaction
 	public void cleanUpGraph() {
+        // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
+        //           might be started giving you sporadic failures.
+        logger.info("Cleaning graph");
 		Neo4jHelper.cleanDb(template);
-		engineConfig.setConceptsEnabled("false");
 		engineConfig.setDuplicateRegistration(true);
 	}
 
 	@Before
 	public void setSecurity() {
 		engineConfig.setMultiTenanted(false);
+        engineConfig.setStoreEnabled("true");
+        engineConfig.setConceptsEnabled("false");
 		SecurityContextHolder.getContext().setAuthentication(authDefault);
 	}
 
@@ -251,10 +255,10 @@ public abstract class EngineBase {
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
 		while ( i <= timeout) {
-            Entity updateEntity = trackService.getEntity(company, entity.getMetaKey());
-            count = trackService.getLogCount(company, updateEntity.getMetaKey());
+            Entity updateEntity = entityService.getEntity(company, entity.getMetaKey());
+            count = entityService.getLogCount(company, updateEntity.getMetaKey());
 
-            EntityLog log = trackService.getLastEntityLog(company, updateEntity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, updateEntity.getMetaKey());
             // We have at least one log?
 			if ( count == expectedCount )
 				return log;
@@ -273,11 +277,11 @@ public abstract class EngineBase {
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        Entity entity = trackService.getEntity(company, source.getMetaKey());
+        Entity entity = entityService.getEntity(company, source.getMetaKey());
 
         int timeout = 100;
         while ( i <= timeout) {
-            EntityLog log = trackService.getLastEntityLog(company, entity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, entity.getMetaKey());
             if (log != null )
                 return i;
             Thread.yield();

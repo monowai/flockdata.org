@@ -37,6 +37,10 @@ public interface KvContent {
 
     public String getChecksum() throws IOException;
 
+    /**
+     *
+     * @return primary key for this content
+     */
     public Long getId();
 
     String getBucket();
@@ -44,4 +48,8 @@ public interface KvContent {
     void setBucket(String bucket);
 
     public ContentInputBean getContent();
+
+    void setStorage(String storage);
+
+    String getStorage();
 }
