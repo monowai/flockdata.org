@@ -27,8 +27,6 @@ import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -45,12 +43,18 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestTagDeadlock extends EngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestTagDeadlock.class);
     @Autowired
     EntityService entityService;
 
     @Autowired
     RegistrationService regService;
+
+    @Override
+    public void cleanUpGraph() {
+        // DAT-348
+        super.cleanUpGraph();
+    }
+
 
     @Before
     public void setSingleTenanted() {
@@ -116,8 +120,6 @@ public class TestTagDeadlock extends EngineBase {
         thread.start();
         return runner;
     }
-
-
 
     class TagRunner implements Runnable {
         Fortress fortress;
