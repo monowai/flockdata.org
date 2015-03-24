@@ -339,7 +339,7 @@ public class TestFdIntegration {
                 .getEntity();
 
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
-
+        waitAWhile("Attachment Mapper can take some time to process the PDF");
         doEsQuery(entity.getFortress().getIndexName(), entity.getMetaKey());
         doEsQuery(entity.getFortress().getIndexName(), "brown fox", 1);
         doEsQuery(entity.getFortress().getIndexName(), "test.pdf", 1);
