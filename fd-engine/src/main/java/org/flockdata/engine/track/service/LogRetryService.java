@@ -91,7 +91,7 @@ public class LogRetryService {
      */
     @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
     TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
-            return writeLogTx(fortress, trackResultBean);
+        return writeLogTx(fortress, trackResultBean);
     }
 
     @Transactional
@@ -111,7 +111,7 @@ public class LogRetryService {
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
         FortressUser thisFortressUser = trackResultBean.getEntity().getCreatedBy();
-        if (thisFortressUser == null || !(thisFortressUser.getCode()!=null && thisFortressUser.getCode().equals(fortressUser))) {
+        if (thisFortressUser == null || !(thisFortressUser.getCode() != null && thisFortressUser.getCode().equals(fortressUser))) {
             // Different user creating the Entity than is creating the log
             thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
         }
@@ -155,6 +155,7 @@ public class LogRetryService {
         resultBean.setTxReference(txRef);
 
         EntityLog lastLog = getLastLog(payLoad.getEntity());
+
         logger.debug("createLog ContentWhen {}, lastLogWhen {}, log {}", new DateTime(payLoad.getContentInput().getWhen()),
                 (lastLog == null ? "[null]" : new DateTime(lastLog.getFortressWhen()))
                 , lastLog);
@@ -169,11 +170,11 @@ public class LogRetryService {
         }
 
         Log preparedLog = null;
-        if ( payLoad.getLogResult()!= null )
+        if (payLoad.getLogResult() != null)
             preparedLog = payLoad.getLogResult().getLogToIndex().getLog();
 
-        if ( preparedLog == null  ) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
-            preparedLog = entityDao.prepareLog( fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
+        if (preparedLog == null) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
+            preparedLog = entityDao.prepareLog(fortress.getCompany(), thisFortressUser, payLoad, txRef, (lastLog != null ? lastLog.getLog() : null));
         else
             preparedLog.setTxRef(txRef);
 
@@ -238,12 +239,15 @@ public class LogRetryService {
      */
     private EntityLog resolveHistoricLog(Entity entity, EntityLog incomingLog, DateTime contentWhen) {
 
-        boolean historicIncomingLog = (incomingLog != null && contentWhen.isBefore(incomingLog.getFortressWhen()));
+        if (incomingLog == null || incomingLog.isMocked())
+            return null;
+
+        boolean historicIncomingLog = (contentWhen.isBefore(incomingLog.getFortressWhen()));
 
         logger.debug("Historic {}, {}, log {}, contentWhen {}",
                 new DateTime(entity.getFortressDateUpdated()),
                 historicIncomingLog,
-                incomingLog != null ? new DateTime(incomingLog.getFortressWhen()) : "[no existing]",
+                new DateTime(incomingLog.getFortressWhen()),
                 contentWhen);
 
         if (historicIncomingLog) {
@@ -275,7 +279,7 @@ public class LogRetryService {
 
     @Transactional
     public EntityLog getLastLog(Entity entity) throws FlockException {
-        if (entity == null || entity.getId() == null)
+        if (entity == null || entity.getId() == null || entity.isNew())
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
         return entityDao.getLastEntityLog(entity);

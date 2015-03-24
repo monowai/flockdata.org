@@ -338,6 +338,9 @@ public class EntityDaoNeo {
         if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
             return newLog;
 
+        if ( entity.getFortress().isStoreDisabled() )
+            return newLog;
+
         entity = template.fetch(entity);// latest version (according to this transaction
         if (entity.getLastChange() == null) {
             entity.setLastUser(newLog.getWho());
