@@ -42,14 +42,15 @@ import static org.junit.Assert.assertNotNull;
 public class TestEntityDeadlock extends EngineBase{
     @Override
     public void cleanUpGraph() {
+        // DAT-348
         super.cleanUpGraph();
     }
 
-        /**
-         * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
-         *
-         * @throws Exception
-         */
+    /**
+     * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
+     *
+     * @throws Exception
+     */
     @Test
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
@@ -67,7 +68,7 @@ public class TestEntityDeadlock extends EngineBase{
             int tagCount = 1; // unique tags per entity - tags are shared across the entities
             int docCount = 1; // how many entities to create per thread
             // Tried reducing threadMax
-            int threadMax = 10; // Each thread will create a unique document type
+            int threadMax = 20; // Each thread will create a unique document type
             ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
             Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
