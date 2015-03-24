@@ -23,6 +23,7 @@ import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagRelationship;
+import org.flockdata.geography.GeoSupportNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
