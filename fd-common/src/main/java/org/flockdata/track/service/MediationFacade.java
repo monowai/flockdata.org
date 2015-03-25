@@ -59,9 +59,9 @@ public interface MediationFacade {
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    Long reindex(Company company, String fortressCode) throws FlockException;
+    String reindex(Company company, String fortressCode) throws FlockException;
 
-    void reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
+    String reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
 
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 
