@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -225,7 +225,7 @@ public class SearchServiceFacade {
             if (lastChange != null) {
                 KvContent content = kvGateway.getContent(entity, lastChange);
                 if ( content == null ) {
-                    logger.error("Unable to located content for {} ", entity);
+                    logger.error("Unable to locate content for {} ", entity);
                     return null;
                 }
                 searchDocument = new EntitySearchChange(entityBean, lastLog, content.getContent());

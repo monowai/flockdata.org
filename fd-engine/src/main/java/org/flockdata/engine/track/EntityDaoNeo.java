@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -451,13 +451,11 @@ public class EntityDaoNeo {
 
     public EntityLog getLastEntityLog(Entity entity) {
 
-        EntityLog mockLog = getMockLog( entity);
-        if ( mockLog !=null )
-            return mockLog;
-
         Log lastChange = entity.getLastChange();
-        if (lastChange == null)
-            return null;
+        if (lastChange == null) {
+            // If no last change, then this might be a mock log
+            return getMockLog( entity);
+        }
 
         return trackLogRepo.getLog(entity.getLastChange().getId());
         //return trackLogRepo.getLastChange(entity.getId());

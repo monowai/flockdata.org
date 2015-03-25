@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -98,8 +98,8 @@ public class AdminEP {
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         logger.info("Reindex command received for " + fortressCode + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindex(company, fortressCode);
-        return new ResponseEntity<>("Request to reindex has been received", HttpStatus.ACCEPTED);
+        String message = mediationFacade.reindex(company, fortressCode);
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
     }
 
 
@@ -110,8 +110,8 @@ public class AdminEP {
         Company company = CompanyResolver.resolveCompany(request);
 
         logger.info("Reindex command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
-        mediationFacade.reindexByDocType(company, fortressName, docType);
-        return new ResponseEntity<>("Request to reindex fortress document type has been received", HttpStatus.ACCEPTED);
+        String message = mediationFacade.reindexByDocType(company, fortressName, docType);
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/{fortressName}", method = RequestMethod.DELETE)
