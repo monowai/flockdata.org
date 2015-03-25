@@ -240,6 +240,7 @@ public class SchemaDaoNeo4j {
         template.query("create constraint on (t:CountryAlias) assert t.key is unique", null);
         template.query("create constraint on (t:State) assert t.key is unique", null);
         template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
+//        Due to SDN restrictions, this must have an _ else it will not work well
         template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
         template.query("create constraint on (t:City) assert t.key is unique", null);
