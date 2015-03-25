@@ -160,7 +160,7 @@ public class Importer {
             if (o !=null)
                 skipCount = Integer.parseInt(o.toString());
 
-            int rowsToProcess = -1;
+            int rowsToProcess = 0;
             o = ns.get("stop");
             if (o !=null)
                 rowsToProcess = Integer.parseInt(o.toString());
@@ -241,6 +241,5 @@ public class Importer {
         return fdClient;
 
     }
-
 
 }
