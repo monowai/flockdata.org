@@ -31,6 +31,7 @@ import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
+import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.FdServerWriter;
@@ -145,6 +146,9 @@ public class TestFdIntegration {
 
     @Autowired
     RegistrationService regService;
+
+    @Autowired
+    EngineAdminService adminService;
 
     @Autowired
     CompanyService companyService;
@@ -422,7 +426,7 @@ public class TestFdIntegration {
 
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        Long lResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
+        Long lResult = adminService.doReindex(fo).get();
         waitForFirstSearchResult(su.getCompany(), entity);
         assertNotNull(lResult);
         assertEquals(1l, lResult.longValue());
