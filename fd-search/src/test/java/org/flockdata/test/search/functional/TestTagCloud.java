@@ -84,7 +84,7 @@ public class TestTagCloud extends ESBase {
 
         deleteEsIndex(entity.getFortress().getIndexName());
 
-        trackRepo.update(change);
+        trackRepo.handle(change);
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getFortress().getCompany().getName());

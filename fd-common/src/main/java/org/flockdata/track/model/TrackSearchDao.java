@@ -34,7 +34,7 @@ public interface TrackSearchDao {
      *
      * @param searchChange values to update from
      */
-    SearchChange update(SearchChange searchChange) throws IOException;
+    SearchChange handle(SearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey
