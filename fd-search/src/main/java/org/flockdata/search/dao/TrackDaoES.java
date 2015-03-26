@@ -138,6 +138,7 @@ public class TrackDaoES implements TrackSearchDao {
             return searchChange;
         } catch ( MapperParsingException e ){
             // DAT-359
+            logger.error ( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage())
             throw new AmqpRejectAndDontRequeueException( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage() );
         } catch (Exception e) {
             logger.error("Unexpected error", e);
