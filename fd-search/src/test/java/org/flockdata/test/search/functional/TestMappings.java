@@ -21,7 +21,6 @@ package org.flockdata.test.search.functional;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.test.engine.Helper;
@@ -51,11 +50,9 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestMappings extends ESBase {
-    @Autowired
-    TrackSearchDao searchRepo;
 
     @Autowired
-    ElasticSearchEP searchEP;
+    TrackSearchDao searchRepo;
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
@@ -65,9 +62,6 @@ public class TestMappings extends ESBase {
         String company = "test";
         String doc = "doc";
         String user = "mike";
-        DateTime now = new DateTime();
-
-        //EntityInputBean eib = org.flockdata.test.engine.Helper.getEntityInputBean(fortress, fortress, user, "zzaa99", now);
 
         Entity entity = Helper.getEntity(company, fortress, user, doc);
 
@@ -88,7 +82,7 @@ public class TestMappings extends ESBase {
 
         deleteEsIndex(entity.getFortress().getIndexName());
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        change = searchRepo.update(change);
+        change = searchRepo.handle(change);
         Thread.sleep(1000);
         assertNotNull(change);
         assertNotNull(change.getSearchKey());
@@ -128,7 +122,7 @@ public class TestMappings extends ESBase {
         change.setWhat(what);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.update(change);
+        SearchChange searchResult = searchRepo.handle(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
         doQuery(entity.getFortress().getIndexName(), "AZERTY", 1);
@@ -169,8 +163,8 @@ public class TestMappings extends ESBase {
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
         searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
-        changeA = searchRepo.update(changeA);
-        changeB = searchRepo.update(changeB);
+        changeA = searchRepo.handle(changeA);
+        changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeB);
@@ -212,8 +206,8 @@ public class TestMappings extends ESBase {
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
         searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
-        changeA = searchRepo.update(changeA);
-        changeB = searchRepo.update(changeB);
+        changeA = searchRepo.handle(changeA);
+        changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeB);
@@ -244,7 +238,7 @@ public class TestMappings extends ESBase {
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
 
-        changeA = searchRepo.update(changeA);
+        changeA = searchRepo.handle(changeA);
 
         Thread.sleep(1000);
         assertNotNull(changeA);
@@ -288,7 +282,7 @@ public class TestMappings extends ESBase {
         change.setTags(tags);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.update(change);
+        SearchChange searchResult = searchRepo.handle(change);
 
     }
 

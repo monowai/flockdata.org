@@ -65,7 +65,7 @@ public class AttachmentTests extends ESBase {
         deleteEsIndex(entity.getFortress().getIndexName());
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
-        changeA = searchRepo.update(changeA);
+        changeA = searchRepo.handle(changeA);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());

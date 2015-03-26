@@ -108,7 +108,7 @@ public class TrackServiceEs implements TrackService {
                 mappingChecked = true;
             }
             trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
-            SearchResult result = new SearchResult(trackSearch.update(searchChange));
+            SearchResult result = new SearchResult(trackSearch.handle(searchChange));
 
             // Used to tie the fact that the doc was updated back to the engine
             result.setLogId(searchChange.getLogId());
