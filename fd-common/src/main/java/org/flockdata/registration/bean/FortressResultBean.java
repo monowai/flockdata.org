@@ -32,7 +32,7 @@ public class FortressResultBean {
     private String timeZone;
     private Boolean enabled=Boolean.TRUE;
     private Boolean searchActive;
-    private Boolean storageActive;
+    private Boolean storeActive;
     private String companyName;
 
     protected FortressResultBean() {
@@ -48,7 +48,7 @@ public class FortressResultBean {
         this.enabled = fortress.isEnabled();
         this.searchActive = fortress.isSearchActive();
         this.companyName = fortress.getCompany().getName();
-        this.storageActive = fortress.isStoreEnabled();
+        this.storeActive = fortress.isStoreEnabled();
     }
 
     public String getName() {
@@ -67,8 +67,8 @@ public class FortressResultBean {
         return enabled;
     }
 
-    public boolean isStorageActive () {
-        return storageActive;
+    public boolean getStoreActive() {
+        return storeActive;
     }
 
     public String getCompanyName() {

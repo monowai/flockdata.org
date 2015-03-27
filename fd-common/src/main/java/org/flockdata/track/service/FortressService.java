@@ -70,4 +70,6 @@ public interface FortressService {
     Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException;
 
     Fortress getFortress(Company company, String fortressName) throws NotFoundException;
+
+    String delete(Company company, String fortressName);
 }

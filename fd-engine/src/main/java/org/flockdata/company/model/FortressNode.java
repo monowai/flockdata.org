@@ -82,7 +82,7 @@ public class FortressNode implements Fortress {
         setSearchActive(fortressInputBean.getSearchActive());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
-        storeEnabled = fortressInputBean.getStore();
+        storeEnabled = fortressInputBean.getStoreActive();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)

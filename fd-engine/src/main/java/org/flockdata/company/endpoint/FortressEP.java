@@ -32,7 +32,6 @@ import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +60,6 @@ public class FortressEP {
     SecurityHelper securityHelper;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-
     public Collection<FortressResultBean> findFortresses(HttpServletRequest request) throws FlockException {
         // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
         Company company = CompanyResolver.resolveCompany(request);
@@ -85,17 +83,25 @@ public class FortressEP {
 
     }
 
-
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
-
-    public ResponseEntity<Fortress> getFortress(@PathVariable("code") String fortressName, HttpServletRequest request) throws FlockException {
+    public Fortress getFortress(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Fortress fortress = fortressService.findByCode(company, fortressName);
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        if ( fortress == null)
+            fortress = fortressService.findByName(company, fortressCode);
+
         if (fortress == null)
-            return new ResponseEntity<>(fortress, HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<>(fortress, HttpStatus.OK);
+           throw new FlockException("Unable to locate the fortress "+ fortressCode);
+
+        return fortress;
     }
+
+    @RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
+    public String delete(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return fortressService.delete(company, fortressCode);
+    }
+
 
     @RequestMapping(value = "/{code}/docs", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {

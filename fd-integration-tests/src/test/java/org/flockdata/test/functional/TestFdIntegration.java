@@ -1244,7 +1244,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("store_Disabled");
 
         FortressInputBean fib= new FortressInputBean("store_Disabled");
-        fib.setStore(false);
+        fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
@@ -1290,7 +1290,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("store_DisabledReprocessContent");
 
         FortressInputBean fib= new FortressInputBean("store_DisabledReprocessContent");
-        fib.setStore(false);
+        fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean content = new ContentInputBean("store_DisabledReprocessContent", new DateTime(), json);

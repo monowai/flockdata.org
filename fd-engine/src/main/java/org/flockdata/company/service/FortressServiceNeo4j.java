@@ -232,8 +232,8 @@ public class FortressServiceNeo4j implements FortressService {
             return fortress;
         }
         if (createIfMissing) {
-            if ( fib.getStore() == null )
-                fib.setStore(versioningDefault);
+            if ( fib.getStoreActive() == null )
+                fib.setStoreActive(versioningDefault);
             fortress = save(company, fib);
             logger.trace("Created fortress {}", fortress);
             fortress.setCompany(company);
@@ -266,6 +266,17 @@ public class FortressServiceNeo4j implements FortressService {
         if (fortress == null)
             throw new NotFoundException("Unable to locate the fortress " + fortressName);
         return fortress;
+    }
+
+    @Override
+    public String delete(Company company, String fortressCode) {
+        Fortress fortress ;
+            fortress = findByCode(company, fortressCode);
+
+        if ( fortress == null)
+            return "Not Found";
+
+        return fortressDao.delete(fortress);
     }
 
 }
