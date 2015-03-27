@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -35,6 +35,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
@@ -45,6 +46,7 @@ import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -107,9 +109,9 @@ public class TrackDaoES implements TrackSearchDao {
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
-        //ensureIndex(indexName, documentType);
-
-        String searchKey = (searchChange.getSearchKey() == null ? searchChange.getCallerRef() : searchChange.getMetaKey());
+        String searchKey = (searchChange.getSearchKey() == null ?
+                searchChange.getCallerRef()
+                : searchChange.getMetaKey());
 
         logger.debug("Resolved SearchKey to [{}]", searchKey);
         // Rebuilding a document after a reindex - preserving the unique key.
@@ -134,6 +136,10 @@ public class TrackDaoES implements TrackSearchDao {
                         documentType);
 
             return searchChange;
+        } catch ( MapperParsingException e ){
+            // DAT-359
+            logger.error ( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage());
+            throw new AmqpRejectAndDontRequeueException( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage() );
         } catch (Exception e) {
             logger.error("Unexpected error", e);
             return searchChange;
@@ -228,7 +234,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     @Override
-    public SearchChange update(SearchChange searchChange) throws IOException {
+    public SearchChange handle(SearchChange searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {

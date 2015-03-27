@@ -31,6 +31,7 @@ import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
+import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.FdServerWriter;
@@ -145,6 +146,9 @@ public class TestFdIntegration {
 
     @Autowired
     RegistrationService regService;
+
+    @Autowired
+    EngineAdminService adminService;
 
     @Autowired
     CompanyService companyService;
@@ -339,10 +343,11 @@ public class TestFdIntegration {
                 .getEntity();
 
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
-
-        doEsQuery(entity.getFortress().getIndexName(), entity.getMetaKey());
+        waitAWhile("Attachment Mapper can take some time to process the PDF");
+        doEsQuery(entity.getFortress().getIndexName(), "*", 1);
         doEsQuery(entity.getFortress().getIndexName(), "brown fox", 1);
         doEsQuery(entity.getFortress().getIndexName(), "test.pdf", 1);
+        doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.META_KEY, entity.getMetaKey(), 1);
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.FILENAME, "test.pdf", 1);
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.ATTACHMENT, "pdf", 1);
     }
@@ -422,7 +427,7 @@ public class TestFdIntegration {
 
         // Rebuild....
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
-        Long lResult = mediationFacade.reindex(fo.getCompany(), fo.getCode());
+        Long lResult = adminService.doReindex(fo).get();
         waitForFirstSearchResult(su.getCompany(), entity);
         assertNotNull(lResult);
         assertEquals(1l, lResult.longValue());
@@ -688,7 +693,7 @@ public class TestFdIntegration {
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
 
         TrackResultBean result =mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertNotNull ( result) ;
+        assertNotNull(result) ;
         waitForFirstSearchResult(su.getCompany(), result.getEntity()); // 2nd document in the index
 
         inputBean = new EntityInputBean(fo.getName(), "wally", inputBean.getDocumentName(), new DateTime(), "ABC124");
@@ -1233,8 +1238,8 @@ public class TestFdIntegration {
 
     @Test
     public void store_Disabled () throws Exception{
-        // DAT-347 this test needs to be made to work
-        //assumeTrue(runMe);
+        // DAT-347 Check content retrieved from KV Store when storage is disabled
+        assumeTrue(runMe);
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_Disabled");
 
@@ -1269,6 +1274,57 @@ public class TestFdIntegration {
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
 
         kvService.getContent(entity, entityLog.getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+
+    }
+
+    @Test
+    public void storeDisabled_ReprocessingContentForExistingEntity () throws Exception{
+        // DAT-353 Track in an entity. Validate the content. Update the content. Validate the
+        //         update is found.
+        assumeTrue(runMe);
+        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        SystemUser su = registerSystemUser("store_DisabledReprocessContent");
+
+        FortressInputBean fib= new FortressInputBean("store_DisabledReprocessContent");
+        fib.setStore(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        ContentInputBean content = new ContentInputBean("store_DisabledReprocessContent", new DateTime(), json);
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
+        input.setContent(content);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+        waitAWhile("Async log is still processing");
+        EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
+
+        assertNotNull(entityLog);
+        logger.info("Track request made. About to wait for first search result");
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        // Want to get the latest version to obtain the search key for debugging
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        // Can we find the changed data in ES?
+        doEsQuery(result.getEntity().getFortress().getIndexName(), content.getWhat().get("Athlete").toString(), 1);
+        // And are we returning the same data from the KV Service?
+        KvContent kvContent = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+        content.setWhat(getSimpleMap("Athlete", "Michael Phelps"));
+        input.setContent(content);
+        // Update existing entity
+        result = mediationFacade.trackEntity(su.getCompany(), input);
+        entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        entityLog = entityService.getLastEntityLog(result.getEntity().getId());
+        assertEquals(entity.getFortressDateCreated().getMillis(), entityLog.getFortressWhen().longValue());
+        waitAWhile("Async log is still processing");
+        waitAWhile("Waiting for second update to occur");
+
+        kvContent = kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
         assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));

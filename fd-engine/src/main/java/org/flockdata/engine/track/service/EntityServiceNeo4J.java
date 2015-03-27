@@ -651,7 +651,7 @@ public class EntityServiceNeo4J implements EntityService {
             logger.debug("No need to update searchKey");
         }
 
-        if (searchResult.getLogId() == null) {
+        if (searchResult.getLogId() == null || searchResult.getLogId() ==0l) {
             // Indexing entity meta data only
             return;
         }

@@ -21,6 +21,7 @@ package org.flockdata.engine.track.service;
 
 import com.google.common.collect.Lists;
 import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.engine.schema.service.SchemaRetryService;
@@ -46,7 +47,6 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -126,6 +126,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Autowired
     IndexRetryService indexRetryService;
+
+    @Autowired
+    EngineAdminService adminService;
 
     @Autowired
     KvService kvService;
@@ -399,37 +402,28 @@ public class MediationFacadeNeo4j implements MediationFacade {
      */
     @Override
     @Secured({SecurityHelper.ADMIN})
-    public Long reindex(Company company, String fortressCode) throws FlockException {
+    public String reindex(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
         if ( !fortress.isSearchActive())
             throw new FlockException("The fortress does not have search enabled. Nothing to do!");
-        Future<Long> result = reindexAsnc(fortress);
-        try {
-            return result.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Unexpected", e);
+
+        String message = null;
+        if ( fortress.isStoreDisabled()) {
+            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortressCode)  ;
+            logger.warn(message);
         }
-        return null;
+        if ( message !=null ){
+            message = message +"\n";
+        }
+        adminService.doReindex(fortress);
+        message = message + "Reindex Search request is processing entities for [" + fortressCode + "]" ;
+        logger.info("Reindex Search request is processing entities for [" + fortressCode + "]" );
+        return message;
 
-    }
 
-    @Async("fd-engine")
-    public Future<Long> reindexAsnc(Fortress fortress) throws FlockException {
-        Long skipCount = 0l;
-        long result = reindex(fortress, skipCount);
-        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortress.getName() + "]");
-        return new AsyncResult<>(result);
-    }
-
-    private long reindex(Fortress fortress, Long skipCount) {
-        Collection<Entity> entities = entityService.getEntities(fortress, skipCount);
-        if (entities.isEmpty())
-            return skipCount;
-        skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
-        return reindex(fortress, skipCount);
     }
 
     /**
@@ -439,38 +433,24 @@ public class MediationFacadeNeo4j implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Async("fd-engine")
     @Secured({SecurityHelper.ADMIN})
-    public void reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
+    public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new FlockException("Fortress [" + fortressName + "] could not be found");
         Long skipCount = 0l;
-        long result = reindexByDocType(skipCount, fortress, docType);
-        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortressName + "] and document type [" + docType + "]");
-    }
-
-    private long reindexByDocType(Long skipCount, Fortress fortress, String docType) {
-
-        Collection<Entity> entities = entityService.getEntities(fortress, docType, skipCount);
-        if (entities.isEmpty())
-            return skipCount;
-        skipCount = reindexEntities(fortress.getCompany(), entities, skipCount);
-        return reindexByDocType(skipCount, fortress, docType);
-
-    }
-
-    private Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
-        Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
-        for (Entity entity : entities) {
-            EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
-            EntitySearchChange searchDoc = searchService.rebuild(company, entity, lastLog);
-            if  (searchDoc!=null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed() )
-                searchDocuments.add(searchDoc);
-            skipCount++;
+        String message = null;
+        if ( fortress.isStoreDisabled()) {
+            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortress)  ;
+            logger.warn(message);
         }
-        searchService.makeChangesSearchable(searchDocuments);
-        return skipCount;
+        adminService.doReindex(fortress, docType);
+        if ( message !=null ){
+            message = message +"\n";
+        }
+        message = message + "Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]";
+        logger.info("Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]");
+        return message;
     }
 
     @Override

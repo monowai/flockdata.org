@@ -11,17 +11,20 @@
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
                                port="${rabbit.port}"
+                               username="${rabbit.user}"
+                               password="${rabbit.pass}"
+                               requested-heartbeat="${rabbit.heartbeat.secs}"
                                channel-cache-size="${rabbit.publisherCacheSize}"
                                publisher-confirms="${rabbit.publisher.confirms}"
                                publisher-returns="${rabbit.publisher.returns}"
                                executor="fd-search"/>
-
 
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
     <rabbit:queue name="${fd.search.queue}"/>
+
     <rabbit:queue name="${fd.engine.queue}"/>
 
     <rabbit:direct-exchange name="${fd.search.exchange}">

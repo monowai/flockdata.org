@@ -140,6 +140,9 @@ public class KvManager implements KvService {
         if (kvBean.getStorage() == null ){
             kvBean.setStorage(getKvStore(entity.getFortress()).name());
         }
+        if ( kvBean.getStorage().equals(KV_STORE.NONE.name()))
+            return;
+
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
             logger.debug("Async write begins {}", kvBean);

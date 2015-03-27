@@ -68,7 +68,7 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
     private TrackBatcher trackBatcher;
-    private int skipCount, rowsToProcess = 0;
+    private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
 
@@ -85,7 +85,7 @@ public class FileProcessor {
         //Mappable mappable = importProfile.getMappable();
 
         //String file = path;
-        logger.info("Starting the processing of {}", file);
+        logger.info("Start processing of {}", file);
 
         long result = 0;
         try {
@@ -429,16 +429,16 @@ public class FileProcessor {
 
         if (rowsToProcess == 0) return false;
 
-        if ( currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
+        boolean stop = currentRow >= skipCount + rowsToProcess;
+
+        if ( !stop && currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
             logger.info("Processed {} elapsed seconds {}", currentRow-skipCount, (new DateTime().getMillis() - then) / 1000d);
 
         if (currentRow <= skipCount)
             return false;
 
-        boolean stop = currentRow >= skipCount + rowsToProcess;
-
         if (stop)
-            logger.info("Process stopping after the {} requested rows were handled", rowsToProcess);
+            logger.info("Process stopping after the {} requested rows.", rowsToProcess);
 
         return stop;
     }
@@ -493,8 +493,11 @@ public class FileProcessor {
     public long endProcess(StopWatch watch, long rows) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
-        double rowsProcessed = rows-skipCount;
-        logger.info("Processed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
+        long rowsProcessed = rows-skipCount;
+        if ( skipCount > 0 )
+            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
+        else
+            logger.info("Completed {} rows in {} secs. rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows);
         return rows;
     }
 

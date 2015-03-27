@@ -21,12 +21,12 @@
     <cache name="companyTag"
            maxElementsInMemory="2000"
            eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
+           memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="geoData"
-           maxElementsInMemory="4000"
+           maxElementsInMemory="5000"
            eternal="true"
-           memoryStoreEvictionPolicy="LFU"/>
+           memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="fortressDocType"
            maxElementsInMemory="200"

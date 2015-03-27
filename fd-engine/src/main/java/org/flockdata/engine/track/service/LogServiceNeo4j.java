@@ -88,8 +88,8 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getContentInput() == null)
             return resultBean;
 
-        if ( !resultBean.getEntity().getFortress().isStoreEnabled())
-            return resultBean; // DAT-349 - No log store
+//        if ( !resultBean.getEntity().getFortress().isStoreEnabled())
+//            return resultBean; // DAT-349 - No log store
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
@@ -117,7 +117,6 @@ public class LogServiceNeo4j implements LogService {
         ArrayList<TrackResultBean> logs = new ArrayList<>();
         logs.add(resultBean);
         Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
-        //logService.distributeChanges(entity.getFortress().getCompany(), results);
         return results.iterator().next();
     }
 
