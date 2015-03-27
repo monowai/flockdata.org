@@ -33,7 +33,7 @@
             request-channel="writeEntityContent"
             reply-channel="nullChannel"
             requires-reply="false"
-            lazy-connect="false"
+            lazy-connect="${fd.amqp.lazyConnect}"
             routing-key="${fd.track.binding}"
             mapped-request-headers="apiKey"
             exchange-name="${fd.track.exchange}"
@@ -44,7 +44,7 @@
             request-channel="syncSearchDocs"
             reply-channel="nullChannel"
             requires-reply="false"
-            lazy-connect="false"
+            lazy-connect="${fd.amqp.lazyConnect}"
             routing-key="${fd.search.binding}"
             exchange-name="${fd.search.exchange}"
             amqp-template="amqpTemplate"/>
@@ -54,7 +54,7 @@
             request-channel="writeKvContent"
             requires-reply="false"
             routing-key="${fd.kv.binding}"
-            lazy-connect="false"
+            lazy-connect="${fd.amqp.lazyConnect}"
             exchange-name="${fd.kv.exchange}"
             amqp-template="amqpTemplate"/>
 
