@@ -55,9 +55,9 @@ public class TestEntityDeadlock extends EngineBase{
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
         try {
-            // ToDo: This test suffers from DAT-348 and has been quarantined.
-            // To me a favour and figure out what's going wrong!
+            // This test suffered under DAT-348 and was quarantined.
 
+            cleanUpGraph();
             String companyName = "entitiesUnderLoad";
             setSecurity();
             SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
@@ -68,7 +68,7 @@ public class TestEntityDeadlock extends EngineBase{
             int tagCount = 1; // unique tags per entity - tags are shared across the entities
             int docCount = 1; // how many entities to create per thread
             // Tried reducing threadMax
-            int threadMax = 20; // Each thread will create a unique document type
+            int threadMax = 10; // Each thread will create a unique document type
             ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
             Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());

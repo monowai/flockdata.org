@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -93,6 +93,7 @@ public class EntitySearchChange implements SearchChange {
         this();
         this.metaKey = entity.getMetaKey();
         this.entityId = entity.getId();
+        this.searchKey = entity.getSearchKey();
         setDocumentType(entity.getDocumentType());
         setFortress(entity.getFortress());
         this.indexName = entity.getIndexName();
@@ -125,6 +126,7 @@ public class EntitySearchChange implements SearchChange {
             this.event= entityLog.getLog().getEvent().getCode();
             this.fileName = entityLog.getLog().getFileName();
             this.contentType = entityLog.getLog().getContentType();
+
             setWhen(new DateTime(entityLog.getFortressWhen()));
         } else {
             event = entity.getEvent();

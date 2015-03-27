@@ -99,7 +99,7 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
         logger.error("Error 500", ex);
-        return new JsonMessage(ex.getMessage()).asModelAndViewError();
+        return new JsonMessage("There has been an inter-service communication problem. This has been logged. Please try again in a few minutes").asModelAndViewError();
     }
 
 }

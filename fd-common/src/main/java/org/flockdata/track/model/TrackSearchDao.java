@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -34,7 +34,7 @@ public interface TrackSearchDao {
      *
      * @param searchChange values to update from
      */
-    SearchChange update(SearchChange searchChange) throws IOException;
+    SearchChange handle(SearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey

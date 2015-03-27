@@ -131,7 +131,7 @@ public class TagDaoNeo4j {
         //       track data.
         String label;
         if (tagInput.isDefault())
-            label = "_Tag" + suffix;
+            label = Tag.DEFAULT_TAG + suffix;
         else {
             schemaDao.registerTag(company, tagInput.getLabel());
             label = tagInput.getLabel();

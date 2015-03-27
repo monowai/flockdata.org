@@ -75,7 +75,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Boolean relationshipExists(Entity entity, String name, String relationshipType) {
-        Tag tag = tagService.findTag(name);
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), name);
         if (tag == null)
             return false;
         return entityTagDao.relationshipExists(entity, tag, relationshipType);
