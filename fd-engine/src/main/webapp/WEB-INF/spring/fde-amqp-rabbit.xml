@@ -22,11 +22,58 @@
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
     <rabbit:admin connection-factory="connectionFactory" auto-startup="true" />
+    <!-- FD SEARCH QUEUE DEFINITIONS -->
+    <rabbit:queue name="${fd.search.queue}" id="fd.search.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd.search.dlq.exchange}"></entry>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd.search.dlq.queue}" id="fd.search.dlq.queue"/>
+    <rabbit:direct-exchange name="${fd.search.dlq.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.search.dlq.queue}" key="${fd.search.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
 
-    <rabbit:queue name="${fd.search.queue}" id="fd.search.queue"/>
-    <rabbit:queue name="${fd.engine.queue}" id="fd.engine.queue"/>
-    <rabbit:queue name="${fd.track.queue}" id="fd.track.queue"/>
-    <rabbit:queue name="${fd.kv.queue}"  id="fd.kv.queue"/>
+    <!-- FD ENGINE QUEUE DEFINITIONS -->
+    <rabbit:queue name="${fd.engine.queue}" id="fd.engine.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd.engine.dlq.exchange}"></entry>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd.engine.dlq.queue}" id="fd.engine.dlq.queue"/>
+    <rabbit:direct-exchange name="${fd.engine.dlq.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.engine.dlq.queue}" key="${fd.engine.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!-- FD TRACK QUEUE DEFINITIONS -->
+    <rabbit:queue name="${fd.track.queue}" id="fd.track.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd.track.dlq.exchange}"></entry>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd.track.dlq.queue}" id="fd.track.dlq.queue"/>
+    <rabbit:direct-exchange name="${fd.track.dlq.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.track.dlq.queue}" key="${fd.track.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!-- FD KV QUEUE DEFINITIONS -->
+    <rabbit:queue name="${fd.kv.queue}"  id="fd.kv.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd.kv.dlq.exchange}"></entry>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd.kv.dlq.queue}" id="fd.kv.dlq.queue"/>
+    <rabbit:direct-exchange name="${fd.kv.dlq.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd.kv.dlq.queue}" key="${fd.kv.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
 
     <rabbit:direct-exchange name="${fd.search.exchange}" >
         <rabbit:bindings>
