@@ -52,7 +52,6 @@ public class TestRegistration extends EngineBase {
 
     }
 
-
     @Test
     public void companyFortressNameSearch() throws Exception {
         // Create the company.
@@ -140,8 +139,6 @@ public class TestRegistration extends EngineBase {
         assertNotSame(fC.getId(), fortressService.registerFortress(suB.getCompany(), new FortressInputBean( "FortressC")).getId());
 
     }
-
-
 
     @Test
     public void testRegistration() throws Exception {
@@ -286,22 +283,7 @@ public class TestRegistration extends EngineBase {
 
 
     }
-  //TODO: Mike needs to refactor this
-/*    @Test
-    public void duplicateRegistrationFails() throws Exception {
-        String companyA = "companya";
-        String companyB = "companyb";
-        try {
-            engineConfig.setDuplicateRegistration(false);
-            registrationEP.registerSystemUser(new RegistrationBean(companyA, "mike"));
-            registrationEP.registerSystemUser(new RegistrationBean(companyB, "mike"));
-            Assert.fail("You can't have a duplicate registration");
-        } catch (DatagioException e) {
-            // Expected
-        }
 
-    }
-*/
     @Test
     public void multipleFortressUserErrors() throws Exception {
         Long uid;
@@ -345,5 +327,14 @@ public class TestRegistration extends EngineBase {
 
     }
 
-
+    @Test
+    public void delete_Fortress () throws Exception {
+        setSecurity();
+        String company = "defaults_FortressBooleanValues";
+        SystemUser su = registerSystemUser(company, mike_admin);
+        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
+        assertNotNull(f);
+        assertEquals("Not Found", fortressService.delete(su.getCompany(), f.getName()));
+        assertEquals("OK", fortressService.delete(su.getCompany(), f.getCode()));
+    }
 }

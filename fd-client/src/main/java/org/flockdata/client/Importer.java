@@ -126,6 +126,7 @@ public class Importer {
         try {
             Namespace ns = getCommandLineArgs(args);
             File file = Configure.getFile(Configure.configFile, ns);
+            logger.info( "Reading configuration from " + file.getAbsoluteFile());
             ClientConfiguration configuration = Configure.readConfiguration(file);
             if (configuration.getApiKey() == null) {
                 logger.error("No API key is set in the config file. Have you run the config process?");
@@ -153,7 +154,7 @@ public class Importer {
 
             o = ns.get("amqp");
             if (o != null)
-                configuration.setAmqp(Boolean.parseBoolean(o.toString()));
+                configuration.setAmqp(Boolean.parseBoolean(o.toString()), true);
 
             int skipCount = 0;
             o = ns.get("skip");

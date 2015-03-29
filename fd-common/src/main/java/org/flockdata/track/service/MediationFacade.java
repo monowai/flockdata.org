@@ -45,7 +45,7 @@ import java.util.concurrent.Future;
 public interface MediationFacade {
     Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
+    Future<Collection<Tag>> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
     Future<Collection<TrackResultBean>> trackEntitiesAsync(Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 

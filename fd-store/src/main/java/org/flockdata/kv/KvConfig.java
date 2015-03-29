@@ -67,7 +67,7 @@ public class KvConfig implements FdKvConfig {
     }
 
     @Override
-    @Value("${fd-engine.kv.store}")
+    @Value("${fd-store.engine}")
     public void setKvStore(String kvStore) {
         if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
             setKvStore( KV_STORE.REDIS);
@@ -76,7 +76,7 @@ public class KvConfig implements FdKvConfig {
         else if (kvStore.equalsIgnoreCase("MEMORY"))
             setKvStore( KV_STORE.MEMORY);
         else {
-            logger.error("Unable to resolve the fd-engine.kv.store property [" + kvStore + "]. Defaulting to REDIS");
+            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to REDIS");
         }
 
     }
@@ -153,7 +153,7 @@ public class KvConfig implements FdKvConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-engine.kv.store", String.valueOf(kvStore));
+        healthResults.put("fd-store.engine", String.valueOf(kvStore));
 
         return healthResults;
 

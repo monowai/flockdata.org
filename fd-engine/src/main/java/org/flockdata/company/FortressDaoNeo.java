@@ -83,8 +83,9 @@ public class FortressDaoNeo  {
 
     }
 
-    public void delete(Fortress fortress) {
+    public String delete(Fortress fortress) {
         template.delete(fortress);
+        return "OK";
     }
 
     public Fortress getFortressByName(Long companyId, String fortressName) {

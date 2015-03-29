@@ -19,11 +19,11 @@
     <!-- Acknowledgement from fd-search of an fd-engine request-->
     <int-amqp:inbound-gateway id="searchSyncResultId"
                               request-channel="searchDocSyncResult"
-                              queue-names="${fd.engine.queue}"
+                              queue-names="${fd-engine.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${fd-search.concurrentConsumers}"
-                              prefetch-count="${rabbit.search.prefetchCount}"
+                              prefetch-count="${fd-search.prefetchCount}"
                               task-executor="fd-search"
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
@@ -34,9 +34,9 @@
             reply-channel="nullChannel"
             requires-reply="false"
             lazy-connect="${fd.amqp.lazyConnect}"
-            routing-key="${fd.track.binding}"
+            routing-key="${fd-track.binding}"
             mapped-request-headers="apiKey"
-            exchange-name="${fd.track.exchange}"
+            exchange-name="${fd-track.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--Sends search docs out. Whenever an entity has changed-->
@@ -45,30 +45,30 @@
             reply-channel="nullChannel"
             requires-reply="false"
             lazy-connect="${fd.amqp.lazyConnect}"
-            routing-key="${fd.search.binding}"
-            exchange-name="${fd.search.exchange}"
+            routing-key="${fd-search.binding}"
+            exchange-name="${fd-search.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--Part of the track flow. Writes the entity to the KV store-->
     <int-amqp:outbound-gateway
             request-channel="writeKvContent"
             requires-reply="false"
-            routing-key="${fd.kv.binding}"
+            routing-key="${fd-store.binding}"
             lazy-connect="${fd.amqp.lazyConnect}"
-            exchange-name="${fd.kv.exchange}"
+            exchange-name="${fd-store.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
-                              queue-names="${fd.kv.queue}"
+                              queue-names="${fd-store.queue}"
                               reply-channel="nullChannel"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
                               task-executor="fd-store"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
-                              prefetch-count="${rabbit.kv.prefetchCount}"
+                              prefetch-count="${fd-store.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
@@ -77,7 +77,7 @@
     <int-amqp:inbound-gateway id="entityWrite"
                               request-channel="doTrackEntity"
                               reply-channel="entityResult"
-                              queue-names="${fd.track.queue}"
+                              queue-names="${fd-track.queue}"
                               connection-factory="connectionFactory"
                               shutdown-timeout="3000"
                               task-executor="fd-track"
@@ -86,6 +86,6 @@
                               error-channel="entityErrors"
                               message-converter="jsonToEntityInput"
                               concurrent-consumers="${fd-track.concurrentConsumers}"
-                              prefetch-count="${rabbit.entity.prefetchCount}"
+                              prefetch-count="${fd-track.prefetchCount}"
                               />
 </beans>

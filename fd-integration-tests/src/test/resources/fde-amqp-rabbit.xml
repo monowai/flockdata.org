@@ -20,33 +20,33 @@
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:queue name="${fd.search.queue}"/>
-    <rabbit:queue name="${fd.engine.queue}"/>
-    <rabbit:queue name="${fd.track.queue}" />
-    <rabbit:queue name="${fd.kv.queue}" />
+    <rabbit:queue name="${fd-search.queue}"/>
+    <rabbit:queue name="${fd-engine.queue}"/>
+    <rabbit:queue name="${fd-track.queue}" />
+    <rabbit:queue name="${fd-store.queue}" />
 
-    <rabbit:direct-exchange name="${fd.search.exchange}"  >
+    <rabbit:direct-exchange name="${fd-search.exchange}"  >
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.search.queue}" key="${fd.search.binding}"/>
+            <rabbit:binding queue="${fd-search.queue}" key="${fd-search.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.engine.exchange}"  >
+    <rabbit:direct-exchange name="${fd-engine.exchange}"  >
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
+            <rabbit:binding queue="${fd-engine.queue}" key="${fd-engine.binding}"/>
 
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.track.exchange}"  >
+    <rabbit:direct-exchange name="${fd-track.exchange}"  >
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.track.queue}" key="${fd.track.binding}" />
+            <rabbit:binding queue="${fd-track.queue}" key="${fd-track.binding}" />
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.kv.exchange}">
+    <rabbit:direct-exchange name="${fd-store.exchange}">
         <rabbit:bindings >
-            <rabbit:binding queue="${fd.kv.queue}" key="${fd.kv.binding}"/>
+            <rabbit:binding queue="${fd-store.queue}" key="${fd-store.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
