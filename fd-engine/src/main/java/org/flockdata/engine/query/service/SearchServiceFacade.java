@@ -270,6 +270,7 @@ public class SearchServiceFacade {
 
     @Async("fd-search")
     public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
+        // ToDo: This needs to be an activation via message-q at least be retry
         logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChange> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {

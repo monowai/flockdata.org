@@ -19,7 +19,6 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
@@ -90,7 +89,7 @@ public class TestTags extends EngineBase {
         List<TagInputBean> tags = new ArrayList<>();
         TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
-        Iterable<Tag> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags);
+        Iterable<Tag> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags).get();
         assertNotNull(tagResult);
         assertTrue("We didn't create a tag", tagResult.iterator().hasNext());
         SystemUser sub = registerSystemUser("ABC", "gina");
@@ -132,7 +131,7 @@ public class TestTags extends EngineBase {
         try {
             tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
             fail("Incorrect exception");
-        } catch (FlockDataTagException dte) {
+        } catch (RuntimeException dte) {
             logger.debug("Correct");
         }
 
@@ -363,7 +362,7 @@ public class TestTags extends EngineBase {
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);
-        mediationFacade.createTags(su.getCompany(), countries);
+        mediationFacade.createTags(su.getCompany(), countries).get();
         Collection<Tag> co = geoService.findCountries(su.getCompany());
         assertEquals(1, co.size());
 
@@ -422,12 +421,12 @@ public class TestTags extends EngineBase {
         List<TagInputBean> tagInputs = new ArrayList<>();
         tagInputs.add(tagInputA);
         Collection<Tag>tagResults ;
-        tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
+        tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs).get();
         assertEquals(1, tagResults.size());
         Tag tagA = tagResults.iterator().next();
 
         tagInputA.setTargets("blah", new TagInputBean("BBBB").setLabel(":TB"));
-        mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
+        mediationFacade.createTags(iSystemUser.getCompany(), tagInputs).get();
 
         Tag subTag = tagService.findTag(iSystemUser.getCompany(), "TB", "BBBB");
         assertNotNull(subTag);

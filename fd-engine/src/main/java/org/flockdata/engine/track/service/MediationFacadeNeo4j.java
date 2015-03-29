@@ -141,12 +141,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
-        return createTags(company, tags).iterator().next();
+        return createTags(company, tags).get().iterator().next();
 
     }
 
     @Override
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    @Async("fd-track")
+    public Future<Collection<Tag>> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
         if ( tagInputs.isEmpty())
             return null;
@@ -163,7 +164,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
             logger.error("Unexpected", e);
             throw new FlockException("IO Exception", e);
         }
-        return results;
+        return new AsyncResult<>(results);
     }
 
 
