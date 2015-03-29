@@ -25,7 +25,7 @@
     <!-- FD SEARCH QUEUE DEFINITIONS -->
     <rabbit:queue name="${fd-search.queue}" id="fd.search.queue">
         <rabbit:queue-arguments>
-            <entry key="x-dead-letter-exchange" value="${fd-search.dlq.exchange}"></entry>
+            <entry key="x-dead-letter-exchange" value="${fd-search.dlq.exchange}"/>
         </rabbit:queue-arguments>
     </rabbit:queue>
     <rabbit:queue name="${fd-search.dlq.queue}" id="fd.search.dlq.queue"/>
@@ -38,7 +38,7 @@
     <!-- FD ENGINE QUEUE DEFINITIONS -->
     <rabbit:queue name="${fd-engine.queue}" id="fd.engine.queue">
         <rabbit:queue-arguments>
-            <entry key="x-dead-letter-exchange" value="${fd-engine.dlq.exchange}"></entry>
+            <entry key="x-dead-letter-exchange" value="${fd-engine.dlq.exchange}"/>
         </rabbit:queue-arguments>
     </rabbit:queue>
     <rabbit:queue name="${fd-engine.dlq.queue}" id="fd.engine.dlq.queue"/>
