@@ -21,7 +21,7 @@
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
-                              queue-names="${fd.kv.queue}"
+                              queue-names="${fd-store.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"

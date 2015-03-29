@@ -17,9 +17,9 @@
     <int-amqp:inbound-gateway
             id="writeEntitySearch"
             request-channel="syncSearchDocs"
-            queue-names="${fd.search.queue}"
+            queue-names="${fd-search.queue}"
             concurrent-consumers="${fd-search.concurrentConsumers}"
-            prefetch-count="${rabbit.search.prefetchCount}"
+            prefetch-count="${fd-search.prefetchCount}"
             acknowledge-mode="AUTO"
             task-executor="fd-search"
             shutdown-timeout="3000"
@@ -31,9 +31,9 @@
     <int-amqp:outbound-gateway
             request-channel="searchDocSyncResult"
             reply-channel="nullChannel"
-            exchange-name="${fd.engine.exchange}"
+            exchange-name="${fd-engine.exchange}"
             requires-reply="false"
-            routing-key="${fd.engine.binding}"
+            routing-key="${fd-engine.binding}"
             amqp-template="amqpTemplate"/>
 
 
