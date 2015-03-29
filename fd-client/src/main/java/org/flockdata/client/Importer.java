@@ -126,6 +126,7 @@ public class Importer {
         try {
             Namespace ns = getCommandLineArgs(args);
             File file = Configure.getFile(Configure.configFile, ns);
+            logger.info( "Reading configuration from " + file.getAbsoluteFile());
             ClientConfiguration configuration = Configure.readConfiguration(file);
             if (configuration.getApiKey() == null) {
                 logger.error("No API key is set in the config file. Have you run the config process?");
