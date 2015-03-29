@@ -176,7 +176,7 @@ public class EngineConfig implements FdEngineConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-engine.kv.store", kvConfig.getKvStore().toString());
+        healthResults.put("fd-store.engine", kvConfig.getKvStore().toString());
         String esPingResult ;
         try {
             PingResult esPing = fdMonitoringGateway.ping();

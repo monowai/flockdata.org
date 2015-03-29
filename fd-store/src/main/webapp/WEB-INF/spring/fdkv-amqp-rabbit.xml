@@ -20,11 +20,11 @@
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:queue name="${fd.kv.queue}"/>
+    <rabbit:queue name="${fd-store.queue}"/>
 
-    <rabbit:direct-exchange name="${fd.kv.exchange}">
+    <rabbit:direct-exchange name="${fd-store.exchange}">
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.kv.queue}" key="${fd.kv.binding}"/>
+            <rabbit:binding queue="${fd-store.kv.queue}" key="${fd-store.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

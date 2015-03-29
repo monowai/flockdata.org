@@ -153,7 +153,7 @@ public class Importer {
 
             o = ns.get("amqp");
             if (o != null)
-                configuration.setAmqp(Boolean.parseBoolean(o.toString()));
+                configuration.setAmqp(Boolean.parseBoolean(o.toString()), true);
 
             int skipCount = 0;
             o = ns.get("skip");

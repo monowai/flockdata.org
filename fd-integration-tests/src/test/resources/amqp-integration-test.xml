@@ -19,19 +19,19 @@
     <!--Sends search docs out. Whenever an entity has changed-->
     <int-amqp:outbound-gateway
             request-channel="syncSearchDocs"
-            routing-key="${fd.search.binding}"
+            routing-key="${fd-search.binding}"
             requires-reply="false"
-            exchange-name="${fd.search.exchange}"
+            exchange-name="${fd-search.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!-- Acknowledgement from fd-search of an fd-engine request-->
     <int-amqp:inbound-gateway id="searchSyncResultId"
                               request-channel="searchDocSyncResult"
-                              queue-names="${fd.engine.queue}"
+                              queue-names="${fd-engine.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               concurrent-consumers="${fd-search.concurrentConsumers}"
-                              prefetch-count="${rabbit.search.prefetchCount}"
+                              prefetch-count="${fd-search.prefetchCount}"
                               task-executor="fd-engine"
 
                               connection-factory="connectionFactory"
@@ -41,29 +41,29 @@
     <int-amqp:outbound-gateway
             request-channel="writeKvContent"
             requires-reply="false"
-            routing-key="${fd.kv.binding}"
-            exchange-name="${fd.kv.exchange}"
+            routing-key="${fd-store.binding}"
+            exchange-name="${fd-store.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--internally used to send content to the inboundTrackGateway -->
     <int-amqp:outbound-gateway
             request-channel="writeEntityContent"
-            routing-key="${fd.track.binding}"
+            routing-key="${fd-track.binding}"
             requires-reply="false"
             mapped-request-headers="apiKey"
-            exchange-name="${fd.track.exchange}"
+            exchange-name="${fd-track.exchange}"
             amqp-template="amqpTemplate"/>
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
-                              queue-names="${fd.kv.queue}"
+                              queue-names="${fd-store.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
                               task-executor="fd-store"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
-                              prefetch-count="${rabbit.kv.prefetchCount}"
+                              prefetch-count="${fd-store.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 
@@ -71,7 +71,7 @@
     <int-amqp:inbound-gateway id="entityWrite"
                               request-channel="doTrackEntity"
                               reply-channel="nullChannel"
-                              queue-names="${fd.track.queue}"
+                              queue-names="${fd-track.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               task-executor="fd-track"
@@ -79,7 +79,7 @@
                               error-channel="entityErrors"
                               message-converter="jsonToEntityInput"
                               concurrent-consumers="${fd-track.concurrentConsumers}"
-                              prefetch-count="${rabbit.entity.prefetchCount}"
+                              prefetch-count="${fd-track.prefetchCount}"
                               connection-factory="connectionFactory"/>
 
 </beans>

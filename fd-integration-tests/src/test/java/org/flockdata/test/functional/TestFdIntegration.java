@@ -71,6 +71,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -983,7 +985,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -992,17 +994,13 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
 
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+        //Properties configProperties = PropertiesLoaderUtils.loadProperties(new ClassPathResource("/config.properties"));
+        properties.put("apiKey", su.getApiKey());
 
-        ClientConfiguration configuration = new ClientConfiguration(
-                su.getApiKey(),
-                "localhost",
-                "int.fd.track.exchange",
-                "int.fd.track.queue",
-                "int.fd.track.binding");
+        ClientConfiguration configuration = new ClientConfiguration(properties);
+        configuration.setAmqp(true, false);
 
-
-        AmqpHelper helper = new AmqpHelper(configuration, false);
-
+        AmqpHelper helper = new AmqpHelper(configuration);
 
         // ToDo: We're not tracking the response code
         helper.publish(inputBean);
