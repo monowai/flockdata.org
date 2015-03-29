@@ -72,7 +72,7 @@ public class TestNonTransactional extends EngineBase {
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
-        mediationFacade.createTags(su.getCompany(), tags);
+        mediationFacade.createTags(su.getCompany(), tags).get();
         Thread.sleep(300); // Let the schema changes occur
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");

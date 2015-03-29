@@ -23,19 +23,40 @@
 
     <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:queue name="${fd.search.queue}"/>
+    <rabbit:queue name="${fd-search.queue}" id="fd.search.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd-search.dlq.exchange}"/>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd-search.dlq.queue}" id="fd.search.dlq.queue"/>
 
-    <rabbit:queue name="${fd.engine.queue}"/>
-
-    <rabbit:direct-exchange name="${fd.search.exchange}">
+    <rabbit:direct-exchange name="${fd-search.dlq.exchange}">
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.search.queue}" key="${fd.search.binding}"/>
+            <rabbit:binding queue="${fd-search.dlq.queue}" key="${fd-search.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-    <rabbit:direct-exchange name="${fd.engine.exchange}">
+    <rabbit:queue name="${fd-engine.queue}" id="fd.engine.queue">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="${fd-engine.dlq.exchange}"/>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:queue name="${fd-engine.dlq.queue}" id="fd.engine.dlq.queue"/>
+    <rabbit:direct-exchange name="${fd-engine.dlq.exchange}">
         <rabbit:bindings>
-            <rabbit:binding queue="${fd.engine.queue}" key="${fd.engine.binding}"/>
+            <rabbit:binding queue="${fd-engine.dlq.queue}" key="${fd-engine.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="${fd-search.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd-search.queue}" key="${fd-search.binding}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="${fd-engine.exchange}">
+        <rabbit:bindings>
+            <rabbit:binding queue="${fd-engine.queue}" key="${fd-engine.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
 

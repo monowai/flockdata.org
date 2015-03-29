@@ -19,13 +19,13 @@
 
     <int-amqp:inbound-gateway id="kvWrite"
                               request-channel="doKvWrite"
-                              queue-names="${fd.kv.queue}"
+                              queue-names="${fd.store.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
                               error-channel="kvErrors"
                               task-executor="fd-engine"
                               concurrent-consumers="30"
-                              prefetch-count="${rabbit.kv.prefetchCount}"
+                              prefetch-count="${fd-store.prefetchCount}"
                               message-converter="jsonToKvContentConverter"
                               connection-factory="connectionFactory"/>
 

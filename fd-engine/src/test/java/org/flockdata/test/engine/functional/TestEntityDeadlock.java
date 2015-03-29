@@ -175,7 +175,6 @@ public class TestEntityDeadlock extends EngineBase{
             worked = false;
             try {
                 startSignal.await();
-                Thread.yield();
                 for (EntityInputBean inputBean : inputBeans) {
                     mediationFacade.trackEntity(inputBean, apiKey);
                 }

@@ -36,14 +36,14 @@ import java.util.TimeZone;
 public class FortressInputBean {
     private String name;
     private Boolean searchActive = false;
+    private Boolean storeActive = null;
+
     private String message = null;
     private String fortressKey = null;
     private String timeZone = null;
     private String languageTag;
     private Boolean enabled = true;
     private Boolean system = false;
-
-    private Boolean store = null;
 
     protected FortressInputBean() {
     }
@@ -157,12 +157,12 @@ public class FortressInputBean {
         return this;
     }
 
-    public Boolean getStore() {
-        return store;
+    public Boolean getStoreActive() {
+        return storeActive;
     }
 
-    public FortressInputBean setStore(Boolean enabled) {
-        this.store = enabled;
+    public FortressInputBean setStoreActive(Boolean enabled) {
+        this.storeActive = enabled;
         return this;
     }
 

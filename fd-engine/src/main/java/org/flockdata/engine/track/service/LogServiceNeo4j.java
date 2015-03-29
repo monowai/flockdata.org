@@ -85,6 +85,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Transactional
     TrackResultBean processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+        // ToDo: Service Activator
         if (resultBean.getContentInput() == null)
             return resultBean;
 
