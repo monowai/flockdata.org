@@ -64,6 +64,10 @@ import static org.junit.Assert.assertNotNull;
  * Time: 9:37 AM
  */
 public class TestCsvImportIntegration extends EngineBase {
+    @Override
+    public void cleanUpGraph() {
+        super.cleanUpGraph();   // DAT-363
+    }
 
     @Test
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
