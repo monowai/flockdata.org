@@ -42,36 +42,54 @@ public class ClientConfiguration {
     private String trackExchange = "fd.track.exchange";
     private String trackRoutingKey = "fd.track.binding";
     private String amqpHostAddr = "localhost";
+    private String rabbitPass="guest";
+    private String rabbitUser="guest";
+    private Boolean persistentDelivery= true;
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
-        if ( o!=null)
+        if (o != null)
             setEngineURL(o.toString());
         o = prop.get("defaultUser");
-        if ( o!=null)
+        if (o != null)
             setDefaultUser(o.toString());
         o = prop.get("apiKey");
-        if ( o!=null)
+        if (o != null)
             setApiKey(o.toString());
         o = prop.get("batchSize");
-        if ( o!=null)
+        if (o != null)
             setBatchSize(Integer.parseInt(o.toString()));
         o = prop.get("company");
-        if ( o!=null)
+        if (o != null)
             setCompany(o.toString());
+
+        o = prop.get("fd-track.exchange");
+        if (o != null)
+            setTrackExchange(o.toString());
+
+        o = prop.get("fd-track.queue");
+        if (o != null)
+            setTrackQueue(o.toString());
+
+        o = prop.get("fd-track.binding");
+        if (o != null)
+            setTrackRoutingKey(o.toString());
+
+        o = prop.get("rabbit.host");
+        if (o != null)
+            setAmqpHostAddr(o.toString());
+
+        o = prop.get("rabbit.user");
+        if (o != null)
+            setRabbitUser(o.toString());
+
+        o = prop.get("rabbit.pass");
+        if (o != null)
+            setRabbitPass(o.toString());
 
     }
 
     public ClientConfiguration() {
-    }
-
-    public ClientConfiguration(String apiKey, String amqpHostAddr, String amqpExchange, String ampqQueue, String amqpRouting) {
-        this.apiKey = apiKey;
-        this.amqpHostAddr = amqpHostAddr;
-        this.trackExchange = amqpExchange;
-        this.trackQueue = ampqQueue;
-        this.trackRoutingKey = amqpRouting;
-        this.amqp = true;
     }
 
     public String getEngineURL() {
@@ -139,6 +157,13 @@ public class ClientConfiguration {
         properties.setProperty("company", company);
         properties.setProperty("apiKey", apiKey);
         properties.setProperty("batchSize", Long.toString(batchSize));
+        properties.setProperty("fd-track.queue", trackQueue);
+        properties.setProperty("fd-track.exchange", trackExchange);
+        properties.setProperty("fd-track.binding", trackRoutingKey);
+        properties.setProperty("rabbit.host", amqpHostAddr);
+        properties.setProperty("rabbit.user", rabbitUser);
+        properties.setProperty("rabbit.pass", rabbitPass);
+        properties.setProperty("persistentDelivery", persistentDelivery.toString());
         return properties;
     }
 
@@ -184,7 +209,12 @@ public class ClientConfiguration {
     }
 
     public void setAmqp(boolean amqp) {
+        setAmqp( amqp, true);
+    }
+
+    public void setAmqp(boolean amqp, boolean persistentDelivery) {
         this.amqp = amqp;
+        setPersistentDelivery(persistentDelivery);
     }
 
     public String getTrackQueue() {
@@ -217,5 +247,33 @@ public class ClientConfiguration {
 
     public void setAmqpHostAddr(String amqpHostAddr) {
         this.amqpHostAddr = amqpHostAddr;
+    }
+
+    public void setRabbitPass(String rabbitPass) {
+        this.rabbitPass = rabbitPass;
+    }
+
+    public String getRabbitPass() {
+        return rabbitPass;
+    }
+
+    public void setRabbitUser(String rabbitUser) {
+        this.rabbitUser = rabbitUser;
+    }
+
+    public String getRabbitUser() {
+        return rabbitUser;
+    }
+
+    public boolean getPersistentDelivery() {
+        return persistentDelivery;
+    }
+
+    public boolean isPersistentDelivery() {
+        return persistentDelivery;
+    }
+
+    public void setPersistentDelivery(boolean persistentDelivery) {
+        this.persistentDelivery = persistentDelivery;
     }
 }

@@ -19,10 +19,7 @@
 
 package org.flockdata.client.amqp;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -47,10 +44,9 @@ public class AmqpHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpHelper.class);
 
     public AmqpHelper (ClientConfiguration configuration){
-        this(configuration, true);
-    }
-    public AmqpHelper (ClientConfiguration configuration, boolean persistentDelivery){
         factory.setHost(configuration.getAmqpHostAddr());
+        factory.setUsername(configuration.getRabbitUser());
+        factory.setPassword(configuration.getRabbitPass());
 
         try {
             connection = factory.newConnection();
@@ -60,7 +56,6 @@ public class AmqpHelper {
             this.routingKey = configuration.getTrackRoutingKey();
 
             channel.queueBind(queue, exchange, routingKey);
-            //channel.queueBind("fd.track.queue", "fd.track.exchange", "fd.track.queue");
             connection = factory.newConnection();
             HashMap<String,Object> headers = new HashMap<>();
             headers.put("apiKey", configuration.getApiKey());
@@ -68,7 +63,7 @@ public class AmqpHelper {
             builder =
                     new AMQP.BasicProperties().builder()
                             .headers(headers)
-                            .deliveryMode( persistentDelivery?2:null)
+                            .deliveryMode( configuration.getPersistentDelivery()?2:null)
                             .replyTo("nullChannel")
                     ;
 
