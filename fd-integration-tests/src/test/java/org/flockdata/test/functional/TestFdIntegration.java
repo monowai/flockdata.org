@@ -47,15 +47,9 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.SearchResult;
+import org.flockdata.search.model.*;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.KvContent;
+import org.flockdata.track.model.*;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
@@ -67,6 +61,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -103,6 +98,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Allows the fd-engine services to be tested against fd-search with actual integration.
@@ -1327,6 +1323,53 @@ public class TestFdIntegration {
         assertNotNull(kvContent.getWhat());
         assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
+
+    }
+
+    /**
+     *
+     * @throws Exception
+     */
+    @Test
+    public void validate_StringsContainingValidNumbers() throws Exception{
+        try {
+            engineConfig.setStoreEnabled("false");
+            logger.info("validate_MismatchSubsequentValue");
+            //assumeTrue(runMe);
+            SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
+            assertNotNull(su);
+
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("validate_MismatchSubsequentValue"));
+            Map<String, Object> json = getSimpleMap("NumAsString", "1234");
+
+            // Passing in a string "number", we want this to be preserved
+            ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
+            EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "mismatch", new DateTime(), "store_Disabled");
+            input.setContent(content);
+
+            TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+            waitForFirstSearchResult(su.getCompany(), result.getEntity());
+
+            KvContent kvc = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+            assertNotNull(kvc);
+            assertEquals(json.get("NumAsString"), "1234");
+
+            json = getSimpleMap("NumAsString", "NA");
+            content = new ContentInputBean("store_Disabled", new DateTime(), json);
+            // Create a second entity
+            EntityInputBean inputB = new EntityInputBean(fortress.getName(), "mikeTest", "mismatch", new DateTime(), "store_Disabledxx");
+            inputB.setContent(content);
+
+            result = mediationFacade.trackEntity(su.getCompany(), inputB);
+            waitForFirstSearchResult(su.getCompany(), result.getEntity());
+
+            doEsQuery(fortress.getIndexName(), "*", 2);
+            kvc = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+            assertNotNull(kvc);
+            assertEquals(json.get("NumAsString"), "NA");
+        } finally {
+            engineConfig.setStoreEnabled("true");
+        }
 
     }
 
