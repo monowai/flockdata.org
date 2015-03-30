@@ -23,7 +23,6 @@ import org.flockdata.search.model.*;
 import org.flockdata.track.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * Facades the call to the underlying auditbucket-search implementation.
@@ -34,8 +33,7 @@ import org.springframework.scheduling.annotation.Async;
 @MessagingGateway(asyncExecutor = "fd-engine")
 public interface FdSearchGateway {
 
-    @Async("fd-engine")
-    @Gateway(requestChannel = "sendEntityIndexRequest",requestTimeout = 10000)
+    @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel", requestTimeout = 10000)
     public void makeSearchChanges(EntitySearchChanges searchChanges);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveSearchReply")
