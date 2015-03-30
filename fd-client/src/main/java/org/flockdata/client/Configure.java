@@ -45,9 +45,9 @@ import java.util.Properties;
  */
 public class Configure {
     private static org.slf4j.Logger logger;
-    static String configFile = "client.config";
-    static String internalUser = null;
-    static String internalPass = null;
+    public static String configFile = "client.config";
+    public static String internalUser = null;
+    public static String internalPass = null;
 
     public static void main(String args[]) {
 
@@ -108,7 +108,7 @@ public class Configure {
         logger = LoggerFactory.getLogger(Configure.class);
     }
 
-    static File getFile(String configFile, Namespace ns) {
+    public static File getFile(String configFile, Namespace ns) {
         File file = new File(ns.getString("path") + "/" + configFile);
         File path = new File(ns.getString("path"));
         if (!path.exists() && !path.mkdir()) {
