@@ -329,10 +329,12 @@ public class EntityTagDaoNeo4j {
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entityid)
             return tagResults;
+
+        // DAT-365
         String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
                 "where id(entity)={id}" +
                 "optional match (tag)-[l:located]-(located) " +
-                "return tag,tagType,located " +
+                "return tag,tagType, head(collect(located)) as located " +
                 "order by type(tagType), tag.name";
 
         //List<EntityTag> raw = getEntityTags(entity.getId(), query);
