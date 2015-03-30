@@ -69,7 +69,7 @@ public class Importer {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Importer.class);
 
-    private static Namespace getCommandLineArgs(String args[]) {
+    public static Namespace getCommandLineArgs(String args[]) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("importer")
                 .defaultHelp(true)
                 .description("Client side batch importer to FlockData");
@@ -90,15 +90,10 @@ public class Importer {
                 .required(false)
                 .help("Runs a batch and verifies that the entities exist");
 
-        parser.addArgument("-a", "--async")
-                .required(false)
-                .setDefault(false)
-                .help("Async processing");
-
         parser.addArgument("-amqp", "--amqp")
                 .required(false)
                 .setDefault(false)
-                .help("Use AMQP instead of HTTP (experimental)");
+                .help("Use AMQP instead of HTTP (only works for track requests)");
 
         parser.addArgument("-c", "--path")
                 .setDefault("./conf")
