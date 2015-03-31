@@ -1333,11 +1333,12 @@ public class TestFdIntegration {
     @Test
     public void validate_StringsContainingValidNumbers() throws Exception{
         try {
-            engineConfig.setStoreEnabled("false");
+
             logger.info("validate_MismatchSubsequentValue");
             //assumeTrue(runMe);
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
+            engineConfig.setStoreEnabled("false");
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("validate_MismatchSubsequentValue"));
             Map<String, Object> json = getSimpleMap("NumAsString", "1234");
@@ -1378,6 +1379,7 @@ public class TestFdIntegration {
         Company c = companyService.create(companyName);
         SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
+        engineConfig.setStoreEnabled("true");
         Thread.yield();
         return su;
 
