@@ -195,7 +195,6 @@ public class TestCallerRef extends EngineBase {
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
-                    logger.info("This Thread - {}", count);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getEntityBean().getCallerRef().toLowerCase());
@@ -205,7 +204,7 @@ public class TestCallerRef extends EngineBase {
                     count++;
                 }
                 worked = true;
-                logger.info("{} completed", this.toString());
+                logger.debug("{} completed", this.toString());
 
             } catch ( ExecutionException | IOException | FlockException e) {
                 logger.error("Help!! ["+count +"]", e);

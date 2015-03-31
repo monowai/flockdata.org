@@ -26,6 +26,7 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.model.Profile;
 
 import java.io.IOException;
 
@@ -40,7 +41,7 @@ public interface ImportProfileService {
 
     void save(Company company, String fortressCode, String documentName, ImportProfile profile) throws FlockException;
 
-    public void save(Fortress fortress, DocumentType documentType, ProfileConfiguration importProfile) throws FlockException;
+    public Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException;
 
     public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
 

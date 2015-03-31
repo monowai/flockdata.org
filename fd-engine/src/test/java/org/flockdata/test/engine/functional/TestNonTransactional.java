@@ -105,7 +105,7 @@ public class TestNonTransactional extends EngineBase {
     public void multipleFortressUserRequestsThreaded() throws Exception {
         Neo4jHelper.cleanDb(template);
         Transaction t = template.getGraphDatabase().beginTx();
-        logger.info("Starting multipleFortressUserRequestsThreaded");
+        logger.info("### Starting multipleFortressUserRequestsThreaded");
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
@@ -159,7 +159,6 @@ public class TestNonTransactional extends EngineBase {
         boolean failed;
 
         public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
-            logger.info("Preparing FuAction {}, {}", id, latch.getCount());
             this.fortress = fortress;
             this.uname = uname;
             this.latch = latch;
@@ -170,7 +169,7 @@ public class TestNonTransactional extends EngineBase {
         }
 
         public void run() {
-            logger.info("Running " + this);
+            logger.debug("Running " + this);
             int runCount = 50;
             int i = 0;
             failed = false;
@@ -194,7 +193,7 @@ public class TestNonTransactional extends EngineBase {
                 if (!deadlocked)
                     i++;
             } // End while
-            logger.info("Finishing {}", failed);
+            logger.debug("Finishing {}", failed);
             failed = false;
             latch.countDown();
         }

@@ -214,7 +214,7 @@ public class EngineConfig implements FdEngineConfig {
     @Override
     @Secured({SecurityHelper.ADMIN})
     public void resetCache() {
-        logger.info("Reset the cache");
+        logger.debug("Cache Reset");
     }
 
     @Override

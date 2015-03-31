@@ -21,7 +21,6 @@ package org.flockdata.engine.schema.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.company.model.CompanyNode;
-import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.TxRef;
 import org.hibernate.validator.constraints.NotBlank;
@@ -32,7 +31,6 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -50,8 +48,8 @@ public class TxRefNode implements TxRef {
     @RelatedTo( type = "TX", direction = Direction.INCOMING)
     private CompanyNode company;
 
-    @RelatedTo( type = "AFFECTED")
-    private Set<EntityNode> entities;
+//    @RelatedTo( type = "AFFECTED")
+//    private Set<EntityNode> entities;
 
     @Indexed
     private String name;

@@ -51,24 +51,22 @@ public class TestForceDuplicateRlx extends EngineBase {
     @Test
     @Transactional
     public void uniqueChangeRLXUnderLoad() throws Exception {
-        logger.info("uniqueChangeRLXUnderLoad started");
+        logger.debug("### uniqueChangeRLXUnderLoad started");
         SystemUser su = registerSystemUser("TestTrack", mike_admin);
 
         int auditMax = 10;
         int logMax = 10;
         int fortress = 1;
-        //String simpleJson = "{\"who\":";
         ArrayList<Long> list = new ArrayList<>();
 
         int fortressMax = 1;
-        logger.info("FortressCount: " + fortressMax + " AuditCount: " + auditMax + " LogCount: " + logMax);
-        logger.info("We will be expecting a total of " + (auditMax * logMax * fortressMax) + " messages to be handled");
+        logger.debug("FortressCount: " + fortressMax + " AuditCount: " + auditMax + " LogCount: " + logMax);
+        logger.debug("We will be expecting a total of " + (auditMax * logMax * fortressMax) + " messages to be handled");
 
         StopWatch watch = new StopWatch();
         watch.start();
         double splitTotals = 0;
         long totalRows = 0;
-        int sleepCount;  // Discount all the time we spent sleeping
 
         DecimalFormat f = new DecimalFormat("##.000");
 
@@ -76,7 +74,6 @@ public class TestForceDuplicateRlx extends EngineBase {
             String fortressName = "bulkloada" + fortress;
             int count = 1;
             long requests = 0;
-            sleepCount = 0;
 
             Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
             requests++;
@@ -93,20 +90,12 @@ public class TestForceDuplicateRlx extends EngineBase {
                 } // Logs created
                 count++;
             } // finished with Entities
-//            watch.split();
-//            double fortressRunTime = (watch.getSplitTime() - sleepCount) / 1000d;
-//            logger.info("*** " + iFortress.getName() + " took " + fortressRunTime + "  avg processing time for [" + requests + "] RPS= " + f.format(fortressRunTime / requests) + ". Requests per second " + f.format(requests / fortressRunTime));
-
-//            splitTotals = splitTotals + fortressRunTime;
             totalRows = totalRows + requests;
-//            watch.reset();
-//            watch.start();
             list.add(iFortress.getId());
             fortress++;
         }
 
-        logger.info("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
-//        watch.reset();
+        logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));
     }
     private void createLog(SystemUser su, TrackResultBean arb, int log) throws FlockException, IOException, ExecutionException, InterruptedException {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("who cares", arb.getEntityBean().getMetaKey(), new DateTime(), Helper.getSimpleMap("who", log)));

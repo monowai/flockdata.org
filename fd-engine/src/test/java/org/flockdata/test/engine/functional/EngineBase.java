@@ -156,7 +156,6 @@ public abstract class EngineBase {
 	public void cleanUpGraph() {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
         //           might be started giving you sporadic failures.
-        logger.info("Cleaning graph");
 		Neo4jHelper.cleanDb(template);
 		engineConfig.setDuplicateRegistration(true);
 	}

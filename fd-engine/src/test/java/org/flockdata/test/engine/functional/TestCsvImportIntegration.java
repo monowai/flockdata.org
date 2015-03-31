@@ -73,7 +73,7 @@ public class TestCsvImportIntegration extends EngineBase {
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 //        engineConfig.setConceptsEnabled(false);
-        logger.info("Starting ## csvImport_DuplicateLogsNotCreated");
+        logger.debug("### csvImport_DuplicateLogsNotCreated");
         engineConfig.setTestMode(true);
         assertTrue(engineConfig.getKvStore().equals(KvService.KV_STORE.MEMORY));
         setSecurity();
@@ -97,7 +97,7 @@ public class TestCsvImportIntegration extends EngineBase {
             EntityLog log = entityService.getLastEntityLog(entityA.getId());
             Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
             for (EntityLog entityLog : logs) {
-                logger.info("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
+                logger.debug("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();
@@ -168,34 +168,5 @@ public class TestCsvImportIntegration extends EngineBase {
             trackBatcher.flush();
         }
     }
-
-//    private class MyRunner implements Runnable {
-//        private EntityInputBean entityInputBean;
-//        Collection<EntityInputBean> entityInputBeans;
-//        private String apiKey;
-//
-//        MyRunner(EntityInputBean entityInputBean, String apiKey) {
-//            this.entityInputBean = entityInputBean;
-//            this.apiKey = apiKey;
-//        }
-//
-//        @Override
-//        public void run() {
-//
-//            try {
-//                if (entityInputBean != null) {
-//                    logger.debug("My Date {}", entityInputBean.getWhen());
-//                    mediationFacade.trackEntity(entityInputBean, apiKey);
-//                } else {
-//                    mediationFacade.trackEntity(entityInputBean, apiKey);
-//                }
-//            } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
-//                logger.error("Unexpected", e);
-//            }
-//
-//
-//        }
-//    }
-
 
 }

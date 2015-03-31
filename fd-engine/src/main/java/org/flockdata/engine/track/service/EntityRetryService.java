@@ -68,13 +68,15 @@ public class EntityRetryService {
     @Autowired
     SchemaService schemaService;
 
-    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500, random = true))
+    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
+            maxAttempts = 20,
+            backoff = @Backoff( random = true))
     public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities)
             throws InterruptedException, ExecutionException, FlockException, IOException {
         return doTrack(fortress, entities);
     }
 
-    @Transactional
+    @Transactional (timeout = 4000 )
     Iterable<TrackResultBean> doTrack(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
 
         Collection<TrackResultBean>
