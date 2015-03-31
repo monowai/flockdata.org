@@ -40,6 +40,12 @@ import static org.junit.Assert.*;
  */
 public class TestSchemaManagement extends EngineBase {
 
+    @Override
+    public void cleanUpGraph() {
+        // DAT-348
+        super.cleanUpGraph();
+    }
+
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
         cleanUpGraph();
