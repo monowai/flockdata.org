@@ -32,6 +32,7 @@ import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
+import org.flockdata.track.model.Profile;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
 import org.flockdata.transform.ClientConfiguration;
@@ -81,7 +82,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         }
     }
 
-    public void save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException {
+    public Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException {
         //objectMapper.
         ProfileNode profile = profileDao.find(fortress, documentType);
         if (profile == null) {
@@ -95,7 +96,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         }
 
         // ToDo: Track the change against a FlockData system account
-        profileDao.save(profile);
+        return profileDao.save(profile);
     }
 
     @Override

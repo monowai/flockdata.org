@@ -258,7 +258,7 @@ public class SearchServiceFacade {
 
     public void purge(String indexName) {
         // ToDO: Implement this
-        logger.info("Purge the search Fortress {}", indexName);
+        logger.debug("Purge the search Fortress {}", indexName);
     }
 
     public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {

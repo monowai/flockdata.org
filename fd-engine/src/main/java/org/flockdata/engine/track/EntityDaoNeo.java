@@ -61,6 +61,9 @@ public class EntityDaoNeo {
     EntityRepo entityRepo;
 
     @Autowired
+    TxRepo txRepo;
+
+    @Autowired
     TrackLogRepo trackLogRepo;
 
     @Autowired
@@ -200,7 +203,7 @@ public class EntityDaoNeo {
     }
 
     public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
-        return entityRepo.findTxTag(txTag, company.getId());
+        return txRepo.findTxTag(txTag, company.getId());
     }
 
     public TxRef beginTransaction(String id, Company company) {

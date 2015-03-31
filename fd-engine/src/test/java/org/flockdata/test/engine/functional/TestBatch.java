@@ -29,6 +29,7 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.Profile;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class TestBatch extends EngineBase {
 
         ImportProfile params = Helper.getImportParams("/batch-csv-profile.json");
 
-        importProfileService.save(fortress, docType, params );
+        Profile p = importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/batch-test.csv", false);
 
         Entity resultBean = entityService.findByCallerRef( fortress, docType, "1");

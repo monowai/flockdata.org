@@ -57,7 +57,7 @@ public class TagNode implements Tag {
 
     protected TagNode() {
         labels.add("Tag");
-        labels.add("_Tag");
+        labels.add("_Tag"); // Required for SDN 3.x
     }
 
     public TagNode(TagInputBean tagInput) {
