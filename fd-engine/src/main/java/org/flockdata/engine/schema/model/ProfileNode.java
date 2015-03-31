@@ -50,11 +50,11 @@ public class ProfileNode implements Profile {
     @Indexed(unique = true)
     private String profileKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_PROFILE", direction = Direction.OUTGOING)
-    private Fortress fortress;
+    @RelatedTo(type = "FORTRESS_PROFILE", direction = Direction.OUTGOING)
+    private FortressNode fortress;
 
-    @RelatedTo(elementClass = DocumentTypeNode.class, type = "DOCUMENT_PROFILE", direction = Direction.OUTGOING)
-    private DocumentType document;
+    @RelatedTo( type = "DOCUMENT_PROFILE", direction = Direction.OUTGOING)
+    private DocumentTypeNode document;
 
     private String content;
     private ProfileConfiguration.ContentType contentType;
@@ -72,8 +72,8 @@ public class ProfileNode implements Profile {
     public ProfileNode() {}
 
     public ProfileNode(Fortress fortress, DocumentType documentType) {
-        this.fortress = fortress;
-        this.document = documentType;
+        this.fortress = (FortressNode) fortress;
+        this.document = (DocumentTypeNode) documentType;
         this.profileKey = parseKey(fortress, documentType);
     }
 

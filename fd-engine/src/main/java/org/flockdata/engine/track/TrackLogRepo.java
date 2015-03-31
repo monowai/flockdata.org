@@ -34,35 +34,32 @@ import java.util.Set;
  */
 public interface TrackLogRepo extends GraphRepository<LogNode> {
 
-    @Query(value = "match entity-[cw:LOGGED]->log where id(entity)={0} return count(cw)")
+    @Query(value = "match (entity:Entity)-[cw:LOGGED]->(log:Log) where id(entity)={0} return count(cw)")
     int getLogCount(Long entityId);
 
-    @Query(elementClass = EntityLogRelationship.class,
-            value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
+    @Query( value = "match (change:Log)<-[log:LOGGED]-() where id(change)={0} " +
                     "   return log")
     EntityLogRelationship getLog(Long logId);
 
-    @Query(elementClass = EntityLogRelationship.class,
-            value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:_Entity) where id(entity)={0} " +
+    @Query(  value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:_Entity) where id(entity)={0} " +
                     "   return log")
     EntityLogRelationship getLastChange(Long entityId);
 
 
-    @Query(elementClass = EntityLogRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
+    @Query(elementClass = EntityLogRelationship.class,  value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen >= {1} and log.fortressWhen <= {2}  return log ")
     Set<EntityLog> getLogs(Long entityId, Long from, Long to);
 
     @Query(elementClass = EntityLogRelationship.class, value = "match (entity)-[log:LOGGED]->(entityLog) where id(entity)={0} and log.fortressWhen <= {1} return log limit 5")
     Set<EntityLog> getLogs(Long entityId, Long from );
 
-    @Query(elementClass = EntityLogRelationship.class, value =
-            "   MATCH (entity:_Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
-            "return log order by log.fortressWhen desc")
+    @Query( elementClass = EntityLogRelationship.class, value = "  MATCH (entity:Entity)-[log:LOGGED]->(change) where id(entity) = {0} " +
+                    " return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
 
-    @Query (value = "match (f:_Fortress)-[:TRACKS]->(m:_Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
+    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
     void purgeFortressLogs(Long fortressId);
 
-    @Query (value = "match (f:_Fortress)-[track:TRACKS]->(m:_Entity)-[tagRlx]-(:_Tag) where id(f)={0} delete tagRlx")
+    @Query (value = "match (f:Fortress)-[track:TRACKS]->(m:Entity)-[tagRlx]-(:Tag) where id(f)={0} delete tagRlx")
     void purgeTagRelationships(Long fortressId);
 
 

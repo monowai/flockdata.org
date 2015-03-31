@@ -258,9 +258,9 @@ public class TagDaoNeo4j {
     public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
-        String query = "start tag=node({tagId}) " +
-                " match (tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
-                "       return otherTag";
+        String query =
+                " match (tag:Tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+                "   where id(tag)={tagId} return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
 

@@ -30,10 +30,9 @@ import java.util.Collection;
 
 public interface CompanyRepository extends GraphRepository<CompanyNode> {
 
-    @Query(elementClass = SystemUserNode.class, value = "start company=node({0}) " +
-            "match company-[r:ACCESSES]-systemUser " +
-            "where systemUser.login ={1} return systemUser")
-    SystemUserNode getAdminUser(long ID, String userName);
+    @Query( value =  "match (company:FDCompany)-[r:ACCESSES]- (systemUser:SystemUser) " +
+            "where id(company) = {0} and systemUser.login ={1} return systemUser")
+    SystemUserNode getAdminUser(long companyId, String userName);
 
 
     @Query(elementClass = CompanyNode.class,

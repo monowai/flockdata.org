@@ -56,7 +56,7 @@ public class EntityNode implements Entity {
     @Indexed
     private String metaKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "TRACKS", direction = Direction.INCOMING)
+    @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
 
@@ -90,13 +90,13 @@ public class EntityNode implements Entity {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
+    @RelatedTo(type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
     private FortressUserNode createdBy;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
+    @RelatedTo(type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUserNode lastWho;
 
-    @RelatedTo(elementClass = LogNode.class, type = "LAST_CHANGE", direction = Direction.OUTGOING)
+    @RelatedTo(type = "LAST_CHANGE", direction = Direction.OUTGOING)
     private LogNode lastChange;
 
     public static final String UUID_KEY = "metaKey";

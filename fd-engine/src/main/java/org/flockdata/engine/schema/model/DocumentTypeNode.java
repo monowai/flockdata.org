@@ -52,7 +52,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     @Indexed(unique = true)
     private String companyKey;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "FORTRESS_DOC", direction = Direction.OUTGOING)
+    @RelatedTo( type = "FORTRESS_DOC", direction = Direction.OUTGOING)
     //@Fetch
     private FortressNode fortress;
 
@@ -122,7 +122,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     public void add(Concept concept) {
         if ( concepts == null )
             concepts = new ArrayList<>();
-        concepts.add(concept);
+        concepts.add((ConceptNode) concept);
     }
 
     @Override
