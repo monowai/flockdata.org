@@ -223,7 +223,7 @@ public class TestMappings extends ESBase {
     @Test
     public void tagWithRelationshipNamesMatchingNodeNames() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fortdoc");
+        Entity entityA = Helper.getEntity("cust", "fort-tag-rlx", "anyuser", "fortdoc");
 
         SearchChange changeA = new EntitySearchChange(new EntityBean(entityA), new ContentInputBean(json));
 
