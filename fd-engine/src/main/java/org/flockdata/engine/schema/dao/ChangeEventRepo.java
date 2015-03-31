@@ -33,14 +33,13 @@ import java.util.Set;
  */
 public interface ChangeEventRepo extends GraphRepository<ChangeEventNode> {
 
-    @Query(elementClass = ChangeEventNode.class, value = "start company=node({0})" +
-            "   match company-[:COMPANY_EVENT]->event " +
-            "   where event.code = {1}" +
-            "  return event")
+    @Query(value = " match (company:FDCompany)-[:COMPANY_EVENT]->(event:Event {code:{1}}) " +
+                   " where id(company)={0}" +
+                 "  return event")
     ChangeEventNode findCompanyEvent(Long companyId, String eventName);
 
-    @Query(elementClass = ChangeEventNode.class, value = "start company=node({0})" +
-            "   match company-[:COMPANY_EVENT]->events " +
+    @Query( value =
+            "   match (company:FDCompany)-[:COMPANY_EVENT]->events where id(company)={0}" +
             "  return events")
     Set<ChangeEvent> findCompanyEvents(Long id);
 }

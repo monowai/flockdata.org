@@ -25,14 +25,14 @@ import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.LogNode;
 import org.flockdata.engine.track.service.TrackEventService;
+import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.service.KeyGenService;
-import org.flockdata.track.bean.EntityTXResult;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -235,8 +235,8 @@ public class EntityDaoNeo {
     public Map<String, Object> findByTransaction(TxRef txRef) {
         //Example showing how to use cypher and extract
 
-        String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+        String findByTagRef =" match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+                "              where id(tag)={txRef}" +
                 "             return logs, track, log " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<>();

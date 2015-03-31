@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public interface Tag {
 
-    public static String DEFAULT_TAG="_Tag";
+    public static String DEFAULT_TAG="Tag";
     public static String DEFAULT=":" + DEFAULT_TAG ;
 
     String UNDEFINED = "undefined";
