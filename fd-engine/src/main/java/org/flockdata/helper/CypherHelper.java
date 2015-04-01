@@ -33,7 +33,7 @@ public class CypherHelper {
 
     public static String getLabels(String columnName, Collection<String> values) {
         if (values == null || values.isEmpty())
-            return ":_Entity";
+            return ":Entity";
         // create a neo4j label index
         // DAT-109
         return getNeoString(columnName, ":", values, " or ");
@@ -78,7 +78,7 @@ public class CypherHelper {
     public static boolean isEntity (Node node ){
         // DAT-279
         for (Label label : node.getLabels()) {
-            if ( label.name().equals("_Entity"))
+            if ( label.name().equals("Entity"))
                 return true;
         }
         return false;
