@@ -60,9 +60,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (!conceptsTo.equals("")) {
             conceptString = conceptString + " and ( " + conceptsTo + ") ";
         }
-        boolean docFilter = !(docIndexes.equals(":_Entity") || docIndexes.equals(""));
+        boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
-        String query = "match (meta:_Entity) " + (docFilter ? "where  " + docIndexes : "") +
+        String query = "match (meta:Entity) " + (docFilter ? "where  " + docIndexes : "") +
                 " with meta " +
                 "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
                 conceptString +

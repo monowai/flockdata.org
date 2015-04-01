@@ -262,7 +262,7 @@ public class EntityTagDaoNeo4j {
     }
 
     public Set<Entity> findEntityTags(Tag tag) {
-        String query = " match (tag:_Tag)-[]-(entity:_Entity) where id(tag)={tagId}" +
+        String query = " match (tag:Tag)-[]-(entity:Entity) where id(tag)={tagId}" +
                 " return entity";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
@@ -307,7 +307,7 @@ public class EntityTagDaoNeo4j {
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entity.getId())
             return tagResults;
-        String query = "match (track:_Entity)" + tagDirection + "(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
+        String query = "match (track:Entity)" + tagDirection + "(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ") " +
                 "where id(track)={id} \n" +
                 "optional match (tag)-[l:located]-(located) " +
                 "return tag,tagType,located";
@@ -331,7 +331,7 @@ public class EntityTagDaoNeo4j {
             return tagResults;
 
         // DAT-365
-        String query = "match (entity:_Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
+        String query = "match (entity:Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
                 "where id(entity)={id}" +
                 "optional match (tag)-[l:located]-(located) " +
                 "return tag,tagType, head(collect(located)) as located " +

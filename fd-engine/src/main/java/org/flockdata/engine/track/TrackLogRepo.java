@@ -41,7 +41,7 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
                     "   return log")
     EntityLogRelationship getLog(Long logId);
 
-    @Query(  value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:_Entity) where id(entity)={0} " +
+    @Query(  value = "match (change:Log)<-[log:LAST_CHANGE]-(entity:Entity) where id(entity)={0} " +
                     "   return log")
     EntityLogRelationship getLastChange(Long entityId);
 
