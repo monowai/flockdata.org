@@ -23,14 +23,10 @@ import org.flockdata.track.model.GeoData;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.graphdb.traversal.Uniqueness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
@@ -44,19 +40,19 @@ public class GeoSupportNeo4j {
 
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo4j.class);
 
-    private TraversalDescription geoTraversal =null ;
+    //private TraversalDescription geoTraversal =null ;
 
-    TraversalDescription getGeoTraverser () {
-        if (geoTraversal==null )
-
-
-            geoTraversal = template.getGraphDatabaseService().traversalDescription()
-                    .depthFirst()
-                    .uniqueness(Uniqueness.NODE_PATH);
-
-        return geoTraversal;
-    }
-
+//    TraversalDescription getGeoTraverser () {
+//        if (geoTraversal==null )
+//
+//
+//            geoTraversal = template.getGraphDatabaseService().traversalDescription()
+//                    .depthFirst()
+//                    .uniqueness(Uniqueness.NODE_PATH);
+//
+//        return geoTraversal;
+//    }
+//
 
     @Cacheable(value = "geoData", key = "#loc.Id")
     public GeoData getGeoData(Node loc) {
@@ -75,7 +71,7 @@ public class GeoSupportNeo4j {
         String query = "match (located:_Tag)  , p= shortestPath((located:_Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
-        Result<Map<String, Object>> queryResults = template.query(query, params);
+        Iterable<Map<String, Object>> queryResults = template.query(query, params);
         for (Map<String, Object> row : queryResults) {
             return getGeoData(row, loc);
         }
