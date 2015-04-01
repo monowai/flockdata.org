@@ -41,7 +41,6 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -185,7 +184,7 @@ public class EntityDaoNeo {
         Map<String, Object> args = new HashMap<>();
         args.put("fortressUser", fortressId);
         args.put("skip", skipTo);
-        Result<Map<String, Object>> result = template.query(cypher, args);
+        Iterable<Map<String, Object>> result = template.query(cypher, args);
 
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<Entity> results = new ArrayList<>();
