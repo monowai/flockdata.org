@@ -264,7 +264,7 @@ public class TagDaoNeo4j {
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
 
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
 
         if (!((Result) result).iterator().hasNext())
             return new ArrayList<>();
@@ -292,7 +292,7 @@ public class TagDaoNeo4j {
         //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
         String query = "match (tag:`" + label + "`) return tag";
         // Look at PAGE
-        Result<Map<String, Object>> results = template.query(query, null);
+        Iterable<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
             Object o = row.get("tag");
             Tag t = template.projectTo(o, TagNode.class);
@@ -338,7 +338,7 @@ public class TagDaoNeo4j {
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", parseKey(tagCode));
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
         Node node = null;
         while (results.hasNext()) {
@@ -430,7 +430,7 @@ public class TagDaoNeo4j {
         String query = "match (t:" + theLabel + " ) -[:HAS_ALIAS]->(alias) where id(t)={id}  return alias";
         Map<String, Object> params = new HashMap<>();
         params.put("id", source.getId());
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
         Collection<AliasInputBean> aliasResults = new ArrayList<>();
         for (Map<String, Object> mapResult : result) {
             Node n = (Node) mapResult.get("alias");

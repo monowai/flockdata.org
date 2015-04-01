@@ -48,6 +48,8 @@
     <import resource="neo4j-context.xml"/>
     <import resource="kv-context.xml"/>
 
+    <bean name ="engineConfig" class="org.flockdata.engine.admin.EngineConfig"/>
+
     <aop:aspectj-autoproxy/>
 
     <cache:annotation-driven cache-manager="fdCacheManager" />

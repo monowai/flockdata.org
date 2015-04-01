@@ -29,7 +29,6 @@ import org.flockdata.registration.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
@@ -87,7 +86,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         params.put("linkCount", input.getMinCount());
         StopWatch watch = new StopWatch(input.toString());
         watch.start("Execute Matrix Query");
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
         watch.stop();
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<EdgeResult> edgeResults = new ArrayList<>();

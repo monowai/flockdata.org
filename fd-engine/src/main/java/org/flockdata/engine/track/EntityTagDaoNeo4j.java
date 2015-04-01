@@ -266,7 +266,7 @@ public class EntityTagDaoNeo4j {
                 " return entity";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", tag.getId());
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
         Set<Entity> results = new HashSet<>();
         for (Map<String, Object> row : result) {
             Entity entity = template.convert(row.get("entity"), EntityNode.class);
@@ -293,7 +293,7 @@ public class EntityTagDaoNeo4j {
         Map<String, Object> params = new HashMap<>();
         params.put("logId", log.getId());
 
-        Result<Map<String, Object>> results = template.query(query, params);
+        Iterable<Map<String, Object>> results = template.query(query, params);
         return getEntityTags(log.getId(), results, false);
 
     }
@@ -345,11 +345,11 @@ public class EntityTagDaoNeo4j {
     Collection<EntityTag> getEntityTags(Long primaryKey, String query, boolean withGeo) {
         Map<String, Object> params = new HashMap<>();
         params.put("id", primaryKey);
-        Result<Map<String, Object>> queryResults = template.query(query, params);
+        Iterable<Map<String, Object>> queryResults = template.query(query, params);
         return getEntityTags(primaryKey, queryResults, withGeo);
     }
 
-    Collection<EntityTag> getEntityTags(Long primaryKey, Result<Map<String, Object>> queryResults, boolean withGeo) {
+    Collection<EntityTag> getEntityTags(Long primaryKey, Iterable<Map<String, Object>> queryResults, boolean withGeo) {
         Set<EntityTag> tagResults = new TreeSet<>();
         for (Map<String, Object> row : queryResults) {
             Node n = (Node) row.get("tag");
@@ -416,7 +416,7 @@ public class EntityTagDaoNeo4j {
 
         String query = "optional match (t:" + label + ")-[:HAS_ALIAS]-(a) where not (t)-[]-(:Entity) return t,a;";
         template.query(query, null);
-//        Result<Map<String, Object>> result = template.query(query, null);
+//        Iterable<Map<String, Object>> result = template.query(query, null);
 //        for (Map<String, Object> row : result) {
 //            Tag tag = template.convert(row.get("entity"), TagNode.class);
 //            Map<String, Object> params = new HashMap<>();

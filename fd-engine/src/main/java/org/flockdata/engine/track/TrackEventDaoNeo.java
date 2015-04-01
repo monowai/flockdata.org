@@ -67,7 +67,7 @@ public class TrackEventDaoNeo implements TrackEventDao {
             params.put("code", eventCode.toLowerCase());
             params.put("name", eventCode);
             params.put("coId", company.getId());
-            Result<Map<String, Object>> results = template.query(cypher, params);
+            Iterable<Map<String, Object>> results = template.query(cypher, params);
             //((Node)row.get("event")).getPropertyKeys();
             for (Map<String, Object> row : results) {
                 ev = template.projectTo(row.get("event"), ChangeEventNode.class);

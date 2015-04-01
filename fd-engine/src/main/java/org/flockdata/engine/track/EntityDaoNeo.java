@@ -246,14 +246,14 @@ public class EntityDaoNeo {
         params.put("txRef", txRef.getId());
 
 
-        Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
+        Iterable<Map<String, Object>> exResult = template.query(findByTagRef, params);
 
         Iterator<Map<String, Object>> rows;
         rows = exResult.iterator();
 
         List<EntityTXResult> simpleResult = new ArrayList<>();
         int i = 1;
-        //Result<Map<String, Object>> results =
+        //Iterable<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             EntityLog log = template.convert(row.get("logs"), EntityLogRelationship.class);
