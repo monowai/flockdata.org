@@ -29,7 +29,6 @@ import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -39,9 +38,11 @@ import static org.junit.Assert.*;
 
 public class TestRegistration extends EngineBase {
 
-    @Before
-    public void clearGraph(){
-        cleanUpGraph();
+    @Override
+    @org.junit.Before
+    public void cleanUpGraph() {
+        // DAT-348
+        super.cleanUpGraph();
     }
 
     @Test

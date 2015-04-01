@@ -19,31 +19,27 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * User: mike
@@ -53,17 +49,12 @@ import static org.junit.Assert.assertNotNull;
 public class TestNonTransactional extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestNonTransactional.class);
+
     @Override
     public void cleanUpGraph() {
-        // Nothing
-        logger.debug("Not cleaning up");
-    }
-
-    @After
-    public void clearGraph(){
+        // DAT-348
         super.cleanUpGraph();
     }
-
     @Test
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
@@ -103,7 +94,7 @@ public class TestNonTransactional extends EngineBase {
 
     @Test
     public void multipleFortressUserRequestsThreaded() throws Exception {
-        Neo4jHelper.cleanDb(template);
+        cleanUpGraph();
         Transaction t = template.getGraphDatabase().beginTx();
         logger.info("### Starting multipleFortressUserRequestsThreaded");
         // Assume the user has now logged in.
