@@ -28,6 +28,7 @@ import org.springframework.data.neo4j.annotation.*;
 import java.util.ArrayList;
 
 /**
+ * Represents a single alias for a tag
  * Created by mike on 1/04/15.
  */
 @NodeEntity // Only in place to support projection
@@ -47,12 +48,14 @@ public class AliasNode {
     private Tag tag ;
 
     AliasNode(){
+        // ToDo: Remove with SDN4
         labels.add("Alias");
         labels.add("_Alias");
     }
 
     public AliasNode(String theLabel, AliasInputBean aliasInput, String key, Tag tag) {
         this();
+        // ToDo: This could be simply set by the caller
         labels.add(theLabel+"Alias");
         this.key = key;
         this.name = aliasInput.getCode();
