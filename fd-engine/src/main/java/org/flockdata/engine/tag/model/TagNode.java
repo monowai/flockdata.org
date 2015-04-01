@@ -23,15 +23,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.model.Alias;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Labels;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -50,6 +54,9 @@ public class TagNode implements Tag {
 
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
+
+    @RelatedTo( elementClass = AliasNode.class, type = "HAS_ALIAS")
+    private Set<Alias> aliases = new HashSet<>();
 
     DynamicProperties props = new DynamicPropertiesContainer();
 
@@ -168,4 +175,25 @@ public class TagNode implements Tag {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
+
+    public void addAlias(AliasNode newAlias) {
+        aliases.add(newAlias);
+    }
+
+    @Override
+    public boolean hasAlias(String theLabel, String code) {
+        if ( aliases.isEmpty())
+            return false;
+        for (Alias alias : aliases) {
+            if ( alias.getKey().equals(code) && alias.getLabel().equals(theLabel+"Alias" ) )
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<Alias> getAliases() {
+        return aliases;
+    }
+
 }

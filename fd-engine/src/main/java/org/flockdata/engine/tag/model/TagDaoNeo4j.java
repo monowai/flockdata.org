@@ -21,6 +21,7 @@ package org.flockdata.engine.tag.model;
 
 import org.flockdata.engine.FdEngineConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
+import org.flockdata.engine.tag.TagRepo;
 import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
@@ -140,10 +141,17 @@ public class TagDaoNeo4j {
 
         try {
             logger.trace("Saving {}", tag);
-            tag = template.save(tag);
+
             if (tagInput.hasAliases()) {
-                makeAliases(company, tag, label, tagInput.getAliases());
+//                Collection<AliasInputBean> newAliases = findAliasesToCreate(label, tag, company, tagInput.getAliases());
+
+                for (AliasInputBean newAlias : tagInput.getAliases()) {
+                    AliasNode alias = new AliasNode(label, newAlias, parseKey(newAlias.getCode()), tag);
+                    tag.addAlias(alias);
+                }
+                //makeAliases(company, tag, label, tagInput.getAliases());
             }
+            tag = template.save(tag);
             logger.debug("Saved {}", tag);
             return tag;
         } catch (ConstraintViolationException e) {
@@ -153,38 +161,40 @@ public class TagDaoNeo4j {
 
     }
 
-    private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
-        Collection<AliasInputBean> newAliases = findAliasesToCreate(label, tag, company, aliases);
-        //schemaDao.createAliasIndex(label);
-        //}
-        for (AliasInputBean alias : newAliases) {
-            createAlias(company, tag, label, alias);
-        }
-
-    }
+//    private void makeAliases(Company company, TagNode tag, String label, Collection<AliasInputBean> aliases) {
+//        Collection<AliasInputBean> newAliases = findAliasesToCreate(label, tag, company, aliases);
+//        //schemaDao.createAliasIndex(label);
+//        //}
+//        for (AliasInputBean alias : newAliases) {
+//            createAlias(company, tag, label, alias);
+//        }
+//
+//    }
 
     private Collection<AliasInputBean> findAliasesToCreate(String label, Tag tag, Company company, Collection<AliasInputBean> aliases) {
         Collection<AliasInputBean> newAliases = new ArrayList<>();
         String suffix = engineAdmin.getTagSuffix(company);
-        for (AliasInputBean alias : aliases) {
-            String theLabel = resolveLabel(label, suffix);
+  //      for (AliasInputBean alias : aliases) {
+//            String theLabel = resolveLabel(label, suffix);
 
             // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
-            if (!doesAliasExist(tag.getId(), theLabel, alias.getCode()))
-                newAliases.add(alias);
+//            if (!doesAliasExist(tag.getId(), theLabel, alias.getCode()))
+//                newAliases.add(alias);
 
-        }
+    //    }
         return newAliases;
 
     }
 
     public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        template.fetch(tag);
+        template.fetch(tag.getAliases());
+        if (tag.hasAlias(theLabel, parseKey(aliasInput.getCode())))
+                return;
 
-        // ToDo: Figure out why the makeAlias cypher errors. Until that works we have to check for the existence of the tag
-        if (doesAliasExist(tag.getId(), theLabel, aliasInput.getCode()))
-            return;
         AliasNode alias = new AliasNode(theLabel, aliasInput, parseKey(aliasInput.getCode()), tag);
+
         alias = template.save(alias);
         logger.debug(alias.toString());
     }
@@ -305,6 +315,8 @@ public class TagDaoNeo4j {
         return tag;
 
     }
+    @Autowired
+    TagRepo tagRepo;
 
     Tag tagByKey(String tagCode, String theLabel) {
 
@@ -385,16 +397,17 @@ public class TagDaoNeo4j {
     }
 
 
-    private boolean doesAliasExist(Long tagId, String label, String key) {
-        String query = "match (t:" + label + " )-[:HAS_ALIAS]->(alias:`" + label + "Alias" + "` {key:{key}}) where id(t) = {id} return alias";
-        Map<String, Object> params = new HashMap<>();
-        params.put("key", parseKey(key));
-        params.put("id", tagId);
-        Result<Map<String, Object>> result = template.query(query, params);
-        Map<String, Object> mapResult = result.singleOrNull();
-        return mapResult != null;
+    //private boolean doesAliasExist(Long tagId, String label, String key) {
+//        String query = "match (t:" + label + " )-[:HAS_ALIAS]->(alias:`" + label + "Alias" + "` {key:{key}}) where id(t) = {id} return alias";
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("key", parseKey(key));
+//        params.put("id", tagId);
+//        Result<Map<String, Object>> result = template.query(query, params);
+//        Map<String, Object> mapResult = result.singleOrNull();
 
-    }
+      //  return mapResult != null;
+
+    //}
 
     public static String parseKey(String key) {
         return key.toLowerCase().replaceAll("\\s", "");

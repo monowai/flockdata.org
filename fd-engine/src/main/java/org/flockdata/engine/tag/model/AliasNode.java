@@ -21,6 +21,7 @@ package org.flockdata.engine.tag.model;
 
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.model.Alias;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
  */
 @NodeEntity // Only in place to support projection
 @TypeAlias("Alias")
-public class AliasNode {
+public class AliasNode implements Alias {
     @GraphId
     Long id;
 
@@ -63,6 +64,14 @@ public class AliasNode {
         this.tag = tag;
     }
 
+    public String getLabel() {
+        for (String label : labels) {
+            if (! (label.equals("Alias") || label.equals("_Alias")))
+                return label;
+        }
+        return null;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -78,6 +87,7 @@ public class AliasNode {
     public void setName(String name) {
         this.name = name;
     }
+
     public Tag getTag() {
         return tag;
     }
@@ -90,4 +100,9 @@ public class AliasNode {
                 ", description='" + description + '\'' +
                 '}';
     }
+
+    public String getKey() {
+        return key;
+    }
+
 }

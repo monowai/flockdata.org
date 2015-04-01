@@ -130,7 +130,6 @@ public class SchemaDaoNeo4j {
         return documentTypeRepo.getCompanyDocumentsInUse(company.getId());
     }
 
-
     DocumentType documentExists(Fortress fortress, String docCode) {
         assert fortress != null;
         String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentTypeNode.parse(fortress, docCode);
@@ -138,8 +137,7 @@ public class SchemaDaoNeo4j {
     }
 
     private boolean tagExists(Company company, String indexName) {
-        Object o = documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, indexName));
-        return (o != null);
+        return documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, indexName)) !=null;
     }
 
     /**
