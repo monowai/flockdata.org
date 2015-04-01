@@ -53,10 +53,13 @@ import static org.junit.Assert.*;
  */
 public class TestEntityTags extends EngineBase {
 
+    @Override
     @Before
-    public void clearGraph(){
-        cleanUpGraph();
+    public void cleanUpGraph() {
+        // DAT-348
+        super.cleanUpGraph();
     }
+
     @Test
     public void tags_MetaTagsUpdatedForExistingEntity() throws Exception {
         cleanUpGraph();

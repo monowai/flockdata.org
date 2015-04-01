@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class TestTagConcepts extends EngineBase {
 
     @Override
     public void cleanUpGraph() {
-        Neo4jHelper.cleanDb(template);
+        super.cleanUpGraph();
     }
 
     @Test
@@ -101,7 +100,7 @@ public class TestTagConcepts extends EngineBase {
             assertEquals(1, found.size());
             assertEquals("Didn't find the Document + User concept",2, found.iterator().next().getConcepts().size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -145,7 +144,7 @@ public class TestTagConcepts extends EngineBase {
             assertEquals(1, docsInUse.size());
 
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -220,7 +219,7 @@ public class TestTagConcepts extends EngineBase {
             assertTrue("Didn't find Customer concept", foundCustomer);
             assertTrue("Didn't find Rep concept", foundRep);
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -276,7 +275,7 @@ public class TestTagConcepts extends EngineBase {
             }
             assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -336,7 +335,7 @@ public class TestTagConcepts extends EngineBase {
             assertTrue("DocB Not Found in the concept", docBFound);
             assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -406,7 +405,7 @@ public class TestTagConcepts extends EngineBase {
                 assertEquals(true, deviceFound && userFound);
             }
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -470,7 +469,7 @@ public class TestTagConcepts extends EngineBase {
             mediationFacade.purge( fortress);
             assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
