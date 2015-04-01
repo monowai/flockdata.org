@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,42 +17,14 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.model;
-
-import org.flockdata.track.model.Alias;
-
-import java.util.Map;
-import java.util.Set;
+package org.flockdata.track.model;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 9:11 PM
+ * Created by mike on 1/04/15.
  */
-public interface Tag {
+public interface Alias {
 
-    public static String DEFAULT_TAG="Tag";
-    public static String DEFAULT=":" + DEFAULT_TAG ;
-
-    String UNDEFINED = "undefined";
-
-    public String getName();
-
-    void setName(String floppy);
-
-    Long getId();
+    public String getLabel();
 
     String getKey();
-
-    Object getProperty(String num);
-
-    public Map<String, Object> getProperties();
-
-    String getCode();
-
-    String getLabel();
-
-    boolean hasAlias(String theLabel, String code);
-
-    Set<Alias> getAliases();
 }
