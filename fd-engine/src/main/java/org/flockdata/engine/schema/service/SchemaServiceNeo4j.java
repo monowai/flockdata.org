@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: mike
@@ -173,9 +174,12 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
-    @Transactional
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
-        return schemaDao.ensureUniqueIndexes(tagInputs, schemaDao.getAllLabels());
+        schemaDao.waitForIndexes();
+
+        schemaDao.ensureUniqueIndexes(tagInputs);
+        schemaDao.waitForIndexes();
+        return true;
     }
 
     public Collection<String> getKnownLabels() {

@@ -27,6 +27,7 @@ import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.annotation.Repeat;
 
@@ -39,8 +40,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by mike on 22/03/15.
  */
-public class TestEntityDeadlock extends EngineBase{
+public class TestEntityDeadlock extends EngineBase {
     @Override
+    @Before
     public void cleanUpGraph() {
         // DAT-348
         super.cleanUpGraph();
@@ -54,54 +56,52 @@ public class TestEntityDeadlock extends EngineBase{
     @Test
     @Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
-        try {
-            // This test suffered under DAT-348 and was quarantined.
+        // This test suffered under DAT-348 and was quarantined.
+        String companyName = "entitiesUnderLoad";
+        setSecurity();
+        SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
 
-            cleanUpGraph();
-            String companyName = "entitiesUnderLoad";
-            setSecurity();
-            SystemUser su = registerSystemUser(companyName, "entitiesUnderLoad");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
+        String docType = "entitiesUnderLoad";
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entitiesUnderLoad", true));
-            String docType = "entitiesUnderLoad";
+        int tagCount = 1; // unique tags per entity - tags are shared across the entities
+        int docCount = 1; // how many entities to create per thread
+        // Tried reducing threadMax
+        int threadMax = 10; // Each thread will create a unique document type
+        ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
-            int tagCount = 1; // unique tags per entity - tags are shared across the entities
-            int docCount = 1; // how many entities to create per thread
-            // Tried reducing threadMax
-            int threadMax = 10; // Each thread will create a unique document type
-            ArrayList<TagInputBean> tags = getTags(tagCount, false);
+        Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+        assertEquals("Database is not in a cleared down state", 0, createdTags.size());
 
-            Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
-            assertEquals("Database is not in a cleared down state", 0, createdTags.size());
+        Map<Integer, EntityRunner> runners = new HashMap<>();
 
-            Map<Integer, EntityRunner> runners = new HashMap<>();
+        CountDownLatch latch = new CountDownLatch(threadMax);
+        CountDownLatch startSignal = new CountDownLatch(1);
+        for (int thread = 0; thread < threadMax; thread++) {
+            EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
+            runners.put(thread, runner);
+        }
+        startSignal.countDown();
+        latch.await();
 
-            CountDownLatch latch = new CountDownLatch(threadMax);
-            CountDownLatch startSignal = new CountDownLatch(1);
-            for (int thread = 0; thread < threadMax; thread++) {
-                EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
-                runners.put(thread, runner);
+        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
+
+        createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+        assertEquals(false, createdTags.isEmpty());
+
+        for (Tag createdTag : createdTags) {
+            logger.info(createdTag.toString());
+        }
+        assertEquals(tagCount, createdTags.size());
+
+        for (int thread = 0; thread < threadMax; thread++) {
+            assertEquals(true, runners.get(thread).isWorked());
+            for (int count = 0; count < docCount; count++) {
+                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                assertNotNull(entity);
+                assertNotNull(su.getCompany());
+                assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
             }
-            startSignal.countDown();
-            latch.await();
-
-            assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
-
-            createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
-            assertEquals(false, createdTags.isEmpty());
-            assertEquals(tagCount, createdTags.size());
-
-            for (int thread = 0; thread < threadMax; thread++) {
-                assertEquals(true, runners.get(thread).isWorked());
-                for (int count = 0; count < docCount; count++) {
-                    Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
-                    assertNotNull(entity);
-                    assertNotNull(su.getCompany());
-                    assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
-                }
-            }
-        } finally {
-            cleanUpGraph(); // No transaction so need to clear down the graph
         }
     }
 
