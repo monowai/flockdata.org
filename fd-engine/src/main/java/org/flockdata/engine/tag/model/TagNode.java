@@ -79,13 +79,16 @@ public class TagNode implements Tag {
         if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
-        if ( !(tagInput.getLabel() == null) )
+        if ( !(tagInput.getLabel() == null) ) {
             this.labels.add(tagInput.getLabel());
+            //this.labels.add("_"+tagInput.getLabel());
+        }
     }
 
     public TagNode(TagInputBean tagInput, String tagLabel) {
         this(tagInput);
-        labels.add(tagLabel);
+        if ( !labels.contains(tagLabel))
+            labels.add(tagLabel);
     }
 
     @Override

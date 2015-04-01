@@ -50,14 +50,14 @@ public class AliasNode implements Alias {
 
     AliasNode(){
         // ToDo: Remove with SDN4
-        labels.add("Alias");
-        labels.add("_Alias");
     }
 
     public AliasNode(String theLabel, AliasInputBean aliasInput, String key, Tag tag) {
         this();
-        // ToDo: This could be simply set by the caller
+        // ToDo: This should be provided by the caller
         labels.add(theLabel+"Alias");
+        labels.add("Alias");
+        labels.add("_Alias");
         this.key = key;
         this.name = aliasInput.getCode();
         this.description = aliasInput.getDescription();
