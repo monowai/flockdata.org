@@ -57,7 +57,6 @@ public class FdRestWriter implements FdWriter {
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
-    private String COUNTRIES;
     private String PING;
     private String AUTH_PING;
     private String ME;
@@ -104,7 +103,6 @@ public class FdRestWriter implements FdWriter {
         this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/xref/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
-        this.COUNTRIES = configuration.getEngineURL() + "/v1/geo/";
         this.batchSize = configuration.getBatchSize();
         simulateOnly = batchSize < 1;
 
@@ -127,7 +125,6 @@ public class FdRestWriter implements FdWriter {
         this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
-        this.COUNTRIES = serverName + "/v1/geo/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
         simulateOnly = batchSize < 1;
