@@ -24,6 +24,7 @@ import org.flockdata.engine.track.EntityTagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
@@ -98,6 +99,17 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return null;
     }
 
+    private Tag getTag(Collection<Tag> tags, TagInputBean tagInputBean){
+        for (Tag tag : tags) {
+            if ( tag.getCode().equalsIgnoreCase(tagInputBean.getCode())
+                    && tag.getLabel().equalsIgnoreCase(tagInputBean.getLabel())
+                    )
+
+                return tag;
+        }
+        return null;
+    }
+
     private EntityTag getEntityTag(Iterable<EntityTag>existingTags, TagInputBean tagInputBean){
         for (EntityTag existingTag : existingTags) {
             if ( existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
@@ -124,25 +136,27 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * <p/>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
-     *  @param company
+     * @param company
      * @param entity       Entity to associate userTags with
      * @param lastLog
-     * @param tagInputBeans Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
-     * @param archiveRemovedTags
+     * @param entityInputBean payload
+     * @param tags
      */
     @Override
-    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> tagInputBeans, Boolean archiveRemovedTags) {
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean, Collection<Tag> tags) {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
-        Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
         Collection<EntityTag> tagsToMove = new ArrayList<>();
+        Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
 
-        for (TagInputBean tagInputBean : tagInputBeans) {
+        for (TagInputBean tagInputBean : entityInputBean.getTags()) {
 
             Tag existingTag = getTag(existingTags, tagInputBean);
             Tag tag ;
-            if ( existingTag == null )
-                tag = tagService.createTag(company, tagInputBean);
-            else
+            if ( existingTag == null ) {
+                tag = getTag(tags, tagInputBean);
+                if ( tag == null)
+                    tag = tagService.createTag(company, tagInputBean);
+            } else
                 tag = existingTag;
 
             if ( existingTag == null) { // Reprocessing
@@ -158,13 +172,13 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
         }
 
-        if (!tagInputBeans.isEmpty() && !entity.isNew()) {
+        if (!entityInputBean.getTags().isEmpty() && !entity.isNew()) {
             // We only consider relocating tags to the log if the caller passes at least one tag set
             for (EntityTag entityTag : existingTags) {
                 if ( !newEntityTags.contains(entityTag))
                     tagsToMove.add(entityTag);
             }
-            if (archiveRemovedTags)
+            if (entityInputBean.isArchiveTags() && ! lastLog.isMocked())
                 moveTags(entity, lastLog, tagsToMove);
         }
         return newEntityTags;

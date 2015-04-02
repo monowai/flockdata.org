@@ -26,10 +26,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.registration.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
@@ -105,7 +102,7 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType ,EntityInputBean entityInputBean) throws FlockException {
+    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInputBean, Collection<Tag> tags) throws FlockException {
 
         Entity entity = null;
         if (entityInputBean.getMetaKey() != null) {
@@ -130,7 +127,7 @@ public class EntityServiceNeo4J implements EntityService {
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
             arb.setTags(
-                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean.getTags(), entityInputBean.isArchiveTags())
+                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean, tags)
             );
             return arb;
         }
@@ -148,7 +145,7 @@ public class EntityServiceNeo4J implements EntityService {
         TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
         trackResult.setDocumentType(documentType);
         trackResult.setTags(
-                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean.getTags(), entityInputBean.isArchiveTags())
+                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean, tags)
         );
 
         trackResult.setContentInput(entityInputBean.getContent());
@@ -485,7 +482,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> entityInputs, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
@@ -496,7 +493,7 @@ public class EntityServiceNeo4J implements EntityService {
             }
             assert ( documentType!= null );
             assert ( documentType.getCode() != null );
-            TrackResultBean result = createEntity(fortress, documentType, inputBean);
+            TrackResultBean result = createEntity(fortress, documentType, inputBean, tags);
             logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
             arb.add(result);
         }
