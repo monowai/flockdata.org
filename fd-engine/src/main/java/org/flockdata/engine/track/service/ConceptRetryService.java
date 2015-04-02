@@ -70,7 +70,8 @@ public class ConceptRetryService {
 
     private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
 
-    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20,
+            backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     @Async("fd-engine")
     public Future<Void> trackConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans)
             throws InterruptedException, ExecutionException, FlockException, IOException {

@@ -144,8 +144,8 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
     }
 
     @Override
-    public Integer getWeight() {
-        return (Integer)getProperty("weight");
+    public Long getWeight() {
+        return (Long)getProperty("weight");
     }
 
     private void addProperty(String key, Object value){

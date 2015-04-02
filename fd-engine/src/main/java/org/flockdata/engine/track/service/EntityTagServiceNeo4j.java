@@ -98,15 +98,6 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         return null;
     }
 
-    @Deprecated
-    private EntityTag getEntityTag(Iterable<EntityTag>existingTags, Tag code){
-        for (EntityTag existingTag : existingTags) {
-            if ( existingTag.getTag().equals(code))
-                return existingTag;
-        }
-        return null;
-    }
-
     private EntityTag getEntityTag(Iterable<EntityTag>existingTags, TagInputBean tagInputBean){
         for (EntityTag existingTag : existingTags) {
             if ( existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
@@ -136,38 +127,38 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      *  @param company
      * @param entity       Entity to associate userTags with
      * @param lastLog
-     * @param userTags Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
+     * @param tagInputBeans Key/Value pair of tags. TagNode will be created if missing. Value can be a Collection
      * @param archiveRemovedTags
      */
     @Override
-    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags) {
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, Collection<TagInputBean> tagInputBeans, Boolean archiveRemovedTags) {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
         Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(company, entity));
         Collection<EntityTag> tagsToMove = new ArrayList<>();
 
-        for (TagInputBean userTag : userTags) {
+        for (TagInputBean tagInputBean : tagInputBeans) {
 
-            Tag existingTag = getTag(existingTags, userTag);
+            Tag existingTag = getTag(existingTags, tagInputBean);
             Tag tag ;
             if ( existingTag == null )
-                tag = tagService.createTag(company, userTag);
+                tag = tagService.createTag(company, tagInputBean);
             else
                 tag = existingTag;
 
             if ( existingTag == null) { // Reprocessing
                 // Handle both simple relationships type name or a map/collection of relationships
-                if (userTag.getEntityLinks() != null) {
-                    newEntityTags.addAll(writeRelationships(entity, tag, userTag.getEntityLinks(), userTag.isReverse()));
+                if (tagInputBean.getEntityLinks() != null) {
+                    newEntityTags.addAll(writeRelationships(entity, tag, tagInputBean));
                 }
-                if (userTag.getEntityLink() != null) // Simple relationship to the entity
+                if (tagInputBean.getEntityLink() != null) // Simple relationship to the entity
                     // Makes it easier for the API to call
-                    newEntityTags.add(entityTagDao.save(entity, tag, userTag.getEntityLink(), userTag.isReverse(), tag.getProperties()));
+                    newEntityTags.add(entityTagDao.save(entity, tag, tagInputBean.getEntityLink(), tagInputBean.isReverse(), tag.getProperties()));
             } else {
-                newEntityTags.add(getEntityTag(existingTags, userTag));
+                newEntityTags.add(getEntityTag(existingTags, tagInputBean));
             }
         }
 
-        if (!userTags.isEmpty() && !entity.isNew()) {
+        if (!tagInputBeans.isEmpty() && !entity.isNew()) {
             // We only consider relocating tags to the log if the caller passes at least one tag set
             for (EntityTag entityTag : existingTags) {
                 if ( !newEntityTags.contains(entityTag))
@@ -186,13 +177,15 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         }
     }
 
-    private Collection<EntityTag> writeRelationships(Entity entity, Tag tag, Map<String, Object> metaRelationships, boolean isReversed) {
+    private Collection<EntityTag> writeRelationships(Entity entity, Tag tag, TagInputBean tagInputBean) {
+        Map<String, Object> entityLinks = tagInputBean.getEntityLinks();
+
         Collection<EntityTag> entityTags = new ArrayList<>();
         long when = entity.getFortressDateUpdated();
         if ( when == 0 )
             when = entity.getWhenCreated();
-        for (String key : metaRelationships.keySet()) {
-            Object properties = metaRelationships.get(key);
+        for (String key : entityLinks.keySet()) {
+            Object properties = entityLinks.get(key);
             Map<String, Object> propMap;
             if (properties != null && properties instanceof Map) {
                 propMap = (Map<String, Object>) properties;
@@ -201,7 +194,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
 
             propMap.put(EntityTagDao.FD_WHEN, when);
-            EntityTag entityTagRelationship = entityTagDao.save(entity, tag, key, isReversed, propMap);
+            EntityTag entityTagRelationship = entityTagDao.save(entity, tag, key, tagInputBean.isReverse(), propMap);
             if (entityTagRelationship != null)
                 entityTags.add(entityTagRelationship);
 

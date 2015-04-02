@@ -83,7 +83,7 @@ public class SimpleEntityTagRelationship implements EntityTag, Comparable<Entity
     }
 
     @Override
-    public Integer getWeight() {
+    public Long getWeight() {
         return null;
     }
 

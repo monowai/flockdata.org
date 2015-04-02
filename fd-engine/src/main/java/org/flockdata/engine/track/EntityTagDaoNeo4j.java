@@ -33,11 +33,12 @@ import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.Log;
 import org.flockdata.track.service.TagService;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -76,6 +77,31 @@ public class EntityTagDaoNeo4j {
         return save(ah, tag, metaLink, reverse, new HashMap<>());
     }
 
+    public String getCypher(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
+        if (tag == null)
+            throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
+
+        // ToDo: this will only set properties for the tag. it does not version tag data.
+        if (relationshipName == null) {
+            relationshipName = Tag.UNDEFINED;
+        }
+
+        //EntityTagRelationship rel = new EntityTagRelationship(entity, tag, relationshipName, propMap);
+
+//        if (entity.getId() == null)
+//            return rel;
+
+        String cypher = "match (start), (end) where id(start) = {0} and id(end) = {1} " +
+                "create unique (start)-[r:`"+relationshipName+"`]->(end) ";
+
+        long lastUpdate = entity.getFortressDateUpdated();
+        propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+        String props = CypherHelper.getCypherSet("r", propMap);
+        if (!props.equals("")){
+            cypher = cypher + " set " + props;
+        }
+        return cypher;
+    }
     /**
      * creates the relationship between the entity and the tag of the name type.
      * If metaId== null, then an EntityTag for the caller to deal with otherwise the relationship
@@ -89,47 +115,27 @@ public class EntityTagDaoNeo4j {
      * @return Null or EntityTag
      */
     public EntityTag save(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        // ToDo: this will only set properties for the tag. it does not version tag data.
-        if (relationshipName == null) {
-            relationshipName = Tag.UNDEFINED;
-        }
-        if (tag == null)
-            throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
-        EntityTagRelationship rel = new EntityTagRelationship(entity, tag, relationshipName, propMap);
-
-        if (entity.getId() == null)
+        EntityTag rel = new EntityTagRelationship(entity, tag, relationshipName, propMap);
+        // Nothing to persist - happens when trackSuppress is true
+        if ( entity.getId() == null )
             return rel;
 
-        Node entityNode = template.getPersistentState(entity);
-        // ToDo: Save a timestamp against the relationship
-
-        Node tagNode;
-        try {
-            tagNode = template.getNode(tag.getId());
-        } catch (RuntimeException e) {
-            logger.error("Weird error looking for tag [{}] with ID [{}]", tag.getKey(), tag.getId());
-            throw (e);
-        }
+        String cypher = getCypher(entity, tag, relationshipName, isReversed, propMap);
+        Map<String, Object> params = new HashMap<>();
         //Primary exploration relationship
-        Node start = (isReversed ? entityNode : tagNode);
-        Node end = (isReversed ? tagNode : entityNode);
+        Long start = (isReversed ? entity.getId() : tag.getId());
+        Long end = (isReversed ? tag.getId() : entity.getId());
 
-        if (!entity.isNew()) {
-            Relationship r = template.getRelationshipBetween(start, end, relationshipName);
+        params.put("0", start);
+        params.put("1", end);
+        template.query(cypher + " return r", params);
 
-            if (r != null) {
-                return rel;
-            }
-        }
-
-        long lastUpdate = entity.getFortressDateUpdated();
-        propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
-
-        template.createRelationshipBetween(start, end, relationshipName, propMap);
+        //template.createRelationshipBetween(start, end, relationshipName, propMap);
         logger.trace("Created Relationship Tag[{}] of type {}", tag, relationshipName);
         return rel;
     }
+
 
     public void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException {
         Node entityNode = null;
@@ -286,9 +292,9 @@ public class EntityTagDaoNeo4j {
     public Collection<EntityTag> findLogTags(Company company, Log log) {
         String query;
         if ("".equals(engineConfig.getTagSuffix(company)))
-            query = "match (log:_Log)-[tagType]-(tag:_Tag) where id(log)={logId} return tag, tagType";
+            query = "match (log:Log)-[tagType]-(tag:Tag) where id(log)={logId} return tag, tagType";
         else
-            query = "match (log:_Log)-[tagType]-(tag:_Tag" + engineConfig.getTagSuffix(company) + ") where id(log)={logId} return tag, tagType";
+            query = "match (log:Log)-[tagType]-(tag:Tag" + engineConfig.getTagSuffix(company) + ") where id(log)={logId} return tag, tagType";
 
         Map<String, Object> params = new HashMap<>();
         params.put("logId", log.getId());
@@ -300,9 +306,7 @@ public class EntityTagDaoNeo4j {
 
     public Collection<EntityTag> getDirectedEntityTags(Company company, Entity entity, boolean outbound) {
 
-        String tagDirection = "-[tagType]->";
-        if (!outbound)
-            tagDirection = "<-[tagType]-";
+        String tagDirection = outbound ? "-[tagType]->" :"<-[tagType]-" ;
 
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entity.getId())
@@ -329,16 +333,23 @@ public class EntityTagDaoNeo4j {
         List<EntityTag> tagResults = new ArrayList<>();
         if (null == entityid)
             return tagResults;
-
+        String query;
         // DAT-365
-        String query = "match (entity:Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
-                "where id(entity)={id}" +
-                "optional match (tag)-[l:located]-(located) " +
-                "return tag,tagType, head(collect(located)) as located " +
-                "order by type(tagType), tag.name";
+        if ("".equals(engineConfig.getTagSuffix(company))){
+            query = "match (entity:Entity)-[tagType]-(tag:Tag)  " +
+                    "where id(entity)={id}" +
+                    "optional match (tag)-[l:located]-(located) " +
+                    "return tag,tagType, head(collect(located)) as located " +
+                    "order by type(tagType), tag.name";
 
-        //List<EntityTag> raw = getEntityTags(entity.getId(), query);
-        //Collections.sort(raw, new BeanComparator<>("tagType"));
+        } else {
+            query = "match (entity:Entity)-[tagType]-(tag" + Tag.DEFAULT + engineConfig.getTagSuffix(company) + ")  " +
+                    "where id(entity)={id}" +
+                    "optional match (tag)-[l:located]-(located) " +
+                    "return tag,tagType, head(collect(located)) as located " +
+                    "order by type(tagType), tag.name";
+        }
+
         return getEntityTags(entityid, query, withGeo);
     }
 
@@ -370,8 +381,6 @@ public class EntityTagDaoNeo4j {
         return tagResults;
 
     }
-
-
 
     public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
         // DAT-279

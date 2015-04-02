@@ -84,13 +84,20 @@ public class TestEntityDeadlock extends EngineBase {
         startSignal.countDown();
         latch.await();
 
-        assertNotNull(tagService.findTag(fortress.getCompany(), tags.get(0).getLabel(), tags.get(0).getName()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getName()));
 
-        createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
+        createdTags = tagService.findTags(fortress.getCompany(), "Deadlock");
         assertEquals(false, createdTags.isEmpty());
+        if (createdTags.size() != tagCount){
 
-        for (Tag createdTag : createdTags) {
-            logger.info(createdTag.toString());
+            for (Tag createdTag : createdTags) {
+                //logger.info(createdTag.toString());
+                logger.info("Finding... {}", createdTag.toString() );
+                Tag xtra= tagService.findTag(su.getCompany(), createdTag.getLabel(), createdTag.getCode());
+
+                logger.info(xtra.toString());
+            }
+
         }
         assertEquals(tagCount, createdTags.size());
 

@@ -55,7 +55,7 @@ public interface EntityTag {
      *
      * @return weight of the attribute in the relationship
      */
-    Integer getWeight();
+    Long getWeight();
 
     public GeoData getGeoData();
 

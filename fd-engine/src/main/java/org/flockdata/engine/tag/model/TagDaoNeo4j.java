@@ -242,7 +242,7 @@ public class TagDaoNeo4j {
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
         //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
-        String query = "match (tag:`" + label + "`) return tag";
+        String query = "match (tag:`" + label + "`) return distinct (tag) as tag";
         // Look at PAGE
         Iterable<Map<String, Object>> results = template.query(query, null);
         for (Map<String, Object> row : results) {
@@ -302,9 +302,6 @@ public class TagDaoNeo4j {
                     o = mapResult.get("t");
                 else if (mapResult.get("a")!=null ) {
                     o = mapResult.get("a");
-                    //AliasNode aliasNode = template.projectTo(o, AliasNode.class);
-
-                    //return aliasNode.getTag();
                 }
 
 
@@ -326,8 +323,7 @@ public class TagDaoNeo4j {
         logger.debug("findTag request [{}]:[{}]", label, tagCode);
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
-        String tagKey = parseKey(tagCode);
-        return tagByKey(tagKey, theLabel);
+        return tagByKey(parseKey(tagCode), theLabel);
     }
 
     public void purgeUnusedConcepts(Company company) {
