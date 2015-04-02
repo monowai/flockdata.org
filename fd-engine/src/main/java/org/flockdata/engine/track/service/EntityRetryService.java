@@ -22,11 +22,12 @@ package org.flockdata.engine.track.service;
 import org.flockdata.engine.admin.EngineConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
-import org.flockdata.track.service.EntityService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -70,17 +71,17 @@ public class EntityRetryService {
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
             maxAttempts = 20,
-            backoff = @Backoff( multiplier = 3, maxDelay = 100, random = true))
-    public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities)
+            backoff = @Backoff( multiplier = 3,  maxDelay = 3000, random = true))
+    public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities, Collection<Tag> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
-        return doTrack(fortress, entities);
+        return doTrack(fortress, entities, tags);
     }
 
     @Transactional (timeout = 4000 )
-    Iterable<TrackResultBean> doTrack(Fortress fortress, Collection<EntityInputBean> entityInputs) throws InterruptedException, FlockException, ExecutionException, IOException {
+    Iterable<TrackResultBean> doTrack(Fortress fortress, Collection<EntityInputBean> entityInputs, Collection<Tag> tags) throws InterruptedException, FlockException, ExecutionException, IOException {
 
         Collection<TrackResultBean>
-                resultBeans = entityService.trackEntities(fortress, entityInputs);
+                resultBeans = entityService.trackEntities(fortress, entityInputs, tags);
         // ToDo: DAT-343 - write via a queue
         boolean processAsync ;
 

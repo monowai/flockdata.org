@@ -267,7 +267,7 @@ public class TagDaoNeo4j {
      * @param label   Neo4j label for the node
      * @return null if not found
      */
-    @Cacheable(value = "companyTag", unless = "#result == null")
+    //@Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findTag(Company company, String tagCode, String label) {
         Tag tag = findTagNode(company, tagCode, label);
 
@@ -281,11 +281,11 @@ public class TagDaoNeo4j {
     @Autowired
     TagRepo tagRepo;
 
-    Tag tagByKey(String tagCode, String theLabel) {
+    @Cacheable(value = "companyTag", unless = "#result == null")
+    Tag tagByKey(String theLabel, String tagCode) {
 
-        logger.debug("tagByKey request [{}]:[{}]", theLabel, tagCode);
         String query;
-
+        logger.debug("Cache miss, {}:{}", theLabel, tagCode);
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
         query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`"+theLabel+"Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`"+theLabel+"`) return t, a";
 
@@ -300,30 +300,25 @@ public class TagDaoNeo4j {
                 Object o = null;
                 if (mapResult.get("t") != null)
                     o = mapResult.get("t");
-                else if (mapResult.get("a")!=null ) {
+                else if (mapResult.get("a")!=null ) { // Tag found by alias
                     o = mapResult.get("a");
                 }
 
-
-                if (o== null) {
-                    logger.debug("findTag notFound {}, {}", tagCode, theLabel);
-                    return null;
-                }
-                return template.projectTo(o, TagNode.class);
+                return (o== null ? null :template.projectTo(o, TagNode.class));
             }
         }
         return null;
     }
 
-    @Cacheable(value = "companyTag", unless = "#result == null")
     public Tag findTagNode(Company company, String tagCode, String label) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
-        logger.debug("findTag request [{}]:[{}]", label, tagCode);
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
-        return tagByKey(parseKey(tagCode), theLabel);
+        Tag tag= tagByKey(theLabel, parseKey(tagCode));
+        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag==null? "NotFound" : tag.getId()));
+        return tag;
     }
 
     public void purgeUnusedConcepts(Company company) {
