@@ -111,7 +111,7 @@ public class TagNode implements Tag {
         return "TagNode{" +
                 "id=" + id +
                 ", label='" + getLabel() + '\'' +
-                ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 

@@ -69,7 +69,7 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity)-[otherRlx]-(:Entity) where id(f)={0} delete otherRlx")
     public void purgeCrossReferences(Long fortressId);
 
-    @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity) where id(f)={0} delete track, meta ")
+    @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where id(f)={0} delete track, entity ")
     public void purgeEntities(Long fortressId);
 
     @Query( elementClass = EntityNode.class,value = "match (entity:Entity) " +

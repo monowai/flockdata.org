@@ -980,7 +980,7 @@ public class TestEntityTags extends EngineBase {
         Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
-        assertEquals((Integer)99, trackOut.getWeight());
+        assertEquals(99, trackOut.getWeight().longValue());
         Long currentWhen = (Long)trackOut.getProperties().get(EntityTagDao.FD_WHEN);
         assertTrue(currentWhen>0);
 
@@ -1010,7 +1010,7 @@ public class TestEntityTags extends EngineBase {
         Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
-        assertEquals((Integer)99, trackOut.getWeight());
+        assertEquals(99, trackOut.getWeight().longValue());
         assertEquals(currentWhen, trackOut.getProperties().get(EntityTagDao.FD_WHEN));
     }
 

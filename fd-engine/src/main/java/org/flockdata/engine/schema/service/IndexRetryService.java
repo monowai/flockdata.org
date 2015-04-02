@@ -58,7 +58,7 @@ public class IndexRetryService {
             ConcurrencyFailureException.class,
             DataAccessException.class,
             DeadlockDetectedException.class},
-            maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+            maxAttempts = 12, backoff = @Backoff(maxDelay = 100, multiplier = 3, random = true))
 
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
         return schemaService.ensureUniqueIndexes(company, tagInputs);
