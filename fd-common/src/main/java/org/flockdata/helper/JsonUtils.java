@@ -58,6 +58,16 @@ public class JsonUtils {
 
     }
 
+    public static <T> Collection<T> getAsCollection(byte[] bytes, Class<T> clazz) throws IOException {
+        if (bytes == null )
+            return new ArrayList<>();
+
+        CollectionType javaType =
+                mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+        return mapper.readValue(bytes, javaType );
+
+    }
+
     public static Map<String,Object> getAsMap(String json) throws IOException {
         Map<String,Object> result = mapper.readValue(json, Map.class);
         return result;

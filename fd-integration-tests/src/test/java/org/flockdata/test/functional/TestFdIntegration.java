@@ -999,7 +999,9 @@ public class TestFdIntegration {
         AmqpHelper helper = new AmqpHelper(configuration);
 
         // ToDo: We're not tracking the response code
-        helper.publish(inputBean);
+        Collection<EntityInputBean>batchBeans = new ArrayList<>();
+        batchBeans.add(inputBean);
+        helper.publish(batchBeans);
         waitAWhile("AMQP", 8000);
         helper.close();
         Entity entityA = entityService.findByCallerRef(fortress, inputBean.getDocumentName(), inputBean.getCallerRef());
@@ -1335,7 +1337,7 @@ public class TestFdIntegration {
         try {
 
             logger.info("validate_MismatchSubsequentValue");
-            //assumeTrue(runMe);
+            assumeTrue(runMe);
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
             engineConfig.setStoreEnabled("false");

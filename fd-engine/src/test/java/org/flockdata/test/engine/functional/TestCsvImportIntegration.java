@@ -43,10 +43,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -129,26 +126,20 @@ public class TestCsvImportIntegration extends EngineBase {
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             if (count == 0)
                 count = entityBatch.size();
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
+            //ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
 
             //if (configuration.getBatchSize() == 1) {
-                for (EntityInputBean entityInputBean : entityBatch) {
-
-
-                    //MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
-                    //executor.execute(runner);
+//                for (EntityInputBean entityInputBean : entityBatch) {
                     try {
-                        if (entityInputBean != null) {
-                            logger.debug("My Date {}", entityInputBean.getWhen());
-                            mediationFacade.trackEntity(entityInputBean, su.getApiKey());
-                        }
-                    } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
+    //                    if (entityInputBean != null) {
+                            //logger.debug("My Date {}", entityInputBean.getWhen());
+                            mediationFacade.trackEntities(entityBatch, su.getApiKey());
+                        } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
                         logger.error("Unexpected", e);
                     }
-                }
 
 
-            logger.debug("Executor at {}", executor.getActiveCount());
+  //          logger.debug("Executor at {}", executor.getActiveCount());
 
             return "";
         }

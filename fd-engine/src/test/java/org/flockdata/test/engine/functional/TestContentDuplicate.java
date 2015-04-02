@@ -64,7 +64,7 @@ public class TestContentDuplicate  extends  EngineBase{
             ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a" +i));
             contentBeans.add(contentBean);
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(inputBean,su.getApiKey());
+            mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
         Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "TestDoc", "123");
         assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
@@ -72,7 +72,7 @@ public class TestContentDuplicate  extends  EngineBase{
         // Reprocess forward
         for (ContentInputBean contentBean : contentBeans) {
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(inputBean,su.getApiKey());
+            mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
 
         assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
@@ -81,7 +81,7 @@ public class TestContentDuplicate  extends  EngineBase{
         Collections.reverse(contentBeans);
         for (ContentInputBean contentBean : contentBeans) {
             inputBean.setContent(contentBean);
-            mediationFacade.trackEntity(inputBean,su.getApiKey());
+            mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
 
         assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));

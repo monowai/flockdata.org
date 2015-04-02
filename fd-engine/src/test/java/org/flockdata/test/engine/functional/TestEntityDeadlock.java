@@ -182,9 +182,9 @@ public class TestEntityDeadlock extends EngineBase {
             worked = false;
             try {
                 startSignal.await();
-                for (EntityInputBean inputBean : inputBeans) {
-                    mediationFacade.trackEntity(inputBean, apiKey);
-                }
+                //for (EntityInputBean inputBean : inputBeans) {
+                    mediationFacade.trackEntities(inputBeans, apiKey);
+                //}
 
                 worked = true;
             } catch (Exception e) {
