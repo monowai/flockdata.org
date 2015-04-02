@@ -41,10 +41,7 @@ import org.springframework.web.client.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Template to support writing Entity and Tag information to a remote FlockData service
@@ -296,12 +293,12 @@ public class FdRestWriter implements FdWriter {
             amqpHelper.close();
     }
 
-    public String flushEntitiesAmqp(List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    public String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         try {
-            for (EntityInputBean entityInput : entityInputs) {
-               // ToDo: Fix all of this.
-                getAmqpHelper(configuration).publish(entityInput);
-            }
+            //for (EntityInputBean entityInput : entityInputs) {
+                // DAT-373
+                getAmqpHelper(configuration).publish(entityInputs);
+        //    }
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());

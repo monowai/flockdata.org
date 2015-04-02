@@ -77,7 +77,7 @@ public class EntityTagDaoNeo4j {
         return save(ah, tag, metaLink, reverse, new HashMap<>());
     }
 
-    public String getCypher(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
+    public String getCypher(Entity entity, Tag tag, String relationshipName, Map<String, Object> propMap) {
         if (tag == null)
             throw new IllegalArgumentException("Tag must not be NULL. Relationship[" + relationshipName + "]");
 
@@ -121,7 +121,7 @@ public class EntityTagDaoNeo4j {
         if ( entity.getId() == null )
             return rel;
 
-        String cypher = getCypher(entity, tag, relationshipName, isReversed, propMap);
+        String cypher = getCypher(entity, tag, relationshipName, propMap);
         Map<String, Object> params = new HashMap<>();
         //Primary exploration relationship
         Long start = (isReversed ? entity.getId() : tag.getId());

@@ -169,27 +169,30 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
 
     /**
-     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
+     * Writes the payload to the service. Distributes changes to KV stores and search engine.
      * <p/>
-     * This is synchronous and blocks until completed. Designed to be accessed as a ServiceActivtory via integration mechanisms
-     * APIKey should be set in the EntityInputBean as it will be used resolve access to the Company and Fortress in the payload
+     * This is synchronous and blocks until completed. Usually called via integration mechanisms
      *
-     * @param inputBean - input to track
-     * @return non-null
-     * @throws org.flockdata.helper.FlockException illegal input
-     * @throws IOException                         json processing exception
+     * @param inputBeans - input to track
+     * @param apiKey     - SystemUser API key
+     *
+     * @throws FlockException        illegal input
+     * @throws FlockServiceException api key is invalid or mandatory tags do not exist
+     * @throws IOException           json processing exception
      */
     @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
-    public TrackResultBean trackEntity(EntityInputBean inputBean, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public void trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: A collection??
         logger.trace("trackEntity activation");
-        //EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
+
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new FlockServiceException("Unable to resolve the company for your ApiKey");
-        Fortress fortress = fortressService.registerFortress(c, new FortressInputBean(inputBean.getFortress()), true);
-        assert fortress != null;
-        return trackEntity(fortress, inputBean);
+        Map<Fortress, List<EntityInputBean>> byFortress = getEntitiesByFortress(c, inputBeans);
+        for (Fortress fortress : byFortress.keySet()) {
+            //fortressService.registerFortress(c, new FortressInputBean(fortress), true);
+            trackEntities(fortress, byFortress.get(fortress), 100);
+        }
     }
 
     /**
@@ -240,7 +243,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
     TrackGateway trackGateway;
 
     @Override
-//    @Transactional
     public void trackEntities(String userApiKey, List<EntityInputBean> inputBeans) {
         logger.debug("Request to process {} entities", inputBeans.size());
         for (EntityInputBean inputBean : inputBeans) {
@@ -274,7 +276,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
-    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
+    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
 
         // Local cache of fortress by name - never very big, often only 1

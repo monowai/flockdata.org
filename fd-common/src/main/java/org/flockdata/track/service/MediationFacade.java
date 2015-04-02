@@ -55,7 +55,7 @@ public interface MediationFacade {
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    public TrackResultBean trackEntity(EntityInputBean payload, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
+    public void trackEntities(Collection<EntityInputBean> inputBean, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException ;
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
