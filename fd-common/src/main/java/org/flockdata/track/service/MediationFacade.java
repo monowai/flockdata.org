@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -45,17 +44,15 @@ import java.util.concurrent.Future;
 public interface MediationFacade {
     Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
-    Future<Collection<Tag>> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
+    Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Future<Collection<TrackResultBean>> trackEntitiesAsync(Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
+    public Collection<TrackResultBean> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     Collection<TrackResultBean> trackEntities(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
-
-    public void trackEntities(Collection<EntityInputBean> inputBean, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException ;
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
@@ -73,8 +70,6 @@ public interface MediationFacade {
 
     void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
-
-    void trackEntities(String userApiKey, List<EntityInputBean> entityInputBeans) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     void mergeTags(Company company, Tag source, Tag target);
 

@@ -17,6 +17,7 @@
     <int-amqp:inbound-gateway
             id="writeEntitySearch"
             request-channel="syncSearchDocs"
+            reply-channel="nullChannel"
             queue-names="${fd-search.queue}"
             concurrent-consumers="${fd-search.concurrentConsumers}"
             prefetch-count="${fd-search.prefetchCount}"
