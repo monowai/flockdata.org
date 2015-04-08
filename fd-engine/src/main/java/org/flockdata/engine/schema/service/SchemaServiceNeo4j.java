@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.schema.service;
 
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * User: mike
@@ -51,7 +50,7 @@ public class SchemaServiceNeo4j implements SchemaService {
     SchemaDaoNeo4j schemaDao;
 
     @Autowired
-    FdEngineConfig engineConfig;
+    PlatformConfig engineConfig;
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     public Boolean ensureSystemIndexes(Company company) {

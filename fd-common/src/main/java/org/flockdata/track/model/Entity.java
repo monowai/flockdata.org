@@ -19,10 +19,13 @@
 
 package org.flockdata.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.registration.model.Tag;
 import org.joda.time.DateTime;
+
+import java.util.Collection;
 
 public interface Entity {
 
@@ -151,4 +154,5 @@ public interface Entity {
      * @param status true = new, false = existing
      */
     void setNew(boolean status);
+
 }

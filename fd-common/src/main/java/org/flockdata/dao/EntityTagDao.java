@@ -70,4 +70,6 @@ public interface EntityTagDao {
     void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
     void moveTags(Company company, Log logToMoveFrom, Entity entity);
+
+    Collection<EntityTag> findEntityTagsByRelationship(Entity entity, String relationship) ;
 }

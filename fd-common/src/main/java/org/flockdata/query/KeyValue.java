@@ -62,4 +62,12 @@ public class KeyValue {
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "KeyValue{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

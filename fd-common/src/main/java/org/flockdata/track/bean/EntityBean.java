@@ -25,12 +25,14 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
+
 /**
  * User: mike
  * Date: 17/11/14
  * Time: 8:47 AM
  */
-public class EntityBean {
+public class EntityBean implements Serializable {
 
     private Long id ;
     private String searchKey;

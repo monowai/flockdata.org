@@ -59,11 +59,11 @@ public class TestNonTransactional extends EngineBase {
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
         Thread.sleep(500);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
-        mediationFacade.createTags(su.getCompany(), tags).get();
+        mediationFacade.createTags(su.getCompany(), tags);
         Thread.sleep(300); // Let the schema changes occur
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -85,9 +85,9 @@ public class TestNonTransactional extends EngineBase {
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
-        Collection<EntityTag> tagsA = entityTagService.getEntityTags(su.getCompany(), docA.getEntity());
+        Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());
         assertEquals(1, tagsA.size());
-        Collection<EntityTag> tagsB = entityTagService.getEntityTags(su.getCompany(), docB.getEntity());
+        Collection<EntityTag> tagsB = entityTagService.getEntityTags(docB.getEntity());
         assertEquals(1, tagsB.size());
 
     }

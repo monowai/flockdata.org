@@ -55,8 +55,11 @@ public class TagNode implements Tag {
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
 
-    @RelatedTo( elementClass = AliasNode.class, type = "HAS_ALIAS")
+    @RelatedTo(elementClass = AliasNode.class, type = "HAS_ALIAS")
     private Set<Alias> aliases = new HashSet<>();
+
+    @RelatedTo(elementClass = TagNode.class, type = "located")
+    private Set<Tag> located = null;
 
     DynamicProperties props = new DynamicPropertiesContainer();
 
@@ -76,10 +79,10 @@ public class TagNode implements Tag {
             setCode(tagInput.getCode());
 
         this.key = getCode().toLowerCase().replaceAll("\\s", "");
-        if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
+        if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
-        if ( !(tagInput.getLabel() == null) ) {
+        if (!(tagInput.getLabel() == null)) {
             this.labels.add(tagInput.getLabel());
             //this.labels.add("_"+tagInput.getLabel());
         }
@@ -87,7 +90,7 @@ public class TagNode implements Tag {
 
     public TagNode(TagInputBean tagInput, String tagLabel) {
         this(tagInput);
-        if ( !labels.contains(tagLabel))
+        if (!labels.contains(tagLabel))
             labels.add(tagLabel);
     }
 
@@ -143,7 +146,7 @@ public class TagNode implements Tag {
     public String getLabel() {
 
         for (String label : labels) {
-            if ( !label.equals("_Tag") && ! label.equals("Tag"))
+            if (!label.equals("_Tag") && !label.equals("Tag"))
                 return label;
         }
         return "_Tag";
@@ -185,10 +188,10 @@ public class TagNode implements Tag {
 
     @Override
     public boolean hasAlias(String theLabel, String code) {
-        if ( aliases.isEmpty())
+        if (aliases.isEmpty())
             return false;
         for (Alias alias : aliases) {
-            if ( alias.getKey().equals(code) && alias.getLabel().equals(theLabel+"Alias" ) )
+            if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias"))
                 return true;
         }
         return false;
@@ -197,6 +200,13 @@ public class TagNode implements Tag {
     @Override
     public Set<Alias> getAliases() {
         return aliases;
+    }
+
+    public Tag getLocated() {
+        if (located == null || located.isEmpty())
+            return null;
+
+        return located.iterator().next();
     }
 
 }

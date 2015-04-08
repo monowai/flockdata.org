@@ -24,6 +24,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -31,10 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -42,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,7 +53,6 @@ import java.util.concurrent.Future;
  * Time: 6:43 PM
  */
 
-@EnableRetry
 @Service
 public class TagRetryService {
 
@@ -61,37 +60,37 @@ public class TagRetryService {
     private TagService tagService;
 
     @Autowired
-    private IndexRetryService indexRetryService;
+    SchemaService schemaService;
+
+    @Autowired
+    IndexRetryService indexRetryService;
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
-            maxAttempts = 12,
-            backoff =@Backoff(maxDelay = 200, multiplier = 2, random = true))
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
-        return tagService.createTags(company, tagInputBeans);
-    }
-
     @Async("fd-track")
     public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+        //return new AsyncResult<>(createTags(company, tagInputs));
+        return new AsyncResult<>(createTags(company, tagInputs));
+    }
 
-        if ( tagInputs.isEmpty())
+    @Retryable(include = {HeuristicRollbackException.class, DataIntegrityViolationException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+            maxAttempts = 12,
+            backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) {
+        if (tagInputBeans.isEmpty())
             return null;
-        boolean schemaReady ;
+        boolean schemaReady;
         do {
-            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputs);
+            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
         } while (!schemaReady);
         logger.debug("Schema Indexes appear to be in place");
 
-        Collection<Tag> results;
         try {
-            results = createTags(company, tagInputs);
-        } catch (IOException e) {
-            logger.error("Unexpected", e);
-            throw new FlockException("IO Exception", e);
+            return tagService.createTags(company, tagInputBeans);
+        } catch (IOException | ExecutionException | InterruptedException | FlockException e) {
+            logger.error("Exception ", e);
         }
-        return new AsyncResult<>(results);
+        return new ArrayList<>();
     }
-
 
 }

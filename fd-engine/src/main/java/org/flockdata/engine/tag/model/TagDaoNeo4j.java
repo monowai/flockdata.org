@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.tag.model;
 
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.engine.tag.TagRepo;
 import org.flockdata.helper.FlockDataTagException;
@@ -28,8 +28,6 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
-import org.neo4j.graphdb.ConstraintViolationException;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -56,14 +54,14 @@ public class TagDaoNeo4j {
     Neo4jTemplate template;
 
     @Autowired
-    FdEngineConfig engineAdmin;
+    PlatformConfig engineAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 
     public Tag save(Company company, TagInputBean tagInput) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<String> createdValues = new ArrayList<>();
-        return  save(company, tagInput, tagSuffix, createdValues, false);
+        return save(company, tagInput, tagSuffix, createdValues, false);
     }
 
     Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
@@ -83,7 +81,7 @@ public class TagDaoNeo4j {
         for (TagInputBean tagInputBean : tagInputs) {
             try {
                 results.add(
-                         save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships)
+                        save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships)
                 );
             } catch (FlockDataTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
@@ -93,10 +91,6 @@ public class TagDaoNeo4j {
 
         }
         return results;
-    }
-
-    private Tag convertNodeToTag(Node node) {
-        return template.projectTo(node, TagNode.class);
     }
 
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
@@ -139,23 +133,23 @@ public class TagDaoNeo4j {
         }
         TagNode tag = new TagNode(tagInput, label);
 
-        try {
-            logger.trace("Saving {}", tag);
-
-            if (tagInput.hasAliases()) {
-                for (AliasInputBean newAlias : tagInput.getAliases()) {
-                    AliasNode alias = new AliasNode(label, newAlias, parseKey(newAlias.getCode()), tag);
-                    if ( !tag.hasAlias(label, alias.getKey()))
-                        tag.addAlias(alias);
-                }
+        logger.trace("Saving {}", tag);
+        Collection<AliasNode> aliases = null;
+        if (tagInput.hasAliases()) {
+            aliases = new ArrayList<>();
+            for (AliasInputBean newAlias : tagInput.getAliases()) {
+                AliasNode alias = new AliasNode(label, newAlias, parseKey(newAlias.getCode()), tag);
+                if (!tag.hasAlias(label, alias.getKey()))
+                    aliases.add(alias);
             }
-            tag = tagRepo.save(tag);
-            logger.debug("Saved {}", tag);
-            return tag;
-        } catch (ConstraintViolationException e) {
-            logger.debug("Error saving {}", tag);
-            throw e;
         }
+        tag = tagRepo.save(tag);
+        if (aliases != null)
+            for (AliasNode alias : aliases) {
+                template.save(alias);
+            }
+        logger.debug("Saved {}", tag);
+        return tag;
 
     }
 
@@ -164,7 +158,7 @@ public class TagDaoNeo4j {
         template.fetch(tag);
         template.fetch(tag.getAliases());
         if (tag.hasAlias(theLabel, parseKey(aliasInput.getCode())))
-                return;
+            return;
 
         AliasNode alias = new AliasNode(theLabel, aliasInput, parseKey(aliasInput.getCode()), tag);
 
@@ -176,7 +170,7 @@ public class TagDaoNeo4j {
      * Create unique relationship between the tag and the node
      *
      * @param company               associate the tag with this company
-     * @param startTag             notional start node
+     * @param startTag              notional start node
      * @param associatedTag         tag to make or get
      * @param rlxName               relationship name
      * @param createdValues         running list of values already created - performance op.
@@ -212,7 +206,7 @@ public class TagDaoNeo4j {
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query =
                 " match (tag:Tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
-                "   where id(tag)={tagId} return otherTag";
+                        "   where id(tag)={tagId} return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
 
@@ -278,6 +272,7 @@ public class TagDaoNeo4j {
         return tag;
 
     }
+
     @Autowired
     TagRepo tagRepo;
 
@@ -287,27 +282,41 @@ public class TagDaoNeo4j {
         String query;
         logger.debug("Cache miss, {}:{}", theLabel, tagCode);
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
-        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`"+theLabel+"Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`"+theLabel+"`) return t, a";
+        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return t, a";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", parseKey(tagCode));
         Iterable<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
+        Tag tagResult = null;
         while (results.hasNext()) {
             Map<String, Object> mapResult = results.next();
 
-            if (mapResult != null) {
-                Object o = null;
-                if (mapResult.get("t") != null)
-                    o = mapResult.get("t");
-                else if (mapResult.get("a")!=null ) { // Tag found by alias
-                    o = mapResult.get("a");
-                }
+            if (mapResult != null && tagResult == null) {
+                tagResult = getTag(mapResult);
+            } else {
+                Tag toDelete = getTag(mapResult);
+                if (toDelete != null)
+                    template.delete(toDelete);
+                    //logger.info("Should we delete {}", toDelete);
 
-                return (o== null ? null :template.projectTo(o, TagNode.class));
             }
+
         }
-        return null;
+        return tagResult;
+    }
+
+    private Tag getTag(Map<String, Object> mapResult) {
+        Tag tagResult;
+        Object o = null;
+        if (mapResult.get("t") != null)
+            o = mapResult.get("t");
+        else if (mapResult.get("a") != null) { // Tag found by alias
+            o = mapResult.get("a");
+        }
+
+        tagResult = (o == null ? null : template.projectTo(o, TagNode.class));
+        return tagResult;
     }
 
     public Tag findTagNode(Company company, String tagCode, String label) {
@@ -316,8 +325,8 @@ public class TagDaoNeo4j {
 
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
-        Tag tag= tagByKey(theLabel, parseKey(tagCode));
-        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag==null? "NotFound" : tag.getId()));
+        Tag tag = tagByKey(theLabel, parseKey(tagCode));
+        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag.getId()));
         return tag;
     }
 
@@ -369,7 +378,7 @@ public class TagDaoNeo4j {
         Iterable<Map<String, Object>> result = template.query(query, params);
         Collection<AliasInputBean> aliasResults = new ArrayList<>();
         for (Map<String, Object> mapResult : result) {
-            AliasNode n = template.projectTo( mapResult.get("alias"), AliasNode.class);
+            AliasNode n = template.projectTo(mapResult.get("alias"), AliasNode.class);
             aliasResults.add(new AliasInputBean(n.getName()));
 
         }

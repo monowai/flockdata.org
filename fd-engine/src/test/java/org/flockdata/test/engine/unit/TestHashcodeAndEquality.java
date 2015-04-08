@@ -22,7 +22,7 @@ package org.flockdata.test.engine.unit;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.engine.track.model.EntityTagRelationship;
+import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.company.model.FortressNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -80,13 +80,14 @@ public class TestHashcodeAndEquality {
         EntityInputBean entityInput = new EntityInputBean();
         entityInput.setCallerRef("abc");
 
-        EntityNode mh = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
-        EntityTagRelationship entityTagA = new EntityTagRelationship(mh.getId(), tagNode);
-        EntityTagRelationship entityTagB = new EntityTagRelationship(mh.getId(), tagNodeB);
+        EntityNode entityNode = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
+        EntityTagOut entityTagA = new EntityTagOut(entityNode, tagNode);
+        EntityTagOut entityTagB = new EntityTagOut(entityNode, tagNodeB);
 
         ArrayList<EntityTag>existingTags = new ArrayList<>();
         existingTags.add(entityTagA);
         existingTags.add(entityTagB);
+        assertEquals(2, existingTags.size());
         assertEquals(true, existingTags.contains(entityTagA));
         assertEquals(true, existingTags.contains(entityTagB));
 

@@ -26,23 +26,24 @@ import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * User: Mike Holdsworth
  * Since: 11/05/13
  */
-public class TrackResultBean {
-    private Collection<String> serviceMessages = new ArrayList<>();
+public class TrackResultBean implements Serializable {
+    //private Collection<String> serviceMessages = new ArrayList<>();
     private LogResultBean logResult;
     private ContentInputBean contentInput;
 
     private EntityBean entityBean;
-    private Entity entity;
-    private Collection<EntityTag> tags;
+    private transient Entity entity;
+    private transient Collection<EntityTag> tags;
     private EntityInputBean entityInputBean;
-    private DocumentType documentType;
+    private transient DocumentType documentType;
+    private String index;
 
     protected TrackResultBean() {
     }
@@ -66,6 +67,8 @@ public class TrackResultBean {
         this.entity = entity;
         this.entityBean = new EntityBean(fortress, entity);
         this.entityInputBean = entityInputBean;
+        this.index = getEntity().getFortress().getIndexName();
+
     }
 
     public TrackResultBean(Entity entity) {
@@ -102,11 +105,12 @@ public class TrackResultBean {
     }
 
     public Collection<String> getServiceMessages() {
-        return serviceMessages;
+        return null;
     }
 
     public void addServiceMessage(String serviceMessage) {
-        this.serviceMessages.add(serviceMessage);
+
+        //this.serviceMessages.add(serviceMessage);
     }
 
     @JsonIgnore
@@ -191,6 +195,10 @@ public class TrackResultBean {
     @JsonIgnore
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public String getIndex(){
+        return index;
     }
 
 }

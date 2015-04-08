@@ -21,6 +21,7 @@ package org.flockdata.registration.bean;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -33,7 +34,7 @@ import java.util.TimeZone;
  * Date: 15/06/13
  * Time: 12:04 PM
  */
-public class FortressInputBean {
+public class FortressInputBean implements Serializable {
     private String name;
     private Boolean searchActive = false;
     private Boolean storeActive = null;

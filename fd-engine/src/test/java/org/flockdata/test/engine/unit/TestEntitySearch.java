@@ -25,7 +25,7 @@ import org.flockdata.company.model.FortressUserNode;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.engine.track.model.EntityTagRelationship;
+import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -62,9 +62,9 @@ public class TestEntitySearch {
         String relationship = "dupe";
 
         // ToDo: What is the diff between these relationships
-        tags.add( new EntityTagRelationship(e, getTag("NameA", relationship), relationship, null ));
-        tags.add( new EntityTagRelationship(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add( new EntityTagRelationship(e, getTag("NameC", relationship), relationship, null ));
+        tags.add( new EntityTagOut(e, getTag("NameA", relationship), relationship, null ));
+        tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
+        tags.add( new EntityTagOut(e, getTag("NameC", relationship), relationship, null ));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(new EntityBean(e));
         entitySearchChange.setTags(tags);

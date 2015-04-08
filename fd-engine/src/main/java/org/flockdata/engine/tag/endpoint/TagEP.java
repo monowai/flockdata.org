@@ -63,7 +63,7 @@ public class TagEP {
                                                @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
-        return mediationFacade.createTags(company, tagInputs).get();
+        return mediationFacade.createTags(company, tagInputs);
 
     }
 

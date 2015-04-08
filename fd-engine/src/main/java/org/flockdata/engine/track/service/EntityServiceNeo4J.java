@@ -57,7 +57,9 @@ import java.util.concurrent.ExecutionException;
 @Service
 @Transactional
 public class EntityServiceNeo4J implements EntityService {
+
     private static final String EMPTY = "";
+
     @Autowired
     FortressService fortressService;
 
@@ -69,7 +71,6 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Autowired
     private SecurityHelper securityHelper;
-
 
     @Autowired
     EntityTagService entityTagService;
@@ -114,6 +115,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
             entityInputBean.setMetaKey(entity.getMetaKey());
+
             logger.trace("Existing entity [{}]", entity);
             TrackResultBean arb = new TrackResultBean(fortress, entity, entityInputBean);
             arb.entityExisted();
@@ -127,7 +129,7 @@ public class EntityServiceNeo4J implements EntityService {
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
             arb.setTags(
-                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean, tags)
+                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean)
             );
             return arb;
         }
@@ -144,8 +146,10 @@ public class EntityServiceNeo4J implements EntityService {
         entity.setNew();
         TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
         trackResult.setDocumentType(documentType);
+        if ( tags!=null )
+            tags.clear();
         trackResult.setTags(
-                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean, tags)
+                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean)
         );
 
         trackResult.setContentInput(entityInputBean.getContent());
@@ -314,15 +318,16 @@ public class EntityServiceNeo4J implements EntityService {
         String searchKey = entity.getSearchKey();
         EntityLog newEntityLog = null;
         if (fromLog != null) {
+            entityDao.fetch(entity);
+            entityTagService.findEntityTags(company, entity);
             entityDao.fetch(fromLog);
+            entityDao.delete(currentLog);
             newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getWho().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
-            entityDao.delete(currentLog);
             entity = entityDao.save(entity);
             entityTagService.moveTags(company, fromLog, entity);
-
 
         } else {
             // No changes left, there is now just an entity
@@ -350,7 +355,7 @@ public class EntityServiceNeo4J implements EntityService {
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
             searchDocument = new EntitySearchChange(new EntityBean(entity), newEntityLog, priorContent.getContent());
-            searchDocument.setTags(entityTagService.getEntityTags(company, entity));
+            searchDocument.setTags(entityTagService.getEntityTags(entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
         }
@@ -450,7 +455,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity == null)
             throw new FlockException("Invalid Meta Key [" + metaKey + "]");
         Set<EntityLog> changes = getEntityLogs(entity);
-        Collection<EntityTag> tags = entityTagService.getEntityTags(company, entity);
+        Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         return new EntitySummaryBean(entity, changes, tags);
     }
 
@@ -686,6 +691,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         return getLogTags(company, lastLog.getLog());
     }
+
     @Override
     public EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
@@ -693,7 +699,6 @@ public class EntityServiceNeo4J implements EntityService {
             throw new NotFoundException("Unable to locate the requested Entity for metaKey "+metaKey);
         return entityDao.getLastEntityLog(entity);
     }
-
 
     private Collection<EntityTag> getLogTags(Company company, Log log) {
         return entityTagService.findLogTags(company, log);

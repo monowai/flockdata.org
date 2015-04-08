@@ -62,7 +62,7 @@ public class TestCallerRef extends EngineBase {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
 
-            FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis());
+            FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis(), true);
             Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
             EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
@@ -129,7 +129,7 @@ public class TestCallerRef extends EngineBase {
             SystemUser su = registerSystemUser(monowai, "dupex");
             setSecurity();
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
 
             String docType = "StressDupez";
             String callerRef = "ABC123X";
