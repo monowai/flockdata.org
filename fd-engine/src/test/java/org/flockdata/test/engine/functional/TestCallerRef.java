@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.annotation.EnableRetry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
+@EnableRetry
 public class TestCallerRef extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
@@ -193,7 +195,7 @@ public class TestCallerRef extends EngineBase {
         @Override
         public void run() {
             int count = 0;
-            //setSecurity();
+            setSecurity();
 
             try {
                 startLatch.await();
