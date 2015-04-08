@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.admin.endpoint;
 
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
@@ -56,7 +56,7 @@ public class AdminEP {
     SecurityHelper securityHelper;
 
     @Autowired
-    FdEngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 

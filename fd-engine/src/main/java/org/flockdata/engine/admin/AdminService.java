@@ -46,8 +46,8 @@ import java.util.concurrent.Future;
  * Created by mike on 25/03/15.
  */
 @Service
-
 public class AdminService implements EngineAdminService {
+
     @Autowired
     EntityService entityService;
 
@@ -110,7 +110,7 @@ public class AdminService implements EngineAdminService {
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
             if ( !lastLog.isMocked()) {
-                EntitySearchChange searchDoc = searchService.rebuild(company, entity, lastLog);
+                EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
                 if (searchDoc != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
                     searchDocuments.add(searchDoc);
             }

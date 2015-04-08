@@ -245,7 +245,7 @@ public class LogNode implements Log {
     public void setContent(KvContent kvContent) {
         this.content = kvContent;
         if ( kvContent.getContent()!=null ){
-            this.profileVersion = kvContent.getContent().getProfileVersion();
+            this.profileVersion = kvContent.getContent().getpVer();
         }
 
     }

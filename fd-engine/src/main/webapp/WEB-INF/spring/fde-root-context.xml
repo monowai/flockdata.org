@@ -48,7 +48,7 @@
     <import resource="neo4j-context.xml"/>
     <import resource="kv-context.xml"/>
 
-    <bean name ="engineConfig" class="org.flockdata.engine.admin.EngineConfig"/>
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 
     <aop:aspectj-autoproxy/>
 

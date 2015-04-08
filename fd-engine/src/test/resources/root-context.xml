@@ -26,6 +26,7 @@
 		org.flockdata.engine.track,
 		org.flockdata.registration,
 		org.flockdata.helper,
+		org.flockdata.configure,
 		org.flockdata.geography,
 		org.flockdata.company,
 		org.flockdata.kv" />
@@ -42,8 +43,7 @@
     <import resource="fde-task.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 
-
-
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 
     <aop:aspectj-autoproxy/>
 
