@@ -19,6 +19,8 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.registration.bean.AliasInputBean;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
@@ -89,7 +91,7 @@ public class TestTags extends EngineBase {
         List<TagInputBean> tags = new ArrayList<>();
         TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
-        Iterable<Tag> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags).get();
+        Iterable<Tag> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags);
         assertNotNull(tagResult);
         assertTrue("We didn't create a tag", tagResult.iterator().hasNext());
         SystemUser sub = registerSystemUser("ABC", "gina");
@@ -362,7 +364,7 @@ public class TestTags extends EngineBase {
         TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);
-        mediationFacade.createTags(su.getCompany(), countries).get();
+        mediationFacade.createTags(su.getCompany(), countries);
         Collection<Tag> co = geoService.findCountries(su.getCompany());
         assertEquals(1, co.size());
 
@@ -421,12 +423,12 @@ public class TestTags extends EngineBase {
         List<TagInputBean> tagInputs = new ArrayList<>();
         tagInputs.add(tagInputA);
         Collection<Tag>tagResults ;
-        tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs).get();
+        tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
         assertEquals(1, tagResults.size());
         Tag tagA = tagResults.iterator().next();
 
         tagInputA.setTargets("blah", new TagInputBean("BBBB").setLabel(":TB"));
-        mediationFacade.createTags(iSystemUser.getCompany(), tagInputs).get();
+        mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
 
         Tag subTag = tagService.findTag(iSystemUser.getCompany(), "TB", "BBBB");
         assertNotNull(subTag);
@@ -455,4 +457,90 @@ public class TestTags extends EngineBase {
         assertEquals ("MyLabel", tag.getLabel());
 
     }
+
+    @Test
+    public void scenario_SimpleAliasFound ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasFound", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
+
+        TagInputBean tag = new TagInputBean("Holdsworth, Mike")
+                .setLabel("Person");
+
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        tagService.createAlias(su.getCompany(), tagResult, "Person", "xxx");
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), "xxx");
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+    }
+
+    @Test
+    public void scenario_AliasCollectionCreated ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasCollectionCreated", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasCollectionCreated", true));
+
+        TagInputBean tag = new TagInputBean("scenario_AliasCollectionCreated")
+                .setLabel("Person");
+
+        // The alias will be a "PersonAlias" - ToDo: allow for other types??
+        // We can find the Tag by any of the 2 aliases we define below
+        AliasInputBean alias1 = new AliasInputBean("Mikey");
+        AliasInputBean alias2 = new AliasInputBean("Mike Holdsworth");
+        Collection<AliasInputBean>aliases = new ArrayList<>();
+        aliases.add(alias1);
+        aliases.add(alias2);
+        tag.setAliases(aliases);
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+        assertEquals("2 Aliases should have been associated with the tag", 2, tagService.findTagAliases(su.getCompany(), tag.getLabel(), tag.getCode()).size());
+        Tag tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        assertNotNull(tagFoundByAlias);
+        assertEquals(tagFoundByAlias.getId(), tagResult.getId());
+
+        tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        assertNotNull(tagFoundByAlias);
+        assertEquals(tagFoundByAlias.getId(), tagResult.getId());
+    }
+
+    @Test
+    public void scenario_MultipleAliases ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_MultipleAliases", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_MultipleAliases", true));
+
+        TagInputBean tag = new TagInputBean("Peoples Republic of Iran")
+                .setLabel("Country");
+
+        // The alias will be a "PersonAlias" - ToDo: allow for other types??
+        // We can find the Tag by any of the 2 aliases we define below
+        AliasInputBean alias1 = new AliasInputBean("Iran").setDescription("TestA");
+        AliasInputBean alias2 = new AliasInputBean("Islamic Republic").setDescription("TestB");
+        /// Alias 3 should not be created as it's the same as alias 1
+        AliasInputBean alias3 = new AliasInputBean("Iran").setDescription("TestC");
+        Collection<AliasInputBean>aliases = new ArrayList<>();
+        aliases.add(alias1);
+        aliases.add(alias2);
+        tag.setAliases(aliases);
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias3.getCode());
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+        tagService.findTag(su.getCompany(), tag.getLabel(), "iran");
+        Collection<AliasInputBean> inputs = tagService.findTagAliases(su.getCompany(), tag.getLabel(), "iran");
+        assertEquals ("Alias nodes are uniquely differentiated by code value only", 2, inputs.size());
+
+
+    }
+
+
 }

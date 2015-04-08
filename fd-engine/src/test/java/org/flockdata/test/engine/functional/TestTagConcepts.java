@@ -70,7 +70,7 @@ public class TestTagConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", false));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", true));
             DocumentType dType = schemaService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
@@ -118,8 +118,8 @@ public class TestTagConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleFortressesSameTag", mike_admin);
             assertNotNull(su);
 
-            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", false));
-            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", false));
+            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", true));
+            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", true));
             commitManualTransaction(t);
 
             EntityInputBean input = new EntityInputBean(fortressA.getName(), "jinks", "DocA", new DateTime());

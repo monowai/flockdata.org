@@ -24,6 +24,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.model.EntityKey;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -31,7 +32,7 @@ import java.util.*;
  * Date: 11/05/13
  * Time: 9:19 AM
  */
-public class EntityInputBean {
+public class EntityInputBean implements Serializable{
     private String metaKey;
     private String callerRef;
     private String fortress;
@@ -39,8 +40,8 @@ public class EntityInputBean {
     private String documentName;
     private Date when = null;
     private ContentInputBean content;
-    private List<TagInputBean> tags = new ArrayList<>();
-    private Map<String,List<EntityKey>> crossReferences = new HashMap<>();
+    private transient List<TagInputBean> tags = new ArrayList<>();
+    private transient Map<String,List<EntityKey>> crossReferences = new HashMap<>();
 
     private String event = "Create";
     private String description;

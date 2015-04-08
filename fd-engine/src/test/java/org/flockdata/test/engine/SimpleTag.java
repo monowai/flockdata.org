@@ -92,6 +92,11 @@ public class SimpleTag implements Tag {
         return new HashSet<>();
     }
 
+    @Override
+    public Tag getLocated() {
+        return null;
+    }
+
     public void setCode(String code) {
         this.code = code;
     }

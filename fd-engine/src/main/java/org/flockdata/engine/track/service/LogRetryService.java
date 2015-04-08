@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
@@ -79,7 +79,7 @@ public class LogRetryService {
     EntityDaoNeo entityDao;
 
     @Autowired
-    EngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     /**
      * Attempts to gracefully handle deadlock conditions

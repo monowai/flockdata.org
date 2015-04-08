@@ -60,6 +60,12 @@ public class EntityNode implements Entity {
     @Fetch
     private FortressNode fortress;
 
+//    @RelatedToVia(elementClass = EntityTagOut.class)
+//    private Collection<EntityTag> outRelationships;
+//
+//    @RelatedToVia(elementClass = EntityTagIn.class, direction = Direction.INCOMING)
+//    private Collection<EntityTag> inRelationships;
+
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
 
@@ -375,4 +381,6 @@ public class EntityNode implements Entity {
     public boolean isNew() {
         return isNew;
     }
+
+
 }

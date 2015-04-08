@@ -27,6 +27,7 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +63,9 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Oranges", "dislikes").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(TestQueryResults.FRUIT));
-//        inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
         inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(VEGETABLE)); // No co-occurrence
-        mediationFacade.trackEntity(su.getCompany(), inputBean) ;
+        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
+        assertEquals(5, entityTagService.getEntityTags(entity).size());
 
         inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
         inputBean.addTag(new TagInputBean("Apples", "dislikes").setLabel(FRUIT));
@@ -73,7 +74,8 @@ public class TestQueryResults extends EngineBase {
         inputBean.addTag(new TagInputBean("Grapes", "dislikes").setLabel(FRUIT));
         inputBean.addTag(new TagInputBean("Kiwi", "likes").setLabel(FRUIT));
         inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
-        mediationFacade.trackEntity(su.getCompany(), inputBean) ;
+        entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
+        assertEquals(6, entityTagService.getEntityTags(entity).size());
 
         MatrixInputBean input = new MatrixInputBean();
         ArrayList<String>docs = new ArrayList<>();
@@ -107,7 +109,7 @@ public class TestQueryResults extends EngineBase {
         results = engineEndPoints.getMatrixResult(su, input);
 
         // Though peas is recorded against both A matrix ignores occurrence with the same "concept". If both had Peas, then a Peas-Potatoes would be returned
-        assertEquals("Vegetable should has no co-occurrence", 0, results.getEdges().size());
+        assertEquals("Vegetable should have no co-occurrence", 0, results.getEdges().size());
 
         concepts.clear();
         concepts.add(FRUIT);

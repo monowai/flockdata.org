@@ -55,4 +55,6 @@ public interface Tag {
     boolean hasAlias(String theLabel, String code);
 
     Set<Alias> getAliases();
+
+    Tag getLocated();
 }

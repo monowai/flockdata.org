@@ -26,16 +26,11 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.HeuristicRollbackException;
 import java.util.List;
 
 /**
@@ -52,14 +47,8 @@ public class IndexRetryService {
 
     private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
 
-    @Retryable(include =  {HeuristicRollbackException.class,
-            DataRetrievalFailureException.class,
-            InvalidDataAccessResourceUsageException.class,
-            ConcurrencyFailureException.class,
-            DataAccessException.class,
-            DeadlockDetectedException.class},
-            maxAttempts = 12, backoff = @Backoff(maxDelay = 100, multiplier = 3, random = true))
-
+    @Retryable(include =  {DeadlockDetectedException.class},
+            maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
     public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
         return schemaService.ensureUniqueIndexes(company, tagInputs);
     }

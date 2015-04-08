@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
@@ -695,7 +696,7 @@ public class TestTrack extends EngineBase {
         setSecurity(sally_admin);
         SystemUser suB = registerSystemUser("other company", harry);
         setSecurity(harry); // Harry can create data
-        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("XYZ"),true);
+        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("XYZ", true));
         TrackResultBean validButNotForCallerA = mediationFacade.trackEntity(suB.getCompany(), new EntityInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"));
         Collection<String>toFind = new ArrayList<>();
         setSecurity(mike_admin);
@@ -962,6 +963,17 @@ public class TestTrack extends EngineBase {
         assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
 
     }
+
+    @Test
+    public void event_Serializable() throws Exception {
+        // DAT-276
+        Entity entity = Helper.getEntity("lba", "abc", "asdf", "asdf");
+        TrackResultBean trackResultBean = new TrackResultBean(entity);
+        trackResultBean.addServiceMessage("Blah");
+        byte[] bytes = ObjectHelper.serialize(trackResultBean);
+        assertNotNull(bytes);
+    }
+
 
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());

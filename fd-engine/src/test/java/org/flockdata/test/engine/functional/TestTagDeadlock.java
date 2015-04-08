@@ -28,6 +28,8 @@ import org.flockdata.track.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.test.annotation.Repeat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ import static org.junit.Assert.assertEquals;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
+@EnableRetry
 public class TestTagDeadlock extends EngineBase {
 
     @Autowired
@@ -52,6 +55,7 @@ public class TestTagDeadlock extends EngineBase {
     @Override
     public void cleanUpGraph() {
         // DAT-348
+        logger.debug("Cleaning up graph");
         super.cleanUpGraph();
     }
 
@@ -64,9 +68,11 @@ public class TestTagDeadlock extends EngineBase {
     }
 
     @Test
+    @Repeat (value = 1)
     public void tagsUnderLoad() throws Exception {
 
         try {
+            cleanUpGraph();
             String companyName = "tagsUnderLoad";
             SystemUser su = registerSystemUser(companyName, "tagsUnderLoad");
             setSecurity();
@@ -82,14 +88,14 @@ public class TestTagDeadlock extends EngineBase {
 
             CountDownLatch latch = new CountDownLatch(threadMax);
             for (int i = 0; i < threadMax; i++) {
-                runners.put(i, addTagRunner(fortress, runCount, tags, latch, startSignal));
+                runners.put(i, addTagRunner(i+1, fortress, runCount, tags, latch, startSignal));
             }
 
             startSignal.countDown();
             latch.await();
             Thread.yield();
             for (int i = 0; i < threadMax; i++) {
-                assertEquals("Error occurred creating tags under load", true, runners.get(i).isWorked());
+                assertEquals("Thread " + i+1, true, runners.get(i).isWorked());
             }
             for (Integer integer : runners.keySet()) {
                 assertEquals(true, runners.get(integer).isWorked());
@@ -114,8 +120,8 @@ public class TestTagDeadlock extends EngineBase {
         return tags;
     }
 
-    private TagRunner addTagRunner(Fortress fortress, int maxRun, List<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
-        TagRunner runner = new TagRunner(fortress, tags, maxRun, latch, startSignal);
+    private TagRunner addTagRunner(int tCount, Fortress fortress, int maxRun, List<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
+        TagRunner runner = new TagRunner(tCount, fortress, tags, maxRun, latch, startSignal);
         Thread thread = new Thread(runner);
         thread.start();
         return runner;
@@ -127,15 +133,17 @@ public class TestTagDeadlock extends EngineBase {
         CountDownLatch startSignal;
         int maxRun = 30;
         List<TagInputBean> tags;
+        private int myThread;
 
         boolean worked = false;
 
-        public TagRunner(Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
+        public TagRunner(int myThread, Fortress fortress, List<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
             this.fortress = fortress;
             this.latch = latch;
             this.tags = tags;
             this.maxRun = maxRun;
             this.startSignal = startSignal;
+            this.myThread = myThread;
         }
 
         public boolean isWorked() {
@@ -147,6 +155,7 @@ public class TestTagDeadlock extends EngineBase {
             int count = 0;
             setSecurity();
             worked = false;
+            logger.debug("Thread " + myThread);
             try {
                 startSignal.await();
                 while (count < maxRun) {
@@ -154,13 +163,15 @@ public class TestTagDeadlock extends EngineBase {
                     count++;
                 }
                 worked = true;
-                latch.countDown();
 
             } catch (Exception e) {
-                e.getStackTrace();
-                latch.countDown();
+                logger.info("Tag Thread Run error", e);
 
+            } finally {
+                logger.debug("*** Finally " + myThread +" worked = "+worked);
+                latch.countDown();
             }
+
         }
 
 

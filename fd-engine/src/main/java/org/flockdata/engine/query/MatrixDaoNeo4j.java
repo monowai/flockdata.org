@@ -49,7 +49,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
         // DAT-109 enhancements
-        String docIndexes = CypherHelper.getLabels("meta", input.getDocuments());
+        String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
@@ -62,9 +62,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         }
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
-        String query = "match (meta:Entity) " + (docFilter ? "where  " + docIndexes : "") +
-                " with meta " +
-                "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
+        String query = "match (entity:Entity) " + (docFilter ? "where  " + docIndexes : "") +
+                " with entity " +
+                "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
                 conceptString +
                 "with tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
 //                "order by links desc, tag2 " +

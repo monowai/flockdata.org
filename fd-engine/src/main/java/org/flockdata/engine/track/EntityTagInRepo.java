@@ -17,44 +17,13 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.engine;
+package org.flockdata.engine.track;
 
-import org.flockdata.registration.model.Company;
-
-import java.io.Serializable;
+import org.flockdata.engine.track.model.EntityTagIn;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
- * Created by mike on 6/03/15.
+ * Created by mike on 6/04/15.
  */
-public class SimpleCompany implements Company , Serializable {
-    String name;
-    String code;
-
-    public SimpleCompany (String code){
-        this.code = code;
-    }
-    @Override
-    public Long getId() {
-        return null;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getApiKey() {
-        return null;
-    }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
+public interface EntityTagInRepo extends GraphRepository<EntityTagIn> {
 }

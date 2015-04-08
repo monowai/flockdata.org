@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 4:22 PM
  */
 public interface EntityService {
+
     KvContent getWhat(Entity entity, Log change);
 
     @Deprecated

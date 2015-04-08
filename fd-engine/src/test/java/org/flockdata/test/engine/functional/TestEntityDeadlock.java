@@ -25,10 +25,13 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.annotation.Repeat;
 
 import java.util.*;
@@ -40,11 +43,14 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by mike on 22/03/15.
  */
+
+@EnableRetry
 public class TestEntityDeadlock extends EngineBase {
     @Override
     @Before
     public void cleanUpGraph() {
         // DAT-348
+        logger.debug("Cleaning Graph DB");
         super.cleanUpGraph();
     }
 
@@ -55,6 +61,7 @@ public class TestEntityDeadlock extends EngineBase {
      */
     @Test
     @Repeat(value = 1)
+
     public void entitiesUnderLoad() throws Exception {
         // This test suffered under DAT-348 and was quarantined.
         String companyName = "entitiesUnderLoad";
@@ -78,12 +85,27 @@ public class TestEntityDeadlock extends EngineBase {
         CountDownLatch latch = new CountDownLatch(threadMax);
         CountDownLatch startSignal = new CountDownLatch(1);
         for (int thread = 0; thread < threadMax; thread++) {
-            EntityRunner runner = addEntityRunner(su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
+            EntityRunner runner = addEntityRunner(thread+1, su, fortress, docType, "ABC" + thread, docCount, tags, latch, startSignal);
             runners.put(thread, runner);
         }
         startSignal.countDown();
         latch.await();
+        Long id = null;
 
+        for (int thread = 0; thread < threadMax; thread++) {
+            assertEquals("Thread "+ (thread +1), true, runners.get(thread).isWorked());
+            for (int count = 0; count < docCount; count++) {
+                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                assertNotNull(entity);
+                Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
+                assertEquals(tagCount, entityTags.size());
+                // Make sure every thread's tags point to the same tag
+                if (id == null )
+                    id = entityTags.iterator().next().getTag().getId();
+                else
+                    assertEquals(id, entityTags.iterator().next().getTag().getId());
+            }
+        }
         assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getName()));
 
         createdTags = tagService.findTags(fortress.getCompany(), "Deadlock");
@@ -101,15 +123,6 @@ public class TestEntityDeadlock extends EngineBase {
         }
         assertEquals(tagCount, createdTags.size());
 
-        for (int thread = 0; thread < threadMax; thread++) {
-            assertEquals(true, runners.get(thread).isWorked());
-            for (int count = 0; count < docCount; count++) {
-                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
-                assertNotNull(entity);
-                assertNotNull(su.getCompany());
-                assertEquals(tagCount, entityTagService.findEntityTags(su.getCompany(), entity).size());
-            }
-        }
     }
 
     private ArrayList<TagInputBean> getTags(int tagCount, boolean addSubTag) {
@@ -127,8 +140,8 @@ public class TestEntityDeadlock extends EngineBase {
         return tags;
     }
 
-    private EntityRunner addEntityRunner(SystemUser su, Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
-        EntityRunner runner = new EntityRunner(su, callerRef, docType, fortress, tags, docCount, latch, startSignal);
+    private EntityRunner addEntityRunner(int myThread, SystemUser su, Fortress fortress, String docType, String callerRef, int docCount, ArrayList<TagInputBean> tags, CountDownLatch latch, CountDownLatch startSignal) {
+        EntityRunner runner = new EntityRunner(myThread, su, callerRef, docType, fortress, tags, docCount, latch, startSignal);
         Thread thread = new Thread(runner);
         thread.start();
         return runner;
@@ -146,11 +159,13 @@ public class TestEntityDeadlock extends EngineBase {
         CountDownLatch latch;
         CountDownLatch startSignal;
         int count = 0;
+        int myThread;
+        Entity entity =null ;
 
         boolean worked = false;
         private boolean done;
 
-        public EntityRunner(SystemUser su, String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
+        public EntityRunner(int myThread, SystemUser su, String callerRef, String docType, Fortress fortress, Collection<TagInputBean> tags, int maxRun, CountDownLatch latch, CountDownLatch startSignal) {
             this.callerRef = callerRef;
             this.docType = docType;
             this.fortress = fortress;
@@ -158,6 +173,7 @@ public class TestEntityDeadlock extends EngineBase {
             this.latch = latch;
             this.startSignal = startSignal;
             this.maxRun = maxRun;
+            this.myThread = myThread;
             this.apiKey = su.getApiKey();
             inputBeans = new ArrayList<>();
             int count = 0;
@@ -174,28 +190,28 @@ public class TestEntityDeadlock extends EngineBase {
         }
 
         public boolean isWorked() {
-            return worked;
+            return entity!=null;
         }
 
         @Override
         public void run() {
-            worked = false;
+            worked = true;
+            logger.debug("Running "+myThread);
             try {
                 startSignal.await();
-                //for (EntityInputBean inputBean : inputBeans) {
-                    mediationFacade.trackEntities(inputBeans, apiKey);
-                //}
+                Collection<TrackResultBean> results = mediationFacade.trackEntities(inputBeans, apiKey);
+                assertEquals("Error creating entity", 1, results.size());
+                entity = results.iterator().next().getEntity();
 
-                worked = true;
+
+
             } catch (Exception e) {
-                logger.error(e.getLocalizedMessage());
+                logger.error(e.getMessage(), e);
             } finally {
-                Thread.yield();
                 done = true;
+                logger.debug ("*** Done "+myThread +" worked "+worked);
                 latch.countDown();
             }
-
-
         }
 
         public int getCount() {

@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -117,7 +117,7 @@ public class SchemaDaoNeo4j {
                 docResult = template.save(new DocumentTypeNode(fortress, docName));
             }
         }
-        if ( docResult!=null && docResult.getFortress() == null ){
+        if (docResult != null && docResult.getFortress() == null) {
             docResult.setFortress(fortress);
         }
         template.fetch(docResult);
@@ -141,13 +141,14 @@ public class SchemaDaoNeo4j {
     }
 
     private boolean tagExists(Company company, String labelName) {
-        return documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, labelName)) !=null;
+        return documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, labelName)) != null;
     }
 
     /**
      * Make sure a unique index exists for the tag
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
-     *  @param tagInputs   collection to process
+     *
+     * @param tagInputs collection to process
      */
     @Transactional
     public Boolean ensureUniqueIndexes(Iterable<TagInputBean> tagInputs) {
@@ -203,7 +204,7 @@ public class SchemaDaoNeo4j {
         //boolean made = false;
         for (String label : labels) {
             makeLabelConstraint(label);
-            makeLabelConstraint(label+"Alias");
+            makeLabelConstraint(label + "Alias");
         }
 
         return Boolean.TRUE;
@@ -212,19 +213,19 @@ public class SchemaDaoNeo4j {
     @Cacheable("labels")
     @Transactional
     public boolean makeLabelConstraint(String label) {
+        logger.debug("Begin tag constraint - [{}]", label);
+
+        // Constraint automatically creates and index
         try {
-//            http://neo4j.com/docs/stable/graphdb-neo4j-schema.html#graphdb-neo4j-schema-indexes
-            logger.debug("Begin tag constraint - [{}]", label);
-
-            // Constraint automatically creates and index
             template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
-
-            logger.debug("Tag constraint created - [{}]", label);
-            waitForConstraint(label);
-        } catch (DataAccessException e) {
-            logger.debug("Tag constraint error. Retry should occur - " + e.getLocalizedMessage());
+        } catch (InvalidDataAccessResourceUsageException e ){
+  //          Clean dodgy tags?
+//            logger.error("Concurrent issue creating constraint for label [{}] - {}", label, e.getMessage());
             throw (e);
         }
+
+        logger.debug("Tag constraint created - [{}]", label);
+        waitForConstraint(label);
         return true;
     }
 
@@ -385,9 +386,9 @@ public class SchemaDaoNeo4j {
     @Transactional
     public void waitForConstraint(String tagLabel) {
         Label label = DynamicLabel.label(tagLabel);
-        ConstraintCreator constraint = null ;
-        while ( constraint == null)
-                constraint = template.getGraphDatabaseService().schema().constraintFor(label);
+        ConstraintCreator constraint = null;
+        while (constraint == null)
+            constraint = template.getGraphDatabaseService().schema().constraintFor(label);
 
     }
 

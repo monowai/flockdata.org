@@ -19,10 +19,10 @@
 
 package org.flockdata.geography;
 
+import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.GeoData;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,35 +40,10 @@ public class GeoSupportNeo4j {
 
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo4j.class);
 
-    //private TraversalDescription geoTraversal =null ;
-
-//    TraversalDescription getGeoTraverser () {
-//        if (geoTraversal==null )
-//
-//
-//            geoTraversal = template.getGraphDatabaseService().traversalDescription()
-//                    .depthFirst()
-//                    .uniqueness(Uniqueness.NODE_PATH);
-//
-//        return geoTraversal;
-//    }
-//
-
     @Cacheable(value = "geoData", key = "#loc.Id")
-    public GeoData getGeoData(Node loc) {
-        logger.debug ( "Cache miss for {}", loc.getProperty("code") );
-//        return getGeoData(
-//                getGeoTraverser()
-//                        .evaluator(Evaluators.fromDepth(1))
-//                        .evaluator(Evaluators.toDepth(2))  // Keep an eye on this - may need to be 3
-//                        .evaluator(Evaluators.excludeStartPosition())
-//                        .evaluator(new GeoEvaluator())
-//                        .traverse(loc)
-//                        .nodes()
-//                , loc);
-
-        //String query = "match (located:_Tag)-[*0..2]-(country:Country) where id(located)={locNode} optional match located-[*0..2]->(state:State) return country, state";
-        String query = "match (located:_Tag)  , p= shortestPath((located:_Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
+    public GeoData getGeoData(Tag loc) {
+        logger.debug ( "Cache miss for {}", loc.getCode() );
+        String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
         Iterable<Map<String, Object>> queryResults = template.query(query, params);
@@ -78,7 +53,7 @@ public class GeoSupportNeo4j {
         return null;
     }
 
-    GeoData getGeoData(Map<String, Object>row, Node loc){
+    GeoData getGeoData(Map<String, Object>row, Tag loc){
         Node country = null;
         Node state = null;
         Node city = null;
@@ -110,25 +85,7 @@ public class GeoSupportNeo4j {
         return node.hasLabel(DynamicLabel.label("State"));
     }
 
-    GeoData getGeoData(ResourceIterable<Node> row, Node loc) {
-
-        Node country = null;
-        Node state = null;
-        Node city = null;
-
-        for (Node node : row) {
-            if (isCountry(node))
-                country = node;
-            else if (isState(node))
-                state = node;
-            else if (isCity(node))
-                city = node;
-
-        }
-        return getGeoData(loc, country, state, city);
-    }
-
-    GeoData getGeoData(Node loc, Node country, Node state, Node city){
+    GeoData getGeoData(Tag loc, Node country, Node state, Node city){
         if (country == null && state == null && city == null)
             return null;
 

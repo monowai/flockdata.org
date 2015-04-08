@@ -24,11 +24,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.TxRef;
 
+import java.io.Serializable;
+
 /**
  * User: Mike Holdsworth
  * Since: 28/08/13
  */
-public class LogResultBean {
+public class LogResultBean implements Serializable {
     public static final String OK = "OK";
     private String fortress;
     private String documentType;
@@ -38,8 +40,7 @@ public class LogResultBean {
     private String fortressUser;
     private String txReference = null;
     private Long fdWhen;
-    private EntityLog logToIndex;
-    //private Log log;
+    private transient EntityLog logToIndex;
     private boolean logIgnored = false;
 
     private LogResultBean() {
