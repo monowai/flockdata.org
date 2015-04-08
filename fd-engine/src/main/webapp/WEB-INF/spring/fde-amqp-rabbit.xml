@@ -74,7 +74,6 @@
         </rabbit:bindings>
     </rabbit:direct-exchange>
 
-
     <rabbit:direct-exchange name="${fd-search.exchange}" >
         <rabbit:bindings>
             <rabbit:binding queue="${fd-search.queue}" key="${fd-search.binding}"/>

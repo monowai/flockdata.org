@@ -32,7 +32,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.configure.EngineConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
@@ -61,13 +61,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -296,7 +293,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_companyAndFortressWithSpaces() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## track_companyAndFortressWithSpaces");
 
         SystemUser su = registerSystemUser("testcompany", "companyAndFortressWithSpaces");
@@ -474,7 +471,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
@@ -555,7 +552,7 @@ public class TestFdIntegration {
         waitAWhile("2nd log does not update search result");
 
         Entity entity = result.getEntity();
-        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         assertEquals(2, tags.size());
         boolean sadFound = false, daysFound = false;
 
@@ -583,7 +580,7 @@ public class TestFdIntegration {
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
-        Collection<EntityTag> entityTags = entityTagService.getEntityTags(su.getCompany(), result.getEntity());
+        Collection<EntityTag> entityTags = entityTagService.getEntityTags(result.getEntity());
         assertEquals(2, entityTags.size());
 
         // These should have been added back in due to the cancel operation
@@ -819,7 +816,7 @@ public class TestFdIntegration {
 
     @Test
     public void tag_ReturnsSingleSearchResult() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
@@ -833,7 +830,7 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
         String indexName = entity.getFortress().getIndexName();
 
-        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entity);
+        Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
@@ -903,7 +900,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_nGramDefaults() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## search_nGramDefaults");
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
@@ -1582,7 +1579,10 @@ public class TestFdIntegration {
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         assertNotNull(jResult);
-        assertEquals(index + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
+
+        assertEquals(index + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
+                expectedHitCount, nbrResult);
         return jResult.getJsonString();
     }
 
@@ -1637,7 +1637,10 @@ public class TestFdIntegration {
             logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
             logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
         }
-        assertEquals(jResult.getJsonString(), expectedHitCount, nbrResult);
+
+        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
+        assertEquals(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json), expectedHitCount, nbrResult);
+
         if (nbrResult != 0) {
             return jResult.getJsonObject()
                     .getAsJsonObject("hits")
@@ -1647,6 +1650,7 @@ public class TestFdIntegration {
                     .next()
                     .getAsJsonObject().get("_source").toString();
         } else {
+
             return null;
         }
     }
@@ -1667,7 +1671,7 @@ public class TestFdIntegration {
         // Let's assert that
         int runCount = 0, nbrResult;
 
-        JestResult result;
+        JestResult jResult;
         do {
             if (runCount > 0)
                 waitAWhile("Sleep {} for ES Query to work");
@@ -1685,21 +1689,24 @@ public class TestFdIntegration {
                     .addIndex(index)
                     .build();
 
-            result = esClient.execute(search);
-            String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
-            assertNotNull(message, result);
-            assertNotNull(message, result.getJsonObject());
-            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
-            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
-            nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            jResult = esClient.execute(search);
+            String message = index + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
+            assertNotNull(message, jResult);
+            assertNotNull(message, jResult.getJsonObject());
+            assertNotNull(message, jResult.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(message, jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
+        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
+
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}\n\r"+objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
+                expectedHitCount, nbrResult);
         if (nbrResult == 0)
             return "";
         else
-            return result.getJsonObject()
+            return jResult.getJsonObject()
                     .getAsJsonObject("hits")
                     .getAsJsonArray("hits")
                     .getAsJsonArray()
