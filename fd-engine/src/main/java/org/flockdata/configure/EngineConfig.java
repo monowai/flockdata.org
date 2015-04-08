@@ -17,9 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.admin;
+package org.flockdata.configure;
 
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.FdMonitoringGateway;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
@@ -33,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -48,8 +48,7 @@ import java.util.Map;
  */
 @Service
 @Transactional
-@Configuration
-public class EngineConfig implements FdEngineConfig {
+public class EngineConfig implements PlatformConfig {
 
     @Autowired
     EntityDaoNeo trackDAO;
