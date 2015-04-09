@@ -354,9 +354,6 @@ public class FileProcessor {
                         if (currentRow == skipCount)
                             logger.info("Processing now begins at row {}", skipCount);
 
-                        if (stopProcessing(currentRow, then)) {
-                            break;
-                        }
                         row = (DelimitedMappable) importProfile.getMappable();
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
@@ -393,6 +390,11 @@ public class FileProcessor {
                                     trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
                             }
                         }
+                        if (stopProcessing(currentRow, then)) {
+                            currentRow --; // For logging purposes, we're reducing the count
+                            break;
+                        }
+
 
                     }
                 }
@@ -500,23 +502,6 @@ public class FileProcessor {
             logger.info("Completed {} rows in {} secs. rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows);
         return rows;
     }
-
-//    public FdReader getStaticDataResolver(ProfileConfiguration importProfile, FdWriter writer) {
-//        if (staticDataResolver != null)
-//            return staticDataResolver;
-//
-//        if (importProfile.getStaticDataClazz() == null)
-//            return defaultStaticDataResolver;
-//        else {
-//            try {
-//                Constructor<FdReader> constructor = (Constructor<FdReader>) Class.forName(importProfile.getStaticDataClazz()).getConstructor(FdWriter.class);
-//                staticDataResolver = constructor.newInstance(writer);
-//            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-//                logger.error("Unexpected", e);
-//            }
-//            return staticDataResolver;// Unit testing
-//        }
-//    }
 
     public static boolean validateArgs(String pathToBatch) throws NotFoundException, IOException {
         Reader reader = getReader(pathToBatch);

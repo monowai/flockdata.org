@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.annotation.EnableRetry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,13 +45,14 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
+@EnableRetry
 public class TestCallerRef extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
     private String monowai = "Monowai";
 
     @Override
-    public void cleanUpGraph(){
+    public void cleanUpGraph() {
 
         // DAT-348 Overriding the @BeforeTransaction annotation
         super.cleanUpGraph();
@@ -62,7 +64,7 @@ public class TestCallerRef extends EngineBase {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
 
-            FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis());
+            FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis(), true);
             Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
             EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
@@ -84,30 +86,35 @@ public class TestCallerRef extends EngineBase {
 
     @Test
     public void findByCallerRefAcrossDocumentTypes() throws Exception {
-        cleanUpGraph();
-        SystemUser su = registerSystemUser(monowai, mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        try {
+            cleanUpGraph();
+            SystemUser su = registerSystemUser(monowai, mike_admin);
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+            EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
-        // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
-        String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
-        Iterable<Entity> results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
-        assertEquals(true, results.iterator().hasNext());
-        assertEquals(metaKey, results.iterator().next().getMetaKey());
+            // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
+            String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
+            Iterable<Entity> results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
+            assertEquals(true, results.iterator().hasNext());
+            assertEquals(metaKey, results.iterator().next().getMetaKey());
 
-        // Same caller ref but different document - this scenario is the callers to resolve
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
-        mediationFacade.trackEntity(su.getCompany(), inputBean);
+            // Same caller ref but different document - this scenario is the callers to resolve
+            inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
+            mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
-        int count = 0;
-        // Should be a total of 2, both for the same fortress but different document types
-        for (Entity result : results) {
-            assertEquals("ABC123", result.getCallerRef());
-            count++;
+            results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
+            int count = 0;
+            // Should be a total of 2, both for the same fortress but different document types
+            for (Entity result : results) {
+                assertEquals("ABC123", result.getCallerRef());
+                count++;
+            }
+            assertEquals(2, count);
+        } finally {
+            cleanUpGraph();
+
         }
-        assertEquals(2, count);
 
     }
 
@@ -119,30 +126,30 @@ public class TestCallerRef extends EngineBase {
     @Test
     //@Repeat(5)
     public void duplicateCallerRefKeysAndDocTypesNotCreated() throws Exception {
-        cleanUpGraph();
-        SystemUser su = registerSystemUser(monowai, "dupex");
-        setSecurity();
-
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis()));
-
-        String docType = "StressDupez";
-        String callerRef = "ABC123X";
-        int runnersToRun = 3;
-        Collection<CallerRefRunner> runners = new ArrayList<>();
-
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch latch = new CountDownLatch(runnersToRun);
-
-        for (int i = 0; i < runnersToRun; i++) {
-            runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
-        }
-        startLatch.countDown();
-        latch.await();
-
         try {
+            cleanUpGraph();
+            SystemUser su = registerSystemUser(monowai, "dupex");
+            setSecurity();
+
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+
+            String docType = "StressDupez";
+            String callerRef = "ABC123X";
+            int runnersToRun = 3;
+            Collection<CallerRefRunner> runners = new ArrayList<>();
+
+            CountDownLatch startLatch = new CountDownLatch(1);
+            CountDownLatch latch = new CountDownLatch(runnersToRun);
+
+            for (int i = 0; i < runnersToRun; i++) {
+                runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
+            }
+            startLatch.countDown();
+            latch.await();
+
             assertNotNull(entityService.findByCallerRef(fortress, docType, callerRef));
-            logger.info ("Runner Count {}", runners.size());
-            int i =1;
+            logger.info("Runner Count {}", runners.size());
+            int i = 1;
 
             for (CallerRefRunner runner : runners) {
                 assertEquals("failed to get a good result when checking if the runner worked " + i, true, runner.getWorked());
@@ -188,14 +195,13 @@ public class TestCallerRef extends EngineBase {
         @Override
         public void run() {
             int count = 0;
-            //setSecurity();
+            setSecurity();
 
             try {
                 startLatch.await();
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
-                    logger.info("This Thread - {}", count);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getEntityBean().getCallerRef().toLowerCase());
@@ -205,11 +211,11 @@ public class TestCallerRef extends EngineBase {
                     count++;
                 }
                 worked = true;
-                logger.info("{} completed", this.toString());
+                logger.debug("{} completed", this.toString());
 
-            } catch ( ExecutionException | IOException | FlockException e) {
-                logger.error("Help!! ["+count +"]", e);
-            } catch (InterruptedException e){
+            } catch (ExecutionException | IOException | FlockException e) {
+                logger.error("Help!! [" + count + "]", e);
+            } catch (InterruptedException e) {
                 logger.error("Interrupted [" + count + "]", e);
             } finally {
                 latch.countDown();

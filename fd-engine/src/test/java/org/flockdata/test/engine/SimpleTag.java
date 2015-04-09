@@ -21,8 +21,11 @@ package org.flockdata.test.engine;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.model.Alias;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by mike on 6/03/15.
@@ -77,6 +80,21 @@ public class SimpleTag implements Tag {
     @Override
     public String getLabel() {
         return tagInputBean.getLabel();
+    }
+
+    @Override
+    public boolean hasAlias(String theLabel, String code) {
+        return false;
+    }
+
+    @Override
+    public Set<Alias> getAliases() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public Tag getLocated() {
+        return null;
     }
 
     public void setCode(String code) {

@@ -19,12 +19,10 @@
 
 package org.flockdata.engine.schema.model;
 
-import org.flockdata.engine.track.model.EntityNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Company;
-import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.TxRef;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -33,7 +31,6 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -48,11 +45,11 @@ public class TxRefNode implements TxRef {
     private Long id;
 
     @Fetch
-    @RelatedTo(elementClass = CompanyNode.class, type = "TX", direction = Direction.INCOMING)
+    @RelatedTo( type = "TX", direction = Direction.INCOMING)
     private CompanyNode company;
 
-    @RelatedTo(elementClass = EntityNode.class, type = "AFFECTED")
-    private Set<Entity> entities;
+//    @RelatedTo( type = "AFFECTED")
+//    private Set<EntityNode> entities;
 
     @Indexed
     private String name;
@@ -88,12 +85,6 @@ public class TxRefNode implements TxRef {
     @JsonIgnore
     public Company getCompany() {
         return company;
-    }
-
-    @Override
-    @JsonIgnore
-    public Set<Entity> getEntities() {
-        return entities;
     }
 
     @Override

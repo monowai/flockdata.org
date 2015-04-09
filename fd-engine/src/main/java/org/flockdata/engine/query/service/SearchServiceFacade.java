@@ -85,8 +85,8 @@ public class SearchServiceFacade {
 
     //
     @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
-    public Boolean searchDocSyncResult(byte[] searchResults) throws IOException {
-        return searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
+    public void searchDocSyncResult(byte[] searchResults) throws IOException {
+        searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
     }
 
     /**
@@ -98,7 +98,7 @@ public class SearchServiceFacade {
      * @param searchResults contains keys to tie the search to the entity
      */
     @ServiceActivator(inputChannel = "searchSyncResult", requiresReply = "false")
-    public Boolean searchDocSyncResult(SearchResults searchResults) {
+    public void searchDocSyncResult(SearchResults searchResults) {
         Collection<SearchResult> theResults = searchResults.getSearchResults();
         int count = 0;
         int size = theResults.size();
@@ -108,7 +108,7 @@ public class SearchServiceFacade {
             logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
             Long entityId = searchResult.getEntityId();
             if (entityId == null)
-                return false;
+                return ;
 
             try {
                 entityService.recordSearchResult(searchResult, entityId);
@@ -117,37 +117,6 @@ public class SearchServiceFacade {
             }
         }
         logger.trace("Finished processing search results");
-        return true;
-    }
-
-    /**
-     * Returns a SearchChange document that can be indexed. Content is based on the resultbean
-     *
-     * @param company
-     * @param resultBean result of a trackRequest
-     * @return null if there is not content
-     */
-
-    public SearchChange getSearchChange(Company company, TrackResultBean resultBean) {
-        SearchChange searchDocument = null;
-        Entity entity = resultBean.getEntity();
-        if (entity.getLastUser() != null)
-            fortressService.fetch(entity.getLastUser());
-        EntityLog entityLog = (resultBean.getLogResult() == null ? null : resultBean.getLogResult().getLogToIndex());
-
-        searchDocument = new EntitySearchChange(new EntityBean(entity), entityLog, resultBean.getContentInput());
-        searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, entity));
-        //if (resultBean.getTags() != null) {
-//                searchDocument.setTags(resultBean.getTags());
-        searchDocument.setSearchKey(entity.getSearchKey());
-
-        if (entity.getId() == null) {
-            logger.debug("No entityId so we are not expecting a reply");
-            searchDocument.setWhen(null);
-            searchDocument.setReplyRequired(false);
-        }
-        searchDocument.setSysWhen(entity.getWhenCreated());
-        return searchDocument;
     }
 
     public void makeChangeSearchable(SearchChange searchChange) {
@@ -172,46 +141,60 @@ public class SearchServiceFacade {
         return true;
     }
 
-    public SearchChange prepareSearchDocument(Company company, TrackResultBean trackResultBean) throws JsonProcessingException {
+    /**
+     * This is the crucial function that populates an object to index in the search service from the
+     * results of a track request
+     *
+     * @param trackResultBean track result
+     * @return SearchChange that will can be indexed
+     */
+    public SearchChange getSearchChange(TrackResultBean trackResultBean) {
         assert trackResultBean != null;
 
-        if (trackResultBean.getEntity().isSearchSuppressed())
-            return null;
+        Entity entity = trackResultBean.getEntity();
+        if (entity.getLastUser() != null)
+            fortressService.fetch(entity.getLastUser());
 
         EntityLog entityLog = getLog(trackResultBean);
+        SearchChange searchDocument = new EntitySearchChange(trackResultBean.getEntityBean(), entityLog, trackResultBean.getContentInput());
 
-        if (entityLog == null) {
-            logger.debug("No log to index");
-            logger.debug("No entityLog could be found in the log to index");
-            return null; // No log to process
+        if (entityLog!=null) {
+            // Used to reconcile that the change was actually indexed
+            logger.trace("Preparing Search Document [{}]", entityLog);
+
+            searchDocument.setLogId(entityLog.getId());
+            if (entityLog.getLog().getWho() != null)
+                searchDocument.setWho(entityLog.getLog().getWho().getCode());
+            if (entityLog.getSysWhen() != 0)
+                searchDocument.setSysWhen(entityLog.getSysWhen());
         }
-
-        SearchChange searchDocument= new EntitySearchChange(trackResultBean.getEntityBean(), entityLog, trackResultBean.getContentInput());
-        if (entityLog.getLog().getWho() != null)
-            searchDocument.setWho(entityLog.getLog().getWho().getCode());
         // ToDo: Can we optimize by using tags already tracked in the result bean?
-        searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, trackResultBean.getEntity()));
+        searchDocument.setTags(entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity()));
         searchDocument.setDescription(trackResultBean.getEntityBean().getDescription());
         searchDocument.setName(trackResultBean.getEntityBean().getName());
+        searchDocument.setSearchKey(entity.getSearchKey());
         try {
-            if (logger.isTraceEnabled())
-                logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
+            //if (logger.isTraceEnabled())
+            logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
-            throw (e);
+            return  null;
         }
-        if (entityLog.getSysWhen() != 0)
-            searchDocument.setSysWhen(entityLog.getSysWhen());
-        else
+
+        if( searchDocument.getSysWhen() == 0l)
             searchDocument.setSysWhen(trackResultBean.getEntityBean().getWhenCreated());
 
-        // Used to reconcile that the change was actually indexed
-        logger.trace("Preparing Search Document [{}]", entityLog);
-        searchDocument.setLogId(entityLog.getId());
+        if (entity.getId() == null) {
+            logger.debug("No entityId so we are not expecting a reply");
+            searchDocument.setWhen(null);
+            searchDocument.setReplyRequired(false);
+            searchDocument.setSearchKey(null);
+        }
+
         return searchDocument;
     }
 
-    public EntitySearchChange rebuild(Company company, Entity entity, EntityLog lastLog) {
+    public EntitySearchChange rebuild(Entity entity, EntityLog lastLog) {
 
         try {
             Log lastChange = null;
@@ -224,7 +207,7 @@ public class SearchServiceFacade {
             EntityBean entityBean = new EntityBean(entity);
             if (lastChange != null) {
                 KvContent content = kvGateway.getContent(entity, lastChange);
-                if ( content == null ) {
+                if (content == null) {
                     logger.error("Unable to locate content for {} ", entity);
                     return null;
                 }
@@ -237,7 +220,7 @@ public class SearchServiceFacade {
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
 
-            searchDocument.setTags(entityTagService.getEntityTagsWithGeo(company, entity));
+            searchDocument.setTags(entityTagService.getEntityTagsWithGeo(entity));
             searchDocument.setReplyRequired(false);
 
             return searchDocument;
@@ -258,7 +241,7 @@ public class SearchServiceFacade {
 
     public void purge(String indexName) {
         // ToDO: Implement this
-        logger.info("Purge the search Fortress {}", indexName);
+        logger.debug("Purge the search Fortress {}", indexName);
     }
 
     public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
@@ -277,11 +260,23 @@ public class SearchServiceFacade {
             SearchChange change = getChangeToPublish(fortress, resultBean);
             if (change != null)
                 changes.add(change);
+            else
+                logger.debug("Ignoring request to index {}", resultBean);
         }
-        makeChangesSearchable(changes);
+        if ( changes.isEmpty()){
+            logger.debug("No changes to index");
+        } else {
+            makeChangesSearchable(changes);
+        }
         logger.debug("Processed request to make changes searchable {}", fortress);
     }
 
+    /**
+     * Returns a change to published
+     * @param fortress        hydrated fortress object
+     * @param trackResultBean data from which to create the search change
+     * @return null if search is not required or is being actively suppressed
+     */
     SearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
         if (trackResultBean == null)
             return null;
@@ -290,19 +285,14 @@ public class SearchServiceFacade {
             return null;
 
         if (trackResultBean.getEntityInputBean() != null && trackResultBean.getEntityInputBean().isMetaOnly()) {
-            return getSearchChange(fortress.getCompany(), trackResultBean);
+            return getSearchChange(trackResultBean);
         }
 
-        try {
-            return prepareSearchDocument(fortress.getCompany(), trackResultBean);
-        } catch (JsonProcessingException e) {
-            trackResultBean.addServiceMessage("Error processing JSON document");
-            if (trackResultBean.getLogResult() != null) {
-                trackResultBean.getLogResult().setStatus(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT);
-            }
-        }
-        //}
+        if (trackResultBean.getLogResult()!=null && trackResultBean.getLogResult().getLogToIndex() !=null )
+            return getSearchChange(trackResultBean);
+
         return null;
+
     }
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
@@ -326,7 +316,7 @@ public class SearchServiceFacade {
         Collection<SearchChange> searchChanges = new ArrayList<>();
 
         for (Entity entity : entitiesSet) {
-            SearchChange change = rebuild(company, entity, entityService.getLastEntityLog(entity.getId()));
+            SearchChange change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
             if (change != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
                 searchChanges.add(change);
         }

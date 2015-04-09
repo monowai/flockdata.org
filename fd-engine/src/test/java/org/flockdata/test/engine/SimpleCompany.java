@@ -21,10 +21,12 @@ package org.flockdata.test.engine;
 
 import org.flockdata.registration.model.Company;
 
+import java.io.Serializable;
+
 /**
  * Created by mike on 6/03/15.
  */
-public class SimpleCompany implements Company {
+public class SimpleCompany implements Company , Serializable {
     String name;
     String code;
 

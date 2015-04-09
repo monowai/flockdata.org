@@ -57,8 +57,8 @@ public class TestTagMerge extends EngineBase {
         inputBean.addTag(tagInputB);
         Entity entityB =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entityA).size()) ;
-        assertEquals(1, entityTagService.getEntityTags(su.getCompany(), entityB).size()) ;
+        assertEquals(1, entityTagService.getEntityTags(entityA).size()) ;
+        assertEquals(1, entityTagService.getEntityTags(entityB).size()) ;
 
         Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getName());
         assertNotNull ( tagA);
@@ -70,14 +70,16 @@ public class TestTagMerge extends EngineBase {
 
         Collection<Long>results =entityTagService.mergeTags(tagA, tagB);
         assertEquals("One Entity should have been affected by this operation", 1, results.size());
-        assertEquals("The wrong Entity was affected by this operation", entityA.getId(), results.iterator().next());
+        Long entityResult = results.iterator().next();
+        assertEquals("The wrong Entity was affected by this operation", entityA.getId(), entityResult);
 
-        Collection<EntityTag> tags = entityTagService.getEntityTags(su.getCompany(), entityA);
+        entityA = entityService.getEntity(su.getCompany(), entityA.getMetaKey());
+        Collection<EntityTag> tags = entityTagService.getEntityTags(entityA);
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
         assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), tagInputA.getName()));
-        tags = entityTagService.getEntityTags(su.getCompany(), entityB);
+        tags = entityTagService.getEntityTags(entityB);
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 

@@ -150,7 +150,7 @@
     <!--Entity Input-->
     <int:channel id="doTrackEntity"/>
     <int:channel id="entityErrors"/>
-    <int:channel id="entityResult"/>
+    <int:channel id="trackResult"/>
 
     <!--End Entity-->
 

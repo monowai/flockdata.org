@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.tag.service;
 
+import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
@@ -27,20 +28,25 @@ import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.neo4j.kernel.api.exceptions.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -48,22 +54,46 @@ import java.util.concurrent.ExecutionException;
  * Time: 6:43 PM
  */
 
-@EnableRetry
 @Service
 public class TagRetryService {
 
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    SchemaService schemaService;
 
-    @Retryable(include =  {HeuristicRollbackException.class, ConstraintViolationException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
+    @Autowired
+    IndexRetryService indexRetryService;
 
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
-        return tagService.createTags(company, tagInputBeans);
+    private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
+
+    @Async("fd-track")
+    @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+            maxAttempts = 15,
+            backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
+    public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+        logger.trace("!!! Create Tags");
+        return new AsyncResult<>(createTags(company, tagInputs));
     }
-//    @Retryable( include =  {DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 12, backoff = @Backoff(delay = 50, maxDelay = 400))
-//    public Tag createTag(Company company,TagInputBean tagInputBean) {
-//        return tagDao.save(company, tagInputBean);
-//    }
+
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException {
+        if (tagInputBeans.isEmpty())
+            return new ArrayList<>();
+        boolean schemaReady;
+        do {
+            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
+        } while (!schemaReady);
+        logger.debug("Schema Indexes appear to be in place");
+
+        try {
+            return tagService.createTags(company, tagInputBeans);
+        } catch (FlockException e) {
+            throw (e);
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            logger.error("Track Error", e);
+        }
+        return new ArrayList<>();
+    }
 
 }

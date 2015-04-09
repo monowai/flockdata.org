@@ -36,10 +36,12 @@ public class TestFileProcessor {
         assertFalse("No check should be made",fp.stopProcessing(1));
 
         fp = new FileProcessor(50,50);
+        // Skip the first 50 rows
         assertFalse("Less than skip count failed", fp.stopProcessing(49));
-        assertFalse("Processing should begin", fp.stopProcessing(50));
-        assertFalse("Processing should continue", fp.stopProcessing(51));
+        assertFalse("Processing should continue", fp.stopProcessing(50));
+        assertFalse("Processing should start", fp.stopProcessing(51));
         assertTrue("Processing should stop", fp.stopProcessing(100));
+        assertTrue("Processing should stop", fp.stopProcessing(101));
         assertTrue("Processing should really have stopped", fp.stopProcessing(101));
 
         fp = new FileProcessor(50000,10);

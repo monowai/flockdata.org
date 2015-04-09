@@ -23,15 +23,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.model.Alias;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Labels;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -51,13 +55,19 @@ public class TagNode implements Tag {
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
 
+    @RelatedTo(elementClass = AliasNode.class, type = "HAS_ALIAS")
+    private Set<Alias> aliases = new HashSet<>();
+
+    @RelatedTo(elementClass = TagNode.class, type = "located")
+    private Set<Tag> located = null;
+
     DynamicProperties props = new DynamicPropertiesContainer();
 
     private String name;
 
     protected TagNode() {
         labels.add("Tag");
-        labels.add("_Tag");
+        labels.add("_Tag"); // Required for SDN 3.x
     }
 
     public TagNode(TagInputBean tagInput) {
@@ -69,16 +79,19 @@ public class TagNode implements Tag {
             setCode(tagInput.getCode());
 
         this.key = getCode().toLowerCase().replaceAll("\\s", "");
-        if ( tagInput.getProperties()!=null && !tagInput.getProperties().isEmpty()) {
+        if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
-        if ( !(tagInput.getLabel() == null) )
+        if (!(tagInput.getLabel() == null)) {
             this.labels.add(tagInput.getLabel());
+            //this.labels.add("_"+tagInput.getLabel());
+        }
     }
 
     public TagNode(TagInputBean tagInput, String tagLabel) {
         this(tagInput);
-        labels.add(tagLabel);
+        if (!labels.contains(tagLabel))
+            labels.add(tagLabel);
     }
 
     @Override
@@ -101,7 +114,7 @@ public class TagNode implements Tag {
         return "TagNode{" +
                 "id=" + id +
                 ", label='" + getLabel() + '\'' +
-                ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 
@@ -133,7 +146,7 @@ public class TagNode implements Tag {
     public String getLabel() {
 
         for (String label : labels) {
-            if ( !label.equals("_Tag") && ! label.equals("Tag"))
+            if (!label.equals("_Tag") && !label.equals("Tag"))
                 return label;
         }
         return "_Tag";
@@ -168,4 +181,32 @@ public class TagNode implements Tag {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
+
+    public void addAlias(AliasNode newAlias) {
+        aliases.add(newAlias);
+    }
+
+    @Override
+    public boolean hasAlias(String theLabel, String code) {
+        if (aliases.isEmpty())
+            return false;
+        for (Alias alias : aliases) {
+            if (alias.getKey().equals(code) && alias.getLabel().equals(theLabel + "Alias"))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<Alias> getAliases() {
+        return aliases;
+    }
+
+    public Tag getLocated() {
+        if (located == null || located.isEmpty())
+            return null;
+
+        return located.iterator().next();
+    }
+
 }

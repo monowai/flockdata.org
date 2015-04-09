@@ -40,7 +40,7 @@ public class JsonEntityInputConverter  extends SimpleMessageConverter {
     public Object fromMessage(final Message message) throws MessageConversionException {
 
         try {
-            return JsonUtils.getBytesAsObject(message.getBody(), EntityInputBean.class);
+            return JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new MessageConversionException("failed to convert text-based Message content", e1);

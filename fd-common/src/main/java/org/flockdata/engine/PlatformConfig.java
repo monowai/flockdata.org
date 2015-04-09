@@ -30,7 +30,7 @@ import java.util.Map;
  * Date: 14/11/14
  * Time: 1:22 PM
  */
-public interface FdEngineConfig {
+public interface PlatformConfig {
 
     String getTagSuffix(Company company);
 

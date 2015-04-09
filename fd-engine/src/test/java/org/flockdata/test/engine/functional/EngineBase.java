@@ -22,7 +22,7 @@ package org.flockdata.test.engine.functional;
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.company.model.FortressNode;
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.service.TxService;
@@ -112,7 +112,7 @@ public abstract class EngineBase {
 
 	@Autowired
     public
-    FdEngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
 	@Autowired
     QueryService queryService;
@@ -147,7 +147,7 @@ public abstract class EngineBase {
 			mike_admin, "123");
 
 	public Fortress createFortress(SystemUser su) throws Exception {
-		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis()));
+		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
 	}
 
 
@@ -156,7 +156,6 @@ public abstract class EngineBase {
 	public void cleanUpGraph() {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
         //           might be started giving you sporadic failures.
-        logger.info("Cleaning graph");
 		Neo4jHelper.cleanDb(template);
 		engineConfig.setDuplicateRegistration(true);
 	}

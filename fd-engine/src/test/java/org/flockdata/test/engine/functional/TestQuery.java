@@ -61,11 +61,11 @@ public class TestQuery extends EngineBase {
         SystemUser suA = registerSystemUser("CompanyA", "userA");
         SystemUser suB = registerSystemUser("CompanyB", "userB");
 
-        Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA"));
-        Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB"));
+        Fortress coAfA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfA", true));
+        Fortress coAfB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("coAfB", true));
 
-        Fortress coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA"));
-        Fortress coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB"));
+        Fortress coBfA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfA", true));
+        Fortress coBfB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("coBfB", true));
 
         setSecurity();
         //

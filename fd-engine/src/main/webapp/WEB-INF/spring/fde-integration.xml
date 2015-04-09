@@ -156,7 +156,15 @@
     <!--Entity Input-->
     <int:channel id="doTrackEntity"/>
     <int:channel id="entityErrors"/>
-    <int:channel id="entityResult"/>
+
+    <int:logging-channel-adapter id="logger" level="DEBUG"/>
+
+    <int:channel id="trackResult">
+        <int:interceptors>
+            <int:wire-tap channel="logger"/>
+        </int:interceptors>
+    </int:channel>
+
 
     <int:channel id="returnResponse"/>
     <int:channel id="stdOut"/>

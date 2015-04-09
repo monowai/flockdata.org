@@ -21,7 +21,7 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.company.model.CompanyNode;
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.dao.CompanyDao;
@@ -49,7 +49,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     KeyGenService keyGenService;
 
     @Autowired
-    FdEngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     @Autowired
     SchemaDaoNeo4j schemaDao;

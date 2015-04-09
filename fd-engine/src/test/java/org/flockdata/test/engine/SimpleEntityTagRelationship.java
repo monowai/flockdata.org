@@ -68,13 +68,13 @@ public class SimpleEntityTagRelationship implements EntityTag, Comparable<Entity
     }
 
     @Override
-    public Long getPrimaryKey() {
-        return null;
+    public String getRelationship() {
+        return tagType;
     }
 
     @Override
-    public String getRelationship() {
-        return tagType;
+    public void setRelationship(String relationship) {
+        tagType = relationship;
     }
 
     @Override
@@ -97,7 +97,18 @@ public class SimpleEntityTagRelationship implements EntityTag, Comparable<Entity
         return properties;
     }
 
-    public void setGeoData(GeoData geoData) {
+    @Override
+    public Entity getEntity() {
+        return entity;
+    }
+
+    @Override
+    public Boolean isReversed() {
+        return false;
+    }
+
+    public EntityTag setGeoData(GeoData geoData) {
         this.geoData = geoData;
+        return this;
     }
 }

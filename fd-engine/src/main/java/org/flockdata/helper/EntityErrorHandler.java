@@ -21,6 +21,7 @@ package org.flockdata.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -38,50 +39,41 @@ public class EntityErrorHandler {
     public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
         // ToDo: How to persist failed messages
         MessageHandlingException payLoad = message.getPayload();
+        String errorMessage =null;
         if (payLoad != null) {
             Object msgPayload = payLoad.getFailedMessage().getPayload();
-            String errorMessage ;
+
             if (payLoad.getCause() != null) {
                 errorMessage = payLoad.getCause().getMessage();
-                logger.error(payLoad.getCause().getMessage());
             }else
                 errorMessage = payLoad.getMessage();
 
             if (msgPayload instanceof String)
-                logger.debug(errorMessage + " [" +msgPayload.toString()+"]");
+                errorMessage =errorMessage + " [" + msgPayload.toString() + "]";
             else {
                 Object o = payLoad.getFailedMessage().getPayload();
-                logger.info(errorMessage + ". " + o.toString());
+                errorMessage =errorMessage + ". " + o.toString();
 
             }
         }
-        throw payLoad;
-
-
+        logger.error(errorMessage);
+        throw new AmqpRejectAndDontRequeueException(errorMessage);
+        //throw payLoad;
     }
     @ServiceActivator
     public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
         // ToDo: How to persist failed messages
         MessageDeliveryException payLoad = message.getPayload();
-        Object msgPayload = payLoad.getFailedMessage().getPayload();
+        String errorMessage ;
         if ( payLoad.getCause()!= null ) {
-            logger.error(payLoad.getCause().getMessage());
-            if ( payLoad.getCause() instanceof FlockDataTagException){
-                return; // Log and get out of here
-            }
+            errorMessage =payLoad.getCause().getMessage();
 
-        } else
-            logger.error(payLoad.getMessage());
-
-        if (msgPayload instanceof String)
-            logger.debug(msgPayload.toString());
-        else {
-            Object o = ((MessageDeliveryException) msgPayload).getFailedMessage().getPayload();
-            logger.info(o.toString());
-
+        } else {
+            errorMessage = payLoad.getMessage();
         }
 
-        throw payLoad;
+
+        throw new AmqpRejectAndDontRequeueException(errorMessage);
 
     }
 

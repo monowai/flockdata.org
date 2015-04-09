@@ -21,18 +21,20 @@ package org.flockdata.registration.bean;
 
 import org.flockdata.registration.model.Fortress;
 
+import java.io.Serializable;
+
 /**
  * User: Mike Holdsworth
  * Since: 21/12/13
  */
-public class FortressResultBean {
+public class FortressResultBean implements Serializable{
     private String code;
     private String name;
     private String indexName;
     private String timeZone;
     private Boolean enabled=Boolean.TRUE;
-    private Boolean searchActive;
-    private Boolean storeActive;
+    private Boolean searchEnabled;
+    private Boolean storeEnabled;
     private String companyName;
 
     protected FortressResultBean() {
@@ -46,9 +48,9 @@ public class FortressResultBean {
         this.indexName = fortress.getIndexName();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
-        this.searchActive = fortress.isSearchActive();
+        this.searchEnabled = fortress.isSearchActive();
         this.companyName = fortress.getCompany().getName();
-        this.storeActive = fortress.isStoreEnabled();
+        this.storeEnabled = fortress.isStoreEnabled();
     }
 
     public String getName() {
@@ -59,16 +61,16 @@ public class FortressResultBean {
         return timeZone;
     }
 
-    public boolean isSearchActive() {
-        return searchActive;
+    public boolean getSearchEnabled() {
+        return searchEnabled;
     }
 
     public boolean isEnabled() {
         return enabled;
     }
 
-    public boolean getStoreActive() {
-        return storeActive;
+    public boolean isStoreEnabled() {
+        return storeEnabled;
     }
 
     public String getCompanyName() {

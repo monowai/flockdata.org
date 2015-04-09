@@ -246,6 +246,8 @@ public class TagInputBean {
     }
 
     public TagInputBean addEntityLink(String relationshipName) {
+        if (relationshipName.equals("located"))
+            setReverse(true);
         return addEntityLink(relationshipName, null);
     }
 

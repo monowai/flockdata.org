@@ -29,7 +29,6 @@ import org.flockdata.registration.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
@@ -50,7 +49,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
         // DAT-109 enhancements
-        String docIndexes = CypherHelper.getLabels("meta", input.getDocuments());
+        String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
@@ -61,11 +60,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (!conceptsTo.equals("")) {
             conceptString = conceptString + " and ( " + conceptsTo + ") ";
         }
-        boolean docFilter = !(docIndexes.equals(":_Entity") || docIndexes.equals(""));
+        boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
-        String query = "match (meta:_Entity) " + (docFilter ? "where  " + docIndexes : "") +
-                " with meta " +
-                "match t=(tag1)-[" + fromRlx + "]-(meta)-[" + toRlx + "]-(tag2) " +     // Concepts
+        String query = "match (entity:Entity) " + (docFilter ? "where  " + docIndexes : "") +
+                " with entity " +
+                "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
                 conceptString +
                 "with tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
 //                "order by links desc, tag2 " +
@@ -87,7 +86,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         params.put("linkCount", input.getMinCount());
         StopWatch watch = new StopWatch(input.toString());
         watch.start("Execute Matrix Query");
-        Result<Map<String, Object>> result = template.query(query, params);
+        Iterable<Map<String, Object>> result = template.query(query, params);
         watch.stop();
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<EdgeResult> edgeResults = new ArrayList<>();

@@ -32,7 +32,7 @@ public class FortressUserNode implements FortressUser {
     @GraphId
     Long id;
 
-    @RelatedTo(elementClass = FortressNode.class, type = "BELONGS_TO", direction = Direction.OUTGOING)
+    @RelatedTo( type = "BELONGS_TO", direction = Direction.OUTGOING)
     @Fetch
     private FortressNode fortress;
 

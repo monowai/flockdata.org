@@ -29,6 +29,8 @@ import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
+import java.io.Serializable;
+
 /**
  * User: Mike Holdsworth
  * Since: 6/09/13

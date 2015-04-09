@@ -39,13 +39,9 @@ public class SystemUserNode implements SystemUser {
     @Indexed
     private String apiKey;
 
-//    @RelatedTo (elementClass = CompanyUserNode.class, type ="isA", direction = Direction.INCOMING)
-//    private CompanyUser companyUser;
-
     @Fetch
-    @RelatedTo(elementClass = CompanyNode.class, type = "ACCESSES", direction = Direction.OUTGOING)
+    @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
     private CompanyNode company;
-
 
     protected SystemUserNode() {
     }

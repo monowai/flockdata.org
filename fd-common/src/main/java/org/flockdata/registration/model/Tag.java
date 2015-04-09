@@ -19,7 +19,10 @@
 
 package org.flockdata.registration.model;
 
+import org.flockdata.track.model.Alias;
+
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Mike Holdsworth
@@ -28,7 +31,7 @@ import java.util.Map;
  */
 public interface Tag {
 
-    public static String DEFAULT_TAG="_Tag";
+    public static String DEFAULT_TAG="Tag";
     public static String DEFAULT=":" + DEFAULT_TAG ;
 
     String UNDEFINED = "undefined";
@@ -48,4 +51,10 @@ public interface Tag {
     String getCode();
 
     String getLabel();
+
+    boolean hasAlias(String theLabel, String code);
+
+    Set<Alias> getAliases();
+
+    Tag getLocated();
 }
