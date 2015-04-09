@@ -288,7 +288,7 @@ public class SearchServiceFacade {
             return getSearchChange(trackResultBean);
         }
 
-        if ( trackResultBean.getLogResult().getLogToIndex() !=null )
+        if (trackResultBean.getLogResult()!=null && trackResultBean.getLogResult().getLogToIndex() !=null )
             return getSearchChange(trackResultBean);
 
         return null;
