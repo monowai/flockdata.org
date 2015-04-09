@@ -29,10 +29,12 @@ import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.LogService;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.graphdb.ConstraintViolationException;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -63,7 +65,7 @@ public class EntityRetryService {
     @Autowired
     SchemaService schemaService;
 
-    @Retryable(include = {DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+    @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 20,
             backoff = @Backoff(delay = 100, maxDelay = 500))
     public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities, Collection<Tag> tags)
