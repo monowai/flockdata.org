@@ -16,10 +16,9 @@
 
     <context:spring-configured/>
     <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
 
-
-    <context:component-scan base-package="
-        org.flockdata.engine.admin,
+    <context:component-scan  base-package="org.flockdata.engine.admin,
 		org.flockdata.engine.query,
 		org.flockdata.engine.schema,
 		org.flockdata.engine.tag,
@@ -29,7 +28,7 @@
 		org.flockdata.configure,
 		org.flockdata.geography,
 		org.flockdata.company,
-		org.flockdata.kv" />
+		org.flockdata.kv"/>
 
     <!-- Root Context: defines shared resources visible to all other web components -->
 
@@ -44,8 +43,6 @@
     <import resource="http-monitoring-integration.xml"/>
 
     <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
-
-    <aop:aspectj-autoproxy/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 

@@ -78,10 +78,10 @@
 
     <!--Very chatty and thus far not very informative-->
     <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.amqp">
-        <level value="info"/>
+        <level value="error"/>
     </logger>
     <logger name="org.springframework.context">
         <level value="error"/>

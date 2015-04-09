@@ -20,6 +20,7 @@
 
     <context:spring-configured/>
     <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
 
     <!-- Root Context: defines shared resources visible to all other web components -->
     <context:component-scan
@@ -49,8 +50,6 @@
     <import resource="kv-context.xml"/>
 
     <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
-
-    <aop:aspectj-autoproxy/>
 
     <cache:annotation-driven cache-manager="fdCacheManager" />
 

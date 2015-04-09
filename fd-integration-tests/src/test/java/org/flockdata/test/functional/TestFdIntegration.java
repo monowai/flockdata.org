@@ -31,8 +31,8 @@ import io.searchbox.indices.mapping.GetMapping;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.configure.EngineConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
@@ -47,9 +47,15 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.search.model.*;
+import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.*;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityLog;
+import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.model.KvContent;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
@@ -137,7 +143,7 @@ public class TestFdIntegration {
     EntityService entityService;
 
     @Autowired
-    EngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     @Autowired
     RegistrationService regService;
