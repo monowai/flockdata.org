@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class TestTagConcepts extends EngineBase {
 
     @Override
     public void cleanUpGraph() {
-        Neo4jHelper.cleanDb(template);
+        super.cleanUpGraph();
     }
 
     @Test
@@ -71,7 +70,7 @@ public class TestTagConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleDocsSameFortress", mike_admin);
             assertNotNull(su);
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", false));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", true));
             DocumentType dType = schemaService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
@@ -101,7 +100,7 @@ public class TestTagConcepts extends EngineBase {
             assertEquals(1, found.size());
             assertEquals("Didn't find the Document + User concept",2, found.iterator().next().getConcepts().size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -119,8 +118,8 @@ public class TestTagConcepts extends EngineBase {
             SystemUser su = registerSystemUser("multipleFortressesSameTag", mike_admin);
             assertNotNull(su);
 
-            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", false));
-            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", false));
+            Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagA", true));
+            Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleFortressesSameTagB", true));
             commitManualTransaction(t);
 
             EntityInputBean input = new EntityInputBean(fortressA.getName(), "jinks", "DocA", new DateTime());
@@ -145,7 +144,7 @@ public class TestTagConcepts extends EngineBase {
             assertEquals(1, docsInUse.size());
 
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -183,7 +182,6 @@ public class TestTagConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust124", "purchased").setLabel("Customer"));
 
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-            //waitAWhile("Concepts creating...");
 
             Collection<String> docs = new ArrayList<>();
             docs.add("DocA");
@@ -195,7 +193,6 @@ public class TestTagConcepts extends EngineBase {
             input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
             input.addTag(new TagInputBean("cust123", "sold").setLabel("Rep"));
             mediationFacade.trackEntity(su.getCompany(), input);
-//            waitAWhile("Concepts creating...");
 
             documentTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
             assertEquals("Only one doc type should exist", 1, documentTypes.size());
@@ -222,7 +219,7 @@ public class TestTagConcepts extends EngineBase {
             assertTrue("Didn't find Customer concept", foundCustomer);
             assertTrue("Didn't find Rep concept", foundRep);
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -256,8 +253,6 @@ public class TestTagConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
             input.addTag(new TagInputBean("harry", "soldto").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-//            waitAWhile("Concepts creating...");
-//            waitAWhile("Concepts creating...");
             validateConcepts("DocA", su, 1);
 
             Collection<String> docs = new ArrayList<>();
@@ -280,7 +275,7 @@ public class TestTagConcepts extends EngineBase {
             }
             assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -315,7 +310,6 @@ public class TestTagConcepts extends EngineBase {
             input = new EntityInputBean(fortress.getName(), "jinks", docB.getName(), new DateTime());
             input.addTag(new TagInputBean("cust121", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-            //waitAWhile("Concepts creating...");
 
             Collection<String> docs = new ArrayList<>();
             docs.add(docA.getName());
@@ -341,7 +335,7 @@ public class TestTagConcepts extends EngineBase {
             assertTrue("DocB Not Found in the concept", docBFound);
             assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }
@@ -371,7 +365,6 @@ public class TestTagConcepts extends EngineBase {
 
             DocumentType sale = schemaService.resolveByDocCode(fortress, "Sale", true);
             commitManualTransaction(t);
-//            waitAWhile();
             t = beginManualTransaction();
             DocumentType promo = schemaService.resolveByDocCode(fortress, "Promotion", true);
             commitManualTransaction(t);
@@ -385,7 +378,7 @@ public class TestTagConcepts extends EngineBase {
             salesInput.addTag(new TagInputBean("Linux", "purchased").setLabel("Device"));
             //promoInput.addTag(new TagInputBean("Gary", "authorised").setLabel("Person"));
             mediationFacade.trackEntity(su.getCompany(), salesInput).getEntity();
-            waitAWhile();
+
             Collection<String> docs = new ArrayList<>();
             docs.add(promo.getName());
             docs.add(sale.getName());
@@ -409,13 +402,10 @@ public class TestTagConcepts extends EngineBase {
                     }
 
                 }
-
                 assertEquals(true, deviceFound && userFound);
-
-                logger.info(foundDoc.toString());
             }
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
 
@@ -437,7 +427,6 @@ public class TestTagConcepts extends EngineBase {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
 
-//            waitAWhile();
             t = beginManualTransaction();
             DocumentType claim = schemaService.resolveByDocCode(fortress, "Claim", true);
             commitManualTransaction(t);
@@ -451,7 +440,6 @@ public class TestTagConcepts extends EngineBase {
 
             mediationFacade.trackEntity(su.getCompany(), promoInput).getEntity();
 
-//            waitAWhile();
             Collection<String> docs = new ArrayList<>();
             docs.add(claim.getName());
             validateConcepts(docs, su, 1);
@@ -481,7 +469,7 @@ public class TestTagConcepts extends EngineBase {
             mediationFacade.purge( fortress);
             assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
-            Neo4jHelper.cleanDb(template);
+            cleanUpGraph();
         }
 
     }

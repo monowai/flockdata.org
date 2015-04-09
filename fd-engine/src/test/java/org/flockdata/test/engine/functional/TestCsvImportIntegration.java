@@ -43,10 +43,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -73,7 +70,7 @@ public class TestCsvImportIntegration extends EngineBase {
     public void csvImport_DuplicateLogsNotCreated() throws Exception {
         cleanUpGraph(); // No transaction so need to clear down the graph
 //        engineConfig.setConceptsEnabled(false);
-        logger.info("Starting ## csvImport_DuplicateLogsNotCreated");
+        logger.debug("### csvImport_DuplicateLogsNotCreated");
         engineConfig.setTestMode(true);
         assertTrue(engineConfig.getKvStore().equals(KvService.KV_STORE.MEMORY));
         setSecurity();
@@ -97,7 +94,7 @@ public class TestCsvImportIntegration extends EngineBase {
             EntityLog log = entityService.getLastEntityLog(entityA.getId());
             Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
             for (EntityLog entityLog : logs) {
-                logger.info("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
+                logger.debug("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();
@@ -129,26 +126,20 @@ public class TestCsvImportIntegration extends EngineBase {
         public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
             if (count == 0)
                 count = entityBatch.size();
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
+            //ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
 
             //if (configuration.getBatchSize() == 1) {
-                for (EntityInputBean entityInputBean : entityBatch) {
-
-
-                    //MyRunner runner = new MyRunner(entityInputBean, su.getApiKey());
-                    //executor.execute(runner);
+//                for (EntityInputBean entityInputBean : entityBatch) {
                     try {
-                        if (entityInputBean != null) {
-                            logger.debug("My Date {}", entityInputBean.getWhen());
-                            mediationFacade.trackEntity(entityInputBean, su.getApiKey());
-                        }
-                    } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
+    //                    if (entityInputBean != null) {
+                            //logger.debug("My Date {}", entityInputBean.getWhen());
+                            mediationFacade.trackEntities(entityBatch, su.getApiKey());
+                        } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
                         logger.error("Unexpected", e);
                     }
-                }
 
 
-            logger.debug("Executor at {}", executor.getActiveCount());
+  //          logger.debug("Executor at {}", executor.getActiveCount());
 
             return "";
         }
@@ -168,34 +159,5 @@ public class TestCsvImportIntegration extends EngineBase {
             trackBatcher.flush();
         }
     }
-
-//    private class MyRunner implements Runnable {
-//        private EntityInputBean entityInputBean;
-//        Collection<EntityInputBean> entityInputBeans;
-//        private String apiKey;
-//
-//        MyRunner(EntityInputBean entityInputBean, String apiKey) {
-//            this.entityInputBean = entityInputBean;
-//            this.apiKey = apiKey;
-//        }
-//
-//        @Override
-//        public void run() {
-//
-//            try {
-//                if (entityInputBean != null) {
-//                    logger.debug("My Date {}", entityInputBean.getWhen());
-//                    mediationFacade.trackEntity(entityInputBean, apiKey);
-//                } else {
-//                    mediationFacade.trackEntity(entityInputBean, apiKey);
-//                }
-//            } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
-//                logger.error("Unexpected", e);
-//            }
-//
-//
-//        }
-//    }
-
 
 }

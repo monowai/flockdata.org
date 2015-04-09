@@ -19,15 +19,15 @@
 
 package org.flockdata.engine.track.model;
 
-import org.flockdata.engine.schema.model.ChangeEventNode;
-import org.flockdata.engine.schema.model.TxRefNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.kv.service.KvService;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.track.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.company.model.FortressUserNode;
+import org.flockdata.engine.schema.model.ChangeEventNode;
+import org.flockdata.engine.schema.model.TxRefNode;
+import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.model.FortressUser;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.model.*;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -46,14 +46,14 @@ public class LogNode implements Log {
     @GraphId
     private Long id;
 
-    @RelatedTo(elementClass = FortressUserNode.class, type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
+    @RelatedTo(type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUserNode madeBy;
 
-    @RelatedTo(elementClass = TxRefNode.class, type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
-    private TxRef txRef;
+    @RelatedTo(type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
+    private TxRefNode txRef;
 
-    @RelatedToVia(elementClass = EntityLogRelationship.class, type = "LOGGED", direction = Direction.INCOMING)
+    @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     private EntityLogRelationship entityLog;
 
     // DAT-344
@@ -184,7 +184,7 @@ public class LogNode implements Log {
     }
 
     public void setTxRef(TxRef txRef) {
-        this.txRef = txRef;
+        this.txRef = (TxRefNode) txRef;
     }
 
     public ChangeEvent getEvent() {
@@ -245,7 +245,7 @@ public class LogNode implements Log {
     public void setContent(KvContent kvContent) {
         this.content = kvContent;
         if ( kvContent.getContent()!=null ){
-            this.profileVersion = kvContent.getContent().getProfileVersion();
+            this.profileVersion = kvContent.getContent().getpVer();
         }
 
     }

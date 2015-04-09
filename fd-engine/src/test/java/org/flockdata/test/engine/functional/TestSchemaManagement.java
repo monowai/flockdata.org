@@ -24,6 +24,7 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -40,6 +41,12 @@ import static org.junit.Assert.*;
  */
 public class TestSchemaManagement extends EngineBase {
 
+    @Override
+    public void cleanUpGraph() {
+        // DAT-348
+        super.cleanUpGraph();
+    }
+
     @Test
     public void documentTypesTrackedPerFortress() throws Exception {
         cleanUpGraph();
@@ -55,14 +62,6 @@ public class TestSchemaManagement extends EngineBase {
         String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
-        // There should be a doc type per fortress and it should have the same Id.
-        // ToDo: fortress actions based on fortress api-key
-//        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/fortress/")
-//                        .header("api-key", su.getApiKey())
-//                                //.("company", su.getCompany())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(getJSON(new FortressInputBean(fortressName, true)))
-//        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
         Collection<DocumentResultBean> docTypesA = fortressService.getFortressDocumentsInUse(suA.getCompany(), fortressA.getCode());
         assertEquals(1, docTypesA.size());
@@ -77,36 +76,41 @@ public class TestSchemaManagement extends EngineBase {
     @Test
     public void documentTypesTrackedPerCompany() throws Exception {
         cleanUpGraph();
-        Thread.sleep(100);
-        //SystemUserResultBean cOtherAPI = registrationEP.registerSystemUser(new RegistrationBean("OtherCo", "harry")).getBody();
-        SystemUser suA = registerSystemUser("documentTypesTrackedPerCompany", mike_admin);
-        SystemUser suB = registerSystemUser("OtherCo", harry);
+        String sharedName = "entityTestB";
+        SystemUser suA = registerSystemUser("OtherCo", harry);
+        fortressService.registerFortress(suA.getCompany(), new FortressInputBean(sharedName, true));
+        EntityInputBean entityInput = new EntityInputBean(sharedName, "wally", "DocTypeA", new DateTime(), "ABC123");
+        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), entityInput).getEntityBean().getMetaKey();
 
-        Fortress fortressA = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("auditTestA", true));
-        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("auditTestB", true));
+
+//        assertFalse(metaKeyA.equals(metaKeyB));
 
         // Same name different company
-        Fortress fortressC = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB"));
+        SystemUser suB = registerSystemUser("documentTypesTrackedPerCompany", mike_admin);
+        setSecurity(suB.getName());
+        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean(sharedName, true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
+        setSecurity(suB.getName());
+        entityInput = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        TrackResultBean trackResult = mediationFacade.trackEntity(suB.getCompany(), entityInput);
+        assertFalse(trackResult.entityExists());
+        String metaKeyC = trackResult.getEntity().getMetaKey();
 
-        inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getEntityBean().getMetaKey();
+        assertFalse("KeyC should belong to company B", metaKeyC.equals(metaKeyA));
 
-        assertFalse(metaKeyA.equals(metaKeyB));
+        // Secondary document type for company B
+        entityInput = new EntityInputBean(fortressB.getName(), "wally", "DocTypeB", new DateTime(), "ABC123X");
+        mediationFacade.trackEntity(suB.getCompany(), entityInput);
 
-        inputBean = new EntityInputBean(fortressC.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyC = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
-        assertFalse(metaKeyC.equals(metaKeyA));
-        assertFalse(metaKeyC.equals(metaKeyB));
 
         // There should be a doc type per fortress and it should have the same Id.
-        Collection<DocumentResultBean> documentsInUse = schemaService.getDocumentsInUse(suA.getCompany());
-        assertEquals(2, documentsInUse.size());
+        Collection<DocumentResultBean> documentsInUse = schemaService.getDocumentsInUse(suB.getCompany());
+        assertEquals("CompanyB has should have 2 doc types", 2, documentsInUse.size());
         // Companies can't see each other stuff
-        documentsInUse = schemaService.getDocumentsInUse(suB.getCompany());
+        setSecurity(suA.getName());
+        documentsInUse = schemaService.getDocumentsInUse(suA.getCompany());
         assertEquals(1, documentsInUse.size());
+
 
     }
 
@@ -126,7 +130,7 @@ public class TestSchemaManagement extends EngineBase {
         try {
             schemaService.resolveByDocCode(fortress, null, false);
             fail("Null not handled correctly");
-        } catch ( IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             // Good
         }
 

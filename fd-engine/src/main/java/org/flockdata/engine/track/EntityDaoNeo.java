@@ -25,14 +25,14 @@ import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.LogNode;
 import org.flockdata.engine.track.service.TrackEventService;
+import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.service.KeyGenService;
-import org.flockdata.track.bean.EntityTXResult;
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -41,7 +41,6 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -59,6 +58,9 @@ import java.util.*;
 public class EntityDaoNeo {
     @Autowired
     EntityRepo entityRepo;
+
+    @Autowired
+    TxRepo txRepo;
 
     @Autowired
     TrackLogRepo trackLogRepo;
@@ -182,7 +184,7 @@ public class EntityDaoNeo {
         Map<String, Object> args = new HashMap<>();
         args.put("fortressUser", fortressId);
         args.put("skip", skipTo);
-        Result<Map<String, Object>> result = template.query(cypher, args);
+        Iterable<Map<String, Object>> result = template.query(cypher, args);
 
         Iterator<Map<String, Object>> rows = result.iterator();
         Collection<Entity> results = new ArrayList<>();
@@ -200,7 +202,7 @@ public class EntityDaoNeo {
     }
 
     public TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
-        return entityRepo.findTxTag(txTag, company.getId());
+        return txRepo.findTxTag(txTag, company.getId());
     }
 
     public TxRef beginTransaction(String id, Company company) {
@@ -235,22 +237,22 @@ public class EntityDaoNeo {
     public Map<String, Object> findByTransaction(TxRef txRef) {
         //Example showing how to use cypher and extract
 
-        String findByTagRef = "start tag =node({txRef}) " +
-                "              match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+        String findByTagRef =" match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+                "              where id(tag)={txRef}" +
                 "             return logs, track, log " +
                 "           order by logs.sysWhen";
         Map<String, Object> params = new HashMap<>();
         params.put("txRef", txRef.getId());
 
 
-        Result<Map<String, Object>> exResult = template.query(findByTagRef, params);
+        Iterable<Map<String, Object>> exResult = template.query(findByTagRef, params);
 
         Iterator<Map<String, Object>> rows;
         rows = exResult.iterator();
 
         List<EntityTXResult> simpleResult = new ArrayList<>();
         int i = 1;
-        //Result<Map<String, Object>> results =
+        //Iterable<Map<String, Object>> results =
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             EntityLog log = template.convert(row.get("logs"), EntityLogRelationship.class);

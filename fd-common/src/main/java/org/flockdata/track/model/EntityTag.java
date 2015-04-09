@@ -36,13 +36,12 @@ public interface EntityTag {
 
     public Tag getTag();
 
-    //ToDo - should this be a taggable interface?
-    public Long getPrimaryKey();
-
     /**
      * @return relationship name
      */
     public String getRelationship();
+
+    public void setRelationship(String relationship);
 
     /**
      * @return property map of custom properties associated with the tag
@@ -61,4 +60,9 @@ public interface EntityTag {
 
     Map<String,Object> getProperties();
 
+    Entity getEntity();
+
+    public Boolean isReversed();
+
+    EntityTag setGeoData(GeoData geoData);
 }

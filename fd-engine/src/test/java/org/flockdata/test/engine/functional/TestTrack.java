@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
@@ -78,10 +79,8 @@ public class TestTrack extends EngineBase {
         inputBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
         entityInputBeans.add(inputBean);
-        logger.info("Tracking...");
 
         mediationFacade.trackEntities(fortWP, entityInputBeans, 1);
-        logger.info("Tracked...");
         Entity entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
@@ -188,7 +187,6 @@ public class TestTrack extends EngineBase {
         int i = 0;
         double max = 10d;
         StopWatch watch = new StopWatch();
-        logger.info("Start-");
         watch.start();
         while (i < max) {
             TrackResultBean subsequent = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", ahKey, new DateTime(), Helper.getSimpleMap("blah", i)));
@@ -202,8 +200,6 @@ public class TestTrack extends EngineBase {
         watch.stop();
         logger.info(watch.prettyPrint() + " avg = " + (watch.getLastTaskTimeMillis() / 1000d) / max);
 
-        // Test that we get the expected number of log events
-//        waitAWhile();
         assertEquals(max, (double) entityService.getLogCount(su.getCompany(), ahKey), 0);
     }
 
@@ -342,7 +338,7 @@ public class TestTrack extends EngineBase {
 
     @Test
     public void companyAndFortressWithSpaces() throws Exception {
-        logger.info ( "## companyAndFortressWithSpaces");
+        logger.debug("## companyAndFortressWithSpaces");
         SystemUser su = registerSystemUser("companyAndFortressWithSpaces", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track Test" + System.currentTimeMillis(), true));
         String docType = "companyAndFortressWithSpaces";
@@ -354,7 +350,7 @@ public class TestTrack extends EngineBase {
 
     @Test
     public void entitysForDifferentCompaniesAreNotVisible() throws Exception {
-        logger.info("## entitysForDifferentCompaniesAreNotVisible");
+        logger.debug("## entitysForDifferentCompaniesAreNotVisible");
         SystemUser su = registerSystemUser("entitysForDifferentCompaniesAreNotVisible");
         String hummingbird = "Hummingbird";
 
@@ -391,7 +387,7 @@ public class TestTrack extends EngineBase {
 
     @Test
     public void lastChangedWorks() throws Exception {
-        logger.info ("## lastChangedWorks");
+        logger.debug ("## lastChangedWorks");
         SystemUser su = registerSystemUser("lastChangedWorks");
         // Create a second log record in order to workout who last change the EntityNode
 
@@ -486,7 +482,7 @@ public class TestTrack extends EngineBase {
         assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         DateTime then = workingDate.minusDays(4);
-        logger.info("Searching between " + then.toDate() + " and " + workingDate.toDate());
+        logger.debug("Searching between " + then.toDate() + " and " + workingDate.toDate());
         Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey(), then.toDate(), workingDate.toDate());
         assertEquals(5, logs.size());
         Long logId = logs.iterator().next().getId();
@@ -593,11 +589,9 @@ public class TestTrack extends EngineBase {
 
         // Check that TimeZone information is used to correctly establish Now when not passed in a log
         // No Date, so default to NOW in the Fortress Timezone
-        LogResultBean log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house1"))).getLogResult();
-        logger.info("1 " + new Date(log.getFdWhen()).toString());
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house1"))).getLogResult();
 
-        log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house2"))).getLogResult();
-        logger.info("2 " + new Date(log.getFdWhen()).toString());
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), null, Helper.getSimpleMap("house", "house2"))).getLogResult();
 
         Set<EntityLog> logs = entityService.getEntityLogs(entity);
         assertEquals("Logs with missing dates not correctly recorded", 2, logs.size());
@@ -605,20 +599,18 @@ public class TestTrack extends EngineBase {
         // Can only have one log for an entity at a point in time. Passing in the same date would cause the last log to be rejected
         // so we remove a day from this entry
         DateTime dateMidnight = new DateTime();
-        log = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime().minusDays(1), Helper.getSimpleMap("house", "house3"))).getLogResult();
-        logger.info("3 " + new Date(log.getFdWhen()).toString());
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime().minusDays(1), Helper.getSimpleMap("house", "house3"))).getLogResult();
         EntityLog thirdLog = entityService.getLastEntityLog(su.getCompany(), metaKey);
 
         // This is being inserted after the last log
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), dateMidnight.toDateTime(), Helper.getSimpleMap("house", "house4")));
-        logger.info("4 " + new Date(log.getFdWhen()).toString());
         logs = entityService.getEntityLogs(entity);
         assertEquals(4, logs.size());
-        for (EntityLog next : logs) {
-            logger.info(next.getId() + " - " + new Date(next.getSysWhen()).toString());
-        }
+        if ( logger.isDebugEnabled())
+            for (EntityLog next : logs) {
+                logger.debug(next.getId() + " - " + new Date(next.getSysWhen()).toString());
+            }
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), metaKey);
-        logger.info("L " + new Date(lastLog.getSysWhen()).toString());
         assertNotSame("Last log in should be the last", lastLog.getLog().getId(), thirdLog.getLog().getId());
 
     }
@@ -704,7 +696,7 @@ public class TestTrack extends EngineBase {
         setSecurity(sally_admin);
         SystemUser suB = registerSystemUser("other company", harry);
         setSecurity(harry); // Harry can create data
-        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("XYZ"),true);
+        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("XYZ", true));
         TrackResultBean validButNotForCallerA = mediationFacade.trackEntity(suB.getCompany(), new EntityInputBean(fortressB.getName(), "auditTest", typeB, new DateTime(), "abc"));
         Collection<String>toFind = new ArrayList<>();
         setSecurity(mike_admin);
@@ -799,11 +791,10 @@ public class TestTrack extends EngineBase {
         inputBean.setContent(contentInputBean);
         inputBeans = new ArrayList<>();
         inputBeans.add(inputBean);
-        logger.info ("creating {} entities. Current count = {}", inputBeans.size(), entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        logger.debug("** Second Track Event - creating {} entities. Current count = {}", inputBeans.size(), entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
-        logger.debug("** Second Track Event");
         mediationFacade.trackEntities(fortress, inputBeans, 1);
-        logger.info ("Current count now at {}", entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        logger.debug("Current count now at {}", entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         waitForLogCount(su.getCompany(), entity, 2);
         entity = entityService.findByCallerRef(fortress, "TestTrack", callerRef );
@@ -835,13 +826,12 @@ public class TestTrack extends EngineBase {
         assertEquals("Created " +  trackResultBean.getEntity().getFortressDateCreated(),
                 past.getMillis(), trackResultBean.getEntity().getFortressDateCreated().toDate().getTime());
 
-        logger.info(lastLog.toString());
     }
 
     @Test
     public void date_FortressDateFields() throws Exception {
         // DAT-196
-        logger.info("## utcDateFields");
+        logger.debug("## utcDateFields");
         SystemUser su = registerSystemUser("abFortressDateFields", "userDatesFields");
         FortressInputBean fib = new FortressInputBean("utcDateFields", true);
         String timeZone = "Europe/Copenhagen"; // Arbitrary TZ
@@ -869,7 +859,7 @@ public class TestTrack extends EngineBase {
     @Test
     public void clientInDifferentTZ() throws Exception {
         // DAT-196
-        logger.info("## clientInDifferentTZ");
+        logger.debug("## clientInDifferentTZ");
         SystemUser su = registerSystemUser("clientInDifferentTZ", "clienttz");
         FortressInputBean fib = new FortressInputBean("clientInDifferentTZ", true);
         String fortressTz = "Europe/Copenhagen"; // Arbitrary TZ
@@ -904,7 +894,7 @@ public class TestTrack extends EngineBase {
     @Test
     public void defaultFortressTZWhenNoneExists() throws Exception {
         // DAT-196
-        logger.info("## defaultFortressTZWhenNoneExists");
+        logger.debug("## defaultFortressTZWhenNoneExists");
         SystemUser su = registerSystemUser("defaultFortressTZWhenNoneExists", "defaultFortressTZWhenNoneExists");
 
         String fortressTz = "Europe/Copenhagen"; // Arbitrary TZ
@@ -942,7 +932,7 @@ public class TestTrack extends EngineBase {
     @Test
     public void event_NullWhenMetaOnlyIsFalse() throws Exception {
         // DAT-276
-        logger.info("## event_NullWhenMetaOnlyIsFalse");
+        logger.debug("## event_NullWhenMetaOnlyIsFalse");
         SystemUser su = registerSystemUser("event_NullWhenMetaOnlyIsFalse", "defUser");
 
         FortressInputBean fortressBean = new FortressInputBean("event_MetaOnlyRecordsOtherwiseNull", true);
@@ -960,7 +950,7 @@ public class TestTrack extends EngineBase {
     @Test
     public void event_NotNullWhenMetaOnlyIsTrue() throws Exception {
         // DAT-276
-        logger.info("## event_NotNullWhenMetaOnlyIsTrue");
+        logger.debug("## event_NotNullWhenMetaOnlyIsTrue");
         SystemUser su = registerSystemUser("event_NotNullWhenMetaOnlyIsTrue", "defUser");
 
         FortressInputBean fortressBean = new FortressInputBean("event_NotNullWhenMetaOnlyIsTrue", true);
@@ -973,6 +963,17 @@ public class TestTrack extends EngineBase {
         assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
 
     }
+
+    @Test
+    public void event_Serializable() throws Exception {
+        // DAT-276
+        Entity entity = Helper.getEntity("lba", "abc", "asdf", "asdf");
+        TrackResultBean trackResultBean = new TrackResultBean(entity);
+        trackResultBean.addServiceMessage("Blah");
+        byte[] bytes = ObjectHelper.serialize(trackResultBean);
+        assertNotNull(bytes);
+    }
+
 
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());

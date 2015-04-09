@@ -41,16 +41,13 @@ import org.springframework.web.client.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Template to support writing Entity and Tag information to a remote FlockData service
  *
  * @see org.flockdata.client.Importer
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
@@ -60,7 +57,6 @@ public class FdRestWriter implements FdWriter {
     private String NEW_TAG;
     private String CROSS_REFERENCES;
     private String FORTRESS;
-    private String COUNTRIES;
     private String PING;
     private String AUTH_PING;
     private String ME;
@@ -72,9 +68,9 @@ public class FdRestWriter implements FdWriter {
     private int batchSize;
     private static boolean compress = true;
     private boolean simulateOnly;
-    private boolean validateOnly=false;
+    private boolean validateOnly = false;
     private String defaultFortress;
-    ClientConfiguration configuration ;
+    ClientConfiguration configuration;
 
     private ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
     private AmqpHelper amqpHelper = null;
@@ -92,13 +88,13 @@ public class FdRestWriter implements FdWriter {
         this(serverName, null, userName, password, batchSize, null);
     }
 
-    public FdRestWriter (ClientConfiguration configuration){
+    public FdRestWriter(ClientConfiguration configuration) {
         httpHeaders = null;
         this.configuration = configuration;
         this.apiKey = configuration.getApiKey();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
-        this.TRACK = configuration.getEngineURL()+ "/v1/track/";
+        this.TRACK = configuration.getEngineURL() + "/v1/track/";
         this.AUTH_PING = configuration.getEngineURL() + "/v1/admin/ping/";
         this.PING = configuration.getEngineURL() + "/v1/ping/";
         this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
@@ -107,11 +103,11 @@ public class FdRestWriter implements FdWriter {
         this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/xref/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
-        this.COUNTRIES = configuration.getEngineURL() + "/v1/geo/";
         this.batchSize = configuration.getBatchSize();
         simulateOnly = batchSize < 1;
 
     }
+
     @Deprecated
     // Call with the configuration version
     public FdRestWriter(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
@@ -129,7 +125,6 @@ public class FdRestWriter implements FdWriter {
         this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
-        this.COUNTRIES = serverName + "/v1/geo/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
         simulateOnly = batchSize < 1;
@@ -292,16 +287,14 @@ public class FdRestWriter implements FdWriter {
     @Override
     public void close(TrackBatcher trackBatcher) throws FlockException {
         trackBatcher.flush();
-        if (amqpHelper !=null )
+        if (amqpHelper != null)
             amqpHelper.close();
     }
 
-    public String flushEntitiesAmqp(List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    public String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         try {
-            for (EntityInputBean entityInput : entityInputs) {
-               // ToDo: Fix all of this.
-                getAmqpHelper(configuration).publish(entityInput);
-            }
+            // DAT-373
+            getAmqpHelper(configuration).publish(entityInputs);
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
@@ -311,7 +304,7 @@ public class FdRestWriter implements FdWriter {
     }
 
     private AmqpHelper getAmqpHelper(ClientConfiguration configuration) {
-        if ( amqpHelper == null )
+        if (amqpHelper == null)
             amqpHelper = new AmqpHelper(configuration);
         return amqpHelper;
     }
@@ -320,12 +313,12 @@ public class FdRestWriter implements FdWriter {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
 
-        if ( configuration.isValidateOnly() ){
+        if (configuration.isValidateOnly()) {
             return validateOnly(entityInputs);
 
         }
 
-        if ( configuration.isAmqp() )
+        if (configuration.isAmqp())
             return flushEntitiesAmqp(entityInputs, configuration);
         RestTemplate restTemplate = getRestTemplate();
 
@@ -352,17 +345,17 @@ public class FdRestWriter implements FdWriter {
         //HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
-            Map<String,Object>params = new HashMap<>();
+            Map<String, Object> params = new HashMap<>();
             for (EntityInputBean entityInput : entityInputs) {
                 params.put("fortress", entityInput.getFortress());
                 params.put("documentName", entityInput.getDocumentName());
                 params.put("callerRef", entityInput.getCallerRef());
-                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK+ "/{fortress}/{documentName}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
                 //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
-                if ( found == null || found.getBody() == null ){
-                    logger.info ("Not Found {}", entityInput);
+                if (found == null || found.getBody() == null) {
+                    logger.info("Not Found {}", entityInput);
                 }
             }
 
@@ -409,9 +402,9 @@ public class FdRestWriter implements FdWriter {
         } catch (HttpServerErrorException e) {
             logger.error("FlockData server error processing Tags {}", getErrorMessage(e));
             return null;
-        } catch (ResourceAccessException e ){
+        } catch (ResourceAccessException e) {
             logger.error("Unable to talk to FD over the REST interface. Can't process this tag request");
-            if (configuration !=null && configuration.isAmqp()){
+            if (configuration != null && configuration.isAmqp()) {
                 logger.info("This has not affected payloads being sent over AMQP");
             }
 
@@ -421,7 +414,7 @@ public class FdRestWriter implements FdWriter {
 
     private void logServerMessages(ResponseEntity<ArrayList> response) {
         ArrayList x = response.getBody();
-        if ( x!=null )
+        if (x != null)
             for (Object val : x) {
                 Map map = (Map) val;
                 Object serviceMessage = map.get("serviceMessage");

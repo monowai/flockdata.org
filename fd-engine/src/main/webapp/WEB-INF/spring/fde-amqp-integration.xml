@@ -19,6 +19,7 @@
     <!-- Acknowledgement from fd-search of an fd-engine request-->
     <int-amqp:inbound-gateway id="searchSyncResultId"
                               request-channel="searchDocSyncResult"
+                              reply-channel="nullChannel"
                               queue-names="${fd-engine.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
@@ -32,7 +33,7 @@
     <int-amqp:outbound-gateway
             request-channel="writeEntityContent"
             reply-channel="nullChannel"
-            requires-reply="false"
+            requires-reply="true"
             lazy-connect="${fd.amqp.lazyConnect}"
             routing-key="${fd-track.binding}"
             mapped-request-headers="apiKey"
@@ -49,7 +50,7 @@
             exchange-name="${fd-search.exchange}"
             amqp-template="amqpTemplate"/>
 
-    <!--Part of the track flow. Writes the entity to the KV store-->
+    <!--Writes entity to the KV store. Part of the track workflow. -->
     <int-amqp:outbound-gateway
             request-channel="writeKvContent"
             requires-reply="false"
@@ -76,7 +77,7 @@
     <!--ToDo: Track Result should be sent somewhere -->
     <int-amqp:inbound-gateway id="entityWrite"
                               request-channel="doTrackEntity"
-                              reply-channel="entityResult"
+                              reply-channel="trackResult"
                               queue-names="${fd-track.queue}"
                               connection-factory="connectionFactory"
                               shutdown-timeout="3000"

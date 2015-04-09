@@ -30,6 +30,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -37,7 +38,7 @@ import java.util.TimeZone;
  * Simple POJO for functional tests
  * Created by mike on 6/03/15.
  */
-public class SimpleEntity implements Entity {
+public class SimpleEntity implements Entity, Serializable {
     private long fortressCreate;
     private String indexName;
     private String name;
@@ -243,4 +244,5 @@ public class SimpleEntity implements Entity {
     public void setNew(boolean status) {
         isNew = status;
     }
+
 }

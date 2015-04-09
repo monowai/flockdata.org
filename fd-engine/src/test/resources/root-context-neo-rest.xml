@@ -41,6 +41,8 @@
     <import resource="fde-task.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+
     <aop:aspectj-autoproxy/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>

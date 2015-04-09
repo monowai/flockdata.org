@@ -21,20 +21,21 @@
 
     <context:spring-configured/>
     <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
     <!--fd-engine test integration file-->
 
     <!-- Root Context: defines shared resources visible to all other web components -->
-    <context:component-scan base-package="
-        org.flockdata.engine.admin,
+    <context:component-scan  base-package="org.flockdata.engine.admin,
 		org.flockdata.engine.query,
 		org.flockdata.engine.schema,
 		org.flockdata.engine.tag,
 		org.flockdata.engine.track,
 		org.flockdata.registration,
 		org.flockdata.helper,
+		org.flockdata.configure,
 		org.flockdata.geography,
 		org.flockdata.company,
-		org.flockdata.kv" />
+		org.flockdata.kv"/>
 
 
     <context:property-placeholder ignore-unresolvable="true"
@@ -51,17 +52,13 @@
 
     <cache:annotation-driven cache-manager="fdCacheManager" />
 
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+
     <bean id="fdCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
           p:cacheManager-ref="fdCache"  p:transactionAware="true"/>
 
     <bean id="fdCache"
           class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
           p:configLocation="classpath:fd-ehcache.xml" p:shared="false"/>
-
-
-    <aop:aspectj-autoproxy/>
-
-
-
 
 </beans>

@@ -72,14 +72,20 @@
     <logger name="org.springframework.data">
         <level value="info"/>
     </logger>
-    <logger name="org.springframework.integration.mapping">
-        <level value="info"/>
-    </logger>
-
-    <logger name="org.springframework.context">
+    <logger name="org.springframework.integration">
         <level value="error"/>
     </logger>
 
+    <!--Very chatty and thus far not very informative-->
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.amqp">
+        <level value="error"/>
+    </logger>
+    <logger name="org.springframework.context">
+        <level value="error"/>
+    </logger>
     <logger name="org.springframework.web">
         <level value="error"/>
     </logger>
@@ -126,7 +132,7 @@
         <level value="${fd.logLevel}"/>
     </logger>
     <logger name="org.flockdata.engine.tag">
-        <level value="${fd.logLevel}"/>
+        <level value="info"/>
     </logger>
     <logger name="org.flockdata.engine.schema">
         <level value="${fd.logLevel}"/>

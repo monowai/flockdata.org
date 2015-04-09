@@ -24,11 +24,13 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchSchema;
 
+import java.io.Serializable;
+
 /**
  * For testing purposes
  * Created by mike on 6/03/15.
  */
-public class SimpleFortress implements Fortress {
+public class SimpleFortress implements Fortress, Serializable {
     FortressInputBean fib ;
 
     public SimpleFortress(){}

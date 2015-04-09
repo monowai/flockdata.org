@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,148 +19,52 @@
 
 package org.flockdata.engine.track.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
-import org.neo4j.graphdb.Relationship;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
+import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: Mike Holdsworth
- * Date: 29/06/13
- * Time: 12:59 PM
+ * Created by mike on 3/04/15.
  */
-public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
-    Long id;
+public abstract class EntityTagRelationship implements EntityTag, Comparable<EntityTag>{
 
-    private Tag tag;
-    private Long primaryKey;
-    private String relationship;
-    private Map<String, Object> properties = new HashMap<>();
-    //private Map<String, GeoData>geoData = new HashMap<>();
-    private GeoData geoData;
+    DynamicProperties properties = new DynamicPropertiesContainer();
 
-    protected EntityTagRelationship() {
-    }
+    @Transient
+    protected GeoData geoData;
 
-    /**
-     * For non-persistent relationship. If caller is not tracking in the graph, then this
-     * constructor can be used to create entity data suitable for writing to search
-     *
-     * @param entity       Entity object
-     * @param tag          Tag object
-     * @param relationship Name of the relationship
-     * @param propMap      Relationship properties
-     */
-    public EntityTagRelationship(Entity entity, Tag tag, String relationship, Map<String, Object> propMap) {
-        this();
-        this.primaryKey = entity.getId();
-        this.tag = tag;
-        this.relationship = relationship;
-        this.id = System.currentTimeMillis() + relationship.hashCode(); // random...
-        this.properties = propMap;
-    }
+    public abstract Long getId() ;
 
-    public EntityTagRelationship(Long pk, Tag tag) {
-        this(pk, tag, null);
-    }
+    public abstract Entity getEntity() ;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EntityTagRelationship)) return false;
+    public abstract Tag getTag() ;
 
-        EntityTagRelationship that = (EntityTagRelationship) o;
+    public abstract String getRelationship() ;
 
-        if (primaryKey != null ? !primaryKey.equals(that.primaryKey) : that.primaryKey != null) return false;
-        if (tag != null ? !tag.equals(that.tag) : that.tag != null) return false;
-        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
+    public abstract Map<String, Object> getTagProperties() ;
 
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "EntityTagRelationship{" +
-                "primaryKey=" + primaryKey +
-                ", tag=" + tag +
-                ", relationship='" + relationship + '\'' +
-                '}';
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (tag != null ? tag.hashCode() : 0);
-        result = 31 * result + (primaryKey != null ? primaryKey.hashCode() : 0);
-        result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
-        return result;
-    }
-
-    public EntityTagRelationship(Long primaryKey, Tag tag, Relationship relationship) {
-        this();
-        this.primaryKey = primaryKey;
-        this.tag = tag;
-        this.relationship = (relationship == null ? tag.getName() : relationship.getType().name());
-        if ( relationship!= null ) {
-
-            for (String rlxKey : relationship.getPropertyKeys()) {
-                addProperty(rlxKey, relationship.getProperty(rlxKey));
-            }
-
-            this.id = relationship.getId();
-        }
-
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public Tag getTag() {
-        return tag;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @JsonIgnore
-    public Long getPrimaryKey() {
-        return primaryKey;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public String getRelationship() {
-        return relationship;
-    }
-
-    @Override
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String, Object> getTagProperties() {
-        return tag.getProperties();
-    }
-
-    @Override
     public Integer getWeight() {
         return (Integer)getProperty("weight");
     }
 
-    private void addProperty(String key, Object value){
-        if ( key == null )
-            return;
-
-        if (properties == null )
-            properties = new HashMap<>();
-        properties.put(key, value);
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public GeoData getGeoData() {
+        return geoData;
     }
+
+    public abstract Boolean isReversed();
 
     private Object getProperty(String key){
         if (properties == null)
             return null;
-        return properties.get(key);
+        return properties.getProperty(key);
     }
 
     public EntityTag setGeoData(GeoData geoData) {
@@ -168,22 +72,40 @@ public class EntityTagRelationship implements EntityTag, Comparable<EntityTag> {
         return this;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public GeoData getGeoData() {
-        return geoData;
-    }
 
-    @Override
     public Map<String, Object> getProperties() {
-        return properties;
+        return properties.asMap();
     }
 
-    @Override
     public int compareTo(EntityTag o) {
         int val = getRelationship().compareTo(o.getRelationship());
         if ( val == 0 )
             return getTag().getCode().compareTo(o.getTag().getCode());
         return val;
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntityTag)) return false;
+
+        EntityTag that = (EntityTag) o;
+
+        if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) return false;
+        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
+        if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship()!= null) return false;
+        if (getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getEntity() != null ? getEntity().hashCode() : 0);
+        result = 31 * result + (getTag() != null ? getTag().getId().hashCode() : 0);
+        result = 31 * result + (getRelationship() != null ? getRelationship().hashCode() : 0);
+        return result;
     }
 }

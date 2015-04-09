@@ -88,7 +88,7 @@ public class TrackEP {
                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.trackEntities(CompanyResolver.resolveCallerApiKey(request), inputBeans);
+        mediationFacade.trackEntities(inputBeans, CompanyResolver.resolveCallerApiKey(request));
     }
 
     /**
@@ -263,7 +263,7 @@ public class TrackEP {
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
         Entity result = entityService.getEntity(company, metaKey);
-        return entityTagService.getEntityTags(company, result);
+        return entityTagService.getEntityTags(result);
     }
 
     @RequestMapping(value = "/{metaKey}/lastlog/attachment",

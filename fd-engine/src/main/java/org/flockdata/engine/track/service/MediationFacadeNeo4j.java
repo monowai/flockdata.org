@@ -20,10 +20,9 @@
 package org.flockdata.engine.track.service;
 
 import com.google.common.collect.Lists;
-import org.flockdata.engine.FdEngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.engine.schema.service.SchemaRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
@@ -72,7 +71,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Non transactional coordinator for mediation services
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Since: 28/08/13
  */
@@ -110,7 +109,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     LogService logService;
 
     @Autowired
-    FdEngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     @Autowired
     EntityRetryService entityRetry;
@@ -123,9 +122,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Autowired
     TagRetryService tagRetryService;
-
-    @Autowired
-    IndexRetryService indexRetryService;
 
     @Autowired
     EngineAdminService adminService;
@@ -141,60 +137,47 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
-        return createTags(company, tags).get().iterator().next();
+        return createTags(company, tags).iterator().next();
 
     }
 
     @Override
-    @Async("fd-track")
-    public Future<Collection<Tag>> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
-        if ( tagInputs.isEmpty())
+        if (tagInputs.isEmpty())
             return null;
-        boolean schemaReady ;
-        do {
-            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputs);
-        } while (!schemaReady);
-            logger.debug("Schema Indexes appear to be in place");
 
-        Collection<Tag> results;
-        try {
-            results = tagRetryService.createTags(company, tagInputs);
-        } catch (IOException e) {
-            logger.error("Unexpected", e);
-            throw new FlockException("IO Exception", e);
-        }
-        return new AsyncResult<>(results);
+        return tagRetryService.createTagsFuture(company, tagInputs).get();
     }
 
-
     /**
-     * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
-     * <p/>
-     * This is synchronous and blocks until completed. Designed to be accessed as a ServiceActivtory via integration mechanisms
-     * APIKey should be set in the EntityInputBean as it will be used resolve access to the Company and Fortress in the payload
+     * Writes the payload to the service. Distributes changes to KV stores and search engine.
+     * <p>
+     * This is synchronous and blocks until completed. Usually called via integration mechanisms
      *
-     * @param inputBean - input to track
-     * @return non-null
-     * @throws org.flockdata.helper.FlockException illegal input
-     * @throws IOException                         json processing exception
+     * @param inputBeans - input to track
+     * @param apiKey     - SystemUser API key
+     * @throws FlockException        illegal input
+     * @throws FlockServiceException api key is invalid or mandatory tags do not exist
+     * @throws IOException           json processing exception
      */
+
     @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
-    public TrackResultBean trackEntity(EntityInputBean inputBean, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
-        // ToDo: A collection??
-        logger.trace("trackEntity activation");
-        //EntityInputBean inputBean = JsonUtils.getBytesAsObject(payload, EntityInputBean.class);
+    public Collection<TrackResultBean> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new FlockServiceException("Unable to resolve the company for your ApiKey");
-        Fortress fortress = fortressService.registerFortress(c, new FortressInputBean(inputBean.getFortress()), true);
-        assert fortress != null;
-        return trackEntity(fortress, inputBean);
+        Map<Fortress, List<EntityInputBean>> byFortress = getEntitiesByFortress(c, inputBeans);
+        Collection<TrackResultBean>results = new ArrayList<>();
+        for (Fortress fortress : byFortress.keySet()) {
+            results.addAll(trackEntities(fortress, byFortress.get(fortress), 100));
+        }
+        return results;
     }
 
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
-     * <p/>
+     * <p>
      * This is synchronous and blocks until completed
      *
      * @param fortress  - system that owns the data
@@ -211,44 +194,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return results.iterator().next();
     }
 
-    /**
-     * Process the Entity input for a company asynchronously
-     *
-     * Result set should only be relied on for testing purposes
-     *
-     * @param company    system
-     * @param inputBeans data
-     * @return ResultBeans populated with great data
-     * @throws org.flockdata.helper.FlockException
-     */
-    @Override
-    @Async("fd-track")
-    public Future<Collection<TrackResultBean>> trackEntitiesAsync(final Company company, List<EntityInputBean> inputBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Map<Fortress, List<EntityInputBean>> fortressInput = getEntitiesByFortress(company, inputBeans);
-        Collection<TrackResultBean> results = new ArrayList<>();
-
-        for (Fortress fortress : fortressInput.keySet()) {
-            results.addAll(
-                    trackEntities(fortress, fortressInput.get(fortress), 10)
-            );
-        }
-
-        return new AsyncResult<>(results);
-    }
-
     @Autowired
     TrackGateway trackGateway;
-
-    @Override
-//    @Transactional
-    public void trackEntities(String userApiKey, List<EntityInputBean> inputBeans) {
-        logger.debug("Request to process {} entities", inputBeans.size());
-        for (EntityInputBean inputBean : inputBeans) {
-            trackGateway.doTrackEntity(inputBean, userApiKey);
-
-        }
-        logger.debug("Dispatched {} entities", inputBeans.size());
-    }
 
     @Override
     @Secured({SecurityHelper.ADMIN})
@@ -274,7 +221,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
-    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, List<EntityInputBean> entityInputBeans) throws NotFoundException {
+    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
 
         // Local cache of fortress by name - never very big, often only 1
@@ -308,17 +255,18 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
-        String id = Thread.currentThread().getName() + "/"+ DateTime.now().getMillis();
+        String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
         if (fortress == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
+        logger.debug("About to create tags");
+        //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
+        Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
 
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
-        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, first );
-        logger.debug("Dispatch docTypes request. About to create tags");
+        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, first);
 
-        createTags(fortress.getCompany(), getTags(inputBeans));
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
         Collection<TrackResultBean> allResults = new ArrayList<>();
@@ -332,13 +280,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
 
         List<List<EntityInputBean>>
-            splitList = Lists.partition(inputBeans, splitListInTo);
+                splitList = Lists.partition(inputBeans, splitListInTo);
 
         StopWatch watch = new StopWatch();
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> loopResults = entityRetry.track(fortress, entityInputBeans);
+            Iterable<TrackResultBean> loopResults = entityRetry.track(fortress, entityInputBeans, (tags!=null?tags.get(): null));
             logger.debug("Tracked requests");
             distributeChanges(fortress, loopResults);
 
@@ -355,7 +303,11 @@ public class MediationFacadeNeo4j implements MediationFacade {
     private List<TagInputBean> getTags(List<EntityInputBean> entityInputBeans) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
-            entityInputBean.getTags().stream().filter(tag -> !tag.isMustExist() && !tags.contains(tag)).forEach(tags::add);
+            for (TagInputBean tag : entityInputBean.getTags()) {
+                if ( !tags.contains(tag))
+                    tags.add(tag);
+            }
+            ///entityInputBean.getTags().stream().filter(tag -> !tag.isMustExist() && !tags.contains(tag)).forEach(tags::add);
 
         }
         return tags;
@@ -408,20 +360,20 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
-        if ( !fortress.isSearchActive())
+        if (!fortress.isSearchActive())
             throw new FlockException("The fortress does not have search enabled. Nothing to do!");
 
         String message = null;
-        if ( fortress.isStoreDisabled()) {
-            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortressCode)  ;
+        if (fortress.isStoreDisabled()) {
+            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortressCode);
             logger.warn(message);
         }
-        if ( message !=null ){
-            message = message +"\n";
+        if (message != null) {
+            message = message + "\n";
         }
         adminService.doReindex(fortress);
-        message = message + "Reindex Search request is processing entities for [" + fortressCode + "]" ;
-        logger.info("Reindex Search request is processing entities for [" + fortressCode + "]" );
+        message = message + "Reindex Search request is processing entities for [" + fortressCode + "]";
+        logger.info("Reindex Search request is processing entities for [" + fortressCode + "]");
         return message;
 
 
@@ -441,13 +393,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
             throw new FlockException("Fortress [" + fortressName + "] could not be found");
         Long skipCount = 0l;
         String message = null;
-        if ( fortress.isStoreDisabled()) {
-            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortress)  ;
+        if (fortress.isStoreDisabled()) {
+            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortress);
             logger.warn(message);
         }
         adminService.doReindex(fortress, docType);
-        if ( message !=null ){
-            message = message +"\n";
+        if (message != null) {
+            message = message + "\n";
         }
         message = message + "Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]";
         logger.info("Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]");
@@ -487,6 +439,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
+        logger.info ("Completed purge of fortress [{}]", fortress);
         return new AsyncResult<>(true);
 
     }
@@ -496,7 +449,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public void cancelLastLog(Company company, Entity entity) throws IOException, FlockException {
         EntitySearchChange searchChange;
         // Refresh the entity
-        entity = entityService.getEntity(entity);
+        //entity = entityService.getEntity(entity);
         searchChange = entityService.cancelLastLog(company, entity);
         if (searchChange != null) {
             searchService.makeChangeSearchable(searchChange);
@@ -509,7 +462,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
         logger.debug("Distributing changes to sub-services");
         searchService.makeChangesSearchable(fortress, resultBeans);
-        // ToDo: how to wait for results when running tests. I hate config properties
+        // ToDo: how to wait for results when running tests
         if (engineConfig.isTestMode())
             conceptRetryService.trackConcepts(fortress, resultBeans).get();
         else

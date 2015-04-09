@@ -19,13 +19,17 @@
 
 package org.flockdata.client.amqp;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -90,4 +94,10 @@ public class AmqpHelper {
 
         channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
     }
+
+    public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
+
+        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInputs));
+    }
+
 }

@@ -20,6 +20,7 @@
 
     <context:spring-configured/>
     <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
 
     <!-- Root Context: defines shared resources visible to all other web components -->
     <context:component-scan
@@ -48,7 +49,7 @@
     <import resource="neo4j-context.xml"/>
     <import resource="kv-context.xml"/>
 
-    <aop:aspectj-autoproxy/>
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 
     <cache:annotation-driven cache-manager="fdCacheManager" />
 

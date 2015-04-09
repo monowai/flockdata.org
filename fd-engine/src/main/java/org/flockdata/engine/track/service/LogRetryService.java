@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
@@ -79,7 +79,7 @@ public class LogRetryService {
     EntityDaoNeo entityDao;
 
     @Autowired
-    EngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     /**
      * Attempts to gracefully handle deadlock conditions
@@ -89,7 +89,8 @@ public class LogRetryService {
      * @throws org.flockdata.helper.FlockException
      * @throws IOException
      */
-    @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
+    @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12,
+            backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
     TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         return writeLogTx(fortress, trackResultBean);
     }

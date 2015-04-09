@@ -118,7 +118,7 @@ public class KvContentBean implements KvContent, Serializable{
      * returns the version of the contentProfile used to create the payload
      */
     public Double getVersion(){
-        return content.getProfileVersion();
+        return content.getpVer();
     }
 
     public String getChecksum() throws IOException {

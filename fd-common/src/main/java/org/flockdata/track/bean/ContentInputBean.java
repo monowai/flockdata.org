@@ -42,7 +42,7 @@ public class ContentInputBean implements EntityContent, Serializable {
     private String fdMessage;
     private Boolean isTransactional = false;
 
-    private double profileVersion=1d;
+    private double pVer =1d;
 
     // Use either metaKey or CallerRef strategy
     // Required if not updating via a Entity
@@ -249,7 +249,7 @@ public class ContentInputBean implements EntityContent, Serializable {
         this.forceReindex = forceReindex;
     }
 
-    private ChangeEvent changeEvent;
+    private transient ChangeEvent changeEvent;
 
     @JsonIgnore
     public ChangeEvent getChangeEvent() {
@@ -314,8 +314,8 @@ public class ContentInputBean implements EntityContent, Serializable {
      *
      * @return version of the contentProfile used to create this payload
      */
-    public Double getProfileVersion() {
-        return profileVersion;
+    public Double getpVer() {
+        return pVer;
     }
 
     @Override

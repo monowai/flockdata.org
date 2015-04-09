@@ -23,6 +23,7 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: mike
@@ -33,7 +34,7 @@ public class CypherHelper {
 
     public static String getLabels(String columnName, Collection<String> values) {
         if (values == null || values.isEmpty())
-            return ":_Entity";
+            return ":Entity";
         // create a neo4j label index
         // DAT-109
         return getNeoString(columnName, ":", values, " or ");
@@ -49,39 +50,54 @@ public class CypherHelper {
     }
 
     public static String getRelationships(Collection<String> values) {
-        if ( values ==null || values.isEmpty())
+        if (values == null || values.isEmpty())
             return "";
-        return ":"+getNeoString(null, ":", values, " |");
+        return ":" + getNeoString(null, ":", values, " |");
     }
 
     private static String getNeoString(String columnName, String delimiter, Collection<String> input, String join) {
         String result = "";//(delimiter.equals(":")? ":": "");
         for (String field : input) {
-            if ( field != null ) {
+            if (field != null) {
                 // ToDo: Fix this hack
-                if ( field.equals("User"))
+                if (field.equals("User"))
                     field = "_FortressUser";
-                if ( field.contains(" ") || field.contains("-")|| field.contains(".") || field.matches("^[\\d\\-\\.]+$"))
-                    field = "`"+ field +"`" ;
+                if (field.contains(" ") || field.contains("-") || field.contains(".") || field.matches("^[\\d\\-\\.]+$"))
+                    field = "`" + field + "`";
 
-                if ( result.equals(delimiter) || result.equals(""))
-                    result = result + (columnName!=null?columnName+delimiter:"")+ field +"";
+                if (result.equals(delimiter) || result.equals(""))
+                    result = result + (columnName != null ? columnName + delimiter : "") + field + "";
                 else
-                    result = result +join+(columnName!=null?columnName:"")+delimiter + field;
+                    result = result + join + (columnName != null ? columnName : "") + delimiter + field;
             }
         }
-        if ( result.equals(delimiter))
+        if (result.equals(delimiter))
             result = "";
         return result;
     }
 
-    public static boolean isEntity (Node node ){
+    public static boolean isEntity(Node node) {
         // DAT-279
         for (Label label : node.getLabels()) {
-            if ( label.name().equals("_Entity"))
+            if (label.name().equals("Entity"))
                 return true;
         }
         return false;
     }
 
+    public static String getCypherSet(String cypherObject, Map<String, Object> propMap) {
+
+        String result = "";
+        for (String s : propMap.keySet()) {
+            if (!result.equals(""))
+                result = result + ", ";
+            Object o = propMap.get(s);
+            Object value = null;
+            if (o instanceof String)
+                value = "'" + o.toString() + "'";
+            result = result + cypherObject + "." + s + " = " + (value == null ? o : value);
+        }
+        return result;
+
+    }
 }

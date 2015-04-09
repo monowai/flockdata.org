@@ -34,8 +34,6 @@ public interface TxRef {
 
     public Company getCompany();
 
-    public Set<Entity> getEntities();
-
     Long getId();
 
     public TxStatus getTxStatus();

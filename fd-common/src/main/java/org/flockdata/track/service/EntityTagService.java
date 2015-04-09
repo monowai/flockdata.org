@@ -20,14 +20,14 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.Log;
-import org.flockdata.registration.model.Company;
-import org.flockdata.track.model.EntityLog;
 
 import java.util.Collection;
 import java.util.Set;
@@ -42,7 +42,7 @@ public interface EntityTagService {
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
-    Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, Collection<TagInputBean> userTags, Boolean archiveRemovedTags);
+    Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, EntityInputBean entityInputBean);
 
     Collection<EntityTag> findEntityTags(Company company, Entity entity);
 
@@ -54,11 +54,11 @@ public interface EntityTagService {
 
     Collection<EntityTag> findInboundTags(Company company, Entity entity);
 
-    Collection<EntityTag> getEntityTags(Company company, Entity entity);
+    Collection<EntityTag> findInboundTags(Entity entity);
 
-    Collection<EntityTag> getEntityTags(Company company, Long entity);
+    Collection<EntityTag> getEntityTags(Entity entity);
 
-    Iterable<EntityTag> getEntityTagsWithGeo(Company company, Entity entity);
+    Iterable<EntityTag> getEntityTagsWithGeo(Entity entity);
 
     void deleteEntityTags(Entity entity, Collection<EntityTag> entityTags) throws FlockException;
 
@@ -70,11 +70,12 @@ public interface EntityTagService {
 
     Collection<EntityTag> findLogTags(Company company, Log log);
 
-    void moveTags(Company company, Log previousLog, Entity entity);
+    Entity moveTags(Company company, Log previousLog, Entity entity);
 
     Collection<Long> mergeTags(Tag fromTag, Tag toTag);
 
     void purgeUnusedTags(String label);
 
 
+    Collection<EntityTag> findEntityTagsByRelationship(Entity entity, String relationship);
 }

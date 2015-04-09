@@ -19,31 +19,27 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.CrossReferenceInputBean;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * User: mike
@@ -53,26 +49,21 @@ import static org.junit.Assert.assertNotNull;
 public class TestNonTransactional extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestNonTransactional.class);
+
     @Override
     public void cleanUpGraph() {
-        // Nothing
-        logger.debug("Not cleaning up");
-    }
-
-    @After
-    public void clearGraph(){
+        // DAT-348
         super.cleanUpGraph();
     }
-
     @Test
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
         Thread.sleep(500);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest"));
+        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
-        mediationFacade.createTags(su.getCompany(), tags).get();
+        mediationFacade.createTags(su.getCompany(), tags);
         Thread.sleep(300); // Let the schema changes occur
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
@@ -94,18 +85,18 @@ public class TestNonTransactional extends EngineBase {
         CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
-        Collection<EntityTag> tagsA = entityTagService.getEntityTags(su.getCompany(), docA.getEntity());
+        Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());
         assertEquals(1, tagsA.size());
-        Collection<EntityTag> tagsB = entityTagService.getEntityTags(su.getCompany(), docB.getEntity());
+        Collection<EntityTag> tagsB = entityTagService.getEntityTags(docB.getEntity());
         assertEquals(1, tagsB.size());
 
     }
 
     @Test
     public void multipleFortressUserRequestsThreaded() throws Exception {
-        Neo4jHelper.cleanDb(template);
+        cleanUpGraph();
         Transaction t = template.getGraphDatabase().beginTx();
-        logger.info("Starting multipleFortressUserRequestsThreaded");
+        logger.info("### Starting multipleFortressUserRequestsThreaded");
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();
         String company = "MFURT";
@@ -159,7 +150,6 @@ public class TestNonTransactional extends EngineBase {
         boolean failed;
 
         public FuAction(Fortress fortress, String id, String uname, CountDownLatch latch) {
-            logger.info("Preparing FuAction {}, {}", id, latch.getCount());
             this.fortress = fortress;
             this.uname = uname;
             this.latch = latch;
@@ -170,7 +160,7 @@ public class TestNonTransactional extends EngineBase {
         }
 
         public void run() {
-            logger.info("Running " + this);
+            logger.debug("Running " + this);
             int runCount = 50;
             int i = 0;
             failed = false;
@@ -194,7 +184,7 @@ public class TestNonTransactional extends EngineBase {
                 if (!deadlocked)
                     i++;
             } // End while
-            logger.info("Finishing {}", failed);
+            logger.debug("Finishing {}", failed);
             failed = false;
             latch.countDown();
         }

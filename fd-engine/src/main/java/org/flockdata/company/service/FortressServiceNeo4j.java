@@ -21,7 +21,8 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.company.FortressDaoNeo;
-import org.flockdata.engine.admin.EngineConfig;
+import org.flockdata.configure.EngineConfig;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -63,7 +64,7 @@ public class FortressServiceNeo4j implements FortressService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private EngineConfig engineConfig;
+    private PlatformConfig engineConfig;
 
     @Override
     public Fortress getFortress(Long id) {
