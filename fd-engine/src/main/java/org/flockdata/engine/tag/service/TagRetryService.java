@@ -28,6 +28,7 @@ import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.neo4j.kernel.api.exceptions.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,17 +69,17 @@ public class TagRetryService {
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
     @Async("fd-track")
+    @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+            maxAttempts = 15,
+            backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
     public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
-        //return new AsyncResult<>(createTags(company, tagInputs));
+        logger.trace("!!! Create Tags");
         return new AsyncResult<>(createTags(company, tagInputs));
     }
 
-    @Retryable(include = {HeuristicRollbackException.class, DataIntegrityViolationException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
-            maxAttempts = 12,
-            backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) {
+    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException {
         if (tagInputBeans.isEmpty())
-            return null;
+            return new ArrayList<>();
         boolean schemaReady;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
@@ -87,8 +88,10 @@ public class TagRetryService {
 
         try {
             return tagService.createTags(company, tagInputBeans);
-        } catch (IOException | ExecutionException | InterruptedException | FlockException e) {
-            logger.error("Exception ", e);
+        } catch (FlockException e) {
+            throw (e);
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            logger.error("Track Error", e);
         }
         return new ArrayList<>();
     }
