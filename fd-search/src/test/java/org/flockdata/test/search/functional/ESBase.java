@@ -26,10 +26,15 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
+import org.flockdata.search.endpoint.TrackServiceEs;
+import org.flockdata.track.model.TrackSearchDao;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Rollback;
 
 import java.io.FileInputStream;
@@ -43,12 +48,22 @@ import static org.junit.Assert.assertNotNull;
  * Date: 15/08/14
  * Time: 12:55 PM
  */
+@Component
 public class ESBase {
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
 
     static Properties properties = new Properties();
 
     private static JestClient esClient;
+
+    @Autowired
+    TrackSearchDao searchRepo;
+
+    @Qualifier("trackServiceEs")
+    @Autowired
+    TrackServiceEs trackService;
+
+
 
     static void deleteEsIndex(String indexName) throws Exception {
         logger.info("%% Delete Index {}", indexName);

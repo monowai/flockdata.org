@@ -21,8 +21,8 @@ package org.flockdata.test.search.functional;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.endpoint.TrackServiceEs;
+import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.SimpleEntityTagRelationship;
 import org.flockdata.test.engine.SimpleTag;
@@ -33,6 +33,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -51,9 +52,6 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestMappings extends ESBase {
 
-    @Autowired
-    TrackSearchDao searchRepo;
-
     @Test
     public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
@@ -65,7 +63,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = Helper.getEntity(company, fortress, user, doc);
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -81,12 +79,13 @@ public class TestMappings extends ESBase {
 
 
         deleteEsIndex(entity.getFortress().getIndexName());
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        change = searchRepo.handle(change);
+        //searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
+        SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(1000);
-        assertNotNull(change);
-        assertNotNull(change.getSearchKey());
-        entity.setSearchKey(change.getSearchKey());
+        assertNotNull(searchResult);
+        assertNotNull(searchResult.getSearchKey());
+        entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
         // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it

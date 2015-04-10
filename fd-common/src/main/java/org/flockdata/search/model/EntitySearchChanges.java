@@ -37,6 +37,11 @@ public class EntitySearchChanges {
         this();
         this.searchChanges = (Collection <EntitySearchChange>)(Collection)searchDocuments;
     }
+
+    public EntitySearchChanges(EntitySearchChange change) {
+        searchChanges.add(change);
+    }
+
     public Collection<EntitySearchChange> getChanges() {
         return searchChanges;
     }
