@@ -57,8 +57,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -136,16 +134,17 @@ public class TrackDaoES implements TrackSearchDao {
                         documentType);
 
             return searchChange;
-        } catch ( MapperParsingException e ){
+        } catch (MapperParsingException e) {
             // DAT-359
-            logger.error ( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage());
-            throw new AmqpRejectAndDontRequeueException( "Parsing error - callerRef ["+searchChange.getCallerRef()+"], metaKey ["+searchChange.getMetaKey() +"], "+e.getMessage(), e );
+            logger.error("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error", e);
             return searchChange;
         }
 
     }
+
     // ToDo: Fix this. Caching is not resetting after the index is deleted
     //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
     public boolean ensureIndex(String indexName, String documentType) throws IOException {
@@ -157,39 +156,34 @@ public class TrackDaoES implements TrackSearchDao {
         }
 
         logger.debug("Ensuring index {}, {}", indexName, documentType);
-        try {
-            lock.lock();
-            if (hasIndex(indexName)) return true;
-            XContentBuilder mappingEs = getMapping(indexName, documentType);
-            // create Index  and Set Mapping
-            if (mappingEs != null) {
-                //Settings settings = Builder
-                logger.debug("Creating new index {} for document type {}", indexName, documentType);
-                Map<String, Object> settings = getSettings();
-                try {
-                    if (settings != null) {
-                        esClient.admin()
-                                .indices()
-                                .prepareCreate(indexName)
-                                .addMapping(documentType, mappingEs)
-                                .setSettings(settings)
-                                .execute()
-                                .actionGet();
-                    } else {
-                        esClient.admin()
-                                .indices()
-                                .prepareCreate(indexName)
-                                .addMapping(documentType, mappingEs)
-                                .execute()
-                                .actionGet();
-                    }
-                } catch (ElasticsearchException esx) {
-                    logger.error("Error while ensuring index.... ", esx);
-                    throw esx;
+        //if (hasIndex(indexName)) return true;
+        XContentBuilder mappingEs = getMapping(indexName, documentType);
+        // create Index  and Set Mapping
+        if (mappingEs != null) {
+            //Settings settings = Builder
+            logger.debug("Creating new index {} for document type {}", indexName, documentType);
+            Map<String, Object> settings = getSettings();
+            try {
+                if (settings != null) {
+                    esClient.admin()
+                            .indices()
+                            .prepareCreate(indexName)
+                            .addMapping(documentType, mappingEs)
+                            .setSettings(settings)
+                            .execute()
+                            .actionGet();
+                } else {
+                    esClient.admin()
+                            .indices()
+                            .prepareCreate(indexName)
+                            .addMapping(documentType, mappingEs)
+                            .execute()
+                            .actionGet();
                 }
+            } catch (ElasticsearchException esx) {
+                logger.error("Error while ensuring index.... ", esx);
+                throw esx;
             }
-        } finally {
-            lock.unlock();
         }
         return true;
     }
@@ -205,12 +199,12 @@ public class TrackDaoES implements TrackSearchDao {
         String[] documentTypes = new String[1];
         documentTypes[0] = documentType;
 
-        boolean hasType = esClient.admin()
+        boolean hasTypeMapping = esClient.admin()
                 .indices()
                 .typesExists(new TypesExistsRequest(indexNames, documentTypes))
                 .actionGet()
                 .isExists();
-        if (!hasType) {
+        if (!hasTypeMapping) {
             esClient.admin().indices()
                     .preparePutMapping(indexName)
                     .setType(documentType)
@@ -397,7 +391,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
-        if ( searchChange.getCallerRef()!=null )
+        if (searchChange.getCallerRef() != null)
             indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
 
         if (searchChange.getDescription() != null)
@@ -414,21 +408,20 @@ public class TrackDaoES implements TrackSearchDao {
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
         for (String s : tagValues.keySet()) {
-            if ( tagValues.get(s).containsKey(s)){
+            if (tagValues.get(s).containsKey(s)) {
                 // DAT-328 - the relationship and label have the same name
                 ArrayList<SearchTag> values = tagValues.get(s).get(s);
-                if ( values.size() == 1 ) {
+                if (values.size() == 1) {
                     // DAT-329
                     squash.put(s, values.iterator().next());
-                }else {
+                } else {
                     squash.put(s, tagValues.get(s).get(s));
                 }
-            }
-            else {
+            } else {
                 Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(s);
                 Map<String, Object> newValues = new HashMap<>();
                 for (String s1 : mapValues.keySet()) {
-                    if ( mapValues.get(s1).size() == 1 ){
+                    if (mapValues.get(s1).size() == 1) {
                         // DAT-329 if only one value, don't store as a collection
                         newValues.put(s1, mapValues.get(s1).iterator().next());
                     } else {
@@ -439,9 +432,9 @@ public class TrackDaoES implements TrackSearchDao {
 
             }
         }
-        if ( !squash.isEmpty())
+        if (!squash.isEmpty())
             byRelationship.putAll(squash);
-        if ( !byRelationship.isEmpty()) {
+        if (!byRelationship.isEmpty()) {
             indexMe.put(EntitySearchSchema.TAG, byRelationship);
         }
         //indexMe.put(EntitySearchSchema.TAG, tagValues);
@@ -490,8 +483,8 @@ public class TrackDaoES implements TrackSearchDao {
 
 //    private static Map<String, Map<String, Object>> mappings = new HashMap<>();
 
-    private Lock lock = new ReentrantLock();
-
+    //    private Lock lock = new ReentrantLock();
+//
     //    @Cacheable(value="esContentBuilders", key="#indexName +#documentType")
     private XContentBuilder getMapping(String indexName, String documentType) throws IOException {
 
