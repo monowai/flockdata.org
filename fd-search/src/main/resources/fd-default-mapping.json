@@ -3,6 +3,7 @@
     "_source": {
       "excludes": ["attachment"]
     },
+    "numeric_detection" : false,
     "properties": {
       "attachment": {
         "type": "attachment",
