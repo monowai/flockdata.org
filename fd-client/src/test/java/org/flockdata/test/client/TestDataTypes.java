@@ -44,7 +44,7 @@ public class TestDataTypes extends AbstractImport {
         ImportProfile params = ClientConfiguration.getImportParams(fileName);
         fileProcessor.processFile(params, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
-        assertEquals(1, tagInputBeans.size());
+        assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             if (tagInputBean.getLabel().equals("as-string"))
                 assertEquals("00165", tagInputBean.getCode());
