@@ -391,7 +391,6 @@ public class FileProcessor {
                             }
                         }
                         if (stopProcessing(currentRow, then)) {
-                            currentRow --; // For logging purposes, we're reducing the count
                             break;
                         }
 
