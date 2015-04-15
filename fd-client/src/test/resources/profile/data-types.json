@@ -19,6 +19,12 @@
     "blank-num": {
       "dataType": "number",
       "valueOnError": "0"
+    },
+    "tag-code": {
+      "code": "tag-code",
+      "label": "AsString",
+      "tag": true
     }
+
   }
 }

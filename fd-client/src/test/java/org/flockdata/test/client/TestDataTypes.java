@@ -53,7 +53,29 @@ public class TestDataTypes extends AbstractImport {
         assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getWhat().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getWhat().get("blank-num"));
+    }
 
+    @Test
+    public void preserve_TagCodeAlwaysString() throws Exception {
+        // Even though the source column can be treated as a number, it should be set as a String because
+        // it drives a tag code.
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/data-types.json";
+        ClientConfiguration configuration = getClientConfiguration(fileName);
+
+        ImportProfile params = ClientConfiguration.getImportParams(fileName);
+        fileProcessor.processFile(params, "/data/data-types.csv", getFdWriter(), null, configuration);
+        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        assertEquals(2, tagInputBeans.size());
+        for (TagInputBean tagInputBean : tagInputBeans) {
+            if (tagInputBean.getLabel().equals("tag-code"))
+                assertEquals("123", tagInputBean.getCode());
+        }
+        List<EntityInputBean> entities = getFdWriter().getEntities();
+        for (EntityInputBean entity : entities) {
+            Object whatString = entity.getContent().getWhat().get("tag-code");
+            assertEquals(""+whatString.getClass(), true, whatString instanceof String);
+        }
 
     }
 
