@@ -192,7 +192,7 @@ public class TrackDaoES implements TrackSearchDao {
         // Mappings are on a per Document basis. We need to ensure the mapping exists for the
         //    same index but every document type
         logger.debug("Checking mapping for {}, {}", indexName, documentType);
-        XContentBuilder mapping = getMapping(indexName, documentType);
+
         // Test if Type exist
         String[] indexNames = new String[1];
         indexNames[0] = indexName;
@@ -205,6 +205,7 @@ public class TrackDaoES implements TrackSearchDao {
                 .actionGet()
                 .isExists();
         if (!hasTypeMapping) {
+            XContentBuilder mapping = getMapping(indexName, documentType);
             esClient.admin().indices()
                     .preparePutMapping(indexName)
                     .setType(documentType)
