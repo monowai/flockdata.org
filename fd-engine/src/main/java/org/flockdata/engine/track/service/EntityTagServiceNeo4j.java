@@ -167,7 +167,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             if (existingTag == null) {
                 newEntityTags.addAll(setRelationships(entity, tag, tagInputBean));
             } else {
-                newEntityTags.add(getEntityTag(existingTags, tagInputBean));
+                EntityTag entityTag = getEntityTag(existingTags, tagInputBean);
+                if (entityTag != null)
+                    newEntityTags.add(entityTag);
             }
         }
 
@@ -178,12 +180,20 @@ public class EntityTagServiceNeo4j implements EntityTagService {
                     tagsToMove.add(entityTag);
             }
             if (entityInputBean.isArchiveTags())
-                if (lastLog != null && !lastLog.isMocked())
-                    moveTags(lastLog, tagsToMove);
+                if (lastLog != null) {
+                    if (lastLog.isMocked()) {
+                        for (EntityTag entityTag : tagsToMove) {
+                            // Nowhere to move the tags too so we just delete them
+                            template.delete(entityTag);
+                        }
+                    } else
+                        moveTags(lastLog, tagsToMove);
+                }
         }
         if (!entityInputBean.isTrackSuppressed())
             for (EntityTag entityTag : newEntityTags) {
-                template.save(entityTag);
+                if ( entityTag.getId()==null) // ToDo: This check should be redundant
+                    template.save(entityTag);
             }
         return newEntityTags;
     }
