@@ -208,10 +208,10 @@ public class TestAdminCalls extends EngineBase {
         setSecurity();
         EngineEndPoints eep = new EngineEndPoints(wac);
         String result = eep.adminPing();
-        assertTrue("pong!".equalsIgnoreCase(result));
+        assertTrue("pong".equalsIgnoreCase(result));
         setSecurityEmpty(); // Unsecured should also work
         result = eep.ping();
-        assertTrue("pong!".equalsIgnoreCase(result));
+        assertTrue("pong".equalsIgnoreCase(result));
     }
 
     /**
@@ -230,7 +230,7 @@ public class TestAdminCalls extends EngineBase {
 
         setSecurity(mike_admin);// Secured user should work
         result = eep.adminPing();
-        assertTrue("pong!".equalsIgnoreCase(result));
+        assertTrue("pong".equalsIgnoreCase(result));
 
     }
 

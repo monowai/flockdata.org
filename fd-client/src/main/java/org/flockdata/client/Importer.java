@@ -226,8 +226,8 @@ public class Importer {
 
     private static FdWriter getRestClient(ClientConfiguration configuration) {
         FdRestWriter fdClient = new FdRestWriter(configuration);
-        String ping = fdClient.ping();
-        if (!ping.equalsIgnoreCase("pong!")) {
+        String ping = fdClient.ping().toLowerCase();
+        if (!ping.startsWith("pong")) {
             logger.warn("Error communicating over http with fd-engine {} ", configuration.getEngineURL());
             if ( configuration.isAmqp()){
                 logger.info( "Data can still be sent over AMQP");

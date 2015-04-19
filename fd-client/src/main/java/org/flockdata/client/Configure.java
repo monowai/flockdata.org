@@ -235,7 +235,7 @@ public class Configure {
 
     private static String getVersion(String engineURL, String internalUser, String internalPass) {
         String result = pingServerAuth(engineURL, internalUser, internalPass);
-        if (result != null && !result.equalsIgnoreCase("pong!"))
+        if (result != null && !result.startsWith("pong"))
             return null;
 
         return result;

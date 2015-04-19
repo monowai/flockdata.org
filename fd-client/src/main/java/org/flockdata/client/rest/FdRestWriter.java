@@ -169,7 +169,7 @@ public class FdRestWriter implements FdWriter {
     /**
      * Simple ping to see if the service is up
      *
-     * @return "Pong!"
+     * @return "pong"
      */
     public String ping() {
         RestTemplate restTemplate = getRestTemplate();

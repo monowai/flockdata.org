@@ -30,7 +30,7 @@ public class MonitoringService {
 
     @ServiceActivator(inputChannel = "doFdEnginePingRequest", outputChannel = "doFdEnginePingResponse") // Subscriber
     public PingResult ping() {
-        PingResult pingResult = new PingResult("Pong!");
+        PingResult pingResult = new PingResult("pong");
         return pingResult;
     }
 

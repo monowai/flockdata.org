@@ -42,7 +42,7 @@ public class AdminEP {
 
     String ping() throws Exception {
         // curl -X GET http://localhost:8081/fd-search/v1/admin/ping
-        return "Pong!";
+        return "pong";
     }
 
     @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)

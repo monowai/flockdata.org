@@ -30,8 +30,7 @@ public class MonitoringService {
 
     @ServiceActivator(inputChannel = "doEsPingRequest",outputChannel = "doEsPingResponse") // Subscriber
     public PingResult ping() {
-        PingResult pingResult = new PingResult("Pong!");
-        return pingResult;
+        return new PingResult("pong");
     }
 
 }
