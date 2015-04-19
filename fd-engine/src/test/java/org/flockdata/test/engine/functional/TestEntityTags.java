@@ -199,18 +199,42 @@ public class TestEntityTags extends EngineBase {
         }
 
     }
+    @Test
+    public void DAT386() throws Exception{
+        SystemUser su = registerSystemUser("DAT386", mike_admin);
+        FortressInputBean fib = new FortressInputBean("DAT386", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
+        TagInputBean tagInput = new TagInputBean("DAT386");
+
+        tagService.createTag(su.getCompany(), tagInput);
+        //assertNotNull(result);
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
+        entityInput.addTag(new TagInputBean("TagA", "aaaa"));
+        entityInput.addTag(new TagInputBean("TagB", "bbbb"));
+
+        mediationFacade.trackEntity(su.getCompany(), entityInput);
+        ContentInputBean contentInputBean = new ContentInputBean(Helper.getRandomMap());
+        entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
+        entityInput.addTag(new TagInputBean("TagA", "aaaa"));
+        entityInput.setContent(contentInputBean);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
+        assertNotNull(result.getEntity());
+        assertEquals(1, entityTagService.findEntityTags(su.getCompany(), result.getEntity()).size());
+    }
     @Test
     public void renameRelationship() throws Exception {
 
         SystemUser su = registerSystemUser("renameRelationship", mike_admin);
-        fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         TagInputBean tagInput = new TagInputBean("FLOP");
 
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
-        EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "auditTest", "aTest", new DateTime(), "abc");
         entityInput.addTag(new TagInputBean("TagA", "AAAA"));
         entityInput.addTag(new TagInputBean("TagB", "BBBB"));
         entityInput.addTag(new TagInputBean("TagC", "CCCC"));
