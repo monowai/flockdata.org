@@ -179,7 +179,7 @@ public class EngineConfig implements PlatformConfig {
         String esPingResult ;
         try {
             PingResult esPing = fdMonitoringGateway.ping();
-            esPingResult = (esPing == null || !esPing.getMessage().equals("Pong!")?"Problem":"Ok");
+            esPingResult = (esPing == null || !esPing.getMessage().equals("pong")?"Problem":"Ok");
         } catch (Exception ce){
             esPingResult="!Unreachable! ";
             if ( ce.getCause() !=null )
@@ -239,7 +239,7 @@ public class EngineConfig implements PlatformConfig {
     @Override
     @Secured({SecurityHelper.ADMIN,SecurityHelper.USER})
     public String authPing() {
-        return  "Pong!";
+        return  "pong";
     }
 
     @Override
