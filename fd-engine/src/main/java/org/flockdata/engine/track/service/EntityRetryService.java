@@ -92,11 +92,14 @@ public class EntityRetryService {
             Collection<TrackResultBean> newEntities = TrackBatchSplitter.splitEntityResults(resultBeans);
 
             if (!newEntities.isEmpty()) { // New can be processed async
-                resultBeans.addAll(newEntities);
                 logService.processLogs(fortress, newEntities);
+                if (resultBeans.isEmpty())
+                    return newEntities;
+
             }
             // Process updates synchronously
-            resultBeans.addAll(logService.processLogs(fortress, resultBeans).get());
+            logService.processLogs(fortress, resultBeans).get();
+            resultBeans.addAll(newEntities);
             return resultBeans;
         }
 
