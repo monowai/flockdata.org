@@ -477,7 +477,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
@@ -984,7 +984,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),

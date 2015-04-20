@@ -38,6 +38,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Services ENTITY requests from the Engine
@@ -86,11 +88,9 @@ public class TrackServiceEs implements TrackService {
     public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
-//        if ( changes.getChanges().size() ==1){
-//            logger.debug("Contains one change with an entityID of [{}]", changes.getChanges().iterator().next().getEntityId());
-//        }
+        Map<String,Boolean> checked = new HashMap<>();
         SearchResults results = new SearchResults();
-        boolean mappingChecked = false;
+//        boolean mappingChecked = false;
         for (EntitySearchChange searchChange : thisChange) {
             if ( searchChange == null ) {
                 logger.error("Null search change received. Retry your operation with data!");
@@ -103,11 +103,14 @@ public class TrackServiceEs implements TrackService {
                 trackSearch.delete(searchChange);
                 return results;
             }
-            if ( !mappingChecked) {
+            if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName()+ "/"+searchChange.getDocumentType())) {
                 trackSearch.purgeCache();
-                mappingChecked = true;
+                // Batches must be for the same fortress/doctype combo
+                trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+                String key = searchChange.getIndexName()+ "/"+searchChange.getDocumentType();
+                checked.put(key, true);
             }
-            trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+
             SearchResult result = new SearchResult(
                     trackSearch.handle(searchChange)
             );

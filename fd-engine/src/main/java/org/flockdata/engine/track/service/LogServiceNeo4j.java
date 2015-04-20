@@ -89,25 +89,20 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getContentInput() == null)
             return resultBean;
 
-//        if ( !resultBean.getEntity().getFortress().isStoreEnabled())
-//            return resultBean; // DAT-349 - No log store
-
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
-        TrackResultBean result = logRetryService.writeLog(fortress, resultBean);
-        if (result.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
+        logRetryService.writeLog(fortress, resultBean);
+        if (resultBean.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
 
         if (resultBean.getContentInput() != null
                 && !resultBean.getLogResult().isLogIgnored()) {
             if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
-//                if ( resultBean.getLogResult().getLogToIndex() == null )
-                //kvManager.getContent(resultBean.getEntity(), resultBean.getLogResult().getLogToIndex().getLog());
                 KvContentBean kvContentBean = new KvContentBean(resultBean);
                 kvManager.doWrite(resultBean.getEntity(), kvContentBean);
             }
         }
-        return result;
+        return resultBean;
     }
 
     @Override
