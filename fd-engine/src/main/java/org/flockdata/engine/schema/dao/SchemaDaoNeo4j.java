@@ -292,7 +292,7 @@ public class SchemaDaoNeo4j {
                 documentTypeRepo.save(documentTypeNode);
                 logger.trace("{} Concepts registered", concepts.size());
             }
-            logger.debug("Concepts registered");
+//            logger.debug("Concepts registered");
 
         }
     }

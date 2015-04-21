@@ -33,6 +33,7 @@
 		org.flockdata.helper,
 		org.flockdata.geography,
 		org.flockdata.company,
+		org.flockdata.configure,
 		org.flockdata.kv"/>
 
     <context:property-placeholder

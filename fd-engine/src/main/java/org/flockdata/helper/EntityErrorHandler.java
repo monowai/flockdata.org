@@ -56,7 +56,7 @@ public class EntityErrorHandler {
 
             }
         }
-        logger.error(errorMessage);
+        logger.error(errorMessage, payLoad);
         throw new AmqpRejectAndDontRequeueException(errorMessage);
         //throw payLoad;
     }
@@ -71,9 +71,9 @@ public class EntityErrorHandler {
         } else {
             errorMessage = payLoad.getMessage();
         }
+        logger.error(errorMessage, payLoad);
 
-
-        throw new AmqpRejectAndDontRequeueException(errorMessage);
+        //throw new AmqpRejectAndDontRequeueException(errorMessage);
 
     }
 

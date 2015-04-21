@@ -18,7 +18,8 @@
     <context:annotation-config/>
     <aop:aspectj-autoproxy/>
 
-    <context:component-scan  base-package="org.flockdata.engine.admin,
+    <context:component-scan base-package=
+       "org.flockdata.engine.admin,
 		org.flockdata.engine.query,
 		org.flockdata.engine.schema,
 		org.flockdata.engine.tag,
@@ -28,7 +29,10 @@
 		org.flockdata.configure,
 		org.flockdata.geography,
 		org.flockdata.company,
-		org.flockdata.kv"/>
+		org.flockdata.kv">
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+    </context:component-scan>
+
 
     <!-- Root Context: defines shared resources visible to all other web components -->
 

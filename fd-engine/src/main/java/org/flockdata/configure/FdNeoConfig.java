@@ -39,11 +39,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableRetry
 public class FdNeoConfig extends Neo4jConfiguration {
 
-    private final Logger log = LoggerFactory.getLogger(FdNeoConfig.class);
+    private final Logger logger = LoggerFactory.getLogger(FdNeoConfig.class);
 
     public FdNeoConfig() {
         super();
-        log.info ("********** ");
+        logger.info( "**** Neo4j configuration deploying");
     }
 //    @Bean
 //    public Neo4jServer neo4jServer() {

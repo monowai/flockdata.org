@@ -11,6 +11,8 @@
 	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
 		                http://www.springframework.org/schema/integration
 		                http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
     <int:annotation-config/>
 
     <!-- Implementation bindings -->
