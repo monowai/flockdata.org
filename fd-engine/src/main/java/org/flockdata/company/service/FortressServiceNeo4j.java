@@ -21,7 +21,6 @@ package org.flockdata.company.service;
 
 
 import org.flockdata.company.FortressDaoNeo;
-import org.flockdata.configure.EngineConfig;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.FlockException;

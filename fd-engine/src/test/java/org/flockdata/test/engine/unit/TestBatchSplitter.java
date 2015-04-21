@@ -53,8 +53,9 @@ public class TestBatchSplitter {
         inputs.add(new TrackResultBean(entityOldA));
         inputs.add(new TrackResultBean(entityOldB));
         assertEquals(4, inputs.size());
-        Collection<TrackResultBean>newEntities = TrackBatchSplitter.splitEntityResults(inputs);
+        Collection<TrackResultBean>newEntities = TrackBatchSplitter.getNewEntities(inputs);
         assertEquals(2, newEntities.size());
-        assertEquals(2, inputs.size());
+
+        assertEquals(2, TrackBatchSplitter.getExistingEntities(inputs).size());
     }
 }

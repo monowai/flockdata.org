@@ -89,17 +89,18 @@ public class EntityRetryService {
             processAsync = resultBeans.iterator().next().getEntity().isNew();
         } else { // Could have a mix of new and existing entities, so we need to
             // Split the batch between new and existing entities
-            Collection<TrackResultBean> newEntities = TrackBatchSplitter.splitEntityResults(resultBeans);
+            Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(resultBeans);
+            Collection<TrackResultBean> existingEntities = TrackBatchSplitter.getExistingEntities(resultBeans);
+
 
             if (!newEntities.isEmpty()) { // New can be processed async
                 logService.processLogs(fortress, newEntities);
-                if (resultBeans.isEmpty())
+                if (existingEntities.isEmpty())
                     return newEntities;
 
             }
             // Process updates synchronously
-            logService.processLogs(fortress, resultBeans).get();
-            resultBeans.addAll(newEntities);
+            logService.processLogs(fortress, existingEntities).get();
             return resultBeans;
         }
 

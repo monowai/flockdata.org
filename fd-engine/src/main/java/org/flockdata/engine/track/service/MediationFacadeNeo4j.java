@@ -50,6 +50,7 @@ import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -166,7 +167,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     public Collection<TrackResultBean> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
-            throw new FlockServiceException("Unable to resolve the company for your ApiKey");
+            throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
         Map<Fortress, List<EntityInputBean>> byFortress = getEntitiesByFortress(c, inputBeans);
         Collection<TrackResultBean>results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
