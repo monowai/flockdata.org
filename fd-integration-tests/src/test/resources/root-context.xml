@@ -25,7 +25,8 @@
     <!--fd-engine test integration file-->
 
     <!-- Root Context: defines shared resources visible to all other web components -->
-    <context:component-scan  base-package="org.flockdata.engine.admin,
+    <context:component-scan  base-package=
+       "org.flockdata.engine.admin,
 		org.flockdata.engine.query,
 		org.flockdata.engine.schema,
 		org.flockdata.engine.tag,

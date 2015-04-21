@@ -21,23 +21,24 @@ package org.flockdata.test.search.functional;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.search.endpoint.TrackServiceEs;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.SimpleEntityTagRelationship;
 import org.flockdata.test.engine.SimpleTag;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.*;
+import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.model.GeoData;
+import org.flockdata.track.model.SearchChange;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -96,6 +97,42 @@ public class TestMappings extends ESBase {
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
         assertNotNull(json);
 
+    }
+
+    @Test
+    public void count_CorrectSearchResults() throws Exception {
+        Map<String, Object> json = Helper.getBigJsonText(20);
+
+        String fortress = "fort";
+        String company = "test";
+        String doc = "doc";
+        String user = "mike";
+
+        Entity entity = Helper.getEntity(company, fortress, user, doc);
+        Entity entityB = Helper.getEntity(company, fortress, user, doc);
+
+        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+        EntitySearchChange changeB = new EntitySearchChange(new EntityBean(entityB));
+        change.setDescription("Test Description");
+        change.setWhat(json);
+        changeB.setWhat(json);
+        ArrayList<EntityTag> tags = new ArrayList<>();
+
+        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
+        tagInput.setCode("my TAG");
+        Tag tag = new SimpleTag(tagInput);
+
+        tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
+        change.setTags(tags);
+
+        deleteEsIndex(entity.getFortress().getIndexName());
+
+        Collection<SearchChange> changes = new ArrayList<>();
+        changes.add(change);
+        changes.add(changeB);
+        EntitySearchChanges searchChanges = new EntitySearchChanges(changes);
+        SearchResults searchResults = trackService.createSearchableChange(searchChanges);
+        assertEquals("2 in 2 out", 2, searchResults.getSearchResults().size());
     }
 
     @Test
