@@ -23,7 +23,6 @@ import org.flockdata.track.bean.TrackResultBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Created by mike on 21/03/15.
@@ -36,17 +35,24 @@ public class TrackBatchSplitter {
      * @param inputs all entities to consider - this collection is modified
      * @return Entities from inputs that are new
      */
-    public static Collection<TrackResultBean> splitEntityResults(Collection<TrackResultBean> inputs){
-
+    public static Collection<TrackResultBean> getNewEntities(Collection<TrackResultBean> inputs){
         Collection<TrackResultBean> newEntities = new ArrayList<>();
-        Iterator<TrackResultBean>iterator = inputs.iterator();
-        while (iterator.hasNext()){
-            TrackResultBean track = iterator.next();
+        for (TrackResultBean track : inputs) {
             if (track.getEntity().isNew()) {
                 newEntities.add(track);
-                iterator.remove();
             }
         }
         return newEntities;
+    }
+
+    public static Collection<TrackResultBean>  getExistingEntities(Collection<TrackResultBean> inputs) {
+        Collection<TrackResultBean> newEntities = new ArrayList<>();
+        for (TrackResultBean track : inputs) {
+            if (!track.getEntity().isNew()) {
+                newEntities.add(track);
+            }
+        }
+        return newEntities;
+
     }
 }
