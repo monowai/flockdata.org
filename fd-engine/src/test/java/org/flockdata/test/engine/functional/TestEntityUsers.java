@@ -67,7 +67,7 @@ public class TestEntityUsers extends EngineBase {
 
             entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
             mediationFacade.trackEntity(su.getCompany(), entityBean);
-            logger.info("Tracked...");
+
             Entity entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
             Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
@@ -111,7 +111,7 @@ public class TestEntityUsers extends EngineBase {
         ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer");
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
-        logger.info("Tracked...");
+
         Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 

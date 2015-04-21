@@ -38,7 +38,7 @@ import java.util.concurrent.Future;
  */
 public interface LogService {
 
-    Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 

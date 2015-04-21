@@ -21,6 +21,7 @@ package org.flockdata.engine.schema.dao;
 
 import org.flockdata.engine.schema.model.ConceptNode;
 import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.engine.schema.model.TagLabelNode;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -85,18 +86,20 @@ public class SchemaDaoNeo4j {
 
     @Async
     void createTagLabel(Company company, String labelName) {
-        logger.debug("Creating Tag Labels");
-        String cypher = "merge (tag:TagLabel { name:{name}, companyKey:{key}}) " +
-                "with tag " +
-                "match (c:FDCompany) where id(c) = {cid} " +
-                "merge (c)<-[:TAG_INDEX]-(tag) " +
-                "return tag";
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", labelName);
-        params.put("key", parseTagLabel(company, labelName));
-        params.put("cid", company.getId());
-
-        template.query(cypher, params);
+        TagLabelNode tagLabelNode = new TagLabelNode(company, labelName);
+        template.saveOnly(tagLabelNode);
+//        logger.debug("Creating Tag Labels");
+//        String cypher = "merge (tag:TagLabel:TagLabel { name:{name}, companyKey:{key}}) " +
+//                "with tag " +
+//                "match (c:FDCompany) where id(c) = {cid} " +
+//                "merge (c)<-[:TAG_INDEX]-(tag) " +
+//                "return tag";
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("name", labelName);
+//        params.put("key", parseTagLabel(company, labelName));
+//        params.put("cid", company.getId());
+//
+//        template.query(cypher, params);
     }
 
     /**
@@ -141,7 +144,7 @@ public class SchemaDaoNeo4j {
     }
 
     private boolean tagExists(Company company, String labelName) {
-        return documentTypeRepo.findCompanyTag(company.getId(), parseTagLabel(company, labelName)) != null;
+        return documentTypeRepo.findCompanyTag(company.getId(), TagLabelNode.parseTagLabel(company, labelName)) != null;
     }
 
     /**
@@ -219,8 +222,6 @@ public class SchemaDaoNeo4j {
         try {
             template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
         } catch (InvalidDataAccessResourceUsageException e ){
-  //          Clean dodgy tags?
-//            logger.error("Concurrent issue creating constraint for label [{}] - {}", label, e.getMessage());
             throw (e);
         }
 
@@ -236,7 +237,8 @@ public class SchemaDaoNeo4j {
         template.query("create constraint on (t:State) assert t.key is unique", null);
         template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
 //        Due to SDN restrictions, this must have an _ else it will not work well
-        template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
+        //template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
+        //template.query("create constraint on (t:TagLabel) assert t.companyKey is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
         template.query("create constraint on (t:City) assert t.key is unique", null);
         logger.debug("Created system constraints");
@@ -374,9 +376,6 @@ public class SchemaDaoNeo4j {
         return (index.equals("Country") || index.equals("City"));
     }
 
-    private String parseTagLabel(Company company, String label) {
-        return company.getId() + ".t." + label.toLowerCase().replaceAll("\\s", "");
-    }
 
     @Transactional
     public void waitForIndexes() {

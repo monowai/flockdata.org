@@ -20,6 +20,7 @@
 package org.flockdata.engine.schema.dao;
 
 import org.flockdata.engine.schema.model.DocumentTypeNode;
+import org.flockdata.engine.schema.model.TagLabelNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.DocumentType;
 import org.springframework.data.neo4j.annotation.Query;
@@ -39,10 +40,10 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
     DocumentTypeNode findFortressDocCode(String docKey);
 
     @Query(value =
-                    "MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:_TagLabel) " +
+                    "optional MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:TagLabel) " +
                             "        where id(company)={0} and tag.companyKey ={1}" +
                             "       return tag")
-    DocumentTypeNode findCompanyTag(Long companyId, String companyKey);
+    TagLabelNode findCompanyTag(Long companyId, String companyKey);
 
 
     @Query(elementClass = DocumentTypeNode.class,
