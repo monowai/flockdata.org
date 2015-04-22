@@ -72,14 +72,10 @@ public class TagRetryService {
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
-    public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
-        return new AsyncResult<>(createTags(company, tagInputs));
-    }
-
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException {
         if (tagInputBeans.isEmpty())
-            return new ArrayList<>();
+            return new AsyncResult<>(new ArrayList<>());
         boolean schemaReady;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
@@ -87,13 +83,14 @@ public class TagRetryService {
         logger.debug("Schema Indexes appear to be in place");
 
         try {
-            return tagService.createTags(company, tagInputBeans);
+            return new AsyncResult<>(tagService.createTags(company, tagInputBeans));
         } catch (FlockException e) {
             throw (e);
         } catch (IOException | ExecutionException | InterruptedException e) {
             logger.error("Track Error", e);
         }
-        return new ArrayList<>();
+        return new AsyncResult<>(new ArrayList<>());
     }
+
 
 }
