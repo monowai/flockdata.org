@@ -139,14 +139,17 @@ public class TagDaoNeo4j {
             aliases = new ArrayList<>();
             for (AliasInputBean newAlias : tagInput.getAliases()) {
                 AliasNode alias = new AliasNode(label, newAlias, parseKey(newAlias.getCode()), tag);
-                if (!tag.hasAlias(label, alias.getKey()))
-                    aliases.add(alias);
+                aliases.add(alias);
             }
         }
         tag = tagRepo.save(tag);
         if (aliases != null)
             for (AliasNode alias : aliases) {
-                template.save(alias);
+                if (!tag.hasAlias(label, alias.getKey())) {
+                    alias = template.save(alias);
+                    tag.addAlias(alias);
+                }
+
             }
         logger.debug("Saved {}", tag);
         return tag;
@@ -298,7 +301,7 @@ public class TagDaoNeo4j {
                 Tag toDelete = getTag(mapResult);
                 if (toDelete != null)
                     template.delete(toDelete);
-                    //logger.info("Should we delete {}", toDelete);
+                //logger.info("Should we delete {}", toDelete);
 
             }
 
