@@ -335,7 +335,6 @@ public class TestRegistration extends EngineBase {
         SystemUser su = registerSystemUser(company, mike_admin);
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
         assertNotNull(f);
-        assertEquals("Not Found", fortressService.delete(su.getCompany(), f.getName()));
-        assertEquals("OK", fortressService.delete(su.getCompany(), f.getCode()));
+        assertEquals("Deleting by name should work as it will resolve to the code", "OK", fortressService.delete(su.getCompany(), f.getName()));
     }
 }

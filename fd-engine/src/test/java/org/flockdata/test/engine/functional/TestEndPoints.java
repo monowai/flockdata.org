@@ -55,7 +55,6 @@ public class TestEndPoints extends EngineBase{
         ContentInputBean cib = new ContentInputBean("userA", Helper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
         TrackResultBean trackResult = engineEndPoints.track(eib, su);
         assertNotNull(trackResult);
         Entity e = entityService.getEntity(su.getCompany(), trackResult.getEntityBean().getMetaKey());
@@ -86,11 +85,12 @@ public class TestEndPoints extends EngineBase{
 
     @Test
     public void fortress_CreationUpdate() throws Exception{
+        cleanUpGraph();
         setSecurity();
-        SystemUser su = registerSystemUser("track_MinimalArguments", "userA");
+        SystemUser su = registerSystemUser("fortress_CreationUpdate", "userA");
+        setSecurityEmpty();
         FortressInputBean fortressInputBean = new FortressInputBean("Twitter");
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
         FortressResultBean result = engineEndPoints.postFortress(su, fortressInputBean);
         assertEquals("Twitter", result.getName());
         assertEquals("twitter", result.getCode());
