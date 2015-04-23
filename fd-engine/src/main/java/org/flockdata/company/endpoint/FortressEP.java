@@ -61,7 +61,7 @@ public class FortressEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     public Collection<FortressResultBean> findFortresses(HttpServletRequest request) throws FlockException {
-        // curl -u mike:123 -X GET  http://localhost:8080/ab/company/Monowai/fortresses
+        // curl -u mike:123 -X GET  http://localhost:8080/fd/fortresses
         Company company = CompanyResolver.resolveCompany(request);
         return fortressService.findFortresses(company);
     }
@@ -75,25 +75,25 @@ public class FortressEP {
 
     }
 
-    @RequestMapping(value = "/{fortressName}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
-    public DocumentResultBean registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
+    @RequestMapping(value = "/{fortressCode}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
+    public DocumentResultBean registerDocumentType (HttpServletRequest request, @PathVariable("fortressCode") String fortressCode, @PathVariable("docTypeName") String docTypeName) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Fortress fortress = fortressService.getFortress(company, fortressName);
-        return new DocumentResultBean(schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE), fortress);
+        Fortress fortress = fortressService.getFortress(company, fortressCode);
+        return new DocumentResultBean(schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE));
 
     }
 
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
-    public Fortress getFortress(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
+    public FortressResultBean getFortress(@PathVariable("code") String fortressCode, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if ( fortress == null)
-            fortress = fortressService.findByName(company, fortressCode);
+            fortress = fortressService.findByCode(company, fortressCode);
 
         if (fortress == null)
            throw new FlockException("Unable to locate the fortress "+ fortressCode);
 
-        return fortress;
+        return new FortressResultBean(fortress);
     }
 
     @RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
@@ -110,7 +110,7 @@ public class FortressEP {
     }
     @RequestMapping(value = "/timezones", method = RequestMethod.GET)
     public String[] getTimezones(HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
+        CompanyResolver.resolveCompany(request);
         return TimeZone.getAvailableIDs();
     }
 

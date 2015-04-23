@@ -62,14 +62,10 @@ public class DocumentResultBean {
     }
 
     public DocumentResultBean(DocumentType documentType) {
-        this(documentType, documentType.getFortress());
-    }
-
-    public DocumentResultBean(DocumentType documentType, Fortress fortress) {
         this();
         this.name = documentType.getName();
-        fortressName =fortress.getName();
-        fortressCode = fortress.getCode();
+        fortressName =documentType.getFortress().getName();
+        fortressCode = documentType.getFortress().getCode();
         this.id = documentType.getId();
 
     }
@@ -88,10 +84,6 @@ public class DocumentResultBean {
             concepts = new ArrayList<>();
         concepts.add(concept);
     }
-//    @Override
-//    public int compareTo(DocumentResultBean o) {
-//        return o.getName().compareTo(name) + o.getFortressCode().compareTo(fortressCode);
-//    }
 
     @Override
     public boolean equals(Object o) {

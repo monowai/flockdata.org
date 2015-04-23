@@ -231,7 +231,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
             String fortressName = entityInputBean.getFortress();
             Fortress f = resolvedFortress.get(fortressName);
             if (f == null) {
-                f = fortressService.findByName(company, fortressName);
+                f = fortressService.findByCode(company, fortressName);
                 if (f != null)
                     resolvedFortress.put(fortressName, f);
             }

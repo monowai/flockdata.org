@@ -20,10 +20,11 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -83,5 +84,22 @@ public class TestEndPoints extends EngineBase{
         assertEquals("usera", e.getCreatedBy().getCode());
     }
 
+    @Test
+    public void fortress_CreationUpdate() throws Exception{
+        setSecurity();
+        SystemUser su = registerSystemUser("track_MinimalArguments", "userA");
+        FortressInputBean fortressInputBean = new FortressInputBean("Twitter");
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+        engineEndPoints.login("mike", "123");
+        FortressResultBean result = engineEndPoints.postFortress(su, fortressInputBean);
+        assertEquals("Twitter", result.getName());
+        assertEquals("twitter", result.getCode());
 
+        fortressInputBean = new FortressInputBean("twitter");
+        result = engineEndPoints.postFortress(su, fortressInputBean);
+        assertEquals("Twitter", result.getName());
+        assertEquals("twitter", result.getCode());
+        assertEquals("Creation of a fortress should be case insensitive", 1, fortressService.findFortresses(su.getCompany()).size());
+
+    }
 }
