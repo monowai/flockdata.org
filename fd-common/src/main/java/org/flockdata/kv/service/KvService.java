@@ -53,7 +53,7 @@ public interface KvService {
 
     void doWrite(Entity entity, KvContentBean kvBean) throws FlockException;
 
-    Boolean doKvWrite(KvContentBean kvBean) throws FlockException;
+    void doKvWrite(KvContentBean kvBean) throws FlockException;
 
     public enum KV_STORE {REDIS, RIAK, MEMORY, NONE}
 }

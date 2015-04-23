@@ -53,7 +53,6 @@ import java.util.*;
  * Date: 21/04/13
  * Time: 8:00 PM
  */
-@SuppressWarnings("SpringJavaAutowiringInspection")
 @Repository("entityDao")
 public class EntityDaoNeo {
     @Autowired

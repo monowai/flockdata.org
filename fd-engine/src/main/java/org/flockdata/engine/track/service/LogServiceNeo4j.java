@@ -73,17 +73,15 @@ public class LogServiceNeo4j implements LogService {
     @Override
     @Async ("fd-log")
     public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
-
+        // ToDo - ServiceActivator
         //Collection<TrackResultBean> logResults = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
             processLogFromResult(fortress, resultBean);
         }
-
         return new AsyncResult<>(resultBeans);
-
     }
 
-    @Transactional
+    @Transactional (timeout = 4000)
     void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: Service Activator
         if (resultBean.getContentInput() == null)
