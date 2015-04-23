@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockDataJsonFactory;
-import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
@@ -45,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -200,7 +200,7 @@ public class KvServiceTest {
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
             }
 
-        } catch ( FlockServiceException e){
+        } catch ( AmqpRejectAndDontRequeueException e){
             // ToDo: Mock RIAK
             if ( kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
