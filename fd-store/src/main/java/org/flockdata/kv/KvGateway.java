@@ -34,5 +34,5 @@ import org.springframework.scheduling.annotation.Async;
 public interface KvGateway {
 
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
-    Boolean doKvWrite(KvContentBean resultBean);
+    void doKvWrite(KvContentBean resultBean);
 }

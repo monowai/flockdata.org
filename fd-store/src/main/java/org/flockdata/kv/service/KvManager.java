@@ -41,17 +41,15 @@ import org.flockdata.track.model.KvContent;
 import org.flockdata.track.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
@@ -109,20 +107,18 @@ public class KvManager implements KvService {
      * @throws FlockServiceException - problem with the underlying
      */
     @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"kv.retry"}, requiresReply = "false")
-    public Boolean doKvWrite(KvContentBean kvBean) throws FlockServiceException {
+    public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
-            logger.debug("Received request to add kvBean {}", kvBean);
+            logger.trace("Received request to add kvBean {}", kvBean);
             getKvRepo(KV_STORE.valueOf(kvBean.getStorage())).add(kvBean);
 
         } catch (IOException e) {
             String errorMsg = String.format("Error writing to the %s KvStore.", kvConfig.getKvStore());
             logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
             //           resolve the underlying DB problem
-            throw new FlockServiceException(errorMsg, e); // Keep the message on the queue
-            // ToDo: The exception above will attempt redelivery ~immediately.
+            throw new AmqpRejectAndDontRequeueException(errorMsg, e); // Keep the message on the queue
         }
-        return Boolean.TRUE;
     }
 
     /**
@@ -146,17 +142,17 @@ public class KvManager implements KvService {
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
             logger.debug("Async write begins {}", kvBean);
-            doKvWriteAsync(kvBean);
+            kvGateway.doKvWrite(kvBean);
         } else {
             logger.debug("Sync write begins {}", kvBean);
             doKvWrite(kvBean);
         }
     }
 
-    @Async("fd-store")
-    Future<Void> doKvWriteAsync(KvContentBean kvBean) {
+
+    void doKvWriteAsync(KvContentBean kvBean) {
         kvGateway.doKvWrite(kvBean);
-        return new AsyncResult<>(null);
+        //return new AsyncResult<>(null);
     }
 
     /**

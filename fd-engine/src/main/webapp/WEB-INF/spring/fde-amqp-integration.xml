@@ -19,9 +19,8 @@
     <import resource="fde-amqp-rabbit.xml"/>
 
     <!-- Acknowledgement from fd-search of an fd-engine request-->
-    <int-amqp:inbound-gateway id="searchSyncResultId"
-                              request-channel="searchDocSyncResult"
-                              reply-channel="nullChannel"
+    <int-amqp:inbound-channel-adapter id="searchSyncResultId"
+                              channel="searchDocSyncResult"
                               queue-names="${fd-engine.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
@@ -32,34 +31,35 @@
                               message-converter="jsonToSearchResultConverter"/>
 
     <!--internally used to send content to the inboundTrackGateway -->
-    <int-amqp:outbound-gateway
-            request-channel="writeEntityContent"
-            reply-channel="nullChannel"
-            requires-reply="true"
+    <int-amqp:outbound-channel-adapter
+            channel="writeEntityContent"
             lazy-connect="${fd.amqp.lazyConnect}"
-            routing-key="${fd-track.binding}"
             mapped-request-headers="apiKey"
-            exchange-name="${fd-track.exchange}"
-            amqp-template="amqpTemplate"/>
+            routing-key="${fd-track.binding}"
+            exchange-name="${fd-track.exchange}"/>
 
     <!--Sends search docs out. Whenever an entity has changed-->
-    <int-amqp:outbound-gateway
-            request-channel="syncSearchDocs"
-            reply-channel="nullChannel"
-            requires-reply="false"
+    <!--<int-amqp:outbound-gateway-->
+            <!--request-channel="syncSearchDocs"-->
+            <!--reply-channel="nullChannel"-->
+            <!--requires-reply="false"-->
+            <!--lazy-connect="${fd.amqp.lazyConnect}"-->
+            <!--routing-key="${fd-search.binding}"-->
+            <!--exchange-name="${fd-search.exchange}"-->
+            <!--amqp-template="amqpTemplate"/>-->
+
+    <int-amqp:outbound-channel-adapter
+            channel="syncSearchDocs"
             lazy-connect="${fd.amqp.lazyConnect}"
             routing-key="${fd-search.binding}"
-            exchange-name="${fd-search.exchange}"
-            amqp-template="amqpTemplate"/>
+            exchange-name="${fd-search.exchange}"/>
 
     <!--Writes entity to the KV store. Part of the track workflow. -->
-    <int-amqp:outbound-gateway
-            request-channel="writeKvContent"
-            requires-reply="false"
+    <int-amqp:outbound-channel-adapter
+            channel="writeKvContent"
             routing-key="${fd-store.binding}"
             lazy-connect="${fd.amqp.lazyConnect}"
-            exchange-name="${fd-store.exchange}"
-            amqp-template="amqpTemplate"/>
+            exchange-name="${fd-store.exchange}"/>
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"

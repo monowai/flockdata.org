@@ -67,7 +67,7 @@ public class EntityRetryService {
 
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 20,
-            backoff = @Backoff(delay = 100, maxDelay = 500))
+            backoff = @Backoff(delay = 60, multiplier = 5, random = true))
     public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entities, Collection<Tag> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
         return doTrack(fortress, entities, tags);

@@ -529,7 +529,7 @@ public class TestFdIntegration {
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -542,9 +542,9 @@ public class TestFdIntegration {
 
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         // ensure non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         // Analyzed tags require exact match...
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "Happy Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
         doEsQuery( result.getEntity().getFortress().getIndexName(), "happy days", 1);
         // We now have 1 content doc with tags validated in ES
 
@@ -573,15 +573,15 @@ public class TestFdIntegration {
         // We now have 2 logs, sad tags, no happy tags
 
         // If this fails, search changes are probably not being dispatched
-        String json = doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "Sad Days", 1);
+        String json = doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
         Long whenDate = Long.parseLong(searchDoc.get("when").toString());
         assertTrue("Fortress when was not set in to searchDoc", whenDate > 0);
         assertEquals(whenDate, entity.getFortressDateUpdated());
-        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc._tag.code.facet", "Days Bay", 1);
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
-        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 0);
-        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "happy days", 0);
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
+        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
@@ -590,8 +590,8 @@ public class TestFdIntegration {
         assertEquals(2, entityTags.size());
 
         // These should have been added back in due to the cancel operation
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "Happy Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
 
         // These were removed in the cancel
         doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
@@ -617,11 +617,11 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "Happy Days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb._tag.code.facet", "Sad Days", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc._tag.code.facet", "Days Bay", 1);
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc._tag.code", "days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
+        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.tag.code", "days", 1);
 
     }
 
@@ -641,7 +641,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga._tag.code", "happy", 1);
+        doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(su.getCompany().getName());
         queryParams.setFortress(fo.getName());
@@ -822,7 +822,7 @@ public class TestFdIntegration {
 
     @Test
     public void tag_ReturnsSingleSearchResult() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
@@ -844,14 +844,14 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
 
         waitForFirstSearchResult(su.getCompany(), entity);
-        doEsTermQuery(indexName, "tag." + relationshipName + "._tag.code.facet", "Code Test Works", 1);
+        doEsTermQuery(indexName, "tag." + relationshipName + ".tag.code.facet", "Code Test Works", 1);
         doEsQuery(indexName, "code test works", 1);
 
     }
 
     @Test
     public void cancel_UpdatesSearchCorrectly() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         // DAT-53
         logger.info("## cancel_UpdatesSearchCorrectly");
 
@@ -906,7 +906,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_nGramDefaults() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## search_nGramDefaults");
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
@@ -1176,9 +1176,9 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
         waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
 
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state", "ca", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country", "usa", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.state", "ca", 1);
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.country", "usa", 1);
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.city", "los angeles", 1);
 
     }
 
