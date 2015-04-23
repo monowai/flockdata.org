@@ -289,10 +289,20 @@ public class TagDaoNeo4j {
             return tags.iterator().next();
 
         // See if the tagKey is unique for the requested label
+        Tag tResult = null;
         for (Tag tag : tags) {
-            if (tag.getLabel().equalsIgnoreCase(theLabel))
-                return tag;
+            if (tag.getLabel().equalsIgnoreCase(theLabel) ) {
+                if ( tResult == null)
+                    tResult = tag;
+                else {
+                    // Deleting tags that should not exist here
+                    template.delete(tag); // Concurrency issue under load ?
+                }
+            }
         }
+        if ( tResult != null )
+            return tResult;
+
         // Locate by Alias
         String query;
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
