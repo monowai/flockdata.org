@@ -20,10 +20,15 @@
 package org.flockdata.engine.tag;
 
 import org.flockdata.engine.tag.model.TagNode;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+
+import java.util.Collection;
 
 /**
  * Created by mike on 1/04/15.
  */
 public interface TagRepo  extends GraphRepository<TagNode>{
+    @Query(value = "match (t:Tag) where t.key = {0} return t")
+    Collection<TagNode> findByKey(String tagKey);
 }

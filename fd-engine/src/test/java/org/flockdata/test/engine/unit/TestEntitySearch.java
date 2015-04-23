@@ -73,7 +73,7 @@ public class TestEntitySearch {
         Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
         //assertTrue (values.get("code") instanceof Collection);
 
-        Collection mValues = (Collection) values.get("_tag");
+        Collection mValues = (Collection) values.get("tag");
         // Each entry has a Name and Code value
         assertNotNull("Could not find the Tag in the result set", mValues);
         assertEquals("Incorrect Values found for the relationship. Not ignoring case?", 3, mValues.size() );

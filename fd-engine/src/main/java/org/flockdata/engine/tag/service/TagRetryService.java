@@ -71,7 +71,7 @@ public class TagRetryService {
     @Async("fd-track")
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
-            backoff = @Backoff( delay = 100,  maxDelay = 500, random = true))
+            backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
     public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if (tagInputBeans.isEmpty())

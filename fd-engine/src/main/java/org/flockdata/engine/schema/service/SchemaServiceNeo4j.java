@@ -100,7 +100,7 @@ public class SchemaServiceNeo4j implements SchemaService {
         logger.debug("Processing concepts for {}", fortress.getCompany());
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
+            if (resultBean.getEntityBean() != null && resultBean.getEntityBean().getId() != null) {
                 DocumentType docType = resultBean.getDocumentType();
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {

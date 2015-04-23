@@ -29,7 +29,6 @@ import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -43,7 +42,6 @@ import java.util.concurrent.Future;
  * Date: 2/12/14
  * Time: 7:48 AM
  */
-@EnableRetry
 @Service
 @Async("fd-engine")
 public class SchemaRetryService {
