@@ -75,7 +75,7 @@ public class FortressServiceNeo4j implements FortressService {
         return fortressDao.findOneUser(id);
     }
 
-    //    @Cacheable(value = "fortressName", unless = "#result == null")
+    //    @Cacheable(value = "fortressCode", unless = "#result == null")
     @Override
     public Fortress findByName(Company company, String fortressName) throws NotFoundException {
         if (fortressName == null)
@@ -222,18 +222,18 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
-        Fortress fortress = fortressDao.getFortressByName(company.getId(), fib.getName());
-        boolean versioningDefault = engineConfig.isStoreEnabled();
+        Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());
+        boolean storeEnabled = engineConfig.isStoreEnabled();
         if (fortress != null) {
             if (fortress.isStoreEnabled() == null)
                 // DAT-346 - data upgrade, revert to system default
-                fortress.setStoreEnabled(versioningDefault);
+                fortress.setStoreEnabled(storeEnabled);
             logger.debug("Found existing Fortress {} for Company {}", fortress, company);
             return fortress;
         }
         if (createIfMissing) {
             if ( fib.getStoreActive() == null )
-                fib.setStoreActive(versioningDefault);
+                fib.setStoreActive(storeEnabled);
             fortress = save(company, fib);
             logger.trace("Created fortress {}", fortress);
             fortress.setCompany(company);
@@ -261,10 +261,10 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    public Fortress getFortress(Company company, String fortressName) throws NotFoundException {
-        Fortress fortress = fortressDao.getFortressByName(company.getId(), fortressName);
+    public Fortress getFortress(Company company, String fortressCode) throws NotFoundException {
+        Fortress fortress = fortressDao.getFortressByCode(company.getId(), fortressCode);
         if (fortress == null)
-            throw new NotFoundException("Unable to locate the fortress " + fortressName);
+            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
         return fortress;
     }
 

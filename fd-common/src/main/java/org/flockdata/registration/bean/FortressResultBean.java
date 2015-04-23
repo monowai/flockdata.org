@@ -80,4 +80,12 @@ public class FortressResultBean implements Serializable{
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

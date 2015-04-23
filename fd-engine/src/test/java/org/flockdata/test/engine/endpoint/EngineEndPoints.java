@@ -28,6 +28,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -73,7 +74,6 @@ public class EngineEndPoints {
                         MockMvcRequestBuilders
                                 .post("/fortress/")
                                 .header("api-key", su.getApiKey())
-                                        // .("company", su.getCompany())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         JsonUtils
@@ -183,7 +183,6 @@ public class EngineEndPoints {
         return true;
     }
 
-
     public Collection<CompanyNode> findCompanies(SystemUser su) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -195,12 +194,25 @@ public class EngineEndPoints {
 
     }
 
-
     public String adminPing()throws Exception {
         ResultActions result = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders.get("/admin/ping"));
         return result.andReturn().getResponse().getContentAsString();
+
+    }
+
+    public FortressResultBean postFortress(SystemUser su , FortressInputBean fortressInputBean) throws Exception {
+        MvcResult response = getMockMvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post("/fortress/")
+                                .header("api-key", su.getApiKey())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content( JsonUtils.getJSON(fortressInputBean))).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+        return JsonUtils.getBytesAsObject(json, FortressResultBean.class);
 
     }
 }

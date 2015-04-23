@@ -93,7 +93,7 @@ public class FortressDaoNeo  {
     }
 
     public Fortress getFortressByCode(Long companyId, String fortressCode) {
-        return fortressRepo.getFortressByCode(companyId, fortressCode);
+        return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
     }
 
 
