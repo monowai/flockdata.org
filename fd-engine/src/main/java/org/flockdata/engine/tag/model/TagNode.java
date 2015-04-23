@@ -25,10 +25,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Alias;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Labels;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
@@ -48,8 +45,10 @@ public class TagNode implements Tag {
     @GraphId
     Long id;
 
+    @Indexed
     private String key;
 
+    @Indexed
     private String code;
 
     @Labels
@@ -149,7 +148,7 @@ public class TagNode implements Tag {
             if (!label.equals("_Tag") && !label.equals("Tag"))
                 return label;
         }
-        return "_Tag";
+        return "Tag";
     }
 
 

@@ -66,7 +66,7 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Test
-    public void tags_MetaTagsUpdatedForExistingEntity() throws Exception {
+    public void tags_entityTagsUpdatedForExistingEntity() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("tags_MetaTagsUpdatedForExistingEntity", mike_admin);
         assertNotNull(su);

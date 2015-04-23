@@ -93,7 +93,7 @@ public class AmqpConfig {
     ThreadPoolTaskExecutor executor;
 
     public AmqpConfig (){
-        logger.info( "**** AMQP Configuration deploying");
+        logger.info( "**** FlockData AMQP Configuration deploying");
     }
 
     @Bean(name = "connectionFactory")

@@ -21,6 +21,7 @@ package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.model.Tag;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class TagInputBean {
     private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
 
     Map<String, Object> properties = new HashMap<>();
-    private String label = "";
+    private String label = Tag.DEFAULT_TAG;
 
     Map<String, Object> entityLinks = new HashMap<>();
 
@@ -257,19 +258,6 @@ public class TagInputBean {
         return entityLinks;
     }
 
-    /**
-     * @return name to relate this to an track record
-     */
-    public String getEntityLink() {
-        return entityLink;
-    }
-
-    @Deprecated
-    // Since 0.97 use setEntityLink
-    public void setMetaLink(String link){
-        this.entityLink = link;
-    }
-
     @Override
     public String toString() {
         return "TagInputBean{" +
@@ -316,7 +304,7 @@ public class TagInputBean {
 
     @JsonIgnore
     public boolean isDefault() {
-        return label == null || "".equals(label);
+        return label == null || Tag.DEFAULT_TAG.equals(label);
     }
 
     /**

@@ -146,7 +146,7 @@ public class TagDaoNeo4j {
         if (aliases != null)
             for (AliasNode alias : aliases) {
                 if (!tag.hasAlias(label, alias.getKey())) {
-                    alias = template.save(alias);
+                    template.saveOnly(alias);
                     tag.addAlias(alias);
                 }
 
@@ -280,15 +280,27 @@ public class TagDaoNeo4j {
     TagRepo tagRepo;
 
     @Cacheable(value = "companyTag", unless = "#result == null")
-    Tag tagByKey(String theLabel, String tagCode) {
+    Tag tagByKey(String theLabel, String tagKey) {
+        logger.debug("Cache miss, {}:{}", theLabel, tagKey);
 
+        Collection<TagNode>tags = tagRepo.findByKey(tagKey);
+
+        if ( tags.size() ==1 && (theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG)))
+            return tags.iterator().next();
+
+        // See if the tagKey is unique for the requested label
+        for (Tag tag : tags) {
+            if (tag.getLabel().equalsIgnoreCase(theLabel))
+                return tag;
+        }
+        // Locate by Alias
         String query;
-        logger.debug("Cache miss, {}:{}", theLabel, tagCode);
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
-        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return t, a";
+//        query = "optional match (t:`" + theLabel + "` {key:{tagKey}}) with t optional match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return t, a";
+        query = "match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return a";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", parseKey(tagCode));
+        params.put("tagKey", tagKey);
         Iterable<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
         Tag tagResult = null;
@@ -312,10 +324,10 @@ public class TagDaoNeo4j {
     private Tag getTag(Map<String, Object> mapResult) {
         Tag tagResult;
         Object o = null;
-        if (mapResult.get("t") != null)
-            o = mapResult.get("t");
-        else if (mapResult.get("a") != null) { // Tag found by alias
+        if (mapResult.get("a") != null)
             o = mapResult.get("a");
+        else if (mapResult.get("t") != null) { // Tag found by alias
+            o = mapResult.get("t");
         }
 
         tagResult = (o == null ? null : template.projectTo(o, TagNode.class));

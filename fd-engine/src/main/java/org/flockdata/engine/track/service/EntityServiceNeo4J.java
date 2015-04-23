@@ -50,7 +50,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
@@ -112,6 +112,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
             entity = findByCallerRef(fortress, documentType, entityInputBean.getCallerRef());
+
         if (entity != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
             entityInputBean.setMetaKey(entity.getMetaKey());
@@ -121,7 +122,7 @@ public class EntityServiceNeo4J implements EntityService {
             arb.entityExisted();
             arb.setContentInput(entityInputBean.getContent());
             arb.setDocumentType(documentType);
-            if ( entityInputBean.getContent()!=null && entityInputBean.getContent().getWhen()!=null) {
+            if (entityInputBean.getContent() != null && entityInputBean.getContent().getWhen() != null) {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
                 entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
             }
@@ -146,26 +147,26 @@ public class EntityServiceNeo4J implements EntityService {
         entity.setNew();
         TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
         trackResult.setDocumentType(documentType);
-        if ( tags!=null )
+        if (tags != null)
             tags.clear();
         trackResult.setTags(
                 entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean)
         );
 
         trackResult.setContentInput(entityInputBean.getContent());
-        if ( entity.isNew() && entityInputBean.getContent()!=null) {
+        if (entity.isNew() && entityInputBean.getContent() != null) {
             // DAT-342
             // We prep the content up-front in order to get it distributed to other services
             // ASAP
             // Minimal defaults that are otherwise set in the LogService
             FortressUser contentUser = null;
-            if ( entityInputBean.getContent().getFortressUser() != null)
+            if (entityInputBean.getContent().getFortressUser() != null)
                 contentUser = fortressService.getFortressUser(fortress, entityInputBean.getContent().getFortressUser());
 
             if (entityInputBean.getContent().getEvent() == null) {
                 entityInputBean.getContent().setEvent(Log.CREATE);
             }
-            Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser!=null ?contentUser:entity.getCreatedBy()), trackResult, null, null);
+            Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser != null ? contentUser : entity.getCreatedBy()), trackResult, null, null);
 
             DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
             EntityLog entityLog = new EntityLogRelationship(entity, log, contentWhen);
@@ -186,13 +187,12 @@ public class EntityServiceNeo4J implements EntityService {
 
     public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
         String fortressUser = entityInput.getFortressUser();
-        if ( fortressUser == null && entityInput.getContent()!=null )
+        if (fortressUser == null && entityInput.getContent() != null)
             fortressUser = entityInput.getContent().getFortressUser();
 
         FortressUser entityUser = null;
-        if ( fortressUser !=null)
-            entityUser =fortressService.getFortressUser(fortress, fortressUser);
-
+        if (fortressUser != null)
+            entityUser = fortressService.getFortressUser(fortress, fortressUser);
 
 
         Entity entity = entityDao.create(entityInput, fortress, entityUser, documentType);
@@ -280,9 +280,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        if ( entity.getFortress().isStoreEnabled())
+        if (entity.getFortress().isStoreEnabled())
             return entityDao.getLogs(entity);
-        Set<EntityLog>logs = new HashSet<>();
+        Set<EntityLog> logs = new HashSet<>();
         logs.add(entityDao.getLastEntityLog(entity));
         return logs;
     }
@@ -303,8 +303,8 @@ public class EntityServiceNeo4J implements EntityService {
      * If there are no Log records left, then the entity will also be removed and the
      * AB metaKey will be forever invalid.
      *
-     * @param company   validated company the caller is authorised to work with
-     * @param entity UID of the entity
+     * @param company validated company the caller is authorised to work with
+     * @param entity  UID of the entity
      * @return EntitySearchChange search change to index, or null if there are no logs
      */
     @Override
@@ -336,7 +336,7 @@ public class EntityServiceNeo4J implements EntityService {
             entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), entity.getCreatedBy().getCode()));
             entity.setFortressLastWhen(0l);
             entity.setSearchKey(null);
-            entity = entityDao.save(entity );
+            entity = entityDao.save(entity);
             entityDao.delete(currentLog);
         }
         kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
@@ -365,7 +365,7 @@ public class EntityServiceNeo4J implements EntityService {
     /**
      * counts the number of logs that exist for the given entity
      *
-     * @param company   validated company the caller is authorised to work with
+     * @param company validated company the caller is authorised to work with
      * @param metaKey GUID
      * @return count
      */
@@ -491,15 +491,15 @@ public class EntityServiceNeo4J implements EntityService {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
-            if (documentType == null || documentType.getCode() == null || documentType.getId()==null)
+            if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
                 documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
-            else if ( ! documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName()) ){
+            else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())) {
                 documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
             }
-            assert ( documentType!= null );
-            assert ( documentType.getCode() != null );
+            assert (documentType != null);
+            assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(fortress, documentType, inputBean, tags);
-            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntityBean().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
             arb.add(result);
         }
 
@@ -561,8 +561,8 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> entityKeys, String xRefName) throws FlockException {
         Fortress f = fortressService.findByName(company, sourceKey.getFortressName());
-        if ( f == null )
-            throw new FlockException("Unable to locate the fortress "+sourceKey.getFortressName());
+        if (f == null)
+            throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
         Entity fromEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             fromEntity = entityDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
@@ -634,9 +634,9 @@ public class EntityServiceNeo4J implements EntityService {
         Entity entity;
         try {
             entity = getEntity(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
-        } catch (DataRetrievalFailureException | IllegalStateException e  ) {
+        } catch (DataRetrievalFailureException | IllegalStateException e) {
             logger.error("Unable to locate entity for entity {} in order to handle the search metaKey. Ignoring.", metaId);
-            throw new FlockException("Unable to locate entity for entity "+metaId+" in order to handle the search result.");
+            throw new FlockException("Unable to locate entity for entity " + metaId + " in order to handle the search result.");
         }
 
         if (entity == null) {
@@ -649,11 +649,11 @@ public class EntityServiceNeo4J implements EntityService {
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
             logger.debug("Updated Entity {}. searchKey {} search searchResult =[{}]", entity.getId(), entity.getSearchKey(), searchResult);
-        }  else {
+        } else {
             logger.debug("No need to update searchKey");
         }
 
-        if (searchResult.getLogId() == null || searchResult.getLogId() ==0l) {
+        if (searchResult.getLogId() == null || searchResult.getLogId() == 0l) {
             // Indexing entity meta data only
             return;
         }
@@ -695,8 +695,8 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        if ( entity == null  )
-            throw new NotFoundException("Unable to locate the requested Entity for metaKey "+metaKey);
+        if (entity == null)
+            throw new NotFoundException("Unable to locate the requested Entity for metaKey " + metaKey);
         return entityDao.getLastEntityLog(entity);
     }
 

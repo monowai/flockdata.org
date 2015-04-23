@@ -67,7 +67,7 @@ public class TrackResultBean implements Serializable {
         this.entity = entity;
         this.entityBean = new EntityBean(fortress, entity);
         this.entityInputBean = entityInputBean;
-        this.index = getEntity().getFortress().getIndexName();
+        this.index = entityBean.getIndexName();
 
     }
 

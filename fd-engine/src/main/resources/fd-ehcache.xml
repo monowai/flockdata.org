@@ -19,7 +19,7 @@
            memoryStoreEvictionPolicy="LFU"/>
 
     <cache name="companyTag"
-           maxElementsInMemory="2000"
+           maxElementsInMemory="10000"
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
