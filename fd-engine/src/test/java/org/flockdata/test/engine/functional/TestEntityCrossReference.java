@@ -109,6 +109,7 @@ public class TestEntityCrossReference extends EngineBase {
 
     @Test
     public void xRef_ByCallerRefsForFortress() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("xRef_ByCallerRefsForFortress", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
@@ -142,6 +143,7 @@ public class TestEntityCrossReference extends EngineBase {
     }
     @Test
     public void xRef_FromInputBeans() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
