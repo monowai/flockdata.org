@@ -529,7 +529,7 @@ public class TestFdIntegration {
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -1236,17 +1236,19 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void store_Disabled () throws Exception{
+    public void store_DisabledByCallerRef () throws Exception{
         // DAT-347 Check content retrieved from KV Store when storage is disabled
         assumeTrue(runMe);
+        logger.debug("## store_DisabledByCallerRef");
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
-        SystemUser su = registerSystemUser("store_Disabled");
+        SystemUser su = registerSystemUser("store_DisabledByCallerRef");
 
-        FortressInputBean fib= new FortressInputBean("store_Disabled");
+        FortressInputBean fib= new FortressInputBean("store_DisabledByCallerRef");
         fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
+        // Test with a CallerRef
         EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
         input.setContent(content);
 
@@ -1259,8 +1261,56 @@ public class TestFdIntegration {
         // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
         logger.info("Track request made. About to wait for first search result");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
+
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        assertEquals(input.getCallerRef(), entity.getSearchKey());
+        doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
+        KvContent kvContent = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+        // This will return a mock entity log
+        entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
+        assertNotNull(entityLog);
+        entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
+
+        kvService.getContent(entity, entityLog.getLog());
+        assertNotNull(kvContent);
+        assertNotNull(kvContent.getWhat());
+        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+
+    }
+
+    @Test
+    public void store_DisabledByWithNoCallerRef () throws Exception{
+        // DAT-347 Check content retrieved from KV Store when storage is disabled
+        assumeTrue(runMe);
+        logger.debug("## store_DisabledByWithNoCallerRef");
+        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        SystemUser su = registerSystemUser("store_DisabledByWithNoCallerRef");
+
+        FortressInputBean fib= new FortressInputBean("store_DisabledByWithNoCallerRef");
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
+        // Test with a CallerRef
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), null);
+        input.setContent(content);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+        waitAWhile("Async log is still processing");
+        EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
+
+        assertNotNull(entityLog);
+        assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+
+        // Want to get the latest version to obtain the search key for debugging
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        assertEquals(entity.getMetaKey(), entity.getSearchKey());
         doEsQuery(result.getEntity().getFortress().getIndexName(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
         assertNotNull(kvContent);
@@ -1277,7 +1327,6 @@ public class TestFdIntegration {
         assertNotNull(kvContent.getWhat());
         assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
-
     }
 
     @Test
@@ -1286,7 +1335,7 @@ public class TestFdIntegration {
         //         update is found.
         assumeTrue(runMe);
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
-        SystemUser su = registerSystemUser("store_DisabledReprocessContent");
+        SystemUser su = registerSystemUser("## store_DisabledReprocessContent");
 
         FortressInputBean fib= new FortressInputBean("store_DisabledReprocessContent");
         fib.setStoreActive(false);
@@ -1339,7 +1388,7 @@ public class TestFdIntegration {
     public void validate_StringsContainingValidNumbers() throws Exception{
         try {
 
-            logger.info("validate_MismatchSubsequentValue");
+            logger.info("## validate_MismatchSubsequentValue");
             assumeTrue(runMe);
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
@@ -1355,8 +1404,9 @@ public class TestFdIntegration {
 
             TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
             waitForFirstSearchResult(su.getCompany(), result.getEntity());
-
-            KvContent kvc = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+            Entity entity = entityService.getEntity(su.getCompany(),result.getEntity().getMetaKey());
+            assertNotNull ( entity.getSearchKey());
+            KvContent kvc = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "1234");
 
@@ -1367,10 +1417,11 @@ public class TestFdIntegration {
             inputB.setContent(content);
 
             result = mediationFacade.trackEntity(su.getCompany(), inputB);
-            waitForFirstSearchResult(su.getCompany(), result.getEntity());
+            entity = waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
             doEsQuery(fortress.getIndexName(), "*", 2);
-            kvc = kvService.getContent(result.getEntity(), result.getLogResult().getLogToIndex().getLog());
+
+            kvc = kvService.getContent(entity, result.getLogResult().getLogToIndex().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "NA");
         } finally {
@@ -1378,6 +1429,7 @@ public class TestFdIntegration {
         }
 
     }
+
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
