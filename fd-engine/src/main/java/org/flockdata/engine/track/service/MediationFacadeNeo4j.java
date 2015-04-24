@@ -38,7 +38,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -55,8 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -421,28 +418,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
             throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
-        purge(company, fortress);
+        adminService.purge(company, fortress);
     }
 
     @Override
     @Secured(SecurityHelper.ADMIN)
     public void purge(Fortress fortress) throws FlockException {
-        purge(fortress.getCompany(), fortress);
-    }
-
-    @Async("fd-engine")
-    @Transactional
-    public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
-
-        String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
-        entityService.purge(fortress);
-        kvService.purge(indexName);
-        fortressService.purge(fortress);
-        engineConfig.resetCache();
-        searchService.purge(indexName);
-        logger.info ("Completed purge of fortress [{}]", fortress);
-        return new AsyncResult<>(true);
-
+        adminService.purge(fortress.getCompany(), fortress);
     }
 
     @Override
