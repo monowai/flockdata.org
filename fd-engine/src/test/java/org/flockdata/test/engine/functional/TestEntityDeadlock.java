@@ -74,7 +74,7 @@ public class TestEntityDeadlock extends EngineBase {
         int tagCount = 1; // unique tags per entity - tags are shared across the entities
         int docCount = 1; // how many entities to create per thread
         // Tried reducing threadMax
-        int threadMax = 10; // Each thread will create a unique document type
+        int threadMax = 3; // Each thread will create a unique document type
         ArrayList<TagInputBean> tags = getTags(tagCount, false);
 
         Collection<Tag> createdTags = tagService.findTags(fortress.getCompany(), tags.get(0).getLabel());
