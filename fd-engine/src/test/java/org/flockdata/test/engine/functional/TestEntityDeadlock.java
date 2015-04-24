@@ -30,9 +30,7 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Test;
 import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.test.annotation.Repeat;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -59,9 +57,8 @@ public class TestEntityDeadlock extends EngineBase {
      *
      * @throws Exception
      */
-    @Test
-    @Repeat(value = 1)
-
+    //@Test
+    //@Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
         // This test suffered under DAT-348 and was quarantined.
         String companyName = "entitiesUnderLoad";
