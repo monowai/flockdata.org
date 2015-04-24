@@ -30,6 +30,7 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Test;
 import org.springframework.retry.annotation.EnableRetry;
 
 import java.util.*;
@@ -51,6 +52,12 @@ public class TestEntityDeadlock extends EngineBase {
         logger.debug("Cleaning Graph DB");
         super.cleanUpGraph();
     }
+
+    @Test
+    public void doNothing(){
+        // Commenting out while Bamboo is failing to create artifacts  despite it being quarantineed
+    }
+
 
     /**
      * Multi threaded test that tests to make sure duplicate Doc Types and Entities are not created
