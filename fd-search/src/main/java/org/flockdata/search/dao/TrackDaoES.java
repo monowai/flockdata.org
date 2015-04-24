@@ -107,22 +107,18 @@ public class TrackDaoES implements TrackSearchDao {
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
 
-        String searchKey = (searchChange.getSearchKey() == null ?
-                searchChange.getCallerRef()
-                : searchChange.getMetaKey());
-
-        logger.debug("Resolved SearchKey to [{}]", searchKey);
+        logger.debug("Resolved SearchKey to [{}]", searchChange.getSearchKey());
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
                 .setSource(source);
 
-        if (searchKey != null) {
-            irb.setId(searchKey);
-        }
+        //if (searchChange.getSearchKey() != null) {
+        irb.setId(searchChange.getSearchKey());
+        //}
 
         try {
             IndexResponse ir = irb.execute().actionGet();
-            searchChange.setSearchKey(ir.getId());
+            //searchChange.setSearchKey(ir.getId());
 
             if (logger.isDebugEnabled())
                 logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
@@ -233,6 +229,7 @@ public class TrackDaoES implements TrackSearchDao {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
+            searchChange.setSearchKey((searchChange.getCallerRef() == null ? searchChange.getMetaKey() : searchChange.getCallerRef()));
             logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
             return save(searchChange, source);
         }
