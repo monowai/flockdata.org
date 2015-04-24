@@ -57,17 +57,21 @@ public class EsRepo extends AbstractKvRepo{
         queryParams.setCompany(entity.getFortress().getCompany().getName());
         queryParams.setTypes(entity.getDocumentType());
         queryParams.setFortress(entity.getFortress().getName());
-        queryParams.setCallerRef(entity.getCallerRef());
-
-        // DAT-347
-        EsSearchResult result = esGateway.get(queryParams);
+        queryParams.setCallerRef(entity.getSearchKey());
         ContentInputBean contentInput = new ContentInputBean();
-        if (result!=null )
-            try {
-                contentInput.setWhat((Map<String, Object>) result.getWhat().get(EntitySearchSchema.WHAT));
-            } catch (FlockException e) {
-                logger.error("Json issue", e);
-            }
+        // DAT-347
+        if ( entity.getSearchKey() != null ){
+            EsSearchResult result = esGateway.get(queryParams);
+
+            if (result!=null )
+                try {
+                    contentInput.setWhat((Map<String, Object>) result.getWhat().get(EntitySearchSchema.WHAT));
+                } catch (FlockException e) {
+                    logger.error("Json issue", e);
+                }
+
+
+        }
         return new KvContentBean(forLog, contentInput);
     }
 
