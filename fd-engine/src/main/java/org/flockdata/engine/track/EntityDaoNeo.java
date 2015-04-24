@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -423,24 +424,29 @@ public class EntityDaoNeo {
         return unsorted;
     }
 
+    @Transactional
     public void purgeTagRelationships(Fortress fortress) {
         // ToDo: Check if this works with huge datasets
         trackLogRepo.purgeTagRelationships(fortress.getId());
     }
 
+    @Transactional
     public void purgeFortressLogs(Fortress fortress) {
         trackLogRepo.purgeFortressLogs(fortress.getId());
     }
 
+    @Transactional
     public void purgePeopleRelationships(Fortress fortress) {
         entityRepo.purgePeopleRelationships(fortress.getId());
     }
 
+    @Transactional
     public void purgeEntities(Fortress fortress) {
         entityRepo.purgeCrossReferences(fortress.getId());
         entityRepo.purgeEntities(fortress.getId());
     }
 
+    @Transactional
     public void purgeFortressDocuments(Fortress fortress) {
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }

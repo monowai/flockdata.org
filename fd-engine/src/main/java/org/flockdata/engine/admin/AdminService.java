@@ -19,15 +19,19 @@
 
 package org.flockdata.engine.admin;
 
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.service.EntityService;
+import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +58,30 @@ public class AdminService implements EngineAdminService {
     @Autowired
     SearchServiceFacade searchService;
 
+    @Autowired
+    KvService kvService;
+
+    @Autowired
+    FortressService fortressService;
+
+    @Autowired
+    PlatformConfig engineConfig;
+
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
+
+    @Async("fd-engine")
+    public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
+
+        String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
+        entityService.purge(fortress);
+        kvService.purge(indexName);
+        fortressService.purge(fortress);
+        engineConfig.resetCache();
+        searchService.purge(indexName);
+        logger.info ("Completed purge of fortress [{}]", fortress);
+        return new AsyncResult<>(true);
+
+    }
 
     @Override
     @Async("fd-track")
