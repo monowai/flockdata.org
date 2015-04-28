@@ -17,7 +17,17 @@
 
     <int-http:inbound-gateway request-channel="doMetaKeyQuery"
                               reply-channel="doMetaKeyReply"
-                              path="/api/esSearch"
+                              path="/api/metaKey"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              request-payload-type="org.flockdata.search.model.QueryParams"
+                              supported-methods="POST">
+    </int-http:inbound-gateway>
+
+
+    <int-http:inbound-gateway request-channel="doFdViewQuery"
+                              reply-channel="doFdViewReply"
+                              path="/api/fdView"
                               reply-timeout="${reply.timeout}"
                               request-timeout="${request.timeout}"
                               request-payload-type="org.flockdata.search.model.QueryParams"

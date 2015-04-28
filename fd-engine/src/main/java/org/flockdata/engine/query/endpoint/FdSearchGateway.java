@@ -34,15 +34,18 @@ import org.springframework.integration.annotation.MessagingGateway;
 public interface FdSearchGateway {
 
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel", requestTimeout = 10000)
-    public void makeSearchChanges(EntitySearchChanges searchChanges);
+    void makeSearchChanges(EntitySearchChanges searchChanges);
 
-    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveSearchReply")
-    public EsSearchResult search(QueryParams queryParams);
+    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveFdViewReply")
+    EsSearchResult fdSearch(QueryParams queryParams);
+
+    @Gateway(requestChannel = "sendMetaKeyRequest", replyChannel = "receiveMetaKeyReply")
+    MetaKeyResults metaKeys(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "sendTagCloudReply")
-    public TagCloud getTagCloud(TagCloudParams tagCloudParams);
+    TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
-    public void delete(Entity entity, String searchKey);
+    void delete(Entity entity, String searchKey);
 
     void delete(String indexName);
 }

@@ -28,7 +28,12 @@ import java.util.ArrayList;
  */
 public class MatrixInputBean {
     private ArrayList<String> documents = null;
-    private int minCount = 0;
+
+    private ArrayList<String> fortresses = null;
+    private int minCount = 1;
+
+    private int sampleSize = 1000;
+    private String queryString;
 
     private Boolean byKey = false;
     private ArrayList<String> concepts = null;
@@ -91,5 +96,38 @@ public class MatrixInputBean {
 
     public void setReciprocalExcluded(boolean reciprocalExcluded) {
         this.reciprocalExcluded = reciprocalExcluded;
+    }
+
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public MatrixInputBean setQueryString(String queryString) {
+        this.queryString = queryString;
+        return this;
+    }
+
+    public ArrayList<String> getFortresses() {
+        return fortresses;
+    }
+
+    public MatrixInputBean setFortresses(ArrayList<String> fortresses) {
+        this.fortresses = fortresses;
+        return this;
+    }
+
+    public int getSampleSize() {
+        return sampleSize;
+    }
+
+    @Override
+    public String toString() {
+        return "MatrixInputBean{" +
+                "minCount=" + minCount +
+                ", documents=" + documents +
+                ", fortresses=" + fortresses +
+                ", queryString='" + queryString + '\'' +
+                ", sampleSize=" + sampleSize +
+                '}';
     }
 }

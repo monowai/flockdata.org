@@ -67,7 +67,7 @@ public class ESBase {
 
     static void deleteEsIndex(String indexName) throws Exception {
         logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName).build());
+        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase()).build());
     }
 
     @BeforeClass
