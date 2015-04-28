@@ -57,7 +57,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         // DAT-109 enhancements
         MetaKeyResults metaKeyResults= null;
 
-        if (input.getQueryString() !=null && !input.getQueryString().equals("") )
+        if ( input.getQueryString() == null )
+            input.setQueryString("*");
+        //if (input.getQueryString() !=null && !input.getQueryString().equals("") )
             metaKeyResults = searchGateway.metaKeys(new QueryParams(company, input));
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
