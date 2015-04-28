@@ -42,7 +42,7 @@ public interface FdSearchGateway {
     @Gateway(requestChannel = "sendMetaKeyRequest", replyChannel = "receiveMetaKeyReply")
     MetaKeyResults metaKeys(QueryParams queryParams);
 
-    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "sendTagCloudReply")
+    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "receiveTagCloudReply")
     TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
     void delete(Entity entity, String searchKey);

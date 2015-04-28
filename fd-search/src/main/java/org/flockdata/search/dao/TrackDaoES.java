@@ -405,28 +405,28 @@ public class TrackDaoES implements TrackSearchDao {
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
-        for (String s : tagValues.keySet()) {
-            if (tagValues.get(s).containsKey(s)) {
+        for (String relationship : tagValues.keySet()) {
+            if (tagValues.get(relationship).containsKey(relationship)) {
                 // DAT-328 - the relationship and label have the same name
-                ArrayList<SearchTag> values = tagValues.get(s).get(s);
+                ArrayList<SearchTag> values = tagValues.get(relationship).get(relationship);
                 if (values.size() == 1) {
                     // DAT-329
-                    squash.put(s, values.iterator().next());
+                    squash.put(relationship, values.iterator().next());
                 } else {
-                    squash.put(s, tagValues.get(s).get(s));
+                    squash.put(relationship, tagValues.get(relationship).get(relationship));
                 }
             } else {
-                Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(s);
+                Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(relationship);
                 Map<String, Object> newValues = new HashMap<>();
-                for (String s1 : mapValues.keySet()) {
-                    if (mapValues.get(s1).size() == 1) {
+                for (String label : mapValues.keySet()) {
+                    if (mapValues.get(label).size() == 1) {
                         // DAT-329 if only one value, don't store as a collection
-                        newValues.put(s1, mapValues.get(s1).iterator().next());
+                        newValues.put(label, mapValues.get(label).iterator().next());
                     } else {
-                        newValues.put(s1, mapValues.get(s1));
+                        newValues.put(label, mapValues.get(label));
                     }
                 }
-                byRelationship.put(s, newValues);
+                byRelationship.put(relationship, newValues);
 
             }
         }
@@ -437,7 +437,6 @@ public class TrackDaoES implements TrackSearchDao {
         }
         //indexMe.put(EntitySearchSchema.TAG, tagValues);
     }
-
 
     private Map<String, Object> defaultSettings = null;
 
@@ -479,11 +478,6 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-//    private static Map<String, Map<String, Object>> mappings = new HashMap<>();
-
-    //    private Lock lock = new ReentrantLock();
-//
-    //    @Cacheable(value="esContentBuilders", key="#indexName +#documentType")
     private XContentBuilder getMapping(String indexName, String documentType) throws IOException {
 
         XContentBuilder xbMapping;

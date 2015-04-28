@@ -59,12 +59,6 @@ public class QueryParams {
             for (String s : input.getDocuments()) {
                 this.types[i++]= s.toLowerCase();
             }
-            //String[] result = input.getDocuments().stream().map(String::new).toArray(Bar[]::new);
-            //this.types = input.getDocuments().toArray(new String[input.getDocuments().size()]);
-        }
-        if ( input.getFortresses()!=null && !input.getFortresses().isEmpty()) {
-            this.fortress = input.getFortresses().iterator().next();
-            //ToDo: Treat as an array. this.fortress = input.getDocuments().toArray(new String[input.getDocuments().size ()]);
         }
     }
 

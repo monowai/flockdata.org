@@ -23,13 +23,16 @@ import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.query.EdgeResult;
 import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.MetaKeyResults;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
     @Autowired
     FdSearchGateway searchGateway;
 
+    @Autowired
+    FortressService fortressService;
+
     @Override
     public MatrixResults getMatrix(Company company, MatrixInputBean input) throws FlockException {
 
@@ -62,7 +68,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
             input.setQueryString("*");
 
         if ( input.getSampleSize()> 0 )
-            metaKeyResults = searchGateway.metaKeys(new QueryParams(company, input));
+            metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
@@ -160,6 +166,21 @@ public class MatrixDaoNeo4j implements MatrixDao {
             throw new FlockException( "Excessive amount of data was requested. Query cancelled " +edgeResults.size());
         return results;
 
+    }
+
+    private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {
+        // Fortresses come in as names - need to resolve to codes:
+        QueryParams qp = new QueryParams(company, input);
+        for (String fortressName : input.getFortresses()) {
+            try {
+                Fortress fortress = fortressService.findByName(company, fortressName);
+                if ( fortress!=null )
+                    qp.setFortress(fortress.getCode());
+            } catch (NotFoundException e) {
+                throw new FlockException("Unable to locate fortress " + fortressName);
+            }
+        }
+        return qp;
     }
 
 
