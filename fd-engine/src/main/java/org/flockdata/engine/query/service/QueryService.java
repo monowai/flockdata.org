@@ -125,7 +125,8 @@ public class QueryService {
         Fortress fortress = fortressService.findByName(company, tagCloudParams.getFortress());
         if (fortress == null)
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
-        tagCloudParams.setCompany(company.getName());
+        tagCloudParams.setFortress(fortress.getCode());
+        tagCloudParams.setCompany(company.getCode());
         TagCloud tagCloud = searchGateway.getTagCloud(tagCloudParams);
 
         return tagCloud;

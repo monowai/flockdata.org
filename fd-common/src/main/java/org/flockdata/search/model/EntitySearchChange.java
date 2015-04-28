@@ -240,19 +240,19 @@ public class EntitySearchChange implements SearchChange {
         }
     }
 
-    private void mapTag(EntityTag value, Map<String, ArrayList<SearchTag>> masterValues) {
+    private void mapTag(EntityTag entityTag, Map<String, ArrayList<SearchTag>> masterValues) {
 
-        if (value != null) {
-            ArrayList<SearchTag> object = masterValues.get(value.getTag().getLabel().toLowerCase());
+        if (entityTag != null) {
+            ArrayList<SearchTag> object = masterValues.get(entityTag.getTag().getLabel().toLowerCase());
             ArrayList<SearchTag> values;
             if (object == null) {
                 values = new ArrayList<>();
             } else
                 values = object;
 
-            values.add(new SearchTag(value));
+            values.add(new SearchTag(entityTag));
             // ToDo: Convert to a "search tag"
-            masterValues.put(value.getTag().getLabel().toLowerCase(), values);
+            masterValues.put(entityTag.getTag().getLabel().toLowerCase(), values);
         }
     }
 

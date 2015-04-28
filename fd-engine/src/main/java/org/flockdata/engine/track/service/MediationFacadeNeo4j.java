@@ -127,6 +127,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     KvService kvService;
 
+
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
 
     static DecimalFormat f = new DecimalFormat();
@@ -165,7 +166,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<Fortress, List<EntityInputBean>> byFortress = getEntitiesByFortress(c, inputBeans);
+        Map<Fortress, List<EntityInputBean>> byFortress = TrackBatchSplitter.getEntitiesByFortress(fortressService, c, inputBeans);
         Collection<TrackResultBean>results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
             results.addAll(trackEntities(fortress, byFortress.get(fortress), 100));
@@ -219,36 +220,38 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
-    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
-
-        // Local cache of fortress by name - never very big, often only 1
-        Map<String, Fortress> resolvedFortress = new HashMap<>();
-        for (EntityInputBean entityInputBean : entityInputBeans) {
-            String fortressName = entityInputBean.getFortress();
-            Fortress f = resolvedFortress.get(fortressName);
-            if (f == null) {
-                f = fortressService.findByCode(company, fortressName);
-                if (f != null)
-                    resolvedFortress.put(fortressName, f);
-            }
-
-            List<EntityInputBean> input = null;
-            if (f != null)
-                input = fortressInput.get(f);// are we caching this already?
-
-            if (input == null) {
-                input = new ArrayList<>();
-
-                FortressInputBean fib = new FortressInputBean(fortressName);
-                fib.setTimeZone(entityInputBean.getTimezone());
-                Fortress fortress = fortressService.registerFortress(company, fib, true);
-                fortressInput.put(fortress, input);
-            }
-            input.add(entityInputBean);
-        }
-        return fortressInput;
-    }
+//    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+//        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
+//
+//        // Local cache of fortress by name - never very big, often only 1
+//        Map<String, Fortress> resolvedFortress = new HashMap<>();
+//        for (EntityInputBean entityInputBean : entityInputBeans) {
+//            String fortressName = entityInputBean.getFortress();
+//            Fortress f = resolvedFortress.get(fortressName);
+//            if (f == null) {
+//                f = fortressService.findByCode(company, fortressName);
+//
+//            }
+//            if (f != null)
+//                resolvedFortress.put(fortressName, f);
+//
+//            List<EntityInputBean> input = null;
+//            if (f != null)
+//                input = fortressInput.get(f);// are we caching this already?
+//
+//            if (input == null) {
+//                input = new ArrayList<>();
+//
+//                FortressInputBean fib = new FortressInputBean(fortressName);
+//                fib.setTimeZone(entityInputBean.getTimezone());
+//                Fortress fortress = fortressService.registerFortress(company, fib, true);
+//                resolvedFortress.put(fortressName, f);
+//                fortressInput.put(fortress, input);
+//            }
+//            input.add(entityInputBean);
+//        }
+//        return fortressInput;
+//    }
 
 
     @Override
