@@ -22,6 +22,7 @@ package org.flockdata.engine.query;
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.CypherHelper;
+import org.flockdata.helper.FlockException;
 import org.flockdata.query.EdgeResult;
 import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
@@ -52,14 +53,15 @@ public class MatrixDaoNeo4j implements MatrixDao {
     FdSearchGateway searchGateway;
 
     @Override
-    public MatrixResults getMatrix(Company company, MatrixInputBean input) {
+    public MatrixResults getMatrix(Company company, MatrixInputBean input) throws FlockException {
 
         // DAT-109 enhancements
-        MetaKeyResults metaKeyResults= null;
+        MetaKeyResults metaKeyResults = null;
 
         if ( input.getQueryString() == null )
             input.setQueryString("*");
-        //if (input.getQueryString() !=null && !input.getQueryString().equals("") )
+
+        if ( input.getSampleSize()> 0 )
             metaKeyResults = searchGateway.metaKeys(new QueryParams(company, input));
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
@@ -154,6 +156,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
         logger.info("Count {}, Performance {}", edgeResults.size(), watch.prettyPrint());
         MatrixResults results =  new MatrixResults(edgeResults);
         results.setNodes(labels);
+        if ( edgeResults.size() > input.getMaxEdges())
+            throw new FlockException( "Excessive amount of data was requested. Query cancelled " +edgeResults.size());
         return results;
 
     }

@@ -20,6 +20,7 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.dao.MatrixDao;
+import org.flockdata.helper.FlockException;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.model.Company;
@@ -40,7 +41,7 @@ public class MatrixService {
     @Autowired
     MatrixDao matrixDao;
 
-    public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) {
+    public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) throws FlockException {
         return matrixDao.getMatrix(company, matrixInput);
     }
 }
