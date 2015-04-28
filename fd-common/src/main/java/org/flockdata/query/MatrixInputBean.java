@@ -33,7 +33,9 @@ public class MatrixInputBean {
     private int minCount = 1;
 
     private int sampleSize = 1000;
-    private String queryString;
+
+    private int maxEdges = 2000;
+    private String queryString = null;
 
     private Boolean byKey = false;
     private ArrayList<String> concepts = null;
@@ -120,6 +122,11 @@ public class MatrixInputBean {
         return sampleSize;
     }
 
+    public int getMaxEdges() {
+        return maxEdges;
+    }
+
+
     @Override
     public String toString() {
         return "MatrixInputBean{" +
@@ -129,5 +136,9 @@ public class MatrixInputBean {
                 ", queryString='" + queryString + '\'' +
                 ", sampleSize=" + sampleSize +
                 '}';
+    }
+
+    public void setSampleSize(int sampleSize) {
+        this.sampleSize = sampleSize;
     }
 }

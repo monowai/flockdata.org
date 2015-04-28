@@ -19,6 +19,7 @@
 
 package org.flockdata.dao;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.model.Company;
@@ -32,5 +33,5 @@ import org.flockdata.registration.model.Company;
  */
 public interface MatrixDao {
 
-    MatrixResults getMatrix(Company company, MatrixInputBean inputBean);
+    MatrixResults getMatrix(Company company, MatrixInputBean inputBean) throws FlockException;
 }

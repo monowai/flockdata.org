@@ -78,6 +78,7 @@ public class TestQueryResults extends EngineBase {
         assertEquals(6, entityTagService.getEntityTags(entity).size());
 
         MatrixInputBean input = new MatrixInputBean();
+        input.setSampleSize(-1); // Disable fd-search
         ArrayList<String>docs = new ArrayList<>();
         docs.add("Study");
         ArrayList<String>concepts = new ArrayList<>();
