@@ -38,12 +38,12 @@ import static org.junit.Assert.*;
 
 public class TestRegistration extends EngineBase {
 
-    @Override
-    @org.junit.Before
-    public void cleanUpGraph() {
-        // DAT-348
-        super.cleanUpGraph();
-    }
+//    @Override
+//    @org.junit.Before
+//    public void cleanUpGraph() {
+//        // DAT-348
+//        super.cleanUpGraph();
+//    }
 
     @Test
     public void createPersonsTest() throws Exception {
@@ -56,7 +56,7 @@ public class TestRegistration extends EngineBase {
     @Test
     public void companyFortressNameSearch() throws Exception {
         // Create the company.
-        setSecurity();
+        setSecurity("mike");
         SystemUser su = registerSystemUser("companyFortressNameSearch", mike_admin);
         assertNotNull(su);
 
@@ -112,8 +112,8 @@ public class TestRegistration extends EngineBase {
     public void uniqueFortressesForDifferentCompanies() throws Exception {
         setSecurity("mike");
 
-        SystemUser su = registerSystemUser("CompanyAA", mike_admin);
-        Company company = securityHelper.getCompany(su.getApiKey());
+        SystemUser su = registerSystemUser("uniqueFortressesForDifferentCompanies", "jimmy");
+        Company company = su.getCompany();
 
         //this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
@@ -128,7 +128,7 @@ public class TestRegistration extends EngineBase {
         assertEquals(3, fortresses.size());
 
         setSecurity(sally_admin);
-        SystemUser suB = registerSystemUser("CompanyBB", harry);
+        SystemUser suB = registerSystemUser("uniqueFortressesForDifferentCompaniesBB", harry);
         // Switch to the newly created user
         setSecurity(harry);
 
