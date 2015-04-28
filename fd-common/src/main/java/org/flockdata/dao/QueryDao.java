@@ -21,10 +21,7 @@ package org.flockdata.dao;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 
 /**
  * User: Mike Holdsworth
@@ -36,6 +33,20 @@ public interface QueryDao {
 
     long getHitCount(String index);
 
+    /**
+     * Returns only metaKeys
+     * @param queryParams
+     * @return
+     */
+    MetaKeyResults doMetaKeySearch ( QueryParams queryParams ) throws FlockException;
+
+    /**
+     * FD-View search results
+     *
+     * @param queryParams
+     * @return
+     * @throws FlockException
+     */
     EsSearchResult doEntitySearch(QueryParams queryParams) throws FlockException;
 
     // Treating Es like a current state KV store

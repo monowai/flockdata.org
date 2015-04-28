@@ -14,17 +14,30 @@
     <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
 
-    <int-http:outbound-gateway request-channel="doMetaKeyQuery"
-                               reply-channel="doMetaKeyReply"
+    <int-http:outbound-gateway request-channel="doFdViewQuery"
+                               reply-channel="doFdViewReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
-                               url="${fd-search.url}/v1/api/esSearch"
+                               url="${fd-search.url}/v1/api/fdView"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
         </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
+
+    <int-http:outbound-gateway request-channel="doMetaKeyQuery"
+                               reply-channel="doMetaKeyReply"
+                               reply-timeout="${reply.timeout}"
+                               charset="UTF-8"
+                               url="${fd-search.url}/v1/api/metaKey"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
+
 
     <!--DAT -347 -->
     <int-http:outbound-gateway request-channel="doContentQuery"

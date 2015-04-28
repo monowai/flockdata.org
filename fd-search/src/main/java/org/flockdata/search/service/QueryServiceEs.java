@@ -22,10 +22,7 @@ package org.flockdata.search.service;
 import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -55,18 +52,22 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "metaKeyReply") // Subscriber
-    public EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException {
+    @ServiceActivator(inputChannel = "doFdViewQuery", outputChannel = "fdViewReply") // Subscriber
+    public EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException {
             return queryDao.doEntitySearch(queryParams);
+    }
+
+    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "metaKeyReply") // Subscriber
+    public MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException {
+        return queryDao.doMetaKeySearch(queryParams);
     }
 
     @Override
     @ServiceActivator(inputChannel = "doContentQuery", outputChannel = "contentReply") // Subscriber
     public EsSearchResult contentQuery(QueryParams queryParams) throws FlockException {
-        // DAT-347 introduces this
+        // DAT-347 introduces ES as KV store
         return queryDao.doWhatSearch(queryParams);
     }
-
 
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {

@@ -21,6 +21,7 @@ package org.flockdata.search.endpoint;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.MetaKeyResults;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.QueryService;
@@ -46,10 +47,16 @@ public class ElasticSearchEP {
         return searchService.doSearch(queryParams);
     }
 
-    @RequestMapping(value = "/metaKeys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public EsSearchResult metaKeys(@RequestBody QueryParams queryParams) throws FlockException {
+    @RequestMapping(value = "/fdView", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public EsSearchResult fdViewQuery(@RequestBody QueryParams queryParams) throws FlockException {
 
-        return searchService.metaKeySearch(queryParams);
+        return searchService.doFdViewSearch(queryParams);
+    }
+
+    @RequestMapping(value = "/metaKeys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public MetaKeyResults metaKeys(@RequestBody QueryParams queryParams) throws FlockException {
+
+        return searchService.doMetaKeyQuery(queryParams);
     }
 
     @RequestMapping(value = "/what", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

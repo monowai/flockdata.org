@@ -20,12 +20,15 @@
 package org.flockdata.engine.query;
 
 import org.flockdata.dao.MatrixDao;
+import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.query.EdgeResult;
 import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.model.Company;
+import org.flockdata.search.model.MetaKeyResults;
+import org.flockdata.search.model.QueryParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +48,18 @@ public class MatrixDaoNeo4j implements MatrixDao {
     private Neo4jTemplate template;
     private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
 
+    @Autowired
+    FdSearchGateway searchGateway;
+
     @Override
     public MatrixResults getMatrix(Company company, MatrixInputBean input) {
 
         // DAT-109 enhancements
+        MetaKeyResults metaKeyResults= null;
+
+        if (input.getQueryString() !=null && !input.getQueryString().equals("") )
+            metaKeyResults = searchGateway.metaKeys(new QueryParams(company, input));
+
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
@@ -62,7 +73,24 @@ public class MatrixDaoNeo4j implements MatrixDao {
         }
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
-        String query = "match (entity:Entity) " + (docFilter ? "where  " + docIndexes : "") +
+        String entityFilter;
+        if ( metaKeyResults == null )
+            entityFilter =  (docFilter ? "where  " + docIndexes : "");
+        else {
+            entityFilter = " where entity.metaKey in [";
+            boolean first = true;
+            for (String s : metaKeyResults.getResults()) {
+                if (first ) {
+                    entityFilter = entityFilter + "\"" + s + "\"";
+                    first = false;
+                }
+                else
+                    entityFilter = entityFilter + ",\""+s+"\"";
+            }
+            entityFilter = entityFilter +"]";
+        }
+
+        String query = "match (entity:Entity) " +entityFilter+
                 " with entity " +
                 "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
                 conceptString +
@@ -73,6 +101,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 "collect( links) as occurrenceCount";
 
         Map<String, Object> params = new HashMap<>();
+//        if (metaKeyResults !=null )
+//            params.put("keys", metaKeyResults.getResults().toArray());
+
         Collection<KeyValue> labels = new ArrayList<>();
 
         String conceptFmCol  = "tag1Id";
