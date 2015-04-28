@@ -43,6 +43,7 @@ public class TestTagMerge extends EngineBase {
 
     @Test
     public void merge_Simple() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("merge_Simple");
         Fortress fortWP = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("merge_Simple", true));
@@ -91,6 +92,7 @@ public class TestTagMerge extends EngineBase {
 
     @Test
     public void alias_TagsByAlias() throws Exception {
+        cleanUpGraph();
         SystemUser su = registerSystemUser("alias_Simple");
         Fortress fortWP = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("alias_Simple", true));
