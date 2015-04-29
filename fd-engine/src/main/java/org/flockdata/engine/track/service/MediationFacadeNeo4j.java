@@ -38,7 +38,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -55,8 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,6 +127,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     @Autowired
     KvService kvService;
 
+
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo4j.class);
 
     static DecimalFormat f = new DecimalFormat();
@@ -168,7 +166,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<Fortress, List<EntityInputBean>> byFortress = getEntitiesByFortress(c, inputBeans);
+        Map<Fortress, List<EntityInputBean>> byFortress = TrackBatchSplitter.getEntitiesByFortress(fortressService, c, inputBeans);
         Collection<TrackResultBean>results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
             results.addAll(trackEntities(fortress, byFortress.get(fortress), 100));
@@ -222,36 +220,38 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
-    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
-
-        // Local cache of fortress by name - never very big, often only 1
-        Map<String, Fortress> resolvedFortress = new HashMap<>();
-        for (EntityInputBean entityInputBean : entityInputBeans) {
-            String fortressName = entityInputBean.getFortress();
-            Fortress f = resolvedFortress.get(fortressName);
-            if (f == null) {
-                f = fortressService.findByCode(company, fortressName);
-                if (f != null)
-                    resolvedFortress.put(fortressName, f);
-            }
-
-            List<EntityInputBean> input = null;
-            if (f != null)
-                input = fortressInput.get(f);// are we caching this already?
-
-            if (input == null) {
-                input = new ArrayList<>();
-
-                FortressInputBean fib = new FortressInputBean(fortressName);
-                fib.setTimeZone(entityInputBean.getTimezone());
-                Fortress fortress = fortressService.registerFortress(company, fib, true);
-                fortressInput.put(fortress, input);
-            }
-            input.add(entityInputBean);
-        }
-        return fortressInput;
-    }
+//    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+//        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
+//
+//        // Local cache of fortress by name - never very big, often only 1
+//        Map<String, Fortress> resolvedFortress = new HashMap<>();
+//        for (EntityInputBean entityInputBean : entityInputBeans) {
+//            String fortressName = entityInputBean.getFortress();
+//            Fortress f = resolvedFortress.get(fortressName);
+//            if (f == null) {
+//                f = fortressService.findByCode(company, fortressName);
+//
+//            }
+//            if (f != null)
+//                resolvedFortress.put(fortressName, f);
+//
+//            List<EntityInputBean> input = null;
+//            if (f != null)
+//                input = fortressInput.get(f);// are we caching this already?
+//
+//            if (input == null) {
+//                input = new ArrayList<>();
+//
+//                FortressInputBean fib = new FortressInputBean(fortressName);
+//                fib.setTimeZone(entityInputBean.getTimezone());
+//                Fortress fortress = fortressService.registerFortress(company, fib, true);
+//                resolvedFortress.put(fortressName, f);
+//                fortressInput.put(fortress, input);
+//            }
+//            input.add(entityInputBean);
+//        }
+//        return fortressInput;
+//    }
 
 
     @Override
@@ -421,28 +421,13 @@ public class MediationFacadeNeo4j implements MediationFacade {
             throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
-        purge(company, fortress);
+        adminService.purge(company, fortress);
     }
 
     @Override
     @Secured(SecurityHelper.ADMIN)
     public void purge(Fortress fortress) throws FlockException {
-        purge(fortress.getCompany(), fortress);
-    }
-
-    @Async("fd-engine")
-    @Transactional
-    public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
-
-        String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
-        entityService.purge(fortress);
-        kvService.purge(indexName);
-        fortressService.purge(fortress);
-        engineConfig.resetCache();
-        searchService.purge(indexName);
-        logger.info ("Completed purge of fortress [{}]", fortress);
-        return new AsyncResult<>(true);
-
+        adminService.purge(fortress.getCompany(), fortress);
     }
 
     @Override

@@ -361,6 +361,7 @@ public class SchemaDaoNeo4j {
 
     }
 
+    @Transactional
     public void purge(Fortress fortress) {
 
         String docRlx = "match (fort:Fortress)-[fd:FORTRESS_DOC]-(a:DocType)-[dr]-(o)-[k]-(p)" +

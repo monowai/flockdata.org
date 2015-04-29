@@ -13,31 +13,58 @@
 
     <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
+
+    <int-http:outbound-gateway request-channel="doFdViewQuery"
+                               reply-channel="doFdViewReply"
+                               reply-timeout="${reply.timeout}"
+                               charset="UTF-8"
+                               url="${fd-search.url}/v1/api/fdView"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
+
     <int-http:outbound-gateway request-channel="doMetaKeyQuery"
                                reply-channel="doMetaKeyReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
-                               url="${fd-search.url}/v1/api/esSearch"
+                               url="${fd-search.url}/v1/api/metaKey"
                                extract-request-payload="true"
                                expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
+
 
     <!--DAT -347 -->
     <int-http:outbound-gateway request-channel="doContentQuery"
                                reply-channel="doContentReply"
                                reply-timeout="${reply.timeout}"
-                               url="${fd-search.url}/v1/api/esContent"
-                               extract-request-payload="true"
                                charset="UTF-8"
-                               expected-response-type="java.lang.String">
+                               url="${fd-search.url}/v1/api/esContent"
+                               expected-response-type="java.lang.String"
+                               extract-request-payload="true">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
+
 
     <int-http:outbound-gateway request-channel="doTagCloudQuery"
                                reply-channel="doTagCloudReply"
                                reply-timeout="${reply.timeout}"
-                               url="${fd-search.url}/v1/api/esTagCloud"
-                               extract-request-payload="true"
                                charset="UTF-8"
-                               expected-response-type="java.lang.String" />
+                               url="${fd-search.url}/v1/query/tagCloud"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String">
+        <int-http:request-handler-advice-chain>
+            <ref bean="httpRetry" />
+        </int-http:request-handler-advice-chain>
+    </int-http:outbound-gateway>
+
+
 
 </beans>

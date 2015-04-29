@@ -46,7 +46,7 @@ public class QueryGenerator {
 
         simpleQuery.append("{ \"query\": {"
                 + "        \"query_string\": { "
-                + "            \"query\": " + '"').append(queryString).append('"')
+                + "            \"query\": " + '"').append(queryString.toLowerCase()).append('"')
                 .append("          }")
                 .append("  }");
 

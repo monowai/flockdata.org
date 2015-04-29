@@ -21,10 +21,7 @@ package org.flockdata.search.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 
 /**
  * User: mike
@@ -36,7 +33,7 @@ public interface QueryService {
 
     Long getHitCount(String index);
 
-    EsSearchResult metaKeySearch(QueryParams queryParams) throws FlockException;
+    EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException;
 
     /**
      * Returns the "What" associated with the callerRef in the queryParams
@@ -46,6 +43,8 @@ public interface QueryService {
      * @throws FlockException
      */
     EsSearchResult contentQuery(QueryParams queryParams) throws FlockException;
+
+    MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException;
 
     String doSearch(QueryParams queryParams) throws FlockException;
 }

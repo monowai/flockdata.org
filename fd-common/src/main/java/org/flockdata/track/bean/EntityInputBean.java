@@ -42,6 +42,7 @@ public class EntityInputBean implements Serializable{
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
     private transient Map<String,List<EntityKey>> crossReferences = new HashMap<>();
+    Map<String, Object> properties = new HashMap<>();
 
     private String event = "Create";
     private String description;
@@ -195,6 +196,17 @@ public class EntityInputBean implements Serializable{
         return content;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public EntityInputBean setProperty(String key, Object value) {
+        if ( properties == null )
+            properties = new HashMap<>();
+        properties.put(key, value);
+        return this;
+    }
 
     public String getEvent() {
         return event;

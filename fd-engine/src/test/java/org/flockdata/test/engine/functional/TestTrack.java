@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
@@ -56,6 +57,30 @@ public class TestTrack extends EngineBase {
     @org.junit.Before
     public void setup(){
         engineConfig.setDuplicateRegistration(true);
+    }
+
+    @Test
+    public void split_BatchByFortress () throws Exception{
+        SystemUser su = registerSystemUser("duplicateCallerRefMultipleLastChange");
+
+        //Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("split_BatchByFortress", true));
+        String name = "Space Fortress";
+
+        Collection<EntityInputBean>entities = new ArrayList<>();
+        EntityInputBean entity = new EntityInputBean(name, "Census");
+        entity.setDescription("Mt. Albert 2013 Maori");
+        entity.setArchiveTags(false);
+        entities.add(entity);
+
+        entity = new EntityInputBean(name, "Census");
+        entity.setDescription("Mt. Albert 2013 Asian");
+        entity.setArchiveTags(false);
+        entities.add(entity);
+
+        Map<Fortress, List<EntityInputBean>> results = TrackBatchSplitter.getEntitiesByFortress(fortressService, su.getCompany(), entities);
+        Fortress resultFortress = results.keySet().iterator().next();
+        assertNotNull(resultFortress);
+        assertEquals(2, results.get(resultFortress).size());
     }
 
     @Test
