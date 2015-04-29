@@ -29,9 +29,9 @@ package org.flockdata.query;
 public class EdgeResult {
     private String source;
     private String target;
-    private Long count;
+    private Number count;
 
-    public EdgeResult(String source, String target, Long count) {
+    public EdgeResult(String source, String target, Number count) {
         this();
         this.source = source;
         this.target = target;
@@ -67,11 +67,11 @@ public class EdgeResult {
         this.target = target;
     }
 
-    public Long getCount() {
+    public Number getCount() {
         return count;
     }
 
-    public void setCount(Long count) {
+    public void setCount(Number count) {
         this.count = count;
     }
 
@@ -91,7 +91,6 @@ public class EdgeResult {
 
         EdgeResult that = (EdgeResult) o;
 
-        if (count != null ? !count.equals(that.count) : that.count != null) return false;
         if (source != null ? !source.equals(that.source) : that.source != null) return false;
         if (target != null ? !target.equals(that.target) : that.target != null) return false;
 
@@ -102,7 +101,6 @@ public class EdgeResult {
     public int hashCode() {
         int result = source != null ? source.hashCode() : 0;
         result = 31 * result + (target != null ? target.hashCode() : 0);
-        result = 31 * result + (count != null ? count.hashCode() : 0);
         return result;
     }
 

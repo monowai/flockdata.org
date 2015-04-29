@@ -42,6 +42,8 @@ public class MatrixInputBean {
     private ArrayList<String> fromRlxs = null;
     private ArrayList<String> toRlxs = null;
     private Boolean reciprocalExcluded = false;
+    private String sumCol;
+    private boolean sumByCol;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -140,5 +142,21 @@ public class MatrixInputBean {
 
     public void setSampleSize(int sampleSize) {
         this.sampleSize = sampleSize;
+    }
+
+    public String getSumCol() {
+        return sumCol;
+    }
+
+    public void setSumCol(String sumCol) {
+        this.sumCol = sumCol;
+    }
+
+    public boolean isSumByCol() {
+        return sumByCol;
+    }
+
+    public void setSumByCol(boolean sumByCol) {
+        this.sumByCol = sumByCol;
     }
 }
