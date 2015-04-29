@@ -87,7 +87,12 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         entityFilter = (docFilter ? "where  " + docIndexes : "");
         if (metaKeyResults != null) {
-            entityFilter += " and entity.metaKey in [";
+            if ( entityFilter.equals(""))
+                entityFilter += " where ";
+            else
+                entityFilter += " and ";
+
+            entityFilter += "  entity.metaKey in [";
             int count =0;
             while (count<metaKeyResults.getResults().size()){
                 if (count == 0 )
