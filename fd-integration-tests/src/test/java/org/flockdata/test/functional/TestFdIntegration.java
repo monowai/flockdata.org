@@ -807,7 +807,7 @@ public class TestFdIntegration {
      */
     @Test
     public void query_MatrixResults() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## query_MatrixResults");
 
         SystemUser su = registerSystemUser("query_MatrixResults", "query_MatrixResults");
