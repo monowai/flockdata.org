@@ -42,8 +42,8 @@ public class MatrixInputBean {
     private ArrayList<String> fromRlxs = null;
     private ArrayList<String> toRlxs = null;
     private Boolean reciprocalExcluded = false;
-    private String sumCol;
-    private boolean sumByCol;
+    private String sumCol;  // TBC: Should we let the user pick a column
+    private boolean sumByCol =false;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
