@@ -38,9 +38,12 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
+import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
+import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 
@@ -59,12 +62,6 @@ public class EntityNode implements Entity {
     @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private FortressNode fortress;
-
-//    @RelatedToVia(elementClass = EntityTagOut.class)
-//    private Collection<EntityTag> outRelationships;
-//
-//    @RelatedToVia(elementClass = EntityTagIn.class, direction = Direction.INCOMING)
-//    private Collection<EntityTag> inRelationships;
 
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
@@ -114,6 +111,8 @@ public class EntityNode implements Entity {
 
     private boolean searchSuppressed;
 
+    DynamicProperties props = new DynamicPropertiesContainer();
+
     @Transient
     private String indexName;
 
@@ -162,6 +161,10 @@ public class EntityNode implements Entity {
         this.description = entityInput.getDescription();
 
         indexName = EntitySearchSchema.parseIndex(this.fortress);
+
+        if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
+            props = new DynamicPropertiesContainer(entityInput.getProperties());
+        }
 
         Date when = entityInput.getWhen();
 
@@ -246,6 +249,16 @@ public class EntityNode implements Entity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public FortressUser getCreatedBy() {
         return createdBy;
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        return props.getProperty(name);
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<String, Object> getProperties() {
+        return props.asMap();
     }
 
 

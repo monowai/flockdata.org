@@ -136,4 +136,6 @@ public interface SearchChange {
     String getFileName();
 
     String getContentType();
+
+    Map<String,Object> getProps();
 }

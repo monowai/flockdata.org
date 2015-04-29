@@ -382,6 +382,30 @@ public class TestFdIntegration {
     }
 
     @Test
+    public void track_UserDefinedProperties() throws Exception {
+        assumeTrue(runMe);
+        logger.info("## track_UserDefinedProperties");
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SystemUser su = registerSystemUser("Mittens");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_UserDefinedProperties"));
+        DateTime now = new DateTime();
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now, "ABCXYZ123");
+        inputBean.setMetaOnly(true);
+
+        inputBean.setProperty("myString", "hello world");
+        inputBean.setProperty("myNum", 123.45);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        logger.debug("Created Request ");
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntityBean().getMetaKey());
+        assertNotNull(summary);
+        doEsQuery(summary.getEntity().getFortress().getIndexName(), "hello world", 1);
+        doEsQuery(summary.getEntity().getFortress().getIndexName(), "123.45", 1);
+
+    }
+
+    @Test
     public void track_immutableEntityWithNoLogsAreIndexed() throws Exception {
         assumeTrue(runMe);
         logger.info("## track_immutableEntityWithNoLogsAreIndexed");
