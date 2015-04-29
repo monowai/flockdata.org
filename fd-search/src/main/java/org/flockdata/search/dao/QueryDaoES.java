@@ -52,6 +52,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * User: Mike Holdsworth
@@ -147,6 +149,39 @@ public class QueryDaoES implements QueryDao {
         logger.debug("Searching index [{}] for hit counts", index);
 
         return response.getHits().getTotalHits();
+    }
+
+    public MetaKeyResults doMetaKeySearch ( QueryParams queryParams ) throws FlockException{
+        String[] types = Strings.EMPTY_ARRAY;
+        if (queryParams.getTypes() != null) {
+            types = queryParams.getTypes();
+        }
+        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+                .setTypes(types)
+                .addField(EntitySearchSchema.META_KEY)
+                .setSize(queryParams.getRowsPerPage())
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false));
+
+        SearchResponse response ;
+        try {
+            response = query.execute().get(50000l, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException |ExecutionException | TimeoutException e) {
+            logger.error("MetaKeySearch query error ", e);
+            throw new FlockException("MetaKeySearch query error ", e);
+        }
+        return getMetaKeyResults(response);
+    }
+
+    private MetaKeyResults getMetaKeyResults(SearchResponse response) {
+        MetaKeyResults results = new MetaKeyResults();
+        if ( response == null || response.getHits().getTotalHits() == 0)
+            return results;
+
+        for (SearchHit searchHitFields : response.getHits().getHits()) {
+            Object o = searchHitFields.getFields().get(EntitySearchSchema.META_KEY).getValues().iterator().next();
+            results.add(o);
+        }
+        return results;
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -147,6 +148,16 @@ public class SimpleEntity implements Entity, Serializable {
     @Override
     public FortressUser getCreatedBy() {
         return fortressUser;
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return null;
     }
 
     @Override

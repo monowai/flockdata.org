@@ -33,11 +33,14 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.query.MatrixInputBean;
+import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -262,7 +265,7 @@ public class TestFdIntegration {
 
     private static void deleteEsIndex(String indexName) throws Exception {
         logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName).build());
+        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase()).build());
     }
 
     @AfterClass
@@ -375,6 +378,30 @@ public class TestFdIntegration {
         doEsQuery(summary.getEntity().getFortress().getIndexName(), inputBean.getEvent(), 1);
         // Can we find the Tag
         doEsQuery(summary.getEntity().getFortress().getIndexName(), "testTagNameZZ", 1);
+
+    }
+
+    @Test
+    public void track_UserDefinedProperties() throws Exception {
+        assumeTrue(runMe);
+        logger.info("## track_UserDefinedProperties");
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SystemUser su = registerSystemUser("Mittens");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_UserDefinedProperties"));
+        DateTime now = new DateTime();
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now, "ABCXYZ123");
+        inputBean.setMetaOnly(true);
+
+        inputBean.setProperty("myString", "hello world");
+        inputBean.setProperty("myNum", 123.45);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        logger.debug("Created Request ");
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntityBean().getMetaKey());
+        assertNotNull(summary);
+        doEsQuery(summary.getEntity().getFortress().getIndexName(), "hello world", 1);
+        doEsQuery(summary.getEntity().getFortress().getIndexName(), "123.45", 1);
 
     }
 
@@ -677,7 +704,7 @@ public class TestFdIntegration {
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
-        String queryResult = runMetaQuery(qp);
+        String queryResult = runFdViewQuery(qp);
         assertNotNull(queryResult);
         assertTrue("Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,"));
 
@@ -709,7 +736,7 @@ public class TestFdIntegration {
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
-        runMetaQuery(qp);
+        runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
         assertEquals(2, queryResults.getResults().size());
@@ -752,7 +779,7 @@ public class TestFdIntegration {
 
         QueryParams qp = new QueryParams(fo);
         qp.setSimpleQuery("*");
-        runMetaQuery(qp);
+        runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
         assertEquals(1, queryResults.getResults().size());
@@ -772,6 +799,68 @@ public class TestFdIntegration {
         }
 
     }
+
+    /**
+     * Integrated co-occurrence query works
+     *
+     * @throws Exception
+     */
+    @Test
+    public void query_MatrixResults() throws Exception {
+        assumeTrue(runMe);
+        logger.info("## query_MatrixResults");
+
+        SystemUser su = registerSystemUser("query_MatrixResults", "query_MatrixResults");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("query_MatrixResults"));
+        String docType = "DT";
+        EntityInputBean entityInputBean =
+                new EntityInputBean(fortress.getName(), "wally", docType, new DateTime());
+
+        String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.code in ES
+        entityInputBean.addTag(new TagInputBean("labelA", "ThisLabel", relationshipName));
+        entityInputBean.addTag(new TagInputBean("labelB", "ThatLabel", relationshipName));
+        entityInputBean.setMetaOnly(true);
+        Entity entity = mediationFacade
+                .trackEntity(su.getCompany(), entityInputBean)
+                .getEntity();
+        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+
+        // Second Document
+        entityInputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime());
+        entityInputBean.addTag(new TagInputBean("labelA", "ThisLabel", relationshipName));
+        entityInputBean.addTag(new TagInputBean("labelB", "ThatLabel", relationshipName));
+
+        entityInputBean.setMetaOnly(true);
+
+        entity = mediationFacade
+                .trackEntity(su.getCompany(), entityInputBean)
+                .getEntity();
+
+        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+
+        MatrixInputBean matrixInputBean = new MatrixInputBean();
+        matrixInputBean.setQueryString("*");
+
+        ArrayList<String>tags = new ArrayList<>();
+        tags.add("ThisLabel");
+        tags.add("ThatLabel");
+
+        ArrayList<String>rlx = new ArrayList<>();
+        rlx.add(relationshipName.toLowerCase());
+        matrixInputBean.setFromRlxs(rlx);
+        matrixInputBean.setToRlxs(rlx);
+        matrixInputBean.setConcepts(tags);
+        ArrayList<String>fortresses = new ArrayList<>();
+        fortresses.add(fortress.getName().toLowerCase());
+        matrixInputBean.setFortresses(fortresses);
+
+        MatrixResults matrixResults = matrixService.getMatrix(su.getCompany(), matrixInputBean);
+        assertEquals(2, matrixResults.getNodes().size());
+        assertEquals(2, matrixResults.getEdges().size());
+
+    }
+    @Autowired
+    MatrixService matrixService;
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
@@ -851,7 +940,7 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_UpdatesSearchCorrectly() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         // DAT-53
         logger.info("## cancel_UpdatesSearchCorrectly");
 
@@ -1462,7 +1551,7 @@ public class TestFdIntegration {
         return null;
     }
 
-    private String runMetaQuery(QueryParams queryParams) throws Exception {
+    private String runFdViewQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
@@ -1470,7 +1559,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange("http://localhost:9081/fd-search/v1/query/metaKeys", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange("http://localhost:9081/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }

@@ -19,6 +19,8 @@
 
 package org.flockdata.search.model;
 
+import org.flockdata.query.MatrixInputBean;
+import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 
 /**
@@ -47,6 +49,19 @@ public class QueryParams {
         setCompany(fortress.getCompany().getCode());
     }
 
+    public QueryParams(Company company, MatrixInputBean input) {
+        this.simpleQuery = input.getQueryString();
+        this.company = company.getName();
+        this.rowsPerPage = input.getSampleSize();
+        if ( input.getDocuments()!=null && !input.getDocuments().isEmpty()) {
+            types = new String[input.getDocuments().size()];
+            int i = 0;
+            for (String s : input.getDocuments()) {
+                this.types[i++]= s.toLowerCase();
+            }
+        }
+    }
+
     public String getSimpleQuery() {
         return simpleQuery;
     }
@@ -60,8 +75,9 @@ public class QueryParams {
         return company;
     }
 
-    public void setCompany(String company) {
+    public QueryParams setCompany(String company) {
         this.company = company;
+        return this;
     }
 
     public String getFortress() {

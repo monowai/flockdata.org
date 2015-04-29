@@ -112,7 +112,7 @@ public class QueryService {
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
-        EsSearchResult esSearchResult = searchGateway.search(queryParams);
+        EsSearchResult esSearchResult = searchGateway.fdSearch(queryParams);
         watch.stop();
         logger.info ("Result Count " + (esSearchResult.getResults() == null ? 0:esSearchResult.getResults().size()));
         logger.info(watch.prettyPrint());
@@ -125,7 +125,8 @@ public class QueryService {
         Fortress fortress = fortressService.findByName(company, tagCloudParams.getFortress());
         if (fortress == null)
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
-        tagCloudParams.setCompany(company.getName());
+        tagCloudParams.setFortress(fortress.getCode());
+        tagCloudParams.setCompany(company.getCode());
         TagCloud tagCloud = searchGateway.getTagCloud(tagCloudParams);
 
         return tagCloud;

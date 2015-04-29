@@ -58,7 +58,7 @@ public class FdNeoConfig extends Neo4jConfiguration {
 //
 //    // needed for session in view in web-applications
 //    @Bean
-//    @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+//    @Scope(entityTag = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 //    public Session getSession() throws Exception {
 //        return super.getSession();
 //    }

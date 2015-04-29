@@ -232,7 +232,7 @@ public class SearchServiceFacade {
     }
 
     public EsSearchResult search(QueryParams queryParams) {
-        return searchGateway.search(queryParams);
+        return searchGateway.fdSearch(queryParams);
     }
 
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) {

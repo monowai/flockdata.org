@@ -28,13 +28,22 @@ import java.util.ArrayList;
  */
 public class MatrixInputBean {
     private ArrayList<String> documents = null;
-    private int minCount = 0;
+
+    private ArrayList<String> fortresses = null;
+    private int minCount = 1;
+
+    private int sampleSize = 1000;
+
+    private int maxEdges = 2000;
+    private String queryString = null;
 
     private Boolean byKey = false;
     private ArrayList<String> concepts = null;
     private ArrayList<String> fromRlxs = null;
     private ArrayList<String> toRlxs = null;
     private Boolean reciprocalExcluded = false;
+    private String sumCol;  // TBC: Should we let the user pick a column
+    private boolean sumByCol =false;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -91,5 +100,63 @@ public class MatrixInputBean {
 
     public void setReciprocalExcluded(boolean reciprocalExcluded) {
         this.reciprocalExcluded = reciprocalExcluded;
+    }
+
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public MatrixInputBean setQueryString(String queryString) {
+        this.queryString = queryString;
+        return this;
+    }
+
+    public ArrayList<String> getFortresses() {
+        return fortresses;
+    }
+
+    public MatrixInputBean setFortresses(ArrayList<String> fortresses) {
+        this.fortresses = fortresses;
+        return this;
+    }
+
+    public int getSampleSize() {
+        return sampleSize;
+    }
+
+    public int getMaxEdges() {
+        return maxEdges;
+    }
+
+
+    @Override
+    public String toString() {
+        return "MatrixInputBean{" +
+                "minCount=" + minCount +
+                ", documents=" + documents +
+                ", fortresses=" + fortresses +
+                ", queryString='" + queryString + '\'' +
+                ", sampleSize=" + sampleSize +
+                '}';
+    }
+
+    public void setSampleSize(int sampleSize) {
+        this.sampleSize = sampleSize;
+    }
+
+    public String getSumCol() {
+        return sumCol;
+    }
+
+    public void setSumCol(String sumCol) {
+        this.sumCol = sumCol;
+    }
+
+    public boolean isSumByCol() {
+        return sumByCol;
+    }
+
+    public void setSumByCol(boolean sumByCol) {
+        this.sumByCol = sumByCol;
     }
 }

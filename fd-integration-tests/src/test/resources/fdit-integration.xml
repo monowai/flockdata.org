@@ -19,7 +19,7 @@
     <int:gateway id="fdSearchGateway"
                  service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
 
-    <!--DAT-347 want to minimize the amount of changes we have to integration-->
+    <!-- DAT-347 -->
     <int:gateway id="esGateway"
                  service-interface="org.flockdata.kv.none.EsGateway"/>
 
@@ -38,6 +38,7 @@
                            ref="fdkvErrorHandler"/>
 
     <bean id="fdkvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+
     <bean id="fdeErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
 
     <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
@@ -52,8 +53,10 @@
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
     </int:handler-retry-advice>
 
-    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="kvErrors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
+
+    <!--Retries for 9.5 seconds -->
+    <int:handler-retry-advice id="httpRetry" max-attempts="5" >
+        <int:exponential-back-off initial="500" multiplier="2.0" maximum="2000"/>
     </int:handler-retry-advice>
 
     <int:object-to-json-transformer id="sendIndexRequest"
@@ -66,19 +69,27 @@
 
     <int:json-to-object-transformer id="tagCloudReply"
                                     input-channel="doTagCloudReply"
-                                    output-channel="sendTagCloudReply"
+                                    output-channel="receiveTagCloudReply"
                                     type="org.flockdata.search.model.TagCloud"/>
 
     <int:object-to-json-transformer id="simpleSearchSend"
                                     input-channel="sendSearchRequest"
+                                    output-channel="doFdViewQuery"/>
+
+    <int:object-to-json-transformer id="metaKeySearch"
+                                    input-channel="sendMetaKeyRequest"
                                     output-channel="doMetaKeyQuery"/>
 
     <int:json-to-object-transformer id="simpleSearchReply"
-                                    input-channel="doMetaKeyReply"
-                                    output-channel="receiveSearchReply"
+                                    input-channel="doFdViewReply"
+                                    output-channel="receiveFdViewReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
 
-    <!--DAT-347 -->
+    <int:json-to-object-transformer id="metaKeyReply"
+                                    input-channel="doMetaKeyReply"
+                                    output-channel="receiveMetaKeyReply"
+                                    type="org.flockdata.search.model.MetaKeyResults"/>
+
     <int:object-to-json-transformer id="kvSearchSend"
                                     input-channel="sendKvSearchRequest"
                                     output-channel="doContentQuery"/>
@@ -87,7 +98,6 @@
                                     input-channel="doContentReply"
                                     output-channel="receiveContentReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>
-    <!--End DAT-347 -->
 
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
@@ -97,6 +107,14 @@
     <int:object-to-json-transformer id="entityInputToJson"
                                     input-channel="startEntityWrite"
                                     output-channel="writeEntityContent"/>
+
+    <!--<int:json-to-object-transformer id="jsonToKvContent"-->
+    <!--input-channel="writeKvContent"-->
+    <!--output-channel="doKvWrite"-->
+    <!--type="org.flockdata.kv.bean.KvContentBean">-->
+    <!--</int:json-to-object-transformer>-->
+
+
 
     <!--End KV-->
 
@@ -112,21 +130,31 @@
 
     <int:channel id="sendSearchRequest"/>
     <int:channel id="receiveSearchReply"/>
-    <int:channel id="doMetaKeyQuery"/>
-    <int:channel id="sendKvSearchRequest"/>
 
-    <!--DAT-347 -->
+    <int:channel id="sendMetaKeyRequest"/>
+    <int:channel id="receiveMetaKeyReply"/>
+    <int:channel id="receiveFdViewReply"/>
+
+    <int:channel id="doMetaKeyQuery"/>
+    <int:channel id="doFdViewQuery"/>
+    <int:channel id="doFdViewReply"/>
+    <!--DAT-347 Requests the "what" content from the search doc-->
     <int:channel id="doContentQuery"/>
-    <int:channel id="doContentReply"/>
     <int:channel id="receiveContentReply"/>
-    <!--End DAT-347 -->
+    <int:channel id="doContentReply"/>
+
+
+
+    <!--In response to a request from fd-store-->
+    <int:channel id="kvSearchReply"/>
 
     <!-- search queries-->
     <int:channel id="doTagCloudQuery"/>
     <int:channel id="doTagCloudReply"/>
     <int:channel id="doMetaKeyReply"/>
+
     <int:channel id="sendTagCloudRequest"/>
-    <int:channel id="sendTagCloudReply"/>
+    <int:channel id="receiveTagCloudReply"/>
 
     <!--KV Outbound -->
     <int:channel id="startKvWrite"/>
@@ -134,6 +162,7 @@
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
     <int:channel id="kvErrors"/>
+    <int:channel id="sendKvSearchRequest"/>
     <!--End KV -->
 
     <!--Entity Outbound -->
@@ -143,7 +172,23 @@
     <!--Entity Input-->
     <int:channel id="doTrackEntity"/>
     <int:channel id="entityErrors"/>
-    <int:channel id="trackResult"/>
+
+    <int:logging-channel-adapter id="logger" level="DEBUG"/>
+
+    <int:channel id="trackResult">
+        <int:interceptors>
+            <int:wire-tap channel="logger"/>
+        </int:interceptors>
+    </int:channel>
+
+
+    <int:channel id="returnResponse"/>
+    <int:channel id="stdOut"/>
+
+
+    <!--<int:transformer expression="payload" input-channel="returnResponse" output-channel="stdOut"  />-->
+    <!--<int-stream:stdout-channel-adapter id="stdOut"  channel="stdOut"-->
+    <!--append-newline="true" />-->
 
     <!--End Entity-->
 

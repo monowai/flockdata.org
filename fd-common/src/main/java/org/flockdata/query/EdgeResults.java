@@ -17,21 +17,30 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.admin;
+package org.flockdata.query;
 
-import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by mike on 25/03/15.
+ * Created by mike on 29/04/15.
  */
-public interface EngineAdminService {
-    Future<Long> doReindex(Fortress fortress) throws FlockException;
+public class EdgeResults {
+    List<EdgeResult> edgeResults = new ArrayList<>();
 
-    Future<Long> doReindex(Fortress fortress, String docType) throws FlockException;
+    public void addResult (EdgeResult edgeResult){
+        int index = edgeResults.indexOf(edgeResult);
+        if ( index == -1)
+            edgeResults.add(edgeResult);
+        else {
+            EdgeResult edge = edgeResults.get(index);
+            edge.setCount(edge.getCount().doubleValue() + edgeResult.getCount().doubleValue());
+        }
 
-    Future<Boolean> purge(Company company, Fortress fortress) throws FlockException ;
+
+    }
+
+    public List<EdgeResult> get() {
+        return edgeResults;
+    }
 }

@@ -26,6 +26,7 @@ import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * User: mike
@@ -50,6 +51,7 @@ public class EntityBean implements Serializable {
     private String event;
     private String lastUser;
     private String createdUser;
+    private Map<String,Object>props;
 
     EntityBean (){
 
@@ -59,10 +61,12 @@ public class EntityBean implements Serializable {
         if ( indexName == null && fortress !=null )
             indexName = fortress.getIndexName();
     }
+
     public EntityBean(Entity entity){
         this();
         if ( entity != null ) {
             this.id = entity.getId();
+            this.props = entity.getProperties();
             this.searchKey = entity.getSearchKey();
             this.metaKey = entity.getMetaKey();
             documentType = entity.getDocumentType();
@@ -204,5 +208,9 @@ public class EntityBean implements Serializable {
                 "metaKey='" + metaKey + '\'' +
                 ", indexName='" + indexName + '\'' +
                 '}';
+    }
+
+    public Map<String, Object> getProps() {
+        return props;
     }
 }

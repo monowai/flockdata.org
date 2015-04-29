@@ -121,7 +121,7 @@ public class AdminEP {
         Company company = CompanyResolver.resolveCompany(request);
 
         mediationFacade.purge(company, fortressCode);
-        return new ResponseEntity<>("Purged " + fortressCode, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Purging " + fortressCode + "... This may take a while", HttpStatus.ACCEPTED);
 
     }
 

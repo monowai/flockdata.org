@@ -22,10 +22,9 @@ package org.flockdata.track.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.Tag;
 import org.joda.time.DateTime;
 
-import java.util.Collection;
+import java.util.Map;
 
 public interface Entity {
 
@@ -75,6 +74,10 @@ public interface Entity {
      * @return fortress user who create the record
      */
     public FortressUser getCreatedBy();
+
+    public Object getProperty(String name);
+
+    public Map<String, Object> getProperties();
 
     /**
      * @return unique identify the fortress recognises for the recordType.

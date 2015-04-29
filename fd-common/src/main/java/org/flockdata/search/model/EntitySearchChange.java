@@ -48,6 +48,7 @@ public class EntitySearchChange implements SearchChange {
     private String description;
     private String name;
     private Map<String, Object> what;
+    private Map<String, Object> props;
     private String attachment;
     private Date when;
     private String fortressName;
@@ -105,6 +106,7 @@ public class EntitySearchChange implements SearchChange {
             this.who = entity.getCreatedUser();
         this.sysWhen = entity.getWhenCreated();
         this.description = entity.getDescription();
+        this.props = entity.getProps(); // Userdefined entity properties
         this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
         this.event= entity.getEvent();
         setWhen(new DateTime(entity.getWhenCreated()));
@@ -240,19 +242,19 @@ public class EntitySearchChange implements SearchChange {
         }
     }
 
-    private void mapTag(EntityTag value, Map<String, ArrayList<SearchTag>> masterValues) {
+    private void mapTag(EntityTag entityTag, Map<String, ArrayList<SearchTag>> masterValues) {
 
-        if (value != null) {
-            ArrayList<SearchTag> object = masterValues.get(value.getTag().getLabel().toLowerCase());
+        if (entityTag != null) {
+            ArrayList<SearchTag> object = masterValues.get(entityTag.getTag().getLabel().toLowerCase());
             ArrayList<SearchTag> values;
             if (object == null) {
                 values = new ArrayList<>();
             } else
                 values = object;
 
-            values.add(new SearchTag(value));
+            values.add(new SearchTag(entityTag));
             // ToDo: Convert to a "search tag"
-            masterValues.put(value.getTag().getLabel().toLowerCase(), values);
+            masterValues.put(entityTag.getTag().getLabel().toLowerCase(), values);
         }
     }
 
@@ -386,6 +388,11 @@ public class EntitySearchChange implements SearchChange {
 
     public String getContentType() {
         return contentType;
+    }
+
+    @Override
+    public Map<String, Object> getProps() {
+        return props;
     }
 
     public String getFileName() {
