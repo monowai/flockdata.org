@@ -64,8 +64,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getQueryString() == null)
             input.setQueryString("*");
 
-        if (input.getSampleSize() > 0)
+        if (input.getSampleSize() > 0) {
+            if ( input.getSampleSize() >3000 )
+                input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
             metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
+        }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
         String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
@@ -81,18 +84,26 @@ public class MatrixDaoNeo4j implements MatrixDao {
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
         String entityFilter;
-        if (metaKeyResults == null)
-            entityFilter = (docFilter ? "where  " + docIndexes : "");
-        else {
-            entityFilter = " where entity.metaKey in [";
-            boolean first = true;
-            for (String s : metaKeyResults.getResults()) {
-                if (first) {
-                    entityFilter = entityFilter + "\"" + s + "\"";
-                    first = false;
-                } else
-                    entityFilter = entityFilter + ",\"" + s + "\"";
+
+        entityFilter = (docFilter ? "where  " + docIndexes : "");
+        if (metaKeyResults != null) {
+            entityFilter += " and entity.metaKey in [";
+            int count =0;
+            while (count<metaKeyResults.getResults().size()){
+                if (count == 0 )
+                    entityFilter = entityFilter +"{key"+count+"}" ;
+                else
+                    entityFilter = entityFilter +",{key"+count+"}" ;
+                count++;
             }
+//            boolean first = true;
+//            for (String s : metaKeyResults.getResults()) {
+//                if (first) {
+//                    entityFilter = entityFilter + "\"" + s + "\"";
+//                    first = false;
+//                } else
+//                    entityFilter = entityFilter + ",\"" + s + "\"";
+//            }
             entityFilter = entityFilter + "]";
         }
         String sumCol = ""; // Which user defined column against the entity to sum
@@ -107,13 +118,19 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 " with entity " +
                 "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
                 conceptString +
-                "with entity, tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
+                "with tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
 
                 (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
                 "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
                 "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
+        if (metaKeyResults != null) {
+            int count =0;
+            for (String s : metaKeyResults.getResults()) {
+                params.put("key"+count++, s);
+            }
+        }
 
         Collection<KeyValue> labels = new ArrayList<>();
 
@@ -158,7 +175,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
                     if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
                         Number value;
 
-                        if ( input.isSumByCol() )
+                        if (input.isSumByCol())
                             value = Double.parseDouble(occurrence.next().toString());
                         else
                             value = Long.parseLong(occurrence.next().toString());
