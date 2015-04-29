@@ -365,6 +365,9 @@ public class TrackDaoES implements TrackSearchDao {
         Map<String, Object> indexMe = new HashMap<>();
         if (searchChange.getWhat() != null)
             indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
+
+        if ( searchChange.getProps()!=null)
+            indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
         if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
             // This occurs if the search doc is not being tracked in fd-engine's graph
             indexMe.put(EntitySearchSchema.META_KEY, searchChange.getMetaKey());

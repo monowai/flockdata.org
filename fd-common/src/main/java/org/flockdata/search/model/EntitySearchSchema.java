@@ -49,6 +49,7 @@ public class EntitySearchSchema {
     public static final String FILENAME = "filename";
     public static final String CONTENT_TYPE = "contentType";
     public static final String PREFIX = "fd.";
+    public static final String PROPS = "udp";
 
     public static String parseIndex(Fortress fortress) {
 

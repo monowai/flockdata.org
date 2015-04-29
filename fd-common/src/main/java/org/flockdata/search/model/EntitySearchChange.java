@@ -48,6 +48,7 @@ public class EntitySearchChange implements SearchChange {
     private String description;
     private String name;
     private Map<String, Object> what;
+    private Map<String, Object> props;
     private String attachment;
     private Date when;
     private String fortressName;
@@ -105,6 +106,7 @@ public class EntitySearchChange implements SearchChange {
             this.who = entity.getCreatedUser();
         this.sysWhen = entity.getWhenCreated();
         this.description = entity.getDescription();
+        this.props = entity.getProps(); // Userdefined entity properties
         this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
         this.event= entity.getEvent();
         setWhen(new DateTime(entity.getWhenCreated()));
@@ -386,6 +388,11 @@ public class EntitySearchChange implements SearchChange {
 
     public String getContentType() {
         return contentType;
+    }
+
+    @Override
+    public Map<String, Object> getProps() {
+        return props;
     }
 
     public String getFileName() {
