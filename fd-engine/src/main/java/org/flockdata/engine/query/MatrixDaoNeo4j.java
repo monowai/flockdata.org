@@ -24,10 +24,7 @@ import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.query.EdgeResult;
-import org.flockdata.query.KeyValue;
-import org.flockdata.query.MatrixInputBean;
-import org.flockdata.query.MatrixResults;
+import org.flockdata.query.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.MetaKeyResults;
@@ -64,10 +61,10 @@ public class MatrixDaoNeo4j implements MatrixDao {
         // DAT-109 enhancements
         MetaKeyResults metaKeyResults = null;
 
-        if ( input.getQueryString() == null )
+        if (input.getQueryString() == null)
             input.setQueryString("*");
 
-        if ( input.getSampleSize()> 0 )
+        if (input.getSampleSize() > 0)
             metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
@@ -84,42 +81,46 @@ public class MatrixDaoNeo4j implements MatrixDao {
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
         String entityFilter;
-        if ( metaKeyResults == null )
-            entityFilter =  (docFilter ? "where  " + docIndexes : "");
+        if (metaKeyResults == null)
+            entityFilter = (docFilter ? "where  " + docIndexes : "");
         else {
             entityFilter = " where entity.metaKey in [";
             boolean first = true;
             for (String s : metaKeyResults.getResults()) {
-                if (first ) {
+                if (first) {
                     entityFilter = entityFilter + "\"" + s + "\"";
                     first = false;
-                }
-                else
-                    entityFilter = entityFilter + ",\""+s+"\"";
+                } else
+                    entityFilter = entityFilter + ",\"" + s + "\"";
             }
-            entityFilter = entityFilter +"]";
+            entityFilter = entityFilter + "]";
+        }
+        String sumCol = ""; // Which user defined column against the entity to sum
+        String sumVal = ""; // Where the total will be output
+
+        if (input.isSumByCol()) {
+            sumCol = ", sum( entity.`props-value`) as sumValue ";
+            sumVal = ", collect(sumValue) as sumValues";
         }
 
-        String query = "match (entity:Entity) " +entityFilter+
+        String query = "match (entity:Entity) " + entityFilter +
                 " with entity " +
                 "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
                 conceptString +
-                "with tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " +
-//                "order by links desc, tag2 " +
+                "with entity, tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
+
                 (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
                 "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
-                "collect( links) as occurrenceCount";
+                "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
-//        if (metaKeyResults !=null )
-//            params.put("keys", metaKeyResults.getResults().toArray());
 
         Collection<KeyValue> labels = new ArrayList<>();
 
-        String conceptFmCol  = "tag1Id";
+        String conceptFmCol = "tag1Id";
         String conceptToCol = "tag2Ids";
         // Does the caller want Keys or Values in the result set?
-        if ( !input.isByKey()){
+        if (!input.isByKey()) {
             conceptFmCol = "tag1";
             conceptToCol = "tag2";
         }
@@ -130,28 +131,40 @@ public class MatrixDaoNeo4j implements MatrixDao {
         Iterable<Map<String, Object>> result = template.query(query, params);
         watch.stop();
         Iterator<Map<String, Object>> rows = result.iterator();
-        Collection<EdgeResult> edgeResults = new ArrayList<>();
-        Map<String,Object> uniqueKeys = new HashMap<>();
+        EdgeResults edgeResults = new EdgeResults();
+        Map<String, Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
-            Collection<Long> occ = (Collection<Long>) row.get("occurrenceCount");
+            Collection<Object> occ;
+            if (row.containsKey("sumValues"))
+                occ = (Collection<Object>) row.get("sumValues");
+            else
+                occ = (Collection<Object>) row.get("occurrenceCount");
+
             String conceptFrom = row.get(conceptFmCol).toString();
             KeyValue label = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
             labels.add(label);
 
             Iterator<Object> concept = tag2.iterator();
-            Iterator<Long> occurrence = occ.iterator();
+            Iterator<Object> occurrence = occ.iterator();
             while (concept.hasNext() && occurrence.hasNext()) {
                 Object conceptTo = concept.next();
-                String conceptKey = conceptFrom + "/"+conceptTo;
+                String conceptKey = conceptFrom + "/" + conceptTo;
                 boolean selfRlx = conceptFrom.equals(conceptTo.toString());
 
-                if ( !selfRlx) {
+                if (!selfRlx) {
                     String inverseKey = conceptTo + "/" + conceptFrom;
                     if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
-                        EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), occurrence.next());
-                        edgeResults.add(mr);
+                        Number value;
+
+                        if ( input.isSumByCol() )
+                            value = Double.parseDouble(occurrence.next().toString());
+                        else
+                            value = Long.parseLong(occurrence.next().toString());
+
+                        EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), value);
+                        edgeResults.addResult(mr);
                         if (input.isReciprocalExcluded())
                             uniqueKeys.put(conceptKey, true);
                     }
@@ -159,11 +172,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
             }
         }
 
-        logger.info("Count {}, Performance {}", edgeResults.size(), watch.prettyPrint());
-        MatrixResults results =  new MatrixResults(edgeResults);
+        logger.info("Count {}, Performance {}", edgeResults.get().size(), watch.prettyPrint());
+        MatrixResults results = new MatrixResults(edgeResults.get());
         results.setNodes(labels);
-        if ( edgeResults.size() > input.getMaxEdges())
-            throw new FlockException( "Excessive amount of data was requested. Query cancelled " +edgeResults.size());
+        if (edgeResults.get().size() > input.getMaxEdges())
+            throw new FlockException("Excessive amount of data was requested. Query cancelled " + edgeResults.get().size());
         return results;
 
     }
@@ -174,7 +187,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         for (String fortressName : input.getFortresses()) {
             try {
                 Fortress fortress = fortressService.findByName(company, fortressName);
-                if ( fortress!=null )
+                if (fortress != null)
                     qp.setFortress(fortress.getCode());
             } catch (NotFoundException e) {
                 throw new FlockException("Unable to locate fortress " + fortressName);
