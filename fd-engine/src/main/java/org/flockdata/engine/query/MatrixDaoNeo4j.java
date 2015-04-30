@@ -85,7 +85,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         //ToDo: Restrict Entities by Company
         String entityFilter;
         if (metaKeyResults == null)
-            entityFilter = (docFilter ? "where  " + docIndexes : "");
+            entityFilter = (docFilter ? " where " + docIndexes : "");
         else {
 
             entityFilter = " where entity.metaKey in [";
