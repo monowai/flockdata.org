@@ -84,15 +84,11 @@ public class MatrixDaoNeo4j implements MatrixDao {
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
         //ToDo: Restrict Entities by Company
         String entityFilter;
+        if (metaKeyResults == null)
+            entityFilter = (docFilter ? "where  " + docIndexes : "");
+        else {
 
-        entityFilter = (docFilter ? "where  " + docIndexes : "");
-        if (metaKeyResults != null) {
-            if ( entityFilter.equals(""))
-                entityFilter += " where ";
-            else
-                entityFilter += " and ";
-
-            entityFilter += "  entity.metaKey in [";
+            entityFilter = " where entity.metaKey in [";
             int count =0;
             while (count<metaKeyResults.getResults().size()){
                 if (count == 0 )
