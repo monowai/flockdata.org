@@ -23,6 +23,8 @@ import org.flockdata.query.MatrixInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 
+import java.util.ArrayList;
+
 /**
  * Encapsulated search parameters
  * User: mike
@@ -30,6 +32,12 @@ import org.flockdata.registration.model.Fortress;
  * Time: 9:44 AM
  */
 public class QueryParams {
+    public ArrayList<String> getConcepts() {
+        return concepts;
+    }
+
+    private ArrayList<String> concepts;
+    private ArrayList<String> relationships = new ArrayList<>();
     private String simpleQuery;
     private String metaKey;
     private String company;
@@ -53,6 +61,12 @@ public class QueryParams {
         this.simpleQuery = input.getQueryString();
         this.company = company.getName();
         this.rowsPerPage = input.getSampleSize();
+        this.concepts = input.getConcepts();
+        if ( !input.getFromRlxs().isEmpty())
+            this.relationships.addAll(input.getFromRlxs());
+        if ( !input.getToRlxs().isEmpty())
+            this.relationships.addAll(input.getToRlxs());
+
         if ( input.getDocuments()!=null && !input.getDocuments().isEmpty()) {
             types = new String[input.getDocuments().size()];
             int i = 0;
@@ -148,5 +162,9 @@ public class QueryParams {
 
     public String getCallerRef() {
         return callerRef;
+    }
+
+    public ArrayList<String> getRelationships() {
+        return relationships;
     }
 }

@@ -20,11 +20,15 @@
 package org.flockdata.search.dao;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -79,7 +83,7 @@ public class QueryDaoES implements QueryDao {
                 return result;
             else {
                 for (String tag : params.getTags())
-                    result.add(parseConcept("*", tag));
+                    result.add(parseTagCode("*", tag));
                 return result;
             }
         }
@@ -87,19 +91,28 @@ public class QueryDaoES implements QueryDao {
 
         for (String relationship : params.getRelationships()) {
             if (params.getTags() == null || params.getTags().length ==0)
-                result.add(parseConcept(relationship, "*"));
+                result.add(parseTagCode(relationship, "*"));
             else
-                for ( String tag : params.getTags() )
-                    result.add(parseConcept(relationship, tag));
+                for ( String tag : params.getTags() ) {
+                    result.add(parseTagCode(relationship, tag));
+                    result.add(parseTagName(relationship, tag));
+                }
         }
 
         return result;
 
     }
 
-    private String parseConcept(String relationship, String tag) {
-        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".code.facet";
+    private String parseTagCode(String relationship, String tag) {
+        return EntitySearchSchema.TAG + "." +  (relationship.toLowerCase().equals(tag.toLowerCase())?"":relationship.toLowerCase() + ".")+tag.toLowerCase() + ".code.facet";
+        //return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".code.facet";
     }
+
+    private String parseTagName(String relationship, String tag) {
+        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase())?"":relationship.toLowerCase() + ".") +tag.toLowerCase() + ".name.facet";
+//        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".name.facet";
+    }
+
 
     @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
@@ -118,7 +131,8 @@ public class QueryDaoES implements QueryDao {
         for (String whatAndTagField : whatAndTagFields) {
             searchRequest.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
         }
-        //SearchRequestBuilder searchRequest ;
+
+        // No hits, just the aggs
         SearchResponse response = searchRequest.setSize(0).get();
 
         TagCloud tagcloud = new TagCloud();
@@ -127,17 +141,59 @@ public class QueryDaoES implements QueryDao {
             // ToDo: support "ALL" tag fields
             return tagcloud;
         }
-        Map<String, Aggregation> aggregates = tagCloudFacet.getAsMap();
+        Map<String, Aggregation> aggregates = resolveKeys(tagCloudFacet.getAsMap());
         for (String key : aggregates.keySet()) {
             InternalTerms terms = (InternalTerms) aggregates.get(key);
             for (Terms.Bucket bucket : terms.getBuckets()) {
-                // ToDo: Figure out date handling. When writing the tag, we've lost the datatype
-                //       we could autodetect
                 tagcloud.addTerm(bucket.getKey(), bucket.getDocCount());
             }
         }
         tagcloud.scale(); // Scale the results suitable for presentation
         return tagcloud;
+    }
+
+    /**
+     * Indexed document tags always have a code but not always a name. Typically a code will
+     * be a codified value so we favour human readable names.
+     *
+     * If the code and the name are equal during indexing, then the value is stored
+     * only as a code. Entity document tags always have a code value.
+     *
+     * We want to return either the name or the code associated with the document. We don't want to
+     * resort to a scripted field to achieve this so the action is being performed here.
+     *
+     * @param asMap ES results
+     * @return      Results to return to the caller
+     */
+    private Map<String, Aggregation> resolveKeys(Map<String, Aggregation> asMap) {
+        Map<String, Aggregation>results = new HashMap<>();
+        ArrayList<String>relationships = new ArrayList<>();
+
+        for (String s : asMap.keySet()) {
+            int pos = s.indexOf(".name.facet"); // Names by preference
+            if ( pos > 0 ) {
+
+                InternalTerms terms = (InternalTerms)asMap.get(s);
+                if ( terms.getBuckets().size()!=0) {
+                    String relationship = s.substring(0, pos);
+                    relationships.add(relationship);
+                    results.put(s, asMap.get(s));
+                }
+            }
+        }
+        // Pickup any Codes that don't have Name entries
+        for (String s : asMap.keySet()) {
+            int pos = s.indexOf(".code.facet"); // Names by preference
+            if ( pos > 0 ) {
+                String relationship = s.substring(0, pos);
+                if ( ! relationships.contains(relationship)) {
+                    relationships.add(relationship);
+                    results.put(s, asMap.get(s));
+                }
+            }
+        }
+
+        return results;
     }
 
     @Override
@@ -160,7 +216,7 @@ public class QueryDaoES implements QueryDao {
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .setSize(queryParams.getRowsPerPage())
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false));
+                .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
 
         SearchResponse response ;
         try {
@@ -193,6 +249,18 @@ public class QueryDaoES implements QueryDao {
 
         //logger.debug("looking for {} in index {}", queryString, index);
         return result.toString();
+    }
+
+    @Override
+    public void getTags(String indexName) {
+        GetMappingsResponse fieldMappings = client
+                .admin()
+                .indices()
+                .getMappings(new GetMappingsRequest())
+                .actionGet();
+
+        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = fieldMappings.getMappings();
+
     }
 
     @Override

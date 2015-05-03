@@ -19,6 +19,8 @@
 
 package org.flockdata.query;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Collection;
 
 /**
@@ -29,8 +31,10 @@ import java.util.Collection;
  * Time: 2:17 PM
  */
 public class MatrixResults {
-    Collection<EdgeResult> edges;
-    Collection<KeyValue> nodes;
+    private long sampleSize;
+    private long totalHits;
+    Collection<EdgeResult> edges;  // From To
+    Collection<KeyValue> nodes;    // Lookup table if edges contains just Ids
 
     public MatrixResults (){}
 
@@ -43,6 +47,7 @@ public class MatrixResults {
         return edges;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Collection<KeyValue> getNodes() {
         return nodes;
     }
@@ -63,4 +68,19 @@ public class MatrixResults {
                 '}';
     }
 
+    public void setSampleSize(long sampleSize) {
+        this.sampleSize = sampleSize;
+    }
+
+    public long getSampleSize() {
+        return sampleSize;
+    }
+
+    public void setTotalHits(long matchingResults) {
+        this.totalHits = matchingResults;
+    }
+
+    public long getTotalHits() {
+        return totalHits;
+    }
 }

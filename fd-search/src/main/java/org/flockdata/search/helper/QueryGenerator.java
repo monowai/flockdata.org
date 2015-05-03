@@ -20,6 +20,7 @@
 package org.flockdata.search.helper;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.flockdata.search.model.QueryParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,5 +64,66 @@ public class QueryGenerator {
         }
         simpleQuery.append(" }");
         return simpleQuery.toString();
+    }
+
+    public static String getFilteredQuery(QueryParams queryParams, Boolean highlightEnabled) {
+        String queryString = queryParams.getSimpleQuery();
+        if ( queryString== null )
+            queryString = "*";
+
+        logger.debug("getSimpleQuery {}", queryString);
+        StringBuilder simpleQuery = new StringBuilder();
+        if ( queryString.contains("\"")) {
+            queryString = StringEscapeUtils.escapeJson(queryString);
+        }
+        if ( queryString.equals(""))
+            queryString="*";
+        String filter = getFilter(queryParams);
+        simpleQuery.append("\n" +
+                " {\"query\": {\n" +
+                "    \"filtered\": {\n" +
+                "       \"query\": {\n" +
+                "           \"query_string\": {\"query\":\"" + queryString.toLowerCase() + "\"}\n" +
+                "           \n" +
+                "       },\n" +
+                filter +
+                "  }\n" +
+                "}");
+
+        if (highlightEnabled) {
+            simpleQuery.append(",\n" +
+                    "  \"highlight\": { " +
+                    "\"pre_tags\" : [\"<strong>\"]," +
+                    "\"post_tags\" : [\"</strong>\"]," +
+                    "\"encoder\" : \"html\"," +
+                    "    \"fields\": { " +
+                    "      \"*\": {} " +
+                    "    } " +
+                    "  }");
+        }
+        simpleQuery.append(" }");
+        return simpleQuery.toString();
+    }
+
+    private static String getFilter(QueryParams queryParams) {
+        if ( queryParams.getRelationships().isEmpty())
+            return "";
+
+        // Open filter
+        String filter = "\t\t \"filter\" : {\n" +
+                "            \"and\" : [\n" ;
+        boolean first = true;
+        for (String relationship : queryParams.getRelationships()) {
+            if (first) {
+                filter += "     { \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+                first=false;
+            } else
+                filter += "    ,{ \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+        }
+
+        filter += "      ]}\n" ; // Close filter
+
+        return filter;
+
     }
 }

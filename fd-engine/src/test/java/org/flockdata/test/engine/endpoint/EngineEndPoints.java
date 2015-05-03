@@ -179,7 +179,7 @@ public class EngineEndPoints {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
 
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
         return true;
     }
 

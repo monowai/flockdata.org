@@ -408,8 +408,11 @@ public class TrackDaoES implements TrackSearchDao {
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
+        boolean enableSquash = true; // If tag and rlx names are the same, store just the values
+                                     // means sold.sold.name will appear as sold.name
+
         for (String relationship : tagValues.keySet()) {
-            if (tagValues.get(relationship).containsKey(relationship)) {
+            if (enableSquash && tagValues.get(relationship).containsKey(relationship)) {
                 // DAT-328 - the relationship and label have the same name
                 ArrayList<SearchTag> values = tagValues.get(relationship).get(relationship);
                 if (values.size() == 1) {

@@ -127,6 +127,21 @@ public class TestQueryResults extends EngineBase {
         Collection<DocumentResultBean>documentTypes = engineEndPoints.getDocuments(su, fortresses);
         assertFalse(documentTypes.isEmpty());
 
+        ArrayList<String>filterFrom = new ArrayList<>();
+        filterFrom.add("allergic");
+
+        // Bipartite
+        ArrayList<String>filterTo = new ArrayList<>();
+        filterTo.add("dislikes");
+        input.setFromRlxs(filterFrom);
+        input.setToRlxs(filterTo);
+        results = engineEndPoints.getMatrixResult(su, input);
+        assertFalse(results.getEdges().isEmpty());
+
+        input.setFromRlxs(filterTo);
+        input.setToRlxs(filterFrom);
+        results = engineEndPoints.getMatrixResult(su, input);
+        assertFalse(results.getEdges().isEmpty());
     }
 
 
