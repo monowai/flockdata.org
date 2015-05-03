@@ -239,7 +239,7 @@ public class TestAdminCalls extends EngineBase {
         setSecurityEmpty();
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
 
     }
 
@@ -267,7 +267,7 @@ public class TestAdminCalls extends EngineBase {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
         setSecurity();
         // Create a data access user
         su = registerSystemUser("anyone", "healthCheck");
@@ -279,7 +279,7 @@ public class TestAdminCalls extends EngineBase {
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
 
 
     }

@@ -41,6 +41,7 @@ public class TagCloudParams {
     private String[] tags;
 
     private String[] relationships;
+    private String searchText;
 
     public TagCloudParams() {}
 
@@ -98,5 +99,13 @@ public class TagCloudParams {
 
     public void setTags(String[] tags) {
         this.tags = tags;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String query) {
+        this.searchText = query;
     }
 }

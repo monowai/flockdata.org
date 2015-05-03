@@ -38,4 +38,6 @@ public interface Concept {
 
 
     void addRelationships(Collection<Relationship> tempRlx);
+
+    boolean hasRelationship(String relationship);
 }

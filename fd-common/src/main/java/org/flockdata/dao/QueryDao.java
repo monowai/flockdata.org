@@ -53,4 +53,6 @@ public interface QueryDao {
     EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException;
 
     String doSearch(QueryParams queryParams) throws FlockException;
+
+    void getTags(String indexName);
 }
