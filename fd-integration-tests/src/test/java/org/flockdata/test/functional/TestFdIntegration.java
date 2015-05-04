@@ -807,7 +807,7 @@ public class TestFdIntegration {
      */
     @Test
     public void query_MatrixResults() throws Exception {
-        //assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## query_MatrixResults");
 
         SystemUser su = registerSystemUser("query_MatrixResults", "query_MatrixResults");
@@ -853,10 +853,18 @@ public class TestFdIntegration {
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName().toLowerCase());
         matrixInputBean.setFortresses(fortresses);
+        matrixInputBean.setByKey(false);
 
         MatrixResults matrixResults = matrixService.getMatrix(su.getCompany(), matrixInputBean);
-        assertEquals(2, matrixResults.getNodes().size());
+        assertEquals(null, matrixResults.getNodes());
         assertEquals(2, matrixResults.getEdges().size());
+
+        matrixInputBean.setByKey(true);
+        matrixResults = matrixService.getMatrix(su.getCompany(), matrixInputBean);
+
+        assertEquals(2, matrixResults.getEdges().size());
+        assertEquals(2, matrixResults.getNodes().size());
+
 
     }
     @Autowired
