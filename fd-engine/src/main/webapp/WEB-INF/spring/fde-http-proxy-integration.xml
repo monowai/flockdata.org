@@ -15,24 +15,24 @@
 
 
     <int-http:outbound-gateway request-channel="doFdViewQuery"
-                               reply-channel="doFdViewReply"
+                               reply-channel="receiveFdViewReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
                                url="${fd-search.url}/v1/api/fdView"
                                extract-request-payload="true"
-                               expected-response-type="java.lang.String">
+                               expected-response-type="org.flockdata.search.model.EsSearchResult">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
         </int-http:request-handler-advice-chain>
     </int-http:outbound-gateway>
 
     <int-http:outbound-gateway request-channel="doMetaKeyQuery"
-                               reply-channel="doMetaKeyReply"
+                               reply-channel="receiveMetaKeyReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
                                url="${fd-search.url}/v1/api/metaKey"
                                extract-request-payload="true"
-                               expected-response-type="java.lang.String">
+                               expected-response-type="org.flockdata.search.model.MetaKeyResults">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
         </int-http:request-handler-advice-chain>
@@ -41,11 +41,11 @@
 
     <!--DAT -347 -->
     <int-http:outbound-gateway request-channel="doContentQuery"
-                               reply-channel="doContentReply"
+                               reply-channel="receiveContentReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
                                url="${fd-search.url}/v1/api/esContent"
-                               expected-response-type="java.lang.String"
+                               expected-response-type="org.flockdata.search.model.EsSearchResult"
                                extract-request-payload="true">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
@@ -54,12 +54,12 @@
 
 
     <int-http:outbound-gateway request-channel="doTagCloudQuery"
-                               reply-channel="doTagCloudReply"
+                               reply-channel="receiveTagCloudReply"
                                reply-timeout="${reply.timeout}"
                                charset="UTF-8"
                                url="${fd-search.url}/v1/query/tagCloud"
                                extract-request-payload="true"
-                               expected-response-type="java.lang.String">
+                               expected-response-type="org.flockdata.search.model.TagCloud">
         <int-http:request-handler-advice-chain>
             <ref bean="httpRetry" />
         </int-http:request-handler-advice-chain>
