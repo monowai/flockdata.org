@@ -62,11 +62,13 @@ public class TestQueryParameters {
         Collection<Object> ids = new ArrayList<>();
         Collection<Object> names = new ArrayList<>();
         ids.add("123");
+        ids.add("123");
         ids.add("456");
+        names.add("Name A");
         names.add("Name A");
         names.add("Name B");
         Collection<KeyValue> values = new ArrayList<>();
-        values.addAll(MatrixDaoNeo4j.getTargetTags(ids, names));
+        MatrixDaoNeo4j.setTargetTags(values, ids, names);
         assertEquals(2, values.size());
         for (KeyValue value : values) {
             switch (value.getKey()) {

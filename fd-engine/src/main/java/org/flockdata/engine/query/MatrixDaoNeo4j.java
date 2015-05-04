@@ -165,8 +165,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 KeyValue source = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
                 Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
                 Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
-                labels.add(source);
-                labels.addAll(getTargetTags(targetIds, targetVals));
+                if ( !labels.contains(source))
+                    labels.add(source);
+                setTargetTags(labels, targetIds, targetVals);
             }
 
             Iterator<Object> concept = tag2.iterator();
@@ -209,13 +210,14 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
     }
 
-    public static Collection<? extends KeyValue> getTargetTags(Collection<Object> ids, Collection<Object> names) {
-        ArrayList<KeyValue>results = new ArrayList<>();
+    public static Collection<? extends KeyValue> setTargetTags(Collection<KeyValue> labels, Collection<Object> ids, Collection<Object> names) {
         Iterator<Object> tagNames = names.iterator();
         for (Object id : ids) {
-            results.add(new KeyValue(id.toString(), tagNames.next()));
+            KeyValue kv = new KeyValue(id.toString(), tagNames.next());
+            if ( !labels.contains(kv))
+                labels.add(kv);
         }
-        return results;
+        return labels;
     }
 
     private boolean tagHasRelationship(Company company, String inTag, ArrayList<String> docNames, String relationship) {
