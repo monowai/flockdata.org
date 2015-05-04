@@ -20,7 +20,7 @@
 package org.flockdata.search.helper;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.QueryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
-    public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
-
+    public static String getSimpleQuery(QueryInterface params, Boolean highlightEnabled) {
+        String queryString = params.getSearchText();
         if ( queryString== null )
             queryString = "*";
 
-        logger.debug("getSimpleQuery {}", queryString);
+        logger.debug("getSearchText {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
         if ( queryString.contains("\"")) {
             queryString = StringEscapeUtils.escapeJson(queryString);
@@ -66,12 +66,12 @@ public class QueryGenerator {
         return simpleQuery.toString();
     }
 
-    public static String getFilteredQuery(QueryParams queryParams, Boolean highlightEnabled) {
-        String queryString = queryParams.getSimpleQuery();
+    public static String getFilteredQuery(QueryInterface queryParams, Boolean highlightEnabled) {
+        String queryString = queryParams.getSearchText();
         if ( queryString== null )
             queryString = "*";
 
-        logger.debug("getSimpleQuery {}", queryString);
+        logger.debug("getSearchText {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
         if ( queryString.contains("\"")) {
             queryString = StringEscapeUtils.escapeJson(queryString);
@@ -84,8 +84,7 @@ public class QueryGenerator {
                 "    \"filtered\": {\n" +
                 "       \"query\": {\n" +
                 "           \"query_string\": {\"query\":\"" + queryString.toLowerCase() + "\"}\n" +
-                "           \n" +
-                "       },\n" +
+                "   "+(!filter.equals("")?filter +"    },\n":"}") +
                 filter +
                 "  }\n" +
                 "}");
@@ -105,7 +104,7 @@ public class QueryGenerator {
         return simpleQuery.toString();
     }
 
-    private static String getFilter(QueryParams queryParams) {
+    private static String getFilter(QueryInterface queryParams) {
         if ( queryParams.getRelationships().isEmpty())
             return "";
 

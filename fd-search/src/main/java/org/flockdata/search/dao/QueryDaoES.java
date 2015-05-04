@@ -30,7 +30,6 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -78,8 +77,8 @@ public class QueryDaoES implements QueryDao {
     private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
 
-        if (params.getRelationships()== null || params.getRelationships().length == 0) {
-            if (params.getTags() == null || params.getTags().length == 0)
+        if (params.getRelationships()== null || params.getRelationships().isEmpty()) {
+            if (params.getTags() == null || params.getTags().isEmpty())
                 return result;
             else {
                 for (String tag : params.getTags())
@@ -90,7 +89,7 @@ public class QueryDaoES implements QueryDao {
 
 
         for (String relationship : params.getRelationships()) {
-            if (params.getTags() == null || params.getTags().length ==0)
+            if (params.getTags() == null || params.getTags().isEmpty())
                 result.add(parseTagCode(relationship, "*"));
             else
                 for ( String tag : params.getTags() ) {
@@ -117,23 +116,24 @@ public class QueryDaoES implements QueryDao {
     @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
         // Getting all tag and What fields
-        String index = EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress());
+
 
         Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
-        SearchRequestBuilder searchRequest =
-                client.prepareSearch(index)
-                        .setTypes(tagCloudParams.getTypes())
-                        .setQuery(
-                                QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), null)
-                        );
+        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress()))
+                        .setTypes(tagCloudParams.getTypes());
 
+        tagCloudParams.getRelationships().clear();
+        tagCloudParams.getTags().clear();
+        query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
         for (String whatAndTagField : whatAndTagFields) {
-            searchRequest.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
+            query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
         }
+//        query.setExtraSource(QueryGenerator.getSearchText(tagCloudParams.getSearchText(), false));
+        //searchRequest.setQuer("*");
 
         // No hits, just the aggs
-        SearchResponse response = searchRequest.setSize(0).get();
+        SearchResponse response = query.execute().actionGet();
 
         TagCloud tagcloud = new TagCloud();
         Aggregations tagCloudFacet = response.getAggregations();
@@ -243,7 +243,7 @@ public class QueryDaoES implements QueryDao {
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
         SearchResponse result = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), false))
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
                 .execute()
                 .actionGet();
 
@@ -285,7 +285,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.TIMESTAMP)
                 .setSize(queryParams.getRowsPerPage())
                 .setFrom(queryParams.getStartFrom())
-                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams.getSimpleQuery(), highlightEnabled));
+                .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
 
         // Add user requested fields
         if (queryParams.getData() != null)
