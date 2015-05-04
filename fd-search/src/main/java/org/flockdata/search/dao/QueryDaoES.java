@@ -123,8 +123,10 @@ public class QueryDaoES implements QueryDao {
         SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress()))
                         .setTypes(tagCloudParams.getTypes());
 
-        tagCloudParams.getRelationships().clear();
-        tagCloudParams.getTags().clear();
+        if (tagCloudParams.getRelationships()!=null)
+            tagCloudParams.getRelationships().clear();
+        if (tagCloudParams.getTags()!=null)
+            tagCloudParams.getTags().clear();
         query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
         for (String whatAndTagField : whatAndTagFields) {
             query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
