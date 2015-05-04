@@ -84,8 +84,8 @@ public class QueryGenerator {
                 "    \"filtered\": {\n" +
                 "       \"query\": {\n" +
                 "           \"query_string\": {\"query\":\"" + queryString.toLowerCase() + "\"}\n" +
-                "   "+(!filter.equals("")?filter +"    },\n":"}") +
-                filter +
+                "   "+(!filter.equals("")?"},"+filter : "}") +
+//                filter +
                 "  }\n" +
                 "}");
 
