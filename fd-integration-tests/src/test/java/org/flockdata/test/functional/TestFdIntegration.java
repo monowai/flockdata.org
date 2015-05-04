@@ -672,7 +672,7 @@ public class TestFdIntegration {
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(su.getCompany().getName());
         queryParams.setFortress(fo.getName());
-        queryParams.setSimpleQuery("*");
+        queryParams.setSearchText("*");
         EsSearchResult results = queryService.search(su.getCompany(), queryParams);
         assertNotNull(results);
         assertEquals(1, results.getResults().size());
@@ -703,7 +703,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         String queryResult = runFdViewQuery(qp);
         assertNotNull(queryResult);
         assertTrue("Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,"));
@@ -735,7 +735,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
@@ -778,7 +778,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 1);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
@@ -1206,7 +1206,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
 
-        QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
+        QueryParams q = new QueryParams(fortress).setSearchText(searchFor);
         doEsQuery(EntitySearchSchema.PREFIX + "*", searchFor, 1);
 
         String qResult = runQuery(q);

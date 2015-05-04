@@ -31,14 +31,18 @@ import java.util.ArrayList;
  * Date: 12/04/14
  * Time: 9:44 AM
  */
-public class QueryParams {
-    public ArrayList<String> getConcepts() {
-        return concepts;
+public class QueryParams implements QueryInterface{
+    public QueryParams(String searchText) {
+        this.searchText = searchText;
     }
 
-    private ArrayList<String> concepts;
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    private ArrayList<String> tags;
     private ArrayList<String> relationships = new ArrayList<>();
-    private String simpleQuery;
+    private String searchText;
     private String metaKey;
     private String company;
     private String fortress;
@@ -58,10 +62,10 @@ public class QueryParams {
     }
 
     public QueryParams(Company company, MatrixInputBean input) {
-        this.simpleQuery = input.getQueryString();
+        this.searchText = input.getQueryString();
         this.company = company.getName();
         this.rowsPerPage = input.getSampleSize();
-        this.concepts = input.getConcepts();
+        this.tags = input.getConcepts();
         if ( !input.getFromRlxs().isEmpty())
             this.relationships.addAll(input.getFromRlxs());
         if ( !input.getToRlxs().isEmpty())
@@ -76,12 +80,12 @@ public class QueryParams {
         }
     }
 
-    public String getSimpleQuery() {
-        return simpleQuery;
+    public String getSearchText() {
+        return searchText;
     }
 
-    public QueryParams setSimpleQuery(String simpleQuery) {
-        this.simpleQuery = simpleQuery;
+    public QueryParams setSearchText(String searchText) {
+        this.searchText = searchText;
         return this;
     }
 
@@ -133,7 +137,7 @@ public class QueryParams {
     @Override
     public String toString() {
         return "QueryParams{" +
-                "simpleQuery='" + simpleQuery + '\'' +
+                "searchText='" + searchText + '\'' +
                 ", company='" + company + '\'' +
                 ", fortress='" + fortress + '\'' +
                 '}';

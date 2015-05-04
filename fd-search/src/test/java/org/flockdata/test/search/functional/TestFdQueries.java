@@ -71,7 +71,7 @@ public class TestFdQueries extends ESBase{
 
         QueryParams qp = new QueryParams(entity.getFortress());
         qp.setCompany(company);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         // Sanity check - there is only one document in the index
         EsSearchResult queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(1, queryResult.getResults().size());
@@ -82,19 +82,19 @@ public class TestFdQueries extends ESBase{
 
         // Find with just a fortress
         qp = new QueryParams(entity.getFortress());
-        qp.setSimpleQuery("description");
+        qp.setSearchText("description");
         queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getMetaKey(), queryResult.getResults().iterator().next().getMetaKey());
 
         qp = new QueryParams().setCompany(company.toLowerCase());
-        qp.setSimpleQuery("description");
+        qp.setSearchText("description");
         queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getMetaKey(), queryResult.getResults().iterator().next().getMetaKey());
 
         qp = new QueryParams(entity.getFortress());
-        qp.setSimpleQuery("-description"); // Ignore description
+        qp.setSearchText("-description"); // Ignore description
         queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(0, queryResult.getResults().size());
 
