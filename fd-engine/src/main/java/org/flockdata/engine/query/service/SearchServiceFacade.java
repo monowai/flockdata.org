@@ -142,10 +142,10 @@ public class SearchServiceFacade {
     }
 
     /**
-     * This is the crucial function that populates an object to index in the search service from the
-     * results of a track request
+     * This is the primary function to populates an object for indexing into the search service
      *
-     * @param trackResultBean track result
+     *
+     * @param trackResultBean track result to process
      * @return SearchChange that will can be indexed
      */
     public SearchChange getSearchChange(TrackResultBean trackResultBean) {
