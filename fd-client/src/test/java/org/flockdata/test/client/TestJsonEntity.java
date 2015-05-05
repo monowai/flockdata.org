@@ -113,7 +113,7 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/array-example.json", getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/profile/array-example.json", getFdWriter(),company, defaults  );
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 
