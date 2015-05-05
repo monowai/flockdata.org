@@ -287,8 +287,10 @@ public class FdRestWriter implements FdWriter {
     @Override
     public void close(TrackBatcher trackBatcher) throws FlockException {
         trackBatcher.flush();
-        if (amqpHelper != null)
+        if (amqpHelper != null) {
             amqpHelper.close();
+            amqpHelper = null;
+        }
     }
 
     public String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {

@@ -7,7 +7,7 @@
                             http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-<!-- *** This file is currently unused ! You should be looking at neo4j-context.xml-->
+<!-- *** This source is currently unused ! You should be looking at neo4j-context.xml-->
     <util:map id="neoConfig" >
         <entry key="remote_shell_enabled" value="${neo4j.remoteShell}" />
         <entry key="remote_shell_host" value="${neo4j.remoteShellHost}"/>
