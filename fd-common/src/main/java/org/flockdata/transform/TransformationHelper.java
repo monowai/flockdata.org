@@ -168,7 +168,7 @@ public class TransformationHelper {
                     code = colValue.toString();
                 else
                     code = getValue(row, aliasInputBean.getCode());
-                if ( code != null ) {
+                if ( code != null && ! code.equals("")) {
                     String codeValue = code.toString();
                     AliasInputBean alias = new AliasInputBean(codeValue);
                     String d = aliasInputBean.getDescription();
@@ -213,9 +213,14 @@ public class TransformationHelper {
                 if (value == null || value.equals("")) {
                     value = evaluateExpression(row, tagProfile.getCode());
                     if (value == null || value.equals("")) {
-                        logger.debug("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
+                        logger.info("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         return setInTo;
                     }
+                    if ( value.toString().equals(tagProfile.getCode())){
+                        logger.info("Unable to identify the code for column {}. A code is required to uniquely identify a tag. Source row {}. Processing continues the but relationship will be ignored", tagProfile.getCode(), row);
+                        return setInTo;
+                    }
+
                 }
 
                 if (tagProfile.getDelimiter() != null) {
