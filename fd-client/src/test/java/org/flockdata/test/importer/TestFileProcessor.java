@@ -22,6 +22,9 @@ package org.flockdata.test.importer;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -49,6 +52,37 @@ public class TestFileProcessor {
 
         fp = new FileProcessor(50000,1);
         assertFalse("Processing should not continue", fp.stopProcessing(50000));
+
+    }
+
+    @Test
+    public void collection_FilesInDirectory() throws Exception {
+        String dir = "*.json";
+
+        FileProcessor fileProcessor = new FileProcessor();
+        Collection<String> files = fileProcessor.resolveFiles("/data/dummy1.json");
+        assertFalse(files.isEmpty());
+        assertEquals(1, files.size());
+
+        files = fileProcessor.resolveFiles("/data/*.json");
+        assertFalse(files.isEmpty());
+        assertEquals(2, files.size());
+
+        files = fileProcessor.resolveFiles("/data/*.json");
+        assertFalse(files.isEmpty());
+        assertEquals(2, files.size());
+
+        files = fileProcessor.resolveFiles("/data/*");
+        assertFalse(files.isEmpty());
+        assertEquals(5, files.size());
+
+        files = fileProcessor.resolveFiles("/data/");
+        assertFalse(files.isEmpty());
+        assertEquals(5, files.size());
+
+        files = fileProcessor.resolveFiles("/csvtest.json");
+        assertFalse(files.isEmpty());
+        assertEquals(1, files.size());
 
     }
 }
