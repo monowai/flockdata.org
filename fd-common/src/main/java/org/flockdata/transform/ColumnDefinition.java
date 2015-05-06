@@ -391,5 +391,10 @@ public class ColumnDefinition {
         return valueOnError;
     }
 
+    @JsonIgnore
+    public boolean hasEntityProperies() {
+        return !tag && properties!=null && !properties.isEmpty();
+    }
+
 
 }

@@ -74,11 +74,11 @@ public class TestFileProcessor {
 
         files = fileProcessor.resolveFiles("/data/*");
         assertFalse(files.isEmpty());
-        assertEquals(5, files.size());
+        assertTrue("Not enough files found", files.size()> 5);
 
         files = fileProcessor.resolveFiles("/data/");
         assertFalse(files.isEmpty());
-        assertEquals(5, files.size());
+        assertTrue("Not enough files found", files.size() > 5);
 
         files = fileProcessor.resolveFiles("/csvtest.json");
         assertFalse(files.isEmpty());

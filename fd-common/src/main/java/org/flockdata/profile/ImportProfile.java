@@ -61,6 +61,7 @@ public class ImportProfile implements ProfileConfiguration {
     private String entityKey;
     private String event = null;
     private String preParseRowExp;
+    private Map<String, Object> properties;
 
     public ImportProfile() {
 
@@ -266,5 +267,12 @@ public class ImportProfile implements ProfileConfiguration {
         return emptyIgnored;
     }
 
+    // Entity properties
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
 }
