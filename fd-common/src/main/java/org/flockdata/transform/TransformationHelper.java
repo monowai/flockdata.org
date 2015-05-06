@@ -102,7 +102,7 @@ public class TransformationHelper {
                 if (colDef.getRlxProperties() != null) {
                     for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
                         Object propValue = getValue(row.get(columnDefinition.getSource()), columnDefinition);
-                        if ( propValue !=null )
+                        if (propValue != null)
                             rlxProperties.put(columnDefinition.getTarget(),
                                     propValue);
                     }
@@ -117,7 +117,7 @@ public class TransformationHelper {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
                     String sourceCol = thisCol.getSource();
                     value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                    if (value !=null )
+                    if (value != null)
                         tag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
                 }
             }
@@ -163,20 +163,20 @@ public class TransformationHelper {
         for (AliasInputBean aliasInputBean : aliases) {
             Object colValue = row.get(aliasInputBean.getCode());
             //if (colValue != null) {
-                Object code;
-                if ( row.containsKey(aliasInputBean.getCode()))
-                    code = colValue.toString();
-                else
-                    code = getValue(row, aliasInputBean.getCode());
-                if ( code != null && ! code.equals("")) {
-                    String codeValue = code.toString();
-                    AliasInputBean alias = new AliasInputBean(codeValue);
-                    String d = aliasInputBean.getDescription();
-                    if (StringUtils.trim(d) != null)
-                        alias.setDescription(evaluateExpression(row, d).toString());
-                    results.add(alias);
-                }
+            Object code;
+            if (row.containsKey(aliasInputBean.getCode()))
+                code = colValue.toString();
+            else
+                code = getValue(row, aliasInputBean.getCode());
+            if (code != null && !code.equals("")) {
+                String codeValue = code.toString();
+                AliasInputBean alias = new AliasInputBean(codeValue);
+                String d = aliasInputBean.getDescription();
+                if (StringUtils.trim(d) != null)
+                    alias.setDescription(evaluateExpression(row, d).toString());
+                results.add(alias);
             }
+        }
         //}
         return results;
 
@@ -213,11 +213,11 @@ public class TransformationHelper {
                 if (value == null || value.equals("")) {
                     value = evaluateExpression(row, tagProfile.getCode());
                     if (value == null || value.equals("")) {
-                        logger.info("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
+                        logger.debug("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         return setInTo;
                     }
-                    if ( value.toString().equals(tagProfile.getCode())){
-                        logger.info("Unable to identify the code for column {}. A code is required to uniquely identify a tag. Source row {}. Processing continues the but relationship will be ignored", tagProfile.getCode(), row);
+                    if (value.toString().equals(tagProfile.getCode())) {
+                        logger.debug("Unable to identify the code for column {}. A code is required to uniquely identify a tag. Source row {}. Processing continues the but relationship will be ignored", tagProfile.getCode(), row);
                         return setInTo;
                     }
 
@@ -245,8 +245,8 @@ public class TransformationHelper {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
                         String sourceCol = thisCol.getSource();
                         value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                        Object oValue  = getValue(value, thisCol);
-                        if (newTag != null && oValue !=null )
+                        Object oValue = getValue(value, thisCol);
+                        if (newTag != null && oValue != null)
                             newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), oValue);
                     }
                 }
@@ -278,69 +278,65 @@ public class TransformationHelper {
         return results;
     }
 
-    public static Map<String, Object> convertToMap(ProfileConfiguration importProfile, String[] headerRow, String[] line) {
+    public static Map<String, Object> convertToMap(ProfileConfiguration profileConfig, String[] headerRow, String[] line) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
-        // ToDo: Absent a header, create a default one - (0,1,2,3,4......)
         if (headerRow == null) {
             // No header row so we will name the columns, starting at 0, by their ordinal
             for (String lineCol : line) {
-                Object value = lineCol;
-                if (NumberUtils.isNumber(lineCol)) {
-                    value = NumberUtils.createNumber(lineCol);
-                }
-
-                row.put(Integer.toString(col), value);
+                convertValue(row, lineCol, String.valueOf(col), profileConfig);
                 col++;
             }
         } else {
-            for (String column : headerRow) {
-                try {
+            try {
+                for (String column : headerRow) {
                     Object value = line[col];
-                    Boolean tryAsNumber = true;
-                    String dataType = null;
-                    ColumnDefinition colDef = importProfile.getColumnDef(column);
-                    if ( colDef != null) {
-                        dataType = importProfile.getColumnDef(column).getDataType();
-
-                        // ToDo: Analyze nested tags to see that codes are not be converted
-                        // To force a numeric looking tag ("001") to a number you must create a
-                        // columnDefinition specifying it as a string.
-                        // { "myCol": {"dataType":"string"}}
-
-                        if (dataType == null && colDef.isTag())
-                            dataType = "string";
-                    }
-                    if (dataType != null)
-                        if (dataType.equalsIgnoreCase("string"))
-                            tryAsNumber = false;
-                        else if (dataType.equalsIgnoreCase("number"))
-                            tryAsNumber = true;
-                    if (tryAsNumber )
-                        if (NumberUtils.isNumber(line[col])) {
-                            value = NumberUtils.createNumber(line[col]);
-                        } else if (dataType!=null && dataType.equalsIgnoreCase("number")) {
-                            // Force to a number as it was not detected
-                            value = NumberUtils.createNumber(importProfile.getColumnDef(column).getValueOnError());
-                        }
-
-                    boolean addValue = true;
-                    if ( importProfile.isEmptyIgnored()){
-                        if (value == null || value.toString().trim().equals(""))
-                            addValue = false;
-                    }
-                    if ( addValue) {
-                        row.put(column, (value instanceof String ? ((String) value).trim():value));
-                    }
-
+                    convertValue(row, value, column, profileConfig);
                     col++;
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    // Column does not exist for this row
-                    return row;
                 }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Column does not exist for this row
+
             }
+
         }
         return row;
+    }
+
+    public static void convertValue(Map<String, Object> row, Object value, String column, ProfileConfiguration importProfile) {
+
+        Boolean tryAsNumber = true;
+        String dataType = null;
+        ColumnDefinition colDef = importProfile.getColumnDef(column);
+        if (colDef != null) {
+            dataType = importProfile.getColumnDef(column).getDataType();
+
+            if (dataType == null && colDef.isTag())
+                dataType = "string";
+        }
+        if (dataType != null)
+            if (dataType.equalsIgnoreCase("string"))
+                tryAsNumber = false;
+            else if (dataType.equalsIgnoreCase("number"))
+                tryAsNumber = true;
+        if (tryAsNumber)
+            if (value!=null && NumberUtils.isNumber(value.toString())) {
+                value = NumberUtils.createNumber(value.toString());
+            } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
+                // Force to a number as it was not detected
+                value = NumberUtils.createNumber(importProfile.getColumnDef(column).getValueOnError());
+            }
+
+        boolean addValue = true;
+        if (importProfile.isEmptyIgnored()) {
+            if (value == null || value.toString().trim().equals(""))
+                addValue = false;
+        }
+        if (addValue) {
+            row.put(column, (value instanceof String ? ((String) value).trim() : value));
+        }
+
+
     }
 
     public static Object getValue(Object value, ColumnDefinition colDef) {

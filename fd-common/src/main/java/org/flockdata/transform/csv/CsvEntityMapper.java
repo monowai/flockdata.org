@@ -141,6 +141,19 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 }
 
+                if ( colDef.hasEntityProperies()){
+                    for (ColumnDefinition columnDefinition : colDef.getProperties()) {
+                        String sourceCol = columnDefinition.getSource();
+                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(sourceCol));
+                        Object oValue  = TransformationHelper.getValue(value, columnDefinition);
+                        String colName = sourceCol;
+                        if ( columnDefinition.getTarget()!=null)
+                            colName = columnDefinition.getTarget();
+                        setProperty(colName, oValue);
+
+                    }
+                }
+
             } // ignoreMe
         }
         Collection<String> strategyCols = importProfile.getStrategyCols();

@@ -109,13 +109,14 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String sumVal = ""; // Where the total will be output
 
         if (input.isSumByCol()) {
+            //sumCol = ", sum( entity.`props-value`) as sumValue ";
             sumCol = ", sum( entity.`props-value`) as sumValue ";
             sumVal = ", collect(sumValue) as sumValues";
         }
 
         String query = "match (entity:Entity) " + entityFilter +
                 " with entity " +
-                "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
+                "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
                 conceptString +
                 "with tag1, id(tag1) as tag1Id, tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
 
