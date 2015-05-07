@@ -71,7 +71,8 @@ public class ColumnDefinition {
 
     private String nullOrEmpty;
     private String appendJoinText = " ";
-//    private String relationshipName;
+
+    private String notFound;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
@@ -396,5 +397,8 @@ public class ColumnDefinition {
         return !tag && properties!=null && !properties.isEmpty();
     }
 
+    public String getNotFound() {
+        return notFound;
+    }
 
 }

@@ -199,6 +199,7 @@ public class TestEntityTags extends EngineBase {
         }
 
     }
+
     @Test
     public void DAT386() throws Exception{
         SystemUser su = registerSystemUser("DAT386", mike_admin);
@@ -224,6 +225,7 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(result.getEntity());
         assertEquals(1, entityTagService.findEntityTags(su.getCompany(), result.getEntity()).size());
     }
+
     @Test
     public void renameRelationship() throws Exception {
 
@@ -1151,20 +1153,29 @@ public class TestEntityTags extends EngineBase {
     }
 
 
-    //    @Test
-//    public void find_EntityTabsWithLabel() throws Exception {
-//        SystemUser su = registerSystemUser("matrixQuery", mike_admin);
-//        Fortress fortress = createFortress(su);
-//
-//        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
-//        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
-//        inputBean.addTag(new TagInputBean("Peas", "hates").setLabel(TestQueryResults.VEGETABLE));
-//
-//        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
-//        Collection<EntityTag> results = entityTagService.findEntityTagsByRelationship(entity, "likes");
-//        assertEquals(1, results.size());
-//
-//    }
+    @Test
+    public void undefined_Tag() throws Exception{
+        // DAT-411
+        SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
+        FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        //assertNotNull(result);
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
+        TagInputBean tagInput = new TagInputBean("MissingTag", "TestUndefined", "rlx").setMustExist(true, "Unknown");
+        entityInput.addTag(tagInput);
+
+        mediationFacade.trackEntity(su.getCompany(), entityInput);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
+        assertNotNull(result.getEntity());
+        Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), result.getEntity());
+        assertNotNull(tags);
+        assertEquals(1, tags.size());
+        assertEquals(tagInput.getNotFoundCode(), tags.iterator().next().getTag().getCode());
+    }
+
     private void validateTag(Entity entity, String tagName, int totalExpected) {
         Collection<EntityTag> entityTags;
         entityTags = entityTagService.findEntityTags(entity.getFortress().getCompany(), entity);

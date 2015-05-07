@@ -61,6 +61,7 @@ public class TransformationHelper {
             tag.setReverse(colDef.getReverse());
             tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
             tag.setCode(getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
+            tag.setNotFoundCode(colDef.getNotFound());
             if (column != null && value != null) {
                 String relationship = getRelationshipName(row, colDef);
 
@@ -82,7 +83,8 @@ public class TransformationHelper {
                 label = resolveValue(colDef.getLabel(), column, colDef, row);
             //
             tag.setMustExist(colDef.isMustExist())
-                    .setLabel(colDef.isCountry() ? "Country" : label);
+                    .setLabel(colDef.isCountry() ? "Country" : label)
+                    .setNotFoundCode(colDef.getNotFound());
 
             String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
@@ -230,7 +232,8 @@ public class TransformationHelper {
                     String iso = value.toString();
 
                     newTag = new TagInputBean(iso)
-                            .setLabel(tagProfile.getLabel());
+                            .setLabel(tagProfile.getLabel())
+                            .setNotFoundCode(tagProfile.getNotFound());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 } else {
@@ -238,6 +241,7 @@ public class TransformationHelper {
                             .setLabel(tagProfile.getLabel());
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
+                    newTag.setNotFoundCode(tagProfile.getNotFound());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 }
@@ -272,6 +276,7 @@ public class TransformationHelper {
             newTag.setReverse(tagProfile.getReverse());
             newTag.setMustExist(tagProfile.isMustExist());
             newTag.setLabel(tagProfile.getLabel());
+            newTag.setNotFoundCode(tagProfile.getNotFound());
             newTag.setAliases(getTagAliasValues(tagProfile.getAliases(), row));
             results.add(newTag);
         });
