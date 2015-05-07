@@ -100,7 +100,14 @@ public class TagDaoNeo4j {
         if (startTag == null) {
             if (tagInput.isMustExist()) {
                 tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
-                throw new AmqpRejectAndDontRequeueException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+//                tagInput.setNotFoundCode(null);
+                if (tagInput.getNotFoundCode() !=null && !tagInput.getNotFoundCode().equals("")){
+                    TagInputBean notFound = new TagInputBean(tagInput.getNotFoundCode())
+                            .setLabel(tagInput.getLabel());
+                    logger.info("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to ["+tagInput.getNotFoundCode() +"]. Consider adding an alias to permanently resolve this");
+                    startTag = save(company,notFound, tagSuffix, createdValues, suppressRelationships);
+                } else
+                    throw new AmqpRejectAndDontRequeueException("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
             } else {
                 startTag = createTag(company, tagInput, tagSuffix);
             }
@@ -351,7 +358,7 @@ public class TagDaoNeo4j {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
-        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag.getId()));
+        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 

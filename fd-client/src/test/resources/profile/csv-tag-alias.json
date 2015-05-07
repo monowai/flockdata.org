@@ -7,12 +7,14 @@
     "name": {
       "tag": true,
       "label": "State",
+      "notFound": "US-Undefined",
       "code": "code",
       "targets": [
         {
           "code": "country",
           "label": "Country",
           "mustExist": true,
+          "notFound": "Undefined",
           "relationship": "region"
         }
       ],

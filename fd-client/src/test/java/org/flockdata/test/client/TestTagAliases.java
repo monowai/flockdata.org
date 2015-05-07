@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,11 +39,11 @@ public class TestTagAliases extends AbstractImport {
     @Test
     public void string_csvTagAliases() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        String paramFile = "/csv-tag-alias.json";
+        String paramFile = "/profile/csv-tag-alias.json";
         ClientConfiguration configuration = getClientConfiguration(paramFile);
 
         ImportProfile params = ClientConfiguration.getImportParams(paramFile);
-        fileProcessor.processFile(params, "/csv-tag-alias.txt", getFdWriter(), null, configuration);
+        fileProcessor.processFile(params, "/data/csv-tag-alias.txt", getFdWriter(), null, configuration);
 
         Collection<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(3, tagInputBeans.size());
@@ -50,12 +51,14 @@ public class TestTagAliases extends AbstractImport {
             switch (tagInputBean.getCode()) {
                 case "AL":
                     assertTrue(tagInputBean.hasAliases());
+                    assertNotNull(tagInputBean.getNotFoundCode());
                     assertEquals(1, tagInputBean.getAliases().size());
                     assertEquals("1", tagInputBean.getAliases().iterator().next().getCode());
                     assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
                     break;
                 case "AK":
                     assertTrue(tagInputBean.hasAliases());
+                    assertNotNull(tagInputBean.getNotFoundCode());
                     assertEquals(1, tagInputBean.getAliases().size());
                     assertEquals("2", tagInputBean.getAliases().iterator().next().getCode());
                     assertEquals("USCensus", tagInputBean.getAliases().iterator().next().getDescription());
