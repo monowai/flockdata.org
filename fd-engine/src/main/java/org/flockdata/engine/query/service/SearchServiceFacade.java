@@ -191,6 +191,10 @@ public class SearchServiceFacade {
             searchDocument.setSearchKey(null);
         }
 
+        // If we already have this search key, then don't bother us with a reply
+        if ( entity.getSearchKey() != null )
+            searchDocument.setReplyRequired(false);
+
         return searchDocument;
     }
 
