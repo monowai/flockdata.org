@@ -105,4 +105,7 @@ public class AliasNode implements Alias {
         return key;
     }
 
+    public void setTag(TagNode tag) {
+        this.tag = tag;
+    }
 }

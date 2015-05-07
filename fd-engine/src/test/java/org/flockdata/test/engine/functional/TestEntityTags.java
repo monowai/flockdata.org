@@ -1174,6 +1174,9 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(tags);
         assertEquals(1, tags.size());
         assertEquals(tagInput.getNotFoundCode(), tags.iterator().next().getTag().getCode());
+
+        Tag byAlias = tagService.findTag(su.getCompany(), tagInput.getLabel(), tagInput.getCode());
+        assertNotNull(byAlias);
     }
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {
