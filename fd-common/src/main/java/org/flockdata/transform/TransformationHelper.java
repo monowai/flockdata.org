@@ -47,6 +47,29 @@ public class TransformationHelper {
 
     private static final ExpressionParser parser = new SpelExpressionParser();
 
+    public static Map<String, Object> convertToMap(ProfileConfiguration profileConfig, String[] headerRow, String[] line) {
+        int col = 0;
+        Map<String, Object> row = new HashMap<>();
+        try {
+            for (String column : headerRow) {
+                // Find first by the name (if we're using a raw header
+                ColumnDefinition colDef = profileConfig.getColumnDef(column);
+                if ( colDef == null )
+                    // Might be indexed by column number if there was no csv
+                    colDef = profileConfig.getColumnDef(Integer.toString(col));
+
+                Object value = line[col];
+                convertValue(row, value, column, colDef, profileConfig);
+                col++;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Column does not exist for this row
+
+        }
+
+        return row;
+    }
+
     public static boolean getTagInputBean(TagInputBean tag,
                                           Map<String, Object> row,
                                           String column,
@@ -77,7 +100,7 @@ public class TransformationHelper {
             }
         } else {
             String label;
-            if (colDef.getLabel() != null && colDef.getLabel().equals(column))
+            if (colDef.getLabel() != null && colDef.getLabel().equals(colDef.getTarget() != null ? colDef.getTarget() : column))
                 label = colDef.getLabel();
             else
                 label = resolveValue(colDef.getLabel(), column, colDef, row);
@@ -283,38 +306,12 @@ public class TransformationHelper {
         return results;
     }
 
-    public static Map<String, Object> convertToMap(ProfileConfiguration profileConfig, String[] headerRow, String[] line) {
-        int col = 0;
-        Map<String, Object> row = new HashMap<>();
-        if (headerRow == null) {
-            // No header row so we will name the columns, starting at 0, by their ordinal
-            for (String lineCol : line) {
-                convertValue(row, lineCol, String.valueOf(col), profileConfig);
-                col++;
-            }
-        } else {
-            try {
-                for (String column : headerRow) {
-                    Object value = line[col];
-                    convertValue(row, value, column, profileConfig);
-                    col++;
-                }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                // Column does not exist for this row
-
-            }
-
-        }
-        return row;
-    }
-
-    public static void convertValue(Map<String, Object> row, Object value, String column, ProfileConfiguration importProfile) {
+    public static void convertValue(Map<String, Object> row, Object value, String column, ColumnDefinition colDef, ProfileConfiguration importProfile) {
 
         Boolean tryAsNumber = true;
         String dataType = null;
-        ColumnDefinition colDef = importProfile.getColumnDef(column);
         if (colDef != null) {
-            dataType = importProfile.getColumnDef(column).getDataType();
+            dataType = colDef.getDataType();
 
             if (dataType == null && colDef.isTag())
                 dataType = "string";
@@ -325,11 +322,11 @@ public class TransformationHelper {
             else if (dataType.equalsIgnoreCase("number"))
                 tryAsNumber = true;
         if (tryAsNumber)
-            if (value!=null && NumberUtils.isNumber(value.toString())) {
+            if (value != null && NumberUtils.isNumber(value.toString())) {
                 value = NumberUtils.createNumber(value.toString());
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
-                value = NumberUtils.createNumber(importProfile.getColumnDef(column).getValueOnError());
+                value = NumberUtils.createNumber(colDef.getValueOnError());
             }
 
         boolean addValue = true;
@@ -404,5 +401,27 @@ public class TransformationHelper {
             return colDef.getNullOrEmpty();
         }
         return defaultValue.toString().trim();
+    }
+
+    public static String[] defaultHeader(String[] line, ProfileConfiguration profileConfig) {
+        int col = 0;
+        Collection<String> header = new ArrayList<>(line.length);
+
+        // No header row so we will name the columns, starting at 0, by their ordinal
+        for (String lineCol : line) {
+
+            ColumnDefinition colDef = profileConfig.getColumnDef(Integer.toString(col));
+
+            if (colDef != null && colDef.getTarget() != null) {
+                header.add(colDef.getTarget());
+                colDef.setSourceCol(lineCol);
+
+            } else {
+                header.add(Integer.toString(col));
+            }
+
+            col++;
+        }
+        return header.toArray(new String[0]);
     }
 }

@@ -143,6 +143,8 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
                 Map.Entry<String, JsonNode> next = columns.next();
                 String colName = next.getKey();
                 ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
+//                if ( columnDefinition.getTarget()!=null )
+//                    colName = columnDefinition.getTarget();
                 content.put(colName, columnDefinition);
             }
             importProfile.setContent(content);

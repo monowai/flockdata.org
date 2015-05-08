@@ -84,7 +84,8 @@
     "9": {
       "properties": [
         {
-          "source": "9",
+          // Sets the value directly into the entity
+          // "source" defaults to the column identifier
           "target": "value",
           "dataType": "long"
         }

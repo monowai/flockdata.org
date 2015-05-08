@@ -398,8 +398,12 @@ public class FileProcessor {
                 logger.info("Skipping first {} rows", skipCount);
 
             long then = System.currentTimeMillis();
+
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!ignoreRow(nextLine)) {
+                    if (headerRow == null) {
+                        headerRow = TransformationHelper.defaultHeader(nextLine, importProfile);
+                    }
                     currentRow++;
                     if (currentRow >= skipCount) {
                         if (currentRow == skipCount)
