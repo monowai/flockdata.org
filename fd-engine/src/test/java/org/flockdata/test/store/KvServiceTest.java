@@ -100,12 +100,16 @@ public class KvServiceTest {
         }
     }
 
-
     @AfterClass
     public static void tearDown() throws Exception {
         //redisServer.stop();
     }
 
+    @Test
+    public void defaults_StoreEnabled() throws Exception {
+        assertEquals(KvService.KV_STORE.MEMORY, kvConfig.getKvStore());
+
+    }
 
     @Test
     public void riak_JsonTest() throws Exception {

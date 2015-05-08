@@ -220,40 +220,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
-//    private Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-//        Map<Fortress, List<EntityInputBean>> fortressInput = new HashMap<>();
-//
-//        // Local cache of fortress by name - never very big, often only 1
-//        Map<String, Fortress> resolvedFortress = new HashMap<>();
-//        for (EntityInputBean entityInputBean : entityInputBeans) {
-//            String fortressName = entityInputBean.getFortress();
-//            Fortress f = resolvedFortress.get(fortressName);
-//            if (f == null) {
-//                f = fortressService.findByCode(company, fortressName);
-//
-//            }
-//            if (f != null)
-//                resolvedFortress.put(fortressName, f);
-//
-//            List<EntityInputBean> input = null;
-//            if (f != null)
-//                input = fortressInput.get(f);// are we caching this already?
-//
-//            if (input == null) {
-//                input = new ArrayList<>();
-//
-//                FortressInputBean fib = new FortressInputBean(fortressName);
-//                fib.setTimeZone(entityInputBean.getTimezone());
-//                Fortress fortress = fortressService.registerFortress(company, fib, true);
-//                resolvedFortress.put(fortressName, f);
-//                fortressInput.put(fortress, input);
-//            }
-//            input.add(entityInputBean);
-//        }
-//        return fortressInput;
-//    }
-
-
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
