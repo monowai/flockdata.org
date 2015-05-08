@@ -37,6 +37,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
 
+    private String sourceCol;
+
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
@@ -364,6 +366,7 @@ public class ColumnDefinition {
         return "ColumnDefinition{" +
                 "label='" + label + '\'' +
                 ", source='" + source + '\'' +
+                ", target='" + target + '\'' +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 '}';
@@ -400,5 +403,16 @@ public class ColumnDefinition {
     public String getNotFound() {
         return notFound;
     }
+
+    @JsonIgnore
+    public void setSourceCol(String sourceCol) {
+        this.sourceCol = sourceCol;
+    }
+
+    @JsonIgnore
+    public String getSourceCol() {
+        return sourceCol;
+    }
+
 
 }
