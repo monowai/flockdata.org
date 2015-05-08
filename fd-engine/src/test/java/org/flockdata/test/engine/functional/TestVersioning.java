@@ -152,7 +152,7 @@ public class TestVersioning extends EngineBase {
         Assert.assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
 
         engineConfig.setStoreEnabled("false");
-        assertEquals("EsStorage is OK", kvService.ping());
+        assertEquals("MemMap is OK", kvService.ping());
         engineConfig.setStoreEnabled("true");
 
     }
