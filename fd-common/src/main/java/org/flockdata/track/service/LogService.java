@@ -40,10 +40,10 @@ public interface LogService {
 
     Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException;
 
+    Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException, IOException;
+
     TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     EntityLog getLastLog(Entity entity) throws FlockException;
-
-//    public void distributeChanges(Company company, Iterable<TrackResultBean> resultBeans) throws IOException;
 
 }

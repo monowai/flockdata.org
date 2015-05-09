@@ -108,7 +108,7 @@ public class EntityRetryService {
             return resultBeans;
 
         } else {
-            return logService.processLogs(fortress, resultBeans).get();
+            return logService.processLogsSync(fortress, resultBeans);
         }
 
     }

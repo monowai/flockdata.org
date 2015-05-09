@@ -350,7 +350,9 @@ public class EntityDaoNeo {
             entity.setFortressLastWhen(fortressWhen.getMillis());
             template.save(entity);
         } else {
+            logger.debug("About to save new log");
             newLog = template.save(newLog);
+            logger.debug("Saved new log");
             setLatest(entity);
             // Need to refresh the log
             template.fetch(newLog.getEntityLog());

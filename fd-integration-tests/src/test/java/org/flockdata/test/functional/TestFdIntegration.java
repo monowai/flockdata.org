@@ -556,7 +556,7 @@ public class TestFdIntegration {
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
