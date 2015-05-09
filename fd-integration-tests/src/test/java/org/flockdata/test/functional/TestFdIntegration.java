@@ -569,10 +569,10 @@ public class TestFdIntegration {
 
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         // ensure non-analysed tags work
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         // Analyzed tags require exact match...
-        doEsTermQuery(result.getEntity().getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
-        doEsQuery( result.getEntity().getFortress().getIndexName(), "happy days", 1);
+        doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
+        doEsQuery( result.getIndex(), "happy days", 1);
         // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
@@ -600,7 +600,7 @@ public class TestFdIntegration {
         // We now have 2 logs, sad tags, no happy tags
 
         // If this fails, search changes are probably not being dispatched
-        String json = doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
+        String json = doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
         Long whenDate = Long.parseLong(searchDoc.get("when").toString());
         assertTrue("Fortress when was not set in to searchDoc", whenDate > 0);
