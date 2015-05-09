@@ -108,7 +108,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void updateExistingTag() throws Exception {
-
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("updateExistingTag", mike_admin);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
@@ -125,6 +125,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("tagMustExist", mike_admin);
 
         assertNotNull(iSystemUser);
@@ -470,6 +471,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void label_UserDefined() throws Exception {
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("label_UserDefined", mike_admin);
 
         assertNotNull(iSystemUser);
