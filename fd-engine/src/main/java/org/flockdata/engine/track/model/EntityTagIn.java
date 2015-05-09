@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Entity;
@@ -85,6 +86,7 @@ public class EntityTagIn extends EntityTagRelationship {
     }
 
     @Override
+    @JsonIgnore
     public Entity getEntity() {
         return entity;
     }

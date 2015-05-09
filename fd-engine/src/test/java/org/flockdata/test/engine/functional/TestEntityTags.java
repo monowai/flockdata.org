@@ -27,6 +27,7 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
@@ -1142,6 +1143,35 @@ public class TestEntityTags extends EngineBase {
         assertEquals(searchChange.getEntityId(), searchChangeB.getEntityId());
         assertEquals("The log should be using the same search identifier", searchChange.getSearchKey(), searchChangeB.getSearchKey());
 
+    }
+
+    @Test
+    public void count_NoExistingTagsFullTrackRequest () throws Exception {
+        Boolean storeEnabled = engineConfig.isStoreEnabled();
+        KvService.KV_STORE existing = engineConfig.getKvStore();
+        // Emulates the default PostMan json track call.
+        try {
+            kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+            kvConfig.setStoreEnabled("true");
+            logger.info("## count_NoExistingTagsFullTrackRequest");
+            SystemUser su = registerSystemUser("Blah");
+            Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
+            EntityInputBean inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
+            inputBean.setDescription("This is a description");
+            ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+            inputBean.addTag(new TagInputBean("Samsung" ).setLabel("Law").setEntityLink("plaintiff"));
+            inputBean.addTag(new TagInputBean("Apple" ).setLabel("Law").setEntityLink("defendant"));
+            inputBean.setContent(cib);
+
+            TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
+            assertNotNull(trackResult);
+            Collection<EntityTag> tags = entityTagService.getEntityTags(trackResult.getEntity());
+            assertEquals(2, tags.size());
+        } finally {
+            engineConfig.setStoreEnabled(storeEnabled.toString());
+            kvConfig.setKvStore(existing);
+
+        }
     }
 
     // Use this to mock the search service result
