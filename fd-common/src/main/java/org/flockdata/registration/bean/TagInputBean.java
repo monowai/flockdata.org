@@ -364,4 +364,15 @@ public class TagInputBean {
     public String getNotFoundCode() {
         return notFoundCode;
     }
+
+    public String getEntityLink() {
+        return entityLink;
+    }
+
+    public TagInputBean setEntityLink(String entityLink) {
+        this.entityLink = entityLink;
+        return this;
+    }
+
+
 }
