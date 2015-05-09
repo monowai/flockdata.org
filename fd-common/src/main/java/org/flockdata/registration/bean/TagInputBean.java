@@ -56,6 +56,7 @@ public class TagInputBean {
     private boolean mustExist = false;
     private String serviceMessage;
     private Collection<AliasInputBean> aliases;
+    private String notFoundCode;
 
 
     public TagInputBean() {
@@ -264,8 +265,6 @@ public class TagInputBean {
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", label='" + label + '\'' +
-                ", targets=" + targets.keySet().size() +
-                ", entityLinks=" + entityLinks +
                 '}';
     }
 
@@ -345,4 +344,35 @@ public class TagInputBean {
     public boolean hasRelationship(String relationship) {
         return (entityLink!=null && entityLink.equals(relationship)) || entityLinks.containsKey(relationship);
     }
+
+    /**
+     *
+     * @param mustExist don't "just create" this tag
+     * @param notFound  create and link to this tag if notfound
+     * @return this
+     */
+    public TagInputBean setMustExist(boolean mustExist, String notFound) {
+        setMustExist(mustExist);
+        return setNotFoundCode(notFound);
+    }
+
+    public TagInputBean setNotFoundCode(String notFoundCode) {
+        this.notFoundCode = notFoundCode;
+        return this;
+    }
+
+    public String getNotFoundCode() {
+        return notFoundCode;
+    }
+
+    public String getEntityLink() {
+        return entityLink;
+    }
+
+    public TagInputBean setEntityLink(String entityLink) {
+        this.entityLink = entityLink;
+        return this;
+    }
+
+
 }

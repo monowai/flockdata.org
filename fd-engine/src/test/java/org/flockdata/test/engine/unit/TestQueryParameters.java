@@ -19,12 +19,15 @@
 
 package org.flockdata.test.engine.unit;
 
+import org.flockdata.engine.query.MatrixDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
+import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,9 +40,9 @@ public class TestQueryParameters {
     @Test
     public void documentTypes() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
-        String result =":Entity";
+        String result = ":Entity";
         Assert.assertEquals(result, CypherHelper.getLabels("meta", inputBean.getDocuments()));
-        ArrayList<String>docs = new ArrayList<>();
+        ArrayList<String> docs = new ArrayList<>();
         docs.add("With Space");
         docs.add("SecondDoc");
         docs.add("third-doc");
@@ -54,31 +57,40 @@ public class TestQueryParameters {
 
     }
 
-//    @Test
-//    public void concepts() throws Exception {
-//        MatrixInputBean inputBean = new MatrixInputBean();
-//        assertEquals(Tag.DEFAULT, NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-//        ArrayList<String>concepts = new ArrayList<>();
-//        concepts.add("With Space");
-//        concepts.add("SecondConcept");
-//        inputBean.setConcepts(concepts);
-//        assertEquals(":`With Space` :SecondConcept", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-//
-//        // check that quotes don't cause a problem
-//        concepts.clear();
-//        concepts.add("SecondConcept");
-//        concepts.add("With Space");
-//        inputBean.setConcepts(concepts);
-//        assertEquals(":SecondConcept :`With Space`", NeoSyntaxHelper.getConcepts(inputBean.getConcepts()));
-//
-//    }
+    @Test
+    public void concepts() throws Exception {
+        Collection<Object> ids = new ArrayList<>();
+        Collection<Object> names = new ArrayList<>();
+        ids.add("123");
+        ids.add("123");
+        ids.add("456");
+        names.add("Name A");
+        names.add("Name A");
+        names.add("Name B");
+        Collection<KeyValue> values = new ArrayList<>();
+        MatrixDaoNeo4j.setTargetTags(values, ids, names);
+        assertEquals(2, values.size());
+        for (KeyValue value : values) {
+            switch (value.getKey()) {
+                case "123":
+                    assertEquals("Name A", value.getValue());
+                    break;
+                case "456":
+                    assertEquals("Name B", value.getValue());
+                    break;
+                default:
+                    throw new Exception("Unexpected value");
+            }
+
+        }
+    }
 
     @Test
     public void relationships() throws Exception {
         MatrixInputBean inputBean = new MatrixInputBean();
         assertEquals("", CypherHelper.getRelationships(inputBean.getFromRlxs()));
         assertEquals("", CypherHelper.getRelationships(inputBean.getToRlxs()));
-        ArrayList<String>relationships = new ArrayList<>();
+        ArrayList<String> relationships = new ArrayList<>();
         relationships.add("With Space");
         relationships.add("SecondConcept");
         relationships.add("third-concept");

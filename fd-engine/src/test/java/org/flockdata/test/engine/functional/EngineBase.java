@@ -30,6 +30,7 @@ import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
@@ -119,6 +120,9 @@ public abstract class EngineBase {
 
 	@Autowired
     KvService kvService;
+
+	@Autowired
+	FdKvConfig kvConfig;
 
 	@Autowired
 	public CompanyService companyService;

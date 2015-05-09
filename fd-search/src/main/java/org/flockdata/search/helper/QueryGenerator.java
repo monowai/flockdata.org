@@ -20,6 +20,7 @@
 package org.flockdata.search.helper;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.flockdata.search.model.QueryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +34,12 @@ import org.slf4j.LoggerFactory;
 public class QueryGenerator {
     private static Logger logger = LoggerFactory.getLogger(QueryGenerator.class);
 
-    public static String getSimpleQuery(String queryString, Boolean highlightEnabled) {
-
+    public static String getSimpleQuery(QueryInterface params, Boolean highlightEnabled) {
+        String queryString = params.getSearchText();
         if ( queryString== null )
             queryString = "*";
 
-        logger.debug("getSimpleQuery {}", queryString);
+        logger.debug("getSearchText {}", queryString);
         StringBuilder simpleQuery = new StringBuilder();
         if ( queryString.contains("\"")) {
             queryString = StringEscapeUtils.escapeJson(queryString);
@@ -63,5 +64,65 @@ public class QueryGenerator {
         }
         simpleQuery.append(" }");
         return simpleQuery.toString();
+    }
+
+    public static String getFilteredQuery(QueryInterface queryParams, Boolean highlightEnabled) {
+        String queryString = queryParams.getSearchText();
+        if ( queryString== null )
+            queryString = "*";
+
+        logger.debug("getSearchText {}", queryString);
+        StringBuilder simpleQuery = new StringBuilder();
+        if ( queryString.contains("\"")) {
+            queryString = StringEscapeUtils.escapeJson(queryString);
+        }
+        if ( queryString.equals(""))
+            queryString="*";
+        String filter = getFilter(queryParams);
+        simpleQuery.append("\n" +
+                " {\"query\": {\n" +
+                "    \"filtered\": {\n" +
+                "       \"query\": {\n" +
+                "           \"query_string\": {\"query\":\"" + queryString.toLowerCase() + "\"}\n" +
+                "   "+(!filter.equals("")?"},"+filter : "}") +
+//                filter +
+                "  }\n" +
+                "}");
+
+        if (highlightEnabled) {
+            simpleQuery.append(",\n" +
+                    "  \"highlight\": { " +
+                    "\"pre_tags\" : [\"<strong>\"]," +
+                    "\"post_tags\" : [\"</strong>\"]," +
+                    "\"encoder\" : \"html\"," +
+                    "    \"fields\": { " +
+                    "      \"*\": {} " +
+                    "    } " +
+                    "  }");
+        }
+        simpleQuery.append(" }");
+        return simpleQuery.toString();
+    }
+
+    private static String getFilter(QueryInterface queryParams) {
+        if ( queryParams.getRelationships().isEmpty())
+            return "";
+
+        // Open filter
+        String filter = "\t\t \"filter\" : {\n" +
+                "            \"and\" : [\n" ;
+        boolean first = true;
+        for (String relationship : queryParams.getRelationships()) {
+            if (first) {
+                filter += "     { \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+                first=false;
+            } else
+                filter += "    ,{ \"exists\":{    \"field\" : \"tag." + relationship.toLowerCase() + ".*\" }}\n";
+        }
+
+        filter += "      ]}\n" ; // Close filter
+
+        return filter;
+
     }
 }

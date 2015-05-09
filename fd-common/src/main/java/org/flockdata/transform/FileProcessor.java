@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -40,6 +41,7 @@ import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -51,6 +53,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,33 +83,80 @@ public class FileProcessor {
         this.rowsToProcess = rowsToProcess;
     }
 
-    public Long processFile(ProfileConfiguration importProfile, String file, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public Collection<String> resolveFiles(String source) throws IOException, NotFoundException {
+        ArrayList<String> results = new ArrayList<>();
+        boolean absoluteFile = true;
+        if (source.contains("*") || source.contains("?") || source.endsWith(File.separator))
+            absoluteFile = false;
+
+        if (absoluteFile) {
+            Reader reader;
+            reader = getReader(source);
+            if (reader != null) {
+                reader.close();
+                results.add(source);
+                return results;
+            }
+        }
+
+        String filter;
+        String path;
+
+        Path toResolve = Paths.get(source);
+
+        if (source.endsWith(File.separator))
+            filter = "*";
+        else
+            filter = toResolve.getFileName().toString();
+        if (filter == null)
+            filter = "*";
+        path = source.substring(0, source.lastIndexOf(File.separator) + 1);
+        FileFilter fileFilter = new WildcardFileFilter(filter);
+
+        // Split the source in to path and filter.
+        //path = source.substring(0, source.indexOf())
+
+        File folder = new ClassPathResource(path).getFile();
+        File[] listOfFiles = folder.listFiles(fileFilter);
+        for (File file : listOfFiles) {
+            results.add(file.toString());
+        }
+
+
+        return results;
+    }
+
+    public Long processFile(ProfileConfiguration importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
         //Mappable mappable = importProfile.getMappable();
 
-        //String file = path;
-        logger.info("Start processing of {}", file);
-
+        //String source = path;
+        logger.info("Start processing of {}", source);
+        Collection<String> files = resolveFiles(source);
         long result = 0;
         try {
-            if (importProfile.getContentType() == ProfileConfiguration.ContentType.CSV)
-                result = processCSVFile(file, importProfile, writer);
-            else if (importProfile.getContentType() == ProfileConfiguration.ContentType.XML)
-                result = processXMLFile(file, importProfile, writer);
-            else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON) {
-                if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
-                    result = processJsonEntities(file, importProfile, writer);
-                else
-                    result = processJsonTags(file, importProfile, writer);
-            }
+            for (String file : files) {
 
+                if (importProfile.getContentType() == ProfileConfiguration.ContentType.CSV)
+                    result = processCSVFile(file, importProfile, writer);
+                else if (importProfile.getContentType() == ProfileConfiguration.ContentType.XML)
+                    result = processXMLFile(file, importProfile, writer);
+                else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON) {
+                    if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
+                        result = processJsonEntities(file, importProfile, writer);
+                    else
+                        result = processJsonTags(file, importProfile, writer);
+                }
+
+            }
         } finally {
             if (result > 0) {
                 writer.close(trackBatcher);
             }
         }
-        logger.info("Processed {}", file);
+
+        logger.info("Processed {}", source);
         return result;
     }
 
@@ -347,8 +398,12 @@ public class FileProcessor {
                 logger.info("Skipping first {} rows", skipCount);
 
             long then = System.currentTimeMillis();
+
             while ((nextLine = csvReader.readNext()) != null) {
                 if (!ignoreRow(nextLine)) {
+                    if (headerRow == null) {
+                        headerRow = TransformationHelper.defaultHeader(nextLine, importProfile);
+                    }
                     currentRow++;
                     if (currentRow >= skipCount) {
                         if (currentRow == skipCount)
@@ -432,8 +487,8 @@ public class FileProcessor {
 
         boolean stop = currentRow >= skipCount + rowsToProcess;
 
-        if ( !stop && currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
-            logger.info("Processed {} elapsed seconds {}", currentRow-skipCount, (new DateTime().getMillis() - then) / 1000d);
+        if (!stop && currentRow != skipCount && then > 0 && currentRow % 1000 == 0)
+            logger.info("Processed {} elapsed seconds {}", currentRow - skipCount, (new DateTime().getMillis() - then) / 1000d);
 
         if (currentRow <= skipCount)
             return false;
@@ -485,8 +540,8 @@ public class FileProcessor {
 
         }
         if (fileObject == null) {
-            logger.error("Unable to resolve the file [{}]", file);
-            throw new NotFoundException("Unable to resolve the file " + file);
+            logger.error("Unable to resolve the source [{}]", file);
+            throw new NotFoundException("Unable to resolve the source " + file);
         }
         return fileObject;
     }
@@ -494,8 +549,8 @@ public class FileProcessor {
     public long endProcess(StopWatch watch, long rows) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
-        long rowsProcessed = rows-skipCount;
-        if ( skipCount > 0 )
+        long rowsProcessed = rows - skipCount;
+        if (skipCount > 0)
             logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
         else
             logger.info("Completed {} rows in {} secs. rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows);

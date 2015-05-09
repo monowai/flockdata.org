@@ -99,8 +99,20 @@ public class TagDaoNeo4j {
         Tag startTag = findTagNode(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
         if (startTag == null) {
             if (tagInput.isMustExist()) {
+
                 tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
-                throw new AmqpRejectAndDontRequeueException("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+//                tagInput.setNotFoundCode(null);
+                if (tagInput.getNotFoundCode() !=null && !tagInput.getNotFoundCode().equals("")){
+                    TagInputBean notFound = new TagInputBean(tagInput.getNotFoundCode())
+                            .setLabel(tagInput.getLabel());
+                    logger.info("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to [" + tagInput.getNotFoundCode() + "]. An alias is been created for " +tagInput.getCode());
+                    ArrayList<AliasInputBean>aliases = new ArrayList<>();
+                    // Creating an alias so that we don't have to process this all again. The alias will be against the undefined tag.
+                    aliases.add( new AliasInputBean(tagInput.getCode()));
+                    notFound.setAliases(aliases);
+                    startTag = save(company, notFound, tagSuffix, createdValues, suppressRelationships);
+                } else
+                    throw new AmqpRejectAndDontRequeueException("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
             } else {
                 startTag = createTag(company, tagInput, tagSuffix);
             }
@@ -134,15 +146,16 @@ public class TagDaoNeo4j {
         TagNode tag = new TagNode(tagInput, label);
 
         logger.trace("Saving {}", tag);
+        tag = tagRepo.save(tag);
         Collection<AliasNode> aliases = null;
         if (tagInput.hasAliases()) {
             aliases = new ArrayList<>();
             for (AliasInputBean newAlias : tagInput.getAliases()) {
                 AliasNode alias = new AliasNode(label, newAlias, parseKey(newAlias.getCode()), tag);
+                alias.setTag(tag);
                 aliases.add(alias);
             }
         }
-        tag = tagRepo.save(tag);
         if (aliases != null)
             for (AliasNode alias : aliases) {
                 if (!tag.hasAlias(label, alias.getKey())) {
@@ -351,7 +364,7 @@ public class TagDaoNeo4j {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
-        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag.getId()));
+        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 

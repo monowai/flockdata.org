@@ -88,12 +88,8 @@ public class LogRetryService {
      */
     @Retryable(include = {HeuristicRollbackException.class, DeadlockDetectedException.class, ConcurrencyFailureException.class, InvalidDataAccessResourceUsageException.class}, maxAttempts = 12,
             backoff = @Backoff(maxDelay = 200, multiplier = 5, random = true))
-    TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
-        return writeLogTx(fortress, trackResultBean);
-    }
-
     @Transactional
-    TrackResultBean writeLogTx(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
+    TrackResultBean writeLog(Fortress fortress, TrackResultBean trackResultBean) throws FlockException, IOException {
         ContentInputBean content = trackResultBean.getContentInput();
 
         boolean entityExists = (trackResultBean.getEntityInputBean() != null && !trackResultBean.getEntityInputBean().isTrackSuppressed());
@@ -128,10 +124,7 @@ public class LogRetryService {
      * @param thisFortressUser User name in calling system that is making the change
      * @return populated log information with any error messages
      */
-    @Transactional
-    LogResultBean createLog(TrackResultBean payLoad, FortressUser thisFortressUser) throws FlockException, IOException {
-        // Warning - making this private means it doesn't get a transaction!
-        //entity = trackService.getEntity(entity);
+    private LogResultBean createLog(TrackResultBean payLoad, FortressUser thisFortressUser) throws FlockException, IOException {
         Fortress fortress = payLoad.getEntity().getFortress();
         // ToDo: ??? noticed during tracking over AMQP
         if (thisFortressUser != null) {

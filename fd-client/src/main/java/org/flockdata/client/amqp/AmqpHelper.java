@@ -23,6 +23,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -47,7 +48,7 @@ public class AmqpHelper {
     AMQP.BasicProperties.Builder builder;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpHelper.class);
 
-    public AmqpHelper (ClientConfiguration configuration){
+    public AmqpHelper (ClientConfiguration configuration) throws FlockException {
         factory.setHost(configuration.getAmqpHostAddr());
         factory.setUsername(configuration.getRabbitUser());
         factory.setPassword(configuration.getRabbitPass());
@@ -63,7 +64,8 @@ public class AmqpHelper {
             connection = factory.newConnection();
             HashMap<String,Object> headers = new HashMap<>();
             headers.put("apiKey", configuration.getApiKey());
-
+            if ( configuration.getApiKey() == null || configuration.getApiKey().equals(""))
+                throw new FlockException("Your API key appears to be invalid. Have you run the configure process?");
             builder =
                     new AMQP.BasicProperties().builder()
                             .headers(headers)

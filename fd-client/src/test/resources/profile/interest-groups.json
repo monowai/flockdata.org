@@ -1,0 +1,24 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "fortress": "GovTrack",
+  "fortressUser": "mike",
+  "header": false,
+  "delimiter": ",",
+  "quoteCharacter": "|",
+  "content": {
+    "InterestGroup": {
+      "tag": true,
+      "name": "2",
+      "code": "1",
+      "targets": [
+        {
+          "code": "9",
+          "label": "OSCategory",
+          "mustExist": true,
+          "relationship": "represents"
+        }
+      ]
+    }
+  }
+}

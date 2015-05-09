@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * Date: 12/10/2014
  * Time: 17:49
  */
-public class TagCloudParams {
+public class TagCloudParams implements QueryInterface {
 
     private String company;
 
@@ -38,9 +38,10 @@ public class TagCloudParams {
     // ToDo: This should be an Array[]
     private ArrayList<String> types = new ArrayList<>();
 
-    private String[] tags;
+    private ArrayList<String> tags;
 
-    private String[] relationships;
+    private ArrayList<String> relationships;
+    private String searchText;
 
     public TagCloudParams() {}
 
@@ -66,6 +67,7 @@ public class TagCloudParams {
         this.fortress = fortress;
     }
 
+    @Override
     public String[] getTypes() {
         String[] results = new String[types.size()];
         int i =0;
@@ -84,19 +86,30 @@ public class TagCloudParams {
         this.types = types;
     }
 
-    public String[] getRelationships() {
+    @Override
+    public ArrayList<String> getRelationships() {
         return relationships;
     }
 
-    public void setRelationships(String[] relationships) {
+    public void setRelationships(ArrayList<String> relationships) {
         this.relationships = relationships;
     }
 
-    public String[] getTags() {
+    @Override
+    public ArrayList<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
+    }
+
+    @Override
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String query) {
+        this.searchText = query;
     }
 }

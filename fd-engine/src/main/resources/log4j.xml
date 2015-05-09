@@ -48,9 +48,9 @@
     <logger name="org.springframework">
         <level value="error"/>
     </logger>
-    <!--<logger name="org.springframework.retry.support.RetryTemplate">-->
-        <!--<level value="debug"/>-->
-    <!--</logger>-->
+    <logger name="org.springframework.retry.support.RetryTemplate">
+        <level value="error"/>
+    </logger>
     <logger name="org.springframework.integration.channel.NullChannel">
         <level value="error"/>
     </logger>
@@ -131,6 +131,8 @@
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>
+
+    <!-- Logging tags can be noisy - 1line per association-->
     <logger name="org.flockdata.engine.tag">
         <level value="info"/>
     </logger>
@@ -151,7 +153,7 @@
         <level value="info"/>
     </logger>
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="info"/>
+        <level value="${fd.logLevel}"/>
     </logger>
 
     <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">

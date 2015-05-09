@@ -87,6 +87,15 @@ public class ConceptNode implements Concept {
         this.relationships = tempRlx;
     }
 
+    @Override
+    public boolean hasRelationship(String relationship) {
+        for (Relationship rlx: relationships) {
+            if ( rlx.getName().equalsIgnoreCase(relationship))
+                return true;
+        }
+        return false;
+    }
+
 
     public String getName() {
         return name;

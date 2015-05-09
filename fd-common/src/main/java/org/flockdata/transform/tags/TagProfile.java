@@ -34,6 +34,8 @@ public class TagProfile {
     private String code;
 
     private Boolean reverse =false;
+    private String notFound;
+
     private String relationship;
     private String delimiter =null;
     private boolean country = false;
@@ -157,5 +159,9 @@ public class TagProfile {
 
     public boolean hasAliases (){
         return aliases!=null && aliases.size()>0;
+    }
+
+    public String getNotFound() {
+        return notFound;
     }
 }

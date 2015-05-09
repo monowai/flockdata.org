@@ -25,6 +25,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.junit.Test;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -107,7 +108,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void updateExistingTag() throws Exception {
-
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("updateExistingTag", mike_admin);
         assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
@@ -124,6 +125,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void tagMustExist() throws Exception {
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("tagMustExist", mike_admin);
 
         assertNotNull(iSystemUser);
@@ -141,6 +143,30 @@ public class TestTags extends EngineBase {
         assertNotNull(tag);
         tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
         assertNotNull(tag);
+
+    }
+
+    @Test (expected = AmqpRejectAndDontRequeueException.class)
+    public void exists_NotFoundRevertsToDefault() throws Exception {
+        SystemUser iSystemUser = registerSystemUser("exists_NotFoundRevertsToDefault", mike_admin);
+        // DAT-411
+        assertNotNull(iSystemUser);
+
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "NEW-TAG", "Testing"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "NotFound", "Testing"));
+        TagInputBean newTag = new TagInputBean("NEW-TAG")
+                .setMustExist(true, "NotFound")
+                .setLabel("Testing");
+
+        Tag tag = tagService.createTag(iSystemUser.getCompany(), newTag);
+        assertNotNull(tag);
+        assertEquals("NotFound", tag.getCode());
+        assertEquals("Testing", tag.getLabel());
+
+        newTag = new TagInputBean("NEW-TAG")
+                .setMustExist(true, "");
+
+        assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
 
     }
 
@@ -445,6 +471,7 @@ public class TestTags extends EngineBase {
 
     @Test
     public void label_UserDefined() throws Exception {
+        cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("label_UserDefined", mike_admin);
 
         assertNotNull(iSystemUser);

@@ -47,4 +47,6 @@ public interface QueryService {
     MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException;
 
     String doSearch(QueryParams queryParams) throws FlockException;
+
+    void getTags(String indexName);
 }

@@ -74,4 +74,9 @@ public class QueryServiceEs implements QueryService {
         return queryDao.doSearch(queryParams);
     }
 
+    @Override
+    public void getTags(String indexName) {
+        queryDao.getTags(indexName);
+    }
+
 }

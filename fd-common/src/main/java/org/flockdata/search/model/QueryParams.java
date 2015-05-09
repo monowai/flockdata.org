@@ -23,14 +23,26 @@ import org.flockdata.query.MatrixInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 
+import java.util.ArrayList;
+
 /**
  * Encapsulated search parameters
  * User: mike
  * Date: 12/04/14
  * Time: 9:44 AM
  */
-public class QueryParams {
-    private String simpleQuery;
+public class QueryParams implements QueryInterface{
+    public QueryParams(String searchText) {
+        this.searchText = searchText;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    private ArrayList<String> tags;
+    private ArrayList<String> relationships = new ArrayList<>();
+    private String searchText;
     private String metaKey;
     private String company;
     private String fortress;
@@ -50,9 +62,15 @@ public class QueryParams {
     }
 
     public QueryParams(Company company, MatrixInputBean input) {
-        this.simpleQuery = input.getQueryString();
+        this.searchText = input.getQueryString();
         this.company = company.getName();
         this.rowsPerPage = input.getSampleSize();
+        this.tags = input.getConcepts();
+        if ( !input.getFromRlxs().isEmpty())
+            this.relationships.addAll(input.getFromRlxs());
+        if ( !input.getToRlxs().isEmpty())
+            this.relationships.addAll(input.getToRlxs());
+
         if ( input.getDocuments()!=null && !input.getDocuments().isEmpty()) {
             types = new String[input.getDocuments().size()];
             int i = 0;
@@ -62,12 +80,12 @@ public class QueryParams {
         }
     }
 
-    public String getSimpleQuery() {
-        return simpleQuery;
+    public String getSearchText() {
+        return searchText;
     }
 
-    public QueryParams setSimpleQuery(String simpleQuery) {
-        this.simpleQuery = simpleQuery;
+    public QueryParams setSearchText(String searchText) {
+        this.searchText = searchText;
         return this;
     }
 
@@ -119,7 +137,7 @@ public class QueryParams {
     @Override
     public String toString() {
         return "QueryParams{" +
-                "simpleQuery='" + simpleQuery + '\'' +
+                "searchText='" + searchText + '\'' +
                 ", company='" + company + '\'' +
                 ", fortress='" + fortress + '\'' +
                 '}';
@@ -148,5 +166,9 @@ public class QueryParams {
 
     public String getCallerRef() {
         return callerRef;
+    }
+
+    public ArrayList<String> getRelationships() {
+        return relationships;
     }
 }

@@ -63,7 +63,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
         throw new SecurityException("You must be an authorized user to work with this service");
     }
 
