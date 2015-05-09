@@ -108,11 +108,11 @@ public class EngineConfig implements PlatformConfig {
      * Default property for a fortress if not explicitly set.
      * When true (default) KV versions of information will be tracked
      *
-     * @param versionEnabled defaults to true
+     * @param storeEnabled defaults to true
      */
-    @Value("${fd-store.enable}")
-    public void setStoreEnabled(String versionEnabled) {
-        kvConfig.setStoreEnabled(versionEnabled);
+    @Value("${fd-store.enabled}")
+    public void setStoreEnabled(String storeEnabled) {
+        kvConfig.setStoreEnabled(storeEnabled);
     }
 
     public Boolean isStoreEnabled(){
@@ -176,6 +176,7 @@ public class EngineConfig implements PlatformConfig {
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
         healthResults.put("fd-store.engine", kvConfig.getKvStore().toString());
+        healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
         String esPingResult ;
         try {
             PingResult esPing = fdMonitoringGateway.ping();

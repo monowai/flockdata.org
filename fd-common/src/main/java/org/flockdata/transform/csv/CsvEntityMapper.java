@@ -64,31 +64,32 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
-        for (String column : content.keySet()) {
-            column = column.trim();
-            ColumnDefinition colDef = importProfile.getColumnDef(column);
+        for (String sourceColumn : content.keySet()) {
+            sourceColumn = sourceColumn.trim();
+            ColumnDefinition colDef = importProfile.getColumnDef(sourceColumn);
 
-            if (colDef != null ) {
-                Object o = row.get(column);
-                String value = null ;
-                if ( o !=null )
+            if (colDef != null) {
+                // Import Profile let's you alter the name of the column
+                String valueColumn = (colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
+                Object o = row.get(valueColumn);
+                String value = null;
+                if (o != null)
                     value = o.toString().trim();
 
                 if (colDef.isDescription()) {
 
                     setDescription(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                 }
-                if ( colDef.isCreateDate()){
-                    if ( colDef.isDateEpoc()) {
-                        long val = Long.parseLong(value)*1000;
+                if (colDef.isCreateDate()) {
+                    if (colDef.isDateEpoc()) {
+                        long val = Long.parseLong(value) * 1000;
 
                         setWhen(new DateTime(val));
 //                        logger.debug ("{}, {}, {}", val, value, getWhen());
-                    }
-                    else if ( NumberUtils.isDigits(value))  // plain old java millis
+                    } else if (NumberUtils.isDigits(value))  // plain old java millis
                         setWhen(new DateTime(Long.parseLong(value)));
                     else // ToDo: apply a date format
-                        setWhen( new DateTime(value));
+                        setWhen(new DateTime(value));
 
                 }
 
@@ -103,10 +104,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         tagProfile.setLabel(colDef.getLabel());
                         tagProfile.setReverse(colDef.getReverse());
                         tagProfile.setMustExist(colDef.isMustExist());
-                        tagProfile.setCode(column);
+                        tagProfile.setCode(sourceColumn);
                         tagProfile.setDelimiter(colDef.getDelimiter());
                         String relationship = TransformationHelper.getRelationshipName(row, colDef);
-                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship );
+                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship);
                         for (TagInputBean tag : tags) {
                             addTag(tag);
                         }
@@ -115,12 +116,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
 
-                    if (TransformationHelper.getTagInputBean(tag, row, column, importProfile.getContent(), value)) {
-                       // if ( colDef.getRelationship()!=null) {
-                         //   tag.addEntityLink(colDef.getRelationship());
-                        //} else {
-                            addTag(tag);
-                        //}
+                    if (TransformationHelper.getTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
+                        addTag(tag);
 
 
                     }
@@ -135,9 +132,22 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.isUpdateUser()) {
                     setUpdateUser(value);
                 }
-                if ( !colDef.getCrossReferences().isEmpty()){
+                if (!colDef.getCrossReferences().isEmpty()) {
                     for (Map<String, String> key : colDef.getCrossReferences()) {
                         addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
+                    }
+                }
+
+                if (colDef.hasEntityProperies()) {
+                    for (ColumnDefinition columnDefinition : colDef.getProperties()) {
+                        //String sourceCol = columnDefinition.getSource();
+                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(sourceColumn));
+                        Object oValue = TransformationHelper.getValue(value, columnDefinition);
+                        //String colName = sourceCol;
+                        if (columnDefinition.getTarget() != null)
+                            sourceColumn = columnDefinition.getTarget();
+                        setProperty(sourceColumn, oValue);
+
                     }
                 }
 
@@ -170,7 +180,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
         return row;
     }
-
 
 
     private Map<String, Object> getColumnValues(ColumnDefinition colDef, Map<String, Object> row) {

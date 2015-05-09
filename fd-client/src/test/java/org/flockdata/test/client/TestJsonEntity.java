@@ -50,7 +50,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/gov.json");
+        ImportProfile params = ClientConfiguration.getImportParams("/profile/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
@@ -90,7 +90,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void object_ImportJsonEntity() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportParams("/gov.json");
+        ImportProfile profile = ClientConfiguration.getImportParams("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
         profile.setFortressName("testing");
@@ -105,7 +105,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void array_ImportJsonEntities() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportParams("/gov.json");
+        ImportProfile profile = ClientConfiguration.getImportParams("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setFortressName("testing");
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
@@ -113,7 +113,7 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/array-example.json", getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/profile/array-example.json", getFdWriter(),company, defaults  );
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 

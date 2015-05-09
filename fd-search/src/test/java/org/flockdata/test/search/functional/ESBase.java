@@ -27,6 +27,7 @@ import io.searchbox.core.Search;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
 import org.flockdata.search.endpoint.TrackServiceEs;
+import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.track.model.TrackSearchDao;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -63,7 +64,8 @@ public class ESBase {
     @Autowired
     TrackServiceEs trackService;
 
-
+    @Autowired
+    QueryServiceEs queryServiceEs;
 
     static void deleteEsIndex(String indexName) throws Exception {
         logger.info("%% Delete Index {}", indexName);

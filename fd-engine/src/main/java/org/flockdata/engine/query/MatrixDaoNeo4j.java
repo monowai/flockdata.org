@@ -21,6 +21,7 @@ package org.flockdata.engine.query;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
+import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -29,6 +30,8 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.MetaKeyResults;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.model.Concept;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +57,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
     @Autowired
     FortressService fortressService;
+    @Autowired
+    SchemaDaoNeo4j schemaDaoNeo4j;
 
     @Override
     public MatrixResults getMatrix(Company company, MatrixInputBean input) throws FlockException {
@@ -64,12 +69,16 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getQueryString() == null)
             input.setQueryString("*");
 
-        if (input.getSampleSize() > 0)
+        if (input.getSampleSize() > 0) {
+            if (input.getSampleSize() > 3000)
+                input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
             metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
+        }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
-        String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
+        String conceptsFrom= CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
+
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
         String toRlx = CypherHelper.getRelationships(input.getToRlxs());
         String conceptString = "";
@@ -82,8 +91,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
         //ToDo: Restrict Entities by Company
         String entityFilter;
         if (metaKeyResults == null)
-            entityFilter = (docFilter ? "where  " + docIndexes : "");
+            entityFilter = (docFilter ? " where " + docIndexes : "");
         else {
+
             entityFilter = " where entity.metaKey in [";
             boolean first = true;
             for (String s : metaKeyResults.getResults()) {
@@ -99,21 +109,28 @@ public class MatrixDaoNeo4j implements MatrixDao {
         String sumVal = ""; // Where the total will be output
 
         if (input.isSumByCol()) {
+            //sumCol = ", sum( entity.`props-value`) as sumValue ";
             sumCol = ", sum( entity.`props-value`) as sumValue ";
             sumVal = ", collect(sumValue) as sumValues";
         }
 
         String query = "match (entity:Entity) " + entityFilter +
                 " with entity " +
-                "match t=(tag1:Tag)-[" + fromRlx + "]-(entity)-[" + toRlx + "]-(tag2:Tag) " +     // Concepts
+                "match t=(tag1:Tag)-[" + fromRlx + " ]-(entity)-[" + toRlx + " ]-(tag2:Tag) " +     // Concepts
                 conceptString +
-                "with entity, tag1, id(tag1) as tag1Id, tag2.name as tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
+                "with tag1, id(tag1) as tag1Id, tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
 
                 (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
-                "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(tag2) as tag2, collect(tag2Id) as tag2Ids, " +
+                "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(coalesce(tag2.name, tag2.code)) as tag2, collect(tag2Id) as tag2Ids, " +
                 "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
+        if (metaKeyResults != null) {
+            int count = 0;
+            for (String s : metaKeyResults.getResults()) {
+                params.put("key" + count++, s);
+            }
+        }
 
         Collection<KeyValue> labels = new ArrayList<>();
 
@@ -143,8 +160,16 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 occ = (Collection<Object>) row.get("occurrenceCount");
 
             String conceptFrom = row.get(conceptFmCol).toString();
-            KeyValue label = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
-            labels.add(label);
+
+            if ( input.isByKey()) {
+                // Edges will be indexed by Id. This will set the Name values in to the Node collection
+                KeyValue source = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
+                Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
+                Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
+                if ( !labels.contains(source))
+                    labels.add(source);
+                setTargetTags(labels, targetIds, targetVals);
+            }
 
             Iterator<Object> concept = tag2.iterator();
             Iterator<Object> occurrence = occ.iterator();
@@ -158,7 +183,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
                     if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
                         Number value;
 
-                        if ( input.isSumByCol() )
+                        if (input.isSumByCol())
                             value = Double.parseDouble(occurrence.next().toString());
                         else
                             value = Long.parseLong(occurrence.next().toString());
@@ -174,11 +199,43 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         logger.info("Count {}, Performance {}", edgeResults.get().size(), watch.prettyPrint());
         MatrixResults results = new MatrixResults(edgeResults.get());
-        results.setNodes(labels);
+        if (!labels.isEmpty())
+            results.setNodes(labels);
         if (edgeResults.get().size() > input.getMaxEdges())
             throw new FlockException("Excessive amount of data was requested. Query cancelled " + edgeResults.get().size());
+
+        results.setSampleSize(input.getSampleSize());
+        if (metaKeyResults!=null)
+            results.setTotalHits(metaKeyResults.getTotalHits());
         return results;
 
+    }
+
+    public static Collection<? extends KeyValue> setTargetTags(Collection<KeyValue> labels, Collection<Object> ids, Collection<Object> names) {
+        Iterator<Object> tagNames = names.iterator();
+        for (Object id : ids) {
+            KeyValue kv = new KeyValue(id.toString(), tagNames.next());
+            if ( !labels.contains(kv))
+                labels.add(kv);
+        }
+        return labels;
+    }
+
+    private boolean tagHasRelationship(Company company, String inTag, ArrayList<String> docNames, String relationship) {
+        Set<DocumentResultBean> schema = schemaDaoNeo4j.findConcepts(company, null, true);
+        for (DocumentResultBean document : schema) {
+            for (String docName : docNames) {
+                if (document.getName().equalsIgnoreCase(docName)) {
+                    for (Concept concept : document.getConcepts()) {
+                        if (concept.getName().equals(inTag)) {
+                            return concept.hasRelationship(relationship);
+                        }
+                    }
+                }
+            }
+
+        }
+        return false;
     }
 
     private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {

@@ -89,8 +89,8 @@ public class KvConfig implements FdKvConfig {
 
     @Override
     public KV_STORE getKvStore() {
-        if ( !getStoreEnabled() )
-            return KV_STORE.NONE;
+//        if ( !getStoreEnabled() )
+//            return KV_STORE.NONE;
 
         return kvStore;
     }
@@ -125,11 +125,11 @@ public class KvConfig implements FdKvConfig {
      * Default property for a fortress if not explicitly set.
      * When true (default) KV versions of information will be tracked
      *
-     * @param versionEnabled defaults to true
+     * @param storeEnabled defaults to true
      */
     @Value("${fd-engine.system.version}")
-    public void setStoreEnabled(String versionEnabled) {
-        this.versionEnabled = !"@null".equals(versionEnabled) && Boolean.parseBoolean(versionEnabled);
+    public void setStoreEnabled(String storeEnabled) {
+        this.versionEnabled = !"@null".equals(storeEnabled) && Boolean.parseBoolean(storeEnabled);
     }
 
     public Boolean getStoreEnabled(){

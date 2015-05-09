@@ -20,7 +20,6 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
 
@@ -83,6 +82,14 @@ public class DocumentResultBean {
         if (concepts == null)
             concepts = new ArrayList<>();
         concepts.add(concept);
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentResultBean{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 
     @Override

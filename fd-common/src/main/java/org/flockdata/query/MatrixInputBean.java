@@ -159,4 +159,8 @@ public class MatrixInputBean {
     public void setSumByCol(boolean sumByCol) {
         this.sumByCol = sumByCol;
     }
+
+    public void setByKey(boolean byKey) {
+        this.byKey = byKey;
+    }
 }

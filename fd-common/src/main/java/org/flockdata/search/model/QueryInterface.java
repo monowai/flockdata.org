@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,27 +17,23 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.track.model;
+package org.flockdata.search.model;
 
-import org.flockdata.registration.model.Relationship;
-
-import java.util.Collection;
+import java.util.ArrayList;
 
 /**
- * User: mike
- * Date: 16/06/14
- * Time: 10:16 AM
+ * Created by mike on 4/05/15.
  */
-public interface Concept {
+public interface QueryInterface {
 
-    public Long getId();
+    String getCompany();
 
-    String getName();
+    // Saves parsing for ElasticSearch
+    String[] getTypes();
 
-    Collection<Relationship> getRelationships();
+    ArrayList<String> getRelationships();
 
+    ArrayList<String> getTags();
 
-    void addRelationships(Collection<Relationship> tempRlx);
-
-    boolean hasRelationship(String relationship);
+    String getSearchText();
 }

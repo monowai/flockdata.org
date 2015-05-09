@@ -1,0 +1,41 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "documentName": "test",
+  "header": false,
+  "delimiter": ",",
+  "quoteCharacter": "|",
+  "content": {
+    "0": {
+      "tag": true,
+      "target": "Year",
+      "label": "Year",
+      "relationship":"cycle"
+    },
+
+    "2": {
+      "tag": true,
+      "target": "institution",
+      "label": "Institution",
+      "name": "#row[institution].replace('|', ' ').trim()",
+      "code": "#row['1'].replace('|', ' ').trim()",
+      "targets": [
+        {
+          "code": "#row['5'].replace('|', ' ').trim()",
+          "label": "OSSector",
+          "mustExist": true,
+          "relationship": "represents"
+        }
+      ]
+    },
+    "12": {
+      "tag": true,
+      "relationship": "lives",
+      "dataType": "string",
+      "target": "zipCode",
+      "label": "ZipCode"
+    }
+
+  }
+}

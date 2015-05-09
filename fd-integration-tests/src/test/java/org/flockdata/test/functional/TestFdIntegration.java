@@ -556,7 +556,7 @@ public class TestFdIntegration {
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -672,7 +672,7 @@ public class TestFdIntegration {
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(su.getCompany().getName());
         queryParams.setFortress(fo.getName());
-        queryParams.setSimpleQuery("*");
+        queryParams.setSearchText("*");
         EsSearchResult results = queryService.search(su.getCompany(), queryParams);
         assertNotNull(results);
         assertEquals(1, results.getResults().size());
@@ -703,7 +703,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         String queryResult = runFdViewQuery(qp);
         assertNotNull(queryResult);
         assertTrue("Should be 2 query results - one with a metaKey and one without", queryResult.contains("\"totalHits\":2,"));
@@ -735,7 +735,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 2);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
@@ -778,7 +778,7 @@ public class TestFdIntegration {
         doEsQuery(EntitySearchSchema.PREFIX + "monowai." + fo.getCode(), "*", 1);
 
         QueryParams qp = new QueryParams(fo);
-        qp.setSimpleQuery("*");
+        qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
         assertNotNull(queryResults);
@@ -807,7 +807,7 @@ public class TestFdIntegration {
      */
     @Test
     public void query_MatrixResults() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## query_MatrixResults");
 
         SystemUser su = registerSystemUser("query_MatrixResults", "query_MatrixResults");
@@ -853,10 +853,18 @@ public class TestFdIntegration {
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName().toLowerCase());
         matrixInputBean.setFortresses(fortresses);
+        matrixInputBean.setByKey(false);
 
         MatrixResults matrixResults = matrixService.getMatrix(su.getCompany(), matrixInputBean);
-        assertEquals(2, matrixResults.getNodes().size());
+        assertEquals(null, matrixResults.getNodes());
         assertEquals(2, matrixResults.getEdges().size());
+
+        matrixInputBean.setByKey(true);
+        matrixResults = matrixService.getMatrix(su.getCompany(), matrixInputBean);
+
+        assertEquals(2, matrixResults.getEdges().size());
+        assertEquals(2, matrixResults.getNodes().size());
+
 
     }
     @Autowired
@@ -1206,7 +1214,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
 
-        QueryParams q = new QueryParams(fortress).setSimpleQuery(searchFor);
+        QueryParams q = new QueryParams(fortress).setSearchText(searchFor);
         doEsQuery(EntitySearchSchema.PREFIX + "*", searchFor, 1);
 
         String qResult = runQuery(q);

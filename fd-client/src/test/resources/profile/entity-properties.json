@@ -1,0 +1,95 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "documentName": "Contribution",
+  "quoteCharacter": "|",
+  "header": false,
+  "content": {
+    "0": {
+      "tag": true,
+      "label": "Year",
+      "relationship":"cycle"
+    },
+    "1": {
+      "callerRef": true
+    },
+    "2": {
+      "tag": true,
+      "label": "Contributor",
+      "name": "3",
+      "mustExist": false,
+      "relationship": "contributed",
+      "rlxProperties": [
+        {
+          "source": "9",
+          "target": "amount"
+        }
+      ]
+    },
+    "3": {
+      "title":true
+    },
+    "4": {
+      "tag": true,
+      "label": "Politician",
+      "mustExist": false,
+      "relationship": "received",
+      "rlxProperties": [
+        {
+          "source": "4",
+          "target": "value"
+        }
+      ]
+    },
+    "6": {
+      "tag": true,
+      "label": "Organization",
+      "name": "5",
+      "relationship": "contributed",
+      "rlxProperties": [
+        {
+          "source": "9",
+          "target": "amount"
+        }
+      ]
+    },
+    "13": {
+      "tag": true,
+      "relationship": "lives",
+      "dataType": "string",
+      "label": "ZipCode",
+      "targets": [
+        {
+          "relationship": "located",
+          "code": "11",
+          "label": "City",
+          "targets": [
+            {
+              "relationship": "city",
+              "code": "#row['12'] != null ? 'US-'+#row['12'] : null",
+              "label": "State",
+              "mustExist": true
+            }
+          ]
+        }
+      ]
+    },
+    "7": {
+      "tag": true,
+      "label": "OSCategory",
+      "mustExist": true,
+      "relationship": "industry"
+    },
+    "9": {
+      "properties": [
+        {
+          // Sets the value directly into the entity
+          // "source" defaults to the column identifier
+          "target": "value",
+          "dataType": "long"
+        }
+      ]
+    }
+  }
+}

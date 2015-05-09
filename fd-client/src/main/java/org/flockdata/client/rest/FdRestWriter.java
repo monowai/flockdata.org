@@ -287,8 +287,10 @@ public class FdRestWriter implements FdWriter {
     @Override
     public void close(TrackBatcher trackBatcher) throws FlockException {
         trackBatcher.flush();
-        if (amqpHelper != null)
+        if (amqpHelper != null) {
             amqpHelper.close();
+            amqpHelper = null;
+        }
     }
 
     public String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
@@ -303,7 +305,7 @@ public class FdRestWriter implements FdWriter {
 
     }
 
-    private AmqpHelper getAmqpHelper(ClientConfiguration configuration) {
+    private AmqpHelper getAmqpHelper(ClientConfiguration configuration) throws FlockException {
         if (amqpHelper == null)
             amqpHelper = new AmqpHelper(configuration);
         return amqpHelper;
@@ -403,11 +405,7 @@ public class FdRestWriter implements FdWriter {
             logger.error("FlockData server error processing Tags {}", getErrorMessage(e));
             return null;
         } catch (ResourceAccessException e) {
-            logger.error("Unable to talk to FD over the REST interface. Can't process this tag request");
-            if (configuration != null && configuration.isAmqp()) {
-                logger.info("This has not affected payloads being sent over AMQP");
-            }
-
+            logger.error("Unable to talk to FD over the REST interface. Can't process this tag request. " + (configuration != null && configuration.isAmqp()?"This does not affect sending payloads over AMQP":""));
             return null;
         }
     }
