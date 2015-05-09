@@ -110,7 +110,6 @@ public class TestTags extends EngineBase {
     public void updateExistingTag() throws Exception {
         cleanUpGraph();
         SystemUser iSystemUser = registerSystemUser("updateExistingTag", mike_admin);
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
@@ -130,7 +129,6 @@ public class TestTags extends EngineBase {
 
         assertNotNull(iSystemUser);
 
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
         Tag tag ;
         try {
             tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setMustExist(true));
@@ -476,10 +474,7 @@ public class TestTags extends EngineBase {
 
         assertNotNull(iSystemUser);
 
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "ABC"));
-        Tag tag ;
-
-        tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setLabel("MyLabel"));
+        Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPX").setLabel("MyLabel"));
         assertNotNull(tag);
         assertEquals ("MyLabel", tag.getLabel());
 
