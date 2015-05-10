@@ -173,7 +173,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             //if (trackResult.getContentInput().getWhen()!= null )
 
-            logger.debug("Setting preparedLog ");
+            logger.debug("Setting preparedLog for entity {}", entity);
             LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
             logResult.setLogToIndex(entityLog);
 

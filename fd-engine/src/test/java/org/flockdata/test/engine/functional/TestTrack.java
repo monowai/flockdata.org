@@ -84,6 +84,31 @@ public class TestTrack extends EngineBase {
     }
 
     @Test
+    public void fortress_CreateOnTrack() throws Exception {
+        logger.debug("### fortress_CreateOnTrack");
+        String callerRef = "fortress_CreateOnTrack";
+        SystemUser su = registerSystemUser("fortress_CreateOnTrack");
+        String fortressName = "fortress_CreateOnTrack";
+        EntityInputBean inputBean = new EntityInputBean(fortressName, "poppy", "CompanyNode", DateTime.now(), callerRef);
+
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        List<EntityInputBean> entityInputBeans = new ArrayList<>();
+        entityInputBeans.add(inputBean);
+
+        mediationFacade.trackEntities(entityInputBeans, su.getApiKey());
+        Fortress fortress = fortressService.getFortress(su.getCompany(), fortressName);
+        assertNotNull (fortress);
+        assertFalse ( fortress.isSearchActive());
+        Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
+        assertNotNull(entity);
+        waitForFirstLog(su.getCompany(), entity);
+
+        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+        assertNotNull(logs);
+        assertEquals("Single log didn't exist when fortress created during initial track", 1, logs.size());
+    }
+
+    @Test
     public void duplicateCallerRefMultipleLastChange() throws Exception {
         logger.debug("### duplicateCallerRefMultipleLastChange");
         String callerRef = "dcABC1";

@@ -50,7 +50,7 @@ public class KvConfig implements FdKvConfig {
 
     private KV_STORE kvStore = null;
 
-    private Boolean versionEnabled = true;
+    private Boolean storeEnabled = true;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -127,13 +127,14 @@ public class KvConfig implements FdKvConfig {
      *
      * @param storeEnabled defaults to true
      */
-    @Value("${fd-engine.system.version}")
+
+    @Value("${fd-store.enabled}")
     public void setStoreEnabled(String storeEnabled) {
-        this.versionEnabled = !"@null".equals(storeEnabled) && Boolean.parseBoolean(storeEnabled);
+        this.storeEnabled = "@null".equals(storeEnabled) || Boolean.parseBoolean(storeEnabled);
     }
 
     public Boolean getStoreEnabled(){
-        return this.versionEnabled;
+        return this.storeEnabled;
     }
 
     /**

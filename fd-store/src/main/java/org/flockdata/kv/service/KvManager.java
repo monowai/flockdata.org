@@ -110,7 +110,7 @@ public class KvManager implements KvService {
     public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         try {
             // ToDo: Retry or CircuitBreaker?
-            logger.trace("Received request to add kvBean {}", kvBean);
+            logger.debug("Received request to add kvBean {}", kvBean);
             getKvRepo(KV_STORE.valueOf(kvBean.getStorage())).add(kvBean);
 
         } catch (IOException e) {

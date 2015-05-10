@@ -45,6 +45,20 @@ public class EsSearchResult {
         this.results = results;
     }
 
+    public byte[] getJson() {
+        return json;
+    }
+
+    public void setJson(byte[] json) {
+        this.json = json;
+    }
+
+    private byte[] json;
+
+    public EsSearchResult (byte[] json){
+        this.json = json;
+    }
+
     public EsSearchResult(Map<String, Object> source) {
         this.what = source;
         this.kvResponse = true;

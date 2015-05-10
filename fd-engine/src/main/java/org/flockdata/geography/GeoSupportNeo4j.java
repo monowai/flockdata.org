@@ -42,7 +42,7 @@ public class GeoSupportNeo4j {
 
     @Cacheable(value = "geoData", key = "#loc.Id")
     public GeoData getGeoData(Tag loc) {
-        logger.debug ( "Cache miss for {}", loc.getCode() );
+        logger.debug ( "Cache miss for {}", loc.getId() );
         String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
