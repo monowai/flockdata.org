@@ -79,7 +79,7 @@ public class TestTagDeadlock extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tagsUnderLoad", true));
             int tagCount = 1;
             int runCount = 1;
-            int threadMax = 10;
+            int threadMax = 4;
 
             List<TagInputBean> tags = getTags(tagCount, false);
 

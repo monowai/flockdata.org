@@ -78,6 +78,7 @@ public class EngineConfig implements PlatformConfig {
 
     private boolean duplicateRegistration;
     private boolean testMode;
+    private boolean searchEnabled =true;
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -101,7 +102,7 @@ public class EngineConfig implements PlatformConfig {
 
     @Value("${fdengine.multiTenanted:@null}")
     protected void setMultiTenanted(String multiTenanted) {
-        this.multiTenanted = !"@null".equals(multiTenanted) && Boolean.parseBoolean(multiTenanted);
+        this.multiTenanted = !"@null".equals(multiTenanted) || Boolean.parseBoolean(multiTenanted);
     }
 
     /**
@@ -119,6 +120,16 @@ public class EngineConfig implements PlatformConfig {
         return kvConfig.getStoreEnabled();
     }
 
+    public Boolean isSearchEnabled() {
+        return searchEnabled;
+    }
+
+    @Value("${fd-search.enabled:@null}")
+    public void setSearchEnabled(String searchEnabled) {
+        this.searchEnabled = "@null".equals(searchEnabled) || Boolean.parseBoolean(searchEnabled);
+    }
+
+
     /**
      * Should be disabled for testing purposes
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
@@ -126,7 +137,7 @@ public class EngineConfig implements PlatformConfig {
     @Override
     @Value("${fd-engine.concepts.enabled:@null}")
     public void setConceptsEnabled(String conceptsEnabled) {
-        this.conceptsEnabled = !"@null".equals(conceptsEnabled) && Boolean.parseBoolean(conceptsEnabled);
+        this.conceptsEnabled = "@null".equals(conceptsEnabled) || Boolean.parseBoolean(conceptsEnabled);
     }
 
     @Override

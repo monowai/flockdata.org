@@ -22,6 +22,7 @@ package org.flockdata.kv.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.KvContent;
@@ -87,7 +88,14 @@ public class KvContentBean implements KvContent, Serializable{
         }
     }
 
+    public static String parseBucket(EntityBean entity) {
+        if ( entity == null )
+            return null;
+        return (entity.getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
+    }
+
     public static String parseBucket(Entity entity) {
+        // ToDo: Figure this out - DAT-419
         if ( entity == null )
             return null;
         return (entity.getFortress().getIndexName() + "/" + entity.getDocumentType()).toLowerCase();

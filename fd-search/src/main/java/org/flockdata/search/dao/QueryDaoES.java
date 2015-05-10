@@ -387,6 +387,6 @@ public class QueryDaoES implements QueryDao {
                         .execute()
                         .actionGet();
 
-        return new EsSearchResult(response.getSourceAsMap());
+        return new EsSearchResult(response.getSourceAsBytes());
     }
 }

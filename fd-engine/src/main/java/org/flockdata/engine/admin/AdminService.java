@@ -78,7 +78,7 @@ public class AdminService implements EngineAdminService {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(indexName);
-        logger.info ("Completed purge of fortress [{}]", fortress);
+        logger.info ("Completed purge of indexed data [{}]", indexName);
         return new AsyncResult<>(true);
 
     }

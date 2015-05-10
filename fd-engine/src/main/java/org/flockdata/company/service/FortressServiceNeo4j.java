@@ -220,6 +220,14 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
+    public Fortress registerFortress(Company company, String fortressName) {
+        FortressInputBean fib = new FortressInputBean(fortressName,
+                !engineConfig.isSearchEnabled());
+        return registerFortress(company, fib, true);
+
+    }
+
+    @Override
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());

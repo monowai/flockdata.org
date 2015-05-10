@@ -836,7 +836,7 @@ public class TestEntityTags extends EngineBase {
         // Force a change to be detected
         ContentInputBean alb = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         updatedEntity.setContent(alb);
-        // Updating an existing ENtity but the tagCollection is minus TEST-CREATE tag
+        // Updating an existing Entity but the tagCollection is minus TEST-CREATE tag
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
         updatedEntity.addTag(new TagInputBean("TEST-UPDATE", "camel"));
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);

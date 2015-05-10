@@ -71,6 +71,7 @@ public class TrackResultBean implements Serializable {
 
     }
 
+    @Deprecated // Use getEntityBean. ToDo: Figure this out
     public TrackResultBean(Entity entity) {
         this.entityBean = new EntityBean(entity);
 
@@ -201,4 +202,10 @@ public class TrackResultBean implements Serializable {
         return index;
     }
 
+    @Override
+    public String toString() {
+        return "TrackResultBean{" +
+                "entity=" + entity +
+                '}';
+    }
 }
