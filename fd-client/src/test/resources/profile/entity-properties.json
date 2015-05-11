@@ -22,8 +22,7 @@
       "relationship": "contributed",
       "rlxProperties": [
         {
-          "source": "9",
-          "target": "amount"
+          "source": "value"
         }
       ]
     },
@@ -37,8 +36,7 @@
       "relationship": "received",
       "rlxProperties": [
         {
-          "source": "4",
-          "target": "value"
+          "source": "value"
         }
       ]
     },
@@ -49,8 +47,7 @@
       "relationship": "contributed",
       "rlxProperties": [
         {
-          "source": "9",
-          "target": "amount"
+          "source": "value"
         }
       ]
     },

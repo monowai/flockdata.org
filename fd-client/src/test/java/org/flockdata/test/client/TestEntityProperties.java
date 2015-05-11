@@ -31,12 +31,12 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by mike on 6/05/15.
@@ -59,6 +59,7 @@ public class TestEntityProperties extends AbstractImport {
 
         for (EntityInputBean entity : entities) {
             assertNotEquals("One org and one candidate", 0, entity.getTags().size());
+            assertNotNull(entity.getWhen());
             for (TagInputBean tagInputBean : entity.getTags()) {
                 switch ( tagInputBean.getLabel()) {
                     case "Year":
@@ -68,11 +69,22 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("j10013521891", tagInputBean.getCode());
                         assertNotNull(tagInputBean.getName());
                         assertNotSame(tagInputBean.getName(), tagInputBean.getCode());
+                        Map<String,Object> igRlx = tagInputBean.getEntityLinks();
+                        assertFalse(igRlx.isEmpty());
+                        Map valueMap = (Map) igRlx.get("contributed");
+                        assertTrue(valueMap.containsKey("value"));
+                        assertTrue(Double.parseDouble(valueMap.get("value").toString()) != 0);
+
                         break;
                     case "OSCategory":
                         assertEquals("G6400", tagInputBean.getCode());
                         break;
                     case "Politician":
+                        Map<String,Object> rlx = tagInputBean.getEntityLinks();
+                        assertFalse(rlx.isEmpty());
+                        Map valMap = (Map) rlx.get("received");
+                        assertTrue(valMap.containsKey("value"));
+                        assertTrue(Double.parseDouble(valMap.get("value").toString()) != 0);
                         break;
                     case "ZipCode":
                         assertEquals("Zip code should not be turned to a number. Should be preserved as a string", "07450", tagInputBean.getCode());
