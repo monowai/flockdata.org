@@ -26,6 +26,7 @@ import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.slf4j.Logger;
@@ -69,25 +70,28 @@ public class TagDaoNeo4j {
         return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
 
-    public Collection<Tag> save(Company company, Iterable<TagInputBean> tagInputs) {
+    public Collection<TagResultBean> save(Company company, Iterable<TagInputBean> tagInputs) {
         return save(company, tagInputs, false);
     }
 
-    public Collection<Tag> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
+    public Collection<TagResultBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<TagInputBean> errorResults = new ArrayList<>();
         List<String> createdValues = new ArrayList<>();
-        Collection<Tag> results = new ArrayList<>();
+        Collection<TagResultBean> results = new ArrayList<>();
+        TagResultBean tagResultBean ;
+        Tag tag = null;
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-                results.add(
-                        save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships)
-                );
+//                tagResultBean = new TagResultBean()
+  //              results.add(
+                tag = save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships);
             } catch (FlockDataTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
                 tagInputBean.getServiceMessage(te.getMessage());
-                errorResults.add(tagInputBean);
+
             }
+            tagResultBean = new TagResultBean(tagInputBean, tag);
+            results.add(tagResultBean);
 
         }
         return results;

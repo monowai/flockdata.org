@@ -384,13 +384,13 @@ public class FdRestWriter implements FdWriter {
         return restTemplate;
     }
 
-    public String flushTags(List<TagInputBean> tagInputBean) throws FlockException {
-        if (tagInputBean.isEmpty())
+    public String flushTags(List<TagInputBean> tagInputs) throws FlockException {
+        if (tagInputs.isEmpty())
             return "OK";
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputBean, httpHeaders);
+        HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputs, httpHeaders);
 
         try {
             // ToDo logServerMessage - error state will be returned in arraylist
@@ -415,9 +415,11 @@ public class FdRestWriter implements FdWriter {
         if (x != null)
             for (Object val : x) {
                 Map map = (Map) val;
-                Object serviceMessage = map.get("serviceMessage");
-                if (serviceMessage != null)
-                    logger.error("Service returned [{}]", serviceMessage.toString());
+                if (map.containsKey("serviceMessage")) {
+                    Object serviceMessage = map.get("serviceMessage");
+                    if (serviceMessage != null)
+                        logger.error("Service returned [{}]", serviceMessage.toString());
+                }
             }
     }
 

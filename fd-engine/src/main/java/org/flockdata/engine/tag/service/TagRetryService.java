@@ -22,8 +22,8 @@ package org.flockdata.engine.tag.service;
 import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
@@ -68,14 +68,13 @@ public class TagRetryService {
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Async("fd-track")
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
-    public Future<Collection<Tag>> createTagsFuture(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if (tagInputBeans.isEmpty())
-            return new AsyncResult<>(new ArrayList<>());
+            return new ArrayList<>();
         boolean schemaReady;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
@@ -83,14 +82,17 @@ public class TagRetryService {
         logger.debug("Schema Indexes appear to be in place");
 
         try {
-            return new AsyncResult<>(tagService.createTags(company, tagInputBeans));
+            return tagService.createTags(company, tagInputBeans);
         } catch (FlockException e) {
             throw (e);
         } catch (IOException | ExecutionException | InterruptedException e) {
             logger.error("Track Error", e);
         }
-        return new AsyncResult<>(new ArrayList<>());
+        return new ArrayList<>();
     }
 
-
+    @Async("fd-track")
+    public Future<Collection<TagResultBean>> createTagsFuture(Company company, List<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
+        return new AsyncResult<>(createTags(company, tags));
+    }
 }
