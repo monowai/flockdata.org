@@ -72,7 +72,7 @@ public class TestTagDeadlock extends EngineBase {
     public void tagsUnderLoad() throws Exception {
 
         try {
-            cleanUpGraph();
+
             String companyName = "tagsUnderLoad";
             SystemUser su = registerSystemUser(companyName, "tagsUnderLoad");
             setSecurity();
