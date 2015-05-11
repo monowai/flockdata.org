@@ -54,6 +54,12 @@
         }
       ]
     },
+    "8": {
+      "target": "contributionDate",
+      "dateFormat": "MM/dd/yyyy",
+      "createDate" :true
+    },
+
     "13": {
       "tag": true,
       "relationship": "lives",
@@ -82,11 +88,9 @@
       "relationship": "industry"
     },
     "9": {
+      "target": "value",
       "properties": [
         {
-          // Sets the value directly into the entity
-          // "source" defaults to the column identifier
-          "target": "value",
           "dataType": "long"
         }
       ]
