@@ -99,7 +99,10 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleInternal( Exception ex) {
         logger.error("Error 500", ex);
-        return new JsonMessage(ex.getCause().getMessage()).asModelAndViewError();
+        if ( ex.getCause() !=null )
+            return new JsonMessage(ex.getCause().getMessage()).asModelAndViewError();
+        else
+            return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
 
 }

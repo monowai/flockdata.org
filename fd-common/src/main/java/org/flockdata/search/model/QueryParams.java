@@ -66,9 +66,10 @@ public class QueryParams implements QueryInterface{
         this.company = company.getName();
         this.rowsPerPage = input.getSampleSize();
         this.tags = input.getConcepts();
-        if ( !input.getFromRlxs().isEmpty())
+        if ( input.getFromRlxs()!=null && !input.getFromRlxs().isEmpty())
             this.relationships.addAll(input.getFromRlxs());
-        if ( !input.getToRlxs().isEmpty())
+
+        if ( input.getToRlxs()!=null && !input.getToRlxs().isEmpty())
             this.relationships.addAll(input.getToRlxs());
 
         if ( input.getDocuments()!=null && !input.getDocuments().isEmpty()) {
