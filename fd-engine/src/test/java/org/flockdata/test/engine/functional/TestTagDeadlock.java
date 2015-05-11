@@ -68,6 +68,11 @@ public class TestTagDeadlock extends EngineBase {
     }
 
     @Test
+    public void testDisabled(){
+        // DAT-422 -
+    }
+
+    //
     @Repeat (value = 1)
     public void tagsUnderLoad() throws Exception {
 
