@@ -118,21 +118,28 @@ public class EntityServiceNeo4J implements EntityService {
             entityInputBean.setMetaKey(entity.getMetaKey());
 
             logger.trace("Existing entity [{}]", entity);
-            TrackResultBean arb = new TrackResultBean(fortress, entity, entityInputBean);
-            arb.entityExisted();
-            arb.setContentInput(entityInputBean.getContent());
-            arb.setDocumentType(documentType);
+            TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
+            trackResult.entityExisted();
+            trackResult.setContentInput(entityInputBean.getContent());
+            trackResult.setDocumentType(documentType);
             if (entityInputBean.getContent() != null && entityInputBean.getContent().getWhen() != null) {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
                 entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
             }
+            if ( entityInputBean.getProperties()!=null) {
+                if ( entity.setProperties(entityInputBean.getProperties())) {
+                    entityDao.save(entity);
+
+                }
+
+            }
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
-            arb.setTags(
+            trackResult.setTags(
                     entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean)
             );
-            return arb;
+            return trackResult;
         }
 
         try {

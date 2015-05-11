@@ -104,7 +104,7 @@ public class EntityNode implements Entity {
 
     public static final String UUID_KEY = "metaKey";
 
-    private int search=0;
+    private int search = 0;
 
     //@Indexed
     private String searchKey = null;
@@ -130,22 +130,22 @@ public class EntityNode implements Entity {
 
     }
 
-    public EntityNode(String uniqueKey,Fortress fortress,  @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public EntityNode(String uniqueKey, Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
-        assert fortress!=null;
+        assert fortress != null;
 
         labels.add(documentType.getName());
         metaKey = uniqueKey;
-        this.fortress = (FortressNode)fortress;//(FortressNode)documentType.getFortress();
+        this.fortress = (FortressNode) fortress;//(FortressNode)documentType.getFortress();
         // DAT-278
         String docType = documentType.getName();
-        if ( docType == null)
+        if (docType == null)
             docType = documentType.getCode();
 
-        if ( docType == null )
-            throw new RuntimeException("Unable to resolve the doc type code ["+documentType+"] for  "+entityInput)  ;
+        if (docType == null)
+            throw new RuntimeException("Unable to resolve the doc type code [" + documentType + "] for  " + entityInput);
 
         isNew = true;
 
@@ -171,10 +171,10 @@ public class EntityNode implements Entity {
         if (when == null)
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
-            fortressCreate = new DateTime (when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
+            fortressCreate = new DateTime(when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
 
         lastUpdate = 0l;
-        if ( entityInput.isMetaOnly())
+        if (entityInput.isMetaOnly())
             this.event = entityInput.getEvent();
         this.suppressSearch(entityInput.isSearchSuppressed());
 
@@ -219,7 +219,7 @@ public class EntityNode implements Entity {
     public String getDocumentType() {
         // DAT-278
         for (String label : labels) {
-            if (!label.equalsIgnoreCase("_Entity") && ! label.equalsIgnoreCase("Entity"))
+            if (!label.equalsIgnoreCase("_Entity") && !label.equalsIgnoreCase("Entity"))
                 return label.toLowerCase();
         }
         return null;
@@ -288,13 +288,13 @@ public class EntityNode implements Entity {
                 "id=" + id +
                 ", metaKey='" + metaKey + '\'' +
                 ", name='" + name + '\'' +
-                ", fortress='" +fortress+ '\'' +
+                ", fortress='" + fortress + '\'' +
                 '}';
     }
 
     @Override
     public void bumpUpdate() {
-        if ( id != null )
+        if (id != null)
             lastUpdate = new DateTime().toDateTime(DateTimeZone.UTC).toDateTime().getMillis();
     }
 
@@ -367,7 +367,7 @@ public class EntityNode implements Entity {
     }
 
     public void setCreatedBy(FortressUser createdBy) {
-        this.createdBy = (FortressUserNode)createdBy;
+        this.createdBy = (FortressUserNode) createdBy;
     }
 
     public Log getLastChange() {
@@ -378,7 +378,7 @@ public class EntityNode implements Entity {
         this.lastChange = lastChange;
     }
 
-    public void addLabel(String label){
+    public void addLabel(String label) {
         labels.add(label);
     }
 
@@ -388,6 +388,23 @@ public class EntityNode implements Entity {
 
     public void setNew(boolean status) {
         this.isNew = status;
+    }
+
+    @Override
+    public boolean setProperties(Map<String, Object> properties) {
+        boolean modified = false;
+        for (String s : properties.keySet()) {
+            if (props.hasProperty(s)) {
+                if (props.getProperty(s) != properties.get(s))
+                    modified = true;
+            } else
+                modified = true;
+
+
+        }
+        if (modified)
+            props = new DynamicPropertiesContainer(properties);
+        return modified;
     }
 
     @Override
