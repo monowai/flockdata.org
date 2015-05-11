@@ -147,7 +147,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (tagInputs.isEmpty())
             return null;
 
-        return tagRetryService.createTags(company, tagInputs);
+        return tagRetryService.createTagsFuture(company, tagInputs).get();
     }
 
     /**
