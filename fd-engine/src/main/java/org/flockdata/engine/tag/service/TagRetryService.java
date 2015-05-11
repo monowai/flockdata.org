@@ -91,7 +91,7 @@ public class TagRetryService {
         return new ArrayList<>();
     }
 
-    @Async("fd-track")
+    @Async("fd-tag")
     public Future<Collection<TagResultBean>> createTagsFuture(Company company, List<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
         return new AsyncResult<>(createTags(company, tags));
     }
