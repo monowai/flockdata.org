@@ -37,27 +37,25 @@ public class GeoData {
     private String country;
 
     private String state;
+
     private String stateCode;
     private String city;
-    private Map<String, Double>coord = new HashMap<>();
+    private Map<String, Double> coord = new HashMap<>();
 
     public GeoData(String isoCode, String countryName, String city, String stateName) {
         this();
         if (city != null)
             setCity(city);
 
-        if (countryName != null) {
-            // ToDo: Needs to be a Country object
-            setIsoCode(isoCode);
-            setCountry(countryName);
-//            if (lon != null && lat != null)
-//                setLatLong(lat, lon);
-        }
-        if (stateName != null)
-            setState(stateName);
+        // ToDo: Needs to be a Country object
+        setIsoCode(isoCode);
+        setCountry(countryName);
+
+        setState(stateName);
     }
 
-    GeoData() {}
+    GeoData() {
+    }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getState() {
@@ -104,10 +102,10 @@ public class GeoData {
 
     public void setLatLong(Double lat, Double lon) {
         // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
-        if (lat!=null && lon !=null ) {
+        if (lat != null && lon != null) {
             coord.put("lat", lat);
             coord.put("lon", lon);
-            geoPoint=  lat.toString() +","+lon.toString();
+            geoPoint = lat.toString() + "," + lon.toString();
         }
     }
 
@@ -117,16 +115,16 @@ public class GeoData {
     }
 
     @JsonIgnore
-    public Map<String,Double> getGeoMap() {
+    public Map<String, Double> getGeoMap() {
         return coord;
     }
 
     @JsonIgnore
     public boolean isValid() {
-        if ( coord.isEmpty())
+        if (coord.isEmpty())
             return false;
 
-        return coord.get("lat") !=null && coord.get("lon") !=null;
+        return coord.get("lat") != null && coord.get("lon") != null;
     }
 
     public void setStateCode(String stateCode) {
@@ -138,10 +136,16 @@ public class GeoData {
         return points;
     }
 
-    Map<String,String>points = new HashMap<>();
+    Map<String, String> points = new HashMap<>();
 
     public void setLatLong(String key, Double lat, Double lon) {
-        if ( lat!=null && lon!=null )
-            points.put(key,lat.toString() +","+lon.toString() );
+        if (lat != null && lon != null)
+            points.put(key, lat.toString() + "," + lon.toString());
     }
+
+    public String getStateCode() {
+        return stateCode;
+    }
+
+
 }

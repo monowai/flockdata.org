@@ -77,11 +77,11 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     public void processTag(Entity entity, EntityTagInputBean entityTagInput) {
         String relationshipName = entityTagInput.getType();
 
-        boolean existing = relationshipExists(entity, entityTagInput.getTagName(), relationshipName);
+        boolean existing = relationshipExists(entity, entityTagInput.getTagCode(), relationshipName);
         if (existing)
             // We already have this tagged so get out of here
             return;
-        Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagName());
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagCode());
         template.save(getRelationship(entity, tag, relationshipName, false, new HashMap<>()));
     }
 

@@ -120,7 +120,7 @@ public class TestTags extends EngineBase {
         tagService.findTag(iSystemUser.getCompany(),"FLOP");
         result = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
-        assertEquals("FLOPPY", result.getName());
+        assertEquals("FLOPPY", result.getCode());
 
     }
 
@@ -205,7 +205,7 @@ public class TestTags extends EngineBase {
         assertNotNull(tag);
         Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
         assertNotNull(result);
-        assertEquals("FLOP", result.getName());
+        assertEquals("FLOP", result.getCode());
         assertNotSame(123, result.getId());
 
     }

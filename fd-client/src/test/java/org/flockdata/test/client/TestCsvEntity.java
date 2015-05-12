@@ -234,7 +234,7 @@ public class TestCsvEntity {
                 assertEquals("No targets tag present", 1, tagInputBean.getTargets().size());
                 TagInputBean athlete = tagInputBean.getTargets().get("at-age").iterator().next();
                 assertNotNull(athlete);
-                assertEquals("Michael Phelps", athlete.getName());
+                assertEquals("Michael Phelps", athlete.getCode());
                 assertEquals("Athlete", athlete.getLabel());
                 assertFalse("Direction not defaulted", athlete.isReverse());
             }
@@ -269,19 +269,19 @@ public class TestCsvEntity {
         assertNotNull( locatedTags.get("located"));
         TagInputBean cityTag = locatedTags.get("located").iterator().next();
         assertNotNull(cityTag);
-        assertEquals("San Francisco", cityTag.getName());
+        assertEquals("San Francisco", cityTag.getCode());
         assertEquals("City", cityTag.getLabel());
 
         Map<String, Collection<TagInputBean>> stateTags = cityTag.getTargets();
         assertEquals(1, stateTags.size());
         TagInputBean stateTag = stateTags.get("city").iterator().next();
         assertNotNull(stateTag);
-        assertEquals("CA", stateTag.getName());
+        assertEquals("CA", stateTag.getCode());
 
         Map<String, Collection<TagInputBean>> countryTags = stateTag.getTargets();
         TagInputBean countryTag = countryTags.get("state").iterator().next();
         assertNotNull(countryTag);
-        assertEquals("United States", countryTag.getName());
+        assertEquals("United States", countryTag.getCode());
         assertEquals(true, countryTag.isMustExist());
 
     }
@@ -302,7 +302,7 @@ public class TestCsvEntity {
 //        colDef = params.getColumnDef(headers[1]);
         Assert.assertEquals(3, mapper.getTags().size());
         for (TagInputBean tagInputBean : mapper.getTags()) {
-            String name = tagInputBean.getName();
+            String name = tagInputBean.getCode();
             boolean tagA, tagB, tagC;
             tagA = name.equals("TagA");
             tagB = name.equals("TagB");

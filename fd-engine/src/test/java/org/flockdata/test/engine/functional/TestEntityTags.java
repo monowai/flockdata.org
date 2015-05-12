@@ -138,16 +138,16 @@ public class TestEntityTags extends EngineBase {
             // This should have happened
         }
         // First entityTag created
-        entityTag = new EntityTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
+        entityTag = new EntityTagInputBean(entity.getMetaKey(), flopTag.getCode(), "ABC");
 
         entityTagService.processTag(entity, entityTag);
 
-        Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getName(), "ABC");
+        Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getCode(), "ABC");
         assertTrue("Tag not found " + flopTag.getName(), tagRlxExists);
 
         entityTagService.processTag(entity, entityTag);
         // Behaviour - Can't add the same tagValue twice for the same combo
-        tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getName(), "ABC");
+        tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getCode(), "ABC");
         assertTrue(tagRlxExists);
     }
 
@@ -168,10 +168,10 @@ public class TestEntityTags extends EngineBase {
 
         assertEquals(fCreated.getMillis(), entity.getFortressDateCreated().getMillis());
 
-        EntityTagInputBean tagA = new EntityTagInputBean(entity.getMetaKey(), flopTag.getName(), "ABC");
+        EntityTagInputBean tagA = new EntityTagInputBean(entity.getMetaKey(), flopTag.getCode(), "ABC");
         entityTagService.processTag(entity, tagA);
 
-        Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getName(), "ABC");
+        Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getCode(), "ABC");
         assertTrue("Tag not found " + flopTag.getName(), tagRlxExists);
 
         Collection<EntityTag> entityTags = entityTagService.getEntityTags(entity);
@@ -193,7 +193,7 @@ public class TestEntityTags extends EngineBase {
         entityTags = entityTagService.getEntityTags(entity);
         assertEquals(2, entityTags.size());
         for (EntityTag tag : entityTags) {
-            if (tag.getTag().getName().equalsIgnoreCase(flopTag.getName()))
+            if (tag.getTag().getCode().equalsIgnoreCase(flopTag.getCode()))
                 assertEquals("Date did not correspond to the Fortress created date", entity.getFortressDateCreated().getMillis(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
             else
                 assertEquals("Date did not correspond to the Fortress updated date", entity.getFortressDateUpdated().longValue(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
@@ -251,7 +251,7 @@ public class TestEntityTags extends EngineBase {
         assertFalse(entityTagService.relationshipExists(entity, "TagC", "!!Twee!!"));//
         // Remove a single tag
         for (EntityTag value : tagSet) {
-            if (value.getTag().getName().equals("TagC"))
+            if (value.getTag().getCode().equals("TagC"))
                 entityTagService.changeType(entity, value, "!!Twee!!");
         }
 
@@ -282,7 +282,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(4, tagSet.size());
         // Remove a single tag
         for (EntityTag value : tagSet) {
-            if (value.getTag().getName().equals("TagB"))
+            if (value.getTag().getCode().equals("TagB"))
                 entityTagService.deleteEntityTags(entity, value);
         }
         tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -290,7 +290,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(3, tagSet.size());
         // Ensure that the deleted tag is not in the results
         for (EntityTag entityTag : tagSet) {
-            assertFalse(entityTag.getTag().getName().equals("TagB"));
+            assertFalse(entityTag.getTag().getCode().equals("TagB"));
         }
     }
 
@@ -345,7 +345,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
         TagInputBean tag = new TagInputBean("TagD", "DDDD");
-        tag.setCode(null); // This gets set to null if not supplied over an endpoint
+        tag.setName(null);
         entityInput.addTag(tag);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
@@ -680,7 +680,7 @@ public class TestEntityTags extends EngineBase {
         assertFalse(tags.isEmpty());
 
         for (EntityTag tag : tags) {
-            Assert.assertEquals("mikecorp", tag.getTag().getName());
+            Assert.assertEquals("mikecorp", tag.getTag().getCode());
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
             org.junit.Assert.assertFalse(cities.isEmpty());
             Tag cityTag = cities.iterator().next();
@@ -760,7 +760,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), result.getEntity());
         assertEquals(2, tags.size());
         for (EntityTag tag : tags) {
-            assertTrue(tag.getTag().getName().equals(institution.getName()) || tag.getTag().getName().equals(cityTag.getName()));
+            assertTrue(tag.getTag().getCode().equals(institution.getCode()) || tag.getTag().getCode().equals(cityTag.getCode()));
         }
 
     }
@@ -778,7 +778,7 @@ public class TestEntityTags extends EngineBase {
         String city = "Los Angeles";
 
         TagInputBean countryInputTag = new TagInputBean(country, "Country", "");
-        TagInputBean cityInputTag = new TagInputBean(city, ":City", "");
+        TagInputBean cityInputTag = new TagInputBean("LA", ":City", "").setName(city);
         TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
 
         TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
@@ -798,9 +798,9 @@ public class TestEntityTags extends EngineBase {
         //assertFalse(tags.isEmpty());
 
         for (EntityTag tag : tags) {
-            assertEquals("mikecorp", tag.getTag().getName());
+            assertEquals("mikecorp", tag.getTag().getCode());
             assertNotNull(tag.getGeoData());
-            assertEquals("CA", tag.getGeoData().getState());
+            assertEquals("CA", tag.getGeoData().getStateCode());
             assertEquals("Los Angeles", tag.getGeoData().getCity());
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
             org.junit.Assert.assertFalse(cities.isEmpty());
@@ -855,7 +855,7 @@ public class TestEntityTags extends EngineBase {
 
         results = entityService.getLogTags(su.getCompany(), firstLog.getEntityLog());
         assertEquals(1, results.size());
-        Assert.assertEquals("TEST-CREATE", results.iterator().next().getTag().getName());
+        Assert.assertEquals("TEST-CREATE", results.iterator().next().getTag().getCode());
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
 
@@ -1011,7 +1011,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> outboundTags = entityTagService.findInboundTags(created);
         assertEquals("One tag should be reversed", 1, outboundTags.size());
         EntityTag trackOut = outboundTags.iterator().next();
-        Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
+        Assert.assertEquals("TAG-IN", trackOut.getTag().getCode());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals(99, trackOut.getWeight().intValue());
@@ -1041,7 +1041,7 @@ public class TestEntityTags extends EngineBase {
         // Check that we still have our custom properties
         outboundTags = entityTagService.getEntityTags(created);
         trackOut = outboundTags.iterator().next();
-        Assert.assertEquals("TAG-IN", trackOut.getTag().getName());
+        Assert.assertEquals("TAG-IN", trackOut.getTag().getCode());
         assertEquals("blah", trackOut.getProperties().get("stringTest"));
         assertEquals(100d, trackOut.getProperties().get("doubleTest"));
         assertEquals(99, trackOut.getWeight().intValue());
@@ -1219,7 +1219,7 @@ public class TestEntityTags extends EngineBase {
 
         boolean found = false;
         for (EntityTag entityTag : entityTags) {
-            if (entityTag.getTag().getName().equals(tagName)) {
+            if (entityTag.getTag().getCode().equals(tagName)) {
                 found = true;
                 break;
             }
