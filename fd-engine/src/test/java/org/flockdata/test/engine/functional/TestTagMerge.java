@@ -61,9 +61,9 @@ public class TestTagMerge extends EngineBase {
         assertEquals(1, entityTagService.getEntityTags(entityA).size()) ;
         assertEquals(1, entityTagService.getEntityTags(entityB).size()) ;
 
-        Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getName());
+        Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getCode());
         assertNotNull ( tagA);
-        Tag tagB = tagService.findTag(su.getCompany(), tagInputB.getName());
+        Tag tagB = tagService.findTag(su.getCompany(), tagInputB.getCode());
         assertNotNull ( tagB);
 
         // The above is the setup. We will look to merge tagA into tagB. The end result will be that
@@ -79,12 +79,12 @@ public class TestTagMerge extends EngineBase {
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
-        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), tagInputA.getName()));
+        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), tagInputA.getCode()));
         tags = entityTagService.getEntityTags(entityB);
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
-        assertEquals(2, entityTagService.findEntityTags(su.getCompany(), tagInputB.getName()).size());
+        assertEquals(2, entityTagService.findEntityTags(su.getCompany(), tagInputB.getCode()).size());
 
         //assertEquals("rlxA", tags.iterator().next().);
 
@@ -104,7 +104,7 @@ public class TestTagMerge extends EngineBase {
         // Creating the tag for an entity
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        Tag tag = tagService.findTag(su.getCompany(), tagInput.getName());
+        Tag tag = tagService.findTag(su.getCompany(), tagInput.getCode());
         assertNotNull ( tag);
 
         // The above is the setup.

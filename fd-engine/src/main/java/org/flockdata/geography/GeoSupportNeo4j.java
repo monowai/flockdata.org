@@ -96,8 +96,8 @@ public class GeoSupportNeo4j {
         String stateName = null, stateCode = null;
 
         String cityName;
-        if (city != null && city.hasProperty("name"))
-            cityName = city.getProperty("name").toString();
+        if (city != null && city.hasProperty("code"))
+            cityName = city.getProperty("code").toString();
         else
             cityName = (String) loc.getProperty("name");
 
