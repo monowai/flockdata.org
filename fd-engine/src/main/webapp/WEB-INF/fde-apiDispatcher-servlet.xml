@@ -44,6 +44,7 @@
             <mvc:mapping path="/query/**"/>
             <mvc:mapping path="/company/**"/>
             <mvc:mapping path="/track/**"/>
+            <mvc:mapping path="/entity/**"/>
             <mvc:mapping path="/admin/**"/>
             <mvc:mapping path="/batch/**"/>
             <mvc:exclude-mapping path="/admin/ping/**"/>
