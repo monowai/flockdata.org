@@ -30,7 +30,7 @@ import org.springframework.integration.annotation.Gateway;
  */
 public interface EsGateway {
 
-    @Gateway(requestChannel = "sendKvSearchRequest", replyChannel = "receiveContentReply" )
-    public EsSearchResult get(QueryParams queryParams);
+    @Gateway(requestChannel = "sendKvSearchRequest", replyChannel = "receiveContentReply")
+    EsSearchResult get(QueryParams queryParams);
 
 }

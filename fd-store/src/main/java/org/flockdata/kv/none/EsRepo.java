@@ -20,6 +20,7 @@
 package org.flockdata.kv.none;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.search.model.EntitySearchSchema;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -65,8 +68,13 @@ public class EsRepo extends AbstractKvRepo{
 
             if (result!=null )
                 try {
-                    contentInput.setWhat((Map<String, Object>) result.getWhat().get(EntitySearchSchema.WHAT));
-                } catch (FlockException e) {
+                    // DAT-419 - there is a problem with UTF-8 conversion of SI using http, or at least the
+                    //           way we have it configured. It throws a deep exception for the odd incoming payload
+                    //           complaining that it's not valid UTF-8 text. This approach we're now using works.
+                    HashMap map =JsonUtils.getBytesAsObject(result.getJson(), HashMap.class);
+                    contentInput.setWhat((Map<String, Object>) map.get(EntitySearchSchema.WHAT));
+                    //contentInput.setWhat(JsonUtils.getAsMap(result.getJson()));
+                } catch (FlockException |IOException e) {
                     logger.error("Json issue", e);
                 }
 

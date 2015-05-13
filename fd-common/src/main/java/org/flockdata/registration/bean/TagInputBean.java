@@ -75,12 +75,12 @@ public class TagInputBean {
     /**
      * associates a tag to the entity giving it an optional label label to categorize it by
      *
-     * @param tagValue              Unique name for a tag (if exists will be reused)
+     * @param tagCode              Unique name for a tag (if exists will be reused)
      * @param tagLabel                optional label label to give the Tag. Must start with ":"
      * @param entityRelationshipName name of relationship to the Entity
      */
-    public TagInputBean(String tagValue, String tagLabel, String entityRelationshipName) {
-        this(tagValue, entityRelationshipName, (Map<String, Object>) null);
+    public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName) {
+        this(tagCode, entityRelationshipName, (Map<String, Object>) null);
         setLabel(tagLabel);
 
     }
@@ -95,19 +95,19 @@ public class TagInputBean {
      * <p/>
      * Code value defaults to the tag name
      *
-     * @param tagValue unique name
+     * @param tagCode unique name
      */
-    public TagInputBean(String tagValue) {
+    public TagInputBean(String tagCode) {
         this();
-        if ( tagValue == null )
-            throw new IllegalArgumentException("The name of a tag cannot be null");
-        this.name = tagValue.trim();
+        if ( tagCode == null )
+            throw new IllegalArgumentException("The code of a tag cannot be null");
+        this.code= tagCode.trim();
 
-        this.code = this.name;
+        //this.code = this.name;
     }
 
-    public TagInputBean(String tagName, String entityRelationshipName, Map<String, Object> relationshipProperties) {
-        this(tagName);
+    public TagInputBean(String tagCode, String entityRelationshipName, Map<String, Object> relationshipProperties) {
+        this(tagCode);
         if (entityRelationshipName == null)
             entityRelationshipName = "general";
         else {
@@ -136,8 +136,9 @@ public class TagInputBean {
         return name;
     }
 
-    public void setName(String name) {
+    public TagInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     @JsonIgnore

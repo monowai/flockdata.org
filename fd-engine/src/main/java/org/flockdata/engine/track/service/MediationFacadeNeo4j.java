@@ -33,6 +33,7 @@ import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Tag;
@@ -133,7 +134,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     static DecimalFormat f = new DecimalFormat();
 
     @Override
-    public Tag createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
+    public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(tagInput);
         return createTags(company, tags).iterator().next();
@@ -141,7 +142,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     }
 
     @Override
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
         if (tagInputs.isEmpty())
             return null;
@@ -228,7 +229,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         }
         logger.debug("About to create tags");
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-        Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
+        Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
 
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
@@ -253,7 +254,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
         for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> loopResults = entityRetry.track(fortress, entityInputBeans, (tags!=null?tags.get(): null));
+            Iterable<TrackResultBean> loopResults = entityRetry.track(fortress, entityInputBeans, null);
             logger.debug("Tracked requests");
             distributeChanges(fortress, loopResults);
 

@@ -58,7 +58,7 @@ public class TestCSVConcepts {
         assertEquals("Manufacturer", makes.getLabel());
         assertEquals("Nested City tag not found", 1, makes.getTargets().size());
         TagInputBean city = makes.getTargets().get("located").iterator().next();
-        assertEquals("Auckland", city.getName());
+        assertEquals("Auckland", city.getCode());
 
 
         assertEquals("Samsoon", makes.getCode());

@@ -23,6 +23,12 @@
                    keep-alive="10000"
                    rejection-policy="CALLER_RUNS"/>
 
+    <task:executor id="fd-tag"
+                   pool-size="${fd-tag.poolSize}"
+                   queue-capacity="${fd-tag.queueCapacity}"
+                   keep-alive="10000"
+                   rejection-policy="CALLER_RUNS"/>
+
     <task:executor id="fd-track"
                    pool-size="${fd-track.poolSize}"
                    queue-capacity="${fd-track.queueCapacity}"

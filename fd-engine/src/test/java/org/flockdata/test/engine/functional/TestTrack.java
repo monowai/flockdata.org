@@ -60,6 +60,30 @@ public class TestTrack extends EngineBase {
     }
 
     @Test
+    public void modified_UserDefinedPropeties() throws Exception{
+        SystemUser su = registerSystemUser("DAT386", mike_admin);
+        FortressInputBean fib = new FortressInputBean("DAT386", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "poppy", "CompanyNode", DateTime.now(), "12xx09");
+        inputBean.setProperty("value", "H8CT04172");
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean);
+        Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        assertNotNull ( entity);
+        assertEquals("H8CT04172", entity.getProperty("value"));
+        inputBean = new EntityInputBean(fortress.getName(), "poppy", "CompanyNode", DateTime.now(), "12xx09");
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "A")));
+        inputBean.setProperty("value", 200d);
+        result = mediationFacade.trackEntity(fortress, inputBean);
+        entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+        assertNotNull(entity);
+        assertEquals("Userdefined property did not change", 200d, entity.getProperty("value"));
+
+
+
+    }
+    @Test
     public void split_BatchByFortress () throws Exception{
         SystemUser su = registerSystemUser("duplicateCallerRefMultipleLastChange");
 
@@ -81,6 +105,31 @@ public class TestTrack extends EngineBase {
         Fortress resultFortress = results.keySet().iterator().next();
         assertNotNull(resultFortress);
         assertEquals(2, results.get(resultFortress).size());
+    }
+
+    @Test
+    public void fortress_CreateOnTrack() throws Exception {
+        logger.debug("### fortress_CreateOnTrack");
+        String callerRef = "fortress_CreateOnTrack";
+        SystemUser su = registerSystemUser("fortress_CreateOnTrack");
+        String fortressName = "fortress_CreateOnTrack";
+        EntityInputBean inputBean = new EntityInputBean(fortressName, "poppy", "CompanyNode", DateTime.now(), callerRef);
+
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        List<EntityInputBean> entityInputBeans = new ArrayList<>();
+        entityInputBeans.add(inputBean);
+
+        mediationFacade.trackEntities(entityInputBeans, su.getApiKey());
+        Fortress fortress = fortressService.getFortress(su.getCompany(), fortressName);
+        assertNotNull (fortress);
+        assertFalse ( fortress.isSearchActive());
+        Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
+        assertNotNull(entity);
+        waitForFirstLog(su.getCompany(), entity);
+
+        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+        assertNotNull(logs);
+        assertEquals("Single log didn't exist when fortress created during initial track", 1, logs.size());
     }
 
     @Test

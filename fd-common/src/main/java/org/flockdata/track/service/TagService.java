@@ -23,6 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 
@@ -40,7 +41,7 @@ public interface TagService {
 
     Tag createTag(Company company, TagInputBean tagInput);
 
-    public Collection<Tag> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
+    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     public Tag findTag(Company company, String tagCode);
 

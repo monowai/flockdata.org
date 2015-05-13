@@ -97,6 +97,7 @@ public class LogRetryService {
         Entity entity = trackResultBean.getEntity();
 
         assert entity != null;
+        assert entity.getMetaKey()!=null;
 
         logger.debug("writeLog entityExists [{}]  entity [{}], [{}]", entityExists, entity.getId(), new DateTime(entity.getFortressDateUpdated()));
 
@@ -104,7 +105,7 @@ public class LogRetryService {
         logger.trace("looking for fortress user {}", fortress);
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
-        FortressUser thisFortressUser = trackResultBean.getEntity().getCreatedBy();
+        FortressUser thisFortressUser = entity.getCreatedBy();
         if (thisFortressUser == null || !(thisFortressUser.getCode() != null && thisFortressUser.getCode().equals(fortressUser))) {
             // Different user creating the Entity than is creating the log
             thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
@@ -129,7 +130,7 @@ public class LogRetryService {
         // ToDo: ??? noticed during tracking over AMQP
         if (thisFortressUser != null) {
             if (thisFortressUser.getFortress() == null)
-                thisFortressUser.setFortress(payLoad.getEntity().getFortress());
+                thisFortressUser.setFortress(fortress);
         }
 
         LogResultBean resultBean = new LogResultBean(payLoad.getContentInput());
@@ -147,7 +148,7 @@ public class LogRetryService {
 
         EntityLog lastLog = getLastLog(payLoad.getEntity());
 
-        logger.debug("createLog ContentWhen {}, lastLogWhen {}, log {}", new DateTime(payLoad.getContentInput().getWhen()),
+        logger.debug("createLog metaKey {}, ContentWhen {}, lastLogWhen {}, log {}", payLoad.getEntity().getMetaKey(),  new DateTime(payLoad.getContentInput().getWhen()),
                 (lastLog == null ? "[null]" : new DateTime(lastLog.getFortressWhen()))
                 , lastLog);
 

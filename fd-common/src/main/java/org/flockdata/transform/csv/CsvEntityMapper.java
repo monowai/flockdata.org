@@ -19,23 +19,26 @@
 
 package org.flockdata.transform.csv;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.EntityKey;
-import org.flockdata.transform.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.DelimitedMappable;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * User: mike
@@ -81,16 +84,9 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     setDescription(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                 }
                 if (colDef.isCreateDate()) {
-                    if (colDef.isDateEpoc()) {
-                        long val = Long.parseLong(value) * 1000;
+                    long millis = parseDate(colDef, value);
 
-                        setWhen(new DateTime(val));
-//                        logger.debug ("{}, {}, {}", val, value, getWhen());
-                    } else if (NumberUtils.isDigits(value))  // plain old java millis
-                        setWhen(new DateTime(Long.parseLong(value)));
-                    else // ToDo: apply a date format
-                        setWhen(new DateTime(value));
-
+                    setWhen(new DateTime(millis));
                 }
 
                 if (colDef.isCallerRef()) {
@@ -141,12 +137,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.hasEntityProperies()) {
                     for (ColumnDefinition columnDefinition : colDef.getProperties()) {
                         //String sourceCol = columnDefinition.getSource();
-                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(sourceColumn));
-                        Object oValue = TransformationHelper.getValue(value, columnDefinition);
-                        //String colName = sourceCol;
-                        if (columnDefinition.getTarget() != null)
-                            sourceColumn = columnDefinition.getTarget();
-                        setProperty(sourceColumn, oValue);
+                        if ( columnDefinition.isPersistent() ) {
+                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(valueColumn));
+                            Object oValue = TransformationHelper.getValue(value, columnDefinition);
+                            //String colName = sourceCol;
+                            if (columnDefinition.getTarget() != null)
+                                valueColumn = columnDefinition.getTarget();
+                            setProperty(valueColumn, oValue);
+                        }
 
                     }
                 }
@@ -179,6 +177,19 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         }
 
         return row;
+    }
+
+    private long parseDate(ColumnDefinition colDef, String value) {
+        if (colDef.isDateEpoc()) {
+            return Long.parseLong(value) * 1000;
+        } else if (NumberUtils.isDigits(value))  // plain old java millis
+            return Long.parseLong(value);
+
+        // Date formats
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
+
+        LocalDate date = LocalDate.parse(value, pattern);
+        return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
     }
 
 

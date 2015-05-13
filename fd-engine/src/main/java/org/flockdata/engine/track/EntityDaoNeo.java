@@ -333,7 +333,7 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public Log addLog(Entity entity, Log newLog, DateTime fortressWhen) {
+    public Log addLog(Entity entity, Log newLog, DateTime fortressWhen) throws FlockException {
 
         newLog.setEntityLog(new EntityLogRelationship(entity, newLog, fortressWhen));
 
@@ -343,8 +343,21 @@ public class EntityDaoNeo {
         if ( entity.getFortress().isStoreDisabled() )
             return newLog;
 
-        entity = template.fetch(entity);// latest version (according to this transaction
-        if (entity.getLastChange() == null) {
+        logger.debug(entity.getMetaKey());
+        //entity = entityRepo.(entity.getId());
+
+        Entity currentState = template.fetch(entity);
+        // Entity is being committed in another thread? On occasion metakKey is null on refresh meaning the Log does not get created
+        // Easiest way to test is when there is not fortress and you track the first request in to it.
+        // DAT-419
+
+        while ( currentState.getMetaKey() ==null )
+            currentState = template.fetch(entity);
+
+        if ( entity.getMetaKey() == null )
+            throw new FlockException("Where has the metaKey gone?");
+
+        if (currentState.getLastChange() == null) {
             entity.setLastUser(newLog.getWho());
             entity.setLastChange(newLog);
             entity.setFortressLastWhen(fortressWhen.getMillis());

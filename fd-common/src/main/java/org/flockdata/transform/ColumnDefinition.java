@@ -26,8 +26,11 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.flockdata.transform.tags.TagProfileDeserializer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * User: mike
@@ -38,6 +41,10 @@ import java.util.Map;
 public class ColumnDefinition {
 
     private String sourceCol;
+    private String dateFormat =null;
+    private String timeZone; // To use for dates
+    private Boolean persistent = true;
+
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
 
@@ -414,5 +421,34 @@ public class ColumnDefinition {
         return sourceCol;
     }
 
+    public String getDateFormat() {
+        if ( dateFormat == null )
+            return ((SimpleDateFormat)DateFormat.getDateInstance(DateFormat.SHORT)).toPattern();
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public String getTimeZone() {
+        if ( timeZone == null )
+            return TimeZone.getDefault().getID();
+
+        return timeZone;
+
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public boolean isPersistent() {
+        return persistent;
+    }
+
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
+    }
 
 }

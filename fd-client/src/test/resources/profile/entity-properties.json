@@ -22,8 +22,7 @@
       "relationship": "contributed",
       "rlxProperties": [
         {
-          "source": "9",
-          "target": "amount"
+          "source": "value"
         }
       ]
     },
@@ -37,8 +36,7 @@
       "relationship": "received",
       "rlxProperties": [
         {
-          "source": "4",
-          "target": "value"
+          "source": "value"
         }
       ]
     },
@@ -49,11 +47,16 @@
       "relationship": "contributed",
       "rlxProperties": [
         {
-          "source": "9",
-          "target": "amount"
+          "source": "value"
         }
       ]
     },
+    "8": {
+      "target": "contributionDate",
+      "dateFormat": "MM/dd/yyyy",
+      "createDate" :true
+    },
+
     "13": {
       "tag": true,
       "relationship": "lives",
@@ -82,11 +85,9 @@
       "relationship": "industry"
     },
     "9": {
+      "target": "value",
       "properties": [
         {
-          // Sets the value directly into the entity
-          // "source" defaults to the column identifier
-          "target": "value",
           "dataType": "long"
         }
       ]

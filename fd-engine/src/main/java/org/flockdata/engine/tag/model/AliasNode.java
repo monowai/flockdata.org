@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.tag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Alias;
@@ -88,6 +89,7 @@ public class AliasNode implements Alias {
         this.name = name;
     }
 
+    @JsonIgnore
     public Tag getTag() {
         return tag;
     }

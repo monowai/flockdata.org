@@ -24,6 +24,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.RegistrationService;
@@ -35,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -58,9 +60,9 @@ public class TagEP {
 
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Collection<Tag> createTags(@RequestBody List<TagInputBean> tagInputs,
-                                               String apiKey,
-                                               @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(@RequestBody List<TagInputBean> tagInputs,
+                                                String apiKey,
+                                                @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException, ExecutionException, InterruptedException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
 
         return mediationFacade.createTags(company, tagInputs);
@@ -90,19 +92,24 @@ public class TagEP {
     }
 
     @RequestMapping(value = "/{type}", produces = "application/json", method = RequestMethod.GET)
-    public Collection<Tag> getTags(@PathVariable("type") String index,
+    public Collection<TagResultBean> getTags(@PathVariable("type") String index,
                                    String apiKey,
                                    @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return tagService.findTags(company, index);
+        Collection<Tag> tags = tagService.findTags(company, index);
+        Collection<TagResultBean> results = new ArrayList<>();
+        for (Tag tag : tags) {
+            results.add(new TagResultBean(null, tag));
+        }
+        return results;
     }
 
     @RequestMapping(value = "/{label}/{code}", produces = "application/json",  method = RequestMethod.GET)
-    public Tag getTag(@PathVariable("label") String label,
+    public TagResultBean getTag(@PathVariable("label") String label,
                                   String apiKey,
                                   @RequestHeader(value = "api-key", required = false) String apiHeaderKey, @PathVariable("code") String code) throws FlockException {
         Company company = registrationService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
-        return tagService.findTag(company, label, code);
+        return new TagResultBean(tagService.findTag(company, label, code));
     }
 
     @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)

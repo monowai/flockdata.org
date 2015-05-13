@@ -64,7 +64,7 @@ public class TrackBatchSplitter {
 
     }
 
-    public static Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(FortressService fortressService, Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+    public  static Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(FortressService fortressService, Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<Fortress, List<EntityInputBean>> results = new HashMap<>();
 
         // Local cache of fortress by name - never very big, usually only 1
@@ -76,6 +76,9 @@ public class TrackBatchSplitter {
                 f = fortressService.findByCode(company, fortressName);
                 if ( f== null)
                     f = fortressService.findByName(company, fortressName);
+            }
+            if ( f == null ){
+                f = fortressService.registerFortress(company, fortressName);
             }
             if (f != null)
                 resolvedFortress.put(fortressName, f);

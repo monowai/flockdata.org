@@ -19,9 +19,11 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Tag;
 import org.junit.Test;
@@ -56,10 +58,10 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOP"));
 
-        Iterable<Tag> tagResults = tagService.createTags(iSystemUser.getCompany(),tags);
+        Iterable<TagResultBean> tagResults = tagService.createTags(iSystemUser.getCompany(),tags);
         assertNotNull(tagResults);
         int count = 0;
-        for (Tag next : tagResults) {
+        for (TagResultBean next : tagResults) {
             assertEquals("FLOP", next.getName());
             //assertEquals("flop", next.getKey());
             count++;
@@ -74,7 +76,7 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOPER"));
         tagResults = tagService.createTags(iSystemUser.getCompany(),tags);
         count = 0;
-        for (Tag next : tagResults) {
+        for (TagResultBean next : tagResults) {
             assertNotNull(next);
             count++;
         }
@@ -92,7 +94,7 @@ public class TestTags extends EngineBase {
         List<TagInputBean> tags = new ArrayList<>();
         TagInputBean tagInput = new TagInputBean("FLOP");
         tags.add(tagInput);
-        Iterable<Tag> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags);
+        Iterable<TagResultBean> tagResult = mediationFacade.createTags(iSystemUser.getCompany(), tags);
         assertNotNull(tagResult);
         assertTrue("We didn't create a tag", tagResult.iterator().hasNext());
         SystemUser sub = registerSystemUser("ABC", "gina");
@@ -118,7 +120,7 @@ public class TestTags extends EngineBase {
         tagService.findTag(iSystemUser.getCompany(),"FLOP");
         result = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
-        assertEquals("FLOPPY", result.getName());
+        assertEquals("FLOPPY", result.getCode());
 
     }
 
@@ -203,7 +205,7 @@ public class TestTags extends EngineBase {
         assertNotNull(tag);
         Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
         assertNotNull(result);
-        assertEquals("FLOP", result.getName());
+        assertEquals("FLOP", result.getCode());
         assertNotSame(123, result.getId());
 
     }
@@ -318,7 +320,7 @@ public class TestTags extends EngineBase {
         tagInputA.setLabel(":TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
-        Tag tagA = mediationFacade.createTag(iSystemUser.getCompany(), tagInputA);
+        TagResultBean tagA = mediationFacade.createTag(iSystemUser.getCompany(), tagInputA);
         assertNotNull(tagA);
 
         // This should work as the tag is in a different index
@@ -328,7 +330,7 @@ public class TestTags extends EngineBase {
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
         assertNotNull(tagB);
-        assertEquals(tagA.getId(), tagB.getId());
+        assertEquals(tagA.getTag().getId(), tagB.getId());
 
     }
 
@@ -446,10 +448,10 @@ public class TestTags extends EngineBase {
         tagInputA.setName("NameA");
         List<TagInputBean> tagInputs = new ArrayList<>();
         tagInputs.add(tagInputA);
-        Collection<Tag>tagResults ;
+        Collection<TagResultBean>tagResults ;
         tagResults = mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
         assertEquals(1, tagResults.size());
-        Tag tagA = tagResults.iterator().next();
+        TagResultBean tagA = tagResults.iterator().next();
 
         tagInputA.setTargets("blah", new TagInputBean("BBBB").setLabel(":TB"));
         mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
@@ -459,7 +461,7 @@ public class TestTags extends EngineBase {
         tagService.findTag(iSystemUser.getCompany(), "BBBB");
         assertNotNull(subTag);
 
-        Collection<Tag> tags = tagService.findDirectedTags(tagA);
+        Collection<Tag> tags = tagService.findDirectedTags(tagA.getTag());
         assertEquals(1, tags.size());
         for (Tag tag : tags) {
             assertEquals("BBBB", tag.getCode());
@@ -564,5 +566,31 @@ public class TestTags extends EngineBase {
 
     }
 
+    @Test
+    public void serialize_tagResults ()throws Exception{
+        // DAT-420
+        SystemUser su = registerSystemUser("serialize_tagResults", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("serialize_tagResults", true));
 
+        TagInputBean tag = new TagInputBean("Peoples Republic of Iran")
+                .setLabel("Country");
+
+        // The alias will be a "PersonAlias" - ToDo: allow for other types??
+        // We can find the Tag by any of the 2 aliases we define below
+        AliasInputBean alias1 = new AliasInputBean("Iran").setDescription("TestA");
+        AliasInputBean alias2 = new AliasInputBean("Islamic Republic").setDescription("TestB");
+        /// Alias 3 should not be created as it's the same as alias 1
+        Collection<AliasInputBean>aliases = new ArrayList<>();
+        aliases.add(alias1);
+        aliases.add(alias2);
+        tag.setAliases(aliases);
+        List<TagInputBean>tags = new ArrayList<>();
+        tags.add(tag);
+        Collection<TagResultBean> tagResult = tagService.createTags(su.getCompany(), tags);
+
+        byte[] bytes = JsonUtils.getObjectAsJsonBytes(tagResult);
+        Collection<TagResultBean> converted = JsonUtils.getAsCollection(bytes, TagResultBean.class);
+        assertNotNull ( converted);
+
+    }
 }
