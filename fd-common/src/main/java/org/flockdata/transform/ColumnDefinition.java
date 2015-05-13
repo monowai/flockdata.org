@@ -43,6 +43,7 @@ public class ColumnDefinition {
     private String sourceCol;
     private String dateFormat =null;
     private String timeZone; // To use for dates
+    private Boolean persistent = true;
 
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
@@ -442,6 +443,12 @@ public class ColumnDefinition {
         this.timeZone = timeZone;
     }
 
+    public boolean isPersistent() {
+        return persistent;
+    }
 
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
+    }
 
 }
