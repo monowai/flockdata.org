@@ -19,7 +19,8 @@
           "relationship": "represents"
         }
       ]
-    }
+    },
+    "0":{"target": "year", "dataType": "string", "persistent":false}
 
   }
 }
