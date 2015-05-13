@@ -19,6 +19,7 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Tag;
 
 import javax.validation.constraints.NotNull;
@@ -32,7 +33,7 @@ import javax.validation.constraints.NotNull;
  */
 public class EntityTagInputBean {
     @NotNull
-    private String tagName;
+    private String tagCode;
     @NotNull
     private String metaKey;
     @NotNull
@@ -44,13 +45,15 @@ public class EntityTagInputBean {
 
     /**
      * @param metaKey          metaKey for an existing entity
-     * @param tagName          name of an existing tag
+     * @param tagCode          name of an existing tag
      * @param relationshipName relationship name to create
      */
-    public EntityTagInputBean(String metaKey, String tagName, String relationshipName) {
+    public EntityTagInputBean(String metaKey, String tagCode, String relationshipName) throws FlockException {
         this();
+//        if ( tagCode == null )
+//            throw new FlockException("tagCode cannot be null");
         this.metaKey = metaKey;
-        this.tagName = tagName;
+        this.tagCode = tagCode;
         if (relationshipName == null)
             this.type = "general";
         else
@@ -61,8 +64,8 @@ public class EntityTagInputBean {
         return metaKey;
     }
 
-    public String getTagName() {
-        return tagName;
+    public String getTagCode() {
+        return tagCode;
     }
 
     /**

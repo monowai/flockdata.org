@@ -140,10 +140,12 @@ public class TransformationHelper {
             tag.setReverse(colDef.getReverse());
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
-                    String sourceCol = thisCol.getSource();
-                    value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                    if (value != null)
-                        tag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
+                    if ( colDef.isPersistent()) {
+                        String sourceCol = thisCol.getSource();
+                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
+                        if (value != null)
+                            tag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
+                    }
                 }
             }
         }
@@ -236,7 +238,7 @@ public class TransformationHelper {
                 Object value = row.get(tagProfile.getCode());
 
                 if (value == null || value.equals("")) {
-                    value = evaluateExpression(row, tagProfile.getCode());
+                    value = getValue(row, tagProfile.getCode());
                     if (value == null || value.equals("")) {
                         logger.debug("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         return setInTo;
@@ -270,11 +272,13 @@ public class TransformationHelper {
                 }
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
-                        String sourceCol = thisCol.getSource();
-                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                        Object oValue = getValue(value, thisCol);
-                        if (newTag != null && oValue != null)
-                            newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), oValue);
+                        if ( thisCol.isPersistent()) {
+                            String sourceCol = thisCol.getSource();
+                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
+                            Object oValue = getValue(value, thisCol);
+                            if (newTag != null && oValue != null)
+                                newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), oValue);
+                        }
                     }
                 }
                 if (tagProfile.hasAliases()) {

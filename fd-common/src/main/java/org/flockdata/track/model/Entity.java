@@ -158,4 +158,5 @@ public interface Entity {
      */
     void setNew(boolean status);
 
+    boolean setProperties(Map<String, Object> properties);
 }

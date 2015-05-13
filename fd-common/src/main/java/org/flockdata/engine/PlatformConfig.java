@@ -67,5 +67,9 @@ public interface PlatformConfig {
 
     public Boolean isStoreEnabled();
 
+    Boolean isSearchEnabled();
+
+    void setSearchEnabled(String enabled);
+
     public void setStoreEnabled(String enabled);
 }

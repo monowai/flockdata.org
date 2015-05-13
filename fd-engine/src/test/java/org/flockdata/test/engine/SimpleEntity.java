@@ -256,4 +256,9 @@ public class SimpleEntity implements Entity, Serializable {
         isNew = status;
     }
 
+    @Override
+    public boolean setProperties(Map<String, Object> properties) {
+        return false;
+    }
+
 }

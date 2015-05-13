@@ -65,6 +65,8 @@ public interface FortressService {
 
     Fortress registerFortress(Company company, FortressInputBean fortressInputBean);
 
+    Fortress registerFortress(Company company, String fortressName);
+
     Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing);
 
     Collection<DocumentResultBean> getFortressDocumentsInUse(Company company, String code) throws NotFoundException;
