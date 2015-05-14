@@ -361,11 +361,34 @@ public class TransformationHelper {
     public static String getValue(Map<String, Object> row, ColumnDefinition.ExpressionType expCol, ColumnDefinition colDef, Object defaultValue) {
         if (colDef == null)
             return getNullSafeDefault(defaultValue, null);
+
         String expression = colDef.getExpression(expCol);
         if (expression == null) {
             return getNullSafeDefault(defaultValue, colDef);
         }
         Object result = getValue(row, expression);
+        if (result == null)
+            return getNullSafeDefault(defaultValue, colDef);
+        return result.toString().trim();
+
+
+    }
+
+    /**
+     * Returns a value based on the expression. To evaluate a column, you must do so using #row['col'] syntax
+     *
+     *
+     * @param row
+     * @param expression
+     * @param colDef
+     * @param defaultValue
+     * @return
+     */
+    public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue) {
+        if (colDef == null)
+            return getNullSafeDefault(defaultValue, colDef);
+
+        Object result = evaluateExpression(row, expression);
         if (result == null)
             return getNullSafeDefault(defaultValue, colDef);
         return result.toString().trim();

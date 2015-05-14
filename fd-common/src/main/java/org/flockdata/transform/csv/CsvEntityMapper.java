@@ -137,13 +137,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.hasEntityProperies()) {
                     for (ColumnDefinition columnDefinition : colDef.getProperties()) {
                         //String sourceCol = columnDefinition.getSource();
-                        if ( columnDefinition.isPersistent() ) {
-                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(valueColumn));
+                        if (columnDefinition.isPersistent()) {
+
+                            value = TransformationHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
                             Object oValue = TransformationHelper.getValue(value, columnDefinition);
-                            //String colName = sourceCol;
                             if (columnDefinition.getTarget() != null)
                                 valueColumn = columnDefinition.getTarget();
-                            setProperty(valueColumn, oValue);
+                            if ( oValue != null)
+                                setProperty(valueColumn, oValue);
                         }
 
                     }

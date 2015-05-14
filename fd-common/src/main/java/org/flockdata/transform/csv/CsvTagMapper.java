@@ -66,8 +66,12 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
-                if (colDef.getTarget() != null && colDef.isPersistent())
-                    setProperty(colDef.getTarget(), TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.PROP_EXP, colDef, value));
+                if (colDef.getTarget() != null && colDef.isPersistent()) {
+                    value = TransformationHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
+                    Object oValue = TransformationHelper.getValue(value, colDef);
+                    if (oValue != null)
+                        setProperty(colDef.getTarget(), oValue);
+                }
 
 
             } // ignoreMe
