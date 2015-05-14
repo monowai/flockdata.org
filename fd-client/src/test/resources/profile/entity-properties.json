@@ -88,9 +88,38 @@
       "target": "value",
       "properties": [
         {
+          "dataType": "long",
+          "valueOnError": 0
+        }
+      ]
+    },
+    "98": {
+      "target": "valueNull",
+      "properties": [
+        {
           "dataType": "long"
         }
       ]
+    },
+    "99": {
+      "target": "valueDefault",
+      "properties": [
+        {
+          "dataType": "long",
+          "value": "0"
+        }
+      ]
+    },
+    "99Calc": {
+      "target": "valueCalc",
+      "properties": [
+        {
+          "value": "#row['0']"
+        }
+      ]
     }
+
+
+
   }
 }

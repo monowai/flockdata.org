@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
@@ -106,6 +107,19 @@ public class TestEntityProperties extends AbstractImport {
             assertTrue (entity.getProperties().get("value")!=null );
             Object value = entity.getProperties().get("value");
             assertTrue(value instanceof Number);
+            assertEquals(500, Integer.parseInt(value.toString()));
+
+            // Assert that we get the user defined value to compute
+            assertTrue (entity.getProperties().get("valueDefault")!=null );
+            value = entity.getProperties().get("valueDefault");
+            assertEquals("Userdefined value of 0 was not set", 0, Integer.parseInt(value.toString()));
+
+            // Neo4j complains if you persist a null property value
+            assertFalse("Should not be setting null property values", entity.getProperties().containsKey("valueNull")) ;
+
+            assertTrue (entity.getProperties().get("valueCalc")!=null );
+            value = entity.getProperties().get("valueCalc");
+            assertEquals("Column lookup expression did not evaluate", 2014, Integer.parseInt(value.toString()));
 
         }
 
