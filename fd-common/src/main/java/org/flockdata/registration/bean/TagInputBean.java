@@ -191,7 +191,8 @@ public class TagInputBean {
     public TagInputBean setProperty(String key, Object value) {
         if ( properties == null )
             properties = new HashMap<>();
-        properties.put(key, value);
+        if ( key !=null && value != null )
+            properties.put(key, value);
         return this;
     }
 

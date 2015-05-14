@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -81,7 +81,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                 if (colDef.isDescription()) {
 
-                    setDescription(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
+                    setDescription(TransformationHelper.getValue(row, colDef.getValue(), colDef, value));
                 }
                 if (colDef.isCreateDate()) {
                     long millis = parseDate(colDef, value);
@@ -137,13 +137,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (colDef.hasEntityProperies()) {
                     for (ColumnDefinition columnDefinition : colDef.getProperties()) {
                         //String sourceCol = columnDefinition.getSource();
-                        if ( columnDefinition.isPersistent() ) {
-                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, columnDefinition, row.get(valueColumn));
+                        if (columnDefinition.isPersistent()) {
+
+                            value = TransformationHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
                             Object oValue = TransformationHelper.getValue(value, columnDefinition);
-                            //String colName = sourceCol;
                             if (columnDefinition.getTarget() != null)
                                 valueColumn = columnDefinition.getTarget();
-                            setProperty(valueColumn, oValue);
+                            if ( oValue != null)
+                                setProperty(valueColumn, oValue);
                         }
 
                     }
@@ -190,20 +191,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
         LocalDate date = LocalDate.parse(value, pattern);
         return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
-    }
-
-
-    private Map<String, Object> getColumnValues(ColumnDefinition colDef, Map<String, Object> row) {
-        Map<String, Object> results = new HashMap<>();
-        String[] columns = colDef.getRefColumns();
-        int i = 0;
-        int max = columns.length;
-        while (i < max) {
-            results.put(columns[i], row.get(columns[i]));
-            i++;
-        }
-
-        return results;
     }
 
     @Override
