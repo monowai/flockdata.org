@@ -20,7 +20,6 @@
 package org.flockdata.transform.csv;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
@@ -32,12 +31,9 @@ import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -84,9 +80,9 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     setDescription(TransformationHelper.getValue(row, colDef.getValue(), colDef, value));
                 }
                 if (colDef.isCreateDate()) {
-                    long millis = parseDate(colDef, value);
-
-                    setWhen(new DateTime(millis));
+                    Long millis =TransformationHelper.parseDate(colDef, value);
+                    if ( millis !=null)
+                        setWhen(new DateTime(millis));
                 }
 
                 if (colDef.isCallerRef()) {
@@ -178,19 +174,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         }
 
         return row;
-    }
-
-    private long parseDate(ColumnDefinition colDef, String value) {
-        if (colDef.isDateEpoc()) {
-            return Long.parseLong(value) * 1000;
-        } else if (NumberUtils.isDigits(value))  // plain old java millis
-            return Long.parseLong(value);
-
-        // Date formats
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
-
-        LocalDate date = LocalDate.parse(value, pattern);
-        return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
     }
 
     @Override

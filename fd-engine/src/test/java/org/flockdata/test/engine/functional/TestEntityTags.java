@@ -1206,7 +1206,8 @@ public class TestEntityTags extends EngineBase {
         assertEquals(tagInput.getNotFoundCode(), tags.iterator().next().getTag().getCode());
 
         Tag byAlias = tagService.findTag(su.getCompany(), tagInput.getLabel(), tagInput.getCode());
-        assertNotNull(byAlias);
+        assertNotNull("Fond tag should have resolved as mustExist code was set to Unknown", byAlias);
+        assertEquals("Unknown", byAlias.getCode());
     }
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {
