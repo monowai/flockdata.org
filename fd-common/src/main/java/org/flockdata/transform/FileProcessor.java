@@ -425,7 +425,7 @@ public class FileProcessor {
                                 if (updatingUser == null)
                                     updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
 
-                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, new DateTime(entityInputBean.getWhen()), jsonData);
+                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
                                 contentInputBean.setEvent(importProfile.getEvent());
                                 entityInputBean.setContent(contentInputBean);
                             }
@@ -483,8 +483,11 @@ public class FileProcessor {
     public boolean stopProcessing(long currentRow, long then) {
         //DAT-350
 
-        if (rowsToProcess == 0) return false;
-
+        if (rowsToProcess == 0) {
+            if ( currentRow % 1000 == 0)
+                logger.info("Processed {} elapsed seconds {}", currentRow - skipCount, (new DateTime().getMillis() - then) / 1000d);
+            return false;
+        }
         boolean stop = currentRow >= skipCount + rowsToProcess;
 
         if (!stop && currentRow != skipCount && then > 0 && currentRow % 1000 == 0)

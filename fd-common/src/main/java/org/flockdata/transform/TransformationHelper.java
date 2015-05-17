@@ -27,12 +27,16 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionException;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -403,8 +407,8 @@ public class TransformationHelper {
                 result = row.get(expression);  // Pull value straight from the row
             else
                 result = evaluateExpression(row, expression);
-        } catch (ExpressionException e) {
-            logger.trace("Expression error parsing [" + expression + "]. Returning default value");
+        } catch (ExpressionException|StringIndexOutOfBoundsException e ) {
+            logger.trace("Expression error parsing [" + expression + "]. Returning null");
             result = null;
         }
         return result;
@@ -450,5 +454,20 @@ public class TransformationHelper {
             col++;
         }
         return header.toArray(new String[0]);
+    }
+
+    public static Long parseDate(ColumnDefinition colDef, String value) {
+        if ( value == null || value.equals(""))
+            return null;
+        if (colDef.isDateEpoc()) {
+            return Long.parseLong(value) * 1000;
+        } else if (NumberUtils.isDigits(value))  // plain old java millis
+            return Long.parseLong(value);
+
+        // Date formats
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
+
+        LocalDate date = LocalDate.parse(value, pattern);
+        return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
     }
 }
