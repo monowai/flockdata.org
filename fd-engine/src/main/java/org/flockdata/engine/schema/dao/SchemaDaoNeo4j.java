@@ -134,7 +134,7 @@ public class SchemaDaoNeo4j {
     }
 
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
-        return documentTypeRepo.getCompanyDocumentsInUse(company.getId());
+        return documentTypeRepo.findAllDocuments(company);
     }
 
     DocumentType documentExists(Fortress fortress, String docCode) {
