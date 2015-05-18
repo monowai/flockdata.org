@@ -1282,8 +1282,8 @@ public class TestFdIntegration {
 
     @Test
     public void geo_CachingMultiLocations() throws Exception {
-        logger.info("## geo_CachingMultiLocations");
-        assumeTrue(runMe);
+        logger.info("geo_CachingMultiLocations");
+//        assumeTrue(runMe);
         SystemUser su = registerSystemUser("geo_CachingMultiLocations", "geo_CachingMultiLocations");
         assertNotNull(su);
 
@@ -1528,6 +1528,7 @@ public class TestFdIntegration {
         }
 
     }
+
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
