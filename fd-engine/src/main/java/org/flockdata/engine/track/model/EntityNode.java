@@ -69,7 +69,6 @@ public class EntityNode implements Entity {
     @Indexed(unique = true)
     private String callerKeyRef;
 
-    @Indexed
     private String callerRef;
 
     private String name;
