@@ -20,7 +20,6 @@
 package org.flockdata.transform.csv;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
@@ -32,13 +31,11 @@ import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: mike
