@@ -74,7 +74,6 @@ public class ColumnDefinition {
     private String label;
     private String type; //datatype
     private String name;
-    private String value; // User define value
 
     private String valueOnError;// Value to set to if the format causes an exception
 
@@ -452,7 +451,4 @@ public class ColumnDefinition {
         this.persistent = persistent;
     }
 
-    public String getValue() {
-        return value;
-    }
 }
