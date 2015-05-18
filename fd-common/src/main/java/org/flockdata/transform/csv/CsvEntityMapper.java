@@ -19,6 +19,7 @@
 
 package org.flockdata.transform.csv;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
