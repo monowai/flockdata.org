@@ -20,6 +20,7 @@
 package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Alias;
 
@@ -45,8 +46,8 @@ public class TagResultBean {
             this.code = tagInputBean.getCode();
             this.name = tagInputBean.getName();
         }
-
-        this.message = tagInputBean.getServiceMessage();
+        if ( tagInputBean != null )
+            this.message = tagInputBean.getServiceMessage();
 
     }
 
@@ -63,6 +64,7 @@ public class TagResultBean {
     }
 
 
+
     public String getCode() {
         return code;
     }
@@ -71,10 +73,12 @@ public class TagResultBean {
         return name;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMessage() {
         return message;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<String> getAliases() {
         return aliases;
     }
