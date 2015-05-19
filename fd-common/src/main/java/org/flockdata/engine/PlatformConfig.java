@@ -72,4 +72,6 @@ public interface PlatformConfig {
     void setSearchEnabled(String enabled);
 
     public void setStoreEnabled(String enabled);
+
+    boolean isTiming();
 }

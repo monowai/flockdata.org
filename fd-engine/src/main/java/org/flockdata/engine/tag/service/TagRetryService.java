@@ -79,7 +79,7 @@ public class TagRetryService {
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
         } while (!schemaReady);
-        logger.debug("Schema Indexes appear to be in place");
+        //logger.debug("Schema Indexes appear to be in place");
 
         try {
             return tagService.createTags(company, tagInputBeans);
