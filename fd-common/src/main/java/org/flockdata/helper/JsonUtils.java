@@ -73,6 +73,12 @@ public class JsonUtils {
         return result;
     }
 
+    public static Map<String,Object> getAsMap(byte[] json) throws IOException {
+        Map<String,Object> result = mapper.readValue(json, Map.class);
+        return result;
+    }
+
+
     public static String getJSON(Object obj) {
     	String json = null;
     	try {
