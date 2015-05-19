@@ -406,6 +406,39 @@ public class TestFdIntegration {
     }
 
     @Test
+    public void searc_passThroughQuery() throws Exception {
+//        assumeTrue(runMe);
+        logger.info("## searc_passThroughQuery");
+        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SystemUser su = registerSystemUser("searc_passThroughQuery");
+        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searc_passThroughQuery"));
+        DateTime now = new DateTime();
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now );
+        inputBean.setMetaOnly(true);
+
+        inputBean.setProperty("myString", "hello world");
+        inputBean.setProperty("myNum", 123.45);
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        logger.debug("Created Request ");
+        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntityBean().getMetaKey());
+        assertNotNull(summary);
+        QueryParams qp = new QueryParams(fo);
+        String queryString = "{\"query_string\": {\n" +
+                "      \"query\": \"hello world\"\n" +
+                "  }}";
+        Map<String,Object>query  = JsonUtils.getAsMap(queryString);
+
+        qp.setQuery(query);
+        EsSearchResult searchResult = queryService.search(su.getCompany(), qp);
+        assertNotNull(searchResult);
+        assertEquals(1, searchResult.getTotalHits());
+        Map<String,Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
+        assertFalse(mapResult.isEmpty());
+    }
+
+    @Test
     public void track_immutableEntityWithNoLogsAreIndexed() throws Exception {
         assumeTrue(runMe);
         logger.info("## track_immutableEntityWithNoLogsAreIndexed");
