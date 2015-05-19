@@ -275,7 +275,7 @@ public class TagDaoNeo4j {
         StopWatch watch = null;
         if (engineAdmin.isTiming()) {
             watch = new StopWatch(id);
-            watch.start(message);
+            watch.start(id);
         }
         return watch;
     }
@@ -285,7 +285,7 @@ public class TagDaoNeo4j {
             return;
 
         watch.stop();
-        logger.info(message, args, watch.prettyPrint());
+        logger.info( watch.prettyPrint());
     }
 
     Tag tagByKey(String theLabel, String tagKey) {
