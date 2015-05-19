@@ -227,9 +227,9 @@ public class MediationFacadeNeo4j implements MediationFacade {
         if (fortress == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
-        logger.debug("About to create tags");
+        //logger.debug("About to create tags");
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-        Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
+        //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
 
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
