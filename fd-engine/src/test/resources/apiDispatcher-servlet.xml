@@ -37,6 +37,7 @@
             <mvc:mapping path="/fortress/**"/>
             <mvc:mapping path="/query/**"/>
             <mvc:mapping path="/admin/**"/>
+            <mvc:mapping path="/tag/**"/>
             <mvc:mapping path="/company/**"/>
             <mvc:mapping path="/entity/**"/>
             <mvc:mapping path="/track/**"/>

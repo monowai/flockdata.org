@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -27,7 +27,6 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
-import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +50,6 @@ public class TagEP {
 
     @Autowired
     TagService tagService;
-
-    @Autowired
-    private RegistrationService registrationService;
 
     @Autowired
     MediationFacade mediationFacade;
@@ -87,11 +83,11 @@ public class TagEP {
 
     }
 
-    @RequestMapping(value = "/{type}", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TagResultBean> getTags(@PathVariable("type") String index,
+    @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.GET)
+    public Collection<TagResultBean> getTags(@PathVariable("label") String label,
                                              HttpServletRequest request)  throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Collection<Tag> tags = tagService.findTags(company, index);
+        Collection<Tag> tags = tagService.findTags(company, label);
         Collection<TagResultBean> results = new ArrayList<>();
         for (Tag tag : tags) {
             results.add(new TagResultBean(null, tag));

@@ -30,6 +30,7 @@ import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
@@ -213,6 +214,17 @@ public class EngineEndPoints {
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.getBytesAsObject(json, FortressResultBean.class);
+
+    }
+
+    public Collection<TagResultBean> getTags(SystemUser su, String label) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+        return JsonUtils.getAsCollection(json, TagResultBean.class);
 
     }
 }
