@@ -37,6 +37,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -299,11 +300,26 @@ public class TagDaoNeo4j {
     @Cacheable(value = "companyTag", unless = "#result == null")
     Tag tagByKey(String theLabel, String tagKey) {
         logger.debug("Cache miss, {}:{}", theLabel, tagKey);
-
+        StopWatch watch =null;
+        if (engineAdmin.isTiming()) {
+            watch = new StopWatch(theLabel + " / " + tagKey);
+            watch.start("Find Tag");
+        }
         Collection<TagNode>tags = tagRepo.findByKey(tagKey);
 
-        if ( tags.size() ==1 && (theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG)))
-            return tags.iterator().next();
+        if ( tags.size() ==1 ){
+            Tag tag = tags.iterator().next();
+            if ( tag.getLabel().equals(theLabel) ||(theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG))) {
+                if (watch!=null ) {
+                    watch.stop();
+                    logger.info("{}/{} {}", theLabel, tagKey, watch.prettyPrint());
+                }
+
+                return tag;
+            }
+        }
+
+        logger.debug("{} Not found by key {}", theLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         Tag tResult = null;
@@ -317,9 +333,15 @@ public class TagDaoNeo4j {
                 }
             }
         }
-        if ( tResult != null )
+        if ( tResult != null ) {
+            if (watch!=null ) {
+                watch.stop();
+                logger.info("{}/{} {}", theLabel, tagKey, watch.prettyPrint());
+            }
             return tResult;
+        }
 
+        logger.debug("Locating by alias {}, {}", theLabel, tagKey);
         // Locate by Alias
         String query;
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
@@ -345,6 +367,10 @@ public class TagDaoNeo4j {
             }
 
         }
+        if (watch!=null ) {
+            watch.stop();
+            logger.info("{}/{} {} - by alias", theLabel, tagKey, watch.prettyPrint());
+        }
         return tagResult;
     }
 
@@ -368,7 +394,7 @@ public class TagDaoNeo4j {
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
-        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
+        logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 

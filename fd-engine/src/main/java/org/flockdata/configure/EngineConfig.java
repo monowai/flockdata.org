@@ -105,15 +105,27 @@ public class EngineConfig implements PlatformConfig {
         this.multiTenanted = !"@null".equals(multiTenanted) || Boolean.parseBoolean(multiTenanted);
     }
 
+    private boolean timing = false;
+
+    @Value("${fd-store.enabled}")
+    public void setStoreEnabled(String storeEnabled) {
+        kvConfig.setStoreEnabled(storeEnabled);
+    }
+
     /**
      * Default property for a fortress if not explicitly set.
      * When true (default) KV versions of information will be tracked
      *
-     * @param storeEnabled defaults to true
+     * @param timing defaults to true
      */
-    @Value("${fd-store.enabled}")
-    public void setStoreEnabled(String storeEnabled) {
-        kvConfig.setStoreEnabled(storeEnabled);
+    @Value("${fd-engine.timings}")
+    public void setTiming(String timing) {
+        this.timing = "@null".equals(timing) || Boolean.parseBoolean(timing);
+    }
+
+    @Override
+    public boolean isTiming() {
+        return timing;
     }
 
     public Boolean isStoreEnabled(){
