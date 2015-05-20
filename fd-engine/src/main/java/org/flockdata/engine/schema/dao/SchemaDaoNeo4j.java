@@ -27,6 +27,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Relationship;
 import org.flockdata.track.bean.ConceptInputBean;
+import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.model.Concept;
 import org.flockdata.track.model.DocumentType;
@@ -315,40 +316,40 @@ public class SchemaDaoNeo4j {
         else
             documents = documentTypeRepo.findDocuments(company, docNames);
 
-        ConceptNode userConcept = new ConceptNode("User");
+//        ConceptNode userConcept = new ConceptNode("User");
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
-            DocumentResultBean fauxDocument = new DocumentResultBean(document);
-            documentResults.add(fauxDocument);
             template.fetch(document.getConcepts());
+            DocumentResultBean documentResult = new DocumentResultBean(document);
+            documentResults.add(documentResult);
 
             if (withRelationships) {
                 for (Concept concept : document.getConcepts()) {
 
                     template.fetch(concept);
                     template.fetch(concept.getRelationships());
-                    Concept fauxConcept = new ConceptNode(concept.getName());
+                    ConceptResultBean conceptResult = new ConceptResultBean(concept.getName());
 
-                    fauxDocument.add(fauxConcept);
-                    Collection<Relationship> fauxRlxs = new ArrayList<>();
+                    documentResult.add(conceptResult);
+                    Collection<Relationship> relationshipResults = new ArrayList<>();
                     for (Relationship existingRelationship : concept.getRelationships()) {
                         if (existingRelationship.hasDocumentType(document)) {
-                            fauxRlxs.add(existingRelationship);
+                            relationshipResults.add(existingRelationship);
                         }
                     }
-                    fauxConcept.addRelationships(fauxRlxs);
+                    conceptResult.addRelationships(relationshipResults);
                 }
-
-                userConcept.addRelationship("CREATED_BY", document);
-                if (!fauxDocument.getConcepts().isEmpty())
-                    fauxDocument.getConcepts().add(userConcept);
+                // Disabled until we figure out a need for this
+//                userConcept.addRelationship("CREATED_BY", document);
+//                if (!fauxDocument.getConcepts().isEmpty())
+//                    fauxDocument.getConcepts().add(new ConceptResultBean(userConcept));
             } else {
                 // Just return the concepts
                 for (Concept concept : document.getConcepts()) {
                     template.fetch(concept);
-                    fauxDocument.add(concept);
+                    documentResult.add(new ConceptResultBean(concept));
                 }
-                fauxDocument.add(userConcept);
+                //fauxDocument.add(new ConceptResultBean(userConcept));
             }
         }
         return documentResults;
