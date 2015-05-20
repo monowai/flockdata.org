@@ -54,6 +54,8 @@ public interface TagService {
 
     public Tag findTag(Company company, String label, String tagCode);
 
+    public Tag findTag(Company company, String label, String tagCode, boolean inflate);
+
     public Collection<String> getExistingIndexes();
 
     public void purgeUnusedConcepts(Company company);

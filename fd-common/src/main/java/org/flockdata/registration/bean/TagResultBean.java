@@ -20,10 +20,14 @@
 package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.bean.AliasResultBean;
 import org.flockdata.track.model.Alias;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Result after creating a tag
@@ -34,7 +38,8 @@ public class TagResultBean {
     String code;
     String name;
     String message;
-    ArrayList<String> aliases = new ArrayList<>();
+    ArrayList<AliasResultBean> aliases = new ArrayList<>();
+    Map<String,Object> properties = new HashMap<>();
     private Tag tag =null;
     public TagResultBean(){}
 
@@ -45,37 +50,47 @@ public class TagResultBean {
             this.code = tagInputBean.getCode();
             this.name = tagInputBean.getName();
         }
-
-        this.message = tagInputBean.getServiceMessage();
+        if ( tagInputBean != null )
+            this.message = tagInputBean.getServiceMessage();
 
     }
+
 
     public TagResultBean (Tag tag ) {
         this();
         this.tag = tag;
         if (tag != null) {
             this.code = tag.getCode();
+
             this.name = tag.getName();
+            if (code.equals(name))
+                name = null;
+            this.properties = tag.getProperties();
+
             for (Alias alias : tag.getAliases()) {
-                aliases.add(alias.getKey());
+                aliases.add(new AliasResultBean(alias));
             }
         }
     }
+
 
 
     public String getCode() {
         return code;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getName() {
         return name;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMessage() {
         return message;
     }
 
-    public ArrayList<String> getAliases() {
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public ArrayList<AliasResultBean> getAliases() {
         return aliases;
     }
 
@@ -87,4 +102,10 @@ public class TagResultBean {
     public void setTag(Tag tag) {
         this.tag = tag;
     }
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
 }

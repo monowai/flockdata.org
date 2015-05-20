@@ -71,7 +71,7 @@ public class TagRetryService {
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans, boolean suppressRelationships) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if (tagInputBeans.isEmpty())
             return new ArrayList<>();
@@ -79,7 +79,7 @@ public class TagRetryService {
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
         } while (!schemaReady);
-        logger.debug("Schema Indexes appear to be in place");
+        //logger.debug("Schema Indexes appear to be in place");
 
         try {
             return tagService.createTags(company, tagInputBeans);
@@ -93,6 +93,6 @@ public class TagRetryService {
 
     @Async("fd-tag")
     public Future<Collection<TagResultBean>> createTagsFuture(Company company, List<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
-        return new AsyncResult<>(createTags(company, tags));
+        return new AsyncResult<>(createTags(company, tags, false));
     }
 }

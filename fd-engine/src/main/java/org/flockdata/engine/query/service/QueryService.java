@@ -22,6 +22,7 @@ package org.flockdata.engine.query.service;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.kv.none.EsGateway;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -69,6 +70,9 @@ public class QueryService {
     @Autowired
     FdSearchGateway searchGateway;
 
+    @Autowired
+    EsGateway esGateway;
+
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws FlockException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();
@@ -112,9 +116,14 @@ public class QueryService {
         StopWatch watch = new StopWatch(queryParams.toString());
         watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
-        EsSearchResult esSearchResult = searchGateway.fdSearch(queryParams);
+        EsSearchResult esSearchResult;
+        if ( queryParams.getQuery() !=null )
+            esSearchResult = esGateway.get(queryParams);
+        else {
+            esSearchResult = searchGateway.fdSearch(queryParams);
+        }
         watch.stop();
-        logger.info ("Result Count " + (esSearchResult.getResults() == null ? 0:esSearchResult.getResults().size()));
+        logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));
         logger.info(watch.prettyPrint());
 
         return esSearchResult;

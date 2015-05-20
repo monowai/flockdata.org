@@ -21,6 +21,7 @@ package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.tag.model.TagDaoNeo4j;
+import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +46,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Handles management of a companies tags.
  * All tags belong to the company across their fortresses
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 12:53 PM
@@ -65,13 +67,14 @@ public class TagServiceNeo4j implements TagService {
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
+
     public Tag createTag(Company company, TagInputBean tagInput) {
         return tagDao.save(company, tagInput);
     }
 
     @Override
     public Tag findTag(Company company, String tagCode) {
-        return tagDao.findTag(company, tagCode, Tag.DEFAULT);
+        return findTag(company, Tag.DEFAULT, tagCode);
     }
 
 
@@ -95,7 +98,17 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Tag findTag(Company company, String label, String tagCode) {
-        return tagDao.findTag(company, tagCode, label);
+       return findTag(company, label, tagCode, false);
+    }
+
+    @Override
+    public Tag findTag(Company company, String label, String tagCode, boolean inflate) {
+        Tag tag = tagDao.findTagNode(company, label, tagCode, inflate);
+
+        if (tag == null) {
+            logger.debug("findTag notFound {}, {}", tagCode, label);
+        }
+        return tag;
     }
 
     @Override
@@ -103,13 +116,34 @@ public class TagServiceNeo4j implements TagService {
         return tagDao.getExistingLabels();
     }
 
+    @Autowired
+    PlatformConfig engineAdmin;
+
     @Override
     public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException {
-        return tagDao.save(company, tagInputs);
+        String tagSuffix = engineAdmin.getTagSuffix(company);
+        List<String> createdValues = new ArrayList<>();
+        Collection<TagResultBean> results = new ArrayList<>();
+
+        Tag tag =null;
+        for (TagInputBean tagInput : tagInputs) {
+            try {
+                //Tag startTag = tagDao.findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()));
+                tag = tagDao.save(company, tagInput, tagSuffix, createdValues, false);
+            } catch (FlockDataTagException te) {
+                logger.error("Tag Exception [{}]", te.getMessage());
+                tagInput.getServiceMessage(te.getMessage());
+
+            }
+            results.add( new TagResultBean(tagInput, tag));
+
+        }
+        return results;
+
     }
 
     @Override
-    public void purgeUnusedConcepts(Company company){
+    public void purgeUnusedConcepts(Company company) {
         tagDao.purgeUnusedConcepts(company);
     }
 
@@ -130,7 +164,11 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Collection<AliasInputBean> findTagAliases(Company company, String label, String sourceTag) throws NotFoundException {
-        return tagDao.findTagAliases(company, label, sourceTag);
+    public Collection<AliasInputBean> findTagAliases(Company company, String label, String tagCode) throws NotFoundException {
+        Tag source = findTag(company, label, tagCode);
+        if (source == null)
+            throw new NotFoundException("Unable to find the requested tag " + tagCode);
+
+        return tagDao.findTagAliases(source);
     }
 }

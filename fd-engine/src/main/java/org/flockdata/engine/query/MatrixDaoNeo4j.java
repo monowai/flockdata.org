@@ -30,8 +30,6 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.MetaKeyResults;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.model.Concept;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,22 +219,22 @@ public class MatrixDaoNeo4j implements MatrixDao {
         return labels;
     }
 
-    private boolean tagHasRelationship(Company company, String inTag, ArrayList<String> docNames, String relationship) {
-        Set<DocumentResultBean> schema = schemaDaoNeo4j.findConcepts(company, null, true);
-        for (DocumentResultBean document : schema) {
-            for (String docName : docNames) {
-                if (document.getName().equalsIgnoreCase(docName)) {
-                    for (Concept concept : document.getConcepts()) {
-                        if (concept.getName().equals(inTag)) {
-                            return concept.hasRelationship(relationship);
-                        }
-                    }
-                }
-            }
-
-        }
-        return false;
-    }
+//    private boolean tagHasRelationship(Company company, String inTag, ArrayList<String> docNames, String relationship) {
+//        Set<DocumentResultBean> schema = schemaDaoNeo4j.findConcepts(company, null, true);
+//        for (DocumentResultBean document : schema) {
+//            for (String docName : docNames) {
+//                if (document.getName().equalsIgnoreCase(docName)) {
+//                    for (Concept concept : document.getConcepts()) {
+//                        if (concept.getName().equals(inTag)) {
+//                            return concept.hasRelationship(relationship);
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
+//        return false;
+//    }
 
     private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {
         // Fortresses come in as names - need to resolve to codes:

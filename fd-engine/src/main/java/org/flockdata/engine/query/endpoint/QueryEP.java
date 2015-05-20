@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -74,10 +75,14 @@ public class QueryEP {
     }
 
     @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public EsSearchResult searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+    public String searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
-        return queryService.search(company, queryParams);
+        queryParams.setCompany(company.getName());
+        EsSearchResult result = queryService.search(company, queryParams);
+        if ( result.getJson() == null )
+            return "No Results found";
+        return new String(result.getJson()) ;
     }
 
     @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")

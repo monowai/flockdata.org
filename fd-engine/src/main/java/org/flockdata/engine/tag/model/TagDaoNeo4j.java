@@ -33,10 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -70,10 +70,6 @@ public class TagDaoNeo4j {
         return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
 
-    public Collection<TagResultBean> save(Company company, Iterable<TagInputBean> tagInputs) {
-        return save(company, tagInputs, false);
-    }
-
     public Collection<TagResultBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
         String tagSuffix = engineAdmin.getTagSuffix(company);
         List<String> createdValues = new ArrayList<>();
@@ -82,8 +78,6 @@ public class TagDaoNeo4j {
         Tag tag = null;
         for (TagInputBean tagInputBean : tagInputs) {
             try {
-//                tagResultBean = new TagResultBean()
-  //              results.add(
                 tag = save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships);
             } catch (FlockDataTagException te) {
                 logger.error("Tag Exception [{}]", te.getMessage());
@@ -97,9 +91,9 @@ public class TagDaoNeo4j {
         return results;
     }
 
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        Tag startTag = findTagNode(company, (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), tagInput.getLabel());
+        Tag startTag = findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -225,7 +219,7 @@ public class TagDaoNeo4j {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query =
-                " match (tag:Tag)-->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+                " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
                         "   where id(tag)={tagId} return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
@@ -273,37 +267,43 @@ public class TagDaoNeo4j {
 
     }
 
-    /**
-     * Locates a tag fro the company of the supplied label including searching for it by alias
-     *
-     * @param company company to restrict by
-     * @param tagCode value to search for. generally this is the Code value of the tag
-     * @param label   Neo4j label for the node
-     * @return null if not found
-     */
-    //@Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findTag(Company company, String tagCode, String label) {
-        Tag tag = findTagNode(company, tagCode, label);
-
-        if (tag == null) {
-            logger.debug("findTag notFound {}, {}", tagCode, label);
-        }
-
-        return tag;
-
-    }
 
     @Autowired
     TagRepo tagRepo;
 
-    @Cacheable(value = "companyTag", unless = "#result == null")
+    StopWatch getWatch(String id, String message ){
+        StopWatch watch = null;
+        if (engineAdmin.isTiming()) {
+            watch = new StopWatch(id);
+            watch.start(id);
+        }
+        return watch;
+    }
+
+    void stopWatch(StopWatch watch, String message, Object... args){
+        if ( watch == null )
+            return;
+
+        watch.stop();
+        logger.info( watch.prettyPrint());
+    }
+
     Tag tagByKey(String theLabel, String tagKey) {
         logger.debug("Cache miss, {}:{}", theLabel, tagKey);
 
+        StopWatch watch =getWatch(theLabel + " / " + tagKey, "Find Tag");
+
         Collection<TagNode>tags = tagRepo.findByKey(tagKey);
 
-        if ( tags.size() ==1 && (theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG)))
-            return tags.iterator().next();
+        if ( tags.size() ==1 ){
+            Tag tag = tags.iterator().next();
+            if ( tag.getLabel().equals(theLabel) ||(theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG))) {
+                stopWatch(watch, "{}/{}", theLabel, tagKey);
+                return tag;
+            }
+        }
+
+        logger.debug("{} Not found by key {}", theLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         Tag tResult = null;
@@ -317,9 +317,12 @@ public class TagDaoNeo4j {
                 }
             }
         }
-        if ( tResult != null )
+        if ( tResult != null ) {
+            stopWatch(watch, "{}/{}", theLabel, tagKey);
             return tResult;
+        }
 
+        logger.debug("Locating by alias {}, {}", theLabel, tagKey);
         // Locate by Alias
         String query;
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
@@ -345,6 +348,7 @@ public class TagDaoNeo4j {
             }
 
         }
+        stopWatch(watch, "{}/{}", theLabel, tagKey);
         return tagResult;
     }
 
@@ -361,14 +365,17 @@ public class TagDaoNeo4j {
         return tagResult;
     }
 
-    public Tag findTagNode(Company company, String tagCode, String label) {
+//    @Cacheable(value = "companyTag", unless = "#result == null")
+    public Tag findTagNode(Company company, String label, String tagCode, boolean inflate) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
-        logger.debug("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
+        if ( tag!=null && inflate)
+            template.fetch(tag.getAliases());
+        logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 
@@ -409,14 +416,11 @@ public class TagDaoNeo4j {
         return key.toLowerCase().replaceAll("\\s", "");
     }
 
-    public Collection<AliasInputBean> findTagAliases(Company company, String theLabel, String sourceTag) throws NotFoundException {
-        Tag source = findTag(company, sourceTag, theLabel);
-        if (source == null)
-            throw new NotFoundException("Unable to find the requested tag " + sourceTag);
-        theLabel = resolveLabel(theLabel, engineAdmin.getTagSuffix(company));
+    public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
+
         String query = "match (t) -[:HAS_ALIAS]->(alias) where id(t)={id}  return alias";
         Map<String, Object> params = new HashMap<>();
-        params.put("id", source.getId());
+        params.put("id", sourceTag.getId());
         Iterable<Map<String, Object>> result = template.query(query, params);
         Collection<AliasInputBean> aliasResults = new ArrayList<>();
         for (Map<String, Object> mapResult : result) {
