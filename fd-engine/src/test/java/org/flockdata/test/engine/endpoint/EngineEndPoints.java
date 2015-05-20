@@ -34,6 +34,7 @@ import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
+import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -180,7 +181,7 @@ public class EngineEndPoints {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
 
-        ).andExpect(MockMvcResultMatchers.status().isForbidden()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         return true;
     }
 
@@ -217,7 +218,7 @@ public class EngineEndPoints {
 
     }
 
-    public Collection<TagResultBean> getTags(SystemUser su, String label) throws Exception {
+    public Collection<TagResultBean> getTags(String label) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label)
                         .contentType(MediaType.APPLICATION_JSON)
 
@@ -225,6 +226,25 @@ public class EngineEndPoints {
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.getAsCollection(json, TagResultBean.class);
+
+    }
+
+    public Collection<DocumentResultBean> getDocuments(String fortress) throws Exception {
+        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + fortress)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
+    }
+
+    public Collection<ConceptResultBean> getLabelsForDocument(String code, String docResultName) throws Exception{
+        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + code +"/"+docResultName)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, ConceptResultBean.class);
 
     }
 }

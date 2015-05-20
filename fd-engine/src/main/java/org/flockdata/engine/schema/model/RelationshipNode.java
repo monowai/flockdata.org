@@ -19,10 +19,10 @@
 
 package org.flockdata.engine.schema.model;
 
-import org.flockdata.registration.model.Relationship;
-import org.flockdata.track.model.DocumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.model.Relationship;
+import org.flockdata.track.model.DocumentType;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;

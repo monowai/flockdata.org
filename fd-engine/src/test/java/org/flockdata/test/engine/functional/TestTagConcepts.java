@@ -19,14 +19,15 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Relationship;
 import org.flockdata.registration.model.SystemUser;
+import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Concept;
+import org.flockdata.track.bean.RelationshipResultBean;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Entity;
 import org.joda.time.DateTime;
@@ -95,10 +96,11 @@ public class TestTagConcepts extends EngineBase {
             // DAT-112
             Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
             assertEquals(1, found.size());
-            assertEquals(2, found.iterator().next().getConcepts().size());
+            assertEquals(1, found.iterator().next().getConcepts().size());
             found = validateConcepts("DocB", su, 1);
             assertEquals(1, found.size());
-            assertEquals("Didn't find the Document + User concept",2, found.iterator().next().getConcepts().size());
+            // Removed the mock user
+            assertEquals("Didn't find the Document ",1, found.iterator().next().getConcepts().size());
         } finally {
             cleanUpGraph();
         }
@@ -200,7 +202,7 @@ public class TestTagConcepts extends EngineBase {
             Boolean foundCustomer = false, foundRep = false;
 
             for (DocumentResultBean docTypes : documentTypes) {
-                for (Concept concept : docTypes.getConcepts()) {
+                for (ConceptResultBean concept : docTypes.getConcepts()) {
                     if (concept.getName().equals("Customer")) {
                         foundCustomer = true;
                         assertEquals(1, concept.getRelationships().size());
@@ -259,10 +261,10 @@ public class TestTagConcepts extends EngineBase {
             docs.add("DocA");
             Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
             for (DocumentResultBean docType : docTypes) {
-                Collection<Concept> concepts = docType.getConcepts();
-                for (Concept concept : concepts) {
-                    Collection<Relationship> relationships = concept.getRelationships();
-                    for (Relationship relationship : relationships) {
+                Collection<ConceptResultBean> concepts = docType.getConcepts();
+                for (ConceptResultBean concept : concepts) {
+                    Collection<RelationshipResultBean> relationships = concept.getRelationships();
+                    for (RelationshipResultBean relationship : relationships) {
                         logger.debug(relationship.getName());
                     }
                     if ( concept.getName().equals("User")){
@@ -318,21 +320,22 @@ public class TestTagConcepts extends EngineBase {
             boolean docBFound = false;
             Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
             for (DocumentResultBean docType : docTypes) {
-                Collection<Concept> concepts = docType.getConcepts();
-                for (Concept concept : concepts) {
-                    Collection<Relationship> relationships = concept.getRelationships();
-                    for (Relationship relationship : relationships) {
-                        assertEquals(1, relationship.getDocumentTypes().size());
-                        if (docType.getName().equals(docA.getName()))
-                            docAFound = true;
-                        else if (docType.getName().equals(docB.getName()))
-                            docBFound = true;
-                    }
+                Collection<ConceptResultBean> concepts = docType.getConcepts();
+                for (ConceptResultBean concept : concepts) {
+                    Collection<RelationshipResultBean> relationships = concept.getRelationships();
+                    TestCase.assertEquals(1, relationships.size());
+//                    for (RelationshipResultBean relationship : relationships) {
+//                        assertEquals(1, relationship.getDocumentTypes().size());
+//                        if (docType.getName().equals(docA.getName()))
+//                            docAFound = true;
+//                        else if (docType.getName().equals(docB.getName()))
+//                            docBFound = true;
+//                    }
                 }
             }
             // ToDo: it is unclear if we should track in this manner
-            assertTrue("DocA Not Found in the concept", docAFound);
-            assertTrue("DocB Not Found in the concept", docBFound);
+//            assertTrue("DocA Not Found in the concept", docAFound);
+//            assertTrue("DocB Not Found in the concept", docBFound);
             assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
             cleanUpGraph();
@@ -388,21 +391,18 @@ public class TestTagConcepts extends EngineBase {
             Set<DocumentResultBean> foundDocs = validateConcepts(docs, su, 1);
             for (DocumentResultBean foundDoc : foundDocs) {
                 assertEquals("Promotion", foundDoc.getName());
-                Collection<Concept> concepts = foundDoc.getConcepts();
-                assertEquals(2, concepts.size());
+                Collection<ConceptResultBean> concepts = foundDoc.getConcepts();
+                assertEquals(1, concepts.size());
                 boolean deviceFound = false;
-                boolean userFound = false;
-                for (Concept concept : concepts) {
+//                boolean userFound = false;
+                for (ConceptResultBean concept : concepts) {
                     if (concept.getName().equalsIgnoreCase("Device")) {
                         deviceFound = true;
-                        assertEquals(1, concept.getRelationships().size());
-                    } else if (concept.getName().equalsIgnoreCase("User")) {
-                        userFound = true;
                         assertEquals(1, concept.getRelationships().size());
                     }
 
                 }
-                assertEquals(true, deviceFound && userFound);
+                assertEquals(true, deviceFound );
             }
         } finally {
             cleanUpGraph();
@@ -448,22 +448,19 @@ public class TestTagConcepts extends EngineBase {
             Set<DocumentResultBean> foundDocs = validateConcepts(docs, su, 1);
             for (DocumentResultBean foundDoc : foundDocs) {
                 assertEquals("Claim", foundDoc.getName());
-                Collection<Concept> concepts = foundDoc.getConcepts();
-                assertEquals(2, concepts.size());
+                Collection<ConceptResultBean> concepts = foundDoc.getConcepts();
+                assertEquals(1, concepts.size());
                 boolean claimFound = false;
                 boolean userFound = false;
-                for (Concept concept : concepts) {
+                for (ConceptResultBean concept : concepts) {
                     if (concept.getName().equalsIgnoreCase("Claim")) {
                         claimFound = true;
-                        assertEquals(1, concept.getRelationships().size());
-                    } else if (concept.getName().equalsIgnoreCase("User")) {
-                        userFound = true;
                         assertEquals(1, concept.getRelationships().size());
                     }
 
                 }
 
-                assertEquals(true, claimFound && userFound);
+                assertEquals(true, claimFound );
                 logger.info(foundDoc.toString());
             }
             mediationFacade.purge( fortress);

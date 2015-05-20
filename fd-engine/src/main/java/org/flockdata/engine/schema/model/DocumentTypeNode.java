@@ -122,7 +122,7 @@ public class DocumentTypeNode implements DocumentType, Comparable<DocumentType>{
     public void add(Concept concept) {
         if ( concepts == null )
             concepts = new ArrayList<>();
-        concepts.add((ConceptNode) concept);
+        concepts.add( concept);
     }
 
     @Override
