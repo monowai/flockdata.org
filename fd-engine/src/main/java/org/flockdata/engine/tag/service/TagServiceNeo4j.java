@@ -98,7 +98,12 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Tag findTag(Company company, String label, String tagCode) {
-        Tag tag = tagDao.findTagNode(company, label, tagCode);
+       return findTag(company, label, tagCode, false);
+    }
+
+    @Override
+    public Tag findTag(Company company, String label, String tagCode, boolean inflate) {
+        Tag tag = tagDao.findTagNode(company, label, tagCode, inflate);
 
         if (tag == null) {
             logger.debug("findTag notFound {}, {}", tagCode, label);

@@ -99,7 +99,7 @@ public class TagEP {
     public TagResultBean getTag(@PathVariable("label") String label,  @PathVariable("code") String code,
                                 HttpServletRequest request)  throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return new TagResultBean(tagService.findTag(company, label, code));
+        return new TagResultBean(tagService.findTag(company, label, code, true));
     }
 
     @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)

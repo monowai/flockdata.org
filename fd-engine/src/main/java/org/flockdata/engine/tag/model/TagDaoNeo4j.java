@@ -93,7 +93,7 @@ public class TagDaoNeo4j {
 
     public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        Tag startTag = findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()));
+        Tag startTag = findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -366,13 +366,15 @@ public class TagDaoNeo4j {
     }
 
 //    @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findTagNode(Company company, String label, String tagCode) {
+    public Tag findTagNode(Company company, String label, String tagCode, boolean inflate) {
         if (tagCode == null || company == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
+        if ( tag!=null && inflate)
+            template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
