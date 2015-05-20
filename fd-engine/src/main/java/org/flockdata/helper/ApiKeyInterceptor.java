@@ -19,11 +19,12 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -63,8 +64,10 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
-        throw new SecurityException("You must be an authorized user to work with this service");
+        response.setContentType( MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        //response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
+        throw new SecurityException("Authentication is required to access this service");
     }
 
     @Override
