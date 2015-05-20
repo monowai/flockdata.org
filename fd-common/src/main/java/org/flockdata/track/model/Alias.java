@@ -24,7 +24,22 @@ package org.flockdata.track.model;
  */
 public interface Alias {
 
-    public String getLabel();
-
+    String getLabel();
+    /**
+     *
+     * @return how the alias is indexed
+     */
     String getKey();
+
+    /**
+     *
+     * @return human redable alias
+     */
+    String getName();
+
+    /**
+     *
+     * @return description that describes this instance
+     */
+    String getDescription();
 }
