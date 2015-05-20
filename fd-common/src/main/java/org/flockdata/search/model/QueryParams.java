@@ -24,6 +24,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Encapsulated search parameters
@@ -43,12 +44,14 @@ public class QueryParams implements QueryInterface{
     private ArrayList<String> tags;
     private ArrayList<String> relationships = new ArrayList<>();
     private String searchText;
+
+    private Map<String,Object> query; // Raw query to pass through to ES
     private String metaKey;
     private String company;
     private String fortress;
     private String[] types;
     private String[] data;
-    private int rowsPerPage =15;
+    private Integer rowsPerPage =10;
     private int startFrom= 0;
     private boolean entityOnly;
     private String callerRef;
@@ -119,19 +122,19 @@ public class QueryParams implements QueryInterface{
         this.types = types;
     }
 
-    public int getRowsPerPage() {
+    public Integer getRowsPerPage() {
         return rowsPerPage;
     }
 
-    public void setRowsPerPage(int rowsPerPage) {
+    public void setRowsPerPage(Integer rowsPerPage) {
         this.rowsPerPage = rowsPerPage;
     }
 
-    public int getStartFrom() {
+    public Integer getStartFrom() {
         return startFrom;
     }
 
-    public void setStartFrom(int startFrom) {
+    public void setStartFrom(Integer startFrom) {
         this.startFrom = startFrom;
     }
 
@@ -171,5 +174,17 @@ public class QueryParams implements QueryInterface{
 
     public ArrayList<String> getRelationships() {
         return relationships;
+    }
+
+    /**
+     *
+     * @return elasticsearch body to execute against the requested index
+     */
+    public Map<String,Object> getQuery() {
+        return query;
+    }
+
+    public void setQuery(Map<String, Object> query) {
+        this.query = query;
     }
 }

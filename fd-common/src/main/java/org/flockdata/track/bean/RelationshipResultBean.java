@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,41 +20,28 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.model.DocumentType;
-
-import java.util.ArrayList;
+import org.flockdata.registration.model.Relationship;
 
 /**
- * User: mike
- * Date: 29/08/14
- * Time: 12:28 PM
+ *
+ * Encapsulates a relationship instance
+ *
+ * Created by mike on 20/05/15.
  */
-public class DocumentResultBean {
+public class RelationshipResultBean  {
 
+    RelationshipResultBean () {}
+
+    private String name ;
     private Long id;
 
-    private String name;
-
+    public RelationshipResultBean (Relationship relationship){
+        this();
+        this.name = relationship.getName();
+        this.id = relationship.getId();
+    }
     public String getName() {
         return name;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public ArrayList<ConceptResultBean> getConcepts() {
-        return concepts;
-    }
-
-    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
-
-    DocumentResultBean() {
-    }
-
-    public DocumentResultBean(DocumentType documentType) {
-        this();
-        this.name = documentType.getName();
-        this.id = documentType.getId();
-
     }
 
     @JsonIgnore
@@ -62,20 +49,9 @@ public class DocumentResultBean {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void add(ConceptResultBean concept) {
-
-        if (concepts == null)
-            concepts = new ArrayList<>();
-        concepts.add(concept);
-    }
-
     @Override
     public String toString() {
-        return "DocumentResultBean{" +
+        return "RelationshipResultBean{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
@@ -84,18 +60,21 @@ public class DocumentResultBean {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DocumentResultBean)) return false;
+        if (!(o instanceof RelationshipResultBean)) return false;
 
-        DocumentResultBean that = (DocumentResultBean) o;
+        RelationshipResultBean that = (RelationshipResultBean) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
+
+
 }

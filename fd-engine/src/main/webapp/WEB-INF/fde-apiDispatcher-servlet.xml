@@ -18,6 +18,7 @@
             base-package="org.flockdata.engine.admin.endpoint,
             org.flockdata.engine.query.endpoint,
             org.flockdata.engine.tag.endpoint,
+            org.flockdata.engine.doc.endpoint,
             org.flockdata.engine.track.endpoint,
             org.flockdata.geography.endpoint,
             org.flockdata.company.endpoint"
@@ -44,6 +45,8 @@
             <mvc:mapping path="/query/**"/>
             <mvc:mapping path="/company/**"/>
             <mvc:mapping path="/track/**"/>
+            <mvc:mapping path="/tag/**"/>
+            <mvc:mapping path="/doc/**"/>
             <mvc:mapping path="/entity/**"/>
             <mvc:mapping path="/admin/**"/>
             <mvc:mapping path="/batch/**"/>

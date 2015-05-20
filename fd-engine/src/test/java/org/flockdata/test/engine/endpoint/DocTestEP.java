@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2012-2015 "FlockData LLC"
+ *
+ * This file is part of FlockData.
+ *
+ * FlockData is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FlockData is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.flockdata.test.engine.endpoint;
+
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.SystemUser;
+import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.TestQueryResults;
+import org.flockdata.track.bean.ConceptResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.model.Entity;
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Collection;
+
+import static junit.framework.TestCase.*;
+
+/**
+ * Created by mike on 16/02/15.
+ */
+@WebAppConfiguration
+public class DocTestEP extends EngineBase {
+
+    @Autowired
+    WebApplicationContext wac;
+
+    @Test
+    public void flow_docPoints() throws Exception {
+
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("docEp", "mike");
+        engineConfig.setConceptsEnabled("true");
+        Fortress fortress = createFortress(su);
+
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "StudyDoc", new DateTime());
+        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(TestQueryResults.VEGETABLE));
+        Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+
+        assertEquals(2, entityTagService.findEntityTags(entity).size());
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+        Collection<DocumentResultBean> docResults = eip.getDocuments(fortress.getCode());
+        assertNotNull(docResults);
+        assertEquals(1, docResults.size());
+        DocumentResultBean docResult = docResults.iterator().next();
+        assertEquals("StudyDoc", docResult.getName());
+
+        Collection<ConceptResultBean> labelResults = eip.getLabelsForDocument(fortress.getCode(), docResult.getName());
+        assertFalse(labelResults.isEmpty());
+        Collection<TagResultBean> tags;
+        for (ConceptResultBean labelResult : labelResults) {
+            switch (labelResult.getName()) {
+                case "Vegetable":
+                    tags = eip.getTags(TestQueryResults.VEGETABLE);
+                    assertNotNull(tags);
+                    assertFalse(tags.isEmpty());
+                    assertEquals(1, tags.size());
+                    assertEquals("Potatoes", tags.iterator().next().getCode());
+                    break;
+                case "Fruit":
+                    tags = eip.getTags(TestQueryResults.FRUIT);
+                    assertNotNull(tags);
+                    assertFalse(tags.isEmpty());
+                    assertEquals(1, tags.size());
+                    assertEquals("Apples", tags.iterator().next().getCode());
+
+                    break;
+                default:
+                    throw new Exception("Unexpected label " + labelResult.getName());
+            }
+        }
+
+
+    }
+
+    @Test
+    public void find_tagValues() throws Exception {
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("companyLocators", "mike");
+
+        Fortress fortress = createFortress(su);
+
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
+        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Oranges", "dislikes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(TestQueryResults.VEGETABLE));
+        mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        Collection<TagResultBean> tags = eip.getTags(TestQueryResults.VEGETABLE);
+        assertNotNull(tags);
+        assertFalse(tags.isEmpty());
+        assertEquals(1, tags.size());
+        assertEquals("Potatoes", tags.iterator().next().getCode());
+    }
+
+}

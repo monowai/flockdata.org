@@ -53,7 +53,7 @@ public class TestAPISecurity extends EngineBase {
 	public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
 			throws Exception {
 		mockMVC.perform(MockMvcRequestBuilders.get("/fortress/"))
-				.andExpect(MockMvcResultMatchers.status().isForbidden())
+				.andExpect(MockMvcResultMatchers.status().isUnauthorized())
 				.andReturn();
 	}
 

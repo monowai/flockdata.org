@@ -40,6 +40,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.*;
@@ -77,7 +78,7 @@ public class QueryDaoES implements QueryDao {
     private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
 
-        if (params.getRelationships()== null || params.getRelationships().isEmpty()) {
+        if (params.getRelationships() == null || params.getRelationships().isEmpty()) {
             if (params.getTags() == null || params.getTags().isEmpty())
                 return result;
             else {
@@ -92,7 +93,7 @@ public class QueryDaoES implements QueryDao {
             if (params.getTags() == null || params.getTags().isEmpty())
                 result.add(parseTagCode(relationship, "*"));
             else
-                for ( String tag : params.getTags() ) {
+                for (String tag : params.getTags()) {
                     result.add(parseTagCode(relationship, tag));
                     result.add(parseTagName(relationship, tag));
                 }
@@ -103,12 +104,12 @@ public class QueryDaoES implements QueryDao {
     }
 
     private String parseTagCode(String relationship, String tag) {
-        return EntitySearchSchema.TAG + "." +  (relationship.toLowerCase().equals(tag.toLowerCase())?"":relationship.toLowerCase() + ".")+tag.toLowerCase() + ".code.facet";
+        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ".") + tag.toLowerCase() + ".code.facet";
         //return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".code.facet";
     }
 
     private String parseTagName(String relationship, String tag) {
-        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase())?"":relationship.toLowerCase() + ".") +tag.toLowerCase() + ".name.facet";
+        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ".") + tag.toLowerCase() + ".name.facet";
 //        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".name.facet";
     }
 
@@ -121,11 +122,11 @@ public class QueryDaoES implements QueryDao {
         Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
         SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress()))
-                        .setTypes(tagCloudParams.getTypes());
+                .setTypes(tagCloudParams.getTypes());
 
-        if (tagCloudParams.getRelationships()!=null)
+        if (tagCloudParams.getRelationships() != null)
             tagCloudParams.getRelationships().clear();
-        if (tagCloudParams.getTags()!=null)
+        if (tagCloudParams.getTags() != null)
             tagCloudParams.getTags().clear();
         query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
         for (String whatAndTagField : whatAndTagFields) {
@@ -157,26 +158,26 @@ public class QueryDaoES implements QueryDao {
     /**
      * Indexed document tags always have a code but not always a name. Typically a code will
      * be a codified value so we favour human readable names.
-     *
+     * <p>
      * If the code and the name are equal during indexing, then the value is stored
      * only as a code. Entity document tags always have a code value.
-     *
+     * <p>
      * We want to return either the name or the code associated with the document. We don't want to
      * resort to a scripted field to achieve this so the action is being performed here.
      *
      * @param asMap ES results
-     * @return      Results to return to the caller
+     * @return Results to return to the caller
      */
     private Map<String, Aggregation> resolveKeys(Map<String, Aggregation> asMap) {
-        Map<String, Aggregation>results = new HashMap<>();
-        ArrayList<String>relationships = new ArrayList<>();
+        Map<String, Aggregation> results = new HashMap<>();
+        ArrayList<String> relationships = new ArrayList<>();
 
         for (String s : asMap.keySet()) {
             int pos = s.indexOf(".name.facet"); // Names by preference
-            if ( pos > 0 ) {
+            if (pos > 0) {
 
-                InternalTerms terms = (InternalTerms)asMap.get(s);
-                if ( terms.getBuckets().size()!=0) {
+                InternalTerms terms = (InternalTerms) asMap.get(s);
+                if (terms.getBuckets().size() != 0) {
                     String relationship = s.substring(0, pos);
                     relationships.add(relationship);
                     results.put(s, asMap.get(s));
@@ -186,9 +187,9 @@ public class QueryDaoES implements QueryDao {
         // Pickup any Codes that don't have Name entries
         for (String s : asMap.keySet()) {
             int pos = s.indexOf(".code.facet"); // Names by preference
-            if ( pos > 0 ) {
+            if (pos > 0) {
                 String relationship = s.substring(0, pos);
-                if ( ! relationships.contains(relationship)) {
+                if (!relationships.contains(relationship)) {
                     relationships.add(relationship);
                     results.put(s, asMap.get(s));
                 }
@@ -209,7 +210,7 @@ public class QueryDaoES implements QueryDao {
         return response.getHits().getTotalHits();
     }
 
-    public MetaKeyResults doMetaKeySearch ( QueryParams queryParams ) throws FlockException{
+    public MetaKeyResults doMetaKeySearch(QueryParams queryParams) throws FlockException {
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
@@ -220,10 +221,10 @@ public class QueryDaoES implements QueryDao {
                 .setSize(queryParams.getRowsPerPage())
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
 
-        SearchResponse response ;
+        SearchResponse response;
         try {
             response = query.execute().get(50000l, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException |ExecutionException | TimeoutException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.error("MetaKeySearch query error ", e);
             throw new FlockException("MetaKeySearch query error ", e);
         }
@@ -232,7 +233,7 @@ public class QueryDaoES implements QueryDao {
 
     private MetaKeyResults getMetaKeyResults(SearchResponse response) {
         MetaKeyResults results = new MetaKeyResults();
-        if ( response == null || response.getHits().getTotalHits() == 0)
+        if (response == null || response.getHits().getTotalHits() == 0)
             return results;
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
@@ -379,14 +380,38 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
+        if (queryParams.getQuery() != null) {
 
-        GetResponse response =
-                client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
-                        queryParams.getTypes()[0],
-                        queryParams.getCallerRef())
-                        .execute()
-                        .actionGet();
+            String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) + "}";
 
-        return new EsSearchResult(response.getSourceAsBytes());
+            SearchRequestBuilder esQuery = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+                    .setExtraSource(query);
+
+
+            if ( queryParams.getRowsPerPage()!=null )
+                esQuery.setSize(queryParams.getRowsPerPage());
+
+            if (queryParams.getStartFrom() != null)
+                esQuery.setFrom(queryParams.getStartFrom());
+
+            SearchResponse response = esQuery
+                    .execute()
+                    .actionGet();
+
+            EsSearchResult result = new EsSearchResult(response.toString().getBytes());
+            result.setTotalHits(response.getHits().getTotalHits());
+            return result;
+
+        } else {
+            GetResponse response =
+                    client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
+                            queryParams.getTypes()[0],
+                            queryParams.getCallerRef())
+                            .execute()
+                            .actionGet();
+            return new EsSearchResult(response.getSourceAsBytes());
+        }
+
+
     }
 }

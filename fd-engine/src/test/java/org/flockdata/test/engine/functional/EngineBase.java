@@ -85,7 +85,8 @@ public abstract class EngineBase {
     EntityService entityService;
 
 	@Autowired
-    EntityTagService entityTagService;
+	protected
+	EntityTagService entityTagService;
 
     @Autowired
     GeographyService geoService;

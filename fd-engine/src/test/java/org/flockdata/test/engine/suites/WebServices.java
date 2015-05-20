@@ -25,6 +25,7 @@ package org.flockdata.test.engine.suites;
  */
 
 import org.flockdata.test.engine.endpoint.CompanyTestEP;
+import org.flockdata.test.engine.endpoint.DocTestEP;
 import org.flockdata.test.engine.endpoint.TestAPISecurity;
 import org.flockdata.test.engine.endpoint.TestAuthenticationEP;
 import org.flockdata.test.engine.functional.*;
@@ -42,8 +43,10 @@ import org.junit.runners.Suite;
         TestApiKeyHelper.class,
         TestProfileRegistration.class,
         TestApiKeyInterceptor.class,
+        DocTestEP.class,
         CompanyTestEP.class
 })
 public class WebServices {
-    public WebServices(){}
+    public WebServices() {
+    }
 }
