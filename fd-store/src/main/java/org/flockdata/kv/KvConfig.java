@@ -69,14 +69,17 @@ public class KvConfig implements FdKvConfig {
     @Override
     @Value("${fd-store.engine}")
     public void setKvStore(String kvStore) {
-        if ("@null".equals(kvStore) || kvStore.equalsIgnoreCase("redis"))
+        if ( kvStore.equalsIgnoreCase(KV_STORE.REDIS.toString()))
             setKvStore( KV_STORE.REDIS);
-        else if (kvStore.equalsIgnoreCase("riak"))
+        else if (kvStore.equalsIgnoreCase(KV_STORE.RIAK.toString()))
             setKvStore( KV_STORE.RIAK);
-        else if (kvStore.equalsIgnoreCase("MEMORY"))
+        else if (kvStore.equalsIgnoreCase(KV_STORE.NONE.toString()))
+            setKvStore( KV_STORE.NONE);
+        else if (kvStore.equalsIgnoreCase(KV_STORE.MEMORY.toString()))
             setKvStore( KV_STORE.MEMORY);
         else {
-            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to REDIS");
+            setKvStore( KV_STORE.NONE);
+            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to NONE");
         }
 
     }
@@ -89,9 +92,6 @@ public class KvConfig implements FdKvConfig {
 
     @Override
     public KV_STORE getKvStore() {
-//        if ( !getStoreEnabled() )
-//            return KV_STORE.NONE;
-
         return kvStore;
     }
 
