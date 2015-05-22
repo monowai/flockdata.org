@@ -625,6 +625,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public void purge(Fortress fortress) {
+        logger.info("Entity Purge routine {}", fortress );
         schemaService.purge(fortress);
         entityDao.purgeTagRelationships(fortress);
         entityDao.purgeFortressLogs(fortress);
@@ -632,6 +633,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         entityDao.purgeFortressDocuments(fortress);
         entityDao.purgeEntities(fortress);
+        logger.info("Completed entity purge routine {}", fortress );
 
     }
 

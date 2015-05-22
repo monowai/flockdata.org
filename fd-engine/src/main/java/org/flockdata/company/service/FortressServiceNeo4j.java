@@ -204,6 +204,7 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public void purge(Fortress fortress) throws FlockException {
+        logger.info("Puring fortress {}", fortress);
         fortressDao.delete(fortress);
     }
 
