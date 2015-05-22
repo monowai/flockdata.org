@@ -26,7 +26,6 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
@@ -71,13 +70,19 @@ public class AdminService implements EngineAdminService {
 
     @Async("fd-engine")
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
-
-        String indexName = EntitySearchSchema.PREFIX + company.getCode() + "." + fortress.getCode();
+        // ToDo: Needs to be heavily reworked
+        // Rename the exiting fortress and flag it as deleted.
+        // Batch the entities for deletion. Log Content could be stored across multiple KVstores for a
+        // single fortress
+        String indexName = fortress.getIndexName();
         entityService.purge(fortress);
-        kvService.purge(indexName);
+        if ( fortress.isStoreEnabled() && engineConfig.getKvStore()!= KvService.KV_STORE.NONE) {
+            logger.info("Purging KV");
+            kvService.purge(fortress.getIndexName());
+        }
         fortressService.purge(fortress);
         engineConfig.resetCache();
-        searchService.purge(indexName);
+        searchService.purge(fortress.getIndexName());
         logger.info ("Completed purge of indexed data [{}]", indexName);
         return new AsyncResult<>(true);
 

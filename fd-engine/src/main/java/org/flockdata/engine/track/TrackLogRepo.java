@@ -56,9 +56,14 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
                     " return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
 
-    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
+    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log) where id(f) = {0} delete l,log;")
     void purgeFortressLogs(Long fortressId);
 
+    // ToDO:
+    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
+    void purgeLogsWithUsers(Long fortressId);
+
+    //match (f:Fortress)-[track:TRACKS]->(entity:Entity)-[r]-(o:Tag) where id(f)=514705 delete r;
     @Query (value = "match (f:Fortress)-[track:TRACKS]->(m:Entity)-[tagRlx]-(:Tag) where id(f)={0} delete tagRlx")
     void purgeTagRelationships(Long fortressId);
 
