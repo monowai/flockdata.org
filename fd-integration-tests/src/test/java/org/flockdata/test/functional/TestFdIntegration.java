@@ -1059,7 +1059,7 @@ public class TestFdIntegration {
 
         // All text is converted to lowercase, so you have to search with lower
         doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "des", 1);
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "de", 0);
+        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "de", 1);
         doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "descripti", 1);
         doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "descriptio", 1);
         doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "this", 1);
