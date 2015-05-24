@@ -423,7 +423,7 @@ public class EntityDaoNeo {
         Collection<Entity> entities = new ArrayList<>();
         results.put(xRefName, entities);
         for (Relationship rlx : rlxs) {
-            entities.add(template.projectTo(rlx.getEndNode(), EntityNode.class));
+            entities.add(template.projectTo(rlx.getOtherNode(n), EntityNode.class));
         }
         return results;
 

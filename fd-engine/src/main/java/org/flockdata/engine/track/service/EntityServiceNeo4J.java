@@ -126,8 +126,8 @@ public class EntityServiceNeo4J implements EntityService {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
                 entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
             }
-            if ( entityInputBean.getProperties()!=null) {
-                if ( entity.setProperties(entityInputBean.getProperties())) {
+            if (entityInputBean.getProperties() != null) {
+                if (entity.setProperties(entityInputBean.getProperties())) {
                     entityDao.save(entity);
 
                 }
@@ -567,7 +567,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> entityKeys, String xRefName) throws FlockException {
-        Fortress f = fortressService.findByName(company, sourceKey.getFortressName());
+        Fortress f = fortressService.findByCode(company, sourceKey.getFortressName());
         if (f == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
         Entity fromEntity;
@@ -587,19 +587,26 @@ public class EntityServiceNeo4J implements EntityService {
         for (EntityKey entityKey : entityKeys) {
             int count = 1;
 
-            Collection<Entity> entities;
+            Collection<Entity> entities = new ArrayList<>();
             if (entityKey.getDocumentType().equals("*"))
                 entities = findByCallerRef(f, entityKey.getCallerRef());
             else {
-                Entity mh = findByCallerRef(fortressService.findByName(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
+                Entity mh = findByCallerRef(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
                 if (mh == null) {
-                    ignored.add(entityKey);
-                    entities = null;
-
-                } else {
-                    Collection<Entity> array = new ArrayList<>();
-                    array.add(mh);
-                    entities = array;
+                    // DAT-443
+                    // Create a place holding entity if the requested one does not exist
+                    DocumentType documentType = schemaService.resolveByDocCode(f, entityKey.getDocumentType(), false);
+                    if ( documentType !=null ) {
+                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCallerRef(entityKey.getCallerRef());
+                        TrackResultBean trackResult = createEntity(f, documentType, eib, null);
+                        mh = trackResult.getEntity();
+                    } else {
+                        ignored.add(entityKey);
+                    }
+                }
+                if ( mh!=null ) {
+                    entities.add(mh);
+                    //entities = array;
                 }
             }
             if (entities != null) {
@@ -625,7 +632,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public void purge(Fortress fortress) {
-        logger.info("Entity Purge routine {}", fortress );
+        logger.info("Entity Purge routine {}", fortress);
         schemaService.purge(fortress);
         entityDao.purgeTagRelationships(fortress);
         entityDao.purgeFortressLogs(fortress);
@@ -633,7 +640,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         entityDao.purgeFortressDocuments(fortress);
         entityDao.purgeEntities(fortress);
-        logger.info("Completed entity purge routine {}", fortress );
+        logger.info("Completed entity purge routine {}", fortress);
 
     }
 
@@ -739,9 +746,7 @@ public class EntityServiceNeo4J implements EntityService {
             for (String xRefName : references.keySet()) {
                 try {
                     List<EntityKey> notFound = crossReferenceEntities(company,
-                            new EntityKey(crossReferenceInputBean.getFortress(),
-                                    crossReferenceInputBean.getDocumentType(),
-                                    crossReferenceInputBean.getCallerRef()),
+                            new EntityKey(crossReferenceInputBean),
                             references.get(xRefName), xRefName);
                     crossReferenceInputBean.setIgnored(xRefName, notFound);
 //                    references.put(xRefName, notFound);
