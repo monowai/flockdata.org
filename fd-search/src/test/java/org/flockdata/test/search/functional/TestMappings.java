@@ -19,6 +19,7 @@
 
 package org.flockdata.test.search.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.*;
@@ -39,6 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -300,26 +302,40 @@ public class TestMappings extends ESBase {
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
 
-        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
-        change.setWhat(what);
-        ArrayList<EntityTag> tags = new ArrayList<>();
-
-        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
+        TagInputBean tagInput = new TagInputBean("tagcode", "TagLabel", "tag-relationship");
         Tag tag = new SimpleTag(tagInput);
 
-        tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
 
+        ArrayList<EntityTag> tags = new ArrayList<>();
 
-        SimpleEntityTagRelationship entityTag = new SimpleEntityTagRelationship(entity, tag, "mytag", null);
-        GeoData geoData = new GeoData("NZ", "New Zealand", "Wellington", null);
-        geoData.setLatLong(174.0, -41.0);
+        HashMap<String,Object>tagProps = new HashMap<>();
+        tagProps.put("num",100d);
+        tagProps.put("str","hello");
+        SimpleEntityTagRelationship entityTag = new SimpleEntityTagRelationship(entity, tag, "entity-relationship", tagProps);
+        // DAT-442 Geo refactoring
+        GeoData geoData = new GeoData();
+        geoData.add("country", "NZ", "New Zealand",174.0, -41.0 );
+        assertEquals("NZ", geoData.getProperties().get("country.code"));
+        assertEquals("New Zealand", geoData.getProperties().get("country.name"));
+        assertEquals("174.0,-41.0", geoData.getProperties().get("points.country"));
+        //assertEquals(-41.0, Double.parseDouble(geoData.getProperties().get("country.lon").toString()));
         entityTag.setGeoData(geoData);
+        tags.add(entityTag);
 
+
+        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+
+        change.setWhat(what);
         change.setTags(tags);
 
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.handle(change);
 
+        searchRepo.ensureIndex(change.getIndexName().toLowerCase(), change.getDocumentType());
+        SearchChange searchResult = searchRepo.handle(change);
+        TestCase.assertNotNull(searchResult);
+        Thread.sleep(2000);
+
+        // ToDo: Assert shit
+        doQuery(change.getIndexName().toLowerCase(), "*",1);
     }
 
 }

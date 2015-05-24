@@ -21,7 +21,6 @@ package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.GeoData;
 
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class SearchTag {
     String iso;
     String country;
     String city;
-    GeoData geo;
+    Map<String,Object> geo;
 
 
     SearchTag() {
@@ -53,7 +52,7 @@ public class SearchTag {
             this.properties = tag.getTag().getProperties();
 
         if (tag.getGeoData() != null) {
-            this.geo = tag.getGeoData();
+            this.geo = tag.getGeoData().getProperties();
         }
 
     }
@@ -74,7 +73,7 @@ public class SearchTag {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public GeoData getGeo() {
+    public Map<String,Object> getGeo() {
         return geo;
     }
 }
