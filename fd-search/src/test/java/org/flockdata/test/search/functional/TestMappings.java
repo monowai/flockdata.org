@@ -32,7 +32,6 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.SearchChange;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -142,18 +141,12 @@ public class TestMappings extends ESBase {
         String comp = "comp2";
         String fort = "fort2";
         String user = "mikey";
-        String doc = fort;
 
-        DateTime now = new DateTime();
-
-        Entity entity = Helper.getEntity(comp, fort, user, doc);
+        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
 
         deleteEsIndex(entity.getFortress().getIndexName());
 
-        Map<String, Object> what = Helper.getSimpleMap(
-                EntitySearchSchema.WHAT_CODE, "AZERTY");
-        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
-        what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
+        Map<String, Object> what = Helper.getRandomMap();
 
         SearchChange change = new EntitySearchChange(new EntityBean(entity));
         change.setDescription("This is a description");
@@ -163,23 +156,13 @@ public class TestMappings extends ESBase {
         SearchChange searchResult = searchRepo.handle(change);
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(entity.getFortress().getIndexName(), "AZERTY", 1);
+        doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1);
 
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "de", 1);
         doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
-        // ToDo: Figure out ngram mappings
-//        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
-
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
-
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "desc", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "descripti", 1);
+        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "descriptio", 1);
 
     }
 
@@ -308,13 +291,13 @@ public class TestMappings extends ESBase {
 
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        HashMap<String,Object>tagProps = new HashMap<>();
-        tagProps.put("num",100d);
-        tagProps.put("str","hello");
+        HashMap<String, Object> tagProps = new HashMap<>();
+        tagProps.put("num", 100d);
+        tagProps.put("str", "hello");
         SimpleEntityTagRelationship entityTag = new SimpleEntityTagRelationship(entity, tag, "entity-relationship", tagProps);
         // DAT-442 Geo refactoring
         GeoData geoData = new GeoData();
-        geoData.add("country", "NZ", "New Zealand",174.0, -41.0 );
+        geoData.add("country", "NZ", "New Zealand", 174.0, -41.0);
         assertEquals("NZ", geoData.getProperties().get("country.code"));
         assertEquals("New Zealand", geoData.getProperties().get("country.name"));
         assertEquals("174.0,-41.0", geoData.getProperties().get("points.country"));
@@ -335,7 +318,7 @@ public class TestMappings extends ESBase {
         Thread.sleep(2000);
 
         // ToDo: Assert shit
-        doQuery(change.getIndexName().toLowerCase(), "*",1);
+        doQuery(change.getIndexName().toLowerCase(), "*", 1);
     }
 
 }
