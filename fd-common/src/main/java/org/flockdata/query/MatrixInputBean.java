@@ -44,6 +44,7 @@ public class MatrixInputBean {
     private Boolean reciprocalExcluded = false;
     private String sumCol;  // TBC: Should we let the user pick a column
     private boolean sumByCol =false;
+    private String sumColumn ="props-value";
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -162,5 +163,13 @@ public class MatrixInputBean {
 
     public void setByKey(boolean byKey) {
         this.byKey = byKey;
+    }
+
+    public String getSumColumn() {
+        return sumColumn;
+    }
+
+    public void setSumColumn(String sumColumn) {
+        this.sumColumn = sumColumn;
     }
 }

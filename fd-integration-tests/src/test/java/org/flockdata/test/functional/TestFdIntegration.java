@@ -1291,8 +1291,8 @@ public class TestFdIntegration {
         String city = "Los Angeles";
 
         TagInputBean countryInputTag = new TagInputBean(country, "Country", "").setName("United States");
-        TagInputBean cityInputTag = new TagInputBean(city, ":City", "");
-        TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
+        TagInputBean cityInputTag = new TagInputBean("LA", "City", "").setName(city);
+        TagInputBean stateInputTag = new TagInputBean("CA", "State", "").setName("California");
 
         TagInputBean institutionTag = new TagInputBean("mikecorp", "Institution", "owns");
         // Institution is in a city
@@ -1306,10 +1306,14 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
         waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
 
-        doEsFieldQuery(resultBean.getIndex(), "tag.owns.institution.geo.stateCode", "ca", 1);
-        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.isoCode", "usa", 1);
-        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.isoCode", "usa", 1);
-        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.city", "los angeles", 1);
+        doEsFieldQuery(resultBean.getIndex(), "tag.owns.institution.geo.state.code", "ca", 1);
+        doEsFieldQuery(resultBean.getIndex(), "tag.owns.institution.geo.state.name", "california", 1);
+
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.country.code", "usa", 1);
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.country.name", "united states", 1);
+
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.city.code", "la", 1);
+        doEsFieldQuery( resultBean.getIndex(), "tag.owns.institution.geo.city.name", "los angeles", 1);
 
     }
 
@@ -1331,7 +1335,7 @@ public class TestFdIntegration {
         TagInputBean institutionTag = new TagInputBean("mikecorp", "Institution", "owns");
 
         TagInputBean unitedStates = new TagInputBean("USA", "Country", "").setName("United States");
-        TagInputBean losAngeles = new TagInputBean(la, ":City", "").setName(la);
+        TagInputBean losAngeles = new TagInputBean("LA", ":City", "").setName(la);
         TagInputBean california = new TagInputBean("CA", "State", "").setName("California");
 
         // Institution is in a city
@@ -1339,6 +1343,7 @@ public class TestFdIntegration {
         losAngeles.setTargets("state", california);
         california.setTargets("country", unitedStates);
         entityInput.addTag(institutionTag);
+
         // Institution<-city<-state<-country
         TrackResultBean resultBeanA = mediationFacade.trackEntity(su.getCompany(), entityInput);
 
@@ -1348,8 +1353,8 @@ public class TestFdIntegration {
         entityInput.setContent(content);
         institutionTag = new TagInputBean("mikecorpb", "Institution", "owns");
         // Institution is in a city
-        TagInputBean portland = new TagInputBean("Portland", "City", "").setName("Portland");
-        TagInputBean oregon = new TagInputBean("OR", "State", "").setName("Oregon");
+        TagInputBean portland = new TagInputBean("Dallas", "City", "").setName("Dallas");
+        TagInputBean oregon = new TagInputBean("TX", "State", "").setName("Texas");
 
         institutionTag.setTargets("located", portland);
         portland.setTargets("state", oregon);
@@ -1357,14 +1362,15 @@ public class TestFdIntegration {
         entityInput.addTag(institutionTag);
 
         TrackResultBean resultBeanB = mediationFacade.trackEntity(su.getCompany(), entityInput);
+
         waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
         waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
 
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.stateCode", "ca", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.stateCode", "or", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.isoCode", unitedStates.getCode().toLowerCase(), 2);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "los angeles", 1);
-        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city", "portland", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state.code", california.getCode().toLowerCase(), 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city.name", losAngeles.getName().toLowerCase(), 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.state.code", "tx", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.city.code", "dallas", 1);
+        doEsFieldQuery( fortress.getIndexName(), "tag.owns.institution.geo.country.code", unitedStates.getCode().toLowerCase(), 2);
     }
 
     @Test

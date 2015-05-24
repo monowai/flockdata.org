@@ -800,8 +800,8 @@ public class TestEntityTags extends EngineBase {
         for (EntityTag tag : tags) {
             assertEquals("mikecorp", tag.getTag().getCode());
             assertNotNull(tag.getGeoData());
-            assertEquals(stateInputTag.getCode(), tag.getGeoData().getStateCode());
-            assertEquals(cityInputTag.getCode(), tag.getGeoData().getCity());
+            assertEquals(stateInputTag.getCode(), tag.getGeoData().getProperties().get("state.code"));
+            assertEquals(cityInputTag.getCode(), tag.getGeoData().getProperties().get("city.code"));
             Collection<Tag> cities = tagService.findDirectedTags(tag.getTag());
             org.junit.Assert.assertFalse(cities.isEmpty());
             Tag cityTag = cities.iterator().next();
