@@ -54,6 +54,7 @@
         "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
       },
       "description": {
+        "analyzer": "ngram_short",
         "type": "string",
         "boost": 4
       },
