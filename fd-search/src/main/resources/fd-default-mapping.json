@@ -55,7 +55,6 @@
       },
       "description": {
         "type": "string",
-        "analyzer": "ngram_short",
         "boost": 4
       },
       "when": {
@@ -67,14 +66,11 @@
       },
 
       "tag.codes" : {
-        "type" : "completion",
-        "analyzer": "ngram_short",
-        "payloads" : true
+        "type" : "string"
       },
 
       "tag.names": {
-        "type" : "completion",
-        "analyzer": "ngram_short",
+        "type" : "string",
         "payloads" : true
       }
     },

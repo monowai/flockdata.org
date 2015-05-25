@@ -3,14 +3,15 @@
         "filter": {
             "autocomplete_filter": {
                 "type":     "edge_ngram",
-                "min_gram": 1,
-                "max_gram": 20
+                "min_gram": 2,
+                "max_gram": 10
             }
         },
         "analyzer": {
             "ngram_short": {
                 "type":      "custom",
                 "tokenizer": "standard",
+                "max_token_length": "900",
                 "filter": [
                     "lowercase",
                     "autocomplete_filter"

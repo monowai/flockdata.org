@@ -77,7 +77,7 @@ public class TagNode implements Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = getCode().toLowerCase().replaceAll("\\s", "");
+        this.key = TagDaoNeo4j.parseKey(getCode());
         if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }

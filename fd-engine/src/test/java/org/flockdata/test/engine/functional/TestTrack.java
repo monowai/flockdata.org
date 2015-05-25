@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -67,17 +68,22 @@ public class TestTrack extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "poppy", "CompanyNode", DateTime.now(), "12xx09");
         inputBean.setProperty("value", "H8CT04172");
+        inputBean.setProperty("avg", ".123");
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
         TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull ( entity);
+        TestCase.assertEquals(2, entity.getProperties().size());
         assertEquals("H8CT04172", entity.getProperty("value"));
+        assertEquals(".123", entity.getProperty("avg"));
+
         inputBean = new EntityInputBean(fortress.getName(), "poppy", "CompanyNode", DateTime.now(), "12xx09");
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "A")));
         inputBean.setProperty("value", 200d);
         result = mediationFacade.trackEntity(fortress, inputBean);
         entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(entity);
+        TestCase.assertEquals("The Avg property should have been removed", 1, entity.getProperties().size());
         assertEquals("Userdefined property did not change", 200d, entity.getProperty("value"));
 
 
