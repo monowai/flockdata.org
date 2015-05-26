@@ -404,7 +404,7 @@ public class TrackDaoES implements TrackSearchDao {
     private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
 
         Collection<String>tagCodes = new ArrayList<>();
-        Collection<String>tagNames = new ArrayList<>();
+
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
         boolean enableSquash = true; // If tag and rlx names are the same, store just the values
@@ -432,7 +432,7 @@ public class TrackDaoES implements TrackSearchDao {
                         if (!tagCodes.contains(value.getCode())){
                             tagCodes.add(value.getCode());
                             if ( value.getName()!=null)
-                                tagNames.add(value.getName());
+                                tagCodes.add(value.getName());
                         }
                     } else {
                         ArrayList<SearchTag> values = mapValues.get(label);
@@ -441,7 +441,7 @@ public class TrackDaoES implements TrackSearchDao {
                             if (!tagCodes.contains(value.getCode())){
                                 tagCodes.add(value.getCode());
                                 if ( value.getName()!=null)
-                                    tagNames.add(value.getName());
+                                    tagCodes.add(value.getName());
                             }
                         }
 
@@ -457,9 +457,7 @@ public class TrackDaoES implements TrackSearchDao {
             indexMe.put(EntitySearchSchema.TAG, byRelationship);
         }
         if ( !tagCodes.isEmpty())
-            indexMe.put(EntitySearchSchema.TAG+".codes", tagCodes);
-        if ( !tagNames.isEmpty())
-            indexMe.put(EntitySearchSchema.TAG+".names", tagNames);
+            indexMe.put(EntitySearchSchema.ALL_TAGS, tagCodes);
 
         //indexMe.put(EntitySearchSchema.TAG, tagValues);
     }

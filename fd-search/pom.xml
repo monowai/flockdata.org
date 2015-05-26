@@ -255,7 +255,7 @@
                         <goals>
                             <goal>exec-war-only</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>install</phase>
                         <configuration>
                             <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->

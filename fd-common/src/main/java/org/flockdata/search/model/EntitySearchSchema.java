@@ -38,6 +38,7 @@ public class EntitySearchSchema {
     public static final String ATTACHMENT = "attachment";
 
     public static final String TAG = "tag";
+    public static final String ALL_TAGS = "tags";
     public static final String LAST_EVENT = "lastEvent";
     public static final String WHO = "who";
     public static final String META_KEY = "metaKey";

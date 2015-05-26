@@ -65,19 +65,17 @@
         "type": "string",
         "index": "not_analyzed"
       },
-
-      "tag.codes" : {
-        "type" : "string"
-      },
-
-      "tag.names": {
-        "type" : "string",
-        "payloads" : true
+      "tags": {
+        "type": "multi_field",
+        "fields":  {
+          "tags":  { "type": "string", "analyzer": "ngram_short" },
+          "facet": { "type": "string", "index": "not_analyzed", "docValues":true }
+        }
       }
     },
     "dynamic_templates": [
       {
-        "nested_tag": {
+        "inline_tag": {
           "match": "tag.*",
           "mapping": {
             "type": "nested"
@@ -85,7 +83,7 @@
         }
       },
       {
-        "nested_tag_code_template": {
+        "inline_tag_code_template": {
           "path_match": "tag.*.code",
           "match_mapping_type": "string",
           "mapping": {
@@ -107,7 +105,7 @@
         }
       },
       {
-        "nested_tag_name_template": {
+        "inline_tag_name_template": {
           "path_match": "tag.*.name",
           "match_mapping_type": "string",
           "mapping": {

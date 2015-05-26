@@ -48,11 +48,6 @@ public class GeoData {
 
     Map<String, Object> properties = new HashMap<>();
 
-    public void setLatLong(String label, Double lat, Double lon) {
-        if (lat != null && lon != null)
-            properties.put("points."+label, lat.toString() + "," + lon.toString());
-    }
-
     public void add(String prefix, String code, String name, Double lat, Double lon) {
         properties.put(prefix+".code", code);
         if ( name !=null )
@@ -60,4 +55,10 @@ public class GeoData {
         // ToDo: Map user defined properties?
         setLatLong(prefix, lat, lon);
     }
+
+    private void setLatLong(String label, Double lat, Double lon) {
+        if (lat != null && lon != null)
+            properties.put("points."+label, lat.toString() + "," + lon.toString());
+    }
+
 }
