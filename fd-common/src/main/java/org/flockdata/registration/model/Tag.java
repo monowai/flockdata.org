@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -38,7 +38,7 @@ public interface Tag {
 
     public String getName();
 
-    void setName(String floppy);
+    void setName(String name);
 
     Long getId();
 

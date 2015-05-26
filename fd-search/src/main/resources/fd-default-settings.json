@@ -1,21 +1,17 @@
 {
     "analysis": {
-        "filter": {
-            "autocomplete_filter": {
-                "type":     "edge_ngram",
-                "min_gram": 2,
-                "max_gram": 10
+        "analyzer": {
+            "auto-complete": {
+                "type": "custom",
+                "tokenizer": "standard",
+                "filter": [ "standard",  "stop", "lowercase", "kstem" ]
             }
         },
-        "analyzer": {
-            "ngram_short": {
-                "type":      "custom",
-                "tokenizer": "standard",
-                "max_token_length": "900",
-                "filter": [
-                    "lowercase",
-                    "autocomplete_filter"
-                ]
+        "filter": {
+            "word_gram": {
+                "type": "edge_ngram",
+                "min_gram": 2,
+                "max_gram": 6
             }
         }
     }

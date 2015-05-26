@@ -108,7 +108,7 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>0.1.2</version>
+            <version>0.1.6</version>
         </dependency>
         <dependency>
             <groupId>com.stormpath.sdk</groupId>
