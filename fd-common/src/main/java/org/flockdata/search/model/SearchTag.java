@@ -20,8 +20,10 @@
 package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.dao.EntityTagDao;
 import org.flockdata.track.model.EntityTag;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,28 +33,32 @@ public class SearchTag {
     String code;
     String name;
     Map<String, Object> properties;
-    String iso;
-    String country;
-    String city;
+    Map<String, Object> rlx;
     Map<String,Object> geo;
 
 
     SearchTag() {
     }
 
-    SearchTag(EntityTag tag) {
+    SearchTag(EntityTag entityTag) {
         this();
-        this.code = tag.getTag().getCode();
-        this.name = tag.getTag().getName();
+        this.code = entityTag.getTag().getCode();
+        this.name = entityTag.getTag().getName();
 
         if (this.name != null && this.name.equalsIgnoreCase(code))
             this.name = null; // Prefer code over name
 
-        if (tag.getProperties()!=null && !tag.getProperties().isEmpty())
-            this.properties = tag.getTag().getProperties();
+        if (entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty())
+            this.properties = entityTag.getTag().getProperties();
 
-        if (tag.getGeoData() != null) {
-            this.geo = tag.getGeoData().getProperties();
+        if (entityTag.getGeoData() != null) {
+            this.geo = entityTag.getGeoData().getProperties();
+        }
+        if ( entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty()){
+            this.rlx = new HashMap<>();
+            entityTag.getProperties().keySet().stream().filter
+                    (key -> !key.equals("since") && !key.equals(EntityTagDao.FD_WHEN)).
+                    forEach(key -> rlx.put(key, entityTag.getProperties().get(key)));
         }
 
     }
@@ -70,6 +76,11 @@ public class SearchTag {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<String, Object> getRlx() {
+        return rlx;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

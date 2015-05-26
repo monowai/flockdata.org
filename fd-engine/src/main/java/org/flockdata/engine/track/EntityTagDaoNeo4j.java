@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track;
 
+import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagIn;
@@ -66,8 +67,6 @@ public class EntityTagDaoNeo4j {
     PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
-
-    static final String FD_WHEN = "fdWhen";
 
     public void deleteEntityTags(Collection<EntityTag> entityTags) throws FlockException {
 
@@ -137,7 +136,7 @@ public class EntityTagDaoNeo4j {
         for (EntityTag entityTag : entityTags) {
             // Remove any Entity that are newer than the log being re-instated as the "current" truth
             // if entityTag.fdWhen moreRecentThan logToMoveFrom
-            Long metaWhen = (Long) entityTag.getProperties().get(FD_WHEN);
+            Long metaWhen = (Long) entityTag.getProperties().get(EntityTagDao.FD_WHEN);
             logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getEntityLog().getFortressWhen());
             if (metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0) {
                 // This tag was added to the entity by a more recent log
