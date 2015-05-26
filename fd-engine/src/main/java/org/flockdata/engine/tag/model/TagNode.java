@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -99,8 +99,8 @@ public class TagNode implements Tag {
     }
 
     @Override
-    public void setName(String tagName) {
-        this.name = tagName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @JsonIgnore

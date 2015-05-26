@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -86,5 +86,13 @@ public class SearchTag {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String,Object> getGeo() {
         return geo;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchTag{" +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

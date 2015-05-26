@@ -54,7 +54,6 @@
         "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
       },
       "description": {
-        "analyzer": "ngram_short",
         "type": "string",
         "boost": 4
       },
@@ -67,9 +66,18 @@
       },
       "tags": {
         "type": "multi_field",
-        "fields":  {
-          "tags":  { "type": "string", "analyzer": "ngram_short" },
-          "facet": { "type": "string", "index": "not_analyzed", "docValues":true }
+        "fields": {
+          "tags": {
+            "type": "completion",
+            //"preserve_position_increments": false,
+            "analyzer": "auto-complete"
+          },
+          "facet": {
+            "type": "string",
+
+            "index": "not_analyzed",
+            "docValues": true
+          }
         }
       }
     },

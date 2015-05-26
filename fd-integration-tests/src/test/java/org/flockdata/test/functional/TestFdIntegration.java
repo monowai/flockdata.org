@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -26,8 +26,11 @@ import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
 import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Search;
+import io.searchbox.core.Suggest;
+import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.mapping.GetMapping;
+import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
@@ -1041,7 +1044,8 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
         EntityInputBean inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        inputBean.setDescription("This is a description");
+        TagInputBean tagInputBean = new TagInputBean("Description", "testLabel").setEntityLink("linked");
+        inputBean.addTag(tagInputBean);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntityBean().getMetaKey());
@@ -1054,17 +1058,12 @@ public class TestFdIntegration {
         String indexName = entity.getFortress().getIndexName();
         getMapping(indexName);
 
+        // Completion only works as "Starts with"
+        doCompletionQuery(indexedResult.getIndex(), "des", 1, "didn't find the tag");
+        doCompletionQuery(indexedResult.getIndex(), "descr", 1, "didn't find the tag");
         // This is a description
         // 123456789012345678901
 
-        // All text is converted to lowercase, so you have to search with lower
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "des", 1);
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "de", 1);
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "descripti", 1);
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "descriptio", 1);
-        doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "this", 1);
-        // ToDo: Figure out ngram details
-        //doEsTermQuery(indexName, EntitySearchSchema.DESCRIPTION, "this is a description", 0);
     }
 
     @Test
@@ -1992,5 +1991,37 @@ public class TestFdIntegration {
         throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }
 
+    String doCompletionQuery(String index, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+        // There should only ever be one document for a given Entity.
+        // Let's assert that
+        int runCount = 0, nbrResult;
+        SuggestResult result;
+        int esTimeout = 5;
 
+        runCount++;
+        String query = "{" +
+                "    \"result\" : {\n" +
+                "        \"text\" : \"" + queryString + "\",\n" +
+                "        \"completion\" : {\n" +
+                "            \"field\" : \"" + EntitySearchSchema.ALL_TAGS + "\"\n" +
+                "        }\n" +
+                "    }" +
+                "}";
+
+
+        Suggest search = new Suggest.Builder(query).
+                addIndex(index).
+                build();
+        result = esClient.execute(search);
+        TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
+
+        List<SuggestResult.Suggestion> suggestions = result.getSuggestions("result");
+
+        for (SuggestResult.Suggestion suggestion : suggestions) {
+            assertEquals(expectedHitCount, suggestion.options.size());
+        }
+
+
+        return result.getJsonString();
+    }
 }

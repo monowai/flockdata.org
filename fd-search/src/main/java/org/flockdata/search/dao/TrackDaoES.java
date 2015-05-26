@@ -403,7 +403,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
 
-        Collection<String>tagCodes = new ArrayList<>();
+        Collection<String>uniqueTags = new ArrayList<>();
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
@@ -416,9 +416,15 @@ public class TrackDaoES implements TrackSearchDao {
                 ArrayList<SearchTag> values = tagValues.get(relationship).get(relationship);
                 if (values.size() == 1) {
                     // DAT-329
-                    squash.put(relationship, values.iterator().next());
+                    SearchTag searchTag = values.iterator().next();
+                    squash.put(relationship, searchTag);
+                    gatherTag(uniqueTags, searchTag);
+
                 } else {
-                    squash.put(relationship, tagValues.get(relationship).get(relationship));
+                    ArrayList<SearchTag> searchTags = tagValues.get(relationship).get(relationship);
+                    squash.put(relationship, searchTags);
+                    gatherTags(uniqueTags, searchTags);
+
                 }
             } else {
                 Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(relationship);
@@ -426,24 +432,14 @@ public class TrackDaoES implements TrackSearchDao {
                 for (String label : mapValues.keySet()) {
                     if (mapValues.get(label).size() == 1) {
                         // DAT-329 if only one value, don't store as a collection
-                        SearchTag value = mapValues.get(label).iterator().next();
+                        SearchTag searchTag = mapValues.get(label).iterator().next();
                         // Store the tag
-                        newValues.put(label, value);
-                        if (!tagCodes.contains(value.getCode())){
-                            tagCodes.add(value.getCode());
-                            if ( value.getName()!=null)
-                                tagCodes.add(value.getName());
-                        }
+                        newValues.put(label, searchTag);
+                        gatherTag(uniqueTags, searchTag);
                     } else {
-                        ArrayList<SearchTag> values = mapValues.get(label);
-                        newValues.put(label, values);
-                        for (SearchTag value : values) {
-                            if (!tagCodes.contains(value.getCode())){
-                                tagCodes.add(value.getCode());
-                                if ( value.getName()!=null)
-                                    tagCodes.add(value.getName());
-                            }
-                        }
+                        ArrayList<SearchTag> searchTags = mapValues.get(label);
+                        newValues.put(label, searchTags);
+                        gatherTags(uniqueTags, searchTags);
 
                     }
                 }
@@ -456,10 +452,34 @@ public class TrackDaoES implements TrackSearchDao {
         if (!byRelationship.isEmpty()) {
             indexMe.put(EntitySearchSchema.TAG, byRelationship);
         }
-        if ( !tagCodes.isEmpty())
-            indexMe.put(EntitySearchSchema.ALL_TAGS, tagCodes);
+        if ( !uniqueTags.isEmpty())
+            indexMe.put(EntitySearchSchema.ALL_TAGS, uniqueTags);
 
-        //indexMe.put(EntitySearchSchema.TAG, tagValues);
+    }
+
+    /**
+     * adds a unique tag to the list of tags to store with this document
+     * These tags can be search by autocomplete
+     *
+     * @param tagCodes modified by reference
+     * @param fromTags tags to analyze
+     */
+    private void gatherTags(Collection<String> tagCodes, ArrayList<SearchTag> fromTags) {
+        for (SearchTag value : fromTags) {
+            gatherTag(tagCodes, value);
+        }
+    }
+
+    private void gatherTag(Collection<String> tagCodes, SearchTag value) {
+        if (!tagCodes.contains(value.getCode())){
+            tagCodes.add(value.getCode());
+            if ( value.getName()!=null)
+                tagCodes.add(value.getName());
+        }
+        if ( value.getGeo()!=null ){
+            Object o = value.getGeo();
+
+        }
     }
 
     private Map<String, Object> defaultSettings = null;
