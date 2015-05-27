@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -40,11 +40,14 @@ import java.util.TimeZone;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ColumnDefinition {
 
-    private String sourceCol;
-    private String dateFormat =null;
+    private String code;   // Evaluate and setCode()
+    private String source; // source property to read from
+    private String target; // source property to write source to (rename the column)
+    private String dateFormat =null; // Java valid date format
     private String timeZone; // To use for dates
-    private Boolean persistent = true;
+    private String dataType;
 
+    private Boolean persistent = true;
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
 
@@ -56,18 +59,12 @@ public class ColumnDefinition {
     private boolean country;
     private boolean createDate;
     private boolean document;
-
     private boolean tag;
     private boolean mustExist;
     private boolean createUser;
     private boolean updateUser;
     private boolean reverse = false;
 
-    private String format;
-
-    private String dataType;
-
-    private String callerRefExp; // Supports the caller ref as an expression
     private String strategy = null;
     private String fortress = null;
     private String documentType = null;
@@ -78,10 +75,8 @@ public class ColumnDefinition {
 
     private String valueOnError;// Value to set to if the format causes an exception
 
-
     private String nullOrEmpty;
-    private String appendJoinText = " ";
-
+//    private String appendJoinText = " ";
     private String notFound;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
@@ -92,16 +87,11 @@ public class ColumnDefinition {
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
 
-    private String[] refColumns;
-
     private String relationship; // Explicit relationship name
     private String rlxExp; // Relationship expression
 
     private String delimiter;
 
-    private String code;
-    private String source; // property to read from
-    private String target; // property to write to (essentially rename the column)
 
     private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
@@ -120,20 +110,6 @@ public class ColumnDefinition {
     @JsonDeserialize(using = TagProfileDeserializer.class)
     private ArrayList<TagProfile> targets = new ArrayList<>();
 
-    /**
-     * @return Columns used to create a callerReference where there is otherwise no identifiable key
-     */
-    public String[] getRefColumns() {
-        return refColumns;
-    }
-
-    /**
-     * @param tag flags this column as being an identifying tag.
-     */
-    public void setTag(boolean tag) {
-        this.tag = tag;
-    }
-
     public boolean isCallerRef() {
         return callerRef;
     }
@@ -142,10 +118,19 @@ public class ColumnDefinition {
         return title;
     }
 
+    /**
+     * Flags a tag block. Tags are not automatically assigned to the entity, but can be created
+     *       while tracking an entity
+     */
     public boolean isTag() {
         return tag || isCountry();
     }
 
+    /**
+     * if true, then a the tag will never be created. FD will find your tag by Code and Alias
+     *
+     * @return
+     */
     public boolean isMustExist() {
         return mustExist;
     }
@@ -204,10 +189,6 @@ public class ColumnDefinition {
         return reverse;
     }
 
-    public void setReverse(Boolean reverse) {
-        this.reverse = reverse;
-    }
-
     /**
      * if a delimiter is specified, then the column value will be treated as a delimited string and
      * a Tag.code will be created for each delimited value
@@ -218,24 +199,8 @@ public class ColumnDefinition {
         return delimiter;
     }
 
-    public void setDelimiter(String delimiter) {
-        this.delimiter = delimiter;
-    }
-
-    public void setDocument(boolean document) {
-        this.document = document;
-    }
-
-    public void setRefColumns(String[] refColumns) {
-        this.refColumns = refColumns;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     /**
@@ -245,19 +210,11 @@ public class ColumnDefinition {
         return createUser;
     }
 
-    public void setCreateUser(boolean createUser) {
-        this.createUser = createUser;
-    }
-
     /**
      * @return is this column carrying the value for the Last Update user
      */
     public boolean isUpdateUser() {
         return updateUser;
-    }
-
-    public void setUpdateUser(boolean updateUser) {
-        this.updateUser = updateUser;
     }
 
     /**
@@ -288,25 +245,13 @@ public class ColumnDefinition {
         return crossReferences;
     }
 
-    public void setCrossReferences(ArrayList<Map<String, String>> crossReferences) {
-        this.crossReferences = crossReferences;
-    }
-
     public boolean isUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(boolean updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
     @JsonIgnore
     public boolean isDateEpoc() {
-        return format != null && format.equalsIgnoreCase("epoc");
+        return dateFormat != null && dateFormat.equalsIgnoreCase("epoc");
     }
 
     public ArrayList<ColumnDefinition> getRlxProperties() {
@@ -326,7 +271,22 @@ public class ColumnDefinition {
         return (delimiter != null && delimiter.equalsIgnoreCase("array"));
     }
 
+    /**
+     * used to hold an expression for most columns.
+     * @return expression
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * evaluates a system column from an expression and set's it as appropriate
+     * code :"row#['mycol']"
+     * @param expCol pre-defined column
+     * @return property to be evaluated
+     */
     @JsonIgnore
+    @Deprecated // Favour getValue
     public String getExpression(ExpressionType expCol) {
         if (expCol == null)
             return null;
@@ -337,12 +297,8 @@ public class ColumnDefinition {
                 return code;
             case LABEL:
                 return label;
-            case CALLER_REF:
-                return callerRefExp;
             case RELATIONSHIP:
                 return rlxExp;
-//            case PROP_EXP:
-//                return propExp;
         }
 
         return null;
@@ -359,10 +315,6 @@ public class ColumnDefinition {
 
     public String getSource() {
         return source;
-    }
-
-    public String getCallerRefExp() {
-        return callerRefExp;
     }
 
     public String getRlxExp() {
@@ -412,24 +364,10 @@ public class ColumnDefinition {
         return notFound;
     }
 
-    @JsonIgnore
-    public void setSourceCol(String sourceCol) {
-        this.sourceCol = sourceCol;
-    }
-
-    @JsonIgnore
-    public String getSourceCol() {
-        return sourceCol;
-    }
-
     public String getDateFormat() {
         if ( dateFormat == null )
             return ((SimpleDateFormat)DateFormat.getDateInstance(DateFormat.SHORT)).toPattern();
         return dateFormat;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
     }
 
     public String getTimeZone() {
@@ -440,19 +378,8 @@ public class ColumnDefinition {
 
     }
 
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
-    }
-
     public boolean isPersistent() {
         return persistent;
     }
 
-    public void setPersistent(boolean persistent) {
-        this.persistent = persistent;
-    }
-
-    public String getValue() {
-        return value;
-    }
 }

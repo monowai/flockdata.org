@@ -29,7 +29,7 @@
 
         "created": {
             "createDate":true,
-            "format":"epoc"
+            "dateFormat":"epoc"
         },
 
         "updated": {

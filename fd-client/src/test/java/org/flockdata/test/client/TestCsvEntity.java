@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -196,6 +196,7 @@ public class TestCsvEntity {
         DelimitedMappable row = (DelimitedMappable) params.getMappable();
         EntityInputBean header = (EntityInputBean) row;
         row.setData(headers, values, params);
+
         assertEquals(values[0] + "." + values[3], header.getCallerRef());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
