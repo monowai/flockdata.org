@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,15 +19,11 @@
 
 package org.flockdata.profile.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * User: Mike Holdsworth
  * Since: 20/11/13
  */
 public interface Mappable {
 
-    @JsonIgnore
-    ProfileConfiguration.ContentType getImporter();
 
 }

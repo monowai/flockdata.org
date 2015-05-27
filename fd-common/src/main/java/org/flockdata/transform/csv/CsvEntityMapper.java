@@ -53,11 +53,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
     }
 
     @Override
-    public ProfileConfiguration.ContentType getImporter() {
-        return ProfileConfiguration.ContentType.CSV;
-    }
-
-    @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
 
         setArchiveTags(importProfile.isArchiveTags());
