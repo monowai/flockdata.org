@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -204,7 +204,9 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public void purge(Fortress fortress) throws FlockException {
+        logger.info("Purging fortress {}", fortress);
         fortressDao.delete(fortress);
+        logger.info("Purged fortress {}", fortress);
     }
 
     /**

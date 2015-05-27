@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -82,7 +82,7 @@ public class TestNonTransactional extends EngineBase {
         callerRefs.add(new EntityKey("ABC333"));
 
         refs.put("cites",callerRefs);
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
         Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());

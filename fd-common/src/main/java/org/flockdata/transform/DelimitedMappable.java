@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -24,11 +24,10 @@ package org.flockdata.transform;
  * Since: 25/01/14
  */
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Map;
 
@@ -40,11 +39,5 @@ import java.util.Map;
 public interface DelimitedMappable extends Mappable {
 
     Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException, FlockException;
-
-    @JsonIgnore
-    boolean hasHeader();
-
-    @JsonIgnore
-    char getDelimiter();
 
 }

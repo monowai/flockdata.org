@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -34,25 +34,14 @@ import java.util.Map;
  * Time: 4:36 PM
  */
 public class TagMapper extends TagInputBean implements DelimitedMappable {
-    private boolean hasHeader = true;
+
     public TagMapper(ImportProfile importProfile) {
         setLabel(importProfile.getDocumentName());
-        hasHeader = importProfile.hasHeader();
-    }
-
-    @Override
-    public ProfileConfiguration.ContentType getImporter() {
-        return ProfileConfiguration.ContentType.CSV;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException {
         return null;
-    }
-
-    @Override
-    public boolean hasHeader() {
-        return true;
     }
 
     public static DelimitedMappable newInstance(ImportProfile importProfile) {
@@ -62,8 +51,4 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
         return new TagMapper(importProfile);
     }
 
-    @Override
-    public char getDelimiter() {
-        return ',';  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }

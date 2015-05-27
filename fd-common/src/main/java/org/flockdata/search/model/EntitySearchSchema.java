@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -38,6 +38,7 @@ public class EntitySearchSchema {
     public static final String ATTACHMENT = "attachment";
 
     public static final String TAG = "tag";
+    public static final String ALL_TAGS = "tags";
     public static final String LAST_EVENT = "lastEvent";
     public static final String WHO = "who";
     public static final String META_KEY = "metaKey";

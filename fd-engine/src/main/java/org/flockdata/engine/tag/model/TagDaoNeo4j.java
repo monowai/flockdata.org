@@ -413,7 +413,7 @@ public class TagDaoNeo4j {
     }
 
     public static String parseKey(String key) {
-        return key.toLowerCase().replaceAll("\\s", "");
+        return key.toLowerCase();
     }
 
     public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
