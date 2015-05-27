@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -41,17 +41,24 @@ public class CrossReferenceInputBean {
 
     protected CrossReferenceInputBean(){}
 
-    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<EntityKey>>references){
-        this();
-        this.callerRef = callerRef;
-        this.fortress = fortress;
-        this.references = references;
-    }
+//    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<EntityKey>>references){
+//        this();
+//        this.callerRef = callerRef;
+//        this.fortress = fortress;
+//        this.references = references;
+//    }
+//
+//    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<EntityKey>>references){
+//        this(sourceFortress, sourceCallerRef, references);
+//        if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
+//            this.documentType = sourceDocumentType;
+//    }
 
-    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<EntityKey>>references){
-        this(sourceFortress, sourceCallerRef, references);
-        if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
-            this.documentType = sourceDocumentType;
+    public CrossReferenceInputBean(EntityInputBean entityInputBean) {
+        this.callerRef = entityInputBean.getCallerRef();
+        this.fortress = entityInputBean.getFortress();
+        this.documentType = entityInputBean.getDocumentName();
+        this.references = entityInputBean.getCrossReferences();
     }
 
     public String getCallerRef() {

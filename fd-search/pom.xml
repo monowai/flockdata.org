@@ -13,7 +13,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>1.4.5</es.version>
+        <es.version>1.5.2</es.version>
         <start-class>org.flockdata.search.FdSearch</start-class>
         <!--<spring-boot.version>1.2.0.RELEASE</spring-boot.version>-->
     </properties>
@@ -152,7 +152,7 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.6</version>
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->
@@ -255,7 +255,7 @@
                         <goals>
                             <goal>exec-war-only</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>install</phase>
                         <configuration>
                             <finalName>${project.artifactId}-war.jar</finalName>
                             <!-- optional only if you want to use a preconfigured server.xml file -->

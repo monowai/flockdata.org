@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,6 +19,7 @@
 
 package org.flockdata.test.search.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.*;
@@ -31,7 +32,6 @@ import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityTag;
 import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.SearchChange;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,8 +39,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -69,15 +71,13 @@ public class TestMappings extends ESBase {
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
-        tagInput.setCode("my TAG");
-        Tag tag = new SimpleTag(tagInput);
+        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").
+                setCode("my TAG");
 
+        Tag tag = new SimpleTag(tagInput);
         tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
 
-
         change.setTags(tags);
-
 
         deleteEsIndex(entity.getFortress().getIndexName());
         //searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
@@ -89,9 +89,8 @@ public class TestMappings extends ESBase {
         entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
-        // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
-        // We also expect the code to be lower case
-        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Full text match of tag codes is not working");
+        doFacetQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFieldQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -136,48 +135,52 @@ public class TestMappings extends ESBase {
     }
 
     @Test
-    public void testWhatIndexingDefaultAttributeWithNGram() throws Exception {
+    public void completion_FindTagsByCodeAndDescription() throws Exception {
+
         String comp = "comp2";
         String fort = "fort2";
         String user = "mikey";
-        String doc = fort;
+        Map<String, Object> what = Helper.getRandomMap();
 
-        DateTime now = new DateTime();
-
-        Entity entity = Helper.getEntity(comp, fort, user, doc);
-
+        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity.getFortress().getIndexName());
 
-        Map<String, Object> what = Helper.getSimpleMap(
-                EntitySearchSchema.WHAT_CODE, "AZERTY");
-        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
-        what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
+        TagInputBean tagInputA = new TagInputBean("tagCode", "AutoComplete", "blah");
+
+        TagInputBean tagInputB = new TagInputBean("myvalue", "AutoComplete", "blah");
+        TagInputBean inst = new TagInputBean("Royal Marsden Free Hospital", "Institution", "inst");
+        TagInputBean lead = new TagInputBean("Shepherd, JA", "Person", "lead");
+        TagInputBean writer = new TagInputBean("Smith, JA", "Person", "lead");
+        TagInputBean procedure = new TagInputBean("Surgical Procedures, Minimally Invasive", "Procedure", "involves");
+        TagInputBean procedureB = new TagInputBean("Surgical Instruments", "Procedure", "involves");
+
+        Collection<EntityTag> tags = new ArrayList<>();
+        tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
+        tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
+        tags.add(Helper.getEntityTag(entity, inst, "abc"));
+        tags.add(Helper.getEntityTag(entity, lead, "lead"));
+        tags.add(Helper.getEntityTag(entity, writer, "writer"));
+        tags.add(Helper.getEntityTag(entity, procedure, "proc"));
+        tags.add(Helper.getEntityTag(entity, procedureB, "proc"));
 
         SearchChange change = new EntitySearchChange(new EntityBean(entity));
-        change.setDescription("This is a description");
         change.setWhat(what);
+        change.setTags(tags);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
         SearchChange searchResult = searchRepo.handle(change);
+
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(entity.getFortress().getIndexName(), "AZERTY", 1);
+        doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1);
 
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "des", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.DESCRIPTION, "des", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "de", 0);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descripti", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "descriptio", 1);
-        // ToDo: Figure out ngram mappings
-//        doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_DESCRIPTION, "is is a de", 1);
+        doCompletionQuery(entity.getFortress().getIndexName(), "tag", 1, "Completion failed");
+        doCompletionQuery(entity.getFortress().getIndexName(), "tagc", 1, "Completion failed");
+        doCompletionQuery(entity.getFortress().getIndexName(), "tagcod", 1, "Completion failed");
 
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "name", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nam", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_NAME, "nametext", 1);
-
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "az", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azer", 1);
-        doTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + "." + EntitySearchSchema.WHAT_CODE, "azerty", 0);
+        doCompletionQuery(entity.getFortress().getIndexName(), "myv", 1, "Completion failed");
+        // Only supports "start with"
+//        doCompletionQuery(entity.getFortress().getIndexName(), "free", 1, "Completion failed");
 
     }
 
@@ -250,9 +253,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", tag.getCode(), 2);
+        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", tag.getCode(), 2);
 
     }
 
@@ -281,7 +284,7 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
 
         // DAT-328
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
@@ -300,26 +303,42 @@ public class TestMappings extends ESBase {
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
 
-        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
-        change.setWhat(what);
-        ArrayList<EntityTag> tags = new ArrayList<>();
-
-        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
+        TagInputBean tagInput = new TagInputBean("tagcode", "TagLabel", "tag-relationship");
         Tag tag = new SimpleTag(tagInput);
 
-        tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
 
+        ArrayList<EntityTag> tags = new ArrayList<>();
 
-        SimpleEntityTagRelationship entityTag = new SimpleEntityTagRelationship(entity, tag, "mytag", null);
-        GeoData geoData = new GeoData("NZ", "New Zealand", "Wellington", null);
-        geoData.setLatLong(174.0, -41.0);
+        HashMap<String, Object> tagProps = new HashMap<>();
+        tagProps.put("num", 100d);
+        tagProps.put("str", "hello");
+        SimpleEntityTagRelationship entityTag = new SimpleEntityTagRelationship(entity, tag, "entity-relationship", tagProps);
+        // DAT-442 Geo refactoring
+        GeoData geoData = new GeoData();
+        geoData.add("country", "NZ", "New Zealand", 174.0, -41.0);
+        assertEquals("NZ", geoData.getProperties().get("country.code"));
+        assertEquals("New Zealand", geoData.getProperties().get("country.name"));
+        assertEquals("174.0,-41.0", geoData.getProperties().get("points.country"));
         entityTag.setGeoData(geoData);
+        tags.add(entityTag);
 
+        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+
+        change.setWhat(what);
         change.setTags(tags);
 
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        searchRepo.ensureIndex(change.getIndexName().toLowerCase(), change.getDocumentType());
         SearchChange searchResult = searchRepo.handle(change);
+        TestCase.assertNotNull(searchResult);
+        Thread.sleep(2000);
 
+        String result = doQuery(change.getIndexName().toLowerCase(), "*", 1);
+        assertTrue(result.contains("points.country"));
+        assertTrue(result.contains("174"));
+        assertTrue(result.contains("-41"));
+
+        doCompletionQuery(change.getIndexName().toLowerCase(), "nz", 1, "Couldn't autocomplete on geo tag for NZ");
+        doCompletionQuery(change.getIndexName().toLowerCase(), "new", 1, "Couldn't autocomplete on geo tag for New Zealand");
     }
 
 }

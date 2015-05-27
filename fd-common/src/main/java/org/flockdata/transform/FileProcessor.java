@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -279,7 +279,7 @@ public class FileProcessor {
             entityInputBean.setFortress(importProfile.getFortressName());
 
         if (!entityInputBean.getCrossReferences().isEmpty()) {
-            referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+            referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
             entityInputBean.getCrossReferences().size();
         }
 
@@ -321,7 +321,7 @@ public class FileProcessor {
                         entityInputBean.setFortressUser(importProfile.getFortressUser());
 
                     if (!entityInputBean.getCrossReferences().isEmpty()) {
-                        referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                        referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
                         entityInputBean.getCrossReferences().size();
                     }
                     if (contentInputBean != null) {
@@ -430,7 +430,7 @@ public class FileProcessor {
                                 entityInputBean.setContent(contentInputBean);
                             }
                             if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCallerRef(), entityInputBean.getCrossReferences()));
+                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
                                 currentRow = currentRow + entityInputBean.getCrossReferences().size();
                             }
 

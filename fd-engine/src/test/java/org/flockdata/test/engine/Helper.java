@@ -24,10 +24,13 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
+import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.Entity;
+import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -72,6 +75,11 @@ public class Helper {
     }
 
     public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
+        String callerRef = new DateTime().toString();
+        return getEntity(comp, fort, userName, docType, callerRef);
+    }
+
+    public static Entity getEntity(String comp, String fort, String userName, String docType, String callerRef) throws FlockException {
         // These are the minimum objects necessary to create Entity data
 
         Company mockCompany = new SimpleCompany(comp);
@@ -81,8 +89,8 @@ public class Helper {
         Fortress fortress = new SimpleFortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(docType, fort, userName, now.toString(), now);
-        return new SimpleEntity(now.toString(), fortress, mib, docType);
+        EntityInputBean mib = getEntityInputBean(docType, fort, userName, callerRef, now);
+        return new SimpleEntity(callerRef, fortress, mib, docType);
 
     }
 
@@ -558,6 +566,11 @@ public class Helper {
                 "MTUgMCBSIC9JbmZvIDEgMCBSIC9JRCBbIDxmMGU3NjU1NjYyNmJiYTNhODZiY2I3\n" +
                 "NjBiNjMyZjFiYj4KPGYwZTc2NTU2NjI2YmJhM2E4NmJjYjc2MGI2MzJmMWJiPiBd\n" +
                 "ID4+CnN0YXJ0eHJlZgoyMDczMgolJUVPRgo=\n";
+    }
+
+    public static EntityTag getEntityTag(Entity entity, TagInputBean tagInput, String rlxname) {
+        Tag tag = new SimpleTag(tagInput);
+        return new SimpleEntityTagRelationship(entity, tag, rlxname, null);
     }
 }
 

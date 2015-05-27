@@ -48,7 +48,7 @@ public class SimpleTag implements Tag {
     }
 
     @Override
-    public void setName(String floppy) {
+    public void setName(String name) {
 
     }
 

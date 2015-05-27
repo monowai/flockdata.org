@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -18,6 +18,8 @@
  */
 
 package org.flockdata.track.model;
+
+import org.flockdata.track.bean.CrossReferenceInputBean;
 
 /**
  * User: mike
@@ -40,6 +42,12 @@ public class EntityKey {
 
     public EntityKey(String callerRef) {
         this.callerRef = callerRef;
+    }
+
+    public EntityKey(CrossReferenceInputBean crossReferenceInputBean) {
+        this.fortressName = crossReferenceInputBean.getFortress();
+        this.documentType = crossReferenceInputBean.getDocumentType();
+        this.callerRef = crossReferenceInputBean.getCallerRef();
     }
 
     public String getFortressName() {

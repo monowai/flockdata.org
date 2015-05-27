@@ -245,7 +245,7 @@ public class SearchServiceFacade {
 
     public void purge(String indexName) {
         // ToDO: Implement this
-        logger.debug("Purge the search Fortress {}", indexName);
+        logger.info("You have to manually purge the ElasticSearch index {}", indexName);
     }
 
     public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {

@@ -423,7 +423,7 @@ public class EntityDaoNeo {
         Collection<Entity> entities = new ArrayList<>();
         results.put(xRefName, entities);
         for (Relationship rlx : rlxs) {
-            entities.add(template.projectTo(rlx.getEndNode(), EntityNode.class));
+            entities.add(template.projectTo(rlx.getOtherNode(n), EntityNode.class));
         }
         return results;
 
@@ -441,12 +441,13 @@ public class EntityDaoNeo {
 
     @Transactional
     public void purgeTagRelationships(Fortress fortress) {
-        // ToDo: Check if this works with huge datasets
+        // ToDo: Check if this works with huge datasets - it' doesn't fix via batch
         trackLogRepo.purgeTagRelationships(fortress.getId());
     }
 
     @Transactional
     public void purgeFortressLogs(Fortress fortress) {
+        trackLogRepo.purgeLogsWithUsers(fortress.getId());
         trackLogRepo.purgeFortressLogs(fortress.getId());
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,10 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
+import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -76,6 +79,52 @@ public class TestEntityCrossReference extends EngineBase {
             assertEquals(destKey, entity.getMetaKey());
         }
 
+
+    }
+
+    @Test
+    public void xRef_targetDoesNotExist() throws Exception {
+        cleanUpGraph();
+        SystemUser su = registerSystemUser("xRef_targetDoesNotExist", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_targetDoesNotExist", true));
+
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        String abc123 = trackResultBean.getEntity().getMetaKey();
+
+        assertNotNull(trackResultBean);
+
+        List<EntityKey> callerRefs = new ArrayList<>();
+        // DAT-443 - Request to xreference with an entity that does not yet exists.
+        // Only will work if the fortress and doctype are known
+        callerRefs.add(new EntityKey(fortress.getName(), trackResultBean.getDocumentType().getName(), "ABC321"));
+        EntityKey sourceKey = new EntityKey(new CrossReferenceInputBean(inputBean));
+        List<EntityKey> results = entityService.crossReferenceEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
+        TestCase.assertTrue(results.isEmpty());
+
+        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC321");
+        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        inputBean.setContent(cib);
+
+        // The Entity that previously did not exist, can have a log added and be treated like any other entity
+        trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        TestCase.assertTrue(trackResultBean.entityExists());
+        TestCase.assertEquals(ContentInputBean.LogStatus.OK, trackResultBean.getLogResult().getStatus());
+
+        // (ABC123)-[anyrlx]-(ABC321)
+        // Retrieving 123 returns 321
+        Map<String, Collection<Entity>> xrefResults = entityService.getCrossReference(su.getCompany(), abc123, "anyrlx");
+        TestCase.assertFalse(xrefResults.isEmpty());
+        Collection<Entity>entities = xrefResults.get("anyrlx");
+        assertEquals(1, entities.size());
+        assertEquals("ABC321", entities.iterator().next().getCallerRef());
+
+        // Inverse of above - 321 returns 123
+        xrefResults = entityService.getCrossReference(su.getCompany(), trackResultBean.getEntity().getMetaKey(), "anyrlx");
+        TestCase.assertFalse(xrefResults.isEmpty());
+        entities = xrefResults.get("anyrlx");
+        assertEquals(1, entities.size());
+        assertEquals("ABC123", entities.iterator().next().getCallerRef());
 
     }
 
@@ -162,7 +211,8 @@ public class TestEntityCrossReference extends EngineBase {
         callerRefs.add(new EntityKey("ABC333"));
 
         refs.put("cites",callerRefs);
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        inputBean.setCrossReferences(refs);
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
         List<CrossReferenceInputBean > entities = new ArrayList<>();
         entities.add(bean);
 
@@ -187,13 +237,15 @@ public class TestEntityCrossReference extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Map<String, List<EntityKey>> refs = new HashMap<>();
-        List<EntityKey> callerRefs = new ArrayList<>();
+        List<EntityKey> entityKeys = new ArrayList<>();
 
-        callerRefs.add(new EntityKey(fortressA.getName(), "DocTypeZ", "ABC321"));
-        callerRefs.add(new EntityKey(fortressB.getName(), "DocTypeS", "ABC333"));
+        entityKeys.add(new EntityKey(fortressA.getName(), "DocTypeZ", "ABC321"));
+        entityKeys.add(new EntityKey(fortressB.getName(), "DocTypeS", "ABC333"));
 
-        refs.put("cites",callerRefs);
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(fortressA.getName(), "ABC123",refs);
+        refs.put("cites",entityKeys);
+        inputBean.setCrossReferences(refs);
+
+        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
         List<CrossReferenceInputBean > inputs = new ArrayList<>();
         inputs.add(bean);
 

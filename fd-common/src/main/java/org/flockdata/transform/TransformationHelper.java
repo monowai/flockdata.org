@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -353,7 +353,7 @@ public class TransformationHelper {
         if (value == null || value.equals("null"))
             return null;
         else if (NumberUtils.isNumber(value.toString())) {
-            if (colDef != null && colDef.getType() != null && colDef.getType().equalsIgnoreCase("string"))
+            if (colDef != null && colDef.getDataType() != null && colDef.getDataType().equalsIgnoreCase("string"))
                 return String.valueOf(value);
             else
                 return NumberUtils.createNumber(value.toString());
@@ -438,14 +438,14 @@ public class TransformationHelper {
         int col = 0;
         Collection<String> header = new ArrayList<>(line.length);
 
-        // No header row so we will name the columns, starting at 0, by their ordinal
+        // No header row so we will name the columns by their ordinal starting with 0
         for (String lineCol : line) {
 
             ColumnDefinition colDef = profileConfig.getColumnDef(Integer.toString(col));
 
             if (colDef != null && colDef.getTarget() != null) {
                 header.add(colDef.getTarget());
-                colDef.setSourceCol(lineCol);
+                //colDef.setSourceCol(lineCol);
 
             } else {
                 header.add(Integer.toString(col));

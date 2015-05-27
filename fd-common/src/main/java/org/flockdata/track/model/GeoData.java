@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,10 +19,8 @@
 
 package org.flockdata.track.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,119 +31,34 @@ import java.util.Map;
  * Time: 4:00 PM
  */
 public class GeoData {
-    private String isoCode;
-    private String country;
 
-    private String state;
-
-    private String stateCode;
-    private String city;
-    private Map<String, Double> coord = new HashMap<>();
-
-    public GeoData(String isoCode, String countryName, String city, String stateName) {
-        this();
-        if (city != null)
-            setCity(city);
-
-        // ToDo: Needs to be a Country object
-        setIsoCode(isoCode);
-        setCountry(countryName);
-
-        setState(stateName);
-    }
-
-    GeoData() {
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getIsoCode() {
-        return isoCode;
-    }
-
-    public void setIsoCode(String isoCode) {
-        this.isoCode = isoCode;
-    }
-
-    @JsonIgnore
-    public Collection<Double> getGeoJson() {
-        return coord.values();
-    }
-
-    String geoPoint;
-
-    public void setLatLong(Double lat, Double lon) {
-        // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
-        if (lat != null && lon != null) {
-            coord.put("lat", lat);
-            coord.put("lon", lon);
-            geoPoint = lat.toString() + "," + lon.toString();
-        }
+    public GeoData() {
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public String getGeoPoint() {
-        return geoPoint;
+//    public Map<String, String> getPoints() {
+//        return points;
+//    }
+//
+//    Map<String, String> points = new HashMap<>();
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
-    @JsonIgnore
-    public Map<String, Double> getGeoMap() {
-        return coord;
+    Map<String, Object> properties = new HashMap<>();
+
+    public void add(String prefix, String code, String name, Double lat, Double lon) {
+        properties.put(prefix+".code", code);
+        if ( name !=null )
+            properties.put(prefix+".name", name);
+        // ToDo: Map user defined properties?
+        setLatLong(prefix, lat, lon);
     }
 
-    @JsonIgnore
-    public boolean isValid() {
-        if (coord.isEmpty())
-            return false;
-
-        return coord.get("lat") != null && coord.get("lon") != null;
-    }
-
-    public void setStateCode(String stateCode) {
-        this.stateCode = stateCode;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<String, String> getPoints() {
-        return points;
-    }
-
-    Map<String, String> points = new HashMap<>();
-
-    public void setLatLong(String key, Double lat, Double lon) {
+    private void setLatLong(String label, Double lat, Double lon) {
         if (lat != null && lon != null)
-            points.put(key, lat.toString() + "," + lon.toString());
+            properties.put("points."+label, lat.toString() + "," + lon.toString());
     }
-
-    public String getStateCode() {
-        return stateCode;
-    }
-
 
 }
