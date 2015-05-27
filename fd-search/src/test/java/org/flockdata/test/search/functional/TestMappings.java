@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -70,15 +71,13 @@ public class TestMappings extends ESBase {
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
-        tagInput.setCode("my TAG");
-        Tag tag = new SimpleTag(tagInput);
+        TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").
+                setCode("my TAG");
 
+        Tag tag = new SimpleTag(tagInput);
         tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
 
-
         change.setTags(tags);
-
 
         deleteEsIndex(entity.getFortress().getIndexName());
         //searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
@@ -90,9 +89,8 @@ public class TestMappings extends ESBase {
         entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
-        // In this test, @tag.*.code is NOT_ANALYZED so it should find the value with a space in it
-        // We also expect the code to be lower case
-        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Full text match of tag codes is not working");
+        doFacetQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFieldQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -255,9 +253,9 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doTermQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doTermQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", tag.getCode(), 2);
+        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB.getFortress().getIndexName(), entityB.getDocumentType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", tag.getCode(), 2);
 
     }
 
@@ -286,7 +284,7 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
 
         // DAT-328
-        doTermQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getDocumentType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
@@ -321,24 +319,26 @@ public class TestMappings extends ESBase {
         assertEquals("NZ", geoData.getProperties().get("country.code"));
         assertEquals("New Zealand", geoData.getProperties().get("country.name"));
         assertEquals("174.0,-41.0", geoData.getProperties().get("points.country"));
-        //assertEquals(-41.0, Double.parseDouble(geoData.getProperties().get("country.lon").toString()));
         entityTag.setGeoData(geoData);
         tags.add(entityTag);
-
 
         EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
 
         change.setWhat(what);
         change.setTags(tags);
 
-
         searchRepo.ensureIndex(change.getIndexName().toLowerCase(), change.getDocumentType());
         SearchChange searchResult = searchRepo.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
 
-        // ToDo: Assert shit
-        doQuery(change.getIndexName().toLowerCase(), "*", 1);
+        String result = doQuery(change.getIndexName().toLowerCase(), "*", 1);
+        assertTrue(result.contains("points.country"));
+        assertTrue(result.contains("174"));
+        assertTrue(result.contains("-41"));
+
+        doCompletionQuery(change.getIndexName().toLowerCase(), "nz", 1, "Couldn't autocomplete on geo tag for NZ");
+        doCompletionQuery(change.getIndexName().toLowerCase(), "new", 1, "Couldn't autocomplete on geo tag for New Zealand");
     }
 
 }

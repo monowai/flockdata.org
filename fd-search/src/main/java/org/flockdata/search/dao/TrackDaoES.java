@@ -474,11 +474,21 @@ public class TrackDaoES implements TrackSearchDao {
         if (!tagCodes.contains(value.getCode())){
             tagCodes.add(value.getCode());
             if ( value.getName()!=null)
-                tagCodes.add(value.getName());
+                tagCodes.add(value.getName() + " :"+value.getCode());
         }
         if ( value.getGeo()!=null ){
-            Object o = value.getGeo();
-
+            Map<String,Object> o = value.getGeo();
+            for (String s : o.keySet()) {
+                String geoValue = o.get(s).toString();
+                if (!o.containsKey(geoValue)){
+                    if ( s.endsWith(".code")){
+                        tagCodes.add(geoValue);
+                        String nameCol = s.substring(0, s.indexOf('.'))+".name";
+                        if ( o.containsKey(nameCol))
+                            tagCodes.add(o.get((nameCol)) + " :"+ geoValue);
+                    }
+                }
+            }
         }
     }
 

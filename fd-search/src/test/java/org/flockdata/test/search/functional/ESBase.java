@@ -93,12 +93,22 @@ public class ESBase {
 
     }
 
-    String doTermQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
-        return doTermQuery(index, field, queryString, expectedHitCount, null);
+    String doFacetQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+        return doFacetQuery(index, field, queryString, expectedHitCount, null);
     }
 
-
-    String doTermQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    /**
+     * Term query on a non-analyzed field
+     *
+     * @param index
+     * @param field
+     * @param queryString
+     * @param expectedHitCount
+     * @param exceptionMessage
+     * @return
+     * @throws Exception
+     */
+    String doFacetQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -150,14 +160,71 @@ public class ESBase {
         }
     }
 
+    /**
+     * Scans an analyzed field looking for the queryString
+     * @param index
+     * @param field
+     * @param queryString
+     * @param expectedHitCount
+     * @param exceptionMessage
+     * @return
+     * @throws Exception
+     */
+    String doFieldQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+        int runCount = 0, nbrResult;
+        JestResult result;
+        int esTimeout = 5;
+
+        do {
+
+            runCount++;
+            String query = "{\n" +
+                    "    query: {\n" +
+                    "          query_string : {\n" +
+                    "            default_field:   \"" + field + "\", query: \"" + queryString.toLowerCase() + "\"\n" +
+                    "           }\n" +
+                    "      }\n" +
+                    "}";
+            Search search = new Search.Builder(query)
+                    .addIndex(index)
+                    .build();
+
+            result = esClient.execute(search);
+            TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
+
+            if (result.getErrorMessage() == null) {
+                assertNotNull(result.getErrorMessage(), result.getJsonObject());
+                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
+                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
+                nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            } else
+                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+
+        } while (nbrResult != expectedHitCount && runCount < esTimeout);
+
+        logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
+        logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
+        if (exceptionMessage == null)
+            exceptionMessage = result.getJsonString();
+        Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
+        if (nbrResult != 0) {
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        } else {
+            return null;
+        }
+    }
+
     String doCompletionQuery(String index, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
-        int runCount = 0, nbrResult;
         SuggestResult result;
-        int esTimeout = 5;
 
-        runCount++;
         String query = "{" +
                 "    \"result\" : {\n" +
                 "        \"text\" : \"" + queryString + "\",\n" +
@@ -231,7 +298,7 @@ public class ESBase {
 
     }
 
-    String doTermQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    String doFacetQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
