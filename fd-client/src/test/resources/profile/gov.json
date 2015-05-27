@@ -4,7 +4,8 @@
         "tagOrEntity": "entity",
         "content": {
             "bill_id": {
-                "callerRef": true
+                "callerRef": true,
+                "value" : "#row['bill_id']"
             },
             "introduced_at": {
                 "createDate": true

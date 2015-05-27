@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -101,11 +101,6 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         column = node.get("quoteCharacter");
         if (column != null&& !column.isNull())
             importProfile.setQuoteCharacter(column.asText());
-
-
-        column = node.get("entityKey");
-        if ( column == null )
-            column = node.get("metaHeader");// legacy value
 
         if ( column !=null && !column.isNull() )
             importProfile.setEntityKey(column.asText());

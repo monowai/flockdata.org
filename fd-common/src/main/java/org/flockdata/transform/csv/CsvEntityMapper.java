@@ -59,7 +59,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
-        //Map<String, Object> row = toMap(importProfile, headerRow, line);
+
         setArchiveTags(importProfile.isArchiveTags());
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
@@ -87,7 +87,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
                 if (colDef.isCallerRef()) {
-                    String callerRef = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CALLER_REF, colDef, value);
+                    String callerRef = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
                     setCallerRef(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
@@ -111,8 +111,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                     if (TransformationHelper.getTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
                         addTag(tag);
-
-
                     }
                 }
                 if (colDef.isTitle()) {
@@ -161,34 +159,11 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 //            }
         }
 
-        if (importProfile.getEntityKey() != null) {
-            ColumnDefinition columnDefinition = importProfile.getColumnDef(importProfile.getEntityKey());
-            if (columnDefinition != null) {
-                String[] dataCols = columnDefinition.getRefColumns();
-                String callerRef = "";
-                for (String dataCol : dataCols) {
-                    callerRef = callerRef + (!callerRef.equals("") ? "." : "") + row.get(dataCol);
-                }
-                setCallerRef(callerRef);
-            }
-
-        }
-
         return row;
-    }
-
-    @Override
-    public boolean hasHeader() {
-        return true;
     }
 
     public static DelimitedMappable newInstance(ImportProfile importProfile) {
         return new CsvEntityMapper(importProfile);
-    }
-
-    @Override
-    public char getDelimiter() {
-        return ',';
     }
 
 }

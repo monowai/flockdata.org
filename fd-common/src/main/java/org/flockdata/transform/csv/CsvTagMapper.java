@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -79,13 +79,4 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
         return row;
     }
 
-    @Override
-    public boolean hasHeader() {
-        return true;
-    }
-
-    @Override
-    public char getDelimiter() {
-        return ',';
-    }
 }

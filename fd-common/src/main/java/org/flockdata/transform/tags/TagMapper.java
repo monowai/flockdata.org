@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -50,11 +50,6 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
         return null;
     }
 
-    @Override
-    public boolean hasHeader() {
-        return true;
-    }
-
     public static DelimitedMappable newInstance(ImportProfile importProfile) {
         if (importProfile.getContentType()== ProfileConfiguration.ContentType.CSV)
             return new CsvTagMapper();
@@ -62,8 +57,4 @@ public class TagMapper extends TagInputBean implements DelimitedMappable {
         return new TagMapper(importProfile);
     }
 
-    @Override
-    public char getDelimiter() {
-        return ',';  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }
