@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -38,11 +38,6 @@ import java.util.*;
 public class JsonEntityMapper extends EntityInputBean implements Mappable {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityMapper.class);
-
-    @Override
-    public ProfileConfiguration.ContentType getImporter() {
-        return ProfileConfiguration.ContentType.JSON;
-    }
 
     public void setData(JsonNode node, ProfileConfiguration profile) {
         for (Map.Entry<String, ColumnDefinition> entry : profile.getContent().entrySet()) {

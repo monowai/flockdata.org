@@ -34,15 +34,9 @@ import java.util.Map;
  * Time: 4:36 PM
  */
 public class TagMapper extends TagInputBean implements DelimitedMappable {
-    private boolean hasHeader = true;
+
     public TagMapper(ImportProfile importProfile) {
         setLabel(importProfile.getDocumentName());
-        hasHeader = importProfile.hasHeader();
-    }
-
-    @Override
-    public ProfileConfiguration.ContentType getImporter() {
-        return ProfileConfiguration.ContentType.CSV;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

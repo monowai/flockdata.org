@@ -38,11 +38,6 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
 
 
     @Override
-    public ProfileConfiguration.ContentType getImporter() {
-        return ProfileConfiguration.ContentType.CSV;
-    }
-
-    @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
         Map<String, ColumnDefinition> content = importProfile.getContent();
