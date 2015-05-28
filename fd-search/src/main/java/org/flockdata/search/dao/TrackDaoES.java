@@ -36,6 +36,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.mapper.MapperParsingException;
+import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
@@ -174,8 +175,10 @@ public class TrackDaoES implements TrackSearchDao {
                             .actionGet();
                 }
             } catch (ElasticsearchException esx) {
-                logger.error("Error while ensuring index.... ", esx);
-                throw esx;
+                if (! (esx instanceof IndexAlreadyExistsException)) {
+                    logger.error("Error while ensuring index.... " + indexName, esx);
+                    throw esx;
+                }
             }
         }
         return true;
@@ -363,7 +366,7 @@ public class TrackDaoES implements TrackSearchDao {
         if (searchChange.getWhat() != null)
             indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
 
-        if ( searchChange.getProps()!=null)
+        if (searchChange.getProps() != null)
             indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
         if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
             // This occurs if the search doc is not being tracked in fd-engine's graph
@@ -403,12 +406,13 @@ public class TrackDaoES implements TrackSearchDao {
 
     private void setTags(Map<String, Object> indexMe, HashMap<String, Map<String, ArrayList<SearchTag>>> tagValues) {
 
-        Collection<String>uniqueTags = new ArrayList<>();
+        Collection<String> uniqueTags = new ArrayList<>();
+        Collection<String> outputs = new ArrayList<>();
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
         boolean enableSquash = true; // If tag and rlx names are the same, store just the values
-                                     // means sold.sold.name will appear as sold.name
+        // means sold.sold.name will appear as sold.name
 
         for (String relationship : tagValues.keySet()) {
             if (enableSquash && tagValues.get(relationship).containsKey(relationship)) {
@@ -452,8 +456,13 @@ public class TrackDaoES implements TrackSearchDao {
         if (!byRelationship.isEmpty()) {
             indexMe.put(EntitySearchSchema.TAG, byRelationship);
         }
-        if ( !uniqueTags.isEmpty())
+        if (!uniqueTags.isEmpty()) {
+//            Map<String,Object>suggestInput = new HashMap<>();
+            //suggestInput.put("input", uniqueTags);
+
             indexMe.put(EntitySearchSchema.ALL_TAGS, uniqueTags);
+        }
+
 
     }
 
@@ -471,21 +480,28 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private void gatherTag(Collection<String> tagCodes, SearchTag value) {
-        if (!tagCodes.contains(value.getCode())){
-            tagCodes.add(value.getCode());
-            if ( value.getName()!=null)
-                tagCodes.add(value.getName() + " :"+value.getCode());
+        final int minTagLength = 2;
+        if (!tagCodes.contains(value.getCode())) {
+            if (value.getCode().length() >= minTagLength) {
+                tagCodes.add(value.getCode() );
+            }
+            if ( value.getName()!=null ){
+                tagCodes.add(value.getName()  + " : "+value.getCode());
+            }
         }
-        if ( value.getGeo()!=null ){
-            Map<String,Object> o = value.getGeo();
+        if (value.getGeo() != null) {
+            Map<String, Object> o = value.getGeo();
             for (String s : o.keySet()) {
-                String geoValue = o.get(s).toString();
-                if (!o.containsKey(geoValue)){
-                    if ( s.endsWith(".code")){
-                        tagCodes.add(geoValue);
-                        String nameCol = s.substring(0, s.indexOf('.'))+".name";
-                        if ( o.containsKey(nameCol))
-                            tagCodes.add(o.get((nameCol)) + " :"+ geoValue);
+                String geoCode = o.get(s).toString();
+                if (!o.containsKey(geoCode)) {
+                    if (s.endsWith(".code")) {
+                        String nameCol = s.substring(0, s.indexOf('.')) + ".name";
+                        String geoName = null;
+                        if (o.containsKey(nameCol))
+                            geoName = o.get(nameCol).toString();
+
+                        tagCodes.add(geoCode + (geoName != null ? " - " + geoName : ""));
+                        tagCodes.add(geoName + " - " + geoCode);
                     }
                 }
             }

@@ -226,7 +226,7 @@ public class ESBase {
         SuggestResult result;
 
         String query = "{" +
-                "    \"result\" : {\n" +
+                "    \"tags\" : {\n" +
                 "        \"text\" : \"" + queryString + "\",\n" +
                 "        \"completion\" : {\n" +
                 "            \"field\" : \"" + EntitySearchSchema.ALL_TAGS + "\"\n" +
@@ -241,10 +241,10 @@ public class ESBase {
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
 
-        List<SuggestResult.Suggestion> suggestions = result.getSuggestions("result");
+        List<SuggestResult.Suggestion> suggestions = result.getSuggestions("tags");
 
         for (SuggestResult.Suggestion suggestion : suggestions) {
-            assertEquals(expectedHitCount, suggestion.options.size());
+            assertEquals(exceptionMessage, expectedHitCount, suggestion.options.size());
         }
 
 

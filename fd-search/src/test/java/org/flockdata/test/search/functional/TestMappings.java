@@ -34,6 +34,8 @@ import org.flockdata.track.model.GeoData;
 import org.flockdata.track.model.SearchChange;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -54,6 +56,8 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestMappings extends ESBase {
+
+    private Logger logger = LoggerFactory.getLogger(TestMappings.class);
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
@@ -134,55 +138,7 @@ public class TestMappings extends ESBase {
         assertEquals("2 in 2 out", 2, searchResults.getSearchResults().size());
     }
 
-    @Test
-    public void completion_FindTagsByCodeAndDescription() throws Exception {
 
-        String comp = "comp2";
-        String fort = "fort2";
-        String user = "mikey";
-        Map<String, Object> what = Helper.getRandomMap();
-
-        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
-        deleteEsIndex(entity.getFortress().getIndexName());
-
-        TagInputBean tagInputA = new TagInputBean("tagCode", "AutoComplete", "blah");
-
-        TagInputBean tagInputB = new TagInputBean("myvalue", "AutoComplete", "blah");
-        TagInputBean inst = new TagInputBean("Royal Marsden Free Hospital", "Institution", "inst");
-        TagInputBean lead = new TagInputBean("Shepherd, JA", "Person", "lead");
-        TagInputBean writer = new TagInputBean("Smith, JA", "Person", "lead");
-        TagInputBean procedure = new TagInputBean("Surgical Procedures, Minimally Invasive", "Procedure", "involves");
-        TagInputBean procedureB = new TagInputBean("Surgical Instruments", "Procedure", "involves");
-
-        Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, inst, "abc"));
-        tags.add(Helper.getEntityTag(entity, lead, "lead"));
-        tags.add(Helper.getEntityTag(entity, writer, "writer"));
-        tags.add(Helper.getEntityTag(entity, procedure, "proc"));
-        tags.add(Helper.getEntityTag(entity, procedureB, "proc"));
-
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
-        change.setWhat(what);
-        change.setTags(tags);
-
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.handle(change);
-
-        assertNotNull(searchResult);
-        Thread.sleep(2000);
-        doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1);
-
-        doCompletionQuery(entity.getFortress().getIndexName(), "tag", 1, "Completion failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "tagc", 1, "Completion failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "tagcod", 1, "Completion failed");
-
-        doCompletionQuery(entity.getFortress().getIndexName(), "myv", 1, "Completion failed");
-        // Only supports "start with"
-//        doCompletionQuery(entity.getFortress().getIndexName(), "free", 1, "Completion failed");
-
-    }
 
     @Test
     public void testCustomMappingWorks() throws Exception {
@@ -333,6 +289,7 @@ public class TestMappings extends ESBase {
         Thread.sleep(2000);
 
         String result = doQuery(change.getIndexName().toLowerCase(), "*", 1);
+        logger.info(result);
         assertTrue(result.contains("points.country"));
         assertTrue(result.contains("174"));
         assertTrue(result.contains("-41"));
