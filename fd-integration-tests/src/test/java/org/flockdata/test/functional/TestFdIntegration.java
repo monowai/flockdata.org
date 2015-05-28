@@ -1101,7 +1101,7 @@ public class TestFdIntegration {
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.movetag.code", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
-        waitAWhile("Merge Tags");
+        waitAWhile("Merge Tags", 3000);
         // We should not find anything against tagA",
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.movetag.code", "taga", 0);
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.movetag.code", "taga", 0);
