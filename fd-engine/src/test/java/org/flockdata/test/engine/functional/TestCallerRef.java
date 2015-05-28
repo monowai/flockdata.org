@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -131,7 +131,7 @@ public class TestCallerRef extends EngineBase {
             SystemUser su = registerSystemUser(monowai, "dupex");
             setSecurity();
 
-            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest" + System.currentTimeMillis(), true));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("zCallerRef" + System.currentTimeMillis(), true));
 
             String docType = "StressDupez";
             String callerRef = "ABC123X";

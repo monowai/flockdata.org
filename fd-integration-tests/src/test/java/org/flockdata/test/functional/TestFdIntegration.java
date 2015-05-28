@@ -1068,7 +1068,7 @@ public class TestFdIntegration {
 
     @Test
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");
@@ -1276,7 +1276,7 @@ public class TestFdIntegration {
     @Test
     public void geo_TagsWork() throws Exception {
         logger.info("geo_TagsWork");
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         SystemUser su = registerSystemUser( "geoTag", "geo_Tag");
         // DAT-339
         assertNotNull(su);
@@ -1319,7 +1319,7 @@ public class TestFdIntegration {
     @Test
     public void geo_CachingMultiLocations() throws Exception {
         logger.info("geo_CachingMultiLocations");
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         SystemUser su = registerSystemUser("geo_CachingMultiLocations", "geo_CachingMultiLocations");
         assertNotNull(su);
 
@@ -1875,8 +1875,7 @@ public class TestFdIntegration {
             String query = "{\n" +
                     "    query: {\n" +
                     "          query_string : {\n" +
-                    "              \"default_field\" : \"" + field + "\",\n" +
-                    "              \"query\" : \"" + queryString + "\"\n" +
+                    "            default_field:   \"" + field + "\", query: \"" + queryString.toLowerCase() + "\"\n" +
                     "           }\n" +
                     "      }\n" +
                     "}";

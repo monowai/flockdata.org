@@ -69,7 +69,7 @@
         "fields": {
           "tags": {
             "type": "completion",
-            //"preserve_position_increments": false,
+            "preserve_position_increments": false,
             "analyzer": "auto-complete"
           },
           "facet": {
@@ -147,8 +147,8 @@
         }
       },
       {
-        "geo_city": {
-          "path_match": "tag.*.geo.city",
+        "geo_code": {
+          "path_match": "tag.*.geo.*.code",
           "match_mapping_type": "string",
           "mapping": {
             "type": "multi_field",
@@ -169,96 +169,8 @@
         }
       },
       {
-        "geo_countryCode": {
-          "path_match": "tag.*.geo.isoCode",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "multi_field",
-            "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
-              }
-            }
-          }
-        }
-      },
-      {
-        "geo_stateCode": {
-          "path_match": "tag.*.geo.stateCode",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "multi_field",
-            "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
-              }
-            }
-          }
-        }
-      },
-      {
-        "geo_country": {
-          "path_match": "tag.*.geo.country",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "multi_field",
-            "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
-              }
-            }
-          }
-        }
-      },
-      {
-        "geo_state": {
-          "path_match": "tag.*.geo.state",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "multi_field",
-            "fields": {
-              "{name}": {
-                "type": "string",
-                "boost": "3.0",
-                "index": "analyzed"
-              },
-              "facet": {
-                "type": "string",
-                "boost": "5.0",
-                "doc_values": true,
-                "index": "not_analyzed"
-              }
-            }
-          }
-        }
-      },
-      {
-        "geo_city": {
-          "path_match": "tag.*.geo.city",
+        "geo_name": {
+          "path_match": "tag.*.geo.*.name",
           "match_mapping_type": "string",
           "mapping": {
             "type": "multi_field",
