@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -479,21 +480,29 @@ public class TrackDaoES implements TrackSearchDao {
         }
     }
 
-    private void gatherTag(Collection<String> tagCodes, SearchTag value) {
+    private void gatherTag(Collection<String> tagCodes, SearchTag tag) {
+        // ToDo: externalise config
         final int minTagLength = 2;
-        if (!tagCodes.contains(value.getCode())) {
-            if (value.getCode().length() >= minTagLength) {
-                tagCodes.add(value.getCode() );
+        if (!tagCodes.contains(tag.getCode())) {
+            if (tag.getCode()!=null && tag.getCode().length() >= minTagLength) {
+                // DAT-446 - Favour the description over a numeric tag code
+                boolean isAlphaNumeric = !NumberUtils.isNumber(tag.getCode());
+                // Always store the code if there is no description or it is Alpha Numeric
+                if ( tag.getName() == null || isAlphaNumeric )
+                    tagCodes.add(tag.getCode() );
             }
-            if ( value.getName()!=null ){
-                tagCodes.add(value.getName()  + " : "+value.getCode());
+            if ( tag.getName()!=null ){
+                String key = tag.getName();
+                if ( !tagCodes.contains(key))
+                    tagCodes.add(key);
             }
         }
-        if (value.getGeo() != null) {
-            Map<String, Object> o = value.getGeo();
+        if (tag.getGeo() != null) {
+            Map<String, Object> o = tag.getGeo();
             for (String s : o.keySet()) {
                 String geoCode = o.get(s).toString();
                 if (!o.containsKey(geoCode)) {
+                    // ToDo: Figure out autocomplete across ngrams
                     if (s.endsWith(".code")) {
                         String nameCol = s.substring(0, s.indexOf('.')) + ".name";
                         String geoName = null;
