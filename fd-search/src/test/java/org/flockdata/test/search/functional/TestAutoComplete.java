@@ -49,7 +49,50 @@ import static org.junit.Assert.assertNotNull;
 public class TestAutoComplete extends ESBase{
 
     private Logger logger = LoggerFactory.getLogger(TestAutoComplete.class);
+    @Test
+    public void completion_numericCodesIgnored() throws Exception {
 
+        // DAT-446
+
+        String comp = "comp4";
+        String fort = "fort4";
+        String user = "mikey";
+        Map<String, Object> what = Helper.getRandomMap();
+
+        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
+        deleteEsIndex(entity.getFortress().getIndexName());
+
+        // 2 char code as this is the minimum we will index from
+        TagInputBean noName = new TagInputBean("11", "NumCode", "rlxname");
+        TagInputBean numCodeWithName = new TagInputBean("21", "AutoComplete", "rlxname").setName("Code should not be indexed");
+        TagInputBean zipCode = new TagInputBean("70612", "ZipCode");
+
+        Collection<EntityTag> tags = new ArrayList<>();
+        tags.add(Helper.getEntityTag(entity, noName, "rlxname"));
+        tags.add(Helper.getEntityTag(entity, numCodeWithName, "rlxname"));
+        tags.add(Helper.getEntityTag(entity, zipCode, "zip"));
+
+        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        change.setWhat(what);
+        change.setTags(tags);
+
+        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        SearchChange searchResult = searchRepo.handle(change);
+
+        assertNotNull(searchResult);
+        Thread.sleep(2000);
+        logger.info(doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1));
+
+        doCompletionQuery(entity.getFortress().getIndexName(), noName.getCode(), 1, "Should be found as there is no name");
+        doCompletionQuery(entity.getFortress().getIndexName(), "code", 1, "Find by name, but Code is not indexed");
+        doCompletionQuery(entity.getFortress().getIndexName(), numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
+        doCompletionQuery(entity.getFortress().getIndexName(), zipCode.getCode(), 1, "Didn't find the zip code");
+        doFieldQuery(entity.getFortress().getIndexName(), "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
+        doFacetQuery(entity.getFortress().getIndexName(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+
+
+
+    }
     @Test
     public void completion_ShortCodesIgnored() throws Exception {
 
@@ -61,8 +104,8 @@ public class TestAutoComplete extends ESBase{
         Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity.getFortress().getIndexName());
 
-        TagInputBean tagInputA = new TagInputBean("1", "AutoComplete").setName("Finding name should not be found as the code is too short");
-        TagInputBean tagInputB = new TagInputBean("21", "AutoComplete").setName("Finding code and name indexed");
+        TagInputBean tagInputA = new TagInputBean("A", "AutoComplete").setName("Finding name should not be found as the code is too short");
+        TagInputBean tagInputB = new TagInputBean("AB", "AutoComplete").setName("Finding code and name indexed");
 
 
         Collection<EntityTag> tags = new ArrayList<>();
@@ -81,8 +124,8 @@ public class TestAutoComplete extends ESBase{
         logger.info(doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1));
 
         doCompletionQuery(entity.getFortress().getIndexName(), "find", 2, "Find by tag name failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "21", 1, "Code is 2 chars and should be indexed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "1", 0, "Code less than 2 chars should have been ignored");
+        doCompletionQuery(entity.getFortress().getIndexName(), "ab", 1, "Code is 2 chars and should be indexed");
+        doCompletionQuery(entity.getFortress().getIndexName(), "a", 0, "Code less than 2 chars should have been ignored");
 
 
     }
