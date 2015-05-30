@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -173,8 +173,8 @@ public class TestAdminCalls extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
-        trackBean.addTag(new TagInputBean("anyName", "rlx"));
-        trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
+        trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
+        trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
@@ -182,8 +182,8 @@ public class TestAdminCalls extends EngineBase {
         assertNotNull(resultA);
 
         trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
-        trackBean.addTag(new TagInputBean("anyName", "rlx"));
-        trackBean.addTag(new TagInputBean("otherName", "rlxValue").setReverse(true));
+        trackBean.addTag(new TagInputBean("anyName", "TestTag","rlx"));
+        trackBean.addTag(new TagInputBean("otherName","TestTag", "rlxValue").setReverse(true));
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
 

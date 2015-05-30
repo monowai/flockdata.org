@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -61,7 +61,7 @@ public class TestHashcodeAndEquality {
     }
 
     private TagNode getTag(String name, String relationship, Long l) {
-        TagInputBean tagInputBean = new TagInputBean(name, relationship);
+        TagInputBean tagInputBean = new TagInputBean(name, null, relationship);
         TagNode tagNode = new TagNode(tagInputBean);
         tagNode.setId(l);
         return tagNode;

@@ -132,8 +132,7 @@ public class TestEntityDeadlock extends EngineBase {
     private ArrayList<TagInputBean> getTags(int tagCount, boolean addSubTag) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < tagCount; i++) {
-            TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
-            tag.setLabel("Deadlock");
+            TagInputBean tag = new TagInputBean("tag" + i, "Deadlock", "tagRlx" + i);
             if (addSubTag) {
                 TagInputBean subTag = new TagInputBean("subtag" + i);
                 subTag.setLabel("DeadlockSub");

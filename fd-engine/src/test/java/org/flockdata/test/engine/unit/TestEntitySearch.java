@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -82,7 +82,7 @@ public class TestEntitySearch {
     }
 
     Tag getTag (String tagName, String rlxName){
-        TagInputBean tagInputBean = new TagInputBean(tagName, rlxName);
+        TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
         return new TagNode(tagInputBean);
     }
 

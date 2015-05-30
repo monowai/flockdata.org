@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -279,8 +279,9 @@ public class TestTags extends EngineBase {
         assertTrue(found);
     }
 
-    // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
+        // ToDo: Multi-tenanted custom tags
+
         engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = registerSystemUser("customLabelsMultiTenant", mike_admin);
 
@@ -382,6 +383,7 @@ public class TestTags extends EngineBase {
         assertNotNull(tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
+
     @Test
     public void geographyEndPoints() throws Exception {
         engineConfig.setMultiTenanted(false);
@@ -593,4 +595,29 @@ public class TestTags extends EngineBase {
         assertNotNull ( converted);
 
     }
+
+    @Test
+    public void path_FindTag() throws Exception {
+        engineConfig.setMultiTenanted(false);
+        SystemUser iSystemUser = registerSystemUser("path_FindTag", mike_admin);
+
+        TagInputBean tagInputA = new TagInputBean("Source");
+        tagInputA.setLabel(":TestTagA");
+        tagInputA.setCode("CodeA");
+        tagInputA.setName("NameA");
+        Tag tagA = tagService.createTag(iSystemUser.getCompany(), tagInputA);
+        assertNotNull(tagA);
+
+        // Same code, but different label. Should create a new tag
+        TagInputBean tagInputB = new TagInputBean("Source");
+        tagInputB.setLabel(":TestTagB");
+        tagInputB.setCode("CodeA");
+        tagInputB.setName("NameA");
+        Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
+        Tag tagC = tagService.createTag(iSystemUser.getCompany(), tagInputB);
+        assertNotNull(tagB);
+        assertTrue(!tagA.getId().equals(tagB.getId()));
+        assertTrue(tagC.getId().equals(tagB.getId()));
+    }
+
 }
