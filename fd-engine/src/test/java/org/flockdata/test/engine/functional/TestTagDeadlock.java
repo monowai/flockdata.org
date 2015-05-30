@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -113,11 +113,10 @@ public class TestTagDeadlock extends EngineBase {
     private ArrayList<TagInputBean> getTags(int tagCount, boolean addSubTag) {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (int i = 0; i < tagCount; i++) {
-            TagInputBean tag = new TagInputBean("tag" + i, "tagRlx" + i);
-            tag.setLabel("Deadlock");
+            TagInputBean tag = new TagInputBean("tag" + i, "DeadlockTag", "tagRlx" + i);
             if (addSubTag) {
                 TagInputBean subTag = new TagInputBean("subtag" + i);
-                subTag.setLabel("DeadlockSub");
+                subTag.setLabel("DeadlockSubTag");
                 tag.setTargets("subtag", subTag);
             }
             tags.add(tag);
