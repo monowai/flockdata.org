@@ -42,6 +42,7 @@ import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -116,8 +117,13 @@ public class FileProcessor {
         // Split the source in to path and filter.
         //path = source.substring(0, source.indexOf())
 
-        File folder = new ClassPathResource(path).getFile();
+        File folder = new UrlResource("file:" + path).getFile();
         File[] listOfFiles = folder.listFiles(fileFilter);
+        if (listOfFiles == null) {
+            folder = new ClassPathResource(path).getFile();
+            listOfFiles = folder.listFiles(fileFilter);
+        }
+
         for (File file : listOfFiles) {
             results.add(file.toString());
         }
@@ -484,7 +490,7 @@ public class FileProcessor {
         //DAT-350
 
         if (rowsToProcess == 0) {
-            if ( currentRow % 1000 == 0)
+            if (currentRow % 1000 == 0)
                 logger.info("Processed {} elapsed seconds {}", currentRow - skipCount, (new DateTime().getMillis() - then) / 1000d);
             return false;
         }
