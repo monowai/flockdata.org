@@ -65,11 +65,11 @@ public class TagInputBean {
     /**
      * associates a tag to the Entity
      *
-     * @param tagValue  Unique name for a tag (if exists will be reused)
+     * @param tagCode  Unique name for a tag (if exists will be reused)
      * @param tagLabel     The "type" of tag
      */
-    public TagInputBean(String tagValue, String tagLabel) {
-        this(tagValue, tagLabel, (String)null);
+    public TagInputBean(String tagCode, String tagLabel) {
+        this(tagCode, tagLabel, null);
     }
 
     /**
@@ -109,18 +109,17 @@ public class TagInputBean {
     public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName, Map<String, Object> relationshipProperties) {
         this(tagCode);
         setLabel(tagLabel);
-        if (entityRelationshipName == null)
-            entityRelationshipName = "general";
-        else {
+        if (entityRelationshipName != null) {
             entityRelationshipName = entityRelationshipName.trim();
             if (entityRelationshipName.contains(" ")) {
                 if (!entityRelationshipName.startsWith("'"))
                     entityRelationshipName = "'" + entityRelationshipName + "'";
                 //   throw new RuntimeException("Tag Type cannot contain whitespace [" + tagLabel + "]");
             }
+            addEntityLink(entityRelationshipName, relationshipProperties);
         }
 
-        addEntityLink(entityRelationshipName, relationshipProperties);
+
 
     }
 
@@ -211,11 +210,6 @@ public class TagInputBean {
         return this;
     }
 
-    @Deprecated
-    // Use setLabel
-    public TagInputBean setIndex(String index){
-        return setLabel(index);
-    }
     /**
      * Index name cannot contain spaces and will begin with a single :
      * Will add the leading : if it is missing
@@ -231,11 +225,6 @@ public class TagInputBean {
 
         return this;
 
-    }
-
-    private void isValid(String aData) {
-        if (aData.contains(" "))
-            throw new RuntimeException("Tag Type cannot contain whitespace " + aData);
     }
 
     /**

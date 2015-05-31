@@ -304,11 +304,10 @@ public class TestEntityTags extends EngineBase {
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        // In this scenario, the Tag name is the key if the value is null
-        entityInput.addTag(new TagInputBean("TagA", "TestTag", (String)null));
-        entityInput.addTag(new TagInputBean("TagB", "TestTag", (String)null));
-        entityInput.addTag(new TagInputBean("TagC", "TestTag", (String)null));
-        entityInput.addTag(new TagInputBean("TagD", "TestTag", (String)null));
+        entityInput.addTag(new TagInputBean("TagA", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagB", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagC", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagD", "TestTag", "rlx"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
