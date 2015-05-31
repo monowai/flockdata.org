@@ -58,14 +58,13 @@ public class TagEP {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public Collection<TagResultBean> createTags(@RequestBody List<TagInputBean> tagInputs,
                                                 HttpServletRequest request) throws FlockException, ExecutionException, InterruptedException {
+
         Company company = CompanyResolver.resolveCompany(request);
-
         return mediationFacade.createTags(company, tagInputs);
-
     }
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.DELETE)
-    public ResponseEntity<String> purgeUnusedConcepts(HttpServletRequest request)  throws FlockException {
+    public ResponseEntity<String> purgeUnusedConcepts(HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         tagService.purgeUnusedConcepts(company);
@@ -74,8 +73,8 @@ public class TagEP {
     }
 
     @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteConcepts( @PathVariable("label") String label,
-                                                  HttpServletRequest request)  throws FlockException {
+    public ResponseEntity<String> deleteConcepts(@PathVariable("label") String label,
+                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         tagService.purgeLabel(company, label);
@@ -85,7 +84,7 @@ public class TagEP {
 
     @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.GET)
     public Collection<TagResultBean> getTags(@PathVariable("label") String label,
-                                             HttpServletRequest request)  throws FlockException {
+                                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Collection<Tag> tags = tagService.findTags(company, label);
         Collection<TagResultBean> results = new ArrayList<>();
@@ -95,9 +94,9 @@ public class TagEP {
         return results;
     }
 
-    @RequestMapping(value = "/{label}/{code}", produces = "application/json",  method = RequestMethod.GET)
-    public TagResultBean getTag(@PathVariable("label") String label,  @PathVariable("code") String code,
-                                HttpServletRequest request)  throws FlockException {
+    @RequestMapping(value = "/{label}/{code}", produces = "application/json", method = RequestMethod.GET)
+    public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
+                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return new TagResultBean(tagService.findTag(company, label, code, true));
     }
@@ -105,7 +104,7 @@ public class TagEP {
     @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void mergeTags(@PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label,
-                          HttpServletRequest request)  throws FlockException {
+                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Tag source = tagService.findTag(company, label, sourceTag);
         Tag target = tagService.findTag(company, label, targetTag);
@@ -115,10 +114,11 @@ public class TagEP {
 
     @RequestMapping(value = "/{label}/{sourceTag}/alias/{akaValue}", produces = "application/json", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.CREATED)
-    public void aliasTag( @PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label,                                           HttpServletRequest request)  throws FlockException {
+    public void aliasTag(@PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label,
+                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Tag source = tagService.findTag(company, label, sourceTag);
-        if ( source == null )
+        if (source == null)
             throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
         mediationFacade.createAlias(company, label, source, akaValue);
 
@@ -126,9 +126,16 @@ public class TagEP {
 
     @RequestMapping(value = "/{label}/{code}/alias", produces = "application/json", method = RequestMethod.GET)
     public Collection<AliasInputBean> getTagAliases(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                    HttpServletRequest request)  throws FlockException {
+                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return tagService.findTagAliases(company, label, code);
     }
 
+
+    @RequestMapping(value = "/{label}/{code}/path/{relationship}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
+    public Collection<TagResultBean> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
+                                                      HttpServletRequest request, @PathVariable("relationship") String relationship, @PathVariable("targetLabel") String targetLabel) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return tagService.findTags(company, label, code, relationship, targetLabel);
+    }
 }

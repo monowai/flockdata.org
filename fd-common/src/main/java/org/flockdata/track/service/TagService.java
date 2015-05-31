@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -41,30 +41,27 @@ public interface TagService {
 
     Tag createTag(Company company, TagInputBean tagInput);
 
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    public Tag findTag(Company company, String tagCode);
+    Tag findTag(Company company, String tagCode);
 
-    @Deprecated // Pass the company
-    public Tag findTag(String tagName);
+    Collection<Tag> findDirectedTags(Tag startTag);
 
-    public Collection<Tag> findDirectedTags(Tag startTag);
+    Collection<Tag> findTags(Company company, String label);
 
-    public Collection<Tag> findTags(Company company, String label);
+    Tag findTag(Company company, String label, String tagCode);
 
-    public Tag findTag(Company company, String label, String tagCode);
+    Tag findTag(Company company, String label, String tagCode, boolean inflate);
 
-    public Tag findTag(Company company, String label, String tagCode, boolean inflate);
+    void purgeUnusedConcepts(Company company);
 
-    public Collection<String> getExistingIndexes();
-
-    public void purgeUnusedConcepts(Company company);
-
-    public void purgeLabel(Company company, String label);
+    void purgeLabel(Company company, String label);
 
     void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
 
     void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput );
 
     Collection<AliasInputBean> findTagAliases(Company company, String label, String sourceTag) throws NotFoundException;
+
+    Collection<TagResultBean> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
 }

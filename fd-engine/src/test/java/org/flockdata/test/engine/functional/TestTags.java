@@ -601,23 +601,31 @@ public class TestTags extends EngineBase {
         engineConfig.setMultiTenanted(false);
         SystemUser iSystemUser = registerSystemUser("path_FindTag", mike_admin);
 
-        TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setLabel(":TestTagA");
-        tagInputA.setCode("CodeA");
-        tagInputA.setName("NameA");
-        Tag tagA = tagService.createTag(iSystemUser.getCompany(), tagInputA);
-        assertNotNull(tagA);
+        TagInputBean zipCode = new TagInputBean("codeA", "ZipCode").
+                setName("NameA");
 
         // Same code, but different label. Should create a new tag
-        TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setLabel(":TestTagB");
-        tagInputB.setCode("CodeA");
-        tagInputB.setName("NameA");
-        Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
-        Tag tagC = tagService.createTag(iSystemUser.getCompany(), tagInputB);
+        TagInputBean tractCode = new TagInputBean("codeB", "Tract").
+                setCode("CodeA").
+                setName("NameA");
+
+        zipCode.setTargets("located", tractCode);
+        Tag tagA = tagService.createTag(iSystemUser.getCompany(), zipCode);
+        Tag tagB = tagService.findTag(iSystemUser.getCompany(), tractCode.getLabel(), tractCode.getCode());
+        assertNotNull(tagA);
         assertNotNull(tagB);
-        assertTrue(!tagA.getId().equals(tagB.getId()));
-        assertTrue(tagC.getId().equals(tagB.getId()));
+
+        Collection<TagResultBean> results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel() );
+        assertEquals( "didn't find by wildcard relationship", 1, results.size());
+        assertEquals(tractCode.getCode(), results.iterator().next().getCode());
+
+        results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "located", tractCode.getLabel() );
+        assertEquals( "didn't find by named relationship", 1, results.size());
+        assertEquals( tractCode.getCode(), results.iterator().next().getCode());
+
+        results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "locatedx", tractCode.getLabel() );
+        assertEquals( "Should have found 0 by non-existent relationship", 0, results.size());
+
     }
 
 }

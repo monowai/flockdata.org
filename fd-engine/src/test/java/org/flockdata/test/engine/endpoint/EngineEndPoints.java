@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -27,10 +27,7 @@ import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.registration.bean.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.SystemUser;
@@ -47,6 +44,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -64,8 +62,8 @@ public class EngineEndPoints {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
-    private MockMvc getMockMvc(){
-        return  mockMvc;
+    private MockMvc getMockMvc() {
+        return mockMvc;
     }
 
     public Fortress createFortress(SystemUser su, String fortressName)
@@ -91,7 +89,7 @@ public class EngineEndPoints {
     }
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.post("/query/documents/")
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/query/documents/")
                         .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(fortresses))
@@ -102,7 +100,7 @@ public class EngineEndPoints {
     }
 
     public Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
-        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.post("/query/relationships/")
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/query/relationships/")
                         .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(fortresses))
@@ -134,7 +132,7 @@ public class EngineEndPoints {
         return JsonUtils.getAsMap(json);
     }
 
-    public String ping () throws Exception {
+    public String ping() throws Exception {
         ResultActions result = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders.get("/ping"));
@@ -177,7 +175,7 @@ public class EngineEndPoints {
     }
 
     public boolean findCompanyIllegal(String name, SystemUser su) throws Exception {
-        getMockMvc().perform(MockMvcRequestBuilders.get("/company/"+name)
+        getMockMvc().perform(MockMvcRequestBuilders.get("/company/" + name)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
 
@@ -196,7 +194,7 @@ public class EngineEndPoints {
 
     }
 
-    public String adminPing()throws Exception {
+    public String adminPing() throws Exception {
         ResultActions result = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders.get("/admin/ping"));
@@ -204,14 +202,14 @@ public class EngineEndPoints {
 
     }
 
-    public FortressResultBean postFortress(SystemUser su , FortressInputBean fortressInputBean) throws Exception {
+    public FortressResultBean postFortress(SystemUser su, FortressInputBean fortressInputBean) throws Exception {
         MvcResult response = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders
                                 .post("/fortress/")
                                 .header("api-key", su.getApiKey())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content( JsonUtils.getJSON(fortressInputBean))).andReturn();
+                                .content(JsonUtils.getJSON(fortressInputBean))).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.getBytesAsObject(json, FortressResultBean.class);
@@ -230,7 +228,7 @@ public class EngineEndPoints {
     }
 
     public Collection<DocumentResultBean> getDocuments(String fortress) throws Exception {
-        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + fortress)
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + fortress)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
@@ -238,13 +236,35 @@ public class EngineEndPoints {
         return JsonUtils.getAsCollection(json, DocumentResultBean.class);
     }
 
-    public Collection<ConceptResultBean> getLabelsForDocument(String code, String docResultName) throws Exception{
-        MvcResult response =   getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + code +"/"+docResultName)
+    public Collection<ConceptResultBean> getLabelsForDocument(String code, String docResultName) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + code + "/" + docResultName)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.getAsCollection(json, ConceptResultBean.class);
+
+    }
+
+    public Collection<TagResultBean> createTag(TagInputBean tag) throws Exception {
+        ArrayList<TagInputBean> tags = new ArrayList<>();
+        tags.add(tag);
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.put("/tag/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(tags))
+        ).andExpect(MockMvcResultMatchers.status().isAccepted()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, TagResultBean.class);
+    }
+
+    public Collection<TagResultBean> getConnectedTags(String label, String code, String relationship, String targetLabel) throws Exception{
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/"+label+"/"+code+"/path/"+relationship+"/"+targetLabel)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, TagResultBean.class);
 
     }
 }
