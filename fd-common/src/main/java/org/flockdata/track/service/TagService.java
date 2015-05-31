@@ -30,6 +30,7 @@ import org.flockdata.registration.model.Tag;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -63,5 +64,5 @@ public interface TagService {
 
     Collection<AliasInputBean> findTagAliases(Company company, String label, String sourceTag) throws NotFoundException;
 
-    Collection<TagResultBean> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
+    Map<String, Collection<TagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException;
 }
