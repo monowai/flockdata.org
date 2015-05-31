@@ -30,6 +30,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by mike on 31/05/15.
@@ -64,9 +65,10 @@ public class TestTagEP extends EngineBase {
         TestCase.assertEquals(1, tags.size());
 
 
-        Collection<TagResultBean> targetTags = eip.getConnectedTags(zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
+        Map<String, Object> targetTags = eip.getConnectedTags(zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
         TestCase.assertEquals(1, targetTags.size());
-        TestCase.assertEquals(tractCode.getCode(), targetTags.iterator().next().getCode());
+        Collection<TagResultBean>tagResults = (Collection<TagResultBean>) targetTags.get("located");
+        TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().getCode());
 
 
     }

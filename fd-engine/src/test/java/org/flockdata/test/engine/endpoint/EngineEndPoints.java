@@ -258,13 +258,13 @@ public class EngineEndPoints {
         return JsonUtils.getAsCollection(json, TagResultBean.class);
     }
 
-    public Collection<TagResultBean> getConnectedTags(String label, String code, String relationship, String targetLabel) throws Exception{
+    public Map<String, Object> getConnectedTags(String label, String code, String relationship, String targetLabel) throws Exception{
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/"+label+"/"+code+"/path/"+relationship+"/"+targetLabel)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.getAsCollection(json, TagResultBean.class);
+        return JsonUtils.getAsMap(json);
 
     }
 }

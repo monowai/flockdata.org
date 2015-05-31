@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -133,8 +134,8 @@ public class TagEP {
 
 
     @RequestMapping(value = "/{label}/{code}/path/{relationship}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
-    public Collection<TagResultBean> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                      HttpServletRequest request, @PathVariable("relationship") String relationship, @PathVariable("targetLabel") String targetLabel) throws FlockException {
+    public Map<String, Collection<TagResultBean>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
+                                                                   HttpServletRequest request, @PathVariable("relationship") String relationship, @PathVariable("targetLabel") String targetLabel) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return tagService.findTags(company, label, code, relationship, targetLabel);
     }

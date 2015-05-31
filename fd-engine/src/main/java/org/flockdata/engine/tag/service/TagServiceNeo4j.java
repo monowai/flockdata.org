@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -159,7 +160,7 @@ public class TagServiceNeo4j implements TagService {
      * @throws NotFoundException
      */
     @Override
-    public Collection<TagResultBean> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
+    public Map<String, Collection<TagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
         Tag source = findTag(company, sourceLabel, sourceCode);
         if (source == null)
             throw new NotFoundException("Unable to find the requested tag " + sourceCode);
