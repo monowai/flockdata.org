@@ -67,8 +67,8 @@ public class TestTagEP extends EngineBase {
 
         Map<String, Object> targetTags = eip.getConnectedTags(zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
         TestCase.assertEquals(1, targetTags.size());
-        Collection<TagResultBean>tagResults = (Collection<TagResultBean>) targetTags.get("located");
-        TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().getCode());
+        Collection<Map>tagResults = (Collection<Map>) targetTags.get("located");
+        TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().get("code"));
 
 
     }
