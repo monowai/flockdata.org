@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -218,8 +218,9 @@ public class QueryDaoES implements QueryDao {
         SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
-                .setSize(queryParams.getRowsPerPage())
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
+        if ( queryParams.getSize()!=null)
+            query.setSize(queryParams.getSize());
 
         SearchResponse response;
         try {
@@ -286,9 +287,13 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.WHEN)
                 .addField(EntitySearchSchema.CREATED)
                 .addField(EntitySearchSchema.TIMESTAMP)
-                .setSize(queryParams.getRowsPerPage())
-                .setFrom(queryParams.getStartFrom())
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
+
+        if (queryParams.getSize()!=null )
+            query.setSize(queryParams.getSize());
+
+        if ( queryParams.getFrom()!=null )
+            query.setFrom(queryParams.getFrom());
 
         // Add user requested fields
         if (queryParams.getData() != null)
@@ -309,7 +314,7 @@ public class QueryDaoES implements QueryDao {
         getEntityResults(results, response, queryParams);
         EsSearchResult searchResult = new EsSearchResult(results);
         searchResult.setTotalHits(response.getHits().getTotalHits());
-        searchResult.setStartedFrom(queryParams.getStartFrom());
+        searchResult.setStartedFrom(queryParams.getFrom()==null ?0:queryParams.getFrom());
         watch.stop();
         logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
@@ -380,19 +385,24 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
-        if (queryParams.getQuery() != null) {
+        if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
 
-            String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) + "}";
+            String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) ;
 
-            SearchRequestBuilder esQuery = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
-                    .setExtraSource(query);
+            if ( queryParams.getAggs()!=null )
+                query = query + ",\"aggs\": " + JsonUtils.getJSON(queryParams.getAggs()) + "}";
+            else
+                query = query + "}";
 
+            SearchRequestBuilder esQuery = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams));
 
-            if ( queryParams.getRowsPerPage()!=null )
-                esQuery.setSize(queryParams.getRowsPerPage());
+            if ( queryParams.getSize()!=null )
+                esQuery.setSize(queryParams.getSize());
 
-            if (queryParams.getStartFrom() != null)
-                esQuery.setFrom(queryParams.getStartFrom());
+            if (queryParams.getFrom() != null)
+                esQuery.setFrom(queryParams.getFrom());
+
+            esQuery.setExtraSource( query );
 
             SearchResponse response = esQuery
                     .execute()

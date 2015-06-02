@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -46,13 +46,16 @@ public class QueryParams implements QueryInterface{
     private String searchText;
 
     private Map<String,Object> query; // Raw query to pass through to ES
+
+    private Map<String,Object> aggs; // Raw aggs to pass through to ES
     private String metaKey;
     private String company;
     private String fortress;
     private String[] types;
     private String[] data;
-    private Integer rowsPerPage =10;
-    private int startFrom= 0;
+    private Integer size =null;
+    private Integer from = null;
+
     private boolean entityOnly;
     private String callerRef;
 
@@ -67,7 +70,7 @@ public class QueryParams implements QueryInterface{
     public QueryParams(Company company, MatrixInputBean input) {
         this.searchText = input.getQueryString();
         this.company = company.getName();
-        this.rowsPerPage = input.getSampleSize();
+        this.size = input.getSampleSize();
         this.tags = input.getConcepts();
         if ( input.getFromRlxs()!=null && !input.getFromRlxs().isEmpty())
             this.relationships.addAll(input.getFromRlxs());
@@ -122,20 +125,20 @@ public class QueryParams implements QueryInterface{
         this.types = types;
     }
 
-    public Integer getRowsPerPage() {
-        return rowsPerPage;
+    public Integer getSize() {
+        return size;
     }
 
-    public void setRowsPerPage(Integer rowsPerPage) {
-        this.rowsPerPage = rowsPerPage;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
-    public Integer getStartFrom() {
-        return startFrom;
+    public Integer getFrom() {
+        return from;
     }
 
-    public void setStartFrom(Integer startFrom) {
-        this.startFrom = startFrom;
+    public void setFrom(Integer from) {
+        this.from = from;
     }
 
     @Override
@@ -187,4 +190,10 @@ public class QueryParams implements QueryInterface{
     public void setQuery(Map<String, Object> query) {
         this.query = query;
     }
+
+    public Map<String, Object> getAggs() {
+        return aggs;
+    }
+
+
 }
