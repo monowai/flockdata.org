@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.model.Fortress;
@@ -135,7 +136,7 @@ public class TestCallerRef extends EngineBase {
 
             String docType = "StressDupez";
             String callerRef = "ABC123X";
-            int runnersToRun = 3;
+            int runnersToRun = 5;
             Collection<CallerRefRunner> runners = new ArrayList<>();
 
             CountDownLatch startLatch = new CountDownLatch(1);
@@ -144,7 +145,10 @@ public class TestCallerRef extends EngineBase {
             for (int i = 0; i < runnersToRun; i++) {
                 runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
             }
+
+            TestCase.assertEquals(runnersToRun, runners.size());
             startLatch.countDown();
+
             latch.await();
 
             assertNotNull(entityService.findByCallerRef(fortress, docType, callerRef));
@@ -195,10 +199,10 @@ public class TestCallerRef extends EngineBase {
         @Override
         public void run() {
             int count = 0;
-            setSecurity();
 
             try {
                 startLatch.await();
+                logger.debug("Running... ");
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
