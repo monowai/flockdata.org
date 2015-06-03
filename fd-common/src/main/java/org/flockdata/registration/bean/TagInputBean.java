@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * All data necessary to create a simple Tag. If no label is provided then the tag is
- * created under the default label of _Tag
+ * All data necessary to create a simple Tag. If no tagLabel is provided then the tag is
+ * created under the default tagLabel of _Tag
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 1:20 PM
@@ -65,23 +65,23 @@ public class TagInputBean {
     /**
      * associates a tag to the Entity
      *
-     * @param tagValue              Unique name for a tag (if exists will be reused)
-     * @param entityRelationshipName name of relationship to the Entity
+     * @param tagCode  Unique name for a tag (if exists will be reused)
+     * @param tagLabel     The "type" of tag
      */
-    public TagInputBean(String tagValue, String entityRelationshipName) {
-        this(tagValue, null, entityRelationshipName);
+    public TagInputBean(String tagCode, String tagLabel) {
+        this(tagCode, tagLabel, null);
     }
 
     /**
-     * associates a tag to the entity giving it an optional label label to categorize it by
+     * associates a tag to the entity giving it an optional tagLabel tagLabel to categorize it by
      *
-     * @param tagCode              Unique name for a tag (if exists will be reused)
-     * @param tagLabel                optional label label to give the Tag. Must start with ":"
+     * @param tagCode                Unique name for a tag (if exists will be reused)
+     * @param tagLabel               optional tagLabel tagLabel to give the Tag.
      * @param entityRelationshipName name of relationship to the Entity
      */
     public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName) {
-        this(tagCode, entityRelationshipName, (Map<String, Object>) null);
-        setLabel(tagLabel);
+        this(tagCode, tagLabel, entityRelationshipName, null);
+
 
     }
 
@@ -91,7 +91,7 @@ public class TagInputBean {
      * You can pass this in as Name:Type and AB will additionally
      * recognize the tag as being of the supplied Type
      * <p/>
-     * This tag will not be associated with an Entity (it has no entityRelationshipName)
+     * This tag will not be associated with an Entity (it has no tagLabel)
      * <p/>
      * Code value defaults to the tag name
      *
@@ -106,20 +106,20 @@ public class TagInputBean {
         //this.code = this.name;
     }
 
-    public TagInputBean(String tagCode, String entityRelationshipName, Map<String, Object> relationshipProperties) {
+    public TagInputBean(String tagCode, String tagLabel, String entityRelationshipName, Map<String, Object> relationshipProperties) {
         this(tagCode);
-        if (entityRelationshipName == null)
-            entityRelationshipName = "general";
-        else {
+        setLabel(tagLabel);
+        if (entityRelationshipName != null) {
             entityRelationshipName = entityRelationshipName.trim();
             if (entityRelationshipName.contains(" ")) {
                 if (!entityRelationshipName.startsWith("'"))
                     entityRelationshipName = "'" + entityRelationshipName + "'";
-                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + entityRelationshipName + "]");
+                //   throw new RuntimeException("Tag Type cannot contain whitespace [" + tagLabel + "]");
             }
+            addEntityLink(entityRelationshipName, relationshipProperties);
         }
 
-        addEntityLink(entityRelationshipName, relationshipProperties);
+
 
     }
 
@@ -210,11 +210,6 @@ public class TagInputBean {
         return this;
     }
 
-    @Deprecated
-    // Use setLabel
-    public TagInputBean setIndex(String index){
-        return setLabel(index);
-    }
     /**
      * Index name cannot contain spaces and will begin with a single :
      * Will add the leading : if it is missing
@@ -230,11 +225,6 @@ public class TagInputBean {
 
         return this;
 
-    }
-
-    private void isValid(String aData) {
-        if (aData.contains(" "))
-            throw new RuntimeException("Tag Type cannot contain whitespace " + aData);
     }
 
     /**
@@ -311,7 +301,7 @@ public class TagInputBean {
     /**
      *
      *
-     * @return Default tag label or the name to assign
+     * @return Default tag tagLabel or the name to assign
      */
     private String getLabelValue() {
         if ( "".equals(label) )

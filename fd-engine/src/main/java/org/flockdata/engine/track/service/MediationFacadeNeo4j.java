@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -241,7 +241,8 @@ public class MediationFacadeNeo4j implements MediationFacade {
         // We have to wait for the docType before proceeding to create entities
         try {
             // A long time, but this is to avoid test issues on the low spec build box
-            docType.get(10, TimeUnit.SECONDS);
+            DocumentType theDoc = docType.get(10, TimeUnit.SECONDS);
+            assert theDoc.getCode()!=null;
         } catch (TimeoutException e) {
             logger.error("Time out looking/creating docType " + first.getDocumentName());
             throw new FlockException("Time out looking/creating docType " + first.getDocumentName());

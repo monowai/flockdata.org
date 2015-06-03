@@ -302,8 +302,7 @@ public class TransformationHelper {
         Collection<TagInputBean> results = new ArrayList<>();
 
         tags.stream().filter(tag -> tag != null).forEach(tag -> {
-            TagInputBean newTag = new TagInputBean(tag, entityRelationship)
-                    .setLabel(tagProfile.getLabel());
+            TagInputBean newTag = new TagInputBean(tag, tagProfile.getLabel(), entityRelationship);
             newTag.setReverse(tagProfile.getReverse());
             newTag.setMustExist(tagProfile.isMustExist());
             newTag.setLabel(tagProfile.getLabel());

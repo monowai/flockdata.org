@@ -76,7 +76,7 @@ public class TestEntityTags extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertNotNull(fortress);
 
-        TagInputBean firstTag = new TagInputBean("firstTag", "demo");
+        TagInputBean firstTag = new TagInputBean("firstTag",null, "demo");
 
         EntityInputBean entityBean = new EntityInputBean(fortress.getName(), "mtest", "aTest", new DateTime(), "abc");
         entityBean.addTag(firstTag);
@@ -101,7 +101,7 @@ public class TestEntityTags extends EngineBase {
 
         // Scenario 2: We have an existing entity with content logged - it has one existing tag
         //           we now have a second tag added but no content.
-        TagInputBean secondTag = new TagInputBean("secondTag", "demo");
+        TagInputBean secondTag = new TagInputBean("secondTag",null, "demo");
         entityBean.addTag(secondTag);
         entity = mediationFacade.trackEntity(su.getCompany(), entityBean).getEntity();
 
@@ -182,7 +182,7 @@ public class TestEntityTags extends EngineBase {
         // Creating some content and adding a new Tag to the entity
         DateTime fUpdated = new DateTime().minus(10000);
         ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, Helper.getRandomMap());
-        entityBean.addTag(new TagInputBean("Tag2", "second"));
+        entityBean.addTag(new TagInputBean("Tag2", null,"second"));
         entityBean.setArchiveTags(false);// We don't have a reference to the original tag in the Input
         // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
         entityBean.setContent(contentInputBean);
@@ -213,13 +213,13 @@ public class TestEntityTags extends EngineBase {
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", "aaaa"));
-        entityInput.addTag(new TagInputBean("TagB", "bbbb"));
+        entityInput.addTag(new TagInputBean("TagA", null,"aaaa"));
+        entityInput.addTag(new TagInputBean("TagB", null,"bbbb"));
 
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         ContentInputBean contentInputBean = new ContentInputBean(Helper.getRandomMap());
         entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", "aaaa"));
+        entityInput.addTag(new TagInputBean("TagA", null,"aaaa"));
         entityInput.setContent(contentInputBean);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -238,10 +238,10 @@ public class TestEntityTags extends EngineBase {
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "auditTest", "aTest", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", "AAAA"));
-        entityInput.addTag(new TagInputBean("TagB", "BBBB"));
-        entityInput.addTag(new TagInputBean("TagC", "CCCC"));
-        entityInput.addTag(new TagInputBean("TagD", "DDDD"));
+        entityInput.addTag(new TagInputBean("TagA", null,"AAAA"));
+        entityInput.addTag(new TagInputBean("TagB", null,"BBBB"));
+        entityInput.addTag(new TagInputBean("TagC", null,"CCCC"));
+        entityInput.addTag(new TagInputBean("TagD", null,"DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -270,10 +270,10 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        entityInput.addTag(new TagInputBean("TagA", "AAAA"));
-        entityInput.addTag(new TagInputBean("TagB", "BBBB"));
-        entityInput.addTag(new TagInputBean("TagC", "CCCC"));
-        entityInput.addTag(new TagInputBean("TagD", "DDDD"));
+        entityInput.addTag(new TagInputBean("TagA",null, "AAAA"));
+        entityInput.addTag(new TagInputBean("TagB",null, "BBBB"));
+        entityInput.addTag(new TagInputBean("TagC",null, "CCCC"));
+        entityInput.addTag(new TagInputBean("TagD",null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -304,11 +304,10 @@ public class TestEntityTags extends EngineBase {
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        // In this scenario, the Tag name is the key if the value is null
-        entityInput.addTag(new TagInputBean("TagA", null));
-        entityInput.addTag(new TagInputBean("TagB", null));
-        entityInput.addTag(new TagInputBean("TagC", null));
-        entityInput.addTag(new TagInputBean("TagD", "DDDD"));
+        entityInput.addTag(new TagInputBean("TagA", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagB", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagC", "TestTag", "rlx"));
+        entityInput.addTag(new TagInputBean("TagD", "TestTag", "rlx"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -344,7 +343,7 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // In this scenario, the Tag name is the key if the value is null
-        TagInputBean tag = new TagInputBean("TagD", "DDDD");
+        TagInputBean tag = new TagInputBean("TagD", null,"DDDD");
         tag.setName(null);
         entityInput.addTag(tag);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -366,9 +365,9 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
-        entityInput.addTag(new TagInputBean("TagA", "camel"));
-        entityInput.addTag(new TagInputBean("taga", "lower"));
-        entityInput.addTag(new TagInputBean("tAgA", "mixed"));
+        entityInput.addTag(new TagInputBean("TagA",null, "camel"));
+        entityInput.addTag(new TagInputBean("taga", null,"lower"));
+        entityInput.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         Tag tag = tagService.findTag(su.getCompany(), "Taga");
@@ -392,9 +391,9 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         entity.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
-        entity.addTag(new TagInputBean("TagA", "camel"));
-        entity.addTag(new TagInputBean("taga", "lower"));
-        entity.addTag(new TagInputBean("tAgA", "mixed"));
+        entity.addTag(new TagInputBean("TagA",null, "camel"));
+        entity.addTag(new TagInputBean("taga",null, "lower"));
+        entity.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entity);
 
         assertEquals(3, resultBean.getTags().size());
@@ -472,9 +471,9 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email","email-to");
         tagA.addEntityLink("email-cc");
-        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        TagInputBean tagB = new TagInputBean("np@flockdata.com","Email", "email-cc");
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
 
@@ -495,9 +494,9 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(fortress);
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
-        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        TagInputBean tagA = new TagInputBean("mike@flockdata.com", null,"email-to");
         tagA.addEntityLink("email-cc");
-        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        TagInputBean tagB = new TagInputBean("np@flockdata.com", null,"email-cc");
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
 
@@ -523,9 +522,9 @@ public class TestEntityTags extends EngineBase {
         propA.put("myValue", 10);
         propB.put("myValue", 20);
 
-        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to", propA);
+        TagInputBean tagA = new TagInputBean("mike@flockdata.com", "Email", "email-to", propA).setLabel("Email");
         tagA.addEntityLink("email-cc", propB);
-        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "Email", "email-cc");
 
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
@@ -547,7 +546,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", "email-to");
+        TagInputBean tagInputBean = new TagInputBean("mike@flockdata.com", null,"email-to");
         tagInputBean.addEntityLink("email-to");
         tagInputBean.addEntityLink("email-to");
 
@@ -569,7 +568,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", "email-to");
+        TagInputBean tagInputBean = new TagInputBean("mike@auditbucket.com", null,"email-to");
         tagInputBean.setReverse(true); // relationships will be reversed
         tagInputBean.addEntityLink("email-to");
 
@@ -594,9 +593,9 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
 
-        TagInputBean tagA = new TagInputBean("mike@auditbucket.com", "email-to");
+        TagInputBean tagA = new TagInputBean("mike@flockdata.com",null, "email-to");
         tagA.addEntityLink("email cc");
-        TagInputBean tagB = new TagInputBean("np@auditbucket.com", "email-cc");
+        TagInputBean tagB = new TagInputBean("np@flockdata.com", null,"email-cc");
 
         inputBean.addTag(tagA);
         inputBean.addTag(tagB);
@@ -665,7 +664,7 @@ public class TestEntityTags extends EngineBase {
         TagInputBean cityInputTag = new TagInputBean(city);
         TagInputBean stateInputTag = new TagInputBean("CA");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
+        TagInputBean institutionTag = new TagInputBean("mikecorp", null,"owns");
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
@@ -709,7 +708,7 @@ public class TestEntityTags extends EngineBase {
         TagInputBean cityInputTag = new TagInputBean(city);
         TagInputBean stateInputTag = new TagInputBean("CA");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp", "works");
+        TagInputBean institutionTag = new TagInputBean("mikecorp", null,"works");
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
@@ -778,10 +777,10 @@ public class TestEntityTags extends EngineBase {
         String city = "Los Angeles";
 
         TagInputBean countryInputTag = new TagInputBean(country, "Country", "");
-        TagInputBean cityInputTag = new TagInputBean("LA", ":City", "").setName(city);
+        TagInputBean cityInputTag = new TagInputBean("LA", "City", "").setName(city);
         TagInputBean stateInputTag = new TagInputBean("CA", "State", "");
 
-        TagInputBean institutionTag = new TagInputBean("mikecorp", "owns");
+        TagInputBean institutionTag = new TagInputBean("mikecorp",null, "owns");
         // Institution is in a city
         institutionTag.setTargets("located", cityInputTag);
         cityInputTag.setTargets("state", stateInputTag);
@@ -819,7 +818,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("tagsAreUpdatedOnEntityUpdate", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
-        TagInputBean tagInput = new TagInputBean("TEST-CREATE", "rlx-test");
+        TagInputBean tagInput = new TagInputBean("TEST-CREATE", null,"rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
@@ -838,7 +837,7 @@ public class TestEntityTags extends EngineBase {
         updatedEntity.setContent(alb);
         // Updating an existing Entity but the tagCollection is minus TEST-CREATE tag
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
-        updatedEntity.addTag(new TagInputBean("TEST-UPDATE", "camel"));
+        updatedEntity.addTag(new TagInputBean("TEST-UPDATE", null,"camel"));
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
         Entity entity = entityService.getEntity(su.getCompany(), entityResult.getEntityBean().getMetaKey());
         assertNotNull(entity);
@@ -892,14 +891,14 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("oneTagRemovedFromASetOfTwo", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
-        TagInputBean tagInput = new TagInputBean("TAG-FIRST", "rlx-test");
+        TagInputBean tagInput = new TagInputBean("TAG-FIRST", null, "rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         inputBean.setContent(logBean);
 
         inputBean.addTag(tagInput);
-        tagInput = new TagInputBean(("TAG-SECOND"), "rlxb-test");
+        tagInput = new TagInputBean("TAG-SECOND",null, "rlxb-test");
         inputBean.addTag(tagInput);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity created = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
@@ -913,7 +912,7 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean alb = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         updatedEntity.setContent(alb);
         // we are updating an existing entity with two tags and telling it that only one is now valid
-        updatedEntity.addTag(new TagInputBean("TAG-FIRST", "rlx-test"));
+        updatedEntity.addTag(new TagInputBean("TAG-FIRST",null, "rlx-test"));
         resultBean = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertNotNull(entity);
@@ -942,7 +941,7 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
-        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "TestTag","camel"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
@@ -952,7 +951,7 @@ public class TestEntityTags extends EngineBase {
         validateTag(entity, "TagA", 1);
 
         //Adding a second tag (the first is already in the entity
-        inputBean.addTag(new TagInputBean("TagB", "horse"));
+        inputBean.addTag(new TagInputBean("TagB", "TestTag","horse"));
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         validateTag(entity, "TagB", 2);
 
@@ -968,13 +967,13 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
-        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "TestTag","camel"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
 
         //Adding a second tag (the first is already in the entity
-        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", "TestTag","camel"));
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         validateTag(resultBean.getEntity(), "TagA", 1);
 
@@ -995,10 +994,10 @@ public class TestEntityTags extends EngineBase {
         rlxProperties.put("weight", 99);
         rlxProperties.put("abAdded", "z");
 
-        TagInputBean inBound = new TagInputBean("TAG-IN", "rlx-test", rlxProperties);
+        TagInputBean inBound = new TagInputBean("TAG-IN", "DefTag", "rlx-test", rlxProperties);
         inputBean.addTag(inBound);
 
-        TagInputBean outBound = new TagInputBean(("TAG-OUT"), "rlxb-test").setReverse(true);
+        TagInputBean outBound = new TagInputBean("TAG-OUT",null, "rlxb-test").setReverse(true);
 
         inputBean.addTag(outBound);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1056,7 +1055,7 @@ public class TestEntityTags extends EngineBase {
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc1");
         // This should create the same Tag object
-        inputBean.addTag(new TagInputBean("TagA", "camel"));
+        inputBean.addTag(new TagInputBean("TagA", null,"camel"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
@@ -1066,7 +1065,7 @@ public class TestEntityTags extends EngineBase {
         validateTag(entity, "TagA", 1);
 
         // Updating the entity with a second tag in the input will add it to the entity.
-        inputBean.addTag(new TagInputBean("TagB", "horse"));
+        inputBean.addTag(new TagInputBean("TagB", null, "horse"));
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
         validateTag(entity, "TagB", 2);
 

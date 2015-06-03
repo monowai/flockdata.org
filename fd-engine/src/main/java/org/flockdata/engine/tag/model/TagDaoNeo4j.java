@@ -430,4 +430,26 @@ public class TagDaoNeo4j {
         }
         return aliasResults;
     }
+
+    public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
+        String query = "match (t) -["+ (!relationship.equals("")? "r:"+relationship :"r")+"]-(targetTag:"+targetLabel+") where id(t)={id}  return r, targetTag";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", sourceTag.getId());
+        Iterable<Map<String, Object>> result = template.query(query, params);
+        Map<String,Collection<TagResultBean>> tagResults = new HashMap<>();
+        for (Map<String, Object> mapResult : result) {
+            TagNode n = template.projectTo(mapResult.get("targetTag"), TagNode.class);
+
+            String rType= ((org.neo4j.graphdb.Relationship)mapResult.get("r")).getType().name();
+            Collection<TagResultBean>tagResultBeans = tagResults.get(rType);
+            if ( tagResultBeans == null ){
+                tagResultBeans = new ArrayList<>();
+                tagResults.put(rType, tagResultBeans);
+            }
+            tagResultBeans.add(new TagResultBean(n));
+
+        }
+        return tagResults;
+
+    }
 }

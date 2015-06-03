@@ -57,8 +57,8 @@ public class DocTestEP extends EngineBase {
         Fortress fortress = createFortress(su);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "StudyDoc", new DateTime());
-        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(TestQueryResults.VEGETABLE));
+        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
         assertEquals(2, entityTagService.findEntityTags(entity).size());
@@ -107,11 +107,11 @@ public class DocTestEP extends EngineBase {
         Fortress fortress = createFortress(su);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
-        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Oranges", "dislikes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(TestQueryResults.VEGETABLE));
+        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes"));
+        inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic"));
+        inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
         EngineEndPoints eip = new EngineEndPoints(wac);

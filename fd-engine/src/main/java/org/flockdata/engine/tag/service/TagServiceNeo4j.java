@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -77,15 +78,6 @@ public class TagServiceNeo4j implements TagService {
         return findTag(company, Tag.DEFAULT, tagCode);
     }
 
-
-    @Override
-    public Tag findTag(String tagName) {
-        Company company = securityHelper.getCompany();
-        if (company == null)
-            return null;
-        return findTag(company, tagName);
-    }
-
     @Override
     public Collection<Tag> findDirectedTags(Tag startTag) {
         return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
@@ -109,11 +101,6 @@ public class TagServiceNeo4j implements TagService {
             logger.debug("findTag notFound {}, {}", tagCode, label);
         }
         return tag;
-    }
-
-    @Override
-    public Collection<String> getExistingIndexes() {
-        return tagDao.getExistingLabels();
     }
 
     @Autowired
@@ -163,6 +150,24 @@ public class TagServiceNeo4j implements TagService {
         tagDao.createAlias(company, tag, forLabel, aliasInput);
     }
 
+    /**
+     * Returns all tags with the
+     * @param company       callers company
+     * @param sourceLabel   label to start search with
+     * @param sourceCode    code of a specific tag
+     * @param targetLabel   find all tags of this type - no relationship filter
+     * @return
+     * @throws NotFoundException
+     */
+    @Override
+    public Map<String, Collection<TagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
+        Tag source = findTag(company, sourceLabel, sourceCode);
+        if (source == null)
+            throw new NotFoundException("Unable to find the requested tag " + sourceCode);
+        if ( relationship == null || relationship.equals("*"))
+            relationship = "";
+        return tagDao.findAllTags(source, relationship, targetLabel);
+    }
     @Override
     public Collection<AliasInputBean> findTagAliases(Company company, String label, String tagCode) throws NotFoundException {
         Tag source = findTag(company, label, tagCode);

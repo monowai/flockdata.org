@@ -370,7 +370,7 @@ public class TestFdIntegration {
         DateTime now = new DateTime();
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now, "ABCXYZ123");
         inputBean.setMetaOnly(true);
-        inputBean.addTag(new TagInputBean("testTagNameZZ", "someAuditRLX"));
+        inputBean.addTag(new TagInputBean("testTagNameZZ", null, "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         logger.debug("Created Request ");
@@ -962,7 +962,7 @@ public class TestFdIntegration {
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("suppress"));
         EntityInputBean metaInput = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.code in ES
-        TagInputBean tag = new TagInputBean("Code Test Works", relationshipName);
+        TagInputBean tag = new TagInputBean("Code Test Works", null, relationshipName);
         metaInput.addTag(tag);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), metaInput);
@@ -1044,7 +1044,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
         EntityInputBean inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        TagInputBean tagInputBean = new TagInputBean("Description", "testLabel").setEntityLink("linked");
+        TagInputBean tagInputBean = new TagInputBean("Description", "testLabel","linked");
         inputBean.addTag(tagInputBean);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);

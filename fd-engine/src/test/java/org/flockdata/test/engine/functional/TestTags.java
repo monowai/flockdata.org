@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -279,8 +280,9 @@ public class TestTags extends EngineBase {
         assertTrue(found);
     }
 
-    // ToDo: Multi-tenanted custom tags
     public void customLabelsMultiTenant() throws Exception {
+        // ToDo: Multi-tenanted custom tags
+
         engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = registerSystemUser("customLabelsMultiTenant", mike_admin);
 
@@ -382,6 +384,7 @@ public class TestTags extends EngineBase {
         assertNotNull(tagC);
         //assertTrue(tagA.getId().equals(tagB.getId()));
     }
+
     @Test
     public void geographyEndPoints() throws Exception {
         engineConfig.setMultiTenanted(false);
@@ -593,4 +596,37 @@ public class TestTags extends EngineBase {
         assertNotNull ( converted);
 
     }
+
+    @Test
+    public void path_FindTag() throws Exception {
+        engineConfig.setMultiTenanted(false);
+        SystemUser iSystemUser = registerSystemUser("path_FindTag", mike_admin);
+
+        TagInputBean zipCode = new TagInputBean("codeA", "ZipCode").
+                setName("NameA");
+
+        // Same code, but different label. Should create a new tag
+        TagInputBean tractCode = new TagInputBean("codeB", "Tract").
+                setCode("CodeA").
+                setName("NameA");
+
+        zipCode.setTargets("located", tractCode);
+        Tag tagA = tagService.createTag(iSystemUser.getCompany(), zipCode);
+        Tag tagB = tagService.findTag(iSystemUser.getCompany(), tractCode.getLabel(), tractCode.getCode());
+        assertNotNull(tagA);
+        assertNotNull(tagB);
+
+        Map<String, Collection<TagResultBean>> results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
+        assertEquals( "didn't find by wildcard relationship", 1, results.size());
+        assertEquals(tractCode.getCode(), results.get("located").iterator().next().getCode());
+
+        results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "located", tractCode.getLabel() );
+        assertEquals( "didn't find by named relationship", 1, results.size());
+        assertEquals( tractCode.getCode(), results.get("located").iterator().next().getCode());
+
+        results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "locatedx", tractCode.getLabel() );
+        assertEquals( "Should have found 0 by non-existent relationship", 0, results.size());
+
+    }
+
 }
