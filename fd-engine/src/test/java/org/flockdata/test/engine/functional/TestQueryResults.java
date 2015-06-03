@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -59,21 +59,21 @@ public class TestQueryResults extends EngineBase {
         Fortress fortress = createFortress(su);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
-        inputBean.addTag(new TagInputBean("Apples", "likes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Oranges", "dislikes").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Grapes", "allergic").setLabel(TestQueryResults.FRUIT));
-        inputBean.addTag(new TagInputBean("Potatoes", "likes").setLabel(VEGETABLE)); // No co-occurrence
+        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "allergic").setLabel(TestQueryResults.FRUIT));
+        inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes").setLabel(VEGETABLE)); // No co-occurrence
         Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
         assertEquals(5, entityTagService.getEntityTags(entity).size());
 
         inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
-        inputBean.addTag(new TagInputBean("Apples", "dislikes").setLabel(FRUIT));
-        inputBean.addTag(new TagInputBean("Pears", "likes").setLabel(FRUIT));
-        inputBean.addTag(new TagInputBean("Oranges", "allergic").setLabel(FRUIT));
-        inputBean.addTag(new TagInputBean("Grapes", "dislikes").setLabel(FRUIT));
-        inputBean.addTag(new TagInputBean("Kiwi", "likes").setLabel(FRUIT));
-        inputBean.addTag(new TagInputBean("Peas", "dislikes").setLabel(VEGETABLE));
+        inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "dislikes"));
+        inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "allergic"));
+        inputBean.addTag(new TagInputBean("Grapes", TestQueryResults.FRUIT, "dislikes"));
+        inputBean.addTag(new TagInputBean("Kiwi", TestQueryResults.FRUIT, "likes"));
+        inputBean.addTag(new TagInputBean("Peas", TestQueryResults.VEGETABLE, "dislikes"));
         entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
         assertEquals(6, entityTagService.getEntityTags(entity).size());
 

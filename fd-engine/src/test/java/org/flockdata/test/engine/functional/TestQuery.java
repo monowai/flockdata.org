@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -71,21 +71,21 @@ public class TestQuery extends EngineBase {
         //
         //
         EntityInputBean inputBean = new EntityInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123", "purchased").setLabel("Customer")); // This tag tracks over two fortresses
+        inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
         inputBean = new EntityInputBean(coAfB.getName(), "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111","about").setLabel("Product"));   // Product code - unique to this fortress
+        inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("p111","Product","about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
 
 
         inputBean = new EntityInputBean(coBfA.getName(), "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
-        inputBean.addTag(new TagInputBean("c123","purchased").setLabel("Customer")); // This tag tracks over two fortresses
-        inputBean.addTag(new TagInputBean("ricky", "from").setLabel("SalesRep")); // This tag is unique to this company
+        inputBean.addTag(new TagInputBean("c123","Customer","purchased")); // This tag tracks over two fortresses
+        inputBean.addTag(new TagInputBean("ricky", "SalesRep", "from").setLabel("SalesRep")); // This tag is unique to this company
         mediationFacade.trackEntity(suB.getCompany(), inputBean);
         inputBean = new EntityInputBean(coBfB.getName(), "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
-        inputBean.addTag(new TagInputBean("c123","called").setLabel("Customer")); // Customer number - this will be the same tag as for the sales fortress
-        inputBean.addTag(new TagInputBean("p111", "about").setLabel("Product"));   // Product code - unique to this fortress
+        inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
+        inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suB.getCompany(), inputBean);
 
         Collection<String> fortresses = new ArrayList<>();

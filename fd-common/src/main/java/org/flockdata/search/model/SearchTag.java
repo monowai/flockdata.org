@@ -20,6 +20,7 @@
 package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.track.model.EntityTag;
 
@@ -46,7 +47,11 @@ public class SearchTag {
         this.name = entityTag.getTag().getName();
 
         if (this.name != null && this.name.equalsIgnoreCase(code))
-            this.name = null; // Prefer code over name
+            this.name = null; // Prefer code over name if they are the same
+
+        // DAT-446 - ignore the code if it is numeric and we have a textual name
+        if (NumberUtils.isNumber(this.code) &&this.name!=null )
+            this.code = null;
 
         if (entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty())
             this.properties = entityTag.getTag().getProperties();
@@ -56,6 +61,7 @@ public class SearchTag {
         }
         if ( entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty()){
             this.rlx = new HashMap<>();
+            // Know one will want to see these column values. Applicable for a graph viz.
             entityTag.getProperties().keySet().stream().filter
                     (key -> !key.equals("since") && !key.equals(EntityTagDao.FD_WHEN)).
                     forEach(key -> rlx.put(key, entityTag.getProperties().get(key)));
