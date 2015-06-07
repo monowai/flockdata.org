@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,7 +19,6 @@
 
 package org.flockdata.engine.track;
 
-import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.track.model.Entity;
 import org.springframework.data.neo4j.annotation.Query;
@@ -34,11 +33,6 @@ import java.util.Set;
  * Time: 8:00 PM
  */
 public interface EntityRepo extends GraphRepository<EntityNode> {
-
-    @Query(value = "   MATCH (company:FDCompany)-[:TX]->(txTag:TxRef) " +
-            "   where id(company) = {1} and txTag.name = {0} " +
-            "return txTag")
-    TxRefNode findTxTag(String userTag, Long company);
 
     @Query( elementClass = EntityNode.class, value = "   MATCH tx-[:AFFECTED]->change<-[:LOGGED]-(entity:Entity) where id(tx)= {0}" +
                     "return entity")
@@ -64,13 +58,13 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
     Collection<Entity> findEntities(Long id, Collection<String> toFind);
 
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity)-[other]-(:FortressUser) where id(f)={0} delete other")
-    public void purgePeopleRelationships(Long fortressId);
+    void purgePeopleRelationships(Long fortressId);
 
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity)-[otherRlx]-(:Entity) where id(f)={0} delete otherRlx")
-    public void purgeCrossReferences(Long fortressId);
+    void purgeCrossReferences(Long fortressId);
 
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where id(f)={0} delete track, entity ")
-    public void purgeEntities(Long fortressId);
+    void purgeEntities(Long fortressId);
 
     @Query( elementClass = EntityNode.class,value = "match (entity:Entity) " +
             " where id(entity)in {0} " +
