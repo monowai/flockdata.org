@@ -700,13 +700,13 @@ public class TestEntityTags extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
         assertNotNull(fortress);
 
-        EntityInputBean inputBean = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "auditTest", "aTest", new DateTime(), "abc");
         String country = "USA";
         String city = "Los Angeles";
 
-        TagInputBean countryInputTag = new TagInputBean(country);
-        TagInputBean cityInputTag = new TagInputBean(city);
-        TagInputBean stateInputTag = new TagInputBean("CA");
+        TagInputBean countryInputTag = new TagInputBean(country, "Country");
+        TagInputBean cityInputTag = new TagInputBean(city, "City");
+        TagInputBean stateInputTag = new TagInputBean("CA", "State");
 
         TagInputBean institutionTag = new TagInputBean("mikecorp", null,"works");
         // Institution is in a city
@@ -722,6 +722,48 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(resultBean);
         Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), resultBean.getEntity());
         assertFalse(tags.isEmpty());
+
+        SearchChange searchChange = searchService.getSearchChange(resultBean);
+        assertNotNull(searchChange);
+        assertNotNull(searchChange.getTagValues());
+    }
+
+    @Test
+    public void entity_LocatedGeoData() throws Exception {
+        // DAT-452
+        SystemUser su = registerSystemUser("entity_LocatedGeoData", mike_admin);
+        assertNotNull(su);
+        engineConfig.setTestMode(true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_LocatedGeoData", true));
+        assertNotNull(fortress);
+
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "geoTracTest", "anyvalue", new DateTime(), "abc");
+        String country = "USA";
+        String city = "Los Angeles";
+
+        TagInputBean countryInputTag = new TagInputBean(country, "Country");
+        TagInputBean cityInputTag = new TagInputBean(city, "City");
+        TagInputBean stateInputTag = new TagInputBean("CA", "State");
+
+        // Institution is in a city
+        inputBean.addTag(cityInputTag.addEntityLink("geodata"));
+        cityInputTag.setTargets("state", stateInputTag);
+        stateInputTag.setTargets("country", countryInputTag);
+
+        inputBean.setContent(new ContentInputBean(Helper.getRandomMap()));
+
+        // Institution<-city<-state<-country
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertNotNull(resultBean);
+
+        Iterable<EntityTag> tags = entityTagService.getEntityTagsWithGeo(resultBean.getEntity());
+        for (EntityTag tag : tags) {
+            logger.info(tag.toString());
+            assertEquals("geodata", tag.getRelationship());
+            assertNotNull("geo data block not found for a located relationship connected to an entity",
+                    tag.getGeoData());
+        }
 
         SearchChange searchChange = searchService.getSearchChange(resultBean);
         assertNotNull(searchChange);
@@ -750,7 +792,7 @@ public class TestEntityTags extends EngineBase {
         institution.addEntityLink("located");
         cityTag.addEntityLink("city");
 
-        inputBean.addTag(cityTag); // Not attached to track
+        inputBean.addTag(cityTag); // Not attached to entity
         inputBean.addTag(countryTag);
         inputBean.addTag(institution);
 
