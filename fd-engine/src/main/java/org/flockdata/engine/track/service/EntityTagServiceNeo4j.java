@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -193,7 +193,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         if (!entityInputBean.isTrackSuppressed())
             for (EntityTag entityTag : newEntityTags) {
                 if ( entityTag.getId()==null) // ToDo: This check should be redundant
-                    template.save(entityTag);
+                    template.saveOnly(entityTag);
             }
         return newEntityTags;
     }
