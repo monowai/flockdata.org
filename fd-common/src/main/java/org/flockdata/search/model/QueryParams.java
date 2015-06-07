@@ -48,6 +48,9 @@ public class QueryParams implements QueryInterface{
     private Map<String,Object> query; // Raw query to pass through to ES
 
     private Map<String,Object> aggs; // Raw aggs to pass through to ES
+
+    private ArrayList<String> fields;
+
     private String metaKey;
     private String company;
     private String fortress;
@@ -195,5 +198,8 @@ public class QueryParams implements QueryInterface{
         return aggs;
     }
 
+    public ArrayList<String> getFields() {
+        return fields;
+    }
 
 }

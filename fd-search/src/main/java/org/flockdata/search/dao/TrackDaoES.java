@@ -572,7 +572,6 @@ public class TrackDaoES implements TrackSearchDao {
         return indexName + "/" + documentType + ".json";
     }
 
-
     private Map<String, Object> getDefaultMapping(String key) throws IOException {
         Map<String, Object> found;
 
