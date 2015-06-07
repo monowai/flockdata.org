@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
+ * Copyright (c) 2012-2014 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -201,5 +201,7 @@ public class QueryParams implements QueryInterface{
     public ArrayList<String> getFields() {
         return fields;
     }
+
+
 
 }
