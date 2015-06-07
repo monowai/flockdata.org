@@ -388,7 +388,9 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
 
             String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) ;
-
+            if ( queryParams.getFields()!=null){
+                query = query +",\"fields\": "+JsonUtils.getJSON(queryParams.getFields());
+            }
             if ( queryParams.getAggs()!=null )
                 query = query + ",\"aggs\": " + JsonUtils.getJSON(queryParams.getAggs()) + "}";
             else
