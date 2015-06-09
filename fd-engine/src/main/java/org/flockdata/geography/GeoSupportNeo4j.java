@@ -43,7 +43,8 @@ public class GeoSupportNeo4j {
     @Cacheable(value = "geoData", key = "#loc.id")
     public GeoData getGeoData(Tag loc) {
         logger.debug ( "Cache miss for {}", loc.getId() );
-        String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
+        //String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
+        String query = "match (located:Tag)-[r:state|address]->(o)-[*1..2]->(x:Country)  where id(located)={locNode} return located, o , x" ;
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
         Iterable<Map<String, Object>> queryResults = template.query(query, params);
@@ -68,11 +69,13 @@ public class GeoSupportNeo4j {
         if ( row.isEmpty())
             return null;
 
-        Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
+        //Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
+        //;
 
         GeoData geoData = new GeoData();
 
-        for (Node node : nodes) {
+        for (String key: row.keySet()) {
+            Node node = (Node) row.get(key);
             String label = getUserDefinedLabel(node);
             // Check we don't add the same tag twice
             if ( label !=null && ! label.equals(sourceTag.getLabel())){
