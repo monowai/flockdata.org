@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,16 +17,19 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.client;
+package org.flockdata.test.importer;
 
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.test.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.TransformationHelper;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -34,15 +37,15 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by mike on 27/02/15.
  */
-public class TestDataTypes extends AbstractImport {
+public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void preserve_NumberValueAsString() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile params = ClientConfiguration.getImportParams(fileName);
-        fileProcessor.processFile(params, "/data/data-types.csv", getFdWriter(), null, configuration);
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
@@ -63,8 +66,8 @@ public class TestDataTypes extends AbstractImport {
         String fileName = "/profile/data-types.json";
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile params = ClientConfiguration.getImportParams(fileName);
-        fileProcessor.processFile(params, "/data/data-types.csv", getFdWriter(), null, configuration);
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
@@ -79,9 +82,21 @@ public class TestDataTypes extends AbstractImport {
 
     }
 
+    @Test
+    public void number_Converts() throws Exception {
+        // DAT-454
+        String fileName = "/profile/data-types.json";
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        String header[] = new String[]{"num"};
+        String row[] = new String[]{"0045"};
+        Map<String, Object> converted = TransformationHelper.convertToMap(profile, header, row);
+        assertEquals("45", converted.get("num").toString());
 
+        row = new String[]{null};
+        converted = TransformationHelper.convertToMap(profile, header, row);
+        assertEquals("0", converted.get("num").toString());
 
-
+    }
 
 
 }

@@ -204,7 +204,7 @@ public class TransformationHelper {
                 AliasInputBean alias = new AliasInputBean(codeValue);
                 String d = aliasInputBean.getDescription();
                 if (StringUtils.trim(d) != null)
-                    alias.setDescription(evaluateExpression(row, d).toString());
+                    alias.setDescription(d);
                 results.add(alias);
             }
         }
@@ -322,7 +322,13 @@ public class TransformationHelper {
 
             if (dataType == null && colDef.isTag())
                 dataType = "string";
+
         }
+
+        // Code values are always strings
+        if ( column.equals("code") || column.equals("name"))
+            dataType = "string";
+
         if (dataType != null)
             if (dataType.equalsIgnoreCase("string"))
                 tryAsNumber = false;
@@ -330,10 +336,10 @@ public class TransformationHelper {
                 tryAsNumber = true;
         if (tryAsNumber)
             if (value != null && NumberUtils.isNumber(value.toString())) {
-                value = NumberUtils.createNumber(value.toString());
+                value = NumberUtils.createNumber(removeLeadingZeros(value.toString()));
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
-                value = NumberUtils.createNumber(colDef.getValueOnError());
+                value = NumberUtils.createNumber(colDef == null ? "0" :colDef.getValueOnError());
             }
 
         boolean addValue = true;
@@ -345,6 +351,20 @@ public class TransformationHelper {
             row.put(column, (value instanceof String ? ((String) value).trim() : value));
         }
 
+
+    }
+
+    private static String removeLeadingZeros(String str) {
+
+        if ( !str.startsWith("0"))
+            return str;
+
+        for (int i = 0 ; i <str.length(); i++) {
+            if (str.charAt(i) != '0') {
+                return str.substring(i);
+            }
+        }
+        return str;
 
     }
 
