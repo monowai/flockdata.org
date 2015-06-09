@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -35,7 +35,7 @@ public class AbstractImport {
 
     private static MockFdWriter fdWriter = new MockFdWriter();
 
-    static ClientConfiguration getClientConfiguration(String jsonConfig) {
+    protected static ClientConfiguration getClientConfiguration(String jsonConfig) {
         File file = new File(jsonConfig);
         ClientConfiguration configuration = Configure.readConfiguration(file);
         TestCase.assertNotNull(configuration);

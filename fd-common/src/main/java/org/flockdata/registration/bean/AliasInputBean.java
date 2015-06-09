@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -70,5 +70,13 @@ public class AliasInputBean {
     public int hashCode() {
         int result = code.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "AliasInputBean{" +
+                "code='" + code + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
