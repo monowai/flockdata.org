@@ -99,4 +99,26 @@ public class TestDataTypeConversion extends AbstractImport {
     }
 
 
+    @Test
+    public void number_ConvertsWithThousandSeparator() throws Exception {
+        // DAT-454
+        String fileName = "/profile/data-types.json";
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        String header[] = new String[]{"num"};
+        String row[] = new String[]{"50,000.99"};
+        Map<String, Object> converted = TransformationHelper.convertToMap(profile, header, row);
+        assertEquals("50000.99", converted.get("num").toString());
+
+
+        row = new String[]{""};
+        converted = TransformationHelper.convertToMap(profile, header, row);
+        assertEquals(null, converted.get("num"));
+
+        row = new String[]{null};
+        converted = TransformationHelper.convertToMap(profile, header, row);
+        assertEquals(null, converted.get("num"));
+
+    }
+
+
 }

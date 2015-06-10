@@ -26,15 +26,7 @@
       "tag": true
     },
     "num": {
-      "dataType": "number",
-      "valueOnError": 0,
-      "properties": [
-        {
-          "target": "value",
-          "dataType": "number",
-          "valueOnError": 0
-        }
-      ]
+      "dataType": "number"
     }
 
   }
