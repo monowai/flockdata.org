@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -404,6 +404,11 @@ public class EntityNode implements Entity {
         if (modified)
             props = new DynamicPropertiesContainer(properties);
         return modified;
+    }
+
+    @Override
+    public void setName(String name) {
+           this.name = name;
     }
 
     @Override
