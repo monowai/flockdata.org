@@ -162,10 +162,10 @@ public class EntityDaoNeo {
     }
 
     public Entity fetch(Entity entity) {
-        if (entity == null )
-            return entity;
-        template.fetch(entity.getCreatedBy());
-        template.fetch(entity.getLastUser());
+        if (entity != null ) {
+            template.fetch(entity.getCreatedBy());
+            template.fetch(entity.getLastUser());
+        }
 
         return entity;
     }

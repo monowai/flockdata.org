@@ -27,7 +27,12 @@
     },
     "num": {
       "dataType": "number"
+    },
+    "entityTitle":{
+      "title":true,
+      "value": "#row['as-string'] +'-test'"
     }
+
 
   }
 }
