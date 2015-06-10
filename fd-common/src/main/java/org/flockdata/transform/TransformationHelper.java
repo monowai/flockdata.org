@@ -35,6 +35,8 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -58,7 +60,7 @@ public class TransformationHelper {
             for (String column : headerRow) {
                 // Find first by the name (if we're using a raw header
                 ColumnDefinition colDef = profileConfig.getColumnDef(column);
-                if ( colDef == null )
+                if (colDef == null)
                     // Might be indexed by column number if there was no csv
                     colDef = profileConfig.getColumnDef(Integer.toString(col));
 
@@ -144,7 +146,7 @@ public class TransformationHelper {
             tag.setReverse(colDef.getReverse());
             if (colDef.hasProperites()) {
                 for (ColumnDefinition thisCol : colDef.getProperties()) {
-                    if ( colDef.isPersistent()) {
+                    if (colDef.isPersistent()) {
                         String sourceCol = thisCol.getSource();
                         value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
                         if (value != null)
@@ -276,7 +278,7 @@ public class TransformationHelper {
                 }
                 if (tagProfile.hasProperites()) {
                     for (ColumnDefinition thisCol : tagProfile.getProperties()) {
-                        if ( thisCol.isPersistent()) {
+                        if (thisCol.isPersistent()) {
                             String sourceCol = thisCol.getSource();
                             value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
                             Object oValue = getValue(value, thisCol);
@@ -326,21 +328,31 @@ public class TransformationHelper {
         }
 
         // Code values are always strings
-        if ( column.equals("code") || column.equals("name"))
+        if (column.equals("code") || column.equals("name"))
             dataType = "string";
 
         if (dataType != null)
             if (dataType.equalsIgnoreCase("string"))
                 tryAsNumber = false;
-            else if (dataType.equalsIgnoreCase("number"))
+            else if (dataType.equalsIgnoreCase("number")){
                 tryAsNumber = true;
-        if (tryAsNumber)
-            if (value != null && NumberUtils.isNumber(value.toString())) {
-                value = NumberUtils.createNumber(removeLeadingZeros(value.toString()));
+                // User wants us to coerce this to a number
+                // To do so requires tidying up a few common formatting issues
+                if (value != null ) {
+                    value = removeLeadingZeros(value.toString());
+                    value = removeSeparator(value.toString());
+                }
+
+            }
+        if (tryAsNumber) {
+
+            if ( value != null && NumberUtils.isNumber(value.toString())) {
+                value = NumberUtils.createNumber(value.toString());
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
-                value = NumberUtils.createNumber(colDef == null ? "0" :colDef.getValueOnError());
+                value = NumberUtils.createNumber(colDef == null ? "0" : colDef.getValueOnError());
             }
+        }
 
         boolean addValue = true;
         if (importProfile.isEmptyIgnored()) {
@@ -353,13 +365,23 @@ public class TransformationHelper {
 
 
     }
+    // Remove the thousands separator using the default locale
+    private static Number removeSeparator(String str)  {
+        if ( str==null || str.length()==0)
+            return null;
+        try {
+            return NumberFormat.getNumberInstance().parse(str);
+        } catch (ParseException e) {
+            logger.error("Unable to parse value " + str);
+        }
+        return null;
+    }
 
     private static String removeLeadingZeros(String str) {
-
-        if ( !str.startsWith("0"))
+        if (!str.startsWith("0"))
             return str;
 
-        for (int i = 0 ; i <str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) != '0') {
                 return str.substring(i);
             }
@@ -400,7 +422,6 @@ public class TransformationHelper {
     /**
      * Returns a value based on the expression. To evaluate a column, you must do so using #row['col'] syntax
      *
-     *
      * @param row
      * @param expression
      * @param colDef
@@ -426,7 +447,7 @@ public class TransformationHelper {
                 result = row.get(expression);  // Pull value straight from the row
             else
                 result = evaluateExpression(row, expression);
-        } catch (ExpressionException|StringIndexOutOfBoundsException e ) {
+        } catch (ExpressionException | StringIndexOutOfBoundsException e) {
             logger.trace("Expression error parsing [" + expression + "]. Returning null");
             result = null;
         }
@@ -476,7 +497,7 @@ public class TransformationHelper {
     }
 
     public static Long parseDate(ColumnDefinition colDef, String value) {
-        if ( value == null || value.equals(""))
+        if (value == null || value.equals(""))
             return null;
         if (colDef.isDateEpoc()) {
             return Long.parseLong(value) * 1000;
