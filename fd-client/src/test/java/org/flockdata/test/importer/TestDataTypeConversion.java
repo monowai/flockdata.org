@@ -120,5 +120,18 @@ public class TestDataTypeConversion extends AbstractImport {
 
     }
 
+    @Test
+    public void title_Expression() throws Exception {
+        // DAT-457
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/data-types.json";
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        ClientConfiguration configuration = getClientConfiguration(fileName);
+        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
+        List<EntityInputBean> entities = getFdWriter().getEntities();
+        assertEquals(1, entities.size());
+        EntityInputBean entityInputBean = entities.iterator().next();
+        assertEquals("Title expression did not evaluate", "00165-test", entityInputBean.getName());
+    }
 
 }

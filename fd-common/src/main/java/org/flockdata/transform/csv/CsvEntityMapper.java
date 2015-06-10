@@ -109,7 +109,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 }
                 if (colDef.isTitle()) {
-                    setName(value);
+                    String title = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
+                    setName(title);
                 }
                 if (colDef.isCreateUser()) { // The user in the calling system
                     setFortressUser(value);
