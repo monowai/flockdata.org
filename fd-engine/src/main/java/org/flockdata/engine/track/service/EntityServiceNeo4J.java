@@ -126,13 +126,24 @@ public class EntityServiceNeo4J implements EntityService {
                 // Communicating the POTENTIAL last update so it can be recorded in the tag relationships
                 entity.setFortressLastWhen(entityInputBean.getContent().getWhen().getTime());
             }
+            boolean saveEntity = false;
+
+            // Entity properites can be updated
             if (entityInputBean.getProperties() != null) {
                 if (entity.setProperties(entityInputBean.getProperties())) {
-                    entityDao.save(entity);
+                    saveEntity = true;
 
                 }
-
             }
+            // We can update the entity name?
+            if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())){
+                saveEntity = true;
+                entity.setName( entityInputBean.getName());
+            }
+
+
+            if (saveEntity)
+                entityDao.save(entity);
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
@@ -596,7 +607,7 @@ public class EntityServiceNeo4J implements EntityService {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
                     DocumentType documentType = schemaService.resolveByDocCode(f, entityKey.getDocumentType(), false);
-                    if ( documentType !=null ) {
+                    if (documentType != null) {
                         EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCallerRef(entityKey.getCallerRef());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);
                         mh = trackResult.getEntity();
@@ -604,7 +615,7 @@ public class EntityServiceNeo4J implements EntityService {
                         ignored.add(entityKey);
                     }
                 }
-                if ( mh!=null ) {
+                if (mh != null) {
                     entities.add(mh);
                     //entities = array;
                 }

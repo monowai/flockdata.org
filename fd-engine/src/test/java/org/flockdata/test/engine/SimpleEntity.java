@@ -261,4 +261,10 @@ public class SimpleEntity implements Entity, Serializable {
         return false;
     }
 
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
 }
