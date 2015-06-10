@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -106,10 +106,11 @@ public class LogRetryService {
         String fortressUser = (content.getFortressUser() != null ? content.getFortressUser() : trackResultBean.getEntityInputBean().getFortressUser());
 
         FortressUser thisFortressUser = entity.getCreatedBy();
-        if (thisFortressUser == null || !(thisFortressUser.getCode() != null && thisFortressUser.getCode().equals(fortressUser))) {
-            // Different user creating the Entity than is creating the log
-            thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
-        }
+        if ( fortressUser !=null )
+            if (thisFortressUser == null || !(thisFortressUser.getCode() != null && thisFortressUser.getCode().equals(fortressUser))) {
+                // Different user creating the Entity than is creating the log
+                thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
+            }
         //resultBean.setEntity(entity);
         trackResultBean.setLogResult(
                 createLog(trackResultBean, thisFortressUser)
