@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -45,6 +46,7 @@ import java.util.Map;
 public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
 
     private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
+    private DateTime lastUpdate;
 
     public CsvEntityMapper(ImportProfile importProfile) {
         setDocumentName(importProfile.getDocumentName());
@@ -75,10 +77,29 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                     setDescription(TransformationHelper.getValue(row, colDef.getValue(), colDef, value));
                 }
+                if (colDef.isTitle()) {
+                    String title = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
+                    setName(title);
+                }
+                if (colDef.isCreateUser()) { // The user in the calling system
+                    setFortressUser(value);
+                }
+                if (colDef.isUpdateUser()) {
+                    setUpdateUser(value);
+                }
                 if (colDef.isCreateDate()) {
-                    Long millis =TransformationHelper.parseDate(colDef, value);
-                    if ( millis !=null)
+                    Long millis = TransformationHelper.parseDate(colDef, value);
+                    if (millis != null)
                         setWhen(new DateTime(millis));
+                }
+                if (colDef.isUpdateDate()) {
+                    Long millis = TransformationHelper.parseDate(colDef, value);
+                    if (millis != null) {
+                        // Multiple date fields can be candidates for the last change
+                        // Ths will set it to the most recent last change
+                        if (getLastChange() == null || millis > getLastChange().getTime() )
+                            setLastChange(new Date(millis));
+                    }
                 }
 
                 if (colDef.isCallerRef()) {
@@ -108,17 +129,6 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         addTag(tag);
                     }
                 }
-                if (colDef.isTitle()) {
-                    String title = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
-                    setName(title);
-                }
-                if (colDef.isCreateUser()) { // The user in the calling system
-                    setFortressUser(value);
-                }
-
-                if (colDef.isUpdateUser()) {
-                    setUpdateUser(value);
-                }
                 if (!colDef.getCrossReferences().isEmpty()) {
                     for (Map<String, String> key : colDef.getCrossReferences()) {
                         addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
@@ -134,7 +144,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                             Object oValue = TransformationHelper.getValue(value, columnDefinition);
                             if (columnDefinition.getTarget() != null)
                                 valueColumn = columnDefinition.getTarget();
-                            if ( oValue != null)
+                            if (oValue != null)
                                 setProperty(valueColumn, oValue);
                         }
 
