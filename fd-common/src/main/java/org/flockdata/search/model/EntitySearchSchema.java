@@ -29,7 +29,6 @@ import org.flockdata.registration.model.Fortress;
 public class EntitySearchSchema {
     // Storage schema used in a Search Document
     public static final String WHAT = "what";
-    public static final String WHEN = "when";
     public static final String CALLER_REF = "code";
     public static final String DESCRIPTION = "description";
     public static final String TIMESTAMP = "timestamp";
@@ -43,6 +42,7 @@ public class EntitySearchSchema {
     public static final String WHO = "who";
     public static final String META_KEY = "metaKey";
     public static final String CREATED = "whenCreated"; // Date the document was first created in the Fortress
+    public static final String UPDATED = "whenUpdated";
 
     public static final String WHAT_CODE = "code";
     public static final String WHAT_NAME = "name";

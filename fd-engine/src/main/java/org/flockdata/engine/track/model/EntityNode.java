@@ -85,7 +85,7 @@ public class EntityNode implements Entity {
     private long lastUpdate = 0;
 
     // Fortress in fortress timezone
-    private long fortressLastWhen;
+     private Long fortressLastWhen = null;
 
     private long fortressCreate;
 
@@ -171,8 +171,13 @@ public class EntityNode implements Entity {
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
         else
             fortressCreate = new DateTime(when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
+        if ( entityInput.getLastChange()!=null ){
+            long fWhen = entityInput.getLastChange().getTime();
+            if ( fWhen!= fortressCreate )
+                fortressLastWhen = fWhen;
+        }
 
-        lastUpdate = 0l;
+        //lastUpdate = 0l;
         if (entityInput.isMetaOnly())
             this.event = entityInput.getEvent();
         this.suppressSearch(entityInput.isSearchSuppressed());
@@ -232,11 +237,6 @@ public class EntityNode implements Entity {
 
     public Long getLastUpdate() {
         return lastUpdate;
-    }
-
-    @Override
-    public Long getFortressDateUpdated() {
-        return fortressLastWhen;
     }
 
     @Override
@@ -339,6 +339,15 @@ public class EntityNode implements Entity {
     public DateTime getFortressDateCreated() {
         return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
     }
+
+    @Override
+    public DateTime getFortressDateUpdated() {
+        if ( fortressLastWhen == null )
+            return null;
+        return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
+    }
+
+
 
     public String getDescription() {
         return description;

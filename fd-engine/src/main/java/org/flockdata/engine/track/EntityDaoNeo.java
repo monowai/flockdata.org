@@ -381,7 +381,7 @@ public class EntityDaoNeo {
         boolean moreRecent;
 
 
-        Set<EntityLog> entityLogs = getLogs(entity.getId(), new Date(entity.getFortressDateUpdated()), new DateTime().toDate());
+        Set<EntityLog> entityLogs = getLogs(entity.getId(), entity.getFortressDateUpdated().toDate(), new DateTime().toDate());
 
 
         for (EntityLog entityLog : entityLogs) {
@@ -390,7 +390,7 @@ public class EntityDaoNeo {
         }
         if (latest == null)
             return;
-        moreRecent = (entity.getFortressDateUpdated() < latest.getLog().getEntityLog().getFortressWhen());
+        moreRecent = (entity.getFortressDateUpdated().getMillis() < latest.getLog().getEntityLog().getFortressWhen());
         if (moreRecent) {
             logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
 

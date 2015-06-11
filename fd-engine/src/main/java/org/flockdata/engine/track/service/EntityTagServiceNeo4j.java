@@ -220,7 +220,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         Map<String, Object> entityLinks = tagInputBean.getEntityLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
-        long when = entity.getFortressDateUpdated();
+        long when = (entity.getFortressDateUpdated()==null ?0:entity.getFortressDateUpdated().getMillis());
         if (when == 0)
             when = entity.getWhenCreated();
         for (String key : entityLinks.keySet()) {
@@ -255,7 +255,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @return Null or the EntityTag that was created
      */
     public EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        long lastUpdate = entity.getFortressDateUpdated();
+        long lastUpdate = (entity.getFortressDateUpdated()==null ?0:entity.getFortressDateUpdated().getMillis());
         propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
         EntityTag rel;
         if (isReversed)

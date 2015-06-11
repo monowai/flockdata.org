@@ -125,8 +125,8 @@ public class SimpleEntity implements Entity, Serializable {
     }
 
     @Override
-    public Long getFortressDateUpdated() {
-        return fortressLastWhen;
+    public DateTime getFortressDateUpdated() {
+        return new DateTime(fortressLastWhen);
     }
 
     private FortressUser lastUser;

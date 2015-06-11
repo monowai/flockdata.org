@@ -38,7 +38,9 @@ public class EntityInputBean implements Serializable{
     private String fortress;
     private String fortressUser;
     private String documentName;
-    private Date when = null;
+    private Date when = null; // Created Date
+
+    private Date lastChange = null;
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
     private transient Map<String,List<EntityKey>> crossReferences = new HashMap<>();
@@ -67,8 +69,9 @@ public class EntityInputBean implements Serializable{
      */
     public EntityInputBean(String fortressName, String fortressUser, String documentCode, DateTime fortressWhen, String callerRef) {
         this();
-        if (fortressWhen != null)
+        if (fortressWhen != null) {
             setWhen(fortressWhen);
+        }
         setFortress(fortressName);
         setFortressUser( fortressUser);
         setDocumentName(documentCode);
@@ -97,12 +100,12 @@ public class EntityInputBean implements Serializable{
 
     /**
      * Fortress Timezone when
-     * Defers to the AuditLogInput if present with a valid date
+     * Defers to the ContentInput if it has a valid date
      *
-     * @return when in the fortressName this was created
+     * @return when created in the owning fortress
      */
     public Date getWhen() {
-        if (when !=null )
+        if (when !=null  )
             return when;
         // Default to the content date
         if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0)
@@ -110,8 +113,9 @@ public class EntityInputBean implements Serializable{
         return null;
     }
 
+
     /**
-     * This date is ignored if a valid one is set in a present content
+     * This date is ignored if a valid one is in the Content
      *
      * @param when when the caller says this occurred
      */
@@ -405,6 +409,19 @@ public class EntityInputBean implements Serializable{
         return updateUser;
     }
 
+    public void setCrossReferences(Map<String, List<EntityKey>> crossReferences) {
+        this.crossReferences = crossReferences;
+    }
+
+    // When last updated in the fortress
+    public void setLastChange(Date lastChange) {
+        this.lastChange = lastChange;
+    }
+
+    public Date getLastChange() {
+        return lastChange;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -429,9 +446,5 @@ public class EntityInputBean implements Serializable{
         result = 31 * result + (fortressUser != null ? fortressUser.hashCode() : 0);
         result = 31 * result + documentName.hashCode();
         return result;
-    }
-
-    public void setCrossReferences(Map<String, List<EntityKey>> crossReferences) {
-        this.crossReferences = crossReferences;
     }
 }
