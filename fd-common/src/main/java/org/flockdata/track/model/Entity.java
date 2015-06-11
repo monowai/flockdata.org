@@ -28,61 +28,59 @@ import java.util.Map;
 
 public interface Entity {
 
-    public Long getId();
+    Long getId();
 
     /**
      * Foreign computer system that owns this entity
      *
      * @return fortress
      */
-    public Fortress getFortress();
+    Fortress getFortress();
 
     /**
      * Callers classification of this entity
      *
      * @return
      */
-    public String getDocumentType();
+    String getDocumentType();
 
     /**
      * @return Global Unique ID
      */
-    public String getMetaKey();
+    String getMetaKey();
 
     /**
      * @return last fortress user to modify this record
      */
-    public FortressUser getLastUser();
+    FortressUser getLastUser();
 
     /**
      * Last updated by FlockData
      *
      * @return date in UTC
      */
-    public Long getLastUpdate();
-
-    public Long getFortressDateUpdated();
+    Long getLastUpdate();
 
     /**
      * Who, in the foreign fortress, last changed this?
      *
      * @param user user
      */
-    public void setLastUser(FortressUser user);
+    void setLastUser(FortressUser user);
 
     /**
      * @return fortress user who create the record
      */
-    public FortressUser getCreatedBy();
+    FortressUser getCreatedBy();
 
-    public Object getProperty(String name);
+    Object getProperty(String name);
 
-    public Map<String, Object> getProperties();
+    Map<String, Object> getProperties();
 
     /**
      * @return unique identify the fortress recognises for the recordType.
      */
-    public String getName();
+    String getName();
 
     /**
      * alters the lastChange value
@@ -92,12 +90,12 @@ public interface Entity {
     /**
      * @return if this entity should not be made searchable
      */
-    public boolean isSearchSuppressed();
+    boolean isSearchSuppressed();
 
     /**
      * @param searchSuppressed never index this entity in the search service
      */
-    public void suppressSearch(boolean searchSuppressed);
+    void suppressSearch(boolean searchSuppressed);
 
     /**
      * Enables the entity to track the search services key. Don't bother setting if it's
@@ -109,7 +107,7 @@ public interface Entity {
     /**
      * @return search engine key value
      */
-    public String getSearchKey();
+    String getSearchKey();
 
     /**
      * @return foreign key in the Fortress
@@ -127,13 +125,16 @@ public interface Entity {
     @JsonIgnore
     DateTime getFortressDateCreated();
 
+    @JsonIgnore
+    DateTime getFortressDateUpdated();
+
     void setCreatedBy(FortressUser thisFortressUser);
 
     String getEvent();
 
     void setLastChange(Log newChange);
 
-    public Log getLastChange();
+    Log getLastChange();
 
     void setFortressLastWhen(Long fortressWhen);
 

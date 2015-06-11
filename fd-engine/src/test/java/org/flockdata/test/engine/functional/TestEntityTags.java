@@ -189,14 +189,14 @@ public class TestEntityTags extends EngineBase {
         mediationFacade.trackEntity(fortress, entityBean);
         entity = entityService.getEntity(su.getCompany(), resultBean.getEntityBean().getMetaKey());
         assertEquals(fCreated, entity.getFortressDateCreated());
-        assertEquals(fUpdated.getMillis(), entity.getFortressDateUpdated().longValue());
+        assertEquals(fUpdated.getMillis(), entity.getFortressDateUpdated().getMillis());
         entityTags = entityTagService.getEntityTags(entity);
         assertEquals(2, entityTags.size());
         for (EntityTag tag : entityTags) {
             if (tag.getTag().getCode().equalsIgnoreCase(flopTag.getCode()))
                 assertEquals("Date did not correspond to the Fortress created date", entity.getFortressDateCreated().getMillis(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
             else
-                assertEquals("Date did not correspond to the Fortress updated date", entity.getFortressDateUpdated().longValue(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
+                assertEquals("Date did not correspond to the Fortress updated date", entity.getFortressDateUpdated().getMillis(), Long.parseLong(tag.getProperties().get(EntityTag.SINCE).toString()));
         }
 
     }

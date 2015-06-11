@@ -330,6 +330,7 @@ public class TestFdIntegration {
     }
 
     @Test
+//     FixMe - ES 1.6 and attachment tracking not working
     public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
@@ -592,7 +593,7 @@ public class TestFdIntegration {
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
         // DAT-27
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -601,9 +602,10 @@ public class TestFdIntegration {
         entityInput.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         entityInput.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         entityInput.setContent(content);
+        // Create the Entity and Log
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
+
         // ensure non-analysed tags work
         doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         // Analyzed tags require exact match...
@@ -638,15 +640,15 @@ public class TestFdIntegration {
         // If this fails, search changes are probably not being dispatched
         String json = doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
-        Long whenDate = Long.parseLong(searchDoc.get("when").toString());
-        assertTrue("Fortress when was not set in to searchDoc", whenDate > 0);
-        assertEquals(whenDate, entity.getFortressDateUpdated());
+        Long updateDate = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
+        assertTrue("Fortress when was not set in to searchDoc", updateDate > 0);
+        assertEquals(updateDate.longValue(), entity.getFortressDateUpdated().getMillis());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "happy days", 0);
 
-        // Cancel Log - this will remove the sad tags and leave us with happy tags
+     // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         Collection<EntityTag> entityTags = entityTagService.getEntityTags(result.getEntity());
@@ -782,7 +784,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
@@ -797,6 +799,7 @@ public class TestFdIntegration {
         DateTime lastUpdated = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Copenhagen")));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
+        inputBean.setLastChange(lastUpdated.toDate());
         inputBean.setContent(new ContentInputBean("wally", lastUpdated, getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
@@ -1012,7 +1015,7 @@ public class TestFdIntegration {
         entity = entityService.getEntity(su.getCompany(), metaKey);
 
         waitAWhile("cancel function step 1");
-        Assert.assertEquals("Last Updated dates don't match", secondLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
+        Assert.assertEquals("Last Updated dates don't match", secondLog.getLogToIndex().getFortressWhen().longValue(), entity.getFortressDateUpdated().getMillis());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Now cancel the last log
@@ -1068,7 +1071,7 @@ public class TestFdIntegration {
 
     @Test
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");
@@ -1722,7 +1725,7 @@ public class TestFdIntegration {
 
         assertNotNull(node.get(EntitySearchSchema.CREATED));
         assertNotNull(node.get(EntitySearchSchema.WHO));
-        assertNotNull(node.get(EntitySearchSchema.WHEN));
+        assertNotNull(node.get(EntitySearchSchema.UPDATED));
         assertNotNull(node.get(EntitySearchSchema.META_KEY));
         assertNotNull(node.get(EntitySearchSchema.DOC_TYPE));
         assertNotNull(node.get(EntitySearchSchema.FORTRESS));

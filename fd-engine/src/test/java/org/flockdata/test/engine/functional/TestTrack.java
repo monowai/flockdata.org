@@ -595,7 +595,7 @@ public class TestTrack extends EngineBase {
         assertEquals(2, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey);
         compareUser(entity, secondLog.getFortressUser());
-        assertEquals(secondLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(secondLog.getLogToIndex().getFortressWhen().longValue(), entity.getFortressDateUpdated().getMillis());
 
         // Test block
         entityService.cancelLastLog(fortress.getCompany(), entity);
@@ -603,7 +603,7 @@ public class TestTrack extends EngineBase {
         assertEquals(1, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey, true); // Refresh the entity
         compareUser(entity, firstLog.getFortressUser());
-        assertEquals(firstLog.getLogToIndex().getFortressWhen(), entity.getFortressDateUpdated());
+        assertEquals(firstLog.getLogToIndex().getFortressWhen().longValue(), entity.getFortressDateUpdated().getMillis());
 
         // Last change cancelled
         entityService.cancelLastLog(fortress.getCompany(), entity);

@@ -284,7 +284,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.DESCRIPTION)
                 .addField(EntitySearchSchema.CALLER_REF)
                 .addField(EntitySearchSchema.WHO)
-                .addField(EntitySearchSchema.WHEN)
+                .addField(EntitySearchSchema.UPDATED)
                 .addField(EntitySearchSchema.CREATED)
                 .addField(EntitySearchSchema.TIMESTAMP)
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
@@ -338,7 +338,7 @@ public class QueryDaoES implements QueryDao {
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT)),
                                 searchHitFields.getType(),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHO)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHEN)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.UPDATED)),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CREATED)),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP)),
                                 fragments);
