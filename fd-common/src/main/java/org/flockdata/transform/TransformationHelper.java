@@ -35,10 +35,13 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -501,13 +504,25 @@ public class TransformationHelper {
             return null;
         if (colDef.isDateEpoc()) {
             return Long.parseLong(value) * 1000;
-        } else if (NumberUtils.isDigits(value))  // plain old java millis
+        }
+        if ( colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
+            return Timestamp.valueOf(value).getTime();
+        }
+
+        if (NumberUtils.isDigits(value))  // plain old java millis
             return Long.parseLong(value);
 
         // Date formats
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
+        try {
 
-        LocalDate date = LocalDate.parse(value, pattern);
-        return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+            // Try first as DateTime
+            LocalDateTime date = LocalDateTime.parse(value, pattern);
+            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+        }catch (DateTimeParseException e) {
+            // Just a plain date
+            LocalDate date = LocalDate.parse(value, pattern);
+            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+        }
     }
 }

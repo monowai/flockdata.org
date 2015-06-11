@@ -28,6 +28,7 @@ import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.TransformationHelper;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +95,7 @@ public class TestDataTypeConversion extends AbstractImport {
 
         row = new String[]{null};
         converted = TransformationHelper.convertToMap(profile, header, row);
-        assertEquals("0", converted.get("num").toString());
+        assertEquals(null, converted.get("num"));
 
     }
 
@@ -133,5 +134,46 @@ public class TestDataTypeConversion extends AbstractImport {
         EntityInputBean entityInputBean = entities.iterator().next();
         assertEquals("Title expression did not evaluate", "00165-test", entityInputBean.getName());
     }
+
+    @Test
+    public void date_CreatedDateSets() throws Exception {
+        // DAT-457
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/data-types.json";
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        ClientConfiguration configuration = getClientConfiguration(fileName);
+        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
+        List<EntityInputBean> entities = getFdWriter().getEntities();
+        assertEquals(1, entities.size());
+        EntityInputBean entityInputBean = entities.iterator().next();
+
+        Calendar calInstance = Calendar.getInstance();
+        calInstance.setTime(entityInputBean.getWhen());
+        assertEquals(2015, calInstance.get(Calendar.YEAR));
+        assertEquals(Calendar.JANUARY, calInstance.get(Calendar.MONTH));
+        assertEquals(14, calInstance.get(Calendar.DATE));
+
+    }
+
+    @Test
+    public void date_LastChange() throws Exception {
+        // Given 2 dates that could be the last change, check the most recent
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/data-types.json";
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        ClientConfiguration configuration = getClientConfiguration(fileName);
+        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
+        List<EntityInputBean> entities = getFdWriter().getEntities();
+        assertEquals(1, entities.size());
+        EntityInputBean entityInputBean = entities.iterator().next();
+
+        Calendar calInstance = Calendar.getInstance();
+        calInstance.setTime(entityInputBean.getLastChange());
+        assertEquals(2015, calInstance.get(Calendar.YEAR));
+        assertEquals(Calendar.MARCH, calInstance.get(Calendar.MONTH));
+        assertEquals(25, calInstance.get(Calendar.DATE));
+
+    }
+
 
 }
