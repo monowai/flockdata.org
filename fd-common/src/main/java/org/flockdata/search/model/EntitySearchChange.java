@@ -139,7 +139,8 @@ public class EntitySearchChange implements SearchChange {
         } else {
             event = entity.getEvent();
             this.createdDate = entity.getFortressDateCreated().toDate();
-            this.updatedDate = entity.getFortressDateUpdated().toDate();
+            if (entity.getFortressDateUpdated()!=null)
+                this.updatedDate = entity.getFortressDateUpdated().toDate();
         }
     }
 
