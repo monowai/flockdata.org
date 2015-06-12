@@ -375,7 +375,8 @@ public class TransformationHelper {
         try {
             return NumberFormat.getNumberInstance().parse(str);
         } catch (ParseException e) {
-            logger.error("Unable to parse value " + str);
+            // Not a number
+            //logger.error("Unable to parse value " + str);
         }
         return null;
     }

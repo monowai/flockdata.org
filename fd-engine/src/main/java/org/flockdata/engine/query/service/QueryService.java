@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -113,8 +112,8 @@ public class QueryService {
 
     public EsSearchResult search(Company company, QueryParams queryParams) {
 
-        StopWatch watch = new StopWatch(queryParams.toString());
-        watch.start("Get ES Query Results");
+//        StopWatch watch = new StopWatch(queryParams.toString());
+//        watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
         if ( queryParams.getQuery() !=null )
@@ -122,9 +121,9 @@ public class QueryService {
         else {
             esSearchResult = searchGateway.fdSearch(queryParams);
         }
-        watch.stop();
-        logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));
-        logger.info(watch.prettyPrint());
+        //watch.stop();
+        //logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));
+        //logger.info(watch.prettyPrint());
 
         return esSearchResult;
 

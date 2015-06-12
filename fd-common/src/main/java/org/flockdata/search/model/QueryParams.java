@@ -198,6 +198,10 @@ public class QueryParams implements QueryInterface{
         return aggs;
     }
 
+    public void setFields(ArrayList<String> fields) {
+        this.fields = fields;
+    }
+
     public ArrayList<String> getFields() {
         return fields;
     }

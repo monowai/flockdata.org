@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,6 +20,7 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
@@ -79,4 +80,5 @@ public interface MediationFacade {
 
     Map<String,Object> getLogContent(Entity entity, Long logId);
 
+    String validateFromSearch(Company company, String fortressName, String docType) throws FlockException;
 }

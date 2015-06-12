@@ -20,12 +20,16 @@
 package org.flockdata.engine.admin;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
@@ -39,8 +43,11 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -66,6 +73,9 @@ public class AdminService implements EngineAdminService {
     @Autowired
     PlatformConfig engineConfig;
 
+    @Autowired
+    QueryService queryService;
+
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     @Async("fd-engine")
@@ -85,6 +95,82 @@ public class AdminService implements EngineAdminService {
         searchService.purge(fortress.getIndexName());
         logger.info ("Completed purge of indexed data [{}]", indexName);
         return new AsyncResult<>(true);
+
+    }
+
+    @Async("fd-engine")
+    public Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException {
+        Collection<String>errors = new ArrayList<>();
+        int start= 0;
+        int size = 100;
+        boolean continueSearch ;
+        String esQuery = "{\n" +
+                "  \"query\": {\n" +
+                "    \"query_string\": {\n" +
+                "      \"query\": \"*\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        QueryParams qp;
+        try {
+            qp = JsonUtils.getBytesAsObject(esQuery.getBytes(), QueryParams.class);
+        } catch (IOException e) {
+            logger.error("Admin Query Issue", e);
+            errors.add(e.getMessage());
+            return new AsyncResult<>(errors);
+        }
+
+        qp.setCompany(company.getName().toLowerCase());
+        qp.setTypes(docType.toLowerCase());
+        qp.setSearchText("*");
+        ArrayList<String>fields = new ArrayList<>();
+        fields.add("metaKey");
+        fields.add("_id");
+        qp.setFields(fields);
+        qp.setSize(size);
+        Collection<Map<String,Object>>searchResults;
+        int rowsAnalyzed = 0;
+        NumberFormat nf = NumberFormat.getInstance();
+        String totalHits =null;
+        do {
+            qp.setFrom(start);
+
+            EsSearchResult searchResult = queryService.search(company, qp);
+            Map<String,Object>results = searchResult.getRawResults();
+
+            Map<String,Object>hits = (Map<String, Object>) results.get("hits");
+            if (totalHits == null ){
+                totalHits = hits.get("total").toString();
+                logger.info("Analyzing " + nf.format(Integer.parseInt(totalHits)) + " Entities");
+            }
+            searchResults = (Collection<Map<String, Object>>) hits.get("hits");
+
+            for (Map<String, Object> result : searchResults) {
+                String searchKey = result.get("_id").toString();
+                Map fieldResult = (Map) result.get("fields");
+                Collection keyResult = (Collection) fieldResult.get("metaKey");
+                String metaKey = keyResult.iterator().next().toString();
+                Entity e = entityService.getEntity(company, metaKey, false);
+                if ( e == null ){
+                    String message = "Didn't find metaKey " + metaKey + " for searchDoc " +searchKey;
+                    errors.add(message);
+                    logger.error(message);
+                }
+                if ( e!=null && !e.getSearchKey().equals(searchKey)){
+                    String message = "SearchKey mismatch for metaKey " + metaKey + ". Found "+searchKey+" in ES, but the entity expected it as " +e.getSearchKey();
+                    errors.add(message);
+                    logger.error(message);
+                }
+            }
+            start = start + size;
+            rowsAnalyzed = rowsAnalyzed + searchResults.size();
+            continueSearch = searchResults.size() !=0;
+
+        } while (continueSearch);
+        logger.info("Finished  - validated " + nf.format(rowsAnalyzed) + " entities out of a reported hit count of " +nf.format(Integer.parseInt(totalHits)) + (errors.isEmpty()? ". No problems found": " "+nf.format(errors.size()) +". errors found") );
+        if ( errors.isEmpty())
+            errors.add("No problems found!");
+        return new AsyncResult<>(errors);
 
     }
 
