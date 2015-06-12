@@ -357,10 +357,11 @@ public class EntityDaoNeo {
         if ( entity.getMetaKey() == null )
             throw new FlockException("Where has the metaKey gone?");
 
+        entity.setLastUser(newLog.getWho());
+        entity.setLastChange(newLog);
+        entity.setFortressLastWhen(fortressWhen.getMillis());
+
         if (currentState.getLastChange() == null) {
-            entity.setLastUser(newLog.getWho());
-            entity.setLastChange(newLog);
-            entity.setFortressLastWhen(fortressWhen.getMillis());
             template.save(entity);
         } else {
             logger.debug("About to save new log");

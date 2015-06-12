@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -39,7 +39,7 @@ public class LogResultBean implements Serializable {
 
     private String fortressUser;
     private String txReference = null;
-    private Long fdWhen;
+    private Long sysWhen;
     private transient EntityLog logToIndex;
     private boolean logIgnored = false;
 
@@ -106,12 +106,12 @@ public class LogResultBean implements Serializable {
         this.status = status;
     }
 
-    public void setFdWhen(Long sysWhe) {
-        this.fdWhen = sysWhe;
+    public void setSysWhen(Long sysWhe) {
+        this.sysWhen = sysWhe;
     }
 
-    public Long getFdWhen() {
-        return fdWhen;
+    public Long getSysWhen() {
+        return sysWhen;
     }
 
     public void setLogToIndex(EntityLog logToIndex) {
@@ -122,31 +122,6 @@ public class LogResultBean implements Serializable {
     public EntityLog getLogToIndex() {
         return logToIndex;
     }
-
-//    @JsonIgnore
-//    public void setLog(Log log) {
-//        this.log = log;
-//    }
-
-    //public Log getLog() {
-    //    return log;
-    //}
-
-//    @JsonIgnore
-//    @Deprecated
-//    /**
-//     * Used internally by fd-engine to carry the current entity. Can not be
-//     * serialized over Json.
-//     *
-//     * @deprecated - use getEntityBean with works over JSON. fd-engine to change
-//     */
-//    public Entity getEntity() {
-//        return entity;
-//    }
-//
-//    public void setEntity(Entity entity) {
-//        this.entity = entity;
-//    }
 
     public void setLogIgnored() {
         this.logIgnored = true;

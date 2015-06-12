@@ -101,7 +101,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -410,8 +412,8 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void searc_passThroughQuery() throws Exception {
-//        assumeTrue(runMe);
+    public void search_passThroughQuery() throws Exception {
+        assumeTrue(runMe);
         logger.info("## searc_passThroughQuery");
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
         SystemUser su = registerSystemUser("searc_passThroughQuery");
@@ -592,18 +594,28 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-        // DAT-27
         //assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
-        EntityInputBean entityInput = new EntityInputBean(fo.getName(), "wally", "CancelDoc", new DateTime(), "ABC123");
-        ContentInputBean content = new ContentInputBean("wally", new DateTime(), getRandomMap());
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        String created = "2010-11-20 11:30:00"; // Create
+        String fUpdate = "2010-11-20 11:45:00"; // First Update
+        String fUpdate2 = "2010-11-21 11:45:00"; // First Update
+        DateTime createdDate = new DateTime(Timestamp.valueOf(created));
+        DateTime fUpdateDate = new DateTime(Timestamp.valueOf(fUpdate));
+        DateTime fUpdateDate2 = new DateTime(Timestamp.valueOf(fUpdate2));
+
+        EntityInputBean entityInput = new EntityInputBean(fo.getName(), "wally", "CancelDoc", createdDate, "ABC123");
+        ContentInputBean content = new ContentInputBean("wally", createdDate, getRandomMap());
         entityInput.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         entityInput.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         entityInput.setContent(content);
         // Create the Entity and Log
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
+        assertEquals("Fortress Create date did not match", createdDate.getMillis(), result.getEntity().getFortressDateCreated().getMillis());
+        DateTime fdWhen = new DateTime(result.getEntity().getWhenCreated());
+        assertNotEquals("FlockData's when date should be the current year", createdDate.getYear(), fdWhen.getYear());
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
         // ensure non-analysed tags work
@@ -614,15 +626,22 @@ public class TestFdIntegration {
         // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        content = new ContentInputBean("wally", new DateTime(), getRandomMap());
+        content = new ContentInputBean("wally", fUpdateDate2, getRandomMap());
         entityInput.getTags().clear();
         entityInput.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         entityInput.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
         entityInput.setContent(content);
+        // !!Second Update!!
         result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitAWhile("2nd log does not update search result");
+        Entity entity = entityService.getEntity(result.getEntity());
 
-        Entity entity = result.getEntity();
+        assertEquals("Created date changed after an update - wrong", createdDate, entity.getFortressDateCreated());
+        assertEquals("Update dates did not reconcile", fUpdateDate2, entity.getFortressDateUpdated());
+        EntityLog lastLog = logService.getLastLog(entity);
+        assertEquals("Second Update not recorded", Long.valueOf(fUpdateDate2.getMillis()), lastLog.getFortressWhen());
+
+        waitAWhile("Waiting for search to affect");
+
         Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         assertEquals(2, tags.size());
         boolean sadFound = false, daysFound = false;
@@ -635,14 +654,15 @@ public class TestFdIntegration {
         }
         assertTrue("Did not find the days tag", daysFound);
         assertTrue("Did not find the sad tag", sadFound);
-        // We now have 2 logs, sad tags, no happy tags
+        // We now have 2 logs, sad tags and no happy tags
 
-        // If this fails, search changes are probably not being dispatched
         String json = doEsTermQuery(result.getIndex(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
-        Long updateDate = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
-        assertTrue("Fortress when was not set in to searchDoc", updateDate > 0);
-        assertEquals(updateDate.longValue(), entity.getFortressDateUpdated().getMillis());
+        Long searchCreated = Long.parseLong(searchDoc.get(EntitySearchSchema.CREATED).toString());
+        Long searchUpdated = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
+        assertTrue("Fortress update was not set in to searchDoc", searchUpdated > 0);
+        assertEquals("Created date mismatch", createdDate.getMillis(), searchCreated.longValue());
+        assertEquals("Last Change date mismatch: expected " +fUpdate2 +" was " + new DateTime(searchUpdated) , fUpdateDate2.getMillis(), searchUpdated.longValue());
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
         doEsTermQuery(entity.getFortress().getIndexName(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
@@ -784,7 +804,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
@@ -1278,8 +1298,8 @@ public class TestFdIntegration {
 
     @Test
     public void geo_TagsWork() throws Exception {
-        logger.info("geo_TagsWork");
         assumeTrue(runMe);
+        logger.info("geo_TagsWork");
         SystemUser su = registerSystemUser( "geoTag", "geo_Tag");
         // DAT-339
         assertNotNull(su);
@@ -1321,8 +1341,8 @@ public class TestFdIntegration {
 
     @Test
     public void geo_CachingMultiLocations() throws Exception {
-        logger.info("geo_CachingMultiLocations");
         assumeTrue(runMe);
+        logger.info("geo_CachingMultiLocations");
         SystemUser su = registerSystemUser("geo_CachingMultiLocations", "geo_CachingMultiLocations");
         assertNotNull(su);
 
@@ -1527,7 +1547,7 @@ public class TestFdIntegration {
     @Test
     public void validate_StringsContainingValidNumbers() throws Exception{
         try {
-
+            assumeTrue(runMe);
             logger.info("## validate_MismatchSubsequentValue");
             assumeTrue(runMe);
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");

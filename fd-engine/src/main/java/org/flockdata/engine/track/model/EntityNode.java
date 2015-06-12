@@ -177,6 +177,11 @@ public class EntityNode implements Entity {
                 fortressLastWhen = fWhen;
         }
 
+        // Content date has the last say on when the update happens
+        if ( entityInput.getContent() !=null && entityInput.getContent().getWhen() !=null ){
+            fortressLastWhen = entityInput.getContent().getWhen().getTime();
+        }
+
         //lastUpdate = 0l;
         if (entityInput.isMetaOnly())
             this.event = entityInput.getEvent();
