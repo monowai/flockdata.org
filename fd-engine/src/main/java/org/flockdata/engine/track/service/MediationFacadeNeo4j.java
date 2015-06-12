@@ -221,6 +221,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
         return new HashMap<>();
     }
 
+
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
@@ -390,6 +391,27 @@ public class MediationFacadeNeo4j implements MediationFacade {
 
         logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
         adminService.purge(company, fortress);
+    }
+
+    /**
+     * Iterates through all search documents and validates that an existing
+     * Entity can be found for it by the metaKey returned.
+     *
+     * @param company
+     * @param fortressCode
+     * @param docType
+     * @return
+     */
+    @Override
+    @Secured({SecurityHelper.ADMIN})
+    public String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException {
+        Fortress fortress = fortressService.findByCode(company, fortressCode);
+        if (fortress == null)
+            throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
+
+        logger.info("Validating fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
+        adminService.validateFromSearch(company, fortress, docType);
+        return null;
     }
 
     @Override

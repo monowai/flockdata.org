@@ -23,6 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 
+import java.util.Collection;
 import java.util.concurrent.Future;
 
 /**
@@ -34,4 +35,6 @@ public interface EngineAdminService {
     Future<Long> doReindex(Fortress fortress, String docType) throws FlockException;
 
     Future<Boolean> purge(Company company, Fortress fortress) throws FlockException ;
+
+    Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException;
 }

@@ -385,6 +385,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
+        EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
 
             String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) ;
@@ -410,9 +411,9 @@ public class QueryDaoES implements QueryDao {
                     .execute()
                     .actionGet();
 
-            EsSearchResult result = new EsSearchResult(response.toString().getBytes());
+             result = new EsSearchResult(response.toString().getBytes());
             result.setTotalHits(response.getHits().getTotalHits());
-            return result;
+
 
         } else {
             GetResponse response =
@@ -421,9 +422,10 @@ public class QueryDaoES implements QueryDao {
                             queryParams.getCallerRef())
                             .execute()
                             .actionGet();
-            return new EsSearchResult(response.getSourceAsBytes());
-        }
+            result = new EsSearchResult(response.getSourceAsBytes());
 
+        }
+        return result;
 
     }
 }
