@@ -435,7 +435,8 @@ public class EntityDaoNeo {
         Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), metaKeys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
-            unsorted.put(foundEntity.getMetaKey(), foundEntity);
+            if ( foundEntity.getFortress().getCompany().getId().equals(company.getId()))
+                unsorted.put(foundEntity.getMetaKey(), foundEntity);
         }
         return unsorted;
     }
