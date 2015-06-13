@@ -43,7 +43,8 @@ public class GeoSupportNeo4j {
     @Cacheable(value = "geoData", key = "#loc.id")
     public GeoData getGeoData(Tag loc) {
         logger.debug ( "Cache miss for {}", loc.getId() );
-        String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
+        //String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
+        String query = "match (located:Tag)-[r:state|address]->(o)-[*1..2]->(x:Country)  where id(located)={locNode} return located, o , x" ;
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
         Iterable<Map<String, Object>> queryResults = template.query(query, params);
@@ -52,38 +53,6 @@ public class GeoSupportNeo4j {
         }
         return null;
     }
-
-    GeoData getGeoData(Map<String, Object>row, Tag loc){
-        Node country = null;
-        Node state = null;
-        Node city = null;
-        if ( row.isEmpty())
-            return null;
-
-        Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
-//        for (Object theNode : nodes) {
-//            Node node =(Node)theNode;
-//            if (isCountry(node))
-//                country = node;
-//            else if (isState(node))
-//                state = node;
-//            else if (isCity(node))
-//                city = node;
-//        }
-        return getGeoData(nodes);
-    }
-
-//    boolean isCity(Node node){
-//        return node.hasLabel(DynamicLabel.label("City"));
-//    }
-//
-//    boolean isCountry(Node node){
-//        return node.hasLabel(DynamicLabel.label("Country"));
-//    }
-//
-//    boolean isState(Node node){
-//        return node.hasLabel(DynamicLabel.label("State"));
-//    }
 
     private String getUserDefinedLabel(Node node ){
         Iterable<Label> labels = node.getLabels();
@@ -95,13 +64,21 @@ public class GeoSupportNeo4j {
         return null;
 
     }
-    GeoData getGeoData(Iterable<Node> nodes){
+
+    GeoData getGeoData(Map<String, Object>row, Tag sourceTag){
+        if ( row.isEmpty())
+            return null;
+
+        //Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
+        //;
 
         GeoData geoData = new GeoData();
 
-        for (Node node : nodes) {
+        for (String key: row.keySet()) {
+            Node node = (Node) row.get(key);
             String label = getUserDefinedLabel(node);
-            if ( label !=null ){
+            // Check we don't add the same tag twice
+            if ( label !=null && ! label.equals(sourceTag.getLabel())){
 
                 String code;
                 String name = null;
@@ -121,49 +98,7 @@ public class GeoSupportNeo4j {
                 geoData.add(label.toLowerCase(), code, name, lat, lon);
             }
         }
-//        if (country == null && state == null && city == null)
-//            return null;
-//
-//        String isoCode = null;
-//        String countryName = null;
-//        Double lat = null;
-//        Double lon = null;
-//        String stateName = null, stateCode = null;
-//
-//        String cityName;
-//        if (city != null && city.hasProperty("code"))
-//            cityName = city.getProperty("code").toString();
-//        else
-//            cityName = (String) loc.getProperty("name");
-//
-//        if (country != null && country.hasProperty("code")) {
-//            // ToDo: Need a Country object
-//            isoCode = (String) country.getProperty("code");
-//            if (country.hasProperty("name"))
-//                countryName = (String) country.getProperty("name");
-//            Object latitude = null;
-//            Object longitude = null;
-//
-//            if (country.hasProperty("props-latitude"))
-//                latitude = country.getProperty("props-latitude");
-//
-//            if (country.hasProperty("props-longitude"))
-//                longitude = country.getProperty("props-longitude");
-//
-//            if ((latitude != null && longitude != null) && !(latitude.equals("") || longitude.equals(""))) {
-//                lat = Double.parseDouble(latitude.toString());
-//                lon = Double.parseDouble(longitude.toString());
-//            }
-//        }
-//        if (state != null && state.hasProperty("name"))
-//            stateName = (String) state.getProperty("name");
-//        if (state != null && state.hasProperty("code"))
-//            stateCode = (String) state.getProperty("code");
-//        if (country == null)
-//            return null;
-//        GeoData geoData = new GeoData(isoCode, countryName, cityName, stateName);
-//        geoData.setLatLong("country", lat, lon);
-//        geoData.setStateCode(stateCode);
+
         return geoData;
     }
 }

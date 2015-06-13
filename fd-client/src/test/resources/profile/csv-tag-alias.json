@@ -21,7 +21,7 @@
       "aliases": [
         {
           "code": "us-census",
-          "description": "'USCensus'"
+          "description": "USCensus"
         }
       ]
     }

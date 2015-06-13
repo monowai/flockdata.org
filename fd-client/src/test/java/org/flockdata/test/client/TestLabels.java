@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,12 +19,16 @@
 
 package org.flockdata.test.client;
 
+import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -81,16 +85,37 @@ public class TestLabels extends AbstractImport {
             else if ( tagInputBean.getLabel().equals("MSA/MD"))
                 assertEquals("10180", tagInputBean.getCode());
             else if ( tagInputBean.getLabel().equals("County"))
-                assertEquals("9", tagInputBean.getCode());
+                assertEquals("011", tagInputBean.getCode());
             else
                 throw new FlockException("Unexpected tag - " + tagInputBean.toString());
 
         }
     }
 
-
-
-
-
+    @Test
+    public void alias_DescriptionEvaluates() throws Exception {
+        ClientConfiguration configuration= getClientConfiguration("/profile/labels.json");
+        FileProcessor fileProcessor = new FileProcessor();
+        fileProcessor.processFile(ClientConfiguration.getImportParams("/profile/labels.json"),
+                "/data/assets.txt", getFdWriter(), null, configuration);
+        List<EntityInputBean>entities = getFdWriter().getEntities();
+        List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
+        assertEquals(1, tagInputBeans.size());
+        TestCase.assertEquals(3, entities.iterator().next().getTags().iterator().next().getAliases().size());
+        List<TagInputBean> tags = entities.iterator().next().getTags();
+        for (TagInputBean tag : tags) {
+            Collection<AliasInputBean> aliase = tag.getAliases();
+            for (AliasInputBean alias : aliase) {
+                switch (alias.getDescription()){
+                    case "ISIN":
+                    case "Asset PK":
+                    case "assetCode":
+                        break;
+                    default:
+                        throw new Exception("Unexpected alias description " + alias.toString());
+                }
+            }
+        }
+    }
 
 }

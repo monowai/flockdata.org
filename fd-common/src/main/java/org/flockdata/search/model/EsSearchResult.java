@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,7 +19,11 @@
 
 package org.flockdata.search.model;
 
+import org.flockdata.helper.JsonUtils;
+
+import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class EsSearchResult {
@@ -66,6 +70,17 @@ public class EsSearchResult {
 
     public Collection<SearchResult> getResults() {
         return results;
+    }
+
+    public Map<String,Object>getRawResults() {
+        if ( json !=null ){
+            try {
+                return JsonUtils.getAsMap(json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new HashMap<>();
     }
 
     public void setResults(Collection<SearchResult> results) {

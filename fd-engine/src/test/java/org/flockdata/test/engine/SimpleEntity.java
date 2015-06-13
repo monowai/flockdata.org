@@ -125,8 +125,8 @@ public class SimpleEntity implements Entity, Serializable {
     }
 
     @Override
-    public Long getFortressDateUpdated() {
-        return fortressLastWhen;
+    public DateTime getFortressDateUpdated() {
+        return new DateTime(fortressLastWhen);
     }
 
     private FortressUser lastUser;
@@ -260,5 +260,11 @@ public class SimpleEntity implements Entity, Serializable {
     public boolean setProperties(Map<String, Object> properties) {
         return false;
     }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
 }

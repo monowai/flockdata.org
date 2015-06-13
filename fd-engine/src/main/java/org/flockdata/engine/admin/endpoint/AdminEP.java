@@ -126,4 +126,16 @@ public class AdminEP {
     }
 
 
+    @RequestMapping(value = "/{fortressName}/{docType}/validate", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    public ResponseEntity<String> validateFromSearch(@PathVariable("fortressName") String fortressName, @PathVariable("docType") String docType,
+                                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+
+        logger.info("Validate command received for " + fortressName + " & docType " + docType + " from [" + securityHelper.getLoggedInUser() + "]");
+        String message = mediationFacade.validateFromSearch(company, fortressName, docType);
+
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
+    }
+
 }
