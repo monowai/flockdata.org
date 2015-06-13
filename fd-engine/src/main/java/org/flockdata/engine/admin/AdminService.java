@@ -42,17 +42,19 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
  * General maintenance activities across fortress entities. Async in nature
- *
+ * <p>
  * Created by mike on 25/03/15.
  */
 @Service
@@ -86,24 +88,79 @@ public class AdminService implements EngineAdminService {
         // single fortress
         String indexName = fortress.getIndexName();
         entityService.purge(fortress);
-        if ( fortress.isStoreEnabled() && engineConfig.getKvStore()!= KvService.KV_STORE.NONE) {
+        if (fortress.isStoreEnabled() && engineConfig.getKvStore() != KvService.KV_STORE.NONE) {
             logger.info("Purging KV");
             kvService.purge(fortress.getIndexName());
         }
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(fortress.getIndexName());
-        logger.info ("Completed purge of indexed data [{}]", indexName);
+        logger.info("Completed purge of indexed data [{}]", indexName);
         return new AsyncResult<>(true);
 
     }
 
     @Async("fd-engine")
     public Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException {
-        Collection<String>errors = new ArrayList<>();
-        int start= 0;
-        int size = 100;
-        boolean continueSearch ;
+        Collection<String> errors = new ArrayList<>();
+        int start = 0;
+        int size = 1000;
+        boolean continueSearch;
+
+        QueryParams qp ;
+        try {
+            qp = getPagedQueryParams(company, size, docType);
+        } catch (IOException e) {
+            logger.error("Admin Query Issue", e);
+            errors.add(e.getMessage());
+            return new AsyncResult<>(errors);
+        }
+
+        Collection<Map<String, Object>> searchResults;
+        int rowsAnalyzed = 0;
+        NumberFormat nf = NumberFormat.getInstance();
+        String totalHits = null;
+        StopWatch watch = new StopWatch("Validate Search Docs " + company.getName() + "/"+ docType);
+        watch.start();
+        do {
+            qp.setFrom(start);
+
+            EsSearchResult searchResult = queryService.search(company, qp);
+            Map<String, Object> results = searchResult.getRawResults();
+
+            Map<String, Object> hits = (Map<String, Object>) results.get("hits");
+            if (totalHits == null) {
+                totalHits = hits.get("total").toString();
+                logger.info("Analyzing " + nf.format(Integer.parseInt(totalHits)) + " Entities");
+            }
+            searchResults = (Collection<Map<String, Object>>) hits.get("hits");
+
+            Map<String, String> searchKeys = getMetaKeys(searchResults);
+
+            if (!searchKeys.isEmpty()) {
+                validateEntities(company, errors, searchKeys);
+            }
+
+            start = start + size;
+
+            if (start % 100000 == 0)
+                logger.info("Progress update - {} entities analyzed ...", nf.format(start));
+
+            rowsAnalyzed = rowsAnalyzed + searchResults.size();
+            continueSearch = searchResults.size() != 0;
+
+        } while (continueSearch);
+        watch.stop();
+        logger.info("Finished  - validated " + nf.format(rowsAnalyzed) + " entities out of a reported hit count of " + nf.format(Integer.parseInt(totalHits)) + (errors.isEmpty() ? ". No problems found" : " " + nf.format(errors.size()) + ". errors found"));
+
+        if (errors.isEmpty())
+            errors.add("No problems found!");
+
+        return new AsyncResult<>(errors);
+
+    }
+
+    private QueryParams getPagedQueryParams(Company company, int size, String docType) throws IOException {
         String esQuery = "{\n" +
                 "  \"query\": {\n" +
                 "    \"query_string\": {\n" +
@@ -112,66 +169,51 @@ public class AdminService implements EngineAdminService {
                 "  }\n" +
                 "}";
         QueryParams qp;
-        try {
-            qp = JsonUtils.getBytesAsObject(esQuery.getBytes(), QueryParams.class);
-        } catch (IOException e) {
-            logger.error("Admin Query Issue", e);
-            errors.add(e.getMessage());
-            return new AsyncResult<>(errors);
-        }
+        qp = JsonUtils.getBytesAsObject(esQuery.getBytes(), QueryParams.class);
 
         qp.setCompany(company.getName().toLowerCase());
         qp.setTypes(docType.toLowerCase());
         qp.setSearchText("*");
-        ArrayList<String>fields = new ArrayList<>();
+        ArrayList<String> fields = new ArrayList<>();
         fields.add("metaKey");
         fields.add("_id");
         qp.setFields(fields);
         qp.setSize(size);
-        Collection<Map<String,Object>>searchResults;
-        int rowsAnalyzed = 0;
-        NumberFormat nf = NumberFormat.getInstance();
-        String totalHits =null;
-        do {
-            qp.setFrom(start);
+        return qp;
+    }
 
-            EsSearchResult searchResult = queryService.search(company, qp);
-            Map<String,Object>results = searchResult.getRawResults();
+    // Extracts the searchKey and the metaKey in to a map for analysis
+    private Map<String, String> getMetaKeys(Collection<Map<String, Object>> searchResults) {
+        Map<String, String> searchKeys = new HashMap<>();
+        for (Map<String, Object> result : searchResults) {
+            String searchKey = result.get("_id").toString();
+            Map fieldResult = (Map) result.get("fields");
+            Collection keyResult = (Collection) fieldResult.get("metaKey");
+            String metaKey = keyResult.iterator().next().toString();
+            searchKeys.put(metaKey, searchKey);
+        }
+        return searchKeys;
+    }
 
-            Map<String,Object>hits = (Map<String, Object>) results.get("hits");
-            if (totalHits == null ){
-                totalHits = hits.get("total").toString();
-                logger.info("Analyzing " + nf.format(Integer.parseInt(totalHits)) + " Entities");
-            }
-            searchResults = (Collection<Map<String, Object>>) hits.get("hits");
-
-            for (Map<String, Object> result : searchResults) {
-                String searchKey = result.get("_id").toString();
-                Map fieldResult = (Map) result.get("fields");
-                Collection keyResult = (Collection) fieldResult.get("metaKey");
-                String metaKey = keyResult.iterator().next().toString();
-                Entity e = entityService.getEntity(company, metaKey, false);
-                if ( e == null ){
-                    String message = "Didn't find metaKey " + metaKey + " for searchDoc " +searchKey;
+    private void validateEntities(Company company, Collection<String> errors, Map<String, String> searchKeys) {
+        Map<String, Entity> entities = entityService.getEntities(company, searchKeys.keySet());
+        if (entities.size() != searchKeys.size()) {
+            for (String metaKey : entities.keySet()) {
+                Entity e = entities.get(metaKey);
+                if (e == null) {
+                    String message = "Didn't find metaKey " + metaKey;
                     errors.add(message);
                     logger.error(message);
                 }
-                if ( e!=null && !e.getSearchKey().equals(searchKey)){
-                    String message = "SearchKey mismatch for metaKey " + metaKey + ". Found "+searchKey+" in ES, but the entity expected it as " +e.getSearchKey();
+                String searchKey = searchKeys.get(metaKey);
+                if (e != null && !e.getSearchKey().equals(searchKey)) {
+                    String message = "SearchKey mismatch for metaKey " + metaKey + ". Found " + searchKey + " in ES, but the entity expected it as " + e.getSearchKey();
                     errors.add(message);
                     logger.error(message);
                 }
+
             }
-            start = start + size;
-            rowsAnalyzed = rowsAnalyzed + searchResults.size();
-            continueSearch = searchResults.size() !=0;
-
-        } while (continueSearch);
-        logger.info("Finished  - validated " + nf.format(rowsAnalyzed) + " entities out of a reported hit count of " +nf.format(Integer.parseInt(totalHits)) + (errors.isEmpty()? ". No problems found": " "+nf.format(errors.size()) +". errors found") );
-        if ( errors.isEmpty())
-            errors.add("No problems found!");
-        return new AsyncResult<>(errors);
-
+        }
     }
 
     @Override
@@ -194,7 +236,7 @@ public class AdminService implements EngineAdminService {
     }
 
     long reindex(Fortress fortress) {
-        Long processCount =0l;
+        Long processCount = 0l;
         Collection<Entity> entities;
         do {
             entities = entityService.getEntities(fortress, processCount);
@@ -203,12 +245,12 @@ public class AdminService implements EngineAdminService {
             processCount = processCount + entities.size();
             reindexEntities(fortress.getCompany(), entities, processCount);
 
-        } while ( !entities.isEmpty());
+        } while (!entities.isEmpty());
         return processCount;
     }
 
     long reindexByDocType(Fortress fortress, String docType) {
-        Long processCount =0l;
+        Long processCount = 0l;
         Collection<Entity> entities;
         do {
             entities = entityService.getEntities(fortress, docType, processCount);
@@ -217,7 +259,7 @@ public class AdminService implements EngineAdminService {
             processCount = processCount + entities.size();
             reindexEntities(fortress.getCompany(), entities, processCount);
 
-        } while ( !entities.isEmpty());
+        } while (!entities.isEmpty());
         return processCount;
     }
 
@@ -227,7 +269,7 @@ public class AdminService implements EngineAdminService {
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
-            if ( !lastLog.isMocked()) {
+            if (!lastLog.isMocked()) {
                 EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
                 if (searchDoc != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
                     searchDocuments.add(searchDoc);
