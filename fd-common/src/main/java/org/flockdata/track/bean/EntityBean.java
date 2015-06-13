@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -48,6 +48,7 @@ public class EntityBean implements Serializable {
     private String description;
     private FortressResultBean fortress;
     private DateTime fortressDateCreated;
+    private DateTime fortressDateUpdated;
     private String event;
     private String lastUser;
     private String createdUser;
@@ -81,6 +82,7 @@ public class EntityBean implements Serializable {
             fortress = new FortressResultBean(entity.getFortress());
             event = entity.getEvent();
             fortressDateCreated = entity.getFortressDateCreated();
+            fortressDateUpdated = entity.getFortressDateUpdated();
             if (entity.getLastUser()!=null )
                 lastUser = entity.getLastUser().getCode();
             if ( createdUser !=null )
@@ -146,6 +148,11 @@ public class EntityBean implements Serializable {
     @JsonIgnore
     public DateTime getFortressDateCreated() {
         return fortressDateCreated;
+    }
+
+    @JsonIgnore
+    public DateTime getFortressDateUpdated() {
+        return fortressDateUpdated;
     }
 
     public String getEvent() {

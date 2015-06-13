@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -36,9 +36,9 @@ public interface SearchChange {
     /**
      * @return search keys unique document identifier
      */
-    public String getSearchKey();
+    String getSearchKey();
 
-    public void setSearchKey(String parent);
+    void setSearchKey(String parent);
 
     /**
      * primary key of the Entity record that this document belongs to
@@ -47,33 +47,30 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    public void setWhat(Map<String, Object> what);
+    void setWhat(Map<String, Object> what);
 
-    public Map<String, Object> getWhat();
+    Map<String, Object> getWhat();
 
-    public HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
+    HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
-    public void setTags(Iterable<EntityTag> tagSet);
+    void setTags(Iterable<EntityTag> tagSet);
 
     /**
      * @return who made this change
      */
-    public String getWho();
+    String getWho();
 
-    public Long getSysWhen();
+    Long getSysWhen();
 
-    public Date getCreatedDate();
+    Date getCreatedDate();
 
-    public String getFortressName();
+    Date getUpdatedDate();
 
-    public String getCompanyName();
+    String getFortressName();
 
-    public String getIndexName();
+    String getCompanyName();
 
-    /**
-     * @return date this was created in the owning fortress
-     */
-    public java.util.Date getWhen();
+    String getIndexName();
 
     /**
      * when this log was created in the Fortress
@@ -90,7 +87,7 @@ public interface SearchChange {
 
     String getEvent();
 
-    public void setSysWhen(Long sysWhen);
+    void setSysWhen(Long sysWhen);
 
     void setLogId(Long id);
 
@@ -108,7 +105,7 @@ public interface SearchChange {
      * <p/>
      * default to true
      */
-    public void setReplyRequired(boolean required);
+    void setReplyRequired(boolean required);
 
     boolean isReplyRequired();
 
@@ -117,13 +114,13 @@ public interface SearchChange {
      * Usually in response to a cancellation in fd-engine
      *
      */
-    public boolean isForceReindex();
+    boolean isForceReindex();
 
     /**
      *
      * @return if the searchKey should be removed
      */
-    public Boolean isDelete();
+    Boolean isDelete();
 
     void setName(String name);
 

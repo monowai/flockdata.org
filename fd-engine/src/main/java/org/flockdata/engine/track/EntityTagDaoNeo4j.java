@@ -201,10 +201,11 @@ public class EntityTagDaoNeo4j {
     public Iterable<EntityTag> getEntityTagsWithGeo(Entity entity) {
         Collection<EntityTag> entityTags = getEntityTags(entity);
         for (EntityTag entityTag : entityTags) {
-            if (entityTag.getTag().getLocated() != null) {
+            boolean locatedOnEntity = entityTag.getRelationship().equals("geodata");
+            if (entityTag.getTag().getLocated() != null || locatedOnEntity ) {
                 template.fetch(entityTag.getTag());
                 entityTag.setGeoData(
-                        geoSupport.getGeoData(entityTag.getTag().getLocated())
+                        geoSupport.getGeoData( (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
                 );
             }
         }

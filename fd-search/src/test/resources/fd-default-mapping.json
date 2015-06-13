@@ -53,12 +53,13 @@
         "type": "date",
         "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
       },
+      "whenUpdated": {
+        "type": "date",
+        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+      },
       "description": {
         "type": "string",
         "boost": 4
-      },
-      "when": {
-        "type": "date"
       },
       "who": {
         "type": "string",

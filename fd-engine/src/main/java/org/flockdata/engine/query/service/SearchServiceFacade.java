@@ -186,7 +186,7 @@ public class SearchServiceFacade {
 
         if (entity.getId() == null) {
             logger.debug("No entityId so we are not expecting a reply");
-            searchDocument.setWhen(null);
+            //searchDocument.setWhen(null);
             searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(null);
         }

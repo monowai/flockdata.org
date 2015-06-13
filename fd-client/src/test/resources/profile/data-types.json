@@ -24,7 +24,28 @@
       "code": "tag-code",
       "label": "AsString",
       "tag": true
+    },
+    "num": {
+      "dataType": "number"
+    },
+    "entityTitle":{
+      "title":true,
+      "value": "#row['as-string'] +'-test'"
+    },
+    "whenCreated": {
+      "createDate": true ,
+      "dateFormat": "timestamp"
+    } ,
+
+    "lastChange1": {
+      "updateDate": true ,
+      "dateFormat": "timestamp"
+    },
+    "lastChange2": {
+      "updateDate": true ,
+      "dateFormat": "timestamp"
     }
+
 
   }
 }

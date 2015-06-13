@@ -68,6 +68,9 @@ public class EntitySearchChange implements SearchChange {
     private boolean delete;
     private Date createdDate; // Created in the fortress
 
+    private Date updatedDate; // Last updated in the fortress;
+
+
     private String contentType;
     private String fileName;
 
@@ -107,9 +110,11 @@ public class EntitySearchChange implements SearchChange {
         this.sysWhen = entity.getWhenCreated();
         this.description = entity.getDescription();
         this.props = entity.getProps(); // Userdefined entity properties
-        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in FlockData
+        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in the Fortress
+        if ( entity.getFortressDateUpdated() != null )
+            this.updatedDate = entity.getFortressDateUpdated().toDate();
         this.event= entity.getEvent();
-        setWhen(new DateTime(entity.getWhenCreated()));
+        //setWhen(new DateTime(entity.getFortressDateUpdated()));
     }
 
     public EntitySearchChange(EntityBean entity, ContentInputBean content) {
@@ -128,11 +133,14 @@ public class EntitySearchChange implements SearchChange {
             this.event= entityLog.getLog().getEvent().getCode();
             this.fileName = entityLog.getLog().getFileName();
             this.contentType = entityLog.getLog().getContentType();
-
-            setWhen(new DateTime(entityLog.getFortressWhen()));
+            if ( entityLog.getFortressWhen()!=null)
+                this.updatedDate = new Date(entityLog.getFortressWhen());
+            this.createdDate = entity.getFortressDateCreated().toDate();
         } else {
             event = entity.getEvent();
-            setWhen(entity.getFortressDateCreated());
+            this.createdDate = entity.getFortressDateCreated().toDate();
+            if (entity.getFortressDateUpdated()!=null)
+                this.updatedDate = entity.getFortressDateUpdated().toDate();
         }
     }
 
@@ -165,10 +173,6 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public String getWho() {
         return this.who;
-    }
-
-    public Date getWhen() {
-        return when;
     }
 
     public String getEvent() {
@@ -342,6 +346,11 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public Date getCreatedDate() {
         return createdDate;
+    }
+
+    @Override
+    public Date getUpdatedDate() {
+        return updatedDate;
     }
 
     @Override

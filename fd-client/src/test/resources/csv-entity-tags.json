@@ -5,7 +5,6 @@
     "entityOnly": true,
     "fortress": "Olympic",
     "fortressUser": "mike",
-    "batchSize": -1,
     "header": true,
     "content": {
         "Title": {

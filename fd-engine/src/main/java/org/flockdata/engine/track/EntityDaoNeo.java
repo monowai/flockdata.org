@@ -162,10 +162,10 @@ public class EntityDaoNeo {
     }
 
     public Entity fetch(Entity entity) {
-        if (entity == null )
-            return entity;
-        template.fetch(entity.getCreatedBy());
-        template.fetch(entity.getLastUser());
+        if (entity != null ) {
+            template.fetch(entity.getCreatedBy());
+            template.fetch(entity.getLastUser());
+        }
 
         return entity;
     }
@@ -357,10 +357,11 @@ public class EntityDaoNeo {
         if ( entity.getMetaKey() == null )
             throw new FlockException("Where has the metaKey gone?");
 
+        entity.setLastUser(newLog.getWho());
+        entity.setLastChange(newLog);
+        entity.setFortressLastWhen(fortressWhen.getMillis());
+
         if (currentState.getLastChange() == null) {
-            entity.setLastUser(newLog.getWho());
-            entity.setLastChange(newLog);
-            entity.setFortressLastWhen(fortressWhen.getMillis());
             template.save(entity);
         } else {
             logger.debug("About to save new log");
@@ -381,7 +382,7 @@ public class EntityDaoNeo {
         boolean moreRecent;
 
 
-        Set<EntityLog> entityLogs = getLogs(entity.getId(), new Date(entity.getFortressDateUpdated()), new DateTime().toDate());
+        Set<EntityLog> entityLogs = getLogs(entity.getId(), entity.getFortressDateUpdated().toDate(), new DateTime().toDate());
 
 
         for (EntityLog entityLog : entityLogs) {
@@ -390,7 +391,7 @@ public class EntityDaoNeo {
         }
         if (latest == null)
             return;
-        moreRecent = (entity.getFortressDateUpdated() < latest.getLog().getEntityLog().getFortressWhen());
+        moreRecent = (entity.getFortressDateUpdated().getMillis() < latest.getLog().getEntityLog().getFortressWhen());
         if (moreRecent) {
             logger.debug("Detected a more recent change ", new DateTime(latest.getFortressWhen()), entity.getId(), latest.getFortressWhen());
 
@@ -434,7 +435,8 @@ public class EntityDaoNeo {
         Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), metaKeys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
-            unsorted.put(foundEntity.getMetaKey(), foundEntity);
+            if ( foundEntity.getFortress().getCompany().getId().equals(company.getId()))
+                unsorted.put(foundEntity.getMetaKey(), foundEntity);
         }
         return unsorted;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -75,7 +75,7 @@ public class TestElasticSearch {
         // Basic JSON/ES tests to figure our what is going on
 
         EntitySearchChange change = new EntitySearchChange();
-        change.setWhen(new DateTime());
+        change.setSysWhen(new DateTime().getMillis());
 
         // Add Who Parameter because it's used in creating the Document in ES as a Type .
         change.setWho("Who");
@@ -90,7 +90,7 @@ public class TestElasticSearch {
 
         EntitySearchChange found = om.readValue(response.getSourceAsBytes(), EntitySearchChange.class);
         assertNotNull(found);
-        assertEquals(0, change.getWhen().compareTo(found.getWhen()));
+        assertEquals(0, change.getSysWhen().compareTo(found.getSysWhen()));
 
 
     }

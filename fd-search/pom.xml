@@ -15,6 +15,7 @@
     <properties>
         <es.version>1.5.2</es.version>
         <start-class>org.flockdata.search.FdSearch</start-class>
+        <spring.elasticsearch-version>1.4.0</spring.elasticsearch-version>
         <!--<spring-boot.version>1.2.0.RELEASE</spring-boot.version>-->
     </properties>
 
@@ -31,6 +32,11 @@
             <!--<version>${spring-boot.version}</version>-->
             <!--<scope>provided</scope>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.3</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -121,7 +127,7 @@
         <dependency>
             <groupId>fr.pilato.spring</groupId>
             <artifactId>spring-elasticsearch</artifactId>
-            <version>1.4.0</version>
+            <version>${spring.elasticsearch-version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>

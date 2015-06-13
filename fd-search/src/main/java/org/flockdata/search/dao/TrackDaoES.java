@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -131,11 +132,11 @@ public class TrackDaoES implements TrackSearchDao {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
+            logger.error("Parsing error "+indexName+"- callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Unexpected error", e);
-            return searchChange;
+            logger.error("Unexpected error on index " + indexName, e);
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         }
 
     }
@@ -251,16 +252,16 @@ public class TrackDaoES implements TrackSearchDao {
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
-                Object o = response.getSource().get(EntitySearchSchema.WHEN); // fortress view of WHEN, not FlockDatas!
+                Object o = response.getSource().get(EntitySearchSchema.UPDATED); // fortress view of UPDATED, not FlockDatas!
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
-                    logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getWhen(), existingWhen);
+                    logger.debug("Comparing searchChange when {} with stored when {}", searchChange.getUpdatedDate(), existingWhen);
                     if (!searchChange.isForceReindex()) {
-                        if (existingWhen.compareTo(searchChange.getWhen().getTime()) > 0) {
-                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getWhen());
+                        if (existingWhen.compareTo(searchChange.getUpdatedDate().getTime()) > 0) {
+                            logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getUpdatedDate());
                             return searchChange; // Don't overwrite the most current doc!
-                        } else if (searchChange.getWhen().getTime() == 0l && !searchChange.isReplyRequired()) {
+                        } else if (searchChange.getUpdatedDate().getTime() == 0l && !searchChange.isReplyRequired()) {
                             // Meta Change - not indexed in FD, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
                             return searchChange;
@@ -292,6 +293,10 @@ public class TrackDaoES implements TrackSearchDao {
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
             logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
             purgeCache();
+            return save(searchChange, source);
+        } catch ( NoShardAvailableActionException e){
+            logger.error( "Shard problem updating " + searchChange);
+            //throw new AmqpRejectAndDontRequeueException("Shard problem updating " + searchChange);
             return save(searchChange, source);
         }
         return searchChange;
@@ -364,20 +369,25 @@ public class TrackDaoES implements TrackSearchDao {
      */
     private Map<String, Object> getMapFromChange(SearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
-        if (searchChange.getWhat() != null)
-            indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
-
-        if (searchChange.getProps() != null)
-            indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
+        indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
+        indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
         if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
             // This occurs if the search doc is not being tracked in fd-engine's graph
             indexMe.put(EntitySearchSchema.META_KEY, searchChange.getMetaKey());
+
+        if (searchChange.getWhat() != null)
+            indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
+        if (searchChange.getProps() != null && !searchChange.getProps().isEmpty())
+            indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
         if (searchChange.getWho() != null)
             indexMe.put(EntitySearchSchema.WHO, searchChange.getWho());
         if (searchChange.getEvent() != null)
             indexMe.put(EntitySearchSchema.LAST_EVENT, searchChange.getEvent());
 
-        indexMe.put(EntitySearchSchema.WHEN, searchChange.getWhen());
+        // When the Entity was created in the fortress
+        indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
+        //if ( searchChange.getUpdatedDate()!=null)
+        indexMe.put(EntitySearchSchema.UPDATED, searchChange.getUpdatedDate());
 
         if (searchChange.hasAttachment()) { // DAT-159
             indexMe.put(EntitySearchSchema.ATTACHMENT, searchChange.getAttachment());
@@ -385,14 +395,9 @@ public class TrackDaoES implements TrackSearchDao {
             indexMe.put(EntitySearchSchema.CONTENT_TYPE, searchChange.getContentType());
         }
 
-        // When the Entity was created in the fortress
-        indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
-
         // Time that this change was indexed by fd-engine
         indexMe.put(EntitySearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
 
-        indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
-        indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
         if (searchChange.getCallerRef() != null)
             indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
 
@@ -571,7 +576,6 @@ public class TrackDaoES implements TrackSearchDao {
     private String getKeyName(String indexName, String documentType) {
         return indexName + "/" + documentType + ".json";
     }
-
 
     private Map<String, Object> getDefaultMapping(String key) throws IOException {
         Map<String, Object> found;

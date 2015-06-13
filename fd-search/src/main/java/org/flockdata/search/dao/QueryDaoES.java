@@ -284,7 +284,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.DESCRIPTION)
                 .addField(EntitySearchSchema.CALLER_REF)
                 .addField(EntitySearchSchema.WHO)
-                .addField(EntitySearchSchema.WHEN)
+                .addField(EntitySearchSchema.UPDATED)
                 .addField(EntitySearchSchema.CREATED)
                 .addField(EntitySearchSchema.TIMESTAMP)
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
@@ -338,7 +338,7 @@ public class QueryDaoES implements QueryDao {
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT)),
                                 searchHitFields.getType(),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHO)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHEN)),
+                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.UPDATED)),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CREATED)),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP)),
                                 fragments);
@@ -385,10 +385,13 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public EsSearchResult doWhatSearch(QueryParams queryParams) throws FlockException {
+        EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
 
             String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) ;
-
+            if ( queryParams.getFields()!=null){
+                query = query +",\"fields\": "+JsonUtils.getJSON(queryParams.getFields());
+            }
             if ( queryParams.getAggs()!=null )
                 query = query + ",\"aggs\": " + JsonUtils.getJSON(queryParams.getAggs()) + "}";
             else
@@ -408,9 +411,9 @@ public class QueryDaoES implements QueryDao {
                     .execute()
                     .actionGet();
 
-            EsSearchResult result = new EsSearchResult(response.toString().getBytes());
+             result = new EsSearchResult(response.toString().getBytes());
             result.setTotalHits(response.getHits().getTotalHits());
-            return result;
+
 
         } else {
             GetResponse response =
@@ -419,9 +422,10 @@ public class QueryDaoES implements QueryDao {
                             queryParams.getCallerRef())
                             .execute()
                             .actionGet();
-            return new EsSearchResult(response.getSourceAsBytes());
-        }
+            result = new EsSearchResult(response.getSourceAsBytes());
 
+        }
+        return result;
 
     }
 }
