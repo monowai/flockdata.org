@@ -594,7 +594,7 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -1057,7 +1057,7 @@ public class TestFdIntegration {
         doEsQuery(entity.getFortress().getIndexName(), "*", 0);
 
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
-        assertEquals("Search Key wasn't set to null", null, entity.getSearchKey());
+        assertEquals("Search Key set to callerRef", entity.getCallerRef(), entity.getSearchKey());
     }
 
     @Test
@@ -1091,7 +1091,7 @@ public class TestFdIntegration {
 
     @Test
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");

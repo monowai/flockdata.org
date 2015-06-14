@@ -168,7 +168,8 @@ public class TestEntityTags extends EngineBase {
 
         assertEquals(fCreated.getMillis(), entity.getFortressDateCreated().getMillis());
 
-        EntityTagInputBean tagA = new EntityTagInputBean(entity.getMetaKey(), flopTag.getCode(), "ABC");
+        EntityTagInputBean tagA = new EntityTagInputBean(entity.getMetaKey(), flopTag.getCode(), "ABC").
+                setSince(true);
         entityTagService.processTag(entity, tagA);
 
         Boolean tagRlxExists = entityTagService.relationshipExists(entity, flopTag.getCode(), "ABC");
@@ -182,7 +183,10 @@ public class TestEntityTags extends EngineBase {
         // Creating some content and adding a new Tag to the entity
         DateTime fUpdated = new DateTime().minus(10000);
         ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, Helper.getRandomMap());
-        entityBean.addTag(new TagInputBean("Tag2", null,"second"));
+
+        entityBean.addTag(new TagInputBean("Tag2", null,"second").
+                setSince(true));
+
         entityBean.setArchiveTags(false);// We don't have a reference to the original tag in the Input
         // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
         entityBean.setContent(contentInputBean);

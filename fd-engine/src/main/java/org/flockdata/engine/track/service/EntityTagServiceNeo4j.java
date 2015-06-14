@@ -82,7 +82,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagCode());
-        template.save(getRelationship(entity, tag, relationshipName, false, new HashMap<>()));
+        template.save(
+                getRelationship(entity, tag, relationshipName, false, new HashMap<>(), entityTagInput.isSince())
+        );
     }
 
     @Override
@@ -233,7 +235,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
 
             propMap.put(EntityTagDao.FD_WHEN, when);
-            EntityTag entityTagRelationship = getRelationship(entity, tag, key, tagInputBean.isReverse(), propMap);
+            EntityTag entityTagRelationship = getRelationship(entity, tag, key, tagInputBean.isReverse(), propMap, tagInputBean.isSince());
             if (entityTagRelationship != null) {
                 entityTags.add(entityTagRelationship);
             }
@@ -254,9 +256,12 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @param propMap          properties to associate with the relationship
      * @return Null or the EntityTag that was created
      */
-    public EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        long lastUpdate = (entity.getFortressDateUpdated()==null ?0:entity.getFortressDateUpdated().getMillis());
-        propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
+
+        if ( isSinceRequired) {
+            long lastUpdate = (entity.getFortressDateUpdated() == null ? 0 : entity.getFortressDateUpdated().getMillis());
+            propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+        }
         EntityTag rel;
         if (isReversed)
             rel = new EntityTagOut(entity, tag, relationshipName, propMap);
