@@ -138,7 +138,7 @@ public class EntityTagDaoNeo4j {
             // if entityTag.fdWhen moreRecentThan logToMoveFrom
             Long metaWhen = (Long) entityTag.getProperties().get(EntityTagDao.FD_WHEN);
             logger.trace("MoveTags - Comparing {} with {}", metaWhen, logToMoveFrom.getEntityLog().getFortressWhen());
-            if (metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0) {
+            if (metaWhen == null || metaWhen.compareTo(logToMoveFrom.getEntityLog().getFortressWhen()) >= 0) {
                 // This tag was added to the entity by a more recent log
                 logger.trace("Removing {}", entityTag.getTag().getName());
                 template.delete(entityTag);

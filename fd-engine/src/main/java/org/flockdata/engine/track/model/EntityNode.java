@@ -319,12 +319,18 @@ public class EntityNode implements Entity {
 
     @JsonIgnore
     public void setSearchKey(String searchKey) {
-        this.searchKey = searchKey;
+        // By default the searchkey is the callerRef. Let's save disk space
+        if ( searchKey!=null && searchKey.equals(callerRef))
+            this.searchKey = null;
+        else
+            this.searchKey = searchKey;
     }
 
     @JsonIgnore
     public String getSearchKey() {
-        return searchKey;
+        if ( search  == 0) // No search reply received so searchKey is not yet valid
+            return null;
+        return (searchKey == null ? callerRef: searchKey);
 
     }
 

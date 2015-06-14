@@ -57,6 +57,7 @@ public class TagInputBean {
     private String serviceMessage;
     private Collection<AliasInputBean> aliases;
     private String notFoundCode;
+    private boolean since;
 
 
     public TagInputBean() {
@@ -367,4 +368,12 @@ public class TagInputBean {
     }
 
 
+    public TagInputBean setSince(boolean since) {
+        this.since = since;
+        return this;
+    }
+
+    public boolean isSince() {
+        return since;
+    }
 }

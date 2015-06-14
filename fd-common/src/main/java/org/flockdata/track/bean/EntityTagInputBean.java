@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -39,6 +39,7 @@ public class EntityTagInputBean {
     @NotNull
     private String type;
     private String index;
+    private boolean since;
 
     private EntityTagInputBean() {
     }
@@ -84,4 +85,17 @@ public class EntityTagInputBean {
             return index;
     }
 
+    /**
+     * When connecting the tag to the entity, tell FD to record a timestamp as a user defined property
+     * @param since yes/no
+     * @return this
+     */
+    public EntityTagInputBean setSince(boolean since) {
+        this.since = since;
+        return this;
+    }
+
+    public boolean isSince() {
+        return since;
+    }
 }
