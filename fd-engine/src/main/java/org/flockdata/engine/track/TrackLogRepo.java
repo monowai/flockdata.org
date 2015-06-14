@@ -25,6 +25,7 @@ import org.flockdata.track.model.EntityLog;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -56,16 +57,15 @@ public interface TrackLogRepo extends GraphRepository<LogNode> {
                     " return log order by log.fortressWhen desc")
     Set<EntityLog> findLogs(Long entityId);
 
-    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log) where id(f) = {0} delete l,log;")
-    void purgeFortressLogs(Long fortressId);
+    @Query (value = "match (m:Entity)-[l:LOGGED]-(log:Log) where m.metaKey in {0} delete l,log;")
+    void purgeFortressLogs(Collection<String> entities);
 
-    // ToDO:
-    @Query (value = "match (f:Fortress)-[:TRACKS]->(m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where id(f)={0} delete l, people, log")
-    void purgeLogsWithUsers(Long fortressId);
+    @Query (value = "match (m:Entity)-[l:LOGGED]-(log:Log)-[people]-() where m.metaKey in {0} delete l, people, log")
+    void purgeLogsWithUsers(Collection<String> entities);
 
     //match (f:Fortress)-[track:TRACKS]->(entity:Entity)-[r]-(o:Tag) where id(f)=514705 delete r;
-    @Query (value = "match (f:Fortress)-[track:TRACKS]->(m:Entity)-[tagRlx]-(:Tag) where id(f)={0} delete tagRlx")
-    void purgeTagRelationships(Long fortressId);
+    @Query (value = "match (m:Entity)-[tagRlx]-(:Tag) where m.metaKey  in {0} delete tagRlx")
+    void purgeTagRelationships(Collection<String> entities);
 
 
 

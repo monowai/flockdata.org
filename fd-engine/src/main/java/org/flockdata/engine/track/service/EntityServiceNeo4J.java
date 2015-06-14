@@ -233,7 +233,7 @@ public class EntityServiceNeo4J implements EntityService {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
-            throw new SecurityException(userName + "Not authorised to retrieve entities");
+            throw new SecurityException(userName + "Not authorised to retrieve metaKeys");
 
         return getEntity(su.getCompany(), metaKey, false);
     }
@@ -642,16 +642,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public void purge(Fortress fortress) {
-        logger.info("Entity Purge routine {}", fortress);
-        schemaService.purge(fortress);
-        entityDao.purgeTagRelationships(fortress);
-        entityDao.purgeFortressLogs(fortress);
-        entityDao.purgePeopleRelationships(fortress);
+    public void purge(Fortress fortress, Collection<String> metaKeys) {
+        entityDao.purgeTagRelationships(metaKeys);
+        entityDao.purgeFortressLogs(metaKeys);
+        entityDao.purgePeopleRelationships(metaKeys);
+        entityDao.purgeEntities(metaKeys);
+        //logger.info("Completed entity purge routine {}", fortress);
 
+    }
+
+    @Override
+    public void purgeFortressDocs(Fortress fortress){
         entityDao.purgeFortressDocuments(fortress);
-        entityDao.purgeEntities(fortress);
-        logger.info("Completed entity purge routine {}", fortress);
 
     }
 
@@ -778,5 +780,11 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<Entity> getEntities(Collection<Long> entities) {
         return entityDao.getEntities(entities);
+    }
+
+    @Override
+    public Collection<String> getEntityBatch(Fortress fortress, int limit) {
+        return entityDao.getEntityBatch(fortress.getId(), limit);
+
     }
 }

@@ -44,6 +44,12 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
                     " skip {1} limit 100 ")
     Set<Entity> findEntities(Long fortressId, Long skip);
 
+    @Query(  value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
+            " where id(fortress)={0} " +
+            " return track.metaKey " +
+            " limit {1} ")
+    Collection<String> findEntitiesWithLimit(Long id, int limit);
+
     @Query( elementClass = EntityNode.class, value =
             " match (fortress:Fortress)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
                     " and entity.callerRef ={1}" +
@@ -59,17 +65,18 @@ public interface EntityRepo extends GraphRepository<EntityNode> {
             "return entities ")
     Collection<Entity> findEntities(Long id, Collection<String> toFind);
 
-    @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity)-[other]-(:FortressUser) where id(f)={0} delete other")
-    void purgePeopleRelationships(Long fortressId);
+    @Query(value = "match (meta:Entity)-[other]-(:FortressUser) where meta.metaKey in{0} delete other")
+    void purgePeopleRelationships(Collection<String> entities);
 
-    @Query(value = "match (f:Fortress)-[track:TRACKS]->(meta:Entity)-[otherRlx]-(:Entity) where id(f)={0} delete otherRlx")
-    void purgeCrossReferences(Long fortressId);
+    @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.metaKey in {0} delete otherRlx")
+    void purgeCrossReferences(Collection<String> entities);
 
-    @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where id(f)={0} delete track, entity ")
-    void purgeEntities(Long fortressId);
+    @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where entity.metaKey in {0} delete track, entity ")
+    void purgeEntities(Collection<String> entities);
 
     @Query( elementClass = EntityNode.class,value = "match (entity:Entity) " +
             " where id(entity)in {0} " +
             "return entity ")
     Collection<Entity> getEntities(Collection<Long> entities);
+
 }

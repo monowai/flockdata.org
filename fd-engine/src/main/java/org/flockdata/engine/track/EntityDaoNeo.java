@@ -442,26 +442,26 @@ public class EntityDaoNeo {
     }
 
     @Transactional
-    public void purgeTagRelationships(Fortress fortress) {
+    public void purgeTagRelationships(Collection<String> entities) {
         // ToDo: Check if this works with huge datasets - it' doesn't fix via batch
-        trackLogRepo.purgeTagRelationships(fortress.getId());
+        trackLogRepo.purgeTagRelationships(entities);
     }
 
     @Transactional
-    public void purgeFortressLogs(Fortress fortress) {
-        trackLogRepo.purgeLogsWithUsers(fortress.getId());
-        trackLogRepo.purgeFortressLogs(fortress.getId());
+    public void purgeFortressLogs(Collection<String> entities) {
+        trackLogRepo.purgeLogsWithUsers(entities);
+        trackLogRepo.purgeFortressLogs(entities);
     }
 
     @Transactional
-    public void purgePeopleRelationships(Fortress fortress) {
-        entityRepo.purgePeopleRelationships(fortress.getId());
+    public void purgePeopleRelationships(Collection<String> entities) {
+        entityRepo.purgePeopleRelationships(entities);
     }
 
     @Transactional
-    public void purgeEntities(Fortress fortress) {
-        entityRepo.purgeCrossReferences(fortress.getId());
-        entityRepo.purgeEntities(fortress.getId());
+    public void purgeEntities(Collection<String> entities) {
+        entityRepo.purgeCrossReferences(entities);
+        entityRepo.purgeEntities(entities);
     }
 
     @Transactional
@@ -501,5 +501,9 @@ public class EntityDaoNeo {
         if (inflate)
             template.fetch(e);
         return e;
+    }
+
+    public Collection<String> getEntityBatch(Long id, int limit) {
+        return entityRepo.findEntitiesWithLimit(id, limit );
     }
 }
