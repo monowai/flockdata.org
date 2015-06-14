@@ -35,6 +35,7 @@ import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.model.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,9 @@ public class AdminService implements EngineAdminService {
     SearchServiceFacade searchService;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     KvService kvService;
 
     @Autowired
@@ -82,12 +86,28 @@ public class AdminService implements EngineAdminService {
 
     @Async("fd-engine")
     public Future<Boolean> purge(Company company, Fortress fortress) throws FlockException {
-        // ToDo: Needs to be heavily reworked
         // Rename the exiting fortress and flag it as deleted.
         // Batch the entities for deletion. Log Content could be stored across multiple KVstores for a
         // single fortress
+        NumberFormat nf = NumberFormat.getInstance();
         String indexName = fortress.getIndexName();
-        entityService.purge(fortress);
+
+        StopWatch watch = new StopWatch("Purge Fortress " + fortress );
+        watch.start();
+        boolean keepRunning ;
+        schemaService.purge(fortress);
+        entityService.purgeFortressDocs(fortress);
+        long total = 0;
+        do {
+            Collection<String> entities = entityService.getEntityBatch(fortress, 2000);
+            entityService.purge(fortress, entities);
+            keepRunning = entities.size()> 0;
+            total = total + entities.size();
+            if (total % 100000 == 0)
+                logger.info("Progress update - {} entities purged ... ", nf.format(total));
+
+        } while (keepRunning);
+
         if (fortress.isStoreEnabled() && engineConfig.getKvStore() != KvService.KV_STORE.NONE) {
             logger.info("Purging KV");
             kvService.purge(fortress.getIndexName());
@@ -95,7 +115,9 @@ public class AdminService implements EngineAdminService {
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(fortress.getIndexName());
-        logger.info("Completed purge of indexed data [{}]", indexName);
+        watch.stop();
+        logger.info("Completed purge. Removed " + nf.format(total) + " entities for fortress " + fortress);
+
         return new AsyncResult<>(true);
 
     }
