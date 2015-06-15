@@ -289,8 +289,6 @@ public class TagDaoNeo4j {
     }
 
     Tag tagByKey(String theLabel, String tagKey) {
-        logger.debug("Cache miss, {}:{}", theLabel, tagKey);
-
         StopWatch watch =getWatch(theLabel + " / " + tagKey, "Find Tag");
 
         Collection<TagNode>tags = tagRepo.findByKey(tagKey);
@@ -303,26 +301,26 @@ public class TagDaoNeo4j {
             }
         }
 
-        logger.debug("{} Not found by key {}", theLabel, tagKey);
+        logger.trace("{} Not found by key {}", theLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         Tag tResult = null;
         for (Tag tag : tags) {
             if (tag.getLabel().equalsIgnoreCase(theLabel) ) {
-                if ( tResult == null)
+                if ( tResult == null) {
                     tResult = tag;
-                else {
+                } else {
                     // Deleting tags that should not exist here
                     template.delete(tag); // Concurrency issue under load ?
                 }
             }
         }
         if ( tResult != null ) {
-            stopWatch(watch, "{}/{}", theLabel, tagKey);
+            stopWatch(watch, "{} - {}/{}", "byKey", theLabel, tagKey);
             return tResult;
         }
 
-        logger.debug("Locating by alias {}, {}", theLabel, tagKey);
+        logger.trace("Locating by alias {}, {}", theLabel, tagKey);
         // Locate by Alias
         String query;
         //optional match ( c:Country {key:"zm"}) with c optional match (a:CountryAlias {key:"zambia"})<-[HAS_ALIAS]-(t:_Tag) return c,t;
@@ -341,14 +339,17 @@ public class TagDaoNeo4j {
                 tagResult = getTag(mapResult);
             } else {
                 Tag toDelete = getTag(mapResult);
+                logger.debug("Deleting duplicate {}", toDelete);
                 if (toDelete != null)
                     template.delete(toDelete);
-                //logger.info("Should we delete {}", toDelete);
-
             }
 
         }
-        stopWatch(watch, "{}/{}", theLabel, tagKey);
+        if ( tagResult == null )
+            logger.trace("Not found {}, {}", theLabel, tagKey);
+        else
+            stopWatch(watch, "{} - {}/{}", "byAlias", theLabel, tagKey);
+
         return tagResult;
     }
 
