@@ -274,7 +274,7 @@ public class QueryDaoES implements QueryDao {
         watch.start(queryParams.toString());
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
-            types = queryParams.getTypes();
+            types = EntitySearchSchema.parseDocTypes(queryParams.getTypes());
         }
         SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
                 .setTypes(types)
