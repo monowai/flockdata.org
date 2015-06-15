@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -147,12 +147,6 @@ public class KvManager implements KvService {
             logger.debug("Sync write begins {}", kvBean);
             doKvWrite(kvBean);
         }
-    }
-
-
-    void doKvWriteAsync(KvContentBean kvBean) {
-        kvGateway.doKvWrite(kvBean);
-        //return new AsyncResult<>(null);
     }
 
     /**
