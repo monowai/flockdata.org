@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -37,7 +37,6 @@ import org.neo4j.graphdb.schema.ConstraintCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -214,14 +213,15 @@ public class SchemaDaoNeo4j {
         return Boolean.TRUE;
     }
 
-    @Cacheable("labels")
+    //@Cacheable("labels")
     @Transactional
     public boolean makeLabelConstraint(String label) {
         logger.debug("Begin tag constraint - [{}]", label);
 
         // Constraint automatically creates and index
         try {
-            template.query("create constraint on (t:`" + label + "`) assert t.key is unique", null);
+            String cLabel = label.contains(" ") || label.contains("/") ?"`"+label+"`": label;
+            template.query("create constraint on (t:" + cLabel + ") assert t.key is unique", null);
         } catch (InvalidDataAccessResourceUsageException e ){
             throw (e);
         }
