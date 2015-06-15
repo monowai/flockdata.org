@@ -78,4 +78,17 @@ public class EntitySearchSchema {
         return prefix + queryParams.getFortress().toLowerCase();
     }
 
+    /**
+     *
+     * @param types unparsed docTypes
+     * @return lowercase doc types
+     */
+    public static String[] parseDocTypes(String[] types) {
+        String[] results = new String[types.length];
+        int i = 0;
+        for (String type : types) {
+            results[i]= type.toLowerCase();
+        }
+        return results;
+    }
 }
