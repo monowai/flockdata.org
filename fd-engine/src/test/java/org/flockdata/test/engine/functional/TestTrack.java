@@ -42,6 +42,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StopWatch;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -1054,6 +1055,44 @@ public class TestTrack extends EngineBase {
         assertNotNull(bytes);
     }
 
+    @Test
+    public void dates_SameDateTwoChanges() throws Exception {
+        logger.debug("## dates_SameDateTwoChanges");
+        SystemUser su = registerSystemUser("dates_SameDateTwoChanges", "user");
+
+        FortressInputBean fortressBean = new FortressInputBean("dates_SameDateTwoChanges", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
+
+        String created = "2010-11-20 11:30:00"; // Create
+        String fUpdate = "2010-11-21 11:45:00"; // First Update
+
+        DateTime createDate = new DateTime(Timestamp.valueOf(created));
+        DateTime updateDate = new DateTime(Timestamp.valueOf(fUpdate));
+
+        EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", createDate);
+        ContentInputBean cib = new ContentInputBean(Helper.getSimpleMap("key", 1));
+        cib.setWhen(updateDate.toDate());
+        inputBean.setContent(cib);
+
+        TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean);
+        assertEquals(1, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));
+
+        // Same date, but different content - should create a new log
+        cib = new ContentInputBean(Helper.getSimpleMap("key", 2));
+        cib.setWhen(updateDate.toDate());
+        inputBean.setContent(cib);
+
+        result = mediationFacade.trackEntity(fortress, inputBean);
+        assertEquals(1, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));
+        EntityLog log = logService.getLastLog(result.getEntity());
+        assertEquals(Long.valueOf(updateDate.getMillis()), log.getFortressWhen());
+        KvContent kvContent = kvService.getContent(result.getEntity(), log.getLog());
+        assertNotNull(kvContent);
+        Object value = kvContent.getWhat().get("key");
+        assertNotNull(value);
+        assertEquals(2, Integer.parseInt(value.toString()));
+
+    }
 
     private void compareUser(Entity entity, String userName) {
         FortressUser fu = fortressService.getUser(entity.getLastUser().getId());
