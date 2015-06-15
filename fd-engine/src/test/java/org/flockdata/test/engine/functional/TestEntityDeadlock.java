@@ -110,7 +110,7 @@ public class TestEntityDeadlock extends EngineBase {
                     assertEquals(id, entityTags.iterator().next().getTag().getId());
             }
         }
-        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getName()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getCode()));
 
         createdTags = tagService.findTags(fortress.getCompany(), "Deadlock");
         assertEquals(false, createdTags.isEmpty());
