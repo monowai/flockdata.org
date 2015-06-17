@@ -332,7 +332,6 @@ public class TestFdIntegration {
     }
 
     @Test
-//     FixMe - ES 1.6 and attachment tracking not working
     public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
