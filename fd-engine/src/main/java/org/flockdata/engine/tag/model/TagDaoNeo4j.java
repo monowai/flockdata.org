@@ -19,16 +19,15 @@
 
 package org.flockdata.engine.tag.model;
 
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.engine.tag.TagRepo;
-import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.TagPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -39,6 +38,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * User: Mike Holdsworth
@@ -54,46 +54,19 @@ public class TagDaoNeo4j {
     @Autowired
     Neo4jTemplate template;
 
-    @Autowired
-    PlatformConfig engineAdmin;
-
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 
-    public Tag save(Company company, TagInputBean tagInput) {
-        String tagSuffix = engineAdmin.getTagSuffix(company);
+    public Collection<TagResultBean>save(TagPayload payload){
+        Collection<TagResultBean>results = new ArrayList<>(payload.getTags().size());
         List<String> createdValues = new ArrayList<>();
-        return save(company, tagInput, tagSuffix, createdValues, false);
-    }
-
-    Tag save(Company company, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
-        String tagSuffix = engineAdmin.getTagSuffix(company);
-        return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
-    }
-
-    public Collection<TagResultBean> save(Company company, Iterable<TagInputBean> tagInputs, boolean suppressRelationships) {
-        String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<String> createdValues = new ArrayList<>();
-        Collection<TagResultBean> results = new ArrayList<>();
-        TagResultBean tagResultBean ;
-        Tag tag = null;
-        for (TagInputBean tagInputBean : tagInputs) {
-            try {
-                tag = save(company, tagInputBean, tagSuffix, createdValues, suppressRelationships);
-            } catch (FlockDataTagException te) {
-                logger.error("Tag Exception [{}]", te.getMessage());
-                tagInputBean.getServiceMessage(te.getMessage());
-
-            }
-            tagResultBean = new TagResultBean(tagInputBean, tag);
-            results.add(tagResultBean);
-
-        }
+        results.addAll(payload.getTags().stream().map(tagInputBean -> new TagResultBean(
+                save(payload.getCompany(), tagInputBean, payload.getSuffix(), createdValues, payload.isIgnoreRelationships()))).collect(Collectors.toList()));
         return results;
     }
 
-    public Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        Tag startTag = findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
+        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -120,7 +93,7 @@ public class TagDaoNeo4j {
         for (String rlxName : targets.keySet()) {
             Collection<TagInputBean> associatedTag = targets.get(rlxName);
             for (TagInputBean tagInputBean : associatedTag) {
-                processAssociatedTags(company, startTag, tagInputBean, rlxName, createdValues, suppressRelationships);
+                processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, createdValues, suppressRelationships);
             }
 
         }
@@ -167,8 +140,8 @@ public class TagDaoNeo4j {
 
     }
 
-    public void createAlias(Company company, Tag tag, String label, AliasInputBean aliasInput) {
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+    public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
+        String theLabel = resolveLabel(label, suffix);
         template.fetch(tag);
         template.fetch(tag.getAliases());
         if (tag.hasAlias(theLabel, parseKey(aliasInput.getCode())))
@@ -184,17 +157,16 @@ public class TagDaoNeo4j {
      * Create unique relationship between the tag and the node
      *
      * @param company               associate the tag with this company
-     * @param startTag              notional start node
+     * @param tagSuffix
+     *@param startTag              notional start node
      * @param associatedTag         tag to make or get
      * @param rlxName               relationship name
      * @param createdValues         running list of values already created - performance op.
-     * @param suppressRelationships
-     * @return the created tag
+     * @param suppressRelationships      @return the created tag
      */
-    void processAssociatedTags(Company company, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
-        // Careful - this is recursive
-        // ToDo - idea = create all tagInputs first then just create the relationships
-        Tag endTag = save(company, associatedTag, createdValues, suppressRelationships);
+    void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
+
+        Tag endTag = save(company, tagSuffix, associatedTag, createdValues, suppressRelationships);
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
@@ -208,6 +180,12 @@ public class TagDaoNeo4j {
         createRelationship(rlxName, createdValues, startId, endId, key);
     }
 
+    Tag save(Company company, String tagSuffix, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
+
+        return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
+    }
+
+
     private void createRelationship(String rlxName, Collection<String> createdValues, Tag startTag, Tag endTag, String key) {
         if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
             template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
@@ -215,11 +193,11 @@ public class TagDaoNeo4j {
         createdValues.add(key);
     }
 
-    public Collection<Tag> findDirectedTags(Tag startTag, Company company, boolean b) {
+    public Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
         //Long coTags = getCompanyTagManager(companyId);
         //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
         String query =
-                " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + engineAdmin.getTagSuffix(company) + ") " +
+                " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + tagSuffix + ") " +
                         "   where id(tag)={tagId} return otherTag";
         Map<String, Object> params = new HashMap<>();
         params.put("tagId", startTag.getId());
@@ -241,11 +219,11 @@ public class TagDaoNeo4j {
         return results;
     }
 
-    public Collection<Tag> findTags(Company company) {
-        return findTags(company, Tag.DEFAULT + (engineAdmin.getTagSuffix(company)));
-    }
+//    public Collection<Tag> findTags(Company company) {
+//        return findTags(Tag.DEFAULT + (engineAdmin.getTagSuffix(company)));
+//    }
 
-    public Collection<Tag> findTags(Company company, String label) {
+    public Collection<Tag> findTags(String label) {
         Collection<Tag> tagResults = new ArrayList<>();
         // ToDo: Match to company - something like this.....
         //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
@@ -262,10 +240,10 @@ public class TagDaoNeo4j {
         return tagResults;
     }
 
-    public Collection<String> getExistingLabels() {
-        return template.getGraphDatabase().getAllLabelNames();
-
-    }
+//    public Collection<String> getExistingLabels() {
+//        return template.getGraphDatabase().getAllLabelNames();
+//
+//    }
 
 
     @Autowired
@@ -273,7 +251,8 @@ public class TagDaoNeo4j {
 
     StopWatch getWatch(String id, String message ){
         StopWatch watch = null;
-        if (engineAdmin.isTiming()) {
+
+        if (logger.isDebugEnabled()) {
             watch = new StopWatch(id);
             watch.start(id);
         }
@@ -365,13 +344,15 @@ public class TagDaoNeo4j {
         tagResult = (o == null ? null : template.projectTo(o, TagNode.class));
         return tagResult;
     }
+    public Tag findTagNode(Company company, String suffix, String label, String tagCode, boolean inflate) {
+        return findTagNode(suffix, label, tagCode, inflate);
+    }
 
-//    @Cacheable(value = "companyTag", unless = "#result == null")
-    public Tag findTagNode(Company company, String label, String tagCode, boolean inflate) {
-        if (tagCode == null || company == null)
+    Tag findTagNode(String suffix, String label, String tagCode, boolean inflate) {
+        if (tagCode == null )
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
-        String theLabel = resolveLabel(label, engineAdmin.getTagSuffix(company));
+        String theLabel = resolveLabel(label, suffix);
 
         Tag tag = tagByKey(theLabel, parseKey(tagCode));
         if ( tag!=null && inflate)
@@ -396,9 +377,9 @@ public class TagDaoNeo4j {
 
     }
 
-    public void purge(Company company, String label) {
+    public void purge(Company company, String suffix, String label) {
         String query;
-        query = "match (tag:`" + resolveLabel(label, engineAdmin.getTagSuffix(company)) + "`) optional match(tag)-[r]-() delete r,tag";
+        query = "match (tag:`" + resolveLabel(label, suffix ) + "`) optional match(tag)-[r]-() delete r,tag";
 
         // ToDo: Tidy up concepts in use
         template.query(query, null);

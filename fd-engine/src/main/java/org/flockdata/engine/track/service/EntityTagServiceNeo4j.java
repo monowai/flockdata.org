@@ -146,14 +146,13 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * <p>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
-     *
-     * @param company
+     *  @param company
      * @param entity          Entity to associate userTags with
      * @param lastLog
      * @param entityInputBean payload
      */
     @Override
-    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) {
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
         Collection<EntityTag> tagsToMove = new ArrayList<>();
         Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(entity));

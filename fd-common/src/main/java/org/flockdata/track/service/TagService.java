@@ -27,11 +27,8 @@ import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -40,9 +37,9 @@ import java.util.concurrent.ExecutionException;
  */
 public interface TagService {
 
-    Tag createTag(Company company, TagInputBean tagInput);
+    Tag createTag(Company company, TagInputBean tagInput) throws FlockException;
 
-    Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException;
 
     Tag findTag(Company company, String tagCode);
 

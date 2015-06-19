@@ -14,9 +14,11 @@
         <module>fd-client</module>
         <module>fd-store</module>
         <module>fd-engine</module>
+        <module>fd-neo</module>
         <module>fd-search</module>
         <module>fd-spring</module>
         <module>fd-integration-tests</module>
+
     </modules>
 
     <properties>

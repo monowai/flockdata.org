@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -41,7 +41,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -85,10 +84,7 @@ public class TagRetryService {
             return tagService.createTags(company, tagInputBeans);
         } catch (FlockException e) {
             throw (e);
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            logger.error("Track Error", e);
         }
-        return new ArrayList<>();
     }
 
     @Async("fd-tag")
