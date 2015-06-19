@@ -22,7 +22,6 @@ package org.flockdata.track.service;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.bean.TrackResultBean;
 
 import java.util.Collection;
 
@@ -34,8 +33,6 @@ import java.util.Collection;
 public interface SchemaService {
 
     Boolean ensureSystemIndexes(Company company);
-
-    void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
 
     void purge(Fortress fortress);
 

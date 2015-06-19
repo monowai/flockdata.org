@@ -16,18 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.flockdata.company.service;
 
-import org.flockdata.configure.EngineConfig;
-import org.flockdata.registration.service.RegistrationService;
+import org.flockdata.company.model.SystemUserNode;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.company.model.SystemUserNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.KeyGenService;
+import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     SchemaService schemaService;
 
     @Autowired
-    EngineConfig engineConfig;
+    PlatformConfig engineConfig;
 
     @Autowired
     private SecurityHelper securityHelper;

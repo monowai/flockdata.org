@@ -19,12 +19,13 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,10 @@ public class ConceptRetryService {
     LogRetryService logRetryService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
+
+    @Autowired
+    PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(ConceptRetryService.class);
 
@@ -77,8 +81,11 @@ public class ConceptRetryService {
 
     @Transactional
     void doRegister(Fortress fortress, Iterable<TrackResultBean> resultBeans) throws InterruptedException, FlockException, ExecutionException, IOException {
+        if (!engineConfig.isConceptsEnabled())
+            return;
+
         logger.debug("Register concepts");
-        schemaService.registerConcepts(fortress, resultBeans);
+        conceptService.registerConcepts(fortress, resultBeans);
         logger.debug("Completed concept registrations");
 
     }
