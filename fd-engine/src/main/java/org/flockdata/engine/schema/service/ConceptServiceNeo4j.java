@@ -30,7 +30,6 @@ import org.flockdata.track.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,16 +37,34 @@ import java.util.*;
 
 /**
  * Reporting/Schema monitoring service
+ * Whenever an entity is tracked, it's TrackResultBean is sent to this service so that the top
+ * down meta data can be logged.
+ *
+ * Concepts represent the Tags and Entities that are being tracked in this service
+ * An Entity is represented as a DocumentType. It exists in both it's DocumentType.name index
+ * and a generic Entity index
+ *
+ * Tags are also called Concepts. These are also indexed uniquely withing a Label that identifies
+ * their type and a generic"Tags" Label.
+ *
  * Created by mike on 19/06/15.
  */
 
 @Service
+@Transactional
 public class ConceptServiceNeo4j {
     @Autowired
     ConceptDaoNeo4j conceptDao;
 
     static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo4j.class);
 
+    /**
+     * Entities being tracked as "DocumentTypes"
+     *
+     * @param company who owns the docs
+     * @return Docs in use
+     *
+     */
     @Transactional
     public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
@@ -66,8 +83,6 @@ public class ConceptServiceNeo4j {
      * @param withRelationships should the relationships also be returned
      * @return tags that are actually in use
      */
-
-    @Transactional
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
 
         return conceptDao.findConcepts(company, documentNames, withRelationships);
@@ -79,8 +94,7 @@ public class ConceptServiceNeo4j {
      * @param documentCode name of the doc type
      * @return resolved document. Created if missing
      */
-    @Transactional
-    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
+//    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
@@ -94,7 +108,6 @@ public class ConceptServiceNeo4j {
      * @param createIfMissing create document types that are missing
      * @return created DocumentType
      */
-    @Transactional
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
         if (documentCode == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
