@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -50,7 +51,11 @@ public class SchemaServiceNeo4j implements SchemaService {
     SchemaDaoNeo4j schemaDao;
 
     @Autowired
+    ConceptDaoNeo4j conceptDao;
+
+    @Autowired
     PlatformConfig engineConfig;
+
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     public Boolean ensureSystemIndexes(Company company) {
@@ -87,7 +92,7 @@ public class SchemaServiceNeo4j implements SchemaService {
             throw new IllegalArgumentException("DocumentType cannot be null");
         }
 
-        return schemaDao.findDocumentType(fortress, documentCode, createIfMissing);
+        return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
 
     }
 
@@ -124,7 +129,7 @@ public class SchemaServiceNeo4j implements SchemaService {
         }
         logger.debug("About to register via SchemaDao");
         if (!payload.isEmpty())
-            schemaDao.registerConcepts(fortress.getCompany(), payload);
+            conceptDao.registerConcepts(payload);
     }
 
     /**
@@ -140,27 +145,15 @@ public class SchemaServiceNeo4j implements SchemaService {
     @Transactional
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
 
-        return schemaDao.findConcepts(company, documentNames, withRelationships);
+        return conceptDao.findConcepts(company, documentNames, withRelationships);
 
     }
-
-    @Override
-    @Transactional
-    public void createDocTypes(Iterable<EntityInputBean> entities, Fortress fortress) {
-        ArrayList<String> docTypes = new ArrayList<>();
-        for (EntityInputBean entity : entities) {
-            if (!docTypes.contains(entity.getDocumentName()))
-                docTypes.add(entity.getDocumentName());
-        }
-        schemaDao.createDocTypes(docTypes, fortress);
-    }
-
 
     @Override
     @Transactional
     public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
-        Collection<DocumentType> rawDocs = schemaDao.getCompanyDocumentsInUse(company);
+        Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
         for (DocumentType rawDoc : rawDocs) {
             results.add(new DocumentResultBean(rawDoc));
         }
@@ -173,15 +166,18 @@ public class SchemaServiceNeo4j implements SchemaService {
     }
 
     @Override
-    public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs) {
-        schemaDao.waitForIndexes();
+    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
 
-        schemaDao.ensureUniqueIndexes(tagInputs);
-        schemaDao.waitForIndexes();
-        return true;
+        try {
+            schemaDao.waitForIndexes();
+            schemaDao.ensureUniqueIndexes(tagPayload).get();
+            schemaDao.waitForIndexes();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Trying to ensure unique indexes");
+        }
+
+        return false;
     }
 
-    public Collection<String> getKnownLabels() {
-        return schemaDao.getAllLabels();
-    }
 }

@@ -21,6 +21,7 @@ package org.flockdata.test;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.HelloWorld;
+import org.flockdata.track.TagPayload;
 import org.junit.Test;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
@@ -49,13 +50,14 @@ public class TestHelloWorld {
             TagInputBean tagInputBean = new TagInputBean("Code", "Label");
             Collection<TagInputBean> tags = new ArrayList<>();
             tags.add(tagInputBean);
+            TagPayload payload = new TagPayload(tags);
             String uri = server.httpURI().resolve("flockdata/makeTags").toString();
             // When
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", MediaType.APPLICATION_JSON);
             HTTP.Builder builder = HTTP.withHeaders(headers);
             HTTP.Response response =
-                    builder.POST(uri, tags);
+                    builder.POST(uri, payload);
 
             // Then
             assertEquals(200, response.status());

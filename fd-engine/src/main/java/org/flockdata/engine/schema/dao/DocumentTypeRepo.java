@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -43,7 +43,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentTypeNode> {
                     "optional MATCH (company:FDCompany)<-[:TAG_INDEX]-(tag:TagLabel) " +
                             "        where id(company)={0} and tag.companyKey ={1}" +
                             "       return tag")
-    TagLabelNode findCompanyTag(Long companyId, String companyKey);
+    TagLabelNode schemaTagDefExists(Long companyId, String companyKey);
 
 
     @Query(elementClass = DocumentTypeNode.class,

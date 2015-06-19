@@ -70,16 +70,17 @@ public class TagRetryService {
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
+
     public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans, boolean suppressRelationships) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
-        if (tagInputBeans.isEmpty())
-            return new ArrayList<>();
         boolean schemaReady;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
         } while (!schemaReady);
-        //logger.debug("Schema Indexes appear to be in place");
 
+
+        if (tagInputBeans.isEmpty())
+            return new ArrayList<>();
         try {
             return tagService.createTags(company, tagInputBeans);
         } catch (FlockException e) {

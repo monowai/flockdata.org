@@ -132,7 +132,7 @@ public class TagServiceNeo4j implements TagService {
     @Override
     public void purgeLabel(Company company, String label) {
         String suffix = engineAdmin.getTagSuffix(company);
-        tagDao.purge(company, suffix, label);
+        tagDao.purge(suffix, label);
     }
 
     @Override

@@ -19,31 +19,23 @@
 
 package org.flockdata.engine.schema.dao;
 
-import org.flockdata.engine.schema.model.ConceptNode;
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.schema.model.TagLabelNode;
+import org.flockdata.engine.schema.service.ConceptDaoNeo4j;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Relationship;
-import org.flockdata.track.bean.ConceptInputBean;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.model.Concept;
-import org.flockdata.track.model.DocumentType;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.schema.ConstraintCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,11 +48,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Repository
 public class SchemaDaoNeo4j {
-    @Autowired
-    DocumentTypeRepo documentTypeRepo;
 
     @Autowired
-    ConceptTypeRepo conceptTypeRepo;
+    ConceptDaoNeo4j conceptDaoNeo4j;
 
     @Autowired
     Neo4jTemplate template;
@@ -68,104 +58,34 @@ public class SchemaDaoNeo4j {
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
     /**
-     * The general sSchema is tracked so that we know what the general structure is
-     *
-     * @param company   who owns the tags
-     * @param labelName labelName being create
-     * @return true if it was created for the first time
-     */
-    public boolean registerTag(Company company, String labelName) {
-        if (isSystemLabel(labelName))
-            return true;
-
-        if (!tagExists(company, labelName)) {
-            createTagLabel(company, labelName);
-        }
-        return true;
-    }
-
-    @Async
-    void createTagLabel(Company company, String labelName) {
-        TagLabelNode tagLabelNode = new TagLabelNode(company, labelName);
-        template.saveOnly(tagLabelNode);
-//        logger.debug("Creating Tag Labels");
-//        String cypher = "merge (tag:TagLabel:TagLabel { name:{name}, companyKey:{key}}) " +
-//                "with tag " +
-//                "match (c:FDCompany) where id(c) = {cid} " +
-//                "merge (c)<-[:TAG_INDEX]-(tag) " +
-//                "return tag";
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("name", labelName);
-//        params.put("key", parseTagLabel(company, labelName));
-//        params.put("cid", company.getId());
-//
-//        template.query(cypher, params);
-    }
-
-    /**
-     * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
-     *
-     * @param fortress        fortress generating
-     * @param docName         name of the Label
-     * @param createIfMissing if not found will create
-     * @return the node
-     */
-    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, docName);
-
-        if (docResult == null && createIfMissing) {
-            docResult = documentExists(fortress, docName);
-            if (docResult == null) {
-
-                docResult = template.save(new DocumentTypeNode(fortress, docName));
-            }
-        }
-        if (docResult != null && docResult.getFortress() == null) {
-            docResult.setFortress(fortress);
-        }
-        template.fetch(docResult);
-        return docResult;
-
-    }
-
-    @Transactional
-    public Collection<DocumentType> getFortressDocumentsInUse(Fortress fortress) {
-        return documentTypeRepo.getFortressDocumentsInUse(fortress.getId());
-    }
-
-    public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
-        return documentTypeRepo.findAllDocuments(company);
-    }
-
-    DocumentType documentExists(Fortress fortress, String docCode) {
-        assert fortress != null;
-        String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentTypeNode.parse(fortress, docCode);
-        return documentTypeRepo.findFortressDocCode(arg);
-    }
-
-    private boolean tagExists(Company company, String labelName) {
-        return documentTypeRepo.findCompanyTag(company.getId(), TagLabelNode.parseTagLabel(company, labelName)) != null;
-    }
-
-    /**
      * Make sure a unique index exists for the tag
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
      *
-     * @param tagInputs collection to process
+     * @param tagPayload collection to process
      */
     @Transactional
-    public Boolean ensureUniqueIndexes(Iterable<TagInputBean> tagInputs) {
+    @Async
+    public Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
         Collection<String> knownLabels = getAllLabels();
-        Collection<String> toCreate = getLabelsToCreate(tagInputs, knownLabels);
-        int size = toCreate.size();
+        Collection<String> labels = getLabelsToCreate(tagPayload, knownLabels);
+        int size = labels.size();
 
         if (size > 0) {
             logger.debug("Made " + size + " constraints");
-            return makeConstraints(toCreate);
+            for (String label : labels) {
+                boolean quoted = label.contains(" ") || label.contains("/");
+
+                String cLabel = quoted ?"`"+label: label;
+
+                template.query("create constraint on (t:" + cLabel + (quoted? "'":"") +") assert t.key is unique", null);
+                template.query("create constraint on (t:" + cLabel + "Alias "+ (quoted?"'":"")+") assert t.key is unique", null);
+
+            }
+
         }
         logger.debug("No label constraints required");
 
-        return Boolean.TRUE;
+        return new AsyncResult<>(Boolean.TRUE);
     }
 
     private Collection<String> getLabelsToCreate(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
@@ -203,164 +123,18 @@ public class SchemaDaoNeo4j {
         return template.getGraphDatabase().getAllLabelNames();
     }
 
-    Boolean makeConstraints(Collection<String> labels) {
-        //boolean made = false;
-        for (String label : labels) {
-            makeLabelConstraint(label);
-            makeLabelConstraint(label + "Alias");
-        }
-
-        return Boolean.TRUE;
-    }
-
-    //@Cacheable("labels")
-    @Transactional
-    public boolean makeLabelConstraint(String label) {
-        logger.debug("Begin tag constraint - [{}]", label);
-
-        // Constraint automatically creates and index
-        try {
-            String cLabel = label.contains(" ") || label.contains("/") ?"`"+label+"`": label;
-            template.query("create constraint on (t:" + cLabel + ") assert t.key is unique", null);
-        } catch (InvalidDataAccessResourceUsageException e ){
-            throw (e);
-        }
-
-        logger.debug("Tag constraint created - [{}]", label);
-        waitForConstraint(label);
-        return true;
-    }
-
     public Boolean ensureSystemConstraints(Company company) {
         logger.debug("Creating system constraints for {} ", company.getName());
         template.query("create constraint on (t:Country) assert t.key is unique", null);
         template.query("create constraint on (t:CountryAlias) assert t.key is unique", null);
         template.query("create constraint on (t:State) assert t.key is unique", null);
         template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
-//        Due to SDN restrictions, this must have an _ else it will not work well
-        //template.query("create constraint on (t:_TagLabel) assert t.companyKey is unique", null);
-        //template.query("create constraint on (t:TagLabel) assert t.companyKey is unique", null);
         // ToDo: Create a city node. The key should be country.{state}.city
-        template.query("create constraint on (t:City) assert t.key is unique", null);
+        //template.query("create constraint on (t:City) assert t.key is unique", null);
         logger.debug("Created system constraints");
         return true;
     }
 
-    public void registerConcepts(Company company, Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
-        logger.trace("Registering concepts");
-        Set<DocumentType> documentTypes = conceptInput.keySet();
-        Collection<String> docs = new ArrayList<>(documentTypes.size());
-        for (String doc : docs) {
-            docs.add(doc);
-        }
-
-        for (DocumentType docType : conceptInput.keySet()) {
-            logger.trace("Looking for existing concepts {}", docType.getName());
-            DocumentTypeNode documentTypeNode = (DocumentTypeNode) docType;
-            template.fetch(documentTypeNode.getConcepts());
-
-            Collection<Concept> concepts = documentTypeNode.getConcepts();
-            logger.trace("[{}] - Found {} existing concepts", documentTypeNode.getName(), concepts.size());
-            boolean save = false;
-            for (ConceptInputBean concept : conceptInput.get(docType)) {
-                //logger.debug("Looking to create [{}]", concept.getName());
-                ConceptNode existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
-
-                for (String relationship : concept.getRelationships()) {
-                    if (existingConcept == null) {
-                        logger.debug("No existing concept found for [{}]. Creating it", relationship);
-                        existingConcept = new ConceptNode(concept.getName(), relationship, docType);
-                        save = true;
-                    } else {
-                        logger.trace("Found an existing concept {}", existingConcept);
-                        template.fetch(existingConcept.getRelationships());
-                        Relationship existingR = existingConcept.hasRelationship(relationship, docType);
-                        if (existingR == null) {
-                            existingConcept.addRelationship(relationship, docType);
-                            save = true;
-                            logger.debug("Creating {} concept for{}", relationship, existingConcept);
-                        }
-                    }
-                    // DAT-112 removed save check. ToDo: Room for optimization?
-                    if (!documentTypeNode.getConcepts().contains(existingConcept)) {
-                        documentTypeNode.add(existingConcept);
-                        logger.debug("Creating concept {}", existingConcept);
-                        save = true;
-                    }
-                }
-            }
-
-            if (save) {
-                logger.trace("About to register {} concepts", concepts.size());
-                documentTypeRepo.save(documentTypeNode);
-                logger.trace("{} Concepts registered", concepts.size());
-            }
-//            logger.debug("Concepts registered");
-
-        }
-    }
-
-    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> docNames, boolean withRelationships) {
-
-        // This is a hack to support DAT-126. It should be resolved via a query. At the moment, it's working, but that's it/
-        // Query should have the Concepts that the user is interested in as well.
-
-        // Query should look something link this:
-        // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
-        // where a.name="Sales" and c.name="Device"
-        // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
-        Set<DocumentResultBean> documentResults = new HashSet<>();
-        Set<DocumentType> documents;
-        if (docNames == null)
-            documents = documentTypeRepo.findAllDocuments(company);
-        else
-            documents = documentTypeRepo.findDocuments(company, docNames);
-
-//        ConceptNode userConcept = new ConceptNode("User");
-        for (DocumentType document : documents) {
-            template.fetch(document.getFortress());
-            template.fetch(document.getConcepts());
-            DocumentResultBean documentResult = new DocumentResultBean(document);
-            documentResults.add(documentResult);
-
-            if (withRelationships) {
-                for (Concept concept : document.getConcepts()) {
-
-                    template.fetch(concept);
-                    template.fetch(concept.getRelationships());
-                    ConceptResultBean conceptResult = new ConceptResultBean(concept.getName());
-
-                    documentResult.add(conceptResult);
-                    Collection<Relationship> relationshipResults = new ArrayList<>();
-                    for (Relationship existingRelationship : concept.getRelationships()) {
-                        if (existingRelationship.hasDocumentType(document)) {
-                            relationshipResults.add(existingRelationship);
-                        }
-                    }
-                    conceptResult.addRelationships(relationshipResults);
-                }
-                // Disabled until we figure out a need for this
-//                userConcept.addRelationship("CREATED_BY", document);
-//                if (!fauxDocument.getConcepts().isEmpty())
-//                    fauxDocument.getConcepts().add(new ConceptResultBean(userConcept));
-            } else {
-                // Just return the concepts
-                for (Concept concept : document.getConcepts()) {
-                    template.fetch(concept);
-                    documentResult.add(new ConceptResultBean(concept));
-                }
-                //fauxDocument.add(new ConceptResultBean(userConcept));
-            }
-        }
-        return documentResults;
-    }
-
-    public void createDocTypes(ArrayList<String> docCodes, Fortress fortress) {
-        for (String docType : docCodes) {
-            findDocumentType(fortress, docType, true);
-        }
-
-    }
 
     @Transactional
     public void purge(Fortress fortress) {
@@ -374,7 +148,7 @@ public class SchemaDaoNeo4j {
         template.query(docRlx, params);
     }
 
-    private boolean isSystemLabel(String index) {
+    public static boolean isSystemLabel(String index) {
         return (index.equals("Country") || index.equals("City"));
     }
 
@@ -382,15 +156,6 @@ public class SchemaDaoNeo4j {
     @Transactional
     public void waitForIndexes() {
         template.getGraphDatabaseService().schema().awaitIndexesOnline(6000, TimeUnit.MILLISECONDS);
-    }
-
-    @Transactional
-    public void waitForConstraint(String tagLabel) {
-        Label label = DynamicLabel.label(tagLabel);
-        ConstraintCreator constraint = null;
-        while (constraint == null)
-            constraint = template.getGraphDatabaseService().schema().constraintFor(label);
-
     }
 
 }
