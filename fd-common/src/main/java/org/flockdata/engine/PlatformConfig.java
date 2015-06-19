@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -36,7 +36,7 @@ public interface PlatformConfig {
 
     Map<String, String> getHealth();
 
-    public Map<String, String> getHealthAuth();
+    Map<String, String> getHealthAuth();
 
     boolean isMultiTenanted();
 
@@ -47,7 +47,7 @@ public interface PlatformConfig {
     @Value("${fd-engine.system.constraints:@null}")
     void setSystemConstraints(String constraints);
 
-    public KvService.KV_STORE getKvStore();
+    KvService.KV_STORE getKvStore();
 
     boolean isConceptsEnabled();
 
@@ -65,13 +65,13 @@ public interface PlatformConfig {
 
     boolean createSystemConstraints();
 
-    public Boolean isStoreEnabled();
+    Boolean isStoreEnabled();
 
     Boolean isSearchEnabled();
 
     void setSearchEnabled(String enabled);
 
-    public void setStoreEnabled(String enabled);
+    void setStoreEnabled(String enabled);
 
     boolean isTiming();
 }

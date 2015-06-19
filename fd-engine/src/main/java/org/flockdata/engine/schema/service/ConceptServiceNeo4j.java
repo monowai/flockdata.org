@@ -19,18 +19,22 @@
 
 package org.flockdata.engine.schema.service;
 
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
+import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.DocumentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Reporting/Schema monitoring service
@@ -41,6 +45,8 @@ import java.util.Set;
 public class ConceptServiceNeo4j {
     @Autowired
     ConceptDaoNeo4j conceptDao;
+
+    static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo4j.class);
 
     @Transactional
     public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
@@ -97,5 +103,35 @@ public class ConceptServiceNeo4j {
         return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
 
     }
+    public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
+        assert fortress != null;
+        logger.debug("Processing concepts for {}", fortress.getCompany());
+        Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
+        for (TrackResultBean resultBean : resultBeans) {
+            if (resultBean.getEntityBean() != null && resultBean.getEntityBean().getId() != null) {
+                DocumentType docType = resultBean.getDocumentType();
+                Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
+                if (conceptInputBeans == null) {
+                    conceptInputBeans = new ArrayList<>();
+                    payload.put(docType, conceptInputBeans);
+                }
 
+                EntityInputBean inputBean = resultBean.getEntityInputBean();
+                if (inputBean != null && inputBean.getTags() != null) {
+                    for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
+                        if (!inputTag.getEntityLinks().isEmpty()) {
+                            ConceptInputBean cib = new ConceptInputBean();
+                            cib.setRelationships(inputTag.getEntityLinks().keySet());
+                            cib.setName(inputTag.getLabel());
+                            if (!conceptInputBeans.contains(cib))
+                                conceptInputBeans.add(cib);
+                        }
+                    }
+                }
+            }
+        }
+        logger.debug("About to register via SchemaDao");
+        if (!payload.isEmpty())
+            conceptDao.registerConcepts(payload);
+    }
 }
