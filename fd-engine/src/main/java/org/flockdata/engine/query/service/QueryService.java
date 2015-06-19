@@ -20,7 +20,7 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.kv.none.EsGateway;
@@ -63,7 +63,7 @@ public class QueryService {
     EntityTagService tagService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Qualifier("fdSearchGateway")
     @Autowired

@@ -20,7 +20,6 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.TrackResultBean;
@@ -63,7 +62,7 @@ public class ConceptRetryService {
     LogRetryService logRetryService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Autowired
     PlatformConfig engineConfig;

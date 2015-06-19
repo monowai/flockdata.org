@@ -19,7 +19,7 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.service.CompanyService;
@@ -51,7 +51,7 @@ public class CompanyEP {
     CompanyService companyService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Autowired
     SecurityHelper securityHelper;
