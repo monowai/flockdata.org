@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -22,7 +22,6 @@ package org.flockdata.engine.schema.service;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -44,14 +43,14 @@ import java.util.concurrent.Future;
  */
 @Service
 @Async("fd-engine")
-public class SchemaRetryService {
+public class DocTypeRetryService {
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
 
-        DocumentType result = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+        DocumentType result = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
         return new AsyncResult<>(result);
     }
 }

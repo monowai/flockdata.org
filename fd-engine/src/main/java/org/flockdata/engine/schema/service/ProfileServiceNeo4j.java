@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -34,7 +34,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.model.DocumentType;
 import org.flockdata.track.model.Profile;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.SchemaService;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     FortressService fortressService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Autowired
     FdServerWriter fdServerWriter;
@@ -102,7 +101,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     @Override
     public void save(Company company, String fortressCode, String documentCode, ImportProfile profile) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type ");
         save(fortress, documentType, profile);
@@ -120,7 +119,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     @Override
     public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type ");
         process(company, fortress, documentType, file, async);
@@ -146,7 +145,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if ( fortress == null )
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
@@ -158,7 +157,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if ( fortress == null )
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
-        DocumentType documentType = schemaService.resolveByDocCode(fortress, documentCode, false);
+        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 

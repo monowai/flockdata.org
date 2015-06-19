@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.engine.track.model.EntityLogRelationship;
@@ -76,7 +77,7 @@ public class EntityServiceNeo4J implements EntityService {
     EntityTagService entityTagService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Autowired
     TxService txService;
@@ -272,7 +273,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = schemaService.resolveByDocCode(fortress, docTypeName);
+        DocumentType docType = conceptService.resolveByDocCode(fortress, docTypeName);
         return entityDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
@@ -448,7 +449,7 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Entity findByCallerRef(Fortress fortress, String documentName, String callerRef) {
 
-        DocumentType doc = schemaService.resolveByDocCode(fortress, documentName, false);
+        DocumentType doc = conceptService.resolveByDocCode(fortress, documentName, false);
         if (doc == null) {
             logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentName, callerRef);
             return null;
@@ -510,9 +511,9 @@ public class EntityServiceNeo4J implements EntityService {
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
             if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
-                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())) {
-                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             }
             assert (documentType != null);
             assert (documentType.getCode() != null);
@@ -585,7 +586,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             fromEntity = entityDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
-            DocumentType document = schemaService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
+            DocumentType document = conceptService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
             fromEntity = entityDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
@@ -606,7 +607,7 @@ public class EntityServiceNeo4J implements EntityService {
                 if (mh == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
-                    DocumentType documentType = schemaService.resolveByDocCode(f, entityKey.getDocumentType(), false);
+                    DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
                         EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCallerRef(entityKey.getCallerRef());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);

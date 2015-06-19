@@ -22,12 +22,9 @@ package org.flockdata.track.service;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * User: mike
@@ -38,15 +35,7 @@ public interface SchemaService {
 
     Boolean ensureSystemIndexes(Company company);
 
-    DocumentType resolveByDocCode(Fortress fortress, String documentType);
-
-    DocumentType resolveByDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
-
     void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
-
-    Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
-
-    Collection<DocumentResultBean> getDocumentsInUse(Company company);
 
     void purge(Fortress fortress);
 

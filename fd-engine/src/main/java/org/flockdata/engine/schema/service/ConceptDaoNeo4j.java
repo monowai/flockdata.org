@@ -127,13 +127,13 @@ public class ConceptDaoNeo4j {
             docResult = documentExists(fortress, docName);
             if (docResult == null) {
 
-                docResult = template.save(new DocumentTypeNode(fortress, docName));
+                docResult = documentTypeRepo.save(new DocumentTypeNode(fortress, docName));
             }
         }
         if (docResult != null && docResult.getFortress() == null) {
             docResult.setFortress(fortress);
         }
-        template.fetch(docResult);
+//        template.fetch(docResult);
         return docResult;
 
     }

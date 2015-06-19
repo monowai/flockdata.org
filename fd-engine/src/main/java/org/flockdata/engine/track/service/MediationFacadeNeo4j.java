@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.schema.service.SchemaRetryService;
+import org.flockdata.engine.schema.service.DocTypeRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.helper.FlockException;
@@ -99,7 +99,7 @@ public class MediationFacadeNeo4j implements MediationFacade {
     SchemaService schemaService;
 
     @Autowired
-    SchemaRetryService schemaRetryService;
+    DocTypeRetryService schemaRetryService;
 
     @Autowired
     TagService tagService;

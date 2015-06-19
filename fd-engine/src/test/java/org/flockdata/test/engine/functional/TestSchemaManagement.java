@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -104,11 +104,11 @@ public class TestSchemaManagement extends EngineBase {
 
 
         // There should be a doc type per fortress and it should have the same Id.
-        Collection<DocumentResultBean> documentsInUse = schemaService.getDocumentsInUse(suB.getCompany());
+        Collection<DocumentResultBean> documentsInUse = conceptService.getDocumentsInUse(suB.getCompany());
         assertEquals("CompanyB has should have 2 doc types", 2, documentsInUse.size());
         // Companies can't see each other stuff
         setSecurity(suA.getName());
-        documentsInUse = schemaService.getDocumentsInUse(suA.getCompany());
+        documentsInUse = conceptService.getDocumentsInUse(suA.getCompany());
         assertEquals(1, documentsInUse.size());
 
 
@@ -121,14 +121,14 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         String docName = "CamelCaseDoc";
-        DocumentType docType = schemaService.resolveByDocCode(fortress, docName); // Creates if missing
+        DocumentType docType = conceptService.resolveByDocCode(fortress, docName); // Creates if missing
         assertNotNull(docType);
         assertTrue(docType.getCode().contains(docName.toLowerCase()));
         assertEquals(docName, docType.getName());
         // Should be finding by code which is always Lower
-        assertNotNull(schemaService.resolveByDocCode(fortress, docType.getName().toUpperCase(), false));
+        assertNotNull(conceptService.resolveByDocCode(fortress, docType.getName().toUpperCase(), false));
         try {
-            schemaService.resolveByDocCode(fortress, null, false);
+            conceptService.resolveByDocCode(fortress, null, false);
             fail("Null not handled correctly");
         } catch (IllegalArgumentException e) {
             // Good
@@ -146,13 +146,13 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
         Fortress fortB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortB", true));
 
-        DocumentType dType = schemaService.resolveByDocCode(fortA, "ABC123", true);
+        DocumentType dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
         assertNotNull(dType);
         Long id = dType.getId();
-        dType = schemaService.resolveByDocCode(fortA, "ABC123", false);
+        dType = conceptService.resolveByDocCode(fortA, "ABC123", false);
         assertEquals(id, dType.getId());
 
-        DocumentType nextType = schemaService.resolveByDocCode(fortB, "ABC123", true);
+        DocumentType nextType = conceptService.resolveByDocCode(fortB, "ABC123", true);
         assertNotSame("Same company + different fortresses = different document types", dType, nextType);
 
         // Company 2 gets a different tag with the same name
@@ -160,7 +160,7 @@ public class TestSchemaManagement extends EngineBase {
         SystemUser suHarry = registerSystemUser("secondcompany", harry);
         setSecurity(harry); // Register an Auth user as an engine system user
         // Same fortress name, but different company results in a new fortress
-        dType = schemaService.resolveByDocCode(fortressService.registerFortress(suHarry.getCompany(), new FortressInputBean("fortA", true)), "ABC123"); // Creates if missing
+        dType = conceptService.resolveByDocCode(fortressService.registerFortress(suHarry.getCompany(), new FortressInputBean("fortA", true)), "ABC123"); // Creates if missing
         assertNotNull(dType);
         assertNotSame(id, dType.getId());
     }

@@ -20,6 +20,7 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.kv.none.EsGateway;
@@ -33,7 +34,6 @@ import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +63,7 @@ public class QueryService {
     EntityTagService tagService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Qualifier("fdSearchGateway")
     @Autowired
@@ -95,12 +95,12 @@ public class QueryService {
     }
 
     public Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents) {
-        return schemaService.findConcepts(company, documents, true);
+        return conceptService.findConcepts(company, documents, true);
 
     }
 
     public Set<DocumentResultBean> getConcepts(Company company, Collection<String> documents, boolean withRelationships) {
-        return schemaService.findConcepts(company, documents, withRelationships);
+        return conceptService.findConcepts(company, documents, withRelationships);
 
     }
 

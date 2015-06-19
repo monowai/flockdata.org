@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -80,14 +80,9 @@ public class ConceptRetryService {
         logger.debug("Register concepts");
         schemaService.registerConcepts(fortress, resultBeans);
         logger.debug("Completed concept registrations");
-//        resultBeans = logService.processLogsSync(fortress, resultBeans);
-//        Collection<TrackResultBean> trackResultBeans = new ArrayList<>();
-//        for (TrackResultBean resultBean : resultBeans) {
-//            trackResultBeans.add(logRetryService.writeLogTx(fortress, resultBean));
-//        }
-        //return trackResultBeans;
-//        return resultBeans;
 
     }
+
+
 
 }
