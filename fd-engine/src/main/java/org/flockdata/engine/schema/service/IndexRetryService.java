@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -23,15 +23,13 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * User: mike
@@ -45,12 +43,12 @@ public class IndexRetryService {
     @Autowired
     private SchemaService schemaService;
 
-    private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
+    //private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
 
     @Retryable(include =  {DeadlockDetectedException.class},
             maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
-    public Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs){
-        return schemaService.ensureUniqueIndexes(company, tagInputs);
+    public Boolean ensureUniqueIndexes(Company company, Collection<TagInputBean> tagInputs){
+        return schemaService.ensureUniqueIndexes(tagInputs);
     }
 
 }

@@ -19,7 +19,8 @@
 
 package org.flockdata.engine.tag.model;
 
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
+import org.flockdata.engine.schema.service.ConceptDaoNeo4j;
+import org.flockdata.engine.schema.service.IndexRetryService;
 import org.flockdata.engine.tag.TagRepo;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
@@ -49,10 +50,12 @@ import java.util.stream.Collectors;
 public class TagDaoNeo4j {
 
     @Autowired
-    SchemaDaoNeo4j schemaDao;
+    ConceptDaoNeo4j conceptDao;
 
     @Autowired
     Neo4jTemplate template;
+    @Autowired
+    IndexRetryService indexRetryService;
 
     private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
 
@@ -64,6 +67,7 @@ public class TagDaoNeo4j {
         return results;
     }
 
+    // ToDo: Turn this in to ServerSide
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
         Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
@@ -111,7 +115,7 @@ public class TagDaoNeo4j {
         if (tagInput.isDefault())
             label = Tag.DEFAULT_TAG + suffix;
         else {
-            schemaDao.registerTag(company, tagInput.getLabel());
+            conceptDao.registerTag(company, tagInput.getLabel());
             label = tagInput.getLabel();
         }
         TagNode tag = new TagNode(tagInput, label);
@@ -377,7 +381,7 @@ public class TagDaoNeo4j {
 
     }
 
-    public void purge(Company company, String suffix, String label) {
+    public void purge(String suffix, String label) {
         String query;
         query = "match (tag:`" + resolveLabel(label, suffix ) + "`) optional match(tag)-[r]-() delete r,tag";
 

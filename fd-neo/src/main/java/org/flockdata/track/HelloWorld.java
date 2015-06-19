@@ -29,7 +29,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 
 /**
  * Created by mike on 18/06/15.
@@ -48,11 +47,11 @@ public class HelloWorld
     @Produces( MediaType.APPLICATION_JSON )
     @Consumes( MediaType.APPLICATION_JSON )
     @Path( "/makeTags" )
-    public Response hello( Collection<TagInputBean> tags )
+    public Response hello( TagPayload tag )
     {
-        System.out.println("Hello World " + tags.size());
+        System.out.println("Hello World " + tag.getTags().size());
 
         // Do stuff with the database
-        return Response.ok().entity( "Hello World, nodeId=" + tags.size()).type(MediaType.APPLICATION_JSON).build();
+        return Response.ok().entity( "Hello World, nodeId=" + tag.getTags().size()).type(MediaType.APPLICATION_JSON).build();
     }
 }
