@@ -25,7 +25,6 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.ConceptInputBean;
-import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.model.DocumentType;
@@ -37,7 +36,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -59,41 +61,7 @@ public class SchemaServiceNeo4j implements SchemaService {
     static Logger logger = LoggerFactory.getLogger(SchemaServiceNeo4j.class);
 
     public Boolean ensureSystemIndexes(Company company) {
-        if (engineConfig.createSystemConstraints())
-            return schemaDao.ensureSystemConstraints(company);
-        return true;
-    }
-
-    /**
-     * @param fortress     system that has an interest
-     * @param documentCode name of the doc type
-     * @return resolved document. Created if missing
-     */
-    @Override
-    @Transactional
-    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
-    public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
-        return resolveByDocCode(fortress, documentCode, true);
-    }
-
-    /**
-     * Finds or creates a Document Type for the caller's company
-     * There should only exist one document type for a given company
-     *
-     * @param fortress        system that has an interest
-     * @param documentCode    name of the document
-     * @param createIfMissing create document types that are missing
-     * @return created DocumentType
-     */
-    @Override
-    @Transactional
-    public DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
-        if (documentCode == null) {
-            throw new IllegalArgumentException("DocumentType cannot be null");
-        }
-
-        return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
-
+        return schemaDao.ensureSystemConstraints(company);
     }
 
     @Override
@@ -130,34 +98,6 @@ public class SchemaServiceNeo4j implements SchemaService {
         logger.debug("About to register via SchemaDao");
         if (!payload.isEmpty())
             conceptDao.registerConcepts(payload);
-    }
-
-    /**
-     * Locates all tags in use by the associated document types
-     *
-     * @param company           who the caller works for
-     * @param documentNames     labels to restrict the search by
-     * @param withRelationships should the relationships also be returned
-     * @return tags that are actually in use
-     */
-
-    @Override
-    @Transactional
-    public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
-
-        return conceptDao.findConcepts(company, documentNames, withRelationships);
-
-    }
-
-    @Override
-    @Transactional
-    public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
-        Collection<DocumentResultBean> results = new ArrayList<>();
-        Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
-        for (DocumentType rawDoc : rawDocs) {
-            results.add(new DocumentResultBean(rawDoc));
-        }
-        return results;
     }
 
     @Override

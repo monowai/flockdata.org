@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,6 +19,7 @@
 
 package org.flockdata.company.endpoint;
 
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
@@ -29,7 +30,6 @@ import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +51,7 @@ public class FortressEP {
     CompanyService companyService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Autowired
     FortressService fortressService;
@@ -79,7 +79,7 @@ public class FortressEP {
     public DocumentResultBean registerDocumentType (HttpServletRequest request, @PathVariable("fortressCode") String fortressCode, @PathVariable("docTypeName") String docTypeName) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.getFortress(company, fortressCode);
-        return new DocumentResultBean(schemaService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE));
+        return new DocumentResultBean(conceptService.resolveByDocCode(fortress, docTypeName, Boolean.TRUE));
 
     }
 

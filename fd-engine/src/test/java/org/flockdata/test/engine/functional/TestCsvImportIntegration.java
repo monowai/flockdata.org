@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -77,7 +77,7 @@ public class TestCsvImportIntegration extends EngineBase {
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
 
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("StackOverflow", true));
-        DocumentType docType = schemaService.resolveByDocCode(f, "QuestionEvent");
+        DocumentType docType = conceptService.resolveByDocCode(f, "QuestionEvent");
         int i = 1, maxRuns = 4;
         do {
 

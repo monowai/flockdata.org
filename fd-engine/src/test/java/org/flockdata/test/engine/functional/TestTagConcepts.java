@@ -72,12 +72,12 @@ public class TestTagConcepts extends EngineBase {
             assertNotNull(su);
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleDocsSameFortress", true));
-            DocumentType dType = schemaService.resolveByDocCode(fortress, "ABC123", true);
+            DocumentType dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
             Long id = dType.getId();
-            dType = schemaService.resolveByDocCode(fortress, "ABC123", false);
+            dType = conceptService.resolveByDocCode(fortress, "ABC123", false);
             assertEquals(id, dType.getId());
 
             EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
@@ -129,7 +129,7 @@ public class TestTagConcepts extends EngineBase {
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             Collection<String>documents = new ArrayList<>();
             documents.add("DocA");
-            Set<DocumentResultBean> results = schemaService.findConcepts(su.getCompany(), documents, false);
+            Set<DocumentResultBean> results = conceptService.findConcepts(su.getCompany(), documents, false);
 //            assertFalse(results.isEmpty());
             assertEquals(1, results.size());
 
@@ -137,12 +137,12 @@ public class TestTagConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust123", "Customer",  "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             documents.add("DocB");
-            results = schemaService.findConcepts(su.getCompany(), documents, false);
+            results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(2, results.size());
             schemaService.purge(fortressB);
-            results = schemaService.findConcepts(su.getCompany(), documents, false);
+            results = conceptService.findConcepts(su.getCompany(), documents, false);
             assertEquals(1, results.size());
-            Collection<DocumentResultBean> docsInUse = schemaService.getDocumentsInUse(su.getCompany());
+            Collection<DocumentResultBean> docsInUse = conceptService.getDocumentsInUse(su.getCompany());
             assertEquals(1, docsInUse.size());
 
         } finally {
@@ -166,12 +166,12 @@ public class TestTagConcepts extends EngineBase {
 
             Fortress fortA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortressConcepts", true));
 
-            DocumentType dType = schemaService.resolveByDocCode(fortA, "ABC123", true);
+            DocumentType dType = conceptService.resolveByDocCode(fortA, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
             Long id = dType.getId();
-            dType = schemaService.resolveByDocCode(fortA, "ABC123", false);
+            dType = conceptService.resolveByDocCode(fortA, "ABC123", false);
             assertEquals(id, dType.getId());
 
             EntityInputBean input = new EntityInputBean(fortA.getName(), "jinks", "DocA", new DateTime());
@@ -239,12 +239,12 @@ public class TestTagConcepts extends EngineBase {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("multipleRelationships", true));
 
-            DocumentType dType = schemaService.resolveByDocCode(fortress, "ABC123", true);
+            DocumentType dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(dType);
             Long id = dType.getId();
-            dType = schemaService.resolveByDocCode(fortress, "ABC123", false);
+            dType = conceptService.resolveByDocCode(fortress, "ABC123", false);
             assertEquals(id, dType.getId());
 
             EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
@@ -297,13 +297,13 @@ public class TestTagConcepts extends EngineBase {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
 
-            DocumentType docA = schemaService.resolveByDocCode(fortress, "DOCA", true);
-            DocumentType docB = schemaService.resolveByDocCode(fortress, "DOCB", true);
+            DocumentType docA = conceptService.resolveByDocCode(fortress, "DOCA", true);
+            DocumentType docB = conceptService.resolveByDocCode(fortress, "DOCB", true);
             commitManualTransaction(t);// Should only be only one docTypes
 
             assertNotNull(docA);
             Long idA = docA.getId();
-            docA = schemaService.resolveByDocCode(fortress, docA.getName(), false);
+            docA = conceptService.resolveByDocCode(fortress, docA.getName(), false);
             assertEquals(idA, docA.getId());
 
             EntityInputBean input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
@@ -366,10 +366,10 @@ public class TestTagConcepts extends EngineBase {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortA", true));
 
-            DocumentType sale = schemaService.resolveByDocCode(fortress, "Sale", true);
+            DocumentType sale = conceptService.resolveByDocCode(fortress, "Sale", true);
             commitManualTransaction(t);
             t = beginManualTransaction();
-            DocumentType promo = schemaService.resolveByDocCode(fortress, "Promotion", true);
+            DocumentType promo = conceptService.resolveByDocCode(fortress, "Promotion", true);
             commitManualTransaction(t);
 
             EntityInputBean promoInput = new EntityInputBean(fortress.getName(), "jinks", promo.getName(), new DateTime());
@@ -428,7 +428,7 @@ public class TestTagConcepts extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("relationshipWorkForMultipleDocuments", true));
 
             t = beginManualTransaction();
-            DocumentType claim = schemaService.resolveByDocCode(fortress, "Claim", true);
+            DocumentType claim = conceptService.resolveByDocCode(fortress, "Claim", true);
             commitManualTransaction(t);
 
             EntityInputBean promoInput = new EntityInputBean(fortress.getName(),
@@ -464,7 +464,7 @@ public class TestTagConcepts extends EngineBase {
                 logger.info(foundDoc.toString());
             }
             mediationFacade.purge( fortress);
-            assertEquals(0, schemaService.getDocumentsInUse(fortress.getCompany()).size());
+            assertEquals(0, conceptService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
             cleanUpGraph();
         }

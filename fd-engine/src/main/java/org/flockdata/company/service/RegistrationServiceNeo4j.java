@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -18,6 +18,7 @@
  */
 package org.flockdata.company.service;
 
+import org.flockdata.configure.EngineConfig;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
@@ -52,6 +53,9 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     SchemaService schemaService;
 
     @Autowired
+    EngineConfig engineConfig;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
@@ -82,7 +86,8 @@ public class RegistrationServiceNeo4j implements RegistrationService {
             company = companyService.create(regBean.getCompanyName());
             // indexes have to happen outside of data update transactions
             // else you'll get a Heuristic exception failure
-            schemaService.ensureSystemIndexes(company);
+            if (engineConfig.createSystemConstraints())
+                schemaService.ensureSystemIndexes(company);
 
         }
 

@@ -57,6 +57,19 @@ public class SchemaDaoNeo4j {
 
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
 
+    public Boolean ensureSystemConstraints(Company company) {
+        logger.debug("Creating system constraints for {} ", company.getName());
+        template.query("create constraint on (t:Country) assert t.key is unique", null);
+        template.query("create constraint on (t:CountryAlias) assert t.key is unique", null);
+        template.query("create constraint on (t:State) assert t.key is unique", null);
+        template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
+        // ToDo: Create a city node. The key should be country.{state}.city
+        //template.query("create constraint on (t:City) assert t.key is unique", null);
+        logger.debug("Created system constraints");
+        return true;
+    }
+
+
     /**
      * Make sure a unique index exists for the tag
      * Being a schema alteration function this is synchronised to avoid concurrent modifications
@@ -88,6 +101,10 @@ public class SchemaDaoNeo4j {
         return new AsyncResult<>(Boolean.TRUE);
     }
 
+    private Collection<String> getAllLabels() {
+        return template.getGraphDatabase().getAllLabelNames();
+    }
+
     private Collection<String> getLabelsToCreate(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
         Collection<String> toCreate = new ArrayList<>();
         for (TagInputBean tagInput : tagInputs) {
@@ -117,24 +134,6 @@ public class SchemaDaoNeo4j {
         return toCreate;
 
     }
-
-    @Transactional
-    public Collection<String> getAllLabels() {
-        return template.getGraphDatabase().getAllLabelNames();
-    }
-
-    public Boolean ensureSystemConstraints(Company company) {
-        logger.debug("Creating system constraints for {} ", company.getName());
-        template.query("create constraint on (t:Country) assert t.key is unique", null);
-        template.query("create constraint on (t:CountryAlias) assert t.key is unique", null);
-        template.query("create constraint on (t:State) assert t.key is unique", null);
-        template.query("create constraint on (t:StateAlias) assert t.key is unique", null);
-        // ToDo: Create a city node. The key should be country.{state}.city
-        //template.query("create constraint on (t:City) assert t.key is unique", null);
-        logger.debug("Created system constraints");
-        return true;
-    }
-
 
     @Transactional
     public void purge(Fortress fortress) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -25,6 +25,7 @@ import org.flockdata.company.model.FortressNode;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
@@ -75,6 +76,9 @@ public abstract class EngineBase {
 
 	@Autowired
     SchemaService schemaService;
+
+	@Autowired
+	ConceptServiceNeo4j conceptService;
 
 	@Autowired
     protected

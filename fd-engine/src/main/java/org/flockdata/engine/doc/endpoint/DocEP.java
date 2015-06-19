@@ -20,12 +20,12 @@
 package org.flockdata.engine.doc.endpoint;
 
 import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +49,7 @@ public class DocEP {
     QueryService queryService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
@@ -64,7 +64,7 @@ public class DocEP {
         Company company = CompanyResolver.resolveCompany(request);
         Collection<String>docNames = new ArrayList<>();
         docNames.add(docType);
-        Set<DocumentResultBean> results = schemaService.findConcepts(company, docNames, true);
+        Set<DocumentResultBean> results = conceptService.findConcepts(company, docNames, true);
         for (DocumentResultBean result : results) {
             return result.getConcepts();
         }

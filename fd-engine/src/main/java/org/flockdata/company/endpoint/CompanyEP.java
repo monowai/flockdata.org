@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,12 +19,12 @@
 
 package org.flockdata.company.endpoint;
 
+import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.helper.*;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class CompanyEP {
     CompanyService companyService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptServiceNeo4j conceptService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -96,7 +96,7 @@ public class CompanyEP {
             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
 
         Company company = CompanyResolver.resolveCompany(request);
-        return schemaService.getDocumentsInUse(company);
+        return conceptService.getDocumentsInUse(company);
 
     }
 
