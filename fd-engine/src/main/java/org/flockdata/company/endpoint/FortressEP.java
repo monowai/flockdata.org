@@ -19,7 +19,7 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
@@ -51,7 +51,7 @@ public class FortressEP {
     CompanyService companyService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Autowired
     FortressService fortressService;

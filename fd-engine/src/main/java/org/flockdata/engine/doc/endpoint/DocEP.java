@@ -20,7 +20,7 @@
 package org.flockdata.engine.doc.endpoint;
 
 import org.flockdata.engine.query.service.QueryService;
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
@@ -49,7 +49,7 @@ public class DocEP {
     QueryService queryService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {

@@ -24,7 +24,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -58,9 +57,6 @@ public class TagRetryService {
 
     @Autowired
     private TagService tagService;
-
-    @Autowired
-    SchemaService schemaService;
 
     @Autowired
     IndexRetryService indexRetryService;

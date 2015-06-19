@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.schema.service;
 
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -52,7 +53,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class ConceptServiceNeo4j {
+public class ConceptServiceNeo4j implements ConceptService {
     @Autowired
     ConceptDaoNeo4j conceptDao;
 
@@ -65,6 +66,7 @@ public class ConceptServiceNeo4j {
      * @return Docs in use
      *
      */
+    @Override
     @Transactional
     public Collection<DocumentResultBean> getDocumentsInUse(Company company) {
         Collection<DocumentResultBean> results = new ArrayList<>();
@@ -83,6 +85,7 @@ public class ConceptServiceNeo4j {
      * @param withRelationships should the relationships also be returned
      * @return tags that are actually in use
      */
+    @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
 
         return conceptDao.findConcepts(company, documentNames, withRelationships);
@@ -95,6 +98,7 @@ public class ConceptServiceNeo4j {
      * @return resolved document. Created if missing
      */
 //    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
+    @Override
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
     }
@@ -108,6 +112,7 @@ public class ConceptServiceNeo4j {
      * @param createIfMissing create document types that are missing
      * @return created DocumentType
      */
+    @Override
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing) {
         if (documentCode == null) {
             throw new IllegalArgumentException("DocumentType cannot be null");
@@ -116,6 +121,7 @@ public class ConceptServiceNeo4j {
         return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
 
     }
+    @Override
     public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         assert fortress != null;
         logger.debug("Processing concepts for {}", fortress.getCompany());

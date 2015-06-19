@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.schema.service;
 
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.model.DocumentType;
@@ -45,7 +46,7 @@ import java.util.concurrent.Future;
 @Async("fd-engine")
 public class DocTypeRetryService {
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {

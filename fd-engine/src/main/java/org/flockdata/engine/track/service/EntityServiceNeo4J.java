@@ -19,7 +19,6 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.schema.service.ConceptServiceNeo4j;
 import org.flockdata.engine.schema.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.engine.track.model.EntityLogRelationship;
@@ -34,7 +33,10 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
-import org.flockdata.track.service.*;
+import org.flockdata.track.service.EntityService;
+import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.TagService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -77,7 +79,7 @@ public class EntityServiceNeo4J implements EntityService {
     EntityTagService entityTagService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Autowired
     TxService txService;

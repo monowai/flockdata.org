@@ -96,9 +96,6 @@ public class MediationFacadeNeo4j implements MediationFacade {
     SearchServiceFacade searchService;
 
     @Autowired
-    SchemaService schemaService;
-
-    @Autowired
     DocTypeRetryService schemaRetryService;
 
     @Autowired

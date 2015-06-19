@@ -22,6 +22,7 @@ package org.flockdata.engine.schema.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.schema.dao.ProfileDaoNeo4j;
 import org.flockdata.engine.schema.model.ProfileNode;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
@@ -57,7 +58,7 @@ public class ProfileServiceNeo4j implements ImportProfileService {
     FortressService fortressService;
 
     @Autowired
-    ConceptServiceNeo4j conceptService;
+    ConceptService conceptService;
 
     @Autowired
     FdServerWriter fdServerWriter;
