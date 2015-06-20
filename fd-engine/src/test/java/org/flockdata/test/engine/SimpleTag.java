@@ -35,13 +35,15 @@ public class SimpleTag implements Tag {
     TagInputBean tagInputBean;
     private String code;
 
-    public SimpleTag () {}
+    public SimpleTag() {
+    }
 
-    public SimpleTag(TagInputBean tagInputBean){
+    public SimpleTag(TagInputBean tagInputBean) {
         this();
         this.tagInputBean = tagInputBean;
         this.code = tagInputBean.getCode();
     }
+
     @Override
     public String getName() {
         return tagInputBean.getName();
@@ -95,6 +97,11 @@ public class SimpleTag implements Tag {
     @Override
     public Tag getLocated() {
         return null;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return getLabel() == null || Tag.DEFAULT_TAG.equals(getLabel());
     }
 
     public void setCode(String code) {

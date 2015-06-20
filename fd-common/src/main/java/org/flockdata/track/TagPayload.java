@@ -22,7 +22,6 @@ package org.flockdata.track;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -30,21 +29,22 @@ import java.util.Collection;
  */
 public class TagPayload {
 
-    String suffix ="";
+    String suffix = "";
     boolean ignoreRelationships;
-    Collection<TagInputBean>tags;
+    Collection<TagInputBean> tags;
     Company company;
 
-    TagPayload (){}
-    public TagPayload (Company company){this.company = company;}
-
-    public TagPayload (Collection<TagInputBean>tags){
-        this.tags = tags;
+    TagPayload() {
     }
 
-    public TagPayload(TagInputBean tagInput) {
-        tags = new ArrayList<>();
-        tags.add(tagInput);
+    public TagPayload(Company company) {
+        this();
+        this.company = company;
+    }
+
+    public TagPayload(Collection<TagInputBean> tags) {
+        this();
+        this.tags = tags;
     }
 
     public TagPayload setSuffix(String suffix) {

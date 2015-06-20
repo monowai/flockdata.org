@@ -51,10 +51,6 @@ public interface TagService {
 
     Tag findTag(Company company, String label, String tagCode, boolean inflate);
 
-    void purgeUnusedConcepts(Company company);
-
-    void purgeLabel(Company company, String label);
-
     void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
 
     void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput );
