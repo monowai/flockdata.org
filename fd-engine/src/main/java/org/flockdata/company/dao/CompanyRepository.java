@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.company;
+package org.flockdata.company.dao;
 
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.company.model.SystemUserNode;

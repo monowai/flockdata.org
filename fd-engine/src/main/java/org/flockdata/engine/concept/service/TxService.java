@@ -21,7 +21,7 @@ package org.flockdata.engine.concept.service;
 
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.service.KeyGenService;

@@ -48,7 +48,7 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminEP {
 
-    @Qualifier("mediationFacadeNeo4j")
+    @Qualifier("mediationFacadeNeo")
     @Autowired
     MediationFacade mediationFacade;
 

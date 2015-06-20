@@ -171,7 +171,7 @@ public class TestFdIntegration {
     @Autowired
     FortressService fortressService;
 
-    @Qualifier("mediationFacadeNeo4j")
+    @Qualifier("mediationFacadeNeo")
     @Autowired
     MediationFacade mediationFacade;
 

@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.tag;
+package org.flockdata.engine.tag.dao;
 
 import org.flockdata.engine.tag.model.AliasNode;
 import org.flockdata.engine.tag.model.TagNode;

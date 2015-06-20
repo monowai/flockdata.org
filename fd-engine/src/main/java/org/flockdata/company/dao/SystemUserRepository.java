@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,19 +17,14 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.admin;
+package org.flockdata.company.dao;
 
-import org.flockdata.search.model.PingResult;
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.flockdata.company.model.SystemUserNode;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.GraphRepository;
 
-public interface FdMonitoringGateway {
-    /**
-     * A required Payload must be declared due to spring Integration constraint
-     * http://docs.spring.io/spring-integration/reference/html/messaging-endpoints-chapter.html#gateway-calling-no-argument-methods
-     * @return PingResult
-     */
-    @Payload("new java.util.Date()")
-    @Gateway(requestChannel = "pingEsRequest", replyChannel = "pingEsReply")
-    public PingResult ping();
+public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
+
+    @Query(value = "match (su:SystemUser ) where su.login={0} return su")
+    SystemUserNode getSystemUser(String name);
 }

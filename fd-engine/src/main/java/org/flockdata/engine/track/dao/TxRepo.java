@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track;
+package org.flockdata.engine.track.dao;
 
 import org.flockdata.engine.track.model.TxRefNode;
 import org.springframework.data.neo4j.annotation.Query;

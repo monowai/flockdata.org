@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,8 +20,8 @@
 package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.admin.FdMonitoringGateway;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.admin.endpoint.FdMonitoringGateway;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
