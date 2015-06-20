@@ -17,14 +17,14 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.service;
+package org.flockdata.engine.concept.service;
 
-import org.flockdata.engine.schema.dao.ConceptTypeRepo;
-import org.flockdata.engine.schema.dao.DocumentTypeRepo;
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
-import org.flockdata.engine.schema.model.ConceptNode;
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.schema.model.TagLabelNode;
+import org.flockdata.engine.concept.dao.ConceptTypeRepo;
+import org.flockdata.engine.concept.dao.DocumentTypeRepo;
+import org.flockdata.engine.schema.SchemaDaoNeo4j;
+import org.flockdata.engine.concept.model.ConceptNode;
+import org.flockdata.engine.concept.model.DocumentTypeNode;
+import org.flockdata.engine.concept.model.TagLabelNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Relationship;

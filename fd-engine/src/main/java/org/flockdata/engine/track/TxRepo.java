@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track;
 
-import org.flockdata.engine.schema.model.TxRefNode;
+import org.flockdata.engine.track.model.TxRefNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 

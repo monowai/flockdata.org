@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.schema.service.IndexRetryService;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;

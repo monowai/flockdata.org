@@ -20,7 +20,7 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.schema.service.ConceptDaoNeo4j;
+import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
 import org.flockdata.engine.tag.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

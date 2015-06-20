@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockException;

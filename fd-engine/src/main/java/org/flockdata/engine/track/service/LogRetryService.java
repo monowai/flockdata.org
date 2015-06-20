@@ -20,7 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.track.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -208,7 +208,7 @@ public class LogRetryService {
             trackResult.getContentInput().setStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        Log newLog = entityDao.addLog(trackResult.getEntity(), preparedLog, contentWhen);
+        Log newLog = entityDao.writeLog(trackResult.getEntity(), preparedLog, contentWhen);
 
         resultBean.setSysWhen(newLog.getEntityLog().getSysWhen());
 

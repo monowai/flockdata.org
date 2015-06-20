@@ -21,7 +21,7 @@ package org.flockdata.engine.query;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
+import org.flockdata.engine.schema.SchemaDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

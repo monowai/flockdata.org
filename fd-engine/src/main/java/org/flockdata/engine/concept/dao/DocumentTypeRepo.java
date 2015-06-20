@@ -17,10 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.dao;
+package org.flockdata.engine.concept.dao;
 
-import org.flockdata.engine.schema.model.DocumentTypeNode;
-import org.flockdata.engine.schema.model.TagLabelNode;
+import org.flockdata.engine.concept.model.DocumentTypeNode;
+import org.flockdata.engine.concept.model.TagLabelNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.DocumentType;
 import org.springframework.data.neo4j.annotation.Query;

@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.service;
+package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.registration.model.Fortress;
