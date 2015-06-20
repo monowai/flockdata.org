@@ -17,45 +17,24 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.model;
-
-import org.flockdata.track.model.Alias;
-
-import java.util.Map;
-import java.util.Set;
+package org.flockdata.helper;
 
 /**
- * User: Mike Holdsworth
- * Date: 15/06/13
- * Time: 9:11 PM
+ * Created by mike on 20/06/15.
  */
-public interface Tag {
+public class TagHelper {
 
-    String DEFAULT_TAG="Tag";
-    String DEFAULT=":" + DEFAULT_TAG ;
-    String UNDEFINED = "undefined";
+    public static String resolveLabel(String label, String tagSuffix) {
+        if (label.startsWith(":"))
+            label = label.substring(1);
 
-    String getName();
+        if ("".equals(tagSuffix))
+            return label;
+        return label + tagSuffix;
+    }
 
-    void setName(String name);
+    public static String parseKey(String key) {
+        return key.toLowerCase();
+    }
 
-    Long getId();
-
-    String getKey();
-
-    Object getProperty(String num);
-
-    Map<String, Object> getProperties();
-
-    String getCode();
-
-    String getLabel();
-
-    boolean hasAlias(String theLabel, String code);
-
-    Set<Alias> getAliases();
-
-    Tag getLocated();
-
-    boolean isDefault();
 }

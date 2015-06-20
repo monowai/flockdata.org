@@ -20,7 +20,8 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.tag.model.TagDaoNeo4j;
+import org.flockdata.engine.schema.service.ConceptDaoNeo4j;
+import org.flockdata.engine.tag.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -60,6 +61,9 @@ public class TagServiceNeo4j implements TagService {
     private TagDaoNeo4j tagDao;
 
     @Autowired
+    private ConceptDaoNeo4j conceptDao;
+
+    @Autowired
     PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
@@ -84,8 +88,14 @@ public class TagServiceNeo4j implements TagService {
                 .setTags(tagInputs)
                 .setSuffix(tagSuffix)
                 .setIgnoreRelationships(false);
-        return tagDao.save(payload);
 
+        Collection<TagResultBean> results = tagDao.save(payload);
+
+        for (TagResultBean result : results) {
+            if ( !result.getTag().isDefault())
+                conceptDao.registerTag(company, result.getTag().getLabel());
+        }
+        return results;
     }
 
     @Override
@@ -113,7 +123,8 @@ public class TagServiceNeo4j implements TagService {
     @Override
     public Tag findTag(Company company, String label, String tagCode, boolean inflate) {
         String suffix = engineAdmin.getTagSuffix(company);
-        Tag tag = tagDao.findTagNode(company, suffix, label, tagCode, inflate);
+
+        Tag tag = tagDao.findTagNode(suffix, label, tagCode, inflate);
 
         if (tag == null) {
             logger.debug("findTag notFound {}, {}", tagCode, label);
@@ -123,17 +134,6 @@ public class TagServiceNeo4j implements TagService {
 
     @Autowired
     PlatformConfig engineAdmin;
-
-    @Override
-    public void purgeUnusedConcepts(Company company) {
-        tagDao.purgeUnusedConcepts(company);
-    }
-
-    @Override
-    public void purgeLabel(Company company, String label) {
-        String suffix = engineAdmin.getTagSuffix(company);
-        tagDao.purge(suffix, label);
-    }
 
     @Override
     public void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue) {
