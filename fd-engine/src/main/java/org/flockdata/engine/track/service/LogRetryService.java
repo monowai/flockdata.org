@@ -21,7 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.concept.service.TxService;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Fortress;

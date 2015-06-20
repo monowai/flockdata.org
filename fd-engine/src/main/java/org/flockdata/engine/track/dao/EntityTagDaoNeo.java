@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track;
+package org.flockdata.engine.track.dao;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.PlatformConfig;
@@ -25,7 +25,7 @@ import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.EntityTagIn;
 import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.engine.track.model.LogTag;
-import org.flockdata.geography.GeoSupportNeo4j;
+import org.flockdata.geography.GeoSupportNeo;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.model.Company;
@@ -53,12 +53,12 @@ import java.util.*;
  * Time: 11:07 PM
  */
 @Repository("entityTagDao")
-public class EntityTagDaoNeo4j {
+public class EntityTagDaoNeo {
     @Autowired
     Neo4jTemplate template;
 
     @Autowired
-    GeoSupportNeo4j geoSupport;
+    GeoSupportNeo geoSupport;
 
     @Autowired
     TagService tagService;
@@ -66,7 +66,7 @@ public class EntityTagDaoNeo4j {
     @Autowired
     PlatformConfig engineConfig;
 
-    private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo4j.class);
+    private Logger logger = LoggerFactory.getLogger(EntityTagDaoNeo.class);
 
     public void deleteEntityTags(Collection<EntityTag> entityTags) throws FlockException {
 

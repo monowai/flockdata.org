@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.query;
+package org.flockdata.engine.query.dao;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;

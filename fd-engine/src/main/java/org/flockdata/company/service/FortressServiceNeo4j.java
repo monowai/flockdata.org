@@ -20,7 +20,7 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.company.FortressDaoNeo;
+import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
 import org.flockdata.helper.FlockException;

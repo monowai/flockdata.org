@@ -95,7 +95,7 @@ public abstract class EngineBase {
     @Autowired
     GeographyService geoService;
 
-    @Qualifier("mediationFacadeNeo4j")
+    @Qualifier("mediationFacadeNeo")
     @Autowired
     protected
     MediationFacade mediationFacade;

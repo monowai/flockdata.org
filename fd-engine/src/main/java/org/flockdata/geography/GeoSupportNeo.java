@@ -34,11 +34,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class GeoSupportNeo4j {
+public class GeoSupportNeo {
     @Autowired
     Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(GeoSupportNeo4j.class);
+    private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
     @Cacheable(value = "geoData", key = "#loc.id")
     public GeoData getGeoData(Tag loc) {

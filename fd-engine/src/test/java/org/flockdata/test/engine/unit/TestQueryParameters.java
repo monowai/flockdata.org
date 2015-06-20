@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.engine.query.MatrixDaoNeo4j;
+import org.flockdata.engine.query.dao.MatrixDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;

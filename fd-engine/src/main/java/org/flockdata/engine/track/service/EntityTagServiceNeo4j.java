@@ -20,9 +20,9 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.engine.track.EntityRepo;
-import org.flockdata.engine.track.EntityTagDaoNeo4j;
-import org.flockdata.engine.track.EntityTagRepo;
+import org.flockdata.engine.track.dao.EntityRepo;
+import org.flockdata.engine.track.dao.EntityTagDaoNeo;
+import org.flockdata.engine.track.dao.EntityTagRepo;
 import org.flockdata.engine.track.model.EntityTagIn;
 import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
@@ -63,7 +63,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     SecurityHelper securityHelper;
 
     @Autowired
-    EntityTagDaoNeo4j entityTagDao;
+    EntityTagDaoNeo entityTagDao;
 
     @Autowired
     EntityRepo entityRepo;

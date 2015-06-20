@@ -17,9 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.admin;
+package org.flockdata.engine.admin.service;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
