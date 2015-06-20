@@ -17,11 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.service;
+package org.flockdata.engine.concept.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.engine.schema.dao.ProfileDaoNeo4j;
-import org.flockdata.engine.schema.model.ProfileNode;
+import org.flockdata.engine.concept.dao.ProfileDaoNeo4j;
+import org.flockdata.engine.concept.model.ProfileNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;

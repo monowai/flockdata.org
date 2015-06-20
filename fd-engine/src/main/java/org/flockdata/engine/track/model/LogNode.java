@@ -22,8 +22,6 @@ package org.flockdata.engine.track.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.engine.schema.model.ChangeEventNode;
-import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.bean.ContentInputBean;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,9 +17,9 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.dao;
+package org.flockdata.engine.concept.dao;
 
-import org.flockdata.engine.schema.model.ChangeEventNode;
+import org.flockdata.engine.track.model.ChangeEventNode;
 import org.flockdata.track.model.ChangeEvent;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;

@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.track;
 
-import org.flockdata.engine.schema.dao.DocumentTypeRepo;
-import org.flockdata.engine.schema.model.TxRefNode;
+import org.flockdata.engine.concept.dao.DocumentTypeRepo;
+import org.flockdata.engine.track.model.TxRefNode;
 import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.engine.track.model.EntityNode;
 import org.flockdata.engine.track.model.LogNode;
@@ -333,11 +333,11 @@ public class EntityDaoNeo {
         return template.fetch(lastChange);
     }
 
-    public Log addLog(Entity entity, Log newLog, DateTime fortressWhen) throws FlockException {
+    public Log writeLog(Entity entity, Log newLog, DateTime fortressWhen) throws FlockException {
 
         newLog.setEntityLog(new EntityLogRelationship(entity, newLog, fortressWhen));
 
-        if (entity.getId() == null)// This occurs when graph tracking is suppressed; caller is only creating search docs
+        if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return newLog;
 
         if ( entity.getFortress().isStoreDisabled() )

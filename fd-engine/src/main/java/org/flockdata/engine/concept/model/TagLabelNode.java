@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.model;
+package org.flockdata.engine.concept.model;
 
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.registration.model.Company;

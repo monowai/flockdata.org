@@ -25,7 +25,7 @@ import org.flockdata.company.model.FortressNode;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;

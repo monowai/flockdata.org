@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.tag;
 
-import org.flockdata.engine.schema.service.ConceptDaoNeo4j;
-import org.flockdata.engine.schema.service.IndexRetryService;
+import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.model.AliasNode;
 import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.helper.NotFoundException;

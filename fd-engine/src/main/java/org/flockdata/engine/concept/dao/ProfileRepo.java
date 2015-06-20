@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,22 +17,15 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.schema.dao;
+package org.flockdata.engine.concept.dao;
 
-import org.flockdata.engine.schema.model.ConceptNode;
+import org.flockdata.engine.concept.model.ProfileNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 /**
  * User: mike
- * Date: 16/06/14
- * Time: 10:33 AM
+ * Date: 3/10/14
+ * Time: 4:51 PM
  */
-public interface ConceptTypeRepo extends GraphRepository<ConceptNode> {
-
-//    @Query( value =
-//                    "MATCH (company:FDCompany) -[:OWNS]->(fortress:_Fortress)<-[:FORTRESS_DOC]-(doc:_DocType) " +
-//                            " -[:HAS_CONCEPT]->(concept:_Concept)" +
-//                            "        where id(company)={0} and doc.name in{1}" +
-//                            "       return concept")
-//    Relationship findRelationship(Company company, String conceptName, String relationship);
+public interface ProfileRepo extends GraphRepository<ProfileNode> {
 }

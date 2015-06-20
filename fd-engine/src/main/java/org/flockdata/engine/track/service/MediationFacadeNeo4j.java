@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.schema.service.DocTypeRetryService;
+import org.flockdata.engine.concept.service.DocTypeRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.helper.FlockException;
