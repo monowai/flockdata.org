@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,9 +68,6 @@ public class EngineConfig implements PlatformConfig {
     @Qualifier("fdMonitoringGateway")
     @Autowired
     FdMonitoringGateway fdMonitoringGateway;
-
-    @Autowired
-    Neo4jTemplate template;
 
     private boolean conceptsEnabled=true;
     private boolean systemConstraints = true;

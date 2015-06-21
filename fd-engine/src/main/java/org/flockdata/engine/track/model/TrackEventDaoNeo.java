@@ -21,7 +21,6 @@ package org.flockdata.engine.track.model;
 
 import org.flockdata.dao.TrackEventDao;
 import org.flockdata.engine.concept.dao.ChangeEventRepo;
-import org.flockdata.engine.track.model.ChangeEventNode;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.ChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
