@@ -19,26 +19,21 @@
 
 package org.flockdata.engine.tag.dao;
 
-import org.flockdata.engine.concept.dao.ConceptDaoNeo;
-import org.flockdata.engine.schema.IndexRetryService;
-import org.flockdata.engine.tag.model.AliasNode;
-import org.flockdata.engine.tag.model.TagNode;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.TagPayload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.Result;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 
 /**
+ * Wrap calls to Neo4j server extension. Figuring this out....
+ *
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 8:33 PM
@@ -47,110 +42,36 @@ import java.util.*;
 public class TagDaoNeo4j {
 
     @Autowired
-    ConceptDaoNeo conceptDao;
+    TagWrangler tagWrangler;
 
-    @Autowired
-    Neo4jTemplate template;
-
-
-    @Autowired
-    TagWriter tagWriter;
-
-    @Autowired
-    IndexRetryService indexRetryService;
-
-    private Logger logger = LoggerFactory.getLogger(TagDaoNeo4j.class);
-
-    public Collection<TagResultBean>save(TagPayload payload){
-        return tagWriter.save( payload);
+    public Collection<TagResultBean> save(TagPayload payload) {
+        return tagWrangler.save(payload);
     }
 
     public void createAlias(String suffix, Tag tag, String label, AliasInputBean aliasInput) {
-        tagWriter.createAlias(suffix, tag, label, aliasInput);
+        tagWrangler.createAlias(suffix, tag, label, aliasInput);
     }
 
-
     public Collection<Tag> findDirectedTags(String tagSuffix, Tag startTag, Company company) {
-        //Long coTags = getCompanyTagManager(companyId);
-        //"MATCH track<-[tagType]-(tag:Tag"+engineAdmin.getTagSuffix(company)+") " +
-        String query =
-                " match (tag:Tag)-[]->(otherTag" + Tag.DEFAULT + tagSuffix + ") " +
-                        "   where id(tag)={tagId} return otherTag";
-        Map<String, Object> params = new HashMap<>();
-        params.put("tagId", startTag.getId());
-
-        Iterable<Map<String, Object>> result = template.query(query, params);
-
-        if (!((Result) result).iterator().hasNext())
-            return new ArrayList<>();
-
-        Iterator<Map<String, Object>> rows = result.iterator();
-
-        Collection<Tag> results = new ArrayList<>();
-
-        while (rows.hasNext()) {
-            Map<String, Object> row = rows.next();
-            results.add(template.projectTo(row.get("otherTag"), TagNode.class));
-        }
-        //
-        return results;
+        return tagWrangler.findDirectedTags(tagSuffix, startTag, company);
     }
 
     public Collection<Tag> findTags(String label) {
-        Collection<Tag> tagResults = new ArrayList<>();
-        // ToDo: Match to company - something like this.....
-        //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
-        //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
-        String query = "match (tag:`" + label + "`) return distinct (tag) as tag";
-        // Look at PAGE
-        Iterable<Map<String, Object>> results = template.query(query, null);
-        for (Map<String, Object> row : results) {
-            Object o = row.get("tag");
-            Tag t = template.projectTo(o, TagNode.class);
-            tagResults.add(t);
-
-        }
-        return tagResults;
+        return tagWrangler.findTags(label);
     }
 
 
     public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
 
-        String query = "match (t) -[:HAS_ALIAS]->(alias) where id(t)={id}  return alias";
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", sourceTag.getId());
-        Iterable<Map<String, Object>> result = template.query(query, params);
-        Collection<AliasInputBean> aliasResults = new ArrayList<>();
-        for (Map<String, Object> mapResult : result) {
-            AliasNode n = template.projectTo(mapResult.get("alias"), AliasNode.class);
-            aliasResults.add(new AliasInputBean(n.getName()));
-
-        }
-        return aliasResults;
+        return tagWrangler.findTagAliases(sourceTag);
     }
 
     public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
-        String query = "match (t) -["+ (!relationship.equals("")? "r:"+relationship :"r")+"]-(targetTag:"+targetLabel+") where id(t)={id}  return r, targetTag";
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", sourceTag.getId());
-        Iterable<Map<String, Object>> result = template.query(query, params);
-        Map<String,Collection<TagResultBean>> tagResults = new HashMap<>();
-        for (Map<String, Object> mapResult : result) {
-            TagNode n = template.projectTo(mapResult.get("targetTag"), TagNode.class);
-
-            String rType= ((org.neo4j.graphdb.Relationship)mapResult.get("r")).getType().name();
-            Collection<TagResultBean>tagResultBeans = tagResults.get(rType);
-            if ( tagResultBeans == null ){
-                tagResultBeans = new ArrayList<>();
-                tagResults.put(rType, tagResultBeans);
-            }
-            tagResultBeans.add(new TagResultBean(n));
-
-        }
-        return tagResults;
+        return tagWrangler.findAllTags(sourceTag, relationship, targetLabel);
 
     }
-    public Tag findTagNode(String suffix, String label, String tagCode, boolean inflate){
-        return tagWriter.findTagNode(suffix, label, tagCode, inflate);
+
+    public Tag findTagNode(String suffix, String label, String tagCode, boolean inflate) {
+        return tagWrangler.findTagNode(suffix, label, tagCode, inflate);
     }
 }
