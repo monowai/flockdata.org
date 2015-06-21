@@ -26,7 +26,6 @@ import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -38,9 +37,6 @@ import org.springframework.stereotype.Repository;
 public class RegistrationNeo implements RegistrationDao {
     @Autowired
     private SystemUserRepository suRepo;
-
-    @Autowired
-    Neo4jTemplate template;
 
     @Autowired
     KeyGenService keyGenService;
