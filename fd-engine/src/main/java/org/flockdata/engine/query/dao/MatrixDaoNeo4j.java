@@ -220,23 +220,6 @@ public class MatrixDaoNeo4j implements MatrixDao {
         return labels;
     }
 
-//    private boolean tagHasRelationship(Company company, String inTag, ArrayList<String> docNames, String relationship) {
-//        Set<DocumentResultBean> schema = schemaDaoNeo4j.findConcepts(company, null, true);
-//        for (DocumentResultBean document : schema) {
-//            for (String docName : docNames) {
-//                if (document.getName().equalsIgnoreCase(docName)) {
-//                    for (Concept concept : document.getConcepts()) {
-//                        if (concept.getName().equals(inTag)) {
-//                            return concept.hasRelationship(relationship);
-//                        }
-//                    }
-//                }
-//            }
-//
-//        }
-//        return false;
-//    }
-
     private QueryParams getQueryParams(Company company, MatrixInputBean input) throws FlockException {
         // Fortresses come in as names - need to resolve to codes:
         QueryParams qp = new QueryParams(company, input);

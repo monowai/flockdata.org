@@ -130,7 +130,7 @@ public class ConceptDaoNeo {
         if (docResult != null && docResult.getFortress() == null) {
             docResult.setFortress(fortress);
         }
-//        template.fetch(docResult);
+
         return docResult;
 
     }

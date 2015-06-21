@@ -91,7 +91,6 @@ public class AdminService implements EngineAdminService {
         // Batch the entities for deletion. Log Content could be stored across multiple KVstores for a
         // single fortress
         NumberFormat nf = NumberFormat.getInstance();
-        String indexName = fortress.getIndexName();
 
         StopWatch watch = new StopWatch("Purge Fortress " + fortress );
         watch.start();

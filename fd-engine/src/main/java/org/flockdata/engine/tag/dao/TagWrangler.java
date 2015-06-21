@@ -371,20 +371,7 @@ public class TagWrangler {
         return tagResults;
     }
 
-    public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
 
-        String query = "match (t) -[:HAS_ALIAS]->(alias) where id(t)={id}  return alias";
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", sourceTag.getId());
-        Iterable<Map<String, Object>> result = template.query(query, params);
-        Collection<AliasInputBean> aliasResults = new ArrayList<>();
-        for (Map<String, Object> mapResult : result) {
-            AliasNode n = template.projectTo(mapResult.get("alias"), AliasNode.class);
-            aliasResults.add(new AliasInputBean(n.getName()));
-
-        }
-        return aliasResults;
-    }
 
 
 }

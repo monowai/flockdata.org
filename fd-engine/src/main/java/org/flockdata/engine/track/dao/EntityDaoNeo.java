@@ -31,6 +31,7 @@ import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.registration.service.KeyGenService;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
@@ -78,6 +79,9 @@ public class EntityDaoNeo {
     KeyGenService keyGenService;
 
     @Autowired
+    SystemUserService systemUserService;
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
@@ -111,7 +115,7 @@ public class EntityDaoNeo {
     }
 
     public TxRef save(TxRef tagRef) {
-        return template.save((TxRefNode) tagRef);
+        return txRepo.save((TxRefNode) tagRef);
     }
 
     private Entity getCachedEntity(String key) {
@@ -210,7 +214,7 @@ public class EntityDaoNeo {
         TxRef txTag = findTxTag(id, company);
         if (txTag == null) {
             txTag = new TxRefNode(id, company);
-            template.save(txTag);
+            txRepo.save((TxRefNode)txTag);
         }
         return txTag;
     }
@@ -237,7 +241,7 @@ public class EntityDaoNeo {
     public Map<String, Object> findByTransaction(TxRef txRef) {
         //Example showing how to use cypher and extract
 
-        String findByTagRef =" match tag-[:AFFECTED]->log<-[logs:LOGGED]-track " +
+        String findByTagRef =" match (tag)-[:AFFECTED]->log<-[logs:LOGGED]-(track) " +
                 "              where id(tag)={txRef}" +
                 "             return logs, track, log " +
                 "           order by logs.sysWhen";
@@ -278,8 +282,6 @@ public class EntityDaoNeo {
     }
 
     public String ping() {
-
-
         return "Neo4J is OK";
     }
 
@@ -401,7 +403,7 @@ public class EntityDaoNeo {
         }
 
 
-        entity = template.save(entity);
+        entity = entityRepo.save((EntityNode)entity);
         logger.debug("Saved change for Entity [{}], log [{}]", entity.getId(), latest);
 
     }
@@ -483,10 +485,7 @@ public class EntityDaoNeo {
         }
 
         return trackLogRepo.getLog(entity.getLastChange().getId());
-        //return trackLogRepo.getLastChange(entity.getId());
-
     }
-
 
     public Set<EntityLog> getLogs(Long id, Date date) {
         return trackLogRepo.getLogs(id, date.getTime());
@@ -494,13 +493,6 @@ public class EntityDaoNeo {
 
     public Collection<Entity> getEntities(Collection<Long> entities) {
         return entityRepo.getEntities(entities);
-    }
-
-    public Entity findEntity(Long entityId, boolean inflate) {
-        Entity e = getEntity(entityId);
-        if (inflate)
-            template.fetch(e);
-        return e;
     }
 
     public Collection<String> getEntityBatch(Long id, int limit) {
