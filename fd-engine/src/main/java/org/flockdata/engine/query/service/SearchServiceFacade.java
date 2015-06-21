@@ -153,7 +153,7 @@ public class SearchServiceFacade {
 
         Entity entity = trackResultBean.getEntity();
         if (entity.getLastUser() != null)
-            fortressService.fetch(entity.getLastUser());
+            fortressService.getUser(entity.getLastUser().getId());
 
         EntityLog entityLog = getLog(trackResultBean);
         SearchChange searchDocument = new EntitySearchChange(trackResultBean.getEntityBean(), entityLog, trackResultBean.getContentInput());

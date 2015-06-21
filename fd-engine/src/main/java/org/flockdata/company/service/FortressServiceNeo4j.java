@@ -22,7 +22,7 @@ package org.flockdata.company.service;
 
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -57,7 +57,7 @@ public class FortressServiceNeo4j implements FortressService {
     private SystemUserService sysUserService;
 
     @Autowired
-    private ConceptDaoNeo4j conceptDao;
+    private ConceptDaoNeo conceptDao;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -193,12 +193,6 @@ public class FortressServiceNeo4j implements FortressService {
             results.add( new FortressResultBean(fortress));
         }
         return results;
-
-    }
-
-    @Override
-    public void fetch(FortressUser lastUser) {
-        fortressDao.fetch(lastUser);
 
     }
 

@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.schema;
 
-import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 public class SchemaDaoNeo4j {
 
     @Autowired
-    ConceptDaoNeo4j conceptDaoNeo4j;
+    ConceptDaoNeo conceptDaoNeo4j;
 
     @Autowired
     Neo4jTemplate template;

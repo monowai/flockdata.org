@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.concept.service;
 
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
@@ -53,11 +54,11 @@ import java.util.*;
 
 @Service
 @Transactional
-public class ConceptServiceNeo4j implements ConceptService {
+public class ConceptServiceNeo implements ConceptService {
     @Autowired
-    ConceptDaoNeo4j conceptDao;
+    ConceptDaoNeo conceptDao;
 
-    static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo4j.class);
+    static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
 
     /**
      * Entities being tracked as "DocumentTypes"

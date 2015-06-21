@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.tag.dao;
 
-import org.flockdata.engine.concept.service.ConceptDaoNeo4j;
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.model.AliasNode;
 import org.flockdata.engine.tag.model.TagNode;
@@ -47,7 +47,7 @@ import java.util.*;
 public class TagDaoNeo4j {
 
     @Autowired
-    ConceptDaoNeo4j conceptDao;
+    ConceptDaoNeo conceptDao;
 
     @Autowired
     Neo4jTemplate template;
