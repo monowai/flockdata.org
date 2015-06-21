@@ -17,14 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.concept.service;
+package org.flockdata.engine.concept.dao;
 
-import org.flockdata.engine.concept.dao.ConceptTypeRepo;
-import org.flockdata.engine.concept.dao.DocumentTypeRepo;
-import org.flockdata.engine.schema.SchemaDaoNeo4j;
 import org.flockdata.engine.concept.model.ConceptNode;
 import org.flockdata.engine.concept.model.DocumentTypeNode;
 import org.flockdata.engine.concept.model.TagLabelNode;
+import org.flockdata.engine.schema.SchemaDaoNeo4j;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
 import org.flockdata.registration.model.Relationship;
@@ -39,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -47,8 +44,7 @@ import java.util.*;
  * Created by mike on 19/06/15.
  */
 @Repository
-@Transactional
-public class ConceptDaoNeo4j {
+public class ConceptDaoNeo {
     @Autowired
     ConceptTypeRepo conceptTypeRepo;
 
@@ -58,7 +54,7 @@ public class ConceptDaoNeo4j {
     @Autowired
     Neo4jTemplate template;
 
-    private Logger logger = LoggerFactory.getLogger(ConceptDaoNeo4j.class);
+    private Logger logger = LoggerFactory.getLogger(ConceptDaoNeo.class);
 
     public void registerConcepts(Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
         logger.trace("Registering concepts");
@@ -71,6 +67,7 @@ public class ConceptDaoNeo4j {
         for (DocumentType docType : conceptInput.keySet()) {
             logger.trace("Looking for existing concepts {}", docType.getName());
             DocumentTypeNode documentTypeNode = (DocumentTypeNode) docType;
+
             template.fetch(documentTypeNode.getConcepts());
 
             Collection<Concept> concepts = documentTypeNode.getConcepts();

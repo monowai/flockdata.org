@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,9 +45,6 @@ public class FortressDaoNeo  {
 
     @Autowired
     private FortressUserRepository fortressUserRepo;
-
-    @Autowired
-    Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
@@ -78,13 +74,8 @@ public class FortressDaoNeo  {
         return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
     }
 
-    public void fetch(FortressUser fortressUser) {
-        template.fetch(fortressUser);
-
-    }
-
     public String delete(Fortress fortress) {
-        template.delete(fortress);
+        fortressRepo.delete((FortressNode)fortress);
         return "OK";
     }
 

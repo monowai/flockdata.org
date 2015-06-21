@@ -20,7 +20,7 @@
 package org.flockdata.engine.concept.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.engine.concept.dao.ProfileDaoNeo4j;
+import org.flockdata.engine.concept.dao.ProfileDaoNeo;
 import org.flockdata.engine.concept.model.ProfileNode;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
@@ -49,10 +49,10 @@ import java.io.IOException;
  * Time: 2:43 PM
  */
 @Service
-public class ProfileServiceNeo4j implements ImportProfileService {
+public class ProfileServiceNeo implements ImportProfileService {
 
     @Autowired
-    ProfileDaoNeo4j profileDao;
+    ProfileDaoNeo profileDao;
 
     @Autowired
     FortressService fortressService;

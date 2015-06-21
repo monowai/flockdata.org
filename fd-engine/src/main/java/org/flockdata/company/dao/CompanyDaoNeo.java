@@ -20,11 +20,10 @@
 package org.flockdata.company.dao;
 
 import org.flockdata.company.model.CompanyNode;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.dao.CompanyDao;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -39,9 +38,6 @@ public class CompanyDaoNeo implements CompanyDao {
 
     @Autowired
     private CompanyRepository companyRepo;
-
-    @Autowired
-    Neo4jTemplate template;
 
     @Override
     public Company update(Company company) {
