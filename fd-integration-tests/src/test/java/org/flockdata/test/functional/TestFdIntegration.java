@@ -38,7 +38,7 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
-import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.concept.dao.ProfileDaoNeo4j;
 import org.flockdata.engine.concept.model.ProfileNode;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
