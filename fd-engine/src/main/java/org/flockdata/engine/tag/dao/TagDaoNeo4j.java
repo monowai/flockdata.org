@@ -19,6 +19,8 @@
 
 package org.flockdata.engine.tag.dao;
 
+import org.flockdata.engine.concept.dao.AliasDaoNeo;
+import org.flockdata.engine.tag.model.AliasNode;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagResultBean;
@@ -28,12 +30,13 @@ import org.flockdata.track.TagPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * Wrap calls to Neo4j server extension. Figuring this out....
- *
+ * <p>
  * User: Mike Holdsworth
  * Date: 29/06/13
  * Time: 8:33 PM
@@ -43,6 +46,9 @@ public class TagDaoNeo4j {
 
     @Autowired
     TagWrangler tagWrangler;
+
+    @Autowired
+    AliasDaoNeo aliasDaoNeo;
 
     public Collection<TagResultBean> save(TagPayload payload) {
         return tagWrangler.save(payload);
@@ -60,10 +66,13 @@ public class TagDaoNeo4j {
         return tagWrangler.findTags(label);
     }
 
-
     public Collection<AliasInputBean> findTagAliases(Tag sourceTag) throws NotFoundException {
-
-        return tagWrangler.findTagAliases(sourceTag);
+        Collection<AliasNode>aliases = aliasDaoNeo.findTagAliases(sourceTag);
+        Collection<AliasInputBean> aliasResults = new ArrayList<>();
+        for (AliasNode alias : aliases) {
+            aliasResults.add(new AliasInputBean(alias.getName()));
+        }
+        return aliasResults;
     }
 
     public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
