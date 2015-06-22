@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
@@ -491,9 +490,10 @@ public class TrackDaoES implements TrackSearchDao {
         if (!tagCodes.contains(tag.getCode())) {
             if (tag.getCode()!=null && tag.getCode().length() >= minTagLength) {
                 // DAT-446 - Favour the description over a numeric tag code
-                boolean isAlphaNumeric = !NumberUtils.isNumber(tag.getCode());
+                // MKH - let fd-engine decide this
+                //boolean isAlphaNumeric = true;//!NumberUtils.isNumber(tag.getCode());
                 // Always store the code if there is no description or it is Alpha Numeric
-                if ( tag.getName() == null || isAlphaNumeric )
+                //if ( tag.getName() == null || isAlphaNumeric )
                     tagCodes.add(tag.getCode() );
             }
             if ( tag.getName()!=null ){

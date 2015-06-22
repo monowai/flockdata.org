@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,16 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.RegistrationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -56,11 +50,6 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration(locations = { "classpath:root-context-neo-rest.xml" })
 public class TestNeoRestInterface {
     static Logger logger = LoggerFactory.getLogger(TestNeoRestInterface.class);
-    @Autowired
-    CompanyService companyService;
-
-    @Autowired
-    RegistrationService registrationService;
 
     @Test
     public void neo4j_EnsureRestAPIWorks() throws Exception {
@@ -69,14 +58,11 @@ public class TestNeoRestInterface {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Create something to find
-        registerSystemUser("mike", "testco");
-
         // Now find something - anything
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = getHttpHeaders();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        String query = "{ \"statements\":[{\"statement\":\"MATCH (n) RETURN n LIMIT 10\"}]}";
+        String query = "{ \"statements\":[{\"statement\":\"return 1\"}]}";
         HttpEntity<String> requestEntity = new HttpEntity<>(query, httpHeaders);
 
         Map result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class).getBody();
@@ -95,18 +81,6 @@ public class TestNeoRestInterface {
                 set("charset", "UTF-8");
             }
         };
-    }
-
-    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        Company company = companyService.findByName(companyName);
-        if ( company == null ) {
-            logger.debug("Creating company {}", companyName);
-            company = companyService.create(companyName);
-        }
-        SystemUser su = registrationService.registerSystemUser(company, new RegistrationBean( accessUser).setIsUnique(false));
-//        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
-        logger.debug("Returning SU {}", su);
-        return su;
     }
 
 }

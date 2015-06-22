@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.schema.service.TxService;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.concept.service.TxService;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -33,7 +33,10 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.model.*;
-import org.flockdata.track.service.*;
+import org.flockdata.track.service.EntityService;
+import org.flockdata.track.service.EntityTagService;
+import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.TagService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -76,7 +79,7 @@ public class EntityServiceNeo4J implements EntityService {
     EntityTagService entityTagService;
 
     @Autowired
-    SchemaService schemaService;
+    ConceptService conceptService;
 
     @Autowired
     TxService txService;
@@ -233,7 +236,7 @@ public class EntityServiceNeo4J implements EntityService {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
-            throw new SecurityException(userName + "Not authorised to retrieve entities");
+            throw new SecurityException(userName + "Not authorised to retrieve metaKeys");
 
         return getEntity(su.getCompany(), metaKey, false);
     }
@@ -272,7 +275,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public Collection<Entity> getEntities(Fortress fortress, String docTypeName, Long skipTo) {
-        DocumentType docType = schemaService.resolveByDocCode(fortress, docTypeName);
+        DocumentType docType = conceptService.resolveByDocCode(fortress, docTypeName);
         return entityDao.findEntities(fortress.getId(), docType.getName(), skipTo);
     }
 
@@ -448,7 +451,7 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Entity findByCallerRef(Fortress fortress, String documentName, String callerRef) {
 
-        DocumentType doc = schemaService.resolveByDocCode(fortress, documentName, false);
+        DocumentType doc = conceptService.resolveByDocCode(fortress, documentName, false);
         if (doc == null) {
             logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentName, callerRef);
             return null;
@@ -510,9 +513,9 @@ public class EntityServiceNeo4J implements EntityService {
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
             if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
-                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())) {
-                documentType = schemaService.resolveByDocCode(fortress, inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             }
             assert (documentType != null);
             assert (documentType.getCode() != null);
@@ -585,7 +588,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
             fromEntity = entityDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
         else {
-            DocumentType document = schemaService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
+            DocumentType document = conceptService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
             fromEntity = entityDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
@@ -606,7 +609,7 @@ public class EntityServiceNeo4J implements EntityService {
                 if (mh == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
-                    DocumentType documentType = schemaService.resolveByDocCode(f, entityKey.getDocumentType(), false);
+                    DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
                         EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCallerRef(entityKey.getCallerRef());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);
@@ -642,16 +645,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public void purge(Fortress fortress) {
-        logger.info("Entity Purge routine {}", fortress);
-        schemaService.purge(fortress);
-        entityDao.purgeTagRelationships(fortress);
-        entityDao.purgeFortressLogs(fortress);
-        entityDao.purgePeopleRelationships(fortress);
+    public void purge(Fortress fortress, Collection<String> metaKeys) {
+        entityDao.purgeTagRelationships(metaKeys);
+        entityDao.purgeFortressLogs(metaKeys);
+        entityDao.purgePeopleRelationships(metaKeys);
+        entityDao.purgeEntities(metaKeys);
+        //logger.info("Completed entity purge routine {}", fortress);
 
+    }
+
+    @Override
+    public void purgeFortressDocs(Fortress fortress){
         entityDao.purgeFortressDocuments(fortress);
-        entityDao.purgeEntities(fortress);
-        logger.info("Completed entity purge routine {}", fortress);
 
     }
 
@@ -778,5 +783,11 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Collection<Entity> getEntities(Collection<Long> entities) {
         return entityDao.getEntities(entities);
+    }
+
+    @Override
+    public Collection<String> getEntityBatch(Fortress fortress, int limit) {
+        return entityDao.getEntityBatch(fortress.getId(), limit);
+
     }
 }

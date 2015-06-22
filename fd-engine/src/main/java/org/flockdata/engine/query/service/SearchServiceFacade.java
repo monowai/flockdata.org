@@ -22,7 +22,7 @@ package org.flockdata.engine.query.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -153,7 +153,7 @@ public class SearchServiceFacade {
 
         Entity entity = trackResultBean.getEntity();
         if (entity.getLastUser() != null)
-            fortressService.fetch(entity.getLastUser());
+            fortressService.getUser(entity.getLastUser().getId());
 
         EntityLog entityLog = getLog(trackResultBean);
         SearchChange searchDocument = new EntitySearchChange(trackResultBean.getEntityBean(), entityLog, trackResultBean.getContentInput());

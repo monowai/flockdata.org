@@ -156,7 +156,7 @@
         <level value="${fd.logLevel}"/>
     </logger>
 
-    <logger name="org.flockdata.engine.track.service.MediationFacadeNeo4j">
+    <logger name="org.flockdata.engine.track.MediationFacadeNeo">
         <level value="${fd.logLevel}"/>
     </logger>
 

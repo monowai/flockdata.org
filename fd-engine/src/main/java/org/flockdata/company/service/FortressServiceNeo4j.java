@@ -20,9 +20,9 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.company.FortressDaoNeo;
+import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -57,7 +57,7 @@ public class FortressServiceNeo4j implements FortressService {
     private SystemUserService sysUserService;
 
     @Autowired
-    private SchemaDaoNeo4j schemaDao;
+    private ConceptDaoNeo conceptDao;
 
     @Autowired
     private SecurityHelper securityHelper;
@@ -197,12 +197,6 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    public void fetch(FortressUser lastUser) {
-        fortressDao.fetch(lastUser);
-
-    }
-
-    @Override
     public void purge(Fortress fortress) throws FlockException {
         logger.info("Purging fortress {}", fortress);
         fortressDao.delete(fortress);
@@ -263,7 +257,7 @@ public class FortressServiceNeo4j implements FortressService {
             return new ArrayList<>();
         }
         Collection<DocumentResultBean> results = new ArrayList<>();
-        Collection<DocumentType> rawDocs = schemaDao.getFortressDocumentsInUse(fortress);
+        Collection<DocumentType> rawDocs = conceptDao.getFortressDocumentsInUse(fortress);
         for (DocumentType rawDoc : rawDocs) {
             results.add(new DocumentResultBean(rawDoc));
         }

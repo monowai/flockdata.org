@@ -31,12 +31,11 @@ import java.util.Set;
  */
 public interface Tag {
 
-    public static String DEFAULT_TAG="Tag";
-    public static String DEFAULT=":" + DEFAULT_TAG ;
-
+    String DEFAULT_TAG="Tag";
+    String DEFAULT=":" + DEFAULT_TAG ;
     String UNDEFINED = "undefined";
 
-    public String getName();
+    String getName();
 
     void setName(String name);
 
@@ -46,7 +45,7 @@ public interface Tag {
 
     Object getProperty(String num);
 
-    public Map<String, Object> getProperties();
+    Map<String, Object> getProperties();
 
     String getCode();
 
@@ -57,4 +56,6 @@ public interface Tag {
     Set<Alias> getAliases();
 
     Tag getLocated();
+
+    boolean isDefault();
 }

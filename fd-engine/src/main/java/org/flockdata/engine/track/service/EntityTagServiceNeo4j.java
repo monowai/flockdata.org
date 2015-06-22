@@ -20,9 +20,9 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.engine.track.EntityRepo;
-import org.flockdata.engine.track.EntityTagDaoNeo4j;
-import org.flockdata.engine.track.EntityTagRepo;
+import org.flockdata.engine.track.dao.EntityRepo;
+import org.flockdata.engine.track.dao.EntityTagDaoNeo;
+import org.flockdata.engine.track.dao.EntityTagRepo;
 import org.flockdata.engine.track.model.EntityTagIn;
 import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
@@ -63,7 +63,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     SecurityHelper securityHelper;
 
     @Autowired
-    EntityTagDaoNeo4j entityTagDao;
+    EntityTagDaoNeo entityTagDao;
 
     @Autowired
     EntityRepo entityRepo;
@@ -82,7 +82,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             // We already have this tagged so get out of here
             return;
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagCode());
-        template.save(getRelationship(entity, tag, relationshipName, false, new HashMap<>()));
+        template.save(
+                getRelationship(entity, tag, relationshipName, false, new HashMap<>(), entityTagInput.isSince())
+        );
     }
 
     @Override
@@ -144,14 +146,13 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * <p>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
-     *
-     * @param company
+     *  @param company
      * @param entity          Entity to associate userTags with
      * @param lastLog
      * @param entityInputBean payload
      */
     @Override
-    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) {
+    public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
         Collection<EntityTag> tagsToMove = new ArrayList<>();
         Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(entity));
@@ -233,7 +234,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
 
             propMap.put(EntityTagDao.FD_WHEN, when);
-            EntityTag entityTagRelationship = getRelationship(entity, tag, key, tagInputBean.isReverse(), propMap);
+            EntityTag entityTagRelationship = getRelationship(entity, tag, key, tagInputBean.isReverse(), propMap, tagInputBean.isSince());
             if (entityTagRelationship != null) {
                 entityTags.add(entityTagRelationship);
             }
@@ -254,9 +255,12 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @param propMap          properties to associate with the relationship
      * @return Null or the EntityTag that was created
      */
-    public EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap) {
-        long lastUpdate = (entity.getFortressDateUpdated()==null ?0:entity.getFortressDateUpdated().getMillis());
-        propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
+
+        if ( isSinceRequired) {
+            long lastUpdate = (entity.getFortressDateUpdated() == null ? 0 : entity.getFortressDateUpdated().getMillis());
+            propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+        }
         EntityTag rel;
         if (isReversed)
             rel = new EntityTagOut(entity, tag, relationshipName, propMap);

@@ -38,7 +38,7 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
-import org.flockdata.engine.track.service.FdServerWriter;
+import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
@@ -171,7 +171,7 @@ public class TestFdIntegration {
     @Autowired
     FortressService fortressService;
 
-    @Qualifier("mediationFacadeNeo4j")
+    @Qualifier("mediationFacadeNeo")
     @Autowired
     MediationFacade mediationFacade;
 
@@ -332,7 +332,6 @@ public class TestFdIntegration {
     }
 
     @Test
-//     FixMe - ES 1.6 and attachment tracking not working
     public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
@@ -594,7 +593,7 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -1057,7 +1056,7 @@ public class TestFdIntegration {
         doEsQuery(entity.getFortress().getIndexName(), "*", 0);
 
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
-        assertEquals("Search Key wasn't set to null", null, entity.getSearchKey());
+        assertEquals("Search Key set to callerRef", entity.getCallerRef(), entity.getSearchKey());
     }
 
     @Test
@@ -1091,7 +1090,7 @@ public class TestFdIntegration {
 
     @Test
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");
@@ -1124,7 +1123,7 @@ public class TestFdIntegration {
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.movetag.code", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA, tagB);
-        waitAWhile("Merge Tags", 3000);
+        waitAWhile("Merge Tags", 4000);
         // We should not find anything against tagA",
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.movetag.code", "taga", 0);
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxb.movetag.code", "taga", 0);

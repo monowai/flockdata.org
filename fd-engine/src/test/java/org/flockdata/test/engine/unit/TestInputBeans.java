@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 package org.flockdata.test.engine.unit;
 
 import org.flockdata.company.model.CompanyNode;
-import org.flockdata.engine.schema.model.TxRefNode;
+import org.flockdata.engine.track.model.TxRefNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.engine.Helper;

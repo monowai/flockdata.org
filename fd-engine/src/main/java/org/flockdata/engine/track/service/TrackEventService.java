@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,7 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.TrackEventDao;
-import org.flockdata.engine.schema.model.ChangeEventNode;
+import org.flockdata.engine.track.model.ChangeEventNode;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.model.Company;
 import org.flockdata.track.model.ChangeEvent;

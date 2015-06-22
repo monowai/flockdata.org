@@ -64,7 +64,7 @@ public class TestEntityDeadlock extends EngineBase {
      *
      * @throws Exception
      */
-    //@Test
+    @Test
     //@Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
         // This test suffered under DAT-348 and was quarantined.
@@ -110,7 +110,7 @@ public class TestEntityDeadlock extends EngineBase {
                     assertEquals(id, entityTags.iterator().next().getTag().getId());
             }
         }
-        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getName()));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock", tags.get(0).getCode()));
 
         createdTags = tagService.findTags(fortress.getCompany(), "Deadlock");
         assertEquals(false, createdTags.isEmpty());

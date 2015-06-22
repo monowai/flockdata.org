@@ -38,16 +38,6 @@
             routing-key="${fd-track.binding}"
             exchange-name="${fd-track.exchange}"/>
 
-    <!--Sends search docs out. Whenever an entity has changed-->
-    <!--<int-amqp:outbound-gateway-->
-            <!--request-channel="syncSearchDocs"-->
-            <!--reply-channel="nullChannel"-->
-            <!--requires-reply="false"-->
-            <!--lazy-connect="${fd.amqp.lazyConnect}"-->
-            <!--routing-key="${fd-search.binding}"-->
-            <!--exchange-name="${fd-search.exchange}"-->
-            <!--amqp-template="amqpTemplate"/>-->
-
     <int-amqp:outbound-channel-adapter
             channel="syncSearchDocs"
             lazy-connect="${fd.amqp.lazyConnect}"
@@ -62,18 +52,19 @@
             exchange-name="${fd-store.exchange}"/>
 
     <!--Receives the inbound request from writeKvContent-->
-    <int-amqp:inbound-gateway id="kvWrite"
-                              request-channel="doKvWrite"
+    <int-amqp:inbound-channel-adapter id="kvWrite"
                               queue-names="${fd-store.queue}"
-                              reply-channel="nullChannel"
+                              channel="doKvWrite"
+                              connection-factory="connectionFactory"
                               shutdown-timeout="3000"
-                              acknowledge-mode="AUTO"
-                              error-channel="kvErrors"
                               task-executor="fd-store"
+                              mapped-request-headers="*"
+                              error-channel="kvErrors"
+                              acknowledge-mode="AUTO"
+                              message-converter="jsonToKvContentConverter"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
                               prefetch-count="${fd-store.prefetchCount}"
-                              message-converter="jsonToKvContentConverter"
-                              connection-factory="connectionFactory"/>
+                              />
 
     <!-- Starts an incoming request to track an entity -->
     <!--ToDo: Track Result should be sent somewhere -->

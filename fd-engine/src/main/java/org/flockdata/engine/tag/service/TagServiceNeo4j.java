@@ -20,8 +20,8 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.tag.model.TagDaoNeo4j;
-import org.flockdata.helper.FlockDataTagException;
+import org.flockdata.engine.concept.dao.ConceptDaoNeo;
+import org.flockdata.engine.tag.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -30,6 +30,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Tag;
+import org.flockdata.track.TagPayload;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Handles management of a companies tags.
@@ -63,14 +61,41 @@ public class TagServiceNeo4j implements TagService {
     private TagDaoNeo4j tagDao;
 
     @Autowired
+    private ConceptDaoNeo conceptDao;
+
+    @Autowired
     PlatformConfig engineConfig;
 
     private Logger logger = LoggerFactory.getLogger(TagServiceNeo4j.class);
 
     @Override
+    public Tag createTag(Company company, TagInputBean tagInput) throws FlockException {
+        Collection<TagInputBean>tags = new ArrayList<>();
+        tags.add(tagInput);
 
-    public Tag createTag(Company company, TagInputBean tagInput) {
-        return tagDao.save(company, tagInput);
+        Collection<TagResultBean>results = createTags(company, tags);
+        if ( results.isEmpty())
+            return null;
+
+        return  results.iterator().next().getTag();
+    }
+
+    @Override
+    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException{
+        String tagSuffix = engineAdmin.getTagSuffix(company);
+
+        TagPayload payload = new TagPayload(company)
+                .setTags(tagInputs)
+                .setSuffix(tagSuffix)
+                .setIgnoreRelationships(false);
+
+        Collection<TagResultBean> results = tagDao.save(payload);
+
+        for (TagResultBean result : results) {
+            if ( !result.getTag().isDefault())
+                conceptDao.registerTag(company, result.getTag().getLabel());
+        }
+        return results;
     }
 
     @Override
@@ -80,12 +105,14 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Collection<Tag> findDirectedTags(Tag startTag) {
-        return tagDao.findDirectedTags(startTag, securityHelper.getCompany(), true); // outbound
+        Company company = securityHelper.getCompany();
+        String suffix = engineAdmin.getTagSuffix(company);
+        return tagDao.findDirectedTags(suffix, startTag, company);
     }
 
     @Override
     public Collection<Tag> findTags(Company company, String label) {
-        return tagDao.findTags(company, label);
+        return tagDao.findTags(label);
     }
 
     @Override
@@ -95,7 +122,9 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Tag findTag(Company company, String label, String tagCode, boolean inflate) {
-        Tag tag = tagDao.findTagNode(company, label, tagCode, inflate);
+        String suffix = engineAdmin.getTagSuffix(company);
+
+        Tag tag = tagDao.findTagNode(suffix, label, tagCode, inflate);
 
         if (tag == null) {
             logger.debug("findTag notFound {}, {}", tagCode, label);
@@ -107,47 +136,14 @@ public class TagServiceNeo4j implements TagService {
     PlatformConfig engineAdmin;
 
     @Override
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, IOException, ExecutionException, InterruptedException {
-        String tagSuffix = engineAdmin.getTagSuffix(company);
-        List<String> createdValues = new ArrayList<>();
-        Collection<TagResultBean> results = new ArrayList<>();
-
-        Tag tag =null;
-        for (TagInputBean tagInput : tagInputs) {
-            try {
-                //Tag startTag = tagDao.findTagNode(company, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()));
-                tag = tagDao.save(company, tagInput, tagSuffix, createdValues, false);
-            } catch (FlockDataTagException te) {
-                logger.error("Tag Exception [{}]", te.getMessage());
-                tagInput.getServiceMessage(te.getMessage());
-
-            }
-            results.add( new TagResultBean(tagInput, tag));
-
-        }
-        return results;
-
-    }
-
-    @Override
-    public void purgeUnusedConcepts(Company company) {
-        tagDao.purgeUnusedConcepts(company);
-    }
-
-    @Override
-    public void purgeLabel(Company company, String label) {
-        tagDao.purge(company, label);
-    }
-
-    @Override
     public void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue) {
         AliasInputBean aliasInputBean = new AliasInputBean(aliasKeyValue);
         createAlias(company, tag, forLabel, aliasInputBean);
     }
 
     public void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput) {
-
-        tagDao.createAlias(company, tag, forLabel, aliasInput);
+        String suffix = engineAdmin.getTagSuffix(company);
+        tagDao.createAlias(suffix, tag, forLabel, aliasInput);
     }
 
     /**

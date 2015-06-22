@@ -17,7 +17,7 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
         <org.springdata.neo4j>3.3.0.RELEASE</org.springdata.neo4j>
-        <neo4j.version>2.1.7</neo4j.version>
+        <neo4j.version>2.1.8</neo4j.version>
         <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
         <start-class>org.flockdata.engine.FdEngine</start-class>
         <spring-boot.version>1.2.0.RELEASE</spring-boot.version>

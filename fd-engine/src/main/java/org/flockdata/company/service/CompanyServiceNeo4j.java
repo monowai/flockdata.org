@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -22,14 +22,12 @@ package org.flockdata.company.service;
 
 import org.flockdata.company.model.CompanyNode;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.schema.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.dao.CompanyDao;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.KeyGenService;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +48,6 @@ public class CompanyServiceNeo4j implements CompanyService {
 
     @Autowired
     PlatformConfig engineConfig;
-
-    @Autowired
-    SchemaDaoNeo4j schemaDao;
-
-    @Autowired
-    SchemaService schemaService;
 
     @Autowired
     private SecurityHelper securityHelper;
