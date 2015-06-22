@@ -49,8 +49,8 @@ public class SearchTag {
         if (this.name != null && this.name.equalsIgnoreCase(code))
             this.name = null; // Prefer code over name if they are the same
 
-        // DAT-446 - ignore the code if it is numeric and we have a textual name
-        if (NumberUtils.isNumber(this.code) &&this.name!=null )
+        // DAT-446 - ignore the code if it it is numeric, short and we have a textual name
+        if (NumberUtils.isNumber(this.code) && this.code.length()<3 &&this.name!=null )
             this.code = null;
 
         if (entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty())

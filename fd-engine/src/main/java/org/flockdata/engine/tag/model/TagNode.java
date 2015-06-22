@@ -21,6 +21,7 @@ package org.flockdata.engine.tag.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Tag;
 import org.flockdata.track.model.Alias;
@@ -77,7 +78,7 @@ public class TagNode implements Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = TagDaoNeo4j.parseKey(getCode());
+        this.key = TagHelper.parseKey(getCode());
         if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
@@ -206,6 +207,12 @@ public class TagNode implements Tag {
             return null;
 
         return located.iterator().next();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isDefault() {
+        return getLabel() == null || Tag.DEFAULT_TAG.equals(getLabel());
     }
 
 }

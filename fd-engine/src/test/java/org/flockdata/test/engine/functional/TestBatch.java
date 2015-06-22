@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -52,7 +52,7 @@ public class TestBatch extends EngineBase {
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
-        DocumentType docType = schemaService.resolveByDocCode(fortress, "test-batch");
+        DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
         ImportProfile params = Helper.getImportParams("/batch-csv-profile.json");
 

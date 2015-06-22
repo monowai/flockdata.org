@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -54,7 +54,7 @@ public class TestProfiles extends EngineBase {
 
         ProfileConfiguration profile = ImportProfileDeserializer.getImportParams("/test_profile.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
-        DocumentType docType = schemaService.resolveByDocCode(fortress, "Olympic");
+        DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
         profileService.save(fortress, docType, profile);
         ProfileConfiguration savedProfile = profileService.get(fortress, docType);
         assertNotNull ( savedProfile);

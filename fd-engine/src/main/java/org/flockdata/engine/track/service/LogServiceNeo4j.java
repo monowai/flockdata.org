@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;

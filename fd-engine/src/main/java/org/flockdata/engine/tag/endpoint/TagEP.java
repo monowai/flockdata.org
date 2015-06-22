@@ -31,7 +31,6 @@ import org.flockdata.track.service.MediationFacade;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,25 +61,6 @@ public class TagEP {
 
         Company company = CompanyResolver.resolveCompany(request);
         return mediationFacade.createTags(company, tagInputs);
-    }
-
-    @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.DELETE)
-    public ResponseEntity<String> purgeUnusedConcepts(HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-
-        tagService.purgeUnusedConcepts(company);
-        return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
-
-    }
-
-    @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteConcepts(@PathVariable("label") String label,
-                                                 HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-
-        tagService.purgeLabel(company, label);
-        return new ResponseEntity<>("Purged unused concepts", HttpStatus.ACCEPTED);
-
     }
 
     @RequestMapping(value = "/{label}", produces = "application/json", method = RequestMethod.GET)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -22,14 +22,8 @@ package org.flockdata.track.service;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.model.Company;
 import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 /**
  * User: mike
@@ -40,22 +34,8 @@ public interface SchemaService {
 
     Boolean ensureSystemIndexes(Company company);
 
-    DocumentType resolveByDocCode(Fortress fortress, String documentType);
-
-    DocumentType resolveByDocCode(Fortress fortress, String documentType, Boolean createIfMissing);
-
-    void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
-
-    Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
-
-    void createDocTypes(Iterable<EntityInputBean> headers, Fortress fortress);
-
-    Collection<DocumentResultBean> getDocumentsInUse(Company company);
-
     void purge(Fortress fortress);
 
-    Boolean ensureUniqueIndexes(Company company, List<TagInputBean> tagInputs);
-
-    public Collection<String> getKnownLabels();
+    Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
 
 }

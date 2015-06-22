@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -20,13 +20,14 @@
 package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.admin.FdMonitoringGateway;
-import org.flockdata.engine.track.EntityDaoNeo;
+import org.flockdata.engine.admin.endpoint.FdMonitoringGateway;
+import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.Company;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.PingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +71,10 @@ public class EngineConfig implements PlatformConfig {
     FdMonitoringGateway fdMonitoringGateway;
 
     @Autowired
-    Neo4jTemplate template;
+    SecurityHelper securityHelper;
+
+    @Autowired
+    SystemUserService systemUserService;
 
     private boolean conceptsEnabled=true;
     private boolean systemConstraints = true;
@@ -141,7 +144,6 @@ public class EngineConfig implements PlatformConfig {
         this.searchEnabled = "@null".equals(searchEnabled) || Boolean.parseBoolean(searchEnabled);
     }
 
-
     /**
      * Should be disabled for testing purposes
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
@@ -187,8 +189,10 @@ public class EngineConfig implements PlatformConfig {
 
         String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
+
         healthResults.put("flockdata.version", version);
-        healthResults.put("fd-engine", trackDAO.ping());
+        healthResults.put("fd-engine", "Neo4j is OK");
+
         healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
 
         String config = System.getProperty("fd.config");
@@ -197,6 +201,7 @@ public class EngineConfig implements PlatformConfig {
             config = "system-default";
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
+
         healthResults.put("fd.integration", integration);
         healthResults.put("fd-store.engine", kvConfig.getKvStore().toString());
         healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());

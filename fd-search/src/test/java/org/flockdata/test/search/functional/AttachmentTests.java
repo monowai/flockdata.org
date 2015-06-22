@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -22,7 +22,6 @@ package org.flockdata.test.search.functional;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.model.Entity;
 import org.flockdata.track.model.SearchChange;
@@ -32,8 +31,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -53,14 +50,14 @@ public class AttachmentTests extends ESBase {
 
     @Test
     public void attachment_PdfIndexedAndFound() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        // ToDo: FixMe Not working since ES 1.6
+        // https://github.com/elastic/elasticsearch-mapper-attachments/issues/131
+//        if ( true==true )
+//            return ;
         Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entity),  new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(new EntityBean(entity));
         changeA.setAttachment(Helper.getPdfDoc());
-
-        // FortB will have
-        changeA.setDescription("Test Description");
 
         deleteEsIndex(entity.getFortress().getIndexName());
 

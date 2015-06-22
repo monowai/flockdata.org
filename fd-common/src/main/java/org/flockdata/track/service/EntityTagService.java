@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -42,7 +42,7 @@ public interface EntityTagService {
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
-    Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, EntityInputBean entityInputBean);
+    Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException;
 
     Collection<EntityTag> findEntityTags(Company company, Entity entity);
 

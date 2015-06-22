@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -27,7 +27,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.LogService;
-import org.flockdata.track.service.SchemaService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -61,9 +60,6 @@ public class EntityRetryService {
 
     @Autowired
     PlatformConfig engineConfig;
-
-    @Autowired
-    SchemaService schemaService;
 
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 20,

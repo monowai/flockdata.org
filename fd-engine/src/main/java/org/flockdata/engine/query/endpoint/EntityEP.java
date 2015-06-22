@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.query.endpoint;
 
-import org.flockdata.engine.schema.service.TxService;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

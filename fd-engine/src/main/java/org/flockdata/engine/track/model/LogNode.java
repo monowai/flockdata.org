@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -22,8 +22,6 @@ package org.flockdata.engine.track.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.engine.schema.model.ChangeEventNode;
-import org.flockdata.engine.schema.model.TxRefNode;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.model.FortressUser;
 import org.flockdata.track.bean.ContentInputBean;
@@ -264,7 +262,7 @@ public class LogNode implements Log {
 
     @Override
     public void setEntityLog(EntityLog entityLog) {
-        // DAT-288
+        // DAT-288 DAT-465
         // logKey assumes that an entity will have exactly one change on the FortressWhen date
         this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
         this.entityLog = (EntityLogRelationship) entityLog;

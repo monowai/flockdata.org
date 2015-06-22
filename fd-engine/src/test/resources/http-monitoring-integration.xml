@@ -17,7 +17,7 @@
     <!-- Channels Definitions for Ping Fd-Engine ==> Fd-Search -->
 
     <int:gateway id="fdMonitoringGateway"
-                 service-interface="org.flockdata.engine.admin.FdMonitoringGateway"/>
+                 service-interface="org.flockdata.engine.admin.endpoint.FdMonitoringGateway"/>
 
     <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 

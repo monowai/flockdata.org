@@ -51,7 +51,7 @@ public class TagResultBean {
             this.name = tagInputBean.getName();
         }
         if ( tagInputBean != null )
-            this.message = tagInputBean.getServiceMessage();
+            this.message = tagInputBean.setServiceMessage();
 
     }
 

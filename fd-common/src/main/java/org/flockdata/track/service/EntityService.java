@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -102,7 +102,9 @@ public interface EntityService {
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 
-    void purge(Fortress fortress);
+    void purge(Fortress fortress, Collection<String> metaKeys);
+
+    void purgeFortressDocs(Fortress fortress);
 
     void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException;
 
@@ -127,4 +129,6 @@ public interface EntityService {
     Entity save(Entity entity);
 
     Collection<Entity> getEntities(Collection<Long> entities);
+
+    Collection<String> getEntityBatch(Fortress fortress, int count);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,12 +19,11 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.schema.service.IndexRetryService;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.model.Company;
-import org.flockdata.track.service.SchemaService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -41,7 +40,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -61,9 +59,6 @@ public class TagRetryService {
     private TagService tagService;
 
     @Autowired
-    SchemaService schemaService;
-
-    @Autowired
     IndexRetryService indexRetryService;
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
@@ -71,24 +66,22 @@ public class TagRetryService {
     @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
+
     public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans, boolean suppressRelationships) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
-        if (tagInputBeans.isEmpty())
-            return new ArrayList<>();
         boolean schemaReady;
         do {
             schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
         } while (!schemaReady);
-        //logger.debug("Schema Indexes appear to be in place");
 
+
+        if (tagInputBeans.isEmpty())
+            return new ArrayList<>();
         try {
             return tagService.createTags(company, tagInputBeans);
         } catch (FlockException e) {
             throw (e);
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            logger.error("Track Error", e);
         }
-        return new ArrayList<>();
     }
 
     @Async("fd-tag")
