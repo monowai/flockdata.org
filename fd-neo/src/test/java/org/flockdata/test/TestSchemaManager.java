@@ -19,17 +19,13 @@
 
 package org.flockdata.test;
 
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.HelloWorld;
-import org.flockdata.track.TagPayload;
+import org.flockdata.track.TagManager;
 import org.junit.Test;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.test.server.HTTP;
 
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,29 +34,34 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Created by mike on 18/06/15.
  */
-public class TestHelloWorld {
+public class TestSchemaManager {
 
     @Test
-    public void testMyExtension() throws Exception {
-        // Given
+    public void testSchema() throws Exception {
+
         try (ServerControls server = TestServerBuilders.newInProcessBuilder()
-                .withExtension("/flockdata", HelloWorld.class)
+                .withExtension("/flockdata", TagManager.class)
                 .newServer())
         {
-            TagInputBean tagInputBean = new TagInputBean("Code", "Label");
-            Collection<TagInputBean> tags = new ArrayList<>();
-            tags.add(tagInputBean);
-            TagPayload payload = new TagPayload(tags);
-            String uri = server.httpURI().resolve("flockdata/makeTags").toString();
-            // When
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Content-Type", MediaType.APPLICATION_JSON);
-            HTTP.Builder builder = HTTP.withHeaders(headers);
-            HTTP.Response response =
-                    builder.POST(uri, payload);
+            String schema = server.httpURI().resolve("flockdata/schema").toString();
 
-            // Then
-            assertEquals(200, response.status());
+            // When
+            HTTP.Builder builder = getBuilder();
+            // Make tag
+            HTTP.Response writeResponse =
+                    builder.POST(schema);
+
+            assertEquals(200, writeResponse.status());
+
+
         }
+    }
+
+
+    private HTTP.Builder getBuilder() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", MediaType.APPLICATION_JSON);
+
+        return HTTP.withHeaders(headers);
     }
 }

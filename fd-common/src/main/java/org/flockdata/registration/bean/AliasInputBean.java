@@ -31,9 +31,14 @@ public class AliasInputBean {
 
     public AliasInputBean(){};
 
-    public AliasInputBean(String aliasKeyValue) {
+    public AliasInputBean(String code) {
         this();
-        this.code = aliasKeyValue;
+        this.code = code;
+    }
+
+    public AliasInputBean(String code, String description) {
+        this.code = code;
+        this.description = description;
     }
 
     public String getCode() {

@@ -19,39 +19,41 @@
 
 package org.flockdata.track;
 
-import org.flockdata.registration.bean.TagInputBean;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by mike on 18/06/15.
+ * Created by mike on 23/06/15.
  */
-@Path( "" )
-public class HelloWorld
-{
+@Path("/schema")
+public class SchemaManager {
     private final GraphDatabaseService database;
 
-    public HelloWorld( @Context GraphDatabaseService database )
-    {
+    private Logger logger = LoggerFactory.getLogger(SchemaManager.class);
+
+    public SchemaManager(@Context GraphDatabaseService database) {
         this.database = database;
     }
 
-    @POST
-    @Produces( MediaType.APPLICATION_JSON )
-    @Consumes( MediaType.APPLICATION_JSON )
-    @Path( "/makeTags" )
-    public Response hello( TagPayload tag )
-    {
-        System.out.println("Hello World " + tag.getTags().size());
 
-        // Do stuff with the database
-        return Response.ok().entity( "Hello World, nodeId=" + tag.getTags().size()).type(MediaType.APPLICATION_JSON).build();
+    @POST
+    @Path("/")
+    public Response ensureSchema() {
+        database.execute("create constraint on (t:Country) assert t.key is unique");
+        database.execute("create constraint on (t:CountryAlias) assert t.key is unique");
+        database.execute("create constraint on (t:State) assert t.key is unique");
+        database.execute("create constraint on (t:StateAlias) assert t.key is unique");
+        // ToDo: Create a city node. The key should be country.{state}.city
+        //template.query("create constraint on (t:City) assert t.key is unique", null);
+        logger.debug("Created system constraints");
+        return Response.ok().build();
     }
+
 }
+
