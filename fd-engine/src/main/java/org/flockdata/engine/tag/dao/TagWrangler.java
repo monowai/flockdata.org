@@ -21,7 +21,6 @@ package org.flockdata.engine.tag.dao;
 
 import org.flockdata.engine.tag.model.AliasNode;
 import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -74,13 +73,13 @@ public class TagWrangler {
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
-                tagInput.getServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+                tagInput.setServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
                 if (tagInput.getNotFoundCode() !=null && !tagInput.getNotFoundCode().equals("")){
                     TagInputBean notFound = new TagInputBean(tagInput.getNotFoundCode())
                             .setLabel(tagInput.getLabel());
 
-                    tagInput.getServiceMessage("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to [" + tagInput.getNotFoundCode() + "]. An alias is been created for " +tagInput.getCode());
-                    logger.info(tagInput.getServiceMessage());
+                    tagInput.setServiceMessage("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to [" + tagInput.getNotFoundCode() + "]. An alias is been created for " + tagInput.getCode());
+                    logger.info(tagInput.setServiceMessage());
                     ArrayList<AliasInputBean>aliases = new ArrayList<>();
                     // Creating an alias so that we don't have to process this all again. The alias will be against the undefined tag.
                     aliases.add( new AliasInputBean(tagInput.getCode()));

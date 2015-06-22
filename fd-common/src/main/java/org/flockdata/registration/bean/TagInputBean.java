@@ -124,12 +124,12 @@ public class TagInputBean {
 
     }
 
-    public void getServiceMessage(String getServiceMessage) {
+    public void setServiceMessage(String getServiceMessage) {
         this.serviceMessage = getServiceMessage;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getServiceMessage() {
+    public String setServiceMessage() {
         return serviceMessage;
     }
 
@@ -375,5 +375,11 @@ public class TagInputBean {
 
     public boolean isSince() {
         return since;
+    }
+
+    public void addAlias(AliasInputBean alias) {
+        if ( aliases == null )
+            aliases = new ArrayList<>();
+        aliases.add(alias);
     }
 }
