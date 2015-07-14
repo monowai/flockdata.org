@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans:beans xmlns:int="http://www.springframework.org/schema/integration"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:int-http="http://www.springframework.org/schema/integration/http"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration
+		http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/http
+		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+    <int:annotation-config/>
+    <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
+
+    <!-- Channels Definitions for Ping Fd-Engine ==> Fd-Search -->
+    <int:channel id="doEsPingRequest"/>
+    <int:channel id="doEsPingResponse"/>
+
+    <int-http:inbound-gateway request-channel="doEsPingRequest"
+                              reply-channel="doEsPingResponse"
+                              path="/monitoring/esPing"
+                              reply-timeout="${reply.timeout}"
+                              request-timeout="${request.timeout}"
+                              supported-methods="GET"/>
+
+    <!-- Channels Definitions for Ping Fd-Search ==> Fd-Engine -->
+    <int:gateway id="fdMonitoringGateway"
+                 service-interface="org.flockdata.search.service.FdMonitoringGateway"/>
+
+    <int:channel id="doFdEnginePingRequest"/>
+
+    <int:channel id="pingFdEngineRequest"/>
+    <int:channel id="pingFdEngineReply"/>
+
+    <int:json-to-object-transformer id="jsonToObject3"
+                                    input-channel="doFdEnginePingResponse"
+                                    output-channel="pingFdEngineReply"
+                                    type="org.flockdata.search.model.PingResult">
+    </int:json-to-object-transformer>
+
+    <int:object-to-json-transformer id="objectToJson3"
+                                    input-channel="pingFdEngineRequest"
+                                    output-channel="doFdEnginePingRequest"
+                                    content-type="application/json">
+    </int:object-to-json-transformer>
+
+    <int-http:outbound-gateway request-channel="doFdEnginePingRequest"
+                               reply-channel="doFdEnginePingResponse"
+                               reply-timeout="${reply.timeout}"
+                               url="${fd-engine.url}/ping"
+                               http-method="GET"
+                               expected-response-type="java.lang.String" />
+
+
+</beans:beans>

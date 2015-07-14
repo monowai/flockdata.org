@@ -1,0 +1,51 @@
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan
+            base-package="org.flockdata.engine.admin.endpoint,
+            org.flockdata.engine.query.endpoint,
+            org.flockdata.engine.tag.endpoint,
+            org.flockdata.engine.concept.endpoint,
+            org.flockdata.engine.track.endpoint,
+            org.flockdata.geography.endpoint,
+            org.flockdata.company.endpoint"
+            />
+
+    <tx:annotation-driven/>
+    
+    <!-- Required to get the SimpleUser Security Principal in a SimpleUser MVC Controller method -->
+    <mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean class="org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver"/>
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/fortress/**"/>
+            <mvc:mapping path="/query/**"/>
+            <mvc:mapping path="/admin/**"/>
+            <mvc:mapping path="/entity/**"/>
+            <mvc:mapping path="/company/**"/>
+            <mvc:mapping path="/tag/**"/>
+            <mvc:mapping path="/doc/**"/>
+            <mvc:mapping path="/track/**"/>
+            <mvc:mapping path="/batch/**"/>
+            <bean class="org.flockdata.helper.ApiKeyInterceptor"/>
+        </mvc:interceptor>
+
+    </mvc:interceptors>
+
+</beans>

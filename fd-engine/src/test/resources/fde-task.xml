@@ -1,0 +1,51 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <task:annotation-driven mode="aspectj" executor="fd-engine"/>
+
+    <task:executor id="fd-engine"
+                   pool-size="${fd-engine.poolSize}"
+                   queue-capacity="${fd-engine.queueCapacity}"
+                   keep-alive="10000"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-log"
+                   pool-size="${fd-log.poolSize}"
+                   queue-capacity="${fd-log.queueCapacity}"
+                   keep-alive="10000"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-tag"
+                   pool-size="${fd-tag.poolSize}"
+                   queue-capacity="${fd-tag.queueCapacity}"
+                   keep-alive="10000"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-track"
+                   pool-size="${fd-track.poolSize}"
+                   queue-capacity="${fd-track.queueCapacity}"
+                   keep-alive="6000"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-search"
+                   pool-size="${fd-search.poolSize}"
+                   queue-capacity="${fd-search.queueCapacity}"
+                   keep-alive="6000"
+                   rejection-policy="CALLER_RUNS"/>
+
+    <task:executor id="fd-store"
+                   pool-size="${fd-store.poolSize}"
+                   queue-capacity="${fd-store.queueCapacity}"
+                   keep-alive="6000"
+                   rejection-policy="CALLER_RUNS"/>
+
+
+</beans>

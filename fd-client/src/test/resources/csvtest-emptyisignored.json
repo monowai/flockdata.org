@@ -1,0 +1,17 @@
+{
+    "documentName": "Athlete",
+    "contentType": "csv",
+    "tagOrEntity": "entity",
+    "entityOnly": true,
+    "fortress": "Olympic",
+    "fortressUser": "mike",
+    "emptyIgnored": true,
+    "header": true,
+    "content": {
+        "Title": {
+            "callerRef": true,
+            "title": true,
+            "tag": true
+        }
+    }
+}

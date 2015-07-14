@@ -1,0 +1,61 @@
+{
+    "mapping": {
+        "properties": {
+            "metaKey": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "code": {
+                "type": "string",
+                "boost": "2.0",
+                "index": "not_analyzed"
+            },
+            "docType": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "fortress": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "lastEvent": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "timestamp": {
+                "type": "date"
+            },
+            "whenCreated": {
+                "type": "date"
+            },
+            "description": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "when": {
+                "type": "date"
+            },
+            "who": {
+                "type": "string",
+                "index": "not_analyzed"
+            }
+        },
+
+        "dynamic_templates": [
+            {
+                "fd.tag-template": {
+                    "path_match": "tag.*.code",
+                    "match_mapping_type": "string",
+                    "mapping": {
+                        "type": "string",
+                        "doc_values": true,
+                        "boost": 3.0,
+                        "index": "not_analyzed",
+                        "store": "true"
+                    }
+                }
+            }
+        ]
+
+    }
+}

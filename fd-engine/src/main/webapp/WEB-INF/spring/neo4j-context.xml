@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/data/neo4j
+                http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd
+                http://www.springframework.org/schema/tx
+                http://www.springframework.org/schema/tx/spring-tx.xsd
+                http://www.springframework.org/schema/util
+                http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="transactionManager"
+          class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+    <!--<context:load-time-weaver aspectj-weaving="on"  weaver-class="org.springframework.instrument.classloading.ReflectiveLoadTimeWeaver"/>-->
+    <!--<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" proxy-target-class="true"/>-->
+    <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
+
+    <!-- Controllers etc to look for -->
+    <neo4j:repositories base-package="org.flockdata.*"/>
+
+    <neo4j:config graphDatabaseService="graphDatabaseService" base-package="org.flockdata.*"/>
+    <!--NEO4J interface to use-->
+    <!--<import resource="neo4j-${neo4j}.xml"/>-->
+    <!--<import resource="neo4j-java.xml"/>-->
+
+    <util:map id="neoConfig" >
+        <entry key="remote_shell_enabled" value="${neo4j.remoteShell}"/>
+        <entry key="remote_shell_host" value="${neo4j.remoteShellHost}"/>
+        <entry key="remote_shell_port" value="${neo4j.remoteShellPort}"/>
+        <entry key="online_backup_enabled" value="${neo4j.onlineBackup:#{null}}"/>
+        <entry key="cache-type" value="${neo4j.cacheType}"/>
+        <entry key="allow_store_upgrade" value="true"/>
+        <entry key="neostore.nodestore.db.mapped_memory" value="${neostore.nodestore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipstore.db.mapped_memory" value="${neostore.relationshipstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.relationshipgroupstore.db.mapped_memory" value="${neostore.relationshipgroupstore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.mapped_memory" value="${neostore.propertystore.db.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.strings.mapped_memory" value="${neostore.propertystore.db.strings.mapped_memory:#{null}}"/>
+        <entry key="neostore.propertystore.db.arrays.mapped_memory" value="${neostore.propertystore.db.arrays.mapped_memory:#{null}}"/>
+        <entry key="node_cache_size" value="${node_cache_size:#{null}}"/>
+        <entry key="relationship_cache_size" value="${relationship_cache_size:#{null}}"/>
+        <entry key="cache.memory_ratio" value="${cache.memory_ratio:#{null}}"/>
+
+        <entry key="keep_logical_logs" value="${neo.keep_logical_logs}"/>
+    </util:map>
+
+    <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
+
+    <bean id="graphDbBuilder" factory-bean="graphDbFactory" factory-method="newEmbeddedDatabaseBuilder">
+        <constructor-arg value="${neo4j.datastore}"/>
+    </bean>
+
+    <bean id="graphDbBuilderFinal" factory-bean="graphDbBuilder" factory-method="setConfig">
+        <constructor-arg ref="neoConfig"/>
+    </bean>
+
+    <bean id="graphDatabaseService" factory-bean="graphDbBuilderFinal" factory-method="newGraphDatabase"
+          destroy-method="shutdown"/>
+
+    <bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start"
+          destroy-method="stop">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+
+</beans>

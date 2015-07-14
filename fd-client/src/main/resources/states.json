@@ -1,0 +1,36 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "delimiter":",",
+  "header": true,
+  "content": {
+    "name": {
+      "tag": true,
+      "label": "State",
+      "code": "#row[country]+'-'+#row[code]",
+      "name": "name",
+      "targets": [
+        {
+          "code": "country",
+          "label": "Country",
+          "mustExist": true,
+          "relationship": "region"
+        }
+      ],
+      "aliases": [
+        {
+          "code": "us-census",
+          "description": "'USCensus'"
+        },
+        {
+          "code": "#row[country]+'-'+#row[name]",
+          "description": "'StateName'"
+        }
+
+      ]
+    },
+    "us-census":{
+      "dataType": "string"
+    }
+  }
+}

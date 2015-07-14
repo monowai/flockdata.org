@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/integration/amqp
+	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+		                http://www.springframework.org/schema/integration
+		                http://www.springframework.org/schema/integration/spring-integration.xsd">
+    <int:annotation-config/>
+
+    <!-- Implementation bindings -->
+    <import resource="fde-amqp-rabbit.xml"/>
+
+    <!--Sends search docs out. Whenever an entity has changed-->
+    <!--<int-amqp:outbound-gateway-->
+            <!--request-channel="syncSearchDocs"-->
+            <!--routing-key="${fd-search.binding}"-->
+            <!--requires-reply="false"-->
+            <!--exchange-name="${fd-search.exchange}"-->
+            <!--amqp-template="amqpTemplate"/>-->
+
+    <!-- Acknowledgement from fd-search of an fd-engine request-->
+    <int-amqp:inbound-gateway id="searchSyncResultId"
+                              request-channel="searchDocSyncResult"
+                              queue-names="${fd-engine.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              concurrent-consumers="${fd-search.concurrentConsumers}"
+                              prefetch-count="${fd-search.prefetchCount}"
+                              task-executor="fd-engine"
+
+                              connection-factory="connectionFactory"
+                              message-converter="jsonToSearchResultConverter"/>
+
+    <int-amqp:outbound-channel-adapter
+            channel="syncSearchDocs"
+            lazy-connect="${fd.amqp.lazyConnect:false}"
+            routing-key="${fd-search.binding}"
+            default-delivery-mode="NON_PERSISTENT"
+            amqp-template="amqpTemplate"
+            exchange-name="${fd-search.exchange}"/>
+
+    <!--Part of the track flow. Writes the entity to the KV store-->
+    <int-amqp:outbound-channel-adapter
+            channel="writeKvContent"
+            default-delivery-mode="NON_PERSISTENT"
+            routing-key="${fd-store.binding}"
+            exchange-name="${fd-store.exchange}"/>
+
+    <!--internally used to send content to the inboundTrackGateway -->
+    <int-amqp:outbound-channel-adapter
+            channel="writeEntityContent"
+            routing-key="${fd-track.binding}"
+            default-delivery-mode="NON_PERSISTENT"
+            mapped-request-headers="apiKey"
+            exchange-name="${fd-track.exchange}"/>
+
+    <!--Receives the inbound request from writeKvContent-->
+    <int-amqp:inbound-gateway id="kvWrite"
+                              request-channel="doKvWrite"
+                              queue-names="${fd-store.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              error-channel="kvErrors"
+                              task-executor="fd-store"
+                              concurrent-consumers="${fd-store.concurrentConsumers}"
+                              prefetch-count="${fd-store.prefetchCount}"
+                              message-converter="jsonToKvContentConverter"
+                              connection-factory="connectionFactory"/>
+
+    <!-- Starts an incoming request to track an entity -->
+    <int-amqp:inbound-gateway id="entityWrite"
+                              request-channel="doTrackEntity"
+                              reply-channel="nullChannel"
+                              queue-names="${fd-track.queue}"
+                              shutdown-timeout="3000"
+                              acknowledge-mode="AUTO"
+                              task-executor="fd-track"
+                              mapped-request-headers="apiKey"
+                              error-channel="entityErrors"
+                              message-converter="jsonToEntityInput"
+                              concurrent-consumers="${fd-track.concurrentConsumers}"
+                              prefetch-count="${fd-track.prefetchCount}"
+                              connection-factory="connectionFactory"/>
+
+</beans>

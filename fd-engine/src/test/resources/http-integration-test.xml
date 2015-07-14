@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/integration
+       http://www.springframework.org/schema/integration/spring-integration.xsd
+       http://www.springframework.org/schema/integration/http
+	   http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+    <int:annotation-config/>
+
+    <bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
+
+    <int-http:outbound-gateway request-channel="syncSearchDocs"
+                               reply-channel="nullChannel"
+                               url="${fd-search.url}/v1/api/esMake"
+                               extract-request-payload="true"/>
+
+    <int-http:inbound-gateway request-channel="searchDocSyncResult"
+                              path="/api/searchResult"
+                              request-payload-type="org.flockdata.search.model.SearchResults"
+                              supported-methods="POST"/>
+
+    <int-http:outbound-gateway request-channel="doMetaKeyQuery"
+                               reply-channel="doMetaKeyReply"
+                               reply-timeout="${reply.timeout}"
+                               url="${fd-search.url}/v1/api/esSearch"
+                               extract-request-payload="true"
+
+                               expected-response-type="java.lang.String" />
+
+    <int-http:outbound-gateway request-channel="doTagCloudQuery"
+                               reply-channel="doTagCloudReply"
+                               reply-timeout="${reply.timeout}"
+                               url="${fd-search.url}/v1/api/esTagCloud"
+                               extract-request-payload="true"
+                               expected-response-type="java.lang.String" />
+
+
+</beans>

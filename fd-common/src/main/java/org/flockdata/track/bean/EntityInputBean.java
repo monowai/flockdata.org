@@ -1,0 +1,450 @@
+/*
+ * Copyright (c) 2012-2015 "FlockData LLC"
+ *
+ * This file is part of FlockData.
+ *
+ * FlockData is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FlockData is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.flockdata.track.bean;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.track.model.EntityKey;
+import org.joda.time.DateTime;
+
+import java.io.Serializable;
+import java.util.*;
+
+/**
+ * User: Mike Holdsworth
+ * Date: 11/05/13
+ * Time: 9:19 AM
+ */
+public class EntityInputBean implements Serializable{
+    private String metaKey;
+    private String callerRef;
+    private String fortress;
+    private String fortressUser;
+    private String documentName;
+    private Date when = null; // Created Date
+
+    private Date lastChange = null;
+    private ContentInputBean content;
+    private transient List<TagInputBean> tags = new ArrayList<>();
+    private transient Map<String,List<EntityKey>> crossReferences = new HashMap<>();
+    Map<String, Object> properties = new HashMap<>();
+
+    private String event = "Create";
+    private String description;
+    private String name;
+    private boolean searchSuppressed;
+    private boolean trackSuppressed = false;
+    private boolean metaOnly = false;
+    private String timezone;
+    private boolean archiveTags = true;
+    private String updateUser;
+
+    public EntityInputBean() {
+    }
+
+    /**
+     *
+     * @param fortressName      Application/Division or System that owns this information
+     * @param fortressUser  who in the fortressName created it
+     * @param documentCode  within the fortressName, this is a document of this unique type
+     * @param fortressWhen  when did this occur in the fortressName
+     * @param callerRef     case sensitive unique key. If not supplied, then the service will generate one
+     */
+    public EntityInputBean(String fortressName, String fortressUser, String documentCode, DateTime fortressWhen, String callerRef) {
+        this();
+        if (fortressWhen != null) {
+            setWhen(fortressWhen);
+        }
+        setFortress(fortressName);
+        setFortressUser( fortressUser);
+        setDocumentName(documentCode);
+        setCallerRef(callerRef);
+    }
+
+    public EntityInputBean(String description, String fortressUser, String documentCode, DateTime fortressWhen) {
+        this(description, fortressUser, documentCode, fortressWhen, null);
+
+    }
+
+    public EntityInputBean(String fortressName, String docTypeName) {
+        this();
+        this.fortress= fortressName;
+        this.documentName = docTypeName;
+    }
+
+    public void setMetaKey(String metaKey) {
+        this.metaKey = metaKey;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getMetaKey() {
+        return this.metaKey;
+    }
+
+    /**
+     * Fortress Timezone when
+     * Defers to the ContentInput if it has a valid date
+     *
+     * @return when created in the owning fortress
+     */
+    public Date getWhen() {
+        if (when !=null  )
+            return when;
+        // Default to the content date
+        if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0)
+            return content.getWhen();
+        return null;
+    }
+
+
+    /**
+     * This date is ignored if a valid one is in the Content
+     *
+     * @param when when the caller says this occurred
+     */
+    public void setWhen(DateTime when) {
+        if ( when != null )
+            this.when = when.toDate();
+
+    }
+
+    public String getFortress() {
+        return fortress;
+    }
+
+    /**
+     * Fortress is a computer application/service in the callers environment, i.e. Payroll, HR, AR.
+     * This could also be thought of as a Database in an DBMS
+     *
+     * The Fortress relationshipName is unique for the Company.
+     *
+     * @param fortress unique fortressName relationshipName
+     */
+    public void setFortress(String fortress) {
+        this.fortress = fortress;
+    }
+
+    /**
+     * @return name
+     */
+    public String getFortressUser() {
+        return fortressUser;
+    }
+
+    public void setFortressUser(String fortressUser) {
+        this.fortressUser = fortressUser;
+    }
+
+    public String getDocumentName() {
+        return documentName;
+    }
+
+    /**
+     * Fortress unique type of document that categorizes this type of change.
+     *
+     * @param documentName relationshipName of the document
+     */
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
+    }
+
+
+    public String getCallerRef() {
+        return callerRef;
+    }
+
+    /**
+     * Optional case sensitive & unique for the Fortress & Document Type combination. If you do not have
+     * a primary key, then to update "this" instance of the Entity you will need to use
+     * the generated AuditKey returned by FlockData in the TrackResultBean
+     *
+     * @see TrackResultBean
+     *
+     * @param callerRef case sensitive primary key generated by the calling fortressName
+     */
+    public EntityInputBean setCallerRef(String callerRef) {
+        this.callerRef = callerRef;
+        return this;
+    }
+
+    @Deprecated
+    public void setLog(ContentInputBean content){
+        setContent(content);
+    }
+    public void setContent(ContentInputBean content) {
+        this.content = content;
+        if (content != null) {
+            this.metaOnly = false;
+            //this.when = content.getWhen();
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public ContentInputBean getContent() {
+        return content;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public EntityInputBean setProperty(String key, Object value) {
+        if ( properties == null )
+            properties = new HashMap<>();
+        properties.put(key, value);
+        return this;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    /**
+     * only used if the entity is a one off immutable event
+     * is supplied, then the event is logged against the entity. Typically events are logged
+     * against AuditLogs
+     *
+     * @param event user definable event for an immutable entity
+     */
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    /**
+     * Single tag
+     *
+     *
+     * @param tag tag to add
+     * @see EntityInputBean#getTags()
+     */
+    public EntityInputBean addTag(TagInputBean tag) {
+        tags.add(tag);
+        return this;
+    }
+
+    /**
+     * Tag structure to create. This is a short hand way of ensuring an
+     * associative structure will exist. Perhaps you can only identify this while processing
+     * a large file set.
+     * <p/>
+     * This will not associate the entity with the tag structure. To do that
+     *
+     * @return Tag values to created
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public List<TagInputBean> getTags() {
+        return tags;
+    }
+
+    public void setTags(Collection<TagInputBean>tags){
+        for (TagInputBean next : tags) {
+            this.tags.add(next);
+
+        }
+
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     *
+     * @param description User definable note describing the entity
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return do not index in the search service
+     */
+    public boolean isSearchSuppressed() {
+        return searchSuppressed;
+    }
+
+    /**
+     * Graph the change only. Do not write to the search service
+     *
+     * @param searchSuppressed true/false
+     */
+    public void setSearchSuppressed(boolean searchSuppressed) {
+        this.searchSuppressed = searchSuppressed;
+    }
+
+    /**
+     * do not index in the graph - search only
+     * @return graphable?
+     */
+    public boolean isTrackSuppressed() {
+        return trackSuppressed;
+    }
+
+    /**
+     * Write the change as a search event only. Do not write to the graph service
+     *
+     * @param trackSuppressed true/false
+     */
+    public void setTrackSuppressed(boolean trackSuppressed) {
+        this.trackSuppressed = trackSuppressed;
+    }
+
+    public void addCrossReference(String relationshipName, EntityKey entityKey){
+        //new CrossReferenceInputBean(getFortresses(), callerRef, c)
+        List<EntityKey>refs = crossReferences.get(relationshipName);
+        if ( refs == null ){
+            refs = new ArrayList<>();
+            crossReferences.put(relationshipName, refs);
+        }
+        refs.add(entityKey);
+    }
+
+    /**
+     * Format is "referenceName", Collection<callerRef>
+     * All callerRefs are assumed to belong to this same fortressName
+     * "This" callerRef is assume to be the starting point for the CrossReferences to link to
+     *
+     * @return crossReferences
+     */
+    public Map<String,List<EntityKey>> getCrossReferences(){
+        return crossReferences;
+    }
+
+    @Override
+    public String toString() {
+        return "EntityInputBean{" +
+                "fortressName='" + getFortress() + '\'' +
+                ", documentName='" + getDocumentName() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", callerRef='" + getCallerRef() + '\'' +
+                ", metaKey='" + getMetaKey() + '\'' +
+                '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = (name!=null? name.trim():name);
+    }
+
+    /**
+     * Flags that this Entity will never have a content. It will still be tracked through
+     * in to the Search Service.
+     *
+     * @param metaOnly if false then the entity will not be indexed in search until a content is added
+     */
+    public void setMetaOnly(boolean metaOnly) {
+        this.metaOnly = metaOnly;
+    }
+
+    public boolean isMetaOnly() {
+        return metaOnly;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    /**
+     * Only used if the fortressName is being created for the first time.
+     * This configures the default TZ used by the fortressName for dates
+     *
+     * @return TimeZone.getTimeZone(fortressTz).getID();
+     */
+    public String getTimezone() {
+        if (timezone !=null )
+            return timezone;
+        return TimeZone.getDefault().getID();
+    }
+
+    public boolean isArchiveTags() {
+        return archiveTags;
+    }
+
+    /**
+     * Instructs FlockData to Move tags already associated with an entity to the content
+     * if they are NOT present in this track request.
+     *
+     * Only applies to updating existing entities.
+     *
+     * @param archiveTags default False - tags not present in this request but are recorded
+     *                    against the entity will be MOVED to the content
+     */
+    public void setArchiveTags(boolean archiveTags) {
+        this.archiveTags = archiveTags;
+    }
+
+    /**
+     * Supports the situation where an entity and it's content are being created and parsed from a single row.
+     * The mapping process is responsible for mapping the value to the Log as the entity does not have it
+     *
+     * @param updateUser fortressUser
+     */
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setCrossReferences(Map<String, List<EntityKey>> crossReferences) {
+        this.crossReferences = crossReferences;
+    }
+
+    // When last updated in the fortress
+    public void setLastChange(Date lastChange) {
+        this.lastChange = lastChange;
+    }
+
+    public Date getLastChange() {
+        return lastChange;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntityInputBean)) return false;
+
+        EntityInputBean that = (EntityInputBean) o;
+
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (!documentName.equals(that.documentName)) return false;
+        if (!fortress.equals(that.fortress)) return false;
+        if (fortressUser != null ? !fortressUser.equals(that.fortressUser) : that.fortressUser != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = metaKey != null ? metaKey.hashCode() : 0;
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + fortress.hashCode();
+        result = 31 * result + (fortressUser != null ? fortressUser.hashCode() : 0);
+        result = 31 * result + documentName.hashCode();
+        return result;
+    }
+}

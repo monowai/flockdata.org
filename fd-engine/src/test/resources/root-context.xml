@@ -1,0 +1,75 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:spring-configured/>
+    <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
+
+    <context:component-scan base-package=
+       "org.flockdata.engine.admin,
+		org.flockdata.engine.query,
+		org.flockdata.engine.schema,
+		org.flockdata.engine.tag,
+		org.flockdata.engine.track,
+		org.flockdata.registration,
+		org.flockdata.helper,
+		org.flockdata.configure,
+		org.flockdata.geography,
+		org.flockdata.company,
+		org.flockdata.kv">
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+    </context:component-scan>
+
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:config.properties"/>
+
+    <import resource="neo4j-context.xml"/>
+    <import resource="integration.xml"/>
+    <import resource="test-security.xml" />
+    <import resource="kv-context.xml"/>
+    <import resource="fde-task.xml"/>
+    <import resource="http-monitoring-integration.xml"/>
+
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+
+    <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
+
+	<bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
+
+    <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
+        <constructor-arg>
+            <bean class="com.thetransactioncompany.cors.CORSConfiguration">
+                <constructor-arg>
+                    <!-- Init the CORS filter via Spring so that properties can be extracted from anywhere-->
+                    <props>
+                        <prop key="cors.allowOrigin">${cors.allowOrigin}</prop>
+                        <prop key="cors.allowSubdomains">${cors.allowSubdomains}</prop>
+                        <prop key="cors.supportedHeaders">${cors.supportedHeaders}</prop>
+                        <prop key="cors.exposedHeaders">${cors.exposedHeaders}</prop>
+                        <prop key="cors.supportedMethods">${cors.supportedMethods}</prop>
+                        <prop key="cors.supportsCredentials">${cors.supportsCredentials}</prop>
+                        <prop key="cors.maxAge">${cors.maxAge}</prop>
+                        <prop key="cors.tagRequests">${cors.tagRequests}</prop>
+
+                    </props>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>
