@@ -98,12 +98,6 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-
     </distributionManagement>
 
     <organization>
