@@ -5,7 +5,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98</version>
+     <version>0.99-BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

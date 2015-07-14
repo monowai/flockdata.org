@@ -5,7 +5,7 @@
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-        <version>0.98</version>
+         <version>0.99-BUILD-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <!--<packaging>war</packaging>-->
