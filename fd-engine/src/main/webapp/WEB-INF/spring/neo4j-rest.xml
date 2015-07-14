@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--Hit Neo4J over a REST API-->
+    <!--If using over the REST api you can not clear down the database, so don't call Neo4jHelper.cleanDb(..) -->
+    <bean id="graphDatabaseService" class="org.neo4j.rest.graphdb.RestGraphDatabase">
+        <constructor-arg index="0" value="${neo4j.url}"/>
+    </bean>
+
+
+</beans>

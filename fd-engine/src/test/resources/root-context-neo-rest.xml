@@ -1,0 +1,49 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:spring-configured/>
+    <context:annotation-config/>
+
+    <context:component-scan base-package="
+        org.flockdata.engine,
+		org.flockdata.registration,
+		org.flockdata.helper,
+		org.flockdata.geography,
+		org.flockdata.company,
+		org.flockdata.kv" />
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
+                                  location="classpath:config.properties"/>
+
+    <import resource="neo4j-context-rest.xml"/>
+    <import resource="integration.xml"/>
+    <import resource="test-security.xml" />
+    <import resource="kv-context.xml"/>
+    <import resource="fde-task.xml"/>
+    <import resource="http-monitoring-integration.xml"/>
+
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+
+    <aop:aspectj-autoproxy/>
+
+    <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
+
+	<bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
+
+
+</beans>

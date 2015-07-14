@@ -1,0 +1,37 @@
+{
+    "contentType": "csv",
+    "tagOrEntity": "entity",
+    "documentName": "QuestionEvent",
+    "header": true,
+    "archiveTags": false,
+    "event": "Answer",
+    "fortressName": "StackOverflow",
+    "content": {
+        "qid": {
+            "callerRef": true
+        },
+        "tags": {
+            "label": "Topic",
+            "reverse": true,
+            "relationship": "REFERS",
+            "delimiter": ","
+        },
+        "i": {
+            "tag": true,
+            "label": "Developer",
+            "relationship": "ASKS",
+            "createUser": true
+
+        },
+        "j": {
+            "tag": true,
+            "label": "Developer",
+            "relationship": "HAS_ANSWER",
+            "updateUser": true
+        },
+        "at" :{
+            "createDate":true,
+            "dateFormat": "epoc"
+        }
+    }
+}

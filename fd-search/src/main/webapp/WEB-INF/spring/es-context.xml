@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:elasticsearch="http://www.pilato.fr/schema/elasticsearch"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.pilato.fr/schema/elasticsearch
+        http://www.pilato.fr/schema/elasticsearch/elasticsearch-0.3.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <!--https://github.com/dadoonet/spring-elasticsearch/blob/master/README.md-->
+    <!--Embedded ES client-->
+    <elasticsearch:node id="esNode" properties="esProps"/>
+    <elasticsearch:client id="esClient" node="esNode" properties="esProps" />
+
+    <util:map id="esProps">
+        <entry key="cluster.name" value="${es.clustername}"/>
+        <entry key="path.data" value="${es.path.data}"/>
+        <entry key="http.port" value="${es.http.port}"/>
+        <entry key="transport.tcp.port" value="${es.transport.tcp.port}"/>
+        <entry key="plugin.mandatory" value="mapper-attachments"/>
+        <!--https://github.com/elasticsearch/kibana/issues/2436-->
+        <entry key="script.disable_dynamic" value="${es.script.disable_dynamic}"/>
+        <entry key="path.plugins" value="${es.path.plugins}"/>
+
+    </util:map>
+
+</beans>

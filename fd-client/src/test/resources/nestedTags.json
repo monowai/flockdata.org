@@ -1,0 +1,52 @@
+{
+    "documentName": "Sales",
+    "contentType": "csv",
+    "tagOrTrack": "track",
+    "staticDataClazz": "com.absales.DataResolver",
+    "entityOnly": false,
+    "fortress": "Sales",
+    "fortressUser": "batch",
+    "header": true,
+    "content": {
+        "transaction_id": {
+            "callerRef": true
+        },
+        "zip": {
+            "tag": true,
+            "relationship": "lives",
+            "label": "ZipCode",
+            "targets": [
+                {
+                    "relationship": "located",
+                    "code": "city",
+                    "label": "City",
+                    "targets": [
+                        {
+                            "relationship": "city",
+                            "code": "state",
+                            "label": "State",
+                            "targets": [
+                                {
+                                    "relationship": "state",
+                                    "code": "country",
+                                    "label": "Country",
+                                    "mustExist": true
+                                }
+                            ]
+
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "name": {
+            "tag" :true,
+            "relationship":"blah",
+            "label": "Wow"
+        }
+    }
+
+}
+
+

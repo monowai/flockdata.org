@@ -48,12 +48,15 @@ Thumbs.db
 .settings/
 *.iml
 target/
-data/
 report/
 
 
 ab-engine/.shell_history
 dependency-reduced-pom.xml
+release.properties
+pom.xml.releaseBackup
+fd-search/data/
+fd-search/src/test/data/
 
 ab-integration-tests/.shell_history
 atlassian-ide-plugin.xml

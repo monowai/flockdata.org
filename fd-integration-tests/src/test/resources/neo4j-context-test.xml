@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/data/neo4j
+http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:annotation-config/>
+    <context:spring-configured/>
+
+    <bean id="transactionManager"
+          class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+    <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
+
+    <!-- Controllers etc to look for -->
+    <neo4j:repositories base-package="org.flockdata"/>
+
+    <neo4j:config graphDatabaseService="graphDatabaseService" base-package="org.flockdata"/>
+
+    <!--NEO4J interface to use-->
+    <import resource="neo4j-java.xml"/>
+
+</beans>

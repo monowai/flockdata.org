@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:elasticsearch="http://www.pilato.fr/schema/elasticsearch"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.pilato.fr/schema/elasticsearch
+       http://www.pilato.fr/schema/elasticsearch/elasticsearch-0.2.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <elasticsearch:node id="esNode" properties="esproperties"/>
+    <elasticsearch:client node="esNode" id="esClient" properties="esproperties"/>
+
+    <util:map id="esproperties">
+        <entry key="cluster.name" value="${es.clustername}"/>
+        <entry key="path.data" value="${es.path.data}"/>
+        <entry key="http.port" value="${es.http.port}"/>
+        <entry key="transport.tcp.port" value="${es.transport.tcp.port}"/>
+    </util:map>
+
+</beans>

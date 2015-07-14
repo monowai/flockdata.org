@@ -1,0 +1,51 @@
+{
+    "documentName": "Test",
+    "contentType": "csv",
+    "tagOrEntity": "entity",
+    "entityOnly": false,
+    "fortress": "Sales",
+    "fortressUser": "batch",
+    "delimiter": ",",
+    "header": true,
+    "content": {
+        "id": {
+            "callerRef": true
+        },
+        "zip": {
+            "tag": true,
+            "relationship": "lives",
+            "label": "ZipCode",
+            "targets": [
+                {
+                    "relationship": "located",
+                    "code": "city",
+                    "label": "City",
+                    "targets": [
+                        {
+                            "relationship": "city",
+                            "code": "state",
+                            "label": "State",
+                            "targets": [
+                                {
+                                    "relationship": "state",
+                                    "code": "country",
+                                    "label": "Countryx"
+                                }
+                            ]
+
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "name": {
+            "tag" :true,
+            "relationship":"blah",
+            "label": "Wow"
+        }
+    }
+
+}
+
+

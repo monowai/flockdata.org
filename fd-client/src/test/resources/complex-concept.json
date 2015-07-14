@@ -1,0 +1,58 @@
+{
+  "documentName": "Athlete Medals",
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "entityOnly": true,
+  "fortressName": "Olympic",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "Athlete": {
+      "tag": true,
+      "relationship": "won"
+    },
+    "Country": {
+      "country": true
+    },
+    "Sport": {
+      "tag": true,
+      "mustExist": false,
+      "targets": [
+        {
+          "code": "Athlete",
+          "relationship": "competes-in",
+          "reverse": true
+        }
+      ]
+    },
+    "Age": {
+      "tag": true,
+      "mustExist": false,
+      "targets": [
+        {
+          "code": "Athlete",
+          "relationship": "at-age"
+        }
+      ]
+    },
+    "Medals": {
+      "callerRef": true,
+      "value": "#row['Athlete'] +'.'+#row['Year']"
+    },
+    "Gold Medals": {
+      "tag": true,
+      "valueAsProperty": true,
+      "relationship": "competed"
+    },
+    "Silver Medals": {
+      "tag": true,
+      "valueAsProperty": true,
+      "relationship": "competed"
+    },
+    "Bronze Medals": {
+      "tag": true,
+      "valueAsProperty": true,
+      "relationship": "competed"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "fortress": "GovTrack",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "Politician": {
+      "tag": true,
+      "name": "#row['last_name']+ ', ' + #row['first_name']",
+
+      "code": "thomas_id",
+      "targets": [
+        {
+          "code": "wikipedia_id",
+          "label": "WikipediaAlias",
+          "relationship": "HAS_ALIAS"
+        },
+        {
+          "code": "party",
+          "label": "Party",
+          "relationship": "affiliation"
+        }
+      ],
+      "properties": [
+        {
+          "source": "birthday",
+          "target": "dob"
+        },
+        {"source": "url"},
+        {"source": "gender"}
+      ]
+    }
+  }
+}

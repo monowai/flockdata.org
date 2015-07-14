@@ -1,0 +1,87 @@
+<?xml version=
+        "1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+
+
+		http://www.springframework.org/schema/cache
+		http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <context:spring-configured/>
+    <context:annotation-config/>
+    <aop:aspectj-autoproxy/>
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <context:component-scan
+            base-package="org.flockdata.engine.admin,
+		org.flockdata.engine.query,
+		org.flockdata.engine.schema,
+		org.flockdata.engine.tag,
+		org.flockdata.engine.track,
+		org.flockdata.registration,
+		org.flockdata.helper,
+		org.flockdata.geography,
+		org.flockdata.company,
+		org.flockdata.configure,
+		org.flockdata.kv"/>
+
+    <context:property-placeholder
+            ignore-resource-not-found="true" ignore-unresolvable="true"
+            location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}"/>
+
+    <!--ToDo: We'll have to add in a parameter to make this dynamic-->
+    <import resource="fde-task.xml"/>
+    <import resource="classpath:${fd.auth.provider}-security.xml"/>
+    <import resource="fde-integration.xml"/>
+    <import resource="fde-http-proxy-integration.xml"/>
+    <import resource="fde-http-monitoring-integration.xml"/>
+
+    <import resource="neo4j-context.xml"/>
+    <import resource="kv-context.xml"/>
+
+    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+
+    <cache:annotation-driven cache-manager="fdCacheManager" />
+
+    <bean id="fdCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+          p:cacheManager-ref="fdCache"  p:transactionAware="true"/>
+
+    <bean id="fdCache"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+          p:configLocation="classpath:fd-ehcache.xml" p:shared="false"/>
+
+    <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter">
+        <constructor-arg>
+            <bean class="com.thetransactioncompany.cors.CORSConfiguration">
+                <constructor-arg>
+                    <!-- Init the CORS filter via Spring so that properties can be extracted from anywhere-->
+                    <props>
+                        <prop key="cors.allowOrigin">${cors.allowOrigin}</prop>
+                        <prop key="cors.allowSubdomains">${cors.allowSubdomains}</prop>
+                        <prop key="cors.supportedHeaders">${cors.supportedHeaders}</prop>
+                        <prop key="cors.exposedHeaders">${cors.exposedHeaders}</prop>
+                        <prop key="cors.supportedMethods">${cors.supportedMethods}</prop>
+                        <prop key="cors.supportsCredentials">${cors.supportsCredentials}</prop>
+                        <prop key="cors.maxAge">${cors.maxAge}</prop>
+                        <prop key="cors.tagRequests">${cors.tagRequests}</prop>
+
+                    </props>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+
+    </bean>
+
+
+</beans>

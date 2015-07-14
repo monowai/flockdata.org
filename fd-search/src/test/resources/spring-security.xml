@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://www.springframework.org/schema/security
+                    http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <!--<http use-expressions="true">-->
+    <!--<intercept-url pattern="/**" access="permitAll" />-->
+    <!--<form-login />-->
+    <!--</http>-->
+
+    <!--<global-method-security secured-annotations="enabled" />-->
+
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="mike" password="123" authorities="ROLE_USER"/>
+                <user name="${reg.user}" password="${reg.pass}" authorities="ROLE_FD_ADMIN"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+</beans:beans>

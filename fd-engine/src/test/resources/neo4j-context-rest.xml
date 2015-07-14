@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+http://www.springframework.org/schema/data/neo4j
+http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="transactionManager"
+          class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+    <tx:annotation-driven mode="proxy" transaction-manager="transactionManager"/>
+
+    <!-- Controllers etc to look for -->
+    <neo4j:repositories base-package="org.flockdata.*"/>
+
+    <neo4j:config graphDatabaseService="graphDatabaseService" base-package="org.flockdata.*"/>
+
+    <!--NEO4J interface to use-->
+
+    <util:map id="config">
+        <entry key="remote_shell_enabled" value="false"/>
+    </util:map>
+    <bean id="graphDbFactory" class="org.neo4j.graphdb.factory.GraphDatabaseFactory"/>
+
+    <bean id="graphDbBuilder" factory-bean="graphDbFactory" factory-method="newEmbeddedDatabaseBuilder">
+        <constructor-arg value="${neo4j.datastore}"/>
+    </bean>
+
+    <bean id="graphDbBuilderFinal" factory-bean="graphDbBuilder" factory-method="setConfig">
+        <constructor-arg ref="config"/>
+    </bean>
+
+    <bean id="serverWrapper" class="org.neo4j.server.WrappingNeoServerBootstrapper" init-method="start"
+          destroy-method="stop">
+        <constructor-arg ref="graphDatabaseService"/>
+    </bean>
+
+
+    <bean id="graphDatabaseService" class="org.neo4j.test.ImpermanentGraphDatabase" destroy-method="shutdown"/>
+
+    <!--<bean id="graphDatabaseService" class="org.neo4j.test.TestGraphDatabaseFactory" destroy-method="shutdown"/>-->
+
+</beans>
