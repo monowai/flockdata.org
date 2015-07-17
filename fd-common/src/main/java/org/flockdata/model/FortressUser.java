@@ -86,4 +86,8 @@ public class FortressUser {
     public String getName() {
         return name;
     }
+
+    public String getKey() {
+        return key;
+    }
 }
