@@ -37,6 +37,7 @@ public class SystemUser  {
     @Indexed
     private String apiKey;
 
+    //@Relationship( type = "ACCESSES", direction = Relationship.OUTGOING)
     @Fetch
     @RelatedTo( type = "ACCESSES", direction = Direction.OUTGOING)
     private Company company;

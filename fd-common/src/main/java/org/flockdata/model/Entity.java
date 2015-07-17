@@ -35,10 +35,7 @@ import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 @NodeEntity(useShortNames = true)
 @TypeAlias("Entity")
@@ -47,6 +44,7 @@ public class Entity implements Serializable {
     @Indexed
     private String metaKey;
 
+    //@Relationship(type = "TRACKS", direction = Relationship.INCOMING)
     @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
     private Fortress fortress;
@@ -80,14 +78,20 @@ public class Entity implements Serializable {
     @GraphId
     private Long id;
 
+    //@Relationship(type = "CREATED_BY", direction = Relationship.OUTGOING)
     @RelatedTo(type = "CREATED_BY", direction = Direction.OUTGOING, enforceTargetType = true)
     private FortressUser createdBy;
 
+    //@Relationship(type = "LASTCHANGED_BY", direction = Relationship.OUTGOING)
     @RelatedTo(type = "LASTCHANGED_BY", direction = Direction.OUTGOING)
     private FortressUser lastWho;
 
+    //@Relationship(type = "LAST_CHANGE", direction = Relationship.OUTGOING)
     @RelatedTo(type = "LAST_CHANGE", direction = Direction.OUTGOING)
     private Log lastChange;
+
+    //@Relationship(type = "LOGGED")
+    //Set<EntityLog> logs = new HashSet<>();
 
     public static final String UUID_KEY = "metaKey";
 

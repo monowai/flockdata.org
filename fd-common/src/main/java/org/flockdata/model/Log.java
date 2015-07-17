@@ -46,20 +46,18 @@ public class Log  {
     @GraphId
     private Long id;
 
+    //@Relationship(type = "CHANGED", direction = Relationship.INCOMING)
     @RelatedTo(type = "CHANGED", direction = Direction.INCOMING, enforceTargetType = true)
     @Fetch
     private FortressUser madeBy;
 
+    //@Relationship(type = "AFFECTED", direction = Relationship.INCOMING)
     @RelatedTo(type = "AFFECTED", direction = Direction.INCOMING, enforceTargetType = true)
     private TxRef txRef;
 
     @RelatedToVia(type = "LOGGED", direction = Direction.INCOMING)
     private EntityLog entityLog;
 
-    // DAT-344
-//    @RelatedTo(elementClass = ChangeEventNode.class, type = "TRACK_EVENT", direction = Direction.OUTGOING)
-//    @Fetch
-//    private ChangeEventNode event;
     private String event;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

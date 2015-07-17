@@ -59,9 +59,11 @@ public class Tag {
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
 
+    //@Relationship(type = "HAS_ALIAS")
     @RelatedTo(elementClass = Alias.class, type = "HAS_ALIAS")
     private Set<Alias> aliases = new HashSet<>();
 
+    //@Relationship(type = "located")
     @RelatedTo(elementClass = Tag.class, type = "located")
     private Set<Tag> located = null;
 

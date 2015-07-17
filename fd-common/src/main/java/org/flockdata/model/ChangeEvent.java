@@ -50,6 +50,7 @@ public class ChangeEvent {
                 '}';
     }
 
+    //@Relationship(type = "COMPANY_EVENT", direction = Relationship.INCOMING)
     @RelatedTo(type = "COMPANY_EVENT", direction = Direction.INCOMING)
     private Iterable<Company> companies;
 

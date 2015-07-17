@@ -39,9 +39,11 @@ public class Profile {
     @Indexed(unique = true)
     private String profileKey;
 
+    //@Relationship(type = "FORTRESS_PROFILE")
     @RelatedTo(type = "FORTRESS_PROFILE")
     private Fortress fortress;
 
+    //@Relationship( type = "DOCUMENT_PROFILE")
     @RelatedTo( type = "DOCUMENT_PROFILE")
     private DocumentType document;
 

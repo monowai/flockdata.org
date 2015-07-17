@@ -46,6 +46,7 @@ public class Concept  {
     @Indexed(unique = true)
     private String name;
 
+    //@Relationship(type="KNOWN_RELATIONSHIP", direction = org.neo4j.ogm.annotation.Relationship.OUTGOING)
     @RelatedTo(elementClass = Relationship.class, type="KNOWN_RELATIONSHIP", direction = Direction.OUTGOING)
     Collection<Relationship> relationships;
 
