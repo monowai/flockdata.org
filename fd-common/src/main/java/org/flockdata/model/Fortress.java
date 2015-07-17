@@ -43,6 +43,7 @@ public class Fortress implements Serializable {
     //@Indexed
     private String name;
 
+    //@Relationship(type = "OWNS", direction = Relationship.INCOMING)
     @RelatedTo(type = "OWNS", direction = Direction.INCOMING)
     @Fetch
     private Company company;

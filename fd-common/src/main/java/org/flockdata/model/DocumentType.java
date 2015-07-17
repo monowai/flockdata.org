@@ -48,10 +48,12 @@ public class DocumentType  implements Comparable<DocumentType> {
     @Indexed(unique = true)
     private String companyKey;
 
+    //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
     @RelatedTo( type = "FORTRESS_DOC", direction = Direction.OUTGOING)
     //@Fetch
     private Fortress fortress;
 
+    //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<org.flockdata.model.Concept> concepts;
 

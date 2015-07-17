@@ -29,6 +29,7 @@ public class FortressUser {
     @GraphId
     Long id;
 
+    //@Relationship( type = "BELONGS_TO", direction = Relationship.OUTGOING)
     @RelatedTo( type = "BELONGS_TO", direction = Direction.OUTGOING)
     @Fetch
     private Fortress fortress;

@@ -46,6 +46,7 @@ public class TagLabel {
     @Indexed(unique = true)
     private String companyKey;
 
+    //@Relationship( type = "TAG_INDEX", direction = Relationship.OUTGOING)
     @RelatedTo( type = "TAG_INDEX", direction = Direction.OUTGOING)
     private Company company;
 

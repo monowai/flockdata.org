@@ -38,6 +38,7 @@ public class TxRef {
     @GraphId
     private Long id;
 
+    //@Relationship( type = "TX", direction = Relationship.INCOMING)
     @Fetch
     @RelatedTo( type = "TX", direction = Direction.INCOMING)
     private Company company;

@@ -47,6 +47,7 @@ public class Alias {
     private ArrayList<String> labels = new ArrayList<>();
 
     @RelatedTo(elementClass = Tag.class, type = "HAS_ALIAS", direction = Direction.INCOMING)
+    //    @Relationship(type = "HAS_ALIAS", direction = Relationship.INCOMING)
     private Tag tag ;
 
     Alias(){
