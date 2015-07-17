@@ -19,31 +19,30 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.List;
 
-public interface FortressRepository extends GraphRepository<FortressNode> {
+public interface FortressRepository extends GraphRepository<Fortress> {
 
 	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortressUser:FortressUser) where id(fortress)={0}"
 			+ " and fortressUser.code ={1} return fortressUser")
-    FortressUserNode getFortressUser(Long fortressId, String userName);
+	FortressUser getFortressUser(Long fortressId, String userName);
 
-	@Query(elementClass = FortressNode.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
+	@Query(elementClass = Fortress.class, value = " match (company:FDCompany)-[:OWNS]->f where id(company) ={0} return f")
 	List<Fortress> findCompanyFortresses(Long companyID);
 
 	@Query( value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where id(company)={0} and fortress.name ={1} "
 			+ "return fortress")
-	FortressNode getFortressByName(Long companyId, String fortressName);
+	Fortress getFortressByName(Long companyId, String fortressName);
 
 	@Query(value = "match (company:FDCompany)-[r:OWNS]->(fortress:Fortress) "
 			+ "where  id(company)={0}  and fortress.code ={1} "
 			+ "return fortress")
-	FortressNode getFortressByCode(Long companyId, String fortressCode);
+	Fortress getFortressByCode(Long companyId, String fortressCode);
 
 }

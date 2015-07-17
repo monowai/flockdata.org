@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -21,29 +21,42 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.*;
+import org.neo4j.graphdb.Node;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * Represents the in-memory state of a request to log a change in to the service
+ * This payload is passed around services and is enriched.
+ *
+ * TrackResultBean is not persisted
+ *
  * User: Mike Holdsworth
  * Since: 11/05/13
  */
 public class TrackResultBean implements Serializable {
-    //private Collection<String> serviceMessages = new ArrayList<>();
-    private LogResultBean logResult;
-    private ContentInputBean contentInput;
+    private Collection<String> serviceMessages = new ArrayList<>();
 
-    private EntityBean entityBean;
-    private transient Entity entity;
-    private transient Collection<EntityTag> tags;
-    private EntityInputBean entityInputBean;
+    private Entity entity;              // Resolved entity
+    private EntityLog currentLog;        // Log that was created
+    private EntityLog deletedLog; // Log that was removed in response to a cancel request
+
+    private Collection<EntityTag> tags; // Tags connected to the entity
+
+    private EntityInputBean entityInputBean;// User payload
+    private ContentInputBean contentInput;  // User content payload
+
     private transient DocumentType documentType;
-    private String index;
+    private String index;       // Which index is this indexed in
+    private Boolean newEntity = false; // Flags that the Entity was created for the first time
+    private ContentInputBean.LogStatus logStatus; // What status
+
+    private TxRef txReference = null; // Reference used to track the transaction
+    private String tenant = "";
+
 
     protected TrackResultBean() {
     }
@@ -65,23 +78,25 @@ public class TrackResultBean implements Serializable {
      */
     public TrackResultBean(Fortress fortress, Entity entity, EntityInputBean entityInputBean) {
         this.entity = entity;
-        this.entityBean = new EntityBean(fortress, entity);
         this.entityInputBean = entityInputBean;
-        this.index = entityBean.getIndexName();
+        this.contentInput = entityInputBean.getContent();
+        this.index = fortress.getIndexName();
 
     }
 
-    @Deprecated // Use getEntityBean. ToDo: Figure this out
     public TrackResultBean(Entity entity) {
-        this.entityBean = new EntityBean(entity);
-
         this.entity = entity;
+        this.newEntity = entity.isNewEntity();
 
     }
 
+    public TrackResultBean(Fortress fortress, Node entity, EntityInputBean entityInputBean) {
+        //this.entityBean = new EntityBean(fortress, entity, null);
+        //this.entity = new Entity(fortress, entity);
+        this.entityInputBean = entityInputBean;
+        this.contentInput = entityInputBean.getContent();
+        this.index = fortress.getIndexName();
 
-    public EntityBean getEntityBean() {
-        return entityBean;
     }
 
     @Override
@@ -106,29 +121,35 @@ public class TrackResultBean implements Serializable {
     }
 
     public Collection<String> getServiceMessages() {
-        return null;
+        return serviceMessages;
     }
 
     public void addServiceMessage(String serviceMessage) {
 
-        //this.serviceMessages.add(serviceMessage);
+        this.serviceMessages.add(serviceMessage);
     }
 
-    @JsonIgnore
     /**
-     * @deprecated use getEntityBean
      */
     public Entity getEntity() {
         return entity;
     }
 
-    public void setLogResult(LogResultBean logResult) {
-        this.logResult = logResult;
+    public void setCurrentLog(EntityLog currentLog) {
+        this.currentLog = currentLog;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public LogResultBean getLogResult() {
-        return logResult;
+    public EntityLog getCurrentLog() {
+        return currentLog;
+    }
+
+    public void setDeletedLog(EntityLog entityLog) {
+        this.deletedLog = entityLog;
+    }
+
+    public EntityLog getDeletedLog() {
+        return deletedLog;
     }
 
     boolean entityExisted = false;
@@ -154,14 +175,11 @@ public class TrackResultBean implements Serializable {
         return tags;
     }
 
-    @JsonIgnore
+    //    @JsonIgnore
     public ContentInputBean getContentInput() {
-        // ToDo: Why are we tracking input in 2 places? It's something to
+        // ToDo: Why are we tracking input in 2 places? Tracking content having already created the entity?
         // do with the "trackLog" endpoint
-        if (contentInput != null )
-            return contentInput;
-        else
-            return getEntityInputBean().getContent();
+        return (entityInputBean == null?contentInput:entityInputBean.getContent());
     }
 
     /**
@@ -176,7 +194,7 @@ public class TrackResultBean implements Serializable {
     /**
      * EntityInput information provided when the track call was made
      */
-    @JsonIgnore
+    //@JsonIgnore
     public EntityInputBean getEntityInputBean() {
         return entityInputBean;
     }
@@ -186,7 +204,7 @@ public class TrackResultBean implements Serializable {
      * @return true if this log should be processed by the search service
      */
     public boolean processLog() {
-        return  ( getContentInput() != null && contentInput.getStatus() != ContentInputBean.LogStatus.IGNORE);
+        return  ( getContentInput() != null && logStatus != ContentInputBean.LogStatus.IGNORE);
     }
 
     public void setDocumentType(DocumentType documentType) {
@@ -207,5 +225,55 @@ public class TrackResultBean implements Serializable {
         return "TrackResultBean{" +
                 "entity=" + entity +
                 '}';
+    }
+
+    public void setNewEntity() {
+        newEntity = true;
+    }
+
+    public Boolean isNewEntity() {
+        return newEntity;
+    }
+
+    @JsonIgnore
+    public String getMetaKey() {
+        return entity.getMetaKey();
+    }
+
+    public ContentInputBean.LogStatus getLogStatus() {
+        return logStatus;
+    }
+
+    public void setLogStatus(ContentInputBean.LogStatus logStatus) {
+        this.logStatus = logStatus;
+    }
+
+    boolean logIgnored = false;
+
+    public void setLogIgnored() {
+        this.logIgnored = true;
+    }
+
+    public boolean isLogIgnored() {
+        // FixMe: Suspicious about the TRACK_ONLY status. One can ignore track and write to fd-search
+        return logIgnored ||
+                getLogStatus() == ContentInputBean.LogStatus.IGNORE||
+                getLogStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
+    }
+
+    public void setTxReference(TxRef txReference) {
+        this.txReference = txReference;
+    }
+
+    public TxRef getTxReference() {
+        return txReference;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

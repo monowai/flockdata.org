@@ -19,8 +19,8 @@
 
 package org.flockdata.dao;
 
-import org.flockdata.registration.model.Company;
-import org.flockdata.track.model.ChangeEvent;
+import org.flockdata.model.Company;
+import org.flockdata.model.ChangeEvent;
 
 import java.util.Set;
 

@@ -19,17 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.Log;
-import org.junit.Assert;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -71,24 +67,24 @@ public class TestTxReference extends EngineBase {
         Authentication authCBA = new UsernamePasswordAuthenticationToken(suCBA.getLogin(), "123");
 
 // ABC Data
-        Fortress fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest",true));
+        Fortress fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest", true));
         EntityInputBean abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         abcEntity.setContent(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
         TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
-        LogResultBean logResultBean = resultBean.getLogResult();
-        assertNotNull(logResultBean);
-        String abcTxRef = logResultBean.getTxReference();
+        EntityLog entityLog = resultBean.getCurrentLog();
+        assertNotNull(entityLog);
+        String abcTxRef = resultBean.getTxReference().getName();
         assertNotNull(abcTxRef);
 
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
         EntityInputBean cbaEntity = new EntityInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntityBean().getMetaKey();
+        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getMetaKey();
 
         ContentInputBean cbaContent = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
-        Assert.assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogResult().getStatus());
+        Assert.assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogStatus());
         String cbaTxRef = cbaContent.getTxRef();
         assertNotNull(cbaTxRef);
 
@@ -121,21 +117,21 @@ public class TestTxReference extends EngineBase {
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getEntityBean().getMetaKey();
+        String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
         assertNotNull(metaKey);
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
         //assertEquals(1, entity.getTxTags().size());
         ContentInputBean alb = new ContentInputBean("charlie", metaKey, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getTxReference().getName();
 
         alb = new ContentInputBean("harry", metaKey, DateTime.now(), escJsonB);
 
 
         alb.setTxRef(albTxRef);
 
-        mediationFacade.trackLog(su.getCompany(), alb);
+        TrackResultBean resultBean = mediationFacade.trackLog(su.getCompany(), alb);
         Map<String, Object> result = txService.findByTXRef(albTxRef);
         assertNotNull(result);
         assertEquals(tagRef, result.get("txRef"));
@@ -150,8 +146,8 @@ public class TestTxReference extends EngineBase {
         alb.setTxRef("");
         assertNull("Should be Null if it is blank", alb.getTxRef());
         assertTrue(alb.isTransactional());
-        LogResultBean arb = mediationFacade.trackLog(su.getCompany(), alb).getLogResult();
-        String txEnd = arb.getTxReference();
+        TrackResultBean arb = mediationFacade.trackLog(su.getCompany(), alb);
+        String txEnd = arb.getTxReference().getName();
         assertNotNull(txEnd);
         assertNotSame(txEnd, albTxRef);
 
@@ -180,13 +176,13 @@ public class TestTxReference extends EngineBase {
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntityBean().getMetaKey();
+        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
         assertNotNull(key);
         Entity entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
         ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
-        String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getLogResult().getTxReference();
+        String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getTxReference().getName();
 
         alb = new ContentInputBean("harry", key, DateTime.now(), escJsonB);
 

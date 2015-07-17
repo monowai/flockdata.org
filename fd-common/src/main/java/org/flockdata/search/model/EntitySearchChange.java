@@ -21,10 +21,12 @@ package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.*;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ import java.util.Map;
  * Date: 25/04/13
  * Time: 9:33 PM
  */
-public class EntitySearchChange implements SearchChange {
+public class EntitySearchChange implements SearchChangeBean {
 
     private String documentType;
     private String description;
@@ -78,14 +80,14 @@ public class EntitySearchChange implements SearchChange {
         this.sysWhen = System.currentTimeMillis();
     }
 
-    /**
-     *
-     * @param entity  server side entity
-     * @deprecated use the EntityBean version of this
-     */
-    public EntitySearchChange(Entity entity) {
-        this(new EntityBean(entity));
-    }
+//    /**
+//     *
+//     * @param entity  server side entity
+//     * @deprecated use the EntityBean version of this
+//     */
+//    public EntitySearchChange(Entity entity) {
+//        this(en);
+//    }
 
 
     /**
@@ -93,31 +95,31 @@ public class EntitySearchChange implements SearchChange {
      *
      * @param entity details
      */
-    public EntitySearchChange(EntityBean entity) {
+    public EntitySearchChange(Entity entity) {
         this();
         this.metaKey = entity.getMetaKey();
         this.entityId = entity.getId();
         this.searchKey = entity.getSearchKey();
-        setDocumentType(entity.getDocumentType());
+        setDocumentType(entity.getType().toLowerCase());
         setFortress(entity.getFortress());
-        this.indexName = entity.getIndexName();
+        this.indexName = entity.getFortress().getIndexName();
         this.searchKey = entity.getSearchKey();
         this.callerRef = entity.getCallerRef();
         if (entity.getLastUser() != null)
-            this.who = entity.getLastUser();
+            this.who = entity.getLastUser().getCode();
         else
-            this.who = entity.getCreatedUser();
-        this.sysWhen = entity.getWhenCreated();
+            this.who = (entity.getCreatedBy()!=null ? entity.getCreatedBy().getCode():null);
+        this.sysWhen = entity.getDateCreated();
         this.description = entity.getDescription();
-        this.props = entity.getProps(); // Userdefined entity properties
-        this.createdDate = entity.getFortressDateCreated().toDate(); // UTC When created in the Fortress
-        if ( entity.getFortressDateUpdated() != null )
-            this.updatedDate = entity.getFortressDateUpdated().toDate();
+        this.props = entity.getProperties(); // Userdefined entity properties
+        this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
+        if ( entity.getFortressUpdatedTz() != null )
+            this.updatedDate = entity.getFortressUpdatedTz().toDate();
         this.event= entity.getEvent();
         //setWhen(new DateTime(entity.getFortressDateUpdated()));
     }
 
-    public EntitySearchChange(EntityBean entity, ContentInputBean content) {
+    public EntitySearchChange(Entity entity, ContentInputBean content) {
         this(entity);
         if ( content != null ) {
             //ToDo: this attachment might be compressed
@@ -127,7 +129,7 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    public EntitySearchChange(EntityBean entity, EntityLog entityLog, ContentInputBean content) {
+    public EntitySearchChange(Entity entity, EntityLog entityLog, ContentInputBean content) {
         this(entity, content);
         if ( entityLog !=null ) {
             this.event= entityLog.getLog().getEvent().getCode();
@@ -135,12 +137,12 @@ public class EntitySearchChange implements SearchChange {
             this.contentType = entityLog.getLog().getContentType();
             if ( entityLog.getFortressWhen()!=null)
                 this.updatedDate = new Date(entityLog.getFortressWhen());
-            this.createdDate = entity.getFortressDateCreated().toDate();
+            this.createdDate = entity.getFortressCreatedTz().toDate();
         } else {
             event = entity.getEvent();
-            this.createdDate = entity.getFortressDateCreated().toDate();
-            if (entity.getFortressDateUpdated()!=null)
-                this.updatedDate = entity.getFortressDateUpdated().toDate();
+            this.createdDate = entity.getFortressCreatedTz().toDate();
+            if (entity.getFortressUpdatedTz()!=null)
+                this.updatedDate = entity.getFortressUpdatedTz().toDate();
         }
     }
 
@@ -164,9 +166,9 @@ public class EntitySearchChange implements SearchChange {
         return searchKey;
     }
 
-    private void setFortress(FortressResultBean fortress) {
+    private void setFortress(Fortress fortress) {
         this.setFortressName(fortress.getName());
-        this.setCompanyName(fortress.getCompanyName());
+        this.setCompanyName(fortress.getCompany().getName());
 
     }
 

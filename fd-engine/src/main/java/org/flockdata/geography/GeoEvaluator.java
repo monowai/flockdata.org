@@ -19,7 +19,7 @@
 
 package org.flockdata.geography;
 
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;

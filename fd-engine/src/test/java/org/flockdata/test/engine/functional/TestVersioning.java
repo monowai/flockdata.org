@@ -21,17 +21,12 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.test.engine.SimpleLog;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.*;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
@@ -112,11 +107,11 @@ public class TestVersioning extends EngineBase {
         assertEquals(1, logs.size());
         // Check various properties that we still want to return
         for (EntityLog log : logs) {
-            assertEquals (entity.getFortressDateCreated().getMillis(),log.getFortressWhen().longValue() );
+            assertEquals (entity.getFortressCreatedTz().getMillis(),log.getFortressWhen().longValue() );
             assertNotNull ( log.getLog().getEvent());
             assertEquals("Create", log.getLog().getEvent().getName());
             assertNotNull(log.getFortressWhen());
-            assertNotNull(log.getLog().getWho());
+            assertNotNull(log.getLog().getMadeBy());
             assertTrue(log.isMocked());
             assertTrue(log.getLog().isMocked());
         }
@@ -171,7 +166,7 @@ public class TestVersioning extends EngineBase {
         TrackResultBean trackResult = new TrackResultBean(entity);
         trackResult.setContentInput(content);
 
-        Log log = new SimpleLog(entity);
+        Log log = new Log(entity);
 
         log = kvService.prepareLog(trackResult, log);
         assertEquals("Store should be set to that of the fortress", KvService.KV_STORE.NONE.name(), log.getContent().getStorage() );
@@ -183,4 +178,5 @@ public class TestVersioning extends EngineBase {
 
 
     }
+
 }

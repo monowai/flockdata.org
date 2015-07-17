@@ -19,9 +19,9 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.EntityLog;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.EntityLog;
 
 import java.util.Collection;
 import java.util.Set;

@@ -13,6 +13,7 @@
 
     <properties>
         <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
+        <org.springdata.neo4j>3.3.1.RELEASE</org.springdata.neo4j>
     </properties>
 
     <dependencies>
@@ -20,6 +21,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-neo4j</artifactId>
+            <version>${org.springdata.neo4j}</version>
         </dependency>
 
         <dependency>

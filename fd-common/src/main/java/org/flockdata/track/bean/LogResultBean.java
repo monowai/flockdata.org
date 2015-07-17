@@ -21,8 +21,8 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.model.EntityLog;
+import org.flockdata.model.TxRef;
 
 import java.io.Serializable;
 
@@ -57,8 +57,7 @@ public class LogResultBean implements Serializable {
     }
 
     public void setTxReference(TxRef txReference) {
-        if (txReference != null)
-            this.txReference = txReference.getName();
+        this.txReference = txReference.getName();
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -129,7 +128,7 @@ public class LogResultBean implements Serializable {
 
     public boolean isLogIgnored() {
         return logIgnored ||
-                getStatus() == ContentInputBean.LogStatus.IGNORE||
+                getStatus() == ContentInputBean.LogStatus.IGNORE ||
                 getStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
     }
 }

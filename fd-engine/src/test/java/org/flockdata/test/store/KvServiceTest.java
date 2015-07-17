@@ -21,21 +21,17 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.engine.track.model.EntityLogRelationship;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
+import org.flockdata.kv.KvContent;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.test.engine.SimpleLog;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -162,22 +158,22 @@ public class KvServiceTest {
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
-        TrackResultBean trackResultBean = new TrackResultBean(null, entity, entityInputBean);
+        TrackResultBean trackResultBean = new TrackResultBean(new Fortress(new FortressInputBean("test", true), new Company("MyName")), entity, entityInputBean);
 
         // Create a log with a random primary key
-        Log graphLog = new SimpleLog(System.currentTimeMillis());
+        Log graphLog = new Log(entity);
 
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
         graphLog = kvService.prepareLog(trackResultBean, graphLog);
-        EntityLog eLog = new EntityLogRelationship(entity, graphLog, new DateTime());
+        EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
         // Emulate the creation of the log
-        LogResultBean logResult = new LogResultBean(entityInputBean.getContent());
-        logResult.setLogToIndex(eLog);
+        //LogResultBean logResult = new LogResultBean(entityInputBean.getContent());
+        //logResult.setLogToIndex(eLog);
         //logResult.setLog(graphLog);
 
         // Wrap the log result in to the TrackResult
-        trackResultBean.setLogResult(logResult);
+        trackResultBean.setCurrentLog(eLog);
 
         KvContentBean kvContentBean = new KvContentBean(trackResultBean);
         kvContentBean.setStorage(graphLog.getStorage());
@@ -189,7 +185,7 @@ public class KvServiceTest {
             kvService.doKvWrite(kvContentBean);
 
             // Retrieve the content we just created
-            KvContent kvContent = kvService.getContent(entity, trackResultBean.getLogResult().getLogToIndex().getLog());
+            KvContent kvContent = kvService.getContent(entity, trackResultBean.getCurrentLog().getLog());
             assertNotNull(kvContent);
             assertNotNull ( kvContent.getContent().getMetaKey());
             assertNotNull ( kvContent.getContent().getCallerRef());
@@ -198,7 +194,7 @@ public class KvServiceTest {
             if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
                 validateWhat(what, kvContent);
                 // Testing that cancel works
-                kvService.delete(entity, trackResultBean.getLogResult().getLogToIndex().getLog());
+                kvService.delete(entity, trackResultBean.getCurrentLog().getLog());
             } else {
                 // ToDo: Mock RIAK
                 logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
@@ -281,7 +277,7 @@ public class KvServiceTest {
             TrackResultBean tr = new TrackResultBean(null, entity, inputBean);
             KvContentBean kvContentBean = new KvContentBean(tr);
             kvService.doKvWrite(kvContentBean);
-            EntityLog entityLog = tr.getLogResult().getLogToIndex();
+            EntityLog entityLog = tr.getCurrentLog();
             KvContent entityContent = kvService.getContent(entity, entityLog.getLog());
 
             assertNotNull(entityContent);

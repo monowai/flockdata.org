@@ -14,7 +14,7 @@
         <module>fd-client</module>
         <module>fd-store</module>
         <module>fd-engine</module>
-        <module>fd-neo</module>
+        <!--<module>fd-neo</module>-->
         <module>fd-search</module>
         <module>fd-spring</module>
         <module>fd-integration-tests</module>
@@ -29,7 +29,8 @@
         <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
         <org.springintegration.version>4.1.3.RELEASE</org.springintegration.version>
         <org.springsecurity-version>3.2.7.RELEASE</org.springsecurity-version>
-
+        <!--<neo4j.version>2.2.2</neo4j.version>-->
+        <neo4j.version>2.1.8</neo4j.version>
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>

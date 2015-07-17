@@ -34,21 +34,16 @@ import org.flockdata.helper.FlockServiceException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -128,6 +123,9 @@ public class MediationFacadeNeo implements MediationFacade {
     @Autowired
     KvService kvService;
 
+    @Autowired
+    TrackBatchSplitter batchSplitter;
+
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
 
@@ -167,7 +165,7 @@ public class MediationFacadeNeo implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<Fortress, List<EntityInputBean>> byFortress = TrackBatchSplitter.getEntitiesByFortress(fortressService, c, inputBeans);
+        Map<Fortress, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesByFortress(c, inputBeans);
         Collection<TrackResultBean>results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
             results.addAll(trackEntities(fortress, byFortress.get(fortress), 100));
@@ -199,7 +197,7 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     @Secured({SecurityHelper.ADMIN})
-    public void mergeTags(Company company, Tag source, Tag target) {
+    public void mergeTags(Company company, Long source, Long target) {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
         Collection<Long> entities = entityTagService.mergeTags(source, target);
@@ -297,14 +295,23 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Create the basic data within a transaction
-        TrackResultBean result = doTrackLog(company, input);
+        Entity entity;
+        if (input.getMetaKey() != null)
+            entity = entityService.getEntity(company, input.getMetaKey());
+        else
+            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+        if (entity == null)
+            throw new FlockException("Unable to resolve the Entity");
+
+        FortressUser fu = fortressService.createFortressUser(entity.getFortress(), input);
+        TrackResultBean result = logService.writeLog(entity, input, fu);
+
         Collection<TrackResultBean> results = new ArrayList<>();
         results.add(result);
         // Finally distribute the changes
         distributeChanges(result.getEntity().getFortress(), results);
         return result;
     }
-
     @Transactional
     public TrackResultBean doTrackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         Entity entity;

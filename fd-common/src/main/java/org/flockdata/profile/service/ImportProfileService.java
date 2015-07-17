@@ -23,10 +23,10 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Profile;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Profile;
 
 import java.io.IOException;
 

@@ -19,8 +19,8 @@
 
 package org.flockdata.geography;
 
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.model.GeoData;
+import org.flockdata.model.Tag;
+import org.flockdata.model.GeoDataBean;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class GeoSupportNeo {
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
     @Cacheable(value = "geoData", key = "#loc.id")
-    public GeoData getGeoData(Tag loc) {
+    public GeoDataBean getGeoData(Tag loc) {
         logger.debug ( "Cache miss for {}", loc.getId() );
         //String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
         String query = "match (located:Tag)-[r:state|address]->(o)-[*1..2]->(x:Country)  where id(located)={locNode} return located, o , x" ;
@@ -65,14 +65,14 @@ public class GeoSupportNeo {
 
     }
 
-    GeoData getGeoData(Map<String, Object>row, Tag sourceTag){
+    GeoDataBean getGeoData(Map<String, Object>row, Tag sourceTag){
         if ( row.isEmpty())
             return null;
 
         //Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
         //;
 
-        GeoData geoData = new GeoData();
+        GeoDataBean geoData = new GeoDataBean();
 
         for (String key: row.keySet()) {
             Node node = (Node) row.get(key);

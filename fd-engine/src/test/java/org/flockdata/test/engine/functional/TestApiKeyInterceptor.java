@@ -20,7 +20,7 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.ApiKeyInterceptor;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

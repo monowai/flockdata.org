@@ -20,7 +20,7 @@
 package org.flockdata.engine;
 
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;

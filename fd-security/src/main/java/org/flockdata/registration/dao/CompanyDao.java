@@ -20,8 +20,8 @@
 package org.flockdata.registration.dao;
 
 
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.SystemUser;
 
 import java.util.Collection;
 

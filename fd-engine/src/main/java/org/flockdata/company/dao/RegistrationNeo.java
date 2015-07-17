@@ -19,10 +19,9 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.company.model.SystemUserNode;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.dao.RegistrationDao;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.KeyGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,7 +41,7 @@ public class RegistrationNeo implements RegistrationDao {
     KeyGenService keyGenService;
 
     SystemUser save(SystemUser systemUser) {
-        return suRepo.save((SystemUserNode) systemUser);
+        return suRepo.save(systemUser);
     }
 
     @Cacheable (value = "sysUserApiKey", unless = "#result==null")
@@ -58,7 +57,7 @@ public class RegistrationNeo implements RegistrationDao {
 
     @Override
     public SystemUser save(Company company, String name, String login) {
-        SystemUser su = new SystemUserNode(name, login, company, true);
+        SystemUser su = new SystemUser(name, login, company, true);
         su.setApiKey(keyGenService.getUniqueKey());
         su = save(su);
         return su;

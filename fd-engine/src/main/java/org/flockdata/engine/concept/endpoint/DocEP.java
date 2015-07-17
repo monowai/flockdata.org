@@ -23,7 +23,7 @@ import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;

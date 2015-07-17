@@ -20,17 +20,15 @@
 package org.flockdata.test.engine.endpoint;
 
 import org.flockdata.authentication.LoginRequest;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.engine.concept.model.DocumentTypeNode;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.*;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -66,7 +64,7 @@ public class EngineEndPoints {
         return mockMvc;
     }
 
-    public Fortress createFortress(SystemUser su, String fortressName)
+    public org.flockdata.model.Fortress createFortress(SystemUser su, String fortressName)
             throws Exception {
 
         MvcResult response = getMockMvc()
@@ -83,7 +81,7 @@ public class EngineEndPoints {
                 .andReturn();
 
         Fortress fortress = JsonUtils.getBytesAsObject(response.getResponse()
-                .getContentAsByteArray(), FortressNode.class);
+                .getContentAsByteArray(), Fortress.class);
         fortress.setCompany(su.getCompany());
         return fortress;
     }
@@ -99,7 +97,7 @@ public class EngineEndPoints {
         return JsonUtils.getAsCollection(json, DocumentResultBean.class);
     }
 
-    public Collection<DocumentTypeNode> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
+    public Collection<DocumentType> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/query/relationships/")
                         .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +105,7 @@ public class EngineEndPoints {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.getAsCollection(json, DocumentTypeNode.class);
+        return JsonUtils.getAsCollection(json, DocumentType.class);
     }
 
     public MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
@@ -164,14 +162,14 @@ public class EngineEndPoints {
         return JsonUtils.getBytesAsObject(json, TrackResultBean.class);
     }
 
-    public Company getCompany(String name, SystemUser su) throws Exception {
+    public org.flockdata.model.Company getCompany(String name, SystemUser su) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/" + name)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
-        return JsonUtils.getBytesAsObject(json, CompanyNode.class);
+        return JsonUtils.getBytesAsObject(json, Company.class);
     }
 
     public boolean findCompanyIllegal(String name, SystemUser su) throws Exception {
@@ -183,14 +181,14 @@ public class EngineEndPoints {
         return true;
     }
 
-    public Collection<CompanyNode> findCompanies(SystemUser su) throws Exception {
+    public Collection<Company> findCompanies(SystemUser su) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
 
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
-        return JsonUtils.getAsCollection(json, CompanyNode.class);
+        return JsonUtils.getAsCollection(json, Company.class);
 
     }
 

@@ -20,7 +20,7 @@
 package org.flockdata.engine.query.endpoint;
 
 import org.flockdata.search.model.*;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 

@@ -19,12 +19,12 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.company.model.SystemUserNode;
+import org.flockdata.model.SystemUser;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
-public interface SystemUserRepository extends GraphRepository<SystemUserNode> {
+public interface SystemUserRepository extends GraphRepository<SystemUser> {
 
     @Query(value = "match (su:SystemUser ) where su.login={0} return su")
-    SystemUserNode getSystemUser(String name);
+    SystemUser getSystemUser(String name);
 }

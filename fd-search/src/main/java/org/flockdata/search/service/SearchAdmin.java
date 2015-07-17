@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.VersionHelper;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

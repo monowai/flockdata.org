@@ -19,8 +19,8 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;

@@ -19,13 +19,12 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.Entity;
+import org.flockdata.model.TrackSearchDao;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.SearchChange;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class AttachmentTests extends ESBase {
 //            return ;
         Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(new EntityBean(entity));
+        SearchChangeBean changeA = new EntitySearchChange(entity);
         changeA.setAttachment(Helper.getPdfDoc());
 
         deleteEsIndex(entity.getFortress().getIndexName());

@@ -19,10 +19,9 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.company.model.CompanyNode;
+import org.flockdata.model.Company;
 import org.flockdata.registration.dao.CompanyDao;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -40,8 +39,8 @@ public class CompanyDaoNeo implements CompanyDao {
     private CompanyRepository companyRepo;
 
     @Override
-    public Company update(Company company) {
-        return companyRepo.save((CompanyNode) company);
+    public Company update(org.flockdata.model.Company company) {
+        return companyRepo.save(company);
     }
 
     @Override
@@ -50,19 +49,19 @@ public class CompanyDaoNeo implements CompanyDao {
     }
 
     @Override
-    public Collection<Company> findCompanies(Long sysUserId) {
+    public Collection<org.flockdata.model.Company> findCompanies(Long sysUserId) {
         return companyRepo.getCompaniesForUser(sysUserId);
     }
 
     @Override
-    public Collection<Company> findCompanies(String userApiKey) {
+    public Collection<org.flockdata.model.Company> findCompanies(String userApiKey) {
         return companyRepo.findCompanies(userApiKey);
     }
 
     @Override
-    public Company create(Company company) {
+    public Company create(org.flockdata.model.Company company) {
 
-        return companyRepo.save((CompanyNode) company);
+        return companyRepo.save(company);
     }
 
 
@@ -73,7 +72,7 @@ public class CompanyDaoNeo implements CompanyDao {
 
     @Override
     public Company create(String companyName, String uniqueKey) {
-        return create(new CompanyNode(companyName, uniqueKey));
+        return create(new Company(companyName, uniqueKey));
     }
 
 }

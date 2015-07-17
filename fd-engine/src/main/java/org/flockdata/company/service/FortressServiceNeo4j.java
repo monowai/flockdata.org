@@ -22,28 +22,32 @@ package org.flockdata.company.service;
 
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.concept.dao.ConceptDaoNeo;
+import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
+import java.util.concurrent.Future;
 
 @Service
 @Transactional
@@ -281,6 +285,35 @@ public class FortressServiceNeo4j implements FortressService {
             return "Not Found";
 
         return fortressDao.delete(fortress);
+    }
+
+    @Override
+    @Async("fd-engine")
+    public Future<Void> createFortressUsers(Fortress fortress, List<EntityInputBean> inputBeans) {
+        Map<String, FortressUser> resolved = new HashMap<>();
+
+        for (EntityInputBean inputBean : inputBeans) {
+            String fu = inputBean.getFortressUser();
+            if (fu != null) {
+                FortressUser resolvedFu = resolved.get(fu);
+                if (resolvedFu == null) {
+                    resolvedFu = getFortressUser(fortress, inputBean.getFortressUser(), true);
+                    resolved.put(resolvedFu.getCode(), resolvedFu);
+                } else {
+                    inputBean.setUser(resolvedFu);
+                }
+            }
+
+        }
+        return new AsyncResult<>(null);
+    }
+
+    @Override
+    public FortressUser createFortressUser(Fortress fortress, ContentInputBean inputBean) {
+        if (inputBean.getFortressUser() != null)
+            return getFortressUser(fortress, inputBean.getFortressUser(), true);
+
+        return null;
     }
 
 }

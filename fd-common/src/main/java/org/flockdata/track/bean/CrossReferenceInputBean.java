@@ -19,8 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.EntityKey;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +30,12 @@ import java.util.Map;
  * Time: 12:24 PM
  */
 public class CrossReferenceInputBean {
-    Map<String,List<EntityKey>>references;
+    Map<String,List<EntityKeyBean>>references;
     private String fortress;
     private String documentType;
     private String callerRef;
     private String serviceMessage;
-    Map<String,List<EntityKey>>ignored;
+    Map<String,List<EntityKeyBean>>ignored;
 
     protected CrossReferenceInputBean(){}
 
@@ -69,7 +67,7 @@ public class CrossReferenceInputBean {
         return fortress;
     }
 
-    public Map<String,List<EntityKey>>getReferences(){
+    public Map<String,List<EntityKeyBean>>getReferences(){
         return references;
     }
 
@@ -117,13 +115,13 @@ public class CrossReferenceInputBean {
         return documentType;
     }
 
-    public void setIgnored(String xRefName, List<EntityKey> ignored) {
+    public void setIgnored(String xRefName, List<EntityKeyBean> ignored) {
         if (this.ignored == null )
            this.ignored = new HashMap<>();
         this.ignored.put(xRefName, ignored);
     }
 
-    public Map<String,List<EntityKey>> getIgnored() {
+    public Map<String,List<EntityKeyBean>> getIgnored() {
         return ignored;
     }
 }

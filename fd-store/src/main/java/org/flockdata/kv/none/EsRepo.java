@@ -27,9 +27,9 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.kv.KvContent;
+import org.flockdata.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class EsRepo extends AbstractKvRepo{
     public KvContent getValue(Entity entity, Log forLog)  {
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(entity.getFortress().getCompany().getName());
-        queryParams.setTypes(entity.getDocumentType());
+        queryParams.setTypes(entity.getType());
         queryParams.setFortress(entity.getFortress().getName());
         queryParams.setCallerRef(entity.getSearchKey());
         ContentInputBean contentInput = new ContentInputBean();

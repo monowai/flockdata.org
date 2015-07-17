@@ -19,10 +19,9 @@
 
 package org.flockdata.test.engine.endpoint;
 
-import org.flockdata.company.model.CompanyNode;
+import org.flockdata.model.Company;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +50,10 @@ public class CompanyTestEP extends EngineBase {
 
         EngineEndPoints eip = new EngineEndPoints(wac);
 
-        Collection<CompanyNode> companies = eip.findCompanies(su);
+        Collection<Company> companies = eip.findCompanies(su);
         assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = eip.getCompany(listCompany.getName(), su);
+        org.flockdata.model.Company listCompany = companies.iterator().next();
+        org.flockdata.model.Company foundCompany = eip.getCompany(listCompany.getName(), su);
         assertNotNull(foundCompany);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
         try {
@@ -76,10 +75,10 @@ public class CompanyTestEP extends EngineBase {
         SystemUser suMike = registerSystemUser("coA123", mike_admin);
         EngineEndPoints eip = new EngineEndPoints(wac);
 
-        Collection<CompanyNode> companies = eip.findCompanies(suMike);
+        Collection<Company> companies = eip.findCompanies(suMike);
         assertEquals(1, companies.size());
-        Company listCompany = companies.iterator().next();
-        Company foundCompany = eip.getCompany(listCompany.getName(), suMike);
+        org.flockdata.model.Company listCompany = companies.iterator().next();
+        org.flockdata.model.Company foundCompany = eip.getCompany(listCompany.getName(), suMike);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.

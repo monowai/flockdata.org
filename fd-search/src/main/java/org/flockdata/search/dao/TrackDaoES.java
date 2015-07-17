@@ -43,9 +43,9 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.SearchChange;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.model.Entity;
+import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.model.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -77,7 +77,7 @@ public class TrackDaoES implements TrackSearchDao {
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
     @Override
-    public boolean delete(SearchChange searchChange) {
+    public boolean delete(SearchChangeBean searchChange) {
         String indexName = searchChange.getIndexName();
         String recordType = searchChange.getDocumentType();
 
@@ -101,7 +101,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param source       Json to save
      * @return key value of the child document
      */
-    private SearchChange save(SearchChange searchChange, String source) throws IOException {
+    private SearchChangeBean save(SearchChangeBean searchChange, String source) throws IOException {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
@@ -226,7 +226,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     @Override
-    public SearchChange handle(SearchChange searchChange) throws IOException {
+    public SearchChangeBean handle(SearchChangeBean searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
@@ -312,7 +312,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     public Map<String, Object> findOne(Entity entity, String id) {
         String indexName = entity.getFortress().getIndexName();
-        String documentType = entity.getDocumentType();
+        String documentType = entity.getType();
         if (id == null)
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
@@ -348,7 +348,7 @@ public class TrackDaoES implements TrackSearchDao {
         return results;
     }
 
-    private String getJsonToIndex(SearchChange searchChange) {
+    private String getJsonToIndex(SearchChangeBean searchChange) {
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
         try {
@@ -366,7 +366,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param searchChange searchChange
      * @return document to index
      */
-    private Map<String, Object> getMapFromChange(SearchChange searchChange) {
+    private Map<String, Object> getMapFromChange(SearchChangeBean searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());

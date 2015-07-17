@@ -25,7 +25,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
