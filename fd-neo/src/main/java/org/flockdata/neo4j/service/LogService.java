@@ -112,7 +112,7 @@ public class LogService {
         if (incomingLog == null || incomingLog.isMocked())
             return null;
 
-        boolean historicIncomingLog = (entity.getFortressLastWhen() != null && contentWhen< entity.getFortressLastWhen());
+        boolean historicIncomingLog = (entity.getLastUpdate() != null && contentWhen< entity.getLastUpdate());
 
         logger.debug("Historic {}, {}, log {}, contentWhen {}",
                 new DateTime(entity.getFortressUpdatedTz()),
@@ -287,7 +287,7 @@ public class LogService {
 
         if (lastLog.getLog().getPreviousLog() != null) {
             EntityLog previousEl = getEntityLog(entity.getId(), currentLog.getPreviousLog().getId());
-            trackResultBean.setDeletedEntityLog( previousEl);
+            trackResultBean.setDeletedLog( previousEl);
 
             //entityTagService.findEntityTags(company, entity);
             Node toDelete = database.getNodeById(currentLog.getId());
@@ -323,7 +323,7 @@ public class LogService {
             }
 
             toDelete.delete();
-            trackResultBean.setDeletedEntityLog(deleteLog);
+            trackResultBean.setDeletedLog(deleteLog);
         }
         return trackResultBean;
     }
