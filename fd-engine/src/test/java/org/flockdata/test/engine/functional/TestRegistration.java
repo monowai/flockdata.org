@@ -19,14 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.company.model.FortressNode;
+import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.FortressUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,7 +80,7 @@ public class TestRegistration extends EngineBase {
         setSecurity();
         SystemUser su = registerSystemUser("searchIndexTest", mike_admin);
 
-        Fortress f = new FortressNode(new FortressInputBean("TESTING", true), su.getCompany());
+        Fortress f = new Fortress(new FortressInputBean("TESTING", true), su.getCompany());
         assertNotNull ( f.getIndexName());
         assertEquals(EntitySearchSchema.parseIndex(f), f.getIndexName());
     }
@@ -159,14 +158,14 @@ public class TestRegistration extends EngineBase {
 
         Company company = securityHelper.getCompany(systemUser.getApiKey());
         
-        Fortress fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
+        org.flockdata.model.Fortress fortress = fortressService.registerFortress(company, new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
 
         Collection<FortressResultBean> fortressList = fortressService.findFortresses(company);
         assertNotNull(fortressList);
         assertEquals(1, fortressList.size());
 
-        Fortress foundFortress = fortressService.findByName(company, "auditbucket");
+        org.flockdata.model.Fortress foundFortress = fortressService.findByName(company, "auditbucket");
         assertNotNull(foundFortress);
         assertNull(fortressService.findByName(company, "auditbucketzz"));
 
@@ -208,13 +207,13 @@ public class TestRegistration extends EngineBase {
     public void twoDifferentCompanyFortressSameName() throws Exception {
         setSecurity(mike_admin);
         SystemUser su = registerSystemUser("companya", mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortress-same",true));
+        org.flockdata.model.Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fortress-same",true));
         FortressUser fua = fortressService.getFortressUser(fortressA, mike_admin);
 
         setSecurity(sally_admin);
         SystemUser suB = registerSystemUser("companyb", harry);
         setSecurity(harry);
-        Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("fortress-same"));
+        org.flockdata.model.Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean("fortress-same"));
         FortressUser fub = fortressService.getFortressUser(fortressB, mike_admin);
         FortressUser fudupe = fortressService.getFortressUser(fortressB, mike_admin);
 
@@ -245,7 +244,7 @@ public class TestRegistration extends EngineBase {
         SystemUser su = registerSystemUser("fortressTZLocaleChecks", uid);
         setSecurity(uid);
         // Null fortress
-        Fortress fortressNull = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
+        org.flockdata.model.Fortress fortressNull = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
         assertNotNull(fortressNull.getLanguageTag());
         assertNotNull(fortressNull.getTimeZone());
 
@@ -256,7 +255,7 @@ public class TestRegistration extends EngineBase {
         FortressInputBean fib = new FortressInputBean("uk-wp", true);
         fib.setLanguageTag(languageTag);
         fib.setTimeZone(testTimezone);
-        Fortress custom = fortressService.registerFortress(su.getCompany(), fib);
+        org.flockdata.model.Fortress custom = fortressService.registerFortress(su.getCompany(), fib);
         assertEquals(languageTag, custom.getLanguageTag());
         assertEquals(testTimezone, custom.getTimeZone());
 
@@ -278,7 +277,7 @@ public class TestRegistration extends EngineBase {
         FortressInputBean fibNullSetter = new FortressInputBean("uk-wp", true);
         fibNullSetter.setLanguageTag(null);
         fibNullSetter.setTimeZone(null);
-        Fortress fResult = fortressService.registerFortress(su.getCompany(), fibNullSetter);
+        org.flockdata.model.Fortress fResult = fortressService.registerFortress(su.getCompany(), fibNullSetter);
         assertNotNull("Language not set to the default", fResult.getLanguageTag());
         assertNotNull("TZ not set to the default", fResult.getTimeZone());
 
@@ -294,7 +293,7 @@ public class TestRegistration extends EngineBase {
         SystemUser su = registerSystemUser(company, uname);
         setSecurity(uname);
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditbucket"));
+        org.flockdata.model.Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditbucket"));
         assertNotNull(fortress);
         FortressUser fu = fortressService.getFortressUser(fortress, uname);
         assertNotNull(fu);
@@ -322,7 +321,7 @@ public class TestRegistration extends EngineBase {
         // Assume the user has now logged in.
         String company = "defaults_FortressBooleanValues";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
+        org.flockdata.model.Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
         assertTrue (f.isEnabled());
         assertFalse (f.isSystem());
 
@@ -333,7 +332,7 @@ public class TestRegistration extends EngineBase {
         setSecurity();
         String company = "defaults_FortressBooleanValues";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
+        org.flockdata.model.Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestName", true));
         assertNotNull(f);
         assertEquals("Deleting by name should work as it will resolve to the code", "OK", fortressService.delete(su.getCompany(), f.getName()));
     }

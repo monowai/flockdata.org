@@ -21,7 +21,7 @@ package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.ArrayList;
@@ -382,4 +382,11 @@ public class TagInputBean {
             aliases = new ArrayList<>();
         aliases.add(alias);
     }
+
+    @JsonIgnore
+    // Determines if a valid NotFoundCode is set
+    public boolean hasNotFoundCode() {
+        return !(notFoundCode == null  || notFoundCode.equals(""));
+    }
+
 }

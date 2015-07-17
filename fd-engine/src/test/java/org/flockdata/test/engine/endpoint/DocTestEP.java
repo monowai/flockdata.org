@@ -21,14 +21,14 @@ package org.flockdata.test.engine.endpoint;
 
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.flockdata.test.engine.functional.TestQueryResults;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

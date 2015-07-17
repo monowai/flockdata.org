@@ -22,7 +22,7 @@ package org.flockdata.test.engine.endpoint;
 import junit.framework.TestCase;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

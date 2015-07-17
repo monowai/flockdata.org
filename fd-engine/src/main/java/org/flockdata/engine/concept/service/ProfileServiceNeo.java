@@ -20,20 +20,19 @@
 package org.flockdata.engine.concept.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.engine.concept.dao.ProfileDaoNeo;
-import org.flockdata.engine.concept.model.ProfileNode;
-import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.dao.ProfileDaoNeo;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Profile;
+import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Profile;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
@@ -66,7 +65,7 @@ public class ProfileServiceNeo implements ImportProfileService {
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
     public ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException {
-        ProfileNode profile = profileDao.find(fortress, documentType);
+        Profile profile = profileDao.find(fortress, documentType);
 
         if (profile == null)
             throw new NotFoundException(String.format("Unable to locate and import profile for [%s], [%s]", fortress.getCode(), documentType.getCode()));
@@ -84,9 +83,9 @@ public class ProfileServiceNeo implements ImportProfileService {
 
     public Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException {
         //objectMapper.
-        ProfileNode profile = profileDao.find(fortress, documentType);
+        Profile profile = profileDao.find(fortress, documentType);
         if (profile == null) {
-            profile = new ProfileNode(fortress, documentType);
+            profile = new Profile(fortress, documentType);
         }
         try {
             profile.setContent(objectMapper.writeValueAsString(profileConfig));

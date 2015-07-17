@@ -20,8 +20,8 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.model.EntityKey;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
@@ -43,7 +43,7 @@ public class EntityInputBean implements Serializable{
     private Date lastChange = null;
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
-    private transient Map<String,List<EntityKey>> crossReferences = new HashMap<>();
+    private transient Map<String,List<EntityKeyBean>> crossReferences = new HashMap<>();
     Map<String, Object> properties = new HashMap<>();
 
     private String event = "Create";
@@ -55,6 +55,7 @@ public class EntityInputBean implements Serializable{
     private String timezone;
     private boolean archiveTags = true;
     private String updateUser;
+    private FortressUser user;
 
     public EntityInputBean() {
     }
@@ -308,9 +309,9 @@ public class EntityInputBean implements Serializable{
         this.trackSuppressed = trackSuppressed;
     }
 
-    public void addCrossReference(String relationshipName, EntityKey entityKey){
+    public void addCrossReference(String relationshipName, EntityKeyBean entityKey){
         //new CrossReferenceInputBean(getFortresses(), callerRef, c)
-        List<EntityKey>refs = crossReferences.get(relationshipName);
+        List<EntityKeyBean>refs = crossReferences.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();
             crossReferences.put(relationshipName, refs);
@@ -325,7 +326,7 @@ public class EntityInputBean implements Serializable{
      *
      * @return crossReferences
      */
-    public Map<String,List<EntityKey>> getCrossReferences(){
+    public Map<String,List<EntityKeyBean>> getCrossReferences(){
         return crossReferences;
     }
 
@@ -409,7 +410,7 @@ public class EntityInputBean implements Serializable{
         return updateUser;
     }
 
-    public void setCrossReferences(Map<String, List<EntityKey>> crossReferences) {
+    public void setCrossReferences(Map<String, List<EntityKeyBean>> crossReferences) {
         this.crossReferences = crossReferences;
     }
 
@@ -446,5 +447,13 @@ public class EntityInputBean implements Serializable{
         result = 31 * result + (fortressUser != null ? fortressUser.hashCode() : 0);
         result = 31 * result + documentName.hashCode();
         return result;
+    }
+
+    public void setUser(FortressUser user) {
+        this.user = user;
+    }
+
+    public FortressUser getUser() {
+        return user;
     }
 }

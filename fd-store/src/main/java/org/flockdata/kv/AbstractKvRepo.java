@@ -23,8 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

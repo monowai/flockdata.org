@@ -20,8 +20,8 @@
 package org.flockdata.search.model;
 
 import org.flockdata.query.MatrixInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
 
 import java.util.ArrayList;
 import java.util.Map;

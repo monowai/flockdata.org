@@ -21,14 +21,15 @@ package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.endpoint.FdMonitoringGateway;
-import org.flockdata.engine.track.dao.EntityDaoNeo;
+import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.PingResult;
+import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +57,9 @@ public class EngineConfig implements PlatformConfig {
 
     @Autowired
     FdKvConfig kvConfig;
+
+    @Autowired
+    SchemaService schemaService;
 
     private String fdSearch;
 
@@ -280,6 +285,13 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public void setTestMode(boolean testMode) {
         this.testMode = testMode;
+    }
+
+    @PostConstruct
+    public void ensureSystemIndexes() {
+        if (createSystemConstraints())
+            schemaService.ensureSystemIndexes(null);
+
     }
 
 }

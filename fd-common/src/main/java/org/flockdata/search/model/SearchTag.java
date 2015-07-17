@@ -22,7 +22,7 @@ package org.flockdata.search.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.EntityTag;
 
 import java.util.HashMap;
 import java.util.Map;

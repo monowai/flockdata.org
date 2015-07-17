@@ -20,7 +20,7 @@
 package org.flockdata.search.service;
 
 import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 
 import java.io.IOException;
 

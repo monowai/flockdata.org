@@ -21,9 +21,9 @@ package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.AliasResultBean;
-import org.flockdata.track.model.Alias;
+import org.flockdata.model.Alias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,9 @@ public class TagResultBean {
     String message;
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     Map<String,Object> properties = new HashMap<>();
+
+    public static final String PROPS_PREFIX = "props-";
+
     private Tag tag =null;
     public TagResultBean(){}
 

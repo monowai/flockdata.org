@@ -22,8 +22,8 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
-import org.flockdata.track.model.ChangeEvent;
-import org.flockdata.track.model.EntityContent;
+import org.flockdata.model.ChangeEvent;
+import org.flockdata.model.EntityContent;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;

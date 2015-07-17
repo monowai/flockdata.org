@@ -19,25 +19,13 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
-import org.flockdata.engine.concept.model.DocumentTypeNode;
-import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.engine.track.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -66,7 +54,7 @@ public class TestEntitySearch {
         tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
         tags.add( new EntityTagOut(e, getTag("NameC", relationship), relationship, null ));
 
-        EntitySearchChange entitySearchChange = new EntitySearchChange(new EntityBean(e));
+        EntitySearchChange entitySearchChange = new EntitySearchChange(e);
         entitySearchChange.setTags(tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
@@ -83,23 +71,23 @@ public class TestEntitySearch {
 
     Tag getTag (String tagName, String rlxName){
         TagInputBean tagInputBean = new TagInputBean(tagName, null, rlxName);
-        return new TagNode(tagInputBean);
+        return new Tag(tagInputBean);
     }
 
     Entity getEntity(String comp, String fort, String userName, String doctype) throws FlockException {
         // These are the minimum objects necessary to create Entity data
-        Fortress fortress = new FortressNode(new FortressInputBean(fort, false), new CompanyNode(comp));
-        FortressUser user = new FortressUserNode(fortress, userName);
-        DocumentTypeNode doc = new DocumentTypeNode(fortress, doctype);
+        org.flockdata.model.Fortress fortress = new Fortress(new FortressInputBean(fort, false), new Company(comp));
+        org.flockdata.model.FortressUser user = new FortressUser(fortress, userName);
+        DocumentType doc = new DocumentType(fortress, doctype);
 
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
 
-        return new EntityNode(now.toString(), fortress, mib, doc, user);
+        return new Entity(now.toString(), fortress, mib, doc, user);
 
     }
 
-    EntityInputBean getEntityInputBean(DocumentTypeNode docType, FortressUser fortressUser, String callerRef, DateTime now) {
+    EntityInputBean getEntityInputBean(DocumentType docType, org.flockdata.model.FortressUser fortressUser, String callerRef, DateTime now) {
 
         return new EntityInputBean(fortressUser.getFortress().getName(),
                 fortressUser.getCode(),

@@ -20,12 +20,12 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -56,10 +56,10 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortressB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
+        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getMetaKey();
 
         inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntityBean().getMetaKey();
+        String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
 
@@ -80,7 +80,7 @@ public class TestSchemaManagement extends EngineBase {
         SystemUser suA = registerSystemUser("OtherCo", harry);
         fortressService.registerFortress(suA.getCompany(), new FortressInputBean(sharedName, true));
         EntityInputBean entityInput = new EntityInputBean(sharedName, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), entityInput).getEntityBean().getMetaKey();
+        String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), entityInput).getEntity().getMetaKey();
 
 
 //        assertFalse(metaKeyA.equals(metaKeyB));

@@ -27,7 +27,7 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.*;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;

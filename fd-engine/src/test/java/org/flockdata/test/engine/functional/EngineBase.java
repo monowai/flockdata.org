@@ -20,8 +20,8 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.company.model.FortressNode;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -35,14 +35,12 @@ import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -155,7 +153,7 @@ public abstract class EngineBase {
 	Authentication authDefault = new UsernamePasswordAuthenticationToken(
 			mike_admin, "123");
 
-	public Fortress createFortress(SystemUser su) throws Exception {
+	public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
 		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
 	}
 
@@ -207,11 +205,11 @@ public abstract class EngineBase {
         return  registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
     }
     public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
-        Company company = companyService.findByName(companyName);
-        if ( company == null ) {
+        //org.flockdata.model.Company company = companyService.findByName(companyName);
+        //if ( company == null ) {
             logger.debug("Creating company {}", companyName);
-            company = companyService.create(companyName);
-        }
+            Company company = companyService.create(companyName);
+        //}
         SystemUser su = regService.registerSystemUser(company, new RegistrationBean( accessUser).setIsUnique(false));
 //        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
         logger.debug("Returning SU {}", su);
@@ -254,7 +252,7 @@ public abstract class EngineBase {
 		logger.trace(message, milliseconds / 1000d);
 	}
 
-	EntityLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
+	EntityLog waitForLogCount(org.flockdata.model.Company company, Entity entity, int expectedCount) throws Exception {
 		// Looking for the first searchKey to be logged against the entity
 		int i = 0;
 		int timeout = 100;
@@ -280,7 +278,7 @@ public abstract class EngineBase {
                     entity.getId());
         throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
 	}
-    long waitForFirstLog(Company company, Entity source) throws Exception {
+    long waitForFirstLog(org.flockdata.model.Company company, Entity source) throws Exception {
         // Looking for the first searchKey to be logged against the entity
         long thenTime = System.currentTimeMillis();
         int i = 0;
@@ -305,10 +303,10 @@ public abstract class EngineBase {
 
 
 	public void testJson() throws Exception {
-		FortressNode fortressNode = new FortressNode(new FortressInputBean(
-				"testing"), new CompanyNode("testCompany"));
+		Fortress fortressNode = new Fortress(new FortressInputBean(
+				"testing"), new Company("testCompany"));
 		byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
-		Fortress f = JsonUtils.getBytesAsObject(bytes, FortressNode.class);
+		org.flockdata.model.Fortress f = JsonUtils.getBytesAsObject(bytes, Fortress.class);
 		assertNotNull(f);
 		assertNull(f.getCompany());// JsonIgnored - Discuss!
 		assertEquals("testing", f.getName());

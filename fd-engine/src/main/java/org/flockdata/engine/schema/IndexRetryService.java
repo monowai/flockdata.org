@@ -20,7 +20,7 @@
 package org.flockdata.engine.schema;
 
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;

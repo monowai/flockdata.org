@@ -20,16 +20,16 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.concept.dao.ConceptDaoNeo;
-import org.flockdata.engine.tag.dao.TagDaoNeo4j;
+import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.engine.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.track.TagPayload;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
@@ -82,11 +82,11 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException{
-        String tagSuffix = engineAdmin.getTagSuffix(company);
+        String tenant = engineAdmin.getTagSuffix(company);
 
         TagPayload payload = new TagPayload(company)
                 .setTags(tagInputs)
-                .setSuffix(tagSuffix)
+                .setTenant(tenant)
                 .setIgnoreRelationships(false);
 
         Collection<TagResultBean> results = tagDao.save(payload);

@@ -19,11 +19,11 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;

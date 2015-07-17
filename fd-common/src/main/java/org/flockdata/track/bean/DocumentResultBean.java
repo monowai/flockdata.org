@@ -21,7 +21,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
 
 import java.util.ArrayList;
 

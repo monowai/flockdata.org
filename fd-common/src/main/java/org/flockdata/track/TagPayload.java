@@ -19,8 +19,8 @@
 
 package org.flockdata.track;
 
+import org.flockdata.model.Company;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 public class TagPayload {
 
-    String suffix = "";
+    String tenant = "";
     boolean ignoreRelationships;
     Collection<TagInputBean> tags;
     Company company;
@@ -47,8 +47,8 @@ public class TagPayload {
         this.tags = tags;
     }
 
-    public TagPayload setSuffix(String suffix) {
-        this.suffix = suffix;
+    public TagPayload setTenant(String tenant) {
+        this.tenant = tenant;
         return this;
     }
 
@@ -62,8 +62,8 @@ public class TagPayload {
         return this;
     }
 
-    public String getSuffix() {
-        return suffix;
+    public String getTenant() {
+        return tenant;
     }
 
     public boolean isIgnoreRelationships() {

@@ -20,10 +20,9 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.TrackEventDao;
-import org.flockdata.engine.track.model.ChangeEventNode;
+import org.flockdata.model.ChangeEvent;
 import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.model.Company;
-import org.flockdata.track.model.ChangeEvent;
+import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,18 +52,18 @@ public class TrackEventService {
      * @return created ChangeEvent
      */
     @Transactional(propagation =  Propagation.SUPPORTS)
-    public ChangeEvent processEvent(String eventCode) {
+    public org.flockdata.model.ChangeEvent processEvent(String eventCode) {
         //Company company = securityHelper.getCompany();
         return processEvent(null, eventCode);
     }
 
     @Transactional(propagation =  Propagation.SUPPORTS)
-    public ChangeEvent processEvent(Company company, String eventCode) {
+    public org.flockdata.model.ChangeEvent processEvent(Company company, String eventCode) {
         //return trackEventDao.createEvent(company, eventCode);
-        return new ChangeEventNode(eventCode);
+        return new ChangeEvent(eventCode);
     }
 
-    public Set<ChangeEvent> getCompanyEvents(Long id) {
+    public Set<org.flockdata.model.ChangeEvent> getCompanyEvents(Long id) {
         return trackEventDao.findCompanyEvents(id);
     }
 }

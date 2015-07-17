@@ -21,7 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.LogService;

@@ -19,9 +19,8 @@
 
 package org.flockdata.kv;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Log;
 
 import java.io.IOException;
 

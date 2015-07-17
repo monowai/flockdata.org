@@ -21,7 +21,7 @@ package org.flockdata.company.service;
 
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.dao.RegistrationDao;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

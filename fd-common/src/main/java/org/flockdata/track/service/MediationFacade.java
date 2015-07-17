@@ -20,17 +20,16 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -73,7 +72,7 @@ public interface MediationFacade {
     void cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
 
-    void mergeTags(Company company, Tag source, Tag target);
+    void mergeTags(Company company, Long source, Long target);
 
     void createAlias(Company company, String label, Tag source, String akaValue);
 

@@ -19,16 +19,17 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.track.dao.EntityDaoNeo;
+import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.LogService;
 import org.slf4j.Logger;
@@ -101,11 +102,11 @@ public class LogServiceNeo4j implements LogService {
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
         logRetryService.writeLog(fortress, resultBean);
-        if (resultBean.getLogResult().getStatus() == ContentInputBean.LogStatus.NOT_FOUND)
+        if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
 
         if (resultBean.getContentInput() != null
-                && !resultBean.getLogResult().isLogIgnored()) {
+                && !resultBean.isLogIgnored()) {
             if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
                 KvContentBean kvContentBean = new KvContentBean(resultBean);
                 kvManager.doWrite(resultBean.getEntity(), kvContentBean);
@@ -123,6 +124,19 @@ public class LogServiceNeo4j implements LogService {
         Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
         return results.iterator().next();
     }
+
+    @Override
+    public TrackResultBean writeLog(Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
+
+        TrackResultBean resultBean = new TrackResultBean(entity);
+
+        resultBean.setContentInput(input);
+        ArrayList<TrackResultBean> logs = new ArrayList<>();
+        logs.add(resultBean);
+        Collection<TrackResultBean> results = processLogs(entity.getFortress(), logs).get();
+        return results.iterator().next();
+    }
+
 
     @Override
     @Transactional

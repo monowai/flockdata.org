@@ -19,12 +19,11 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.Entity;
+import org.flockdata.model.TrackSearchDao;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.SearchChange;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -57,7 +56,7 @@ public class TestDataTypes extends ESBase {
 
         Entity entityA = Helper.getEntity(company, fortress, user, doc);
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entityA));
+        SearchChangeBean change = new EntitySearchChange(entityA);
         change.setDescription("Test Description");
         Map<String,Object> numMap = Helper.getSimpleMap("num", 100);
         change.setWhat(numMap );
@@ -72,7 +71,7 @@ public class TestDataTypes extends ESBase {
 
         Entity entityB = Helper.getEntity(company, fortress, user, doc);
         Map<String,Object> strMap = Helper.getSimpleMap("num", "NA");
-        change = new EntitySearchChange(new EntityBean(entityB));
+        change = new EntitySearchChange(entityB);
         change.setDescription("Test Description");
         change.setWhat(strMap);
 

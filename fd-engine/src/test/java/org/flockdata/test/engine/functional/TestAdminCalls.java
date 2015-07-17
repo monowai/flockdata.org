@@ -22,8 +22,8 @@ package org.flockdata.test.engine.functional;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -72,7 +72,7 @@ public class TestAdminCalls extends EngineBase {
 
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -104,7 +104,7 @@ public class TestAdminCalls extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -112,7 +112,7 @@ public class TestAdminCalls extends EngineBase {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntityBean().getMetaKey()));
+        assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntity().getMetaKey()));
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
@@ -138,7 +138,7 @@ public class TestAdminCalls extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -177,7 +177,7 @@ public class TestAdminCalls extends EngineBase {
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
-        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();
 
         assertNotNull(resultA);
 
@@ -187,7 +187,7 @@ public class TestAdminCalls extends EngineBase {
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
 
-        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);

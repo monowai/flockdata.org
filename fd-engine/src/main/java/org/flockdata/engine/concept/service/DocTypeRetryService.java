@@ -20,9 +20,9 @@
 package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;

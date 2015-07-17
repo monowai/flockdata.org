@@ -25,12 +25,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.*;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -82,15 +78,17 @@ public class Helper {
     public static Entity getEntity(String comp, String fort, String userName, String docType, String callerRef) throws FlockException {
         // These are the minimum objects necessary to create Entity data
 
-        Company mockCompany = new SimpleCompany(comp);
+        Company mockCompany = new Company(comp);
         mockCompany.setName(comp);
 
         FortressInputBean fib = new FortressInputBean(fort, false);
-        Fortress fortress = new SimpleFortress(fib, mockCompany);
+        Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(docType, fort, userName, callerRef, now);
-        return new SimpleEntity(callerRef, fortress, mib, docType);
+
+        DocumentType doc = new DocumentType(fortress, docType);
+        return new Entity(callerRef, fortress, mib, doc);
 
     }
 
@@ -569,8 +567,9 @@ public class Helper {
     }
 
     public static EntityTag getEntityTag(Entity entity, TagInputBean tagInput, String rlxname) {
-        Tag tag = new SimpleTag(tagInput);
-        return new SimpleEntityTagRelationship(entity, tag, rlxname, null);
+        Tag tag = new Tag(tagInput);
+        return new EntityTagOut(entity, tag, rlxname, null);
     }
+
 }
 

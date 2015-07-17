@@ -21,7 +21,7 @@ package org.flockdata.geography.endpoint;
 
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.ApiKeyHelper;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
