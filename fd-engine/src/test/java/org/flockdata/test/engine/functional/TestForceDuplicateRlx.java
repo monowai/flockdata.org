@@ -20,19 +20,17 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.test.engine.Helper;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.io.IOException;
@@ -49,7 +47,6 @@ public class TestForceDuplicateRlx extends EngineBase {
     private Logger logger = LoggerFactory.getLogger(TestForceDuplicateRlx.class);
 
     @Test
-    @Transactional
     public void uniqueChangeRLXUnderLoad() throws Exception {
         logger.debug("### uniqueChangeRLXUnderLoad started");
         SystemUser su = registerSystemUser("TestTrack", mike_admin);

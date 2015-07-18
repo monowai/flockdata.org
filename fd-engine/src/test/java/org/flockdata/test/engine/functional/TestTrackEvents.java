@@ -19,21 +19,14 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.ChangeEvent;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Log;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +35,6 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 6/09/13
  */
-@Transactional
 public class TestTrackEvents extends EngineBase {
 
     @Test

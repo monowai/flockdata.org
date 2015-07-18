@@ -144,7 +144,7 @@ public class LogRetryService {
         }
 
         // Transactions checks
-        TxRef txRef = txService.handleTxRef(trackResult.getContentInput(), fortress.getCompany());
+        final TxRef txRef = txService.handleTxRef(trackResult.getContentInput(), fortress.getCompany());
         trackResult.setTxReference(txRef);
 
         EntityLog lastLog = getLastLog(trackResult.getEntity());
@@ -169,7 +169,7 @@ public class LogRetryService {
         if (preparedLog == null) // log is prepared during the entity process and stashed here ONLY if it is a brand new entity
             preparedLog = entityDao.prepareLog(fortress.getCompany(), thisFortressUser, trackResult, txRef, (lastLog != null ? lastLog.getLog() : null));
         else
-            preparedLog.setTxRef(txRef);
+            trackResult.setTxReference(txRef);
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);

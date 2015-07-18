@@ -25,11 +25,12 @@ import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.context.annotation.PropertySource;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Integration configuration for Rabbit and AMQP
@@ -38,9 +39,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableRabbit
+@PropertySource(value = "classpath:/config.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class AmqpConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(AmqpConfig.class);
+    private Logger logger = LoggerFactory.getLogger("configuration");
+
+    @Autowired
+    AsyncConfig asyncConfig;
 
     @Value("${rabbit.host:localhost}")
     private String rabbitHost;
@@ -62,7 +67,6 @@ public class AmqpConfig {
 
     @Value("${rabbit.publisherCacheSize}")
     private Integer pubCache;
-
 
     private Integer heartBeat= 0;
 
@@ -88,12 +92,9 @@ public class AmqpConfig {
     @Value("${fd-track.binding}")
     private String trackBinding;
 
-    @Qualifier("fd-track")
-    @Autowired
-    ThreadPoolTaskExecutor executor;
-
-    public AmqpConfig (){
-        logger.info( "**** FlockData AMQP Configuration deploying");
+    @PostConstruct
+    public void logStatus (){
+        logger.info( "**** FlockData AMQP Configuration deployed");
     }
 
     @Bean(name = "connectionFactory")
@@ -107,7 +108,7 @@ public class AmqpConfig {
         connectionFactory.setPublisherConfirms(confirms);
         connectionFactory.setPublisherReturns(returns);
         connectionFactory.setChannelCacheSize(pubCache);
-        connectionFactory.setExecutor(executor);
+        connectionFactory.setExecutor(asyncConfig.trackExecutor());
         return connectionFactory;
     }
 

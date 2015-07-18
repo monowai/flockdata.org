@@ -60,7 +60,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     protected DocumentType() {
     }
 
-    public DocumentType(org.flockdata.model.Fortress fortress, String documentName) {
+    public DocumentType(Fortress fortress, String documentName) {
         this();
         this.name = documentName;
         this.code = parse(fortress, documentName);
@@ -77,7 +77,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         this.id = document.getId();
     }
 
-    public void setFortress(org.flockdata.model.Fortress fortress) {
+    public void setFortress(Fortress fortress) {
         this.fortress = fortress;
     }
 
@@ -125,7 +125,7 @@ public class DocumentType  implements Comparable<DocumentType> {
                 '}';
     }
 
-    public static String parse(org.flockdata.model.Fortress fortress, String documentType) {
+    public static String parse(Fortress fortress, String documentType) {
 //        return documentName.toLowerCase().replaceAll("\\s", ".");
         return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
