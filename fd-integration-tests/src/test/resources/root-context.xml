@@ -22,28 +22,15 @@
     <context:spring-configured/>
     <context:annotation-config/>
     <aop:aspectj-autoproxy/>
-    <!--fd-engine test integration file-->
 
-    <!-- Root Context: defines shared resources visible to all other web components -->
-    <context:component-scan  base-package=
-       "org.flockdata.engine.admin,
-		org.flockdata.engine.query,
-		org.flockdata.engine.schema,
-		org.flockdata.engine.tag,
-		org.flockdata.engine.track,
-		org.flockdata.registration,
-		org.flockdata.helper,
-		org.flockdata.configure,
-		org.flockdata.geography,
-		org.flockdata.company,
-		org.flockdata.kv"/>
+    <context:component-scan
+            base-package="org.flockdata"/>
 
-
-    <context:property-placeholder ignore-unresolvable="true"
-                                  location="classpath:config.properties"/>
+    <context:property-placeholder
+            ignore-resource-not-found="true" ignore-unresolvable="true"
+            location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}"/>
 
     <import resource="simple-security.xml" />
-    <import resource="fdit-task.xml"/>
     <import resource="http-proxy-integration.xml"/>
     <import resource="neo4j-context-test.xml"/>
     <import resource="kv-context.xml"/>

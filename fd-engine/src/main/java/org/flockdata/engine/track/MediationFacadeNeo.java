@@ -22,8 +22,8 @@ package org.flockdata.engine.track;
 import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.concept.service.DocTypeRetryService;
+import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.engine.track.service.ConceptRetryService;
@@ -94,7 +94,7 @@ public class MediationFacadeNeo implements MediationFacade {
     SearchServiceFacade searchService;
 
     @Autowired
-    DocTypeRetryService schemaRetryService;
+    DocTypeRetryService docTypeRetryService;
 
     @Autowired
     TagService tagService;
@@ -126,6 +126,8 @@ public class MediationFacadeNeo implements MediationFacade {
     @Autowired
     TrackBatchSplitter batchSplitter;
 
+    @Autowired
+    TrackGateway trackGateway;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
 
@@ -192,34 +194,6 @@ public class MediationFacadeNeo implements MediationFacade {
         return results.iterator().next();
     }
 
-    @Autowired
-    TrackGateway trackGateway;
-
-    @Override
-    @Secured({SecurityHelper.ADMIN})
-    public void mergeTags(Company company, Long source, Long target) {
-        // ToDo: Transactional?
-        // Update the search docs for the affected entities
-        Collection<Long> entities = entityTagService.mergeTags(source, target);
-        searchService.refresh(company, entities);
-
-    }
-
-    @Override
-    public void createAlias(Company company, String label, Tag tag, String akaValue) {
-        tagService.createAlias(company, tag, label, akaValue);
-    }
-
-    @Override
-    public Map<String, Object> getLogContent(Entity entity, Long logId) {
-        EntityLog log = entityService.getLogForEntity(entity, logId);
-        if (log != null)
-            return kvService.getContent(entity, log.getLog()).getWhat();
-
-        return new HashMap<>();
-    }
-
-
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
         String id = Thread.currentThread().getName() + "/" + DateTime.now().getMillis();
@@ -232,11 +206,11 @@ public class MediationFacadeNeo implements MediationFacade {
 
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
-        Future<DocumentType> docType = schemaRetryService.createDocTypes(fortress, first);
+        Future<DocumentType> docType = docTypeRetryService.createDocTypes(fortress, first);
 
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
-        Collection<TrackResultBean> allResults = new ArrayList<>();
+
         // We have to wait for the docType before proceeding to create entities
         try {
             // A long time, but this is to avoid test issues on the low spec build box
@@ -253,6 +227,8 @@ public class MediationFacadeNeo implements MediationFacade {
         StopWatch watch = new StopWatch();
         watch.start();
         logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
+        Collection<TrackResultBean> allResults = new ArrayList<>();
+
         for (List<EntityInputBean> entityInputBeans : splitList) {
             Iterable<TrackResultBean> loopResults = entityRetry.track(fortress, entityInputBeans, null);
             logger.debug("Tracked requests");
@@ -388,6 +364,29 @@ public class MediationFacadeNeo implements MediationFacade {
         return entityService.getEntitySummary(company, metaKey);
     }
 
+    @Override
+    @Secured({SecurityHelper.ADMIN})
+    public void mergeTags(Company company, Long source, Long target) {
+        // ToDo: Transactional?
+        // Update the search docs for the affected entities
+        Collection<Long> entities = entityTagService.mergeTags(source, target);
+        searchService.refresh(company, entities);
+
+    }
+
+    @Override
+    public void createAlias(Company company, String label, Tag tag, String akaValue) {
+        tagService.createAlias(company, tag, label, akaValue);
+    }
+
+    @Override
+    public Map<String, Object> getLogContent(Entity entity, Long logId) {
+        EntityLog log = entityService.getLogForEntity(entity, logId);
+        if (log != null)
+            return kvService.getContent(entity, log.getLog()).getWhat();
+
+        return new HashMap<>();
+    }
 
     @Override
     @Secured({SecurityHelper.ADMIN})

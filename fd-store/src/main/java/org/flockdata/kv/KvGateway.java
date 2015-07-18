@@ -22,15 +22,14 @@ package org.flockdata.kv;
 import org.flockdata.kv.bean.KvContentBean;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * User: mike
  * Date: 19/11/14
  * Time: 11:48 AM
  */
-@MessagingGateway (asyncExecutor = "fd-store")
-@Async("fd-store")
+@MessagingGateway
+//@Async("fd-store")
 public interface KvGateway {
 
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")

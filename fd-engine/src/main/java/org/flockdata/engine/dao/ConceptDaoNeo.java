@@ -113,18 +113,16 @@ public class ConceptDaoNeo {
         DocumentType docResult = documentExists(fortress, docName);
 
         if (docResult == null && createIfMissing) {
-            docResult = documentExists(fortress, docName);
-            if (docResult == null) {
-
-                docResult = documentTypeRepo.save(new DocumentType(fortress, docName));
-            }
-        }
-        if (docResult != null && docResult.getFortress() == null) {
-            docResult.setFortress(fortress);
+            docResult = documentTypeRepo.save(new DocumentType(fortress, docName));
         }
 
         return docResult;
+    }
 
+    DocumentType documentExists(Fortress fortress, String docCode) {
+        assert fortress != null;
+        String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docCode);
+        return documentTypeRepo.findFortressDocCode(arg);
     }
 
     // Query Routines
@@ -190,12 +188,6 @@ public class ConceptDaoNeo {
 
     public Collection<DocumentType> getCompanyDocumentsInUse(Company company) {
         return documentTypeRepo.findAllDocuments(company);
-    }
-
-    DocumentType documentExists(Fortress fortress, String docCode) {
-        assert fortress != null;
-        String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docCode);
-        return documentTypeRepo.findFortressDocCode(arg);
     }
 
     public boolean schemaTagDefExists(Company company, String labelName) {

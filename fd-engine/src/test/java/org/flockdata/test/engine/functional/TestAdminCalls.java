@@ -92,6 +92,7 @@ public class TestAdminCalls extends EngineBase {
         }
         setSecurity();
         mediationFacade.purge(fortress);
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(entityService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
     }
@@ -124,6 +125,7 @@ public class TestAdminCalls extends EngineBase {
         }
         setSecurity();
         mediationFacade.purge(fortress);
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(entityService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
     }
@@ -160,6 +162,7 @@ public class TestAdminCalls extends EngineBase {
         }
         setSecurity();
         mediationFacade.purge(fortress);
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(entityService.getEntity(su.getCompany(), metaKey));
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
 
@@ -198,6 +201,7 @@ public class TestAdminCalls extends EngineBase {
         entityService.crossReference(su.getCompany(), resultB, others, "rlxNameB");
 
         mediationFacade.purge(fortress);
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(entityService.getEntity(su.getCompany(), resultA));
         assertNull(entityService.getEntity(su.getCompany(), resultB));
 

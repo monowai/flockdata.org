@@ -20,10 +20,12 @@
 package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.DocumentType;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -48,10 +50,13 @@ public class DocTypeRetryService {
     @Autowired
     ConceptService conceptService;
 
+    private Logger logger = LoggerFactory.getLogger(DocTypeRetryService.class);
+
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
 
         DocumentType result = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
+        logger.debug("Finished result = {}"+ result);
         return new AsyncResult<>(result);
     }
 }

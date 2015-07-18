@@ -165,11 +165,13 @@ public abstract class EngineBase {
         //           might be started giving you sporadic failures.
 		Neo4jHelper.cleanDb(template);
 		engineConfig.setDuplicateRegistration(true);
+		engineConfig.setTestMode(true);
 	}
 
 	@Before
 	public void setSecurity() {
 		engineConfig.setMultiTenanted(false);
+		engineConfig.setTestMode(true); // prevents Async log processing from occurring
         engineConfig.setStoreEnabled("true");
         engineConfig.setConceptsEnabled("false");
 		SecurityContextHolder.getContext().setAuthentication(authDefault);

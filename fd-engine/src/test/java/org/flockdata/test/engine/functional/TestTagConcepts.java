@@ -56,6 +56,7 @@ public class TestTagConcepts extends EngineBase {
 
     @Override
     public void cleanUpGraph() {
+        engineConfig.setTestMode(true);
         super.cleanUpGraph();
     }
 
@@ -464,6 +465,7 @@ public class TestTagConcepts extends EngineBase {
                 logger.info(foundDoc.toString());
             }
             mediationFacade.purge( fortress);
+            waitAWhile("Waiting for Async processing to complete");
             assertEquals(0, conceptService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
             cleanUpGraph();

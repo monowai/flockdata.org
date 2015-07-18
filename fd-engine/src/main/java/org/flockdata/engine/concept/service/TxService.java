@@ -70,6 +70,7 @@ public class TxService {
         TxRef tx = findTx(txRef);
         return (tx == null ? null : trackDao.findByTransaction(tx));
     }
+
     public TxRef handleTxRef(ContentInputBean input, Company company) {
         TxRef txRef = null;
         if (input.isTransactional()) {

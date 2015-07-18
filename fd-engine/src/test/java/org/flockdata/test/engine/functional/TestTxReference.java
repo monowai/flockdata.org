@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,9 +43,7 @@ import static org.junit.Assert.*;
  * Date: 15/06/13
  * Time: 10:41 AM
  */
-@Transactional
 public class TestTxReference extends EngineBase {
-
 
     private static  Map<String, Object> escJsonA;
     private static  Map<String, Object> escJsonB;
@@ -56,6 +53,12 @@ public class TestTxReference extends EngineBase {
         escJsonB = new HashMap<>();
         escJsonA.put("blah", 1 );
         escJsonB.put("blah", 2 );
+    }
+
+    @org.junit.Before
+    public void testMode(){
+        cleanUpGraph();
+        engineConfig.setTestMode(true);
     }
 
     @Test
@@ -74,6 +77,7 @@ public class TestTxReference extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
         EntityLog entityLog = resultBean.getCurrentLog();
         assertNotNull(entityLog);
+        assertNotNull(resultBean.getTxReference());
         String abcTxRef = resultBean.getTxReference().getName();
         assertNotNull(abcTxRef);
 
@@ -170,11 +174,12 @@ public class TestTxReference extends EngineBase {
 
     @Test
     public void tx_TrackEntities() throws Exception {
+
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
         String tagRef = "MyTXTag";
-        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrackDoc", new DateTime(), "tx_TrackEntities");
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
         assertNotNull(key);
@@ -187,11 +192,10 @@ public class TestTxReference extends EngineBase {
         alb = new ContentInputBean("harry", key, DateTime.now(), escJsonB);
 
         alb.setTxRef(albTxRef);
-        String txStart = albTxRef;
 
         mediationFacade.trackLog(su.getCompany(), alb);
         // All entities touched by this transaction. ToDo: All changes affected
-        Set<Entity> result = txService.findTxEntities(txStart);
+        Set<Entity> result = txService.findTxEntities(albTxRef);
         assertNotNull(result);
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());

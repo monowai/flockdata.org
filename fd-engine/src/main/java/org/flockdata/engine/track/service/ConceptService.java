@@ -20,11 +20,10 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.DocumentType;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Set;
@@ -33,12 +32,11 @@ import java.util.Set;
  * Created by mike on 20/06/15.
  */
 public interface ConceptService {
-    @Transactional
+
     Collection<DocumentResultBean> getDocumentsInUse(Company company);
 
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
-    //    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     DocumentType resolveByDocCode(Fortress fortress, String documentCode);
 
     DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);

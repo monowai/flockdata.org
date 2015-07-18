@@ -21,7 +21,6 @@ package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.endpoint.FdMonitoringGateway;
-import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
@@ -51,9 +50,6 @@ import java.util.Map;
 @Service
 @Transactional
 public class EngineConfig implements PlatformConfig {
-
-    @Autowired
-    EntityDaoNeo trackDAO;
 
     @Autowired
     FdKvConfig kvConfig;
