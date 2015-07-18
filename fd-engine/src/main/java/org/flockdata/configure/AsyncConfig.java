@@ -112,13 +112,6 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         return getExecutor("fd-store", storePoolSize, Integer.parseInt(storeQueueCapacity));
     }
 
-//    //    @Override
-//    @Bean(name = "fd-engine")
-//    public Executor getAsyncExecutor() {
-//        // System default executor
-//        return getExecutor( "fd-engine-", enginePoolSize, Integer.parseInt(engineQueueCapacity));
-//    }
-
     private Executor getExecutor(String name, String poolSize, int  qCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         String vals[] = StringUtils.split(poolSize, "-");
@@ -129,7 +122,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         else
             executor.setMaxPoolSize(Integer.parseInt(vals[0]));
         executor.setQueueCapacity(qCapacity);
-        executor.setThreadNamePrefix(name);
+        executor.setThreadNamePrefix(name +"-");
         executor.initialize();
         return executor;
     }
