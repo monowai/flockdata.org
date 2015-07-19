@@ -84,7 +84,7 @@ public class TrackEP {
      */
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public
-    ResponseEntity<TrackResultBean> trackEntity(@RequestBody EntityInputBean input,
+    ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
                                                 HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
@@ -92,10 +92,10 @@ public class TrackEP {
 
         if ( trackResultBean.entityExists())
             if ( trackResultBean.getCurrentLog()!= null && trackResultBean.isLogIgnored())
-                return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
+                return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.NOT_MODIFIED);
 
         trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(trackResultBean, HttpStatus.CREATED);
+        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.CREATED);
 
     }
 
@@ -123,7 +123,7 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", produces = "application/json", method = RequestMethod.PUT)
-    public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody EntityInputBean input,
+    public ResponseEntity<TrackRequestResult> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef ,
@@ -136,7 +136,7 @@ public class TrackEP {
         input.setMetaKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
+        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.OK);
 
     }
 

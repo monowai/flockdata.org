@@ -31,7 +31,6 @@ import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1126,14 +1125,14 @@ public class TestEntityTrack extends EngineBase {
     }
 
     @Test
-    @Ignore //FixMe  DAT-470
+    //@Ignore //FixMe  DAT-470
     public void event_Serializable() throws Exception {
         // DAT-276
         // ToDo: Fix Me = TrackResutBean needs a serializable view,
         Entity entity = Helper.getEntity("lba", "abc", "asdf", "asdf");
         TrackResultBean trackResultBean = new TrackResultBean(entity);
         trackResultBean.addServiceMessage("Blah");
-        byte[] bytes = ObjectHelper.serialize(trackResultBean);
+        byte[] bytes = ObjectHelper.serialize(new TrackRequestResult(trackResultBean));
         assertNotNull(bytes);
     }
 

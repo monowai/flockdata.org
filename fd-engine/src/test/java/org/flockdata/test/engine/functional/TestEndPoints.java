@@ -19,16 +19,16 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -55,9 +55,9 @@ public class TestEndPoints extends EngineBase{
         ContentInputBean cib = new ContentInputBean("userA", Helper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        TrackResultBean trackResult = engineEndPoints.track(eib, su);
+        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
         assertNotNull(trackResult);
-        Entity e = entityService.getEntity(su.getCompany(), trackResult.getEntity().getMetaKey());
+        Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
 
         assertEquals("usera", e.getLastUser().getCode());
         assertEquals("usera", e.getCreatedBy().getCode());
@@ -75,9 +75,9 @@ public class TestEndPoints extends EngineBase{
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         engineEndPoints.login("mike", "123");
-        TrackResultBean trackResult = engineEndPoints.track(eib, su);
+        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        Entity e = entityService.getEntity(su.getCompany(), trackResult.getEntity().getMetaKey());
+        Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
 
         assertEquals("usera", e.getLastUser().getCode());
         assertEquals("usera", e.getCreatedBy().getCode());
