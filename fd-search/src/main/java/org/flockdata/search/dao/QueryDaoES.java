@@ -19,6 +19,7 @@
 
 package org.flockdata.search.dao;
 
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -51,6 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -407,12 +409,23 @@ public class QueryDaoES implements QueryDao {
 
             esQuery.setExtraSource( query );
 
-            SearchResponse response = esQuery
-                    .execute()
-                    .actionGet();
+            try {
+                SearchResponse response = esQuery
+                        .execute()
+                        .actionGet();
 
-             result = new EsSearchResult(response.toString().getBytes());
-            result.setTotalHits(response.getHits().getTotalHits());
+                result = new EsSearchResult(response.toString().getBytes());
+                result.setTotalHits(response.getHits().getTotalHits());
+            } catch ( ElasticsearchException e){
+                Map<String,String>error = new HashMap<>();
+                error.put("ESQueryError", e.getMostSpecificCause().getMessage());
+
+                try {
+                    result = new EsSearchResult(JsonUtils.getObjectAsJsonBytes(error));
+                } catch (IOException e1) {
+                    throw new FlockException("Json error", e1);
+                }
+            }
 
 
         } else {
