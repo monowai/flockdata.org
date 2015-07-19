@@ -89,7 +89,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
 
     @Bean(name = "fd-engine")
     public Executor engineExecutor() {
-        return getExecutor( "fd-engine-", enginePoolSize, Integer.parseInt(engineQueueCapacity)  );
+        return getExecutor( "fd-engine", enginePoolSize, Integer.parseInt(engineQueueCapacity)  );
     }
 
     @Bean(name = "fd-log")
