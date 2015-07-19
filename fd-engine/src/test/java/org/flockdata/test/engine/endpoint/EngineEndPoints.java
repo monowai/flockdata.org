@@ -29,10 +29,7 @@ import org.flockdata.model.SystemUser;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.*;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -151,7 +148,7 @@ public class EngineEndPoints {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
-    public TrackResultBean track(EntityInputBean eib, SystemUser su) throws Exception {
+    public TrackRequestResult track(EntityInputBean eib, SystemUser su) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.post("/track/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
@@ -159,7 +156,7 @@ public class EngineEndPoints {
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         byte[] json = response.getResponse().getContentAsByteArray();
 
-        return JsonUtils.getBytesAsObject(json, TrackResultBean.class);
+        return JsonUtils.getBytesAsObject(json, TrackRequestResult.class);
     }
 
     public org.flockdata.model.Company getCompany(String name, SystemUser su) throws Exception {
