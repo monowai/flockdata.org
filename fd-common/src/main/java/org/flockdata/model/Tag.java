@@ -166,9 +166,8 @@ public class Tag {
         if (id != null ? !id.equals(tagNode.id) : tagNode.id != null) return false;
         if (code != null ? !code.equals(tagNode.code) : tagNode.code != null) return false;
         if (key != null ? !key.equals(tagNode.key) : tagNode.key != null) return false;
-        if (name != null ? !name.equals(tagNode.name) : tagNode.name != null) return false;
+        return !(name != null ? !name.equals(tagNode.name) : tagNode.name != null);
 
-        return true;
     }
 
     @Override

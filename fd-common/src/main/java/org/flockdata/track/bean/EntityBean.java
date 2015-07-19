@@ -193,9 +193,8 @@ public class EntityBean implements Serializable {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
-        if (searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null) return false;
+        return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
 
-        return true;
     }
 
     @Override

@@ -57,7 +57,7 @@ public class LogService {
     }
 
     public EntityLogs getLogs(Long entityId){
-        return getLogs(entityId, (Long)null);
+        return getLogs(entityId, null);
     }
 
     public EntityLogs getLogs(Long entityId, Long since) {
@@ -287,7 +287,7 @@ public class LogService {
 
         if (lastLog.getLog().getPreviousLog() != null) {
             EntityLog previousEl = getEntityLog(entity.getId(), currentLog.getPreviousLog().getId());
-            trackResultBean.setDeletedLog( previousEl);
+            trackResultBean.setDeletedLog(previousEl);
 
             //entityTagService.findEntityTags(company, entity);
             Node toDelete = database.getNodeById(currentLog.getId());

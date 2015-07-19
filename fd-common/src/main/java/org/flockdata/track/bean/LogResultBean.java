@@ -19,7 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.TxRef;
@@ -40,7 +39,7 @@ public class LogResultBean implements Serializable {
     private String fortressUser;
     private String txReference = null;
     private Long sysWhen;
-    private transient EntityLog logToIndex;
+    private EntityLog entityLog;
     private boolean logIgnored = false;
 
     private LogResultBean() {
@@ -57,7 +56,8 @@ public class LogResultBean implements Serializable {
     }
 
     public void setTxReference(TxRef txReference) {
-        this.txReference = txReference.getName();
+        if (txReference != null)
+            this.txReference = txReference.getName();
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -101,12 +101,12 @@ public class LogResultBean implements Serializable {
         this.documentType = documentType;
     }
 
-    public void setStatus(ContentInputBean.LogStatus status) {
-        this.status = status;
-    }
+//    public void setLogStatus(ContentInputBean.LogStatus status) {
+//        this.status = status;
+//    }
 
-    public void setSysWhen(Long sysWhe) {
-        this.sysWhen = sysWhe;
+    public void setSysWhen(Long sysWhen) {
+        this.sysWhen = sysWhen;
     }
 
     public Long getSysWhen() {
@@ -114,21 +114,13 @@ public class LogResultBean implements Serializable {
     }
 
     public void setLogToIndex(EntityLog logToIndex) {
-        this.logToIndex = logToIndex;
+        this.entityLog = logToIndex;
     }
 
-    @JsonIgnore
-    public EntityLog getLogToIndex() {
-        return logToIndex;
-    }
+//    @JsonIgnore
+//    public EntityLog getLogToIndex() {
+//        return entityLog;
+//    }
 
-    public void setLogIgnored() {
-        this.logIgnored = true;
-    }
 
-    public boolean isLogIgnored() {
-        return logIgnored ||
-                getStatus() == ContentInputBean.LogStatus.IGNORE ||
-                getStatus() == ContentInputBean.LogStatus.TRACK_ONLY;
-    }
 }

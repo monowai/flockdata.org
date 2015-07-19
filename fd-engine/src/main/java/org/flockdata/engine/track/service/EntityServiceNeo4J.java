@@ -198,11 +198,9 @@ public class EntityServiceNeo4J implements EntityService {
             //if (trackResult.getContentInput().getWhen()!= null )
 
             logger.debug("Setting preparedLog for entity {}", entity);
-            LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
-            logResult.setLogToIndex(entityLog);
+            //LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
+            //logResult.setLogToIndex(entityLog);
             trackResult.setCurrentLog(entityLog);
-            //trackResult.setLogResult(logResult);
-            //trackResult.setPreparedLog( entityLog );
         }
 
         return trackResult;
@@ -679,7 +677,7 @@ public class EntityServiceNeo4J implements EntityService {
             return;
         }
 
-        if (entity.getSearchKey() == null) {
+        if (entity.getSearch() ==  null) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly

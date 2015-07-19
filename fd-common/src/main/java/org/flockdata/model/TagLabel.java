@@ -95,9 +95,8 @@ public class TagLabel {
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (companyKey != null ? !companyKey.equals(that.companyKey) : that.companyKey != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override

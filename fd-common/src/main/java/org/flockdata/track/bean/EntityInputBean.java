@@ -434,9 +434,8 @@ public class EntityInputBean implements Serializable{
         if (!documentName.equals(that.documentName)) return false;
         if (!fortress.equals(that.fortress)) return false;
         if (fortressUser != null ? !fortressUser.equals(that.fortressUser) : that.fortressUser != null) return false;
-        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 
-        return true;
     }
 
     @Override

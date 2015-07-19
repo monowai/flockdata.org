@@ -213,9 +213,8 @@ public class Fortress implements Serializable {
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (company != null ? !company.equals(that.company) : that.company != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override

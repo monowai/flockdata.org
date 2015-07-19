@@ -29,7 +29,7 @@ public class AliasInputBean {
     private String code;
     private String description;
 
-    public AliasInputBean(){};
+    public AliasInputBean(){}
 
     public AliasInputBean(String code) {
         this();
@@ -66,9 +66,8 @@ public class AliasInputBean {
 
         AliasInputBean that = (AliasInputBean) o;
 
-        if (!code.equals(that.code)) return false;
+        return code.equals(that.code);
 
-        return true;
     }
 
     @Override

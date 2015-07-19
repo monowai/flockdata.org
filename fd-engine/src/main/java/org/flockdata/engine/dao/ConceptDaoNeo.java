@@ -58,7 +58,7 @@ public class ConceptDaoNeo {
 
         for (DocumentType docType : conceptInput.keySet()) {
             logger.trace("Looking for existing concepts {}", docType.getName());
-            org.flockdata.model.DocumentType documentType = (DocumentType) docType;
+            org.flockdata.model.DocumentType documentType = docType;
 
             template.fetch(documentType.getConcepts());
 

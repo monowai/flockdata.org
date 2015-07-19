@@ -271,9 +271,8 @@ public class TagInputBean {
         if (reverse != that.reverse) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     @Override

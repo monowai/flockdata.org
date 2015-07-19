@@ -81,6 +81,7 @@ public class EntityLog {
             // "now" in the fortress default timezone
             setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(entity.getFortress().getTimeZone()))));
         }
+        log.setEntityLog(this);
     }
 
 
@@ -142,9 +143,8 @@ public class EntityLog {
 
         if (log != null ? !log.equals(that.log) : that.log != null) return false;
         if (entity != null ? !entity.getId().equals(that.entity.getId()) : that.entity != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override

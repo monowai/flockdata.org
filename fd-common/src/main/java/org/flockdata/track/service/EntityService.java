@@ -73,7 +73,7 @@ public interface EntityService {
 
     int getLogCount(Company company, String metaKey) throws FlockException;
 
-    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
+    Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
 
     Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
 

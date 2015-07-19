@@ -29,13 +29,13 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface KvRepo {
-    public void add(KvContent contentBean) throws IOException;
+    void add(KvContent contentBean) throws IOException;
 
-    public KvContent getValue(Entity entity, Log forLog);
+    KvContent getValue(Entity entity, Log forLog);
 
-    public void delete(Entity entity, Log log);
+    void delete(Entity entity, Log log);
 
-    public void purge(String index);
+    void purge(String index);
 
     String ping();
 

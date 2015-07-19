@@ -21,7 +21,7 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.geography.GeoSupportNeo;
+import org.flockdata.geography.dao.GeoSupportNeo;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;

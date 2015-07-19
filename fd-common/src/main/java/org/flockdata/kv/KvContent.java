@@ -31,23 +31,23 @@ import java.util.Map;
  */
 public interface KvContent {
 
-    public String getAttachment();
+    String getAttachment();
 
-    public Map<String, Object> getWhat() ;
+    Map<String, Object> getWhat() ;
 
-    public String getChecksum() throws IOException;
+    String getChecksum() throws IOException;
 
     /**
      *
      * @return primary key for this content
      */
-    public Long getId();
+    Long getId();
 
     String getBucket();
 
     void setBucket(String bucket);
 
-    public ContentInputBean getContent();
+    ContentInputBean getContent();
 
     void setStorage(String storage);
 

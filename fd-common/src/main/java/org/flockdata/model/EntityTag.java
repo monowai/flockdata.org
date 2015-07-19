@@ -95,9 +95,8 @@ public abstract class EntityTag implements  Comparable<EntityTag>{
         if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) return false;
         if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
         if (getRelationship() != null ? !getRelationship().equals(that.getRelationship()) : that.getRelationship()!= null) return false;
-        if (getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null) return false;
+        return !(getTag() != null ? !getTag().getId().equals(that.getTag().getId()) : that.getTag() != null);
 
-        return true;
     }
 
     @Override

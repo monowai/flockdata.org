@@ -80,9 +80,8 @@ public class CrossReferenceInputBean {
 
         if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
+        return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
 
-        return true;
     }
 
     @Override

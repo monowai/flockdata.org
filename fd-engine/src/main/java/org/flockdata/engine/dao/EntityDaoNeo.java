@@ -103,7 +103,7 @@ public class EntityDaoNeo {
     public Entity save(Entity entity, boolean quietly) {
         if (!quietly)
             entity.bumpUpdate();
-        return entityRepo.save((Entity) entity);
+        return entityRepo.save(entity);
 
     }
 
@@ -194,7 +194,7 @@ public class EntityDaoNeo {
         return results;
     }
 
-    public void delete(org.flockdata.model.Log currentChange) {
+    public void delete(Log currentChange) {
         trackLogRepo.delete(currentChange);
     }
 
@@ -253,7 +253,7 @@ public class EntityDaoNeo {
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
             EntityLog log = template.convert(row.get("logs"), EntityLog.class);
-            org.flockdata.model.Log change = template.convert(row.get("log"), Log.class);
+            Log change = template.convert(row.get("log"), Log.class);
             Entity entity = template.convert(row.get("track"), Entity.class);
             simpleResult.add(new EntityTXResult(entity, change, log));
             i++;
@@ -271,16 +271,16 @@ public class EntityDaoNeo {
         if ( log.isMocked())
             return log;
         logger.debug("Saving track log [{}] - Log ID [{}]", log, log.getLog().getId());
-        return template.save((EntityLog) log);
+        return template.save(log);
     }
 
     public String ping() {
         return "Neo4J is OK";
     }
 
-    public org.flockdata.model.Log prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, org.flockdata.model.Log previousChange) throws FlockException {
+    public Log prepareLog(Company company, FortressUser fUser, TrackResultBean payLoad, TxRef txRef, Log previousChange) throws FlockException {
         ChangeEvent event = trackEventService.processEvent(company, payLoad.getContentInput().getEvent());
-        org.flockdata.model.Log changeLog = new Log(fUser, payLoad.getContentInput(), txRef);
+        Log changeLog = new Log(fUser, payLoad.getContentInput(), txRef);
 
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
@@ -295,7 +295,7 @@ public class EntityDaoNeo {
     private EntityLog getMockLog(Entity entity){
         // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
         if ( !entity.getFortress().isStoreEnabled()){
-            org.flockdata.model.Log log = new Log(entity);
+            Log log = new Log(entity);
             return new EntityLog(entity, log, entity.getFortressCreatedTz());
         }
         return null;
@@ -324,24 +324,23 @@ public class EntityDaoNeo {
         //return template.findOne(pk, EntityNode.class);
     }
 
-    public org.flockdata.model.Log fetch(org.flockdata.model.Log lastChange) {
+    public Log fetch(Log lastChange) {
         if ( lastChange.getId() == null || lastChange.getId() ==0l)
             return lastChange;
         return template.fetch(lastChange);
     }
 
-    public org.flockdata.model.Log writeLog(Entity entity, org.flockdata.model.Log newLog, DateTime fortressWhen) throws FlockException {
+    public EntityLog writeLog(Entity entity, Log newLog, DateTime fortressWhen) throws FlockException {
 
-        newLog.setEntityLog(new EntityLog(entity, newLog, fortressWhen));
+        EntityLog entityLog =new EntityLog(entity, newLog, fortressWhen);
 
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
-            return newLog;
+            return entityLog;
 
         if ( entity.getFortress().isStoreDisabled() )
-            return newLog;
+            return entityLog;
 
         logger.debug(entity.getMetaKey());
-        //entity = entityRepo.(entity.getId());
 
         Entity currentState = template.fetch(entity);
         // Entity is being committed in another thread? On occasion metakKey is null on refresh meaning the Log does not get created
@@ -362,16 +361,15 @@ public class EntityDaoNeo {
             template.save(entity);
         } else {
             logger.debug("About to save new log");
-            newLog = template.save(newLog);
+            template.save(newLog);
+            template.save(entityLog);
             logger.debug("Saved new log");
             setLatest(entity);
-            // Need to refresh the log
-            template.fetch(newLog.getEntityLog());
         }
 
         logger.debug("Added Log - Entity [{}], Log [{}], Change [{}]", entity.getId(), newLog.getEntityLog(), newLog.getId());
         // Saving the entity causes the Log properties to be lazy initialised. If the caller wants these, then they need to fetch the object
-        return newLog;
+        return entityLog;
     }
 
     void setLatest(Entity entity) {
@@ -398,7 +396,7 @@ public class EntityDaoNeo {
         }
 
 
-        entity = entityRepo.save((Entity)entity);
+        entity = entityRepo.save(entity);
         logger.debug("Saved change for Entity [{}], log [{}]", entity.getId(), latest);
 
     }
@@ -473,7 +471,7 @@ public class EntityDaoNeo {
 
     public EntityLog getLastEntityLog(Entity entity) {
 
-        org.flockdata.model.Log lastChange = entity.getLastChange();
+        Log lastChange = entity.getLastChange();
         if (lastChange == null) {
             // If no last change, then this might be a mock log
             return getMockLog( entity);

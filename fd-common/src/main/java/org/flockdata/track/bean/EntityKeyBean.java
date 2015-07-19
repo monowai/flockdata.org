@@ -72,10 +72,8 @@ public class EntityKeyBean {
         if (!callerRef.equals(entityKey.callerRef)) return false;
         if (documentType != null ? !documentType.equals(entityKey.documentType) : entityKey.documentType != null)
             return false;
-        if (fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null)
-            return false;
+        return !(fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null);
 
-        return true;
     }
 
     @Override
