@@ -33,6 +33,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * FlockData TaskExecutors
@@ -122,7 +123,8 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         else
             executor.setMaxPoolSize(Integer.parseInt(vals[0]));
         executor.setQueueCapacity(qCapacity);
-        executor.setThreadNamePrefix(name +"-");
+        executor.setThreadNamePrefix(name + "-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         return executor;
     }
