@@ -95,7 +95,7 @@ public class EntityRetryService {
             logService.processLogs(fortress, existingEntities).get();
             return resultBeans;
         }
-
+        processAsync = false;
         if (processAsync) {
             // DAT-342 - we already know what the content log will be so we can end
             //           this transaction and get on with writing the search results

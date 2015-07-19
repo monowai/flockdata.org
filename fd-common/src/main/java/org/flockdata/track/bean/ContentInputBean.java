@@ -341,9 +341,8 @@ public class ContentInputBean implements EntityContent, Serializable {
         if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
         if (txRef != null ? !txRef.equals(that.txRef) : that.txRef != null) return false;
-        if (when != null ? !when.equals(that.when) : that.when != null) return false;
+        return !(when != null ? !when.equals(that.when) : that.when != null);
 
-        return true;
     }
 
     @Override

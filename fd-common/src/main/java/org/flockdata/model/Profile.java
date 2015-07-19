@@ -54,7 +54,7 @@ public class Profile {
     public Profile(Fortress fortress, DocumentType documentType) {
         this();
         this.fortress = fortress;
-        this.document = (DocumentType) documentType;
+        this.document = documentType;
         this.profileKey = parseKey(fortress, documentType);
     }
 

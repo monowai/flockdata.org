@@ -43,9 +43,9 @@ public interface XmlMappable extends Mappable {
      */
 
     @JsonIgnore
-    public String getDataType();
+    String getDataType();
 
-    public ContentInputBean setXMLData(XMLStreamReader xsr, ProfileConfiguration importProfile) throws JAXBException, JsonProcessingException, FlockException;
+    ContentInputBean setXMLData(XMLStreamReader xsr, ProfileConfiguration importProfile) throws JAXBException, JsonProcessingException, FlockException;
 
     /**
      * XML files require skipping.

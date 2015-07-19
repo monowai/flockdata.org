@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DatagioTag {
-    public String name() default "";
+    String name() default "";
 }

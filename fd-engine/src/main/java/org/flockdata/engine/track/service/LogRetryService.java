@@ -97,7 +97,7 @@ public class LogRetryService {
         Entity entity = trackResultBean.getEntity();
 
         assert entity != null;
-        assert entity.getMetaKey()!=null;
+        //assert entity.getMetaKey()!=null;
 
         logger.debug("writeLog entityExists [{}]  entity [{}], [{}]", entityExists, entity.getId(), new DateTime(entity.getFortressUpdatedTz()));
 
@@ -112,9 +112,9 @@ public class LogRetryService {
                 thisFortressUser = fortressService.getFortressUser(fortress, fortressUser, true);
             }
         //resultBean.setEntity(entity);
-        trackResultBean.setCurrentLog(
-                createLog(trackResultBean, thisFortressUser).getLogToIndex()
-        );
+        //trackResultBean.setCurrentLog(
+                createLog(trackResultBean, thisFortressUser);
+        //);
         return trackResultBean;
 
     }
@@ -208,14 +208,14 @@ public class LogRetryService {
             trackResult.setLogStatus(ContentInputBean.LogStatus.OK);
 
         // This call also saves the entity
-        Log newLog = entityDao.writeLog(trackResult.getEntity(), preparedLog, contentWhen);
+        EntityLog entityLog = entityDao.writeLog(trackResult.getEntity(), preparedLog, contentWhen);
 
-        resultBean.setSysWhen(newLog.getEntityLog().getSysWhen());
+        resultBean.setSysWhen(entityLog.getSysWhen());
 
         boolean moreRecent = (lastLog == null || lastLog.getFortressWhen().compareTo(contentWhen.getMillis()) <= 0);
 
         if (moreRecent)
-            resultBean.setLogToIndex(newLog.getEntityLog());  // Notional log to index.
+            trackResult.setCurrentLog(entityLog);  // Notional log to index.
 
         return resultBean;
 

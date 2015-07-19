@@ -144,9 +144,8 @@ public class DocumentType  implements Comparable<DocumentType> {
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (companyKey != null ? !companyKey.equals(that.companyKey) : that.companyKey != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     @Override

@@ -58,7 +58,7 @@ public class EsRepo extends AbstractKvRepo{
     public KvContent getValue(Entity entity, Log forLog)  {
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(entity.getFortress().getCompany().getName());
-        queryParams.setTypes(entity.getType());
+        queryParams.setTypes(entity.getType().toLowerCase());
         queryParams.setFortress(entity.getFortress().getName());
         queryParams.setCallerRef(entity.getSearchKey());
         ContentInputBean contentInput = new ContentInputBean();
@@ -71,8 +71,10 @@ public class EsRepo extends AbstractKvRepo{
                     // DAT-419 - there is a problem with UTF-8 conversion of SI using http, or at least the
                     //           way we have it configured. It throws a deep exception for the odd incoming payload
                     //           complaining that it's not valid UTF-8 text. This approach we're now using works.
-                    HashMap map =JsonUtils.getBytesAsObject(result.getJson(), HashMap.class);
-                    contentInput.setWhat((Map<String, Object>) map.get(EntitySearchSchema.WHAT));
+                    if ( result.getJson() !=null ) {
+                        HashMap map = JsonUtils.getBytesAsObject(result.getJson(), HashMap.class);
+                        contentInput.setWhat((Map<String, Object>) map.get(EntitySearchSchema.WHAT));
+                    }
                     //contentInput.setWhat(JsonUtils.getAsMap(result.getJson()));
                 } catch (FlockException |IOException e) {
                     logger.error("Json issue", e);

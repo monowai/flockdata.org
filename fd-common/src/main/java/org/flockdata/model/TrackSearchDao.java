@@ -45,9 +45,9 @@ public interface TrackSearchDao {
      * @param entity auditHeader
      * @return document context as bytes
      */
-    public Map<String, Object> findOne(Entity entity);
+    Map<String, Object> findOne(Entity entity);
 
-    public void purgeCache() ;
+    void purgeCache() ;
 
     /**
      * Locates a specific key monitored by the entity.

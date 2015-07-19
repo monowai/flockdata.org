@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public interface EntityContent {
 
-    public Map<String,Object> getWhat();
+    Map<String,Object> getWhat();
 
     String getAttachment();
 

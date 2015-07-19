@@ -148,7 +148,7 @@ public class SearchServiceFacade {
         assert trackResultBean != null;
 
         Entity entity = trackResultBean.getEntity();
-        if (entity.getLastUser() != null)
+        if (entity.getLastUser() != null && entity.getLastUser().getCode()==null)
             fortressService.getUser(entity.getLastUser().getId());
 
         EntityLog entityLog = getLog(trackResultBean);
@@ -188,7 +188,7 @@ public class SearchServiceFacade {
         }
 
         // If we already have this search key, then don't bother us with a reply
-        if ( entity.getSearchKey() != null )
+        if ( entity.getSearch() !=null )
             searchDocument.setReplyRequired(false);
 
         return searchDocument;
@@ -244,12 +244,12 @@ public class SearchServiceFacade {
         logger.info("You have to manually purge the ElasticSearch index {}", indexName);
     }
 
-    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
-        Collection<TrackResultBean> results = new ArrayList<>();
-        results.add(trackResult);
-        makeChangesSearchable(fortress, results);
-
-    }
+//    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
+//        Collection<TrackResultBean> results = new ArrayList<>();
+//        results.add(trackResult);
+//        makeChangesSearchable(fortress, results);
+//
+//    }
 
     @Async("fd-search")
     public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
@@ -296,18 +296,18 @@ public class SearchServiceFacade {
     }
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
-        EntityLog logResultBean = trackResultBean.getCurrentLog();
+        //EntityLog entityLog = trackResultBean.getCurrentLog();
 
         if (!trackResultBean.processLog()) {
             logger.debug("Tracking this entity through to search has been suppressed by the caller");
             return null;
         }
-        EntityLog entityLog = null;
-        if (logResultBean != null && trackResultBean.getLogStatus() == ContentInputBean.LogStatus.OK) {
-            entityLog = logResultBean;
-            logger.debug("Returning logToIndex from resultBean");
+        if (trackResultBean.getLogStatus() != ContentInputBean.LogStatus.OK || trackResultBean.getCurrentLog() == null) {
+
+            logger.debug("No entity log to index against");
+            return null;
         }
-        return entityLog;
+        return trackResultBean.getCurrentLog();
     }
 
     public void refresh(Company company, Collection<Long> entities) {

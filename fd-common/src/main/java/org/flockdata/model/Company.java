@@ -98,9 +98,8 @@ public class Company implements Serializable {
         Company that = (Company) o;
 
         if (apiKey != null ? !apiKey.equals(that.apiKey) : that.apiKey != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(id != null ? !id.equals(that.id) : that.id != null);
 
-        return true;
     }
 
     @Override

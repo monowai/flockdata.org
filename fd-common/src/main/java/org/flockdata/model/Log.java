@@ -68,6 +68,17 @@ public class Log  {
 
     @Indexed (unique =  true)
     private String logKey;
+    private String contentType ;
+    private String fileName;
+
+    private boolean compressed = false;
+    private String name;
+
+    @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
+    private Log previousLog;
+
+    @Transient
+    boolean mocked = false;
 
     public String getContentType() {
         if ( contentType == null )
@@ -87,21 +98,9 @@ public class Log  {
         this.fileName = fileName;
     }
 
-    private String contentType ;
-    private String fileName;
-
-    private boolean compressed = false;
-    private String name;
-
-    @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
-    private Log previousLog;
-
-    @Transient
-    boolean mocked = false;
-
     @Override
     public String toString() {
-        return "LogNode{" +
+        return "Log{" +
                 "id=" + id +
                 ", madeBy=" + madeBy +
                 ", event=" + event +
@@ -113,7 +112,7 @@ public class Log  {
     }
 
     /**
-     * Creates a Mock non-persistable node
+     * Creates a Mock non-persistent node
      * @param entity
      */
     public Log(Entity entity){
@@ -163,12 +162,12 @@ public class Log  {
         this.comment = comment;
     }
 
-    public void setPreviousLog(org.flockdata.model.Log previousLog) {
+    public void setPreviousLog(Log previousLog) {
         this.previousLog = previousLog;
     }
 
     @JsonIgnore
-    public org.flockdata.model.Log getPreviousLog() {
+    public Log getPreviousLog() {
         return previousLog;
     }
 
@@ -248,7 +247,7 @@ public class Log  {
         // DAT-288 DAT-465
         // logKey assumes that an entity will have exactly one change on the FortressWhen date
         this.logKey = ""+entityLog.getEntity().getId() +"."+ entityLog.getFortressWhen();
-        this.entityLog = entityLog;
+        //this.entityLog = entityLog;
     }
 
     public void setMadeBy(FortressUser madeBy) {

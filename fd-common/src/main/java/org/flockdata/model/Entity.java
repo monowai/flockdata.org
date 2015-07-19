@@ -95,9 +95,6 @@ public class Entity implements Serializable {
 
     public static final String UUID_KEY = "metaKey";
 
-    private int search = 0;
-
-    //@Indexed
     private String searchKey = null;
 
     private boolean searchSuppressed;
@@ -109,6 +106,18 @@ public class Entity implements Serializable {
 
     @Transient
     boolean newEntity = false;
+
+    //@Transient
+    private Integer search = null;
+
+    /**
+     * Flags the entity as having been affected by search. Used for Integration testing
+     *
+     * @return current search count
+     */
+    public Integer getSearch() {
+        return search;
+    }
 
     Entity() {
 
@@ -331,7 +340,10 @@ public class Entity implements Serializable {
     }
 
     public void bumpSearch() {
-        search++; // Increases the search count of the entity.
+        if ( search == null )
+            search = 1;
+        else
+            search++; // Increases the search count of the entity.
     }
 
     @Override

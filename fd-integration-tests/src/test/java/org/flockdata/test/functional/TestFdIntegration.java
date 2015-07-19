@@ -330,13 +330,14 @@ public class TestFdIntegration {
 
     @Test
     public void search_pdfTrackedAndFound() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound"));
+        assertTrue("Search should not be disabled", fortressA.isSearchActive());
         String docType = "Contract";
-        String callerRef = "ABC123X";
+        String callerRef = "PDF-TRACK-123";
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
@@ -344,15 +345,23 @@ public class TestFdIntegration {
         contentInputBean.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
         entityInputBean.setContent(contentInputBean);
 
-        Entity entity = mediationFacade
-                .trackEntity(su.getCompany(), entityInputBean)
-                .getEntity();
+        TrackResultBean trackResultBean = mediationFacade
+                .trackEntity(su.getCompany(), entityInputBean);
+
+        assertNotNull(trackResultBean.getCurrentLog().getLog().getFileName());
+
+        Entity entity = trackResultBean.getEntity();
 
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+
+        EntityLog lastLog = logService.getLastLog(entity);
+        assertNotNull(lastLog);
+        assertNotNull(lastLog.getLog().getFileName());
+
         waitAWhile("Attachment Mapper can take some time to process the PDF");
         doEsQuery(entity.getFortress().getIndexName(), "*", 1);
         doEsQuery(entity.getFortress().getIndexName(), "brown fox", 1);
-        doEsQuery(entity.getFortress().getIndexName(), "test.pdf", 1);
+        doEsQuery(entity.getFortress().getIndexName(), contentInputBean.getFileName(), 1);
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.META_KEY, entity.getMetaKey(), 1);
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.FILENAME, "test.pdf", 1);
         doEsFieldQuery(entity.getFortress().getIndexName(), EntitySearchSchema.ATTACHMENT, "pdf", 1);
@@ -467,7 +476,7 @@ public class TestFdIntegration {
         summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getEntity().getMetaKey());
         assertNotNull(summary);
         assertSame("No change logs were expected", 0, summary.getChanges().size());
-        assertNull(summary.getEntity().getSearchKey());
+        assertEquals(null, summary.getEntity().getSearch());
         // Check we can't find the Event in ElasticSearch
         doEsQuery(summary.getEntity().getFortress().getIndexName(), "ZZZ999", 0);
     }
@@ -736,7 +745,7 @@ public class TestFdIntegration {
     @Test
     public void search_withNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+       // assumeTrue(runMe);
         logger.info("## search_withNoMetaKeysDoesNotError");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
@@ -745,7 +754,7 @@ public class TestFdIntegration {
         inputBean.setTrackSuppressed(true); // Write a search doc only
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         // First entity and log, but not stored in graph
-        mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
+        mediationFacade.trackEntity(su.getCompany(), inputBean); // Expect a mock result as we're not tracking
 
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
@@ -1087,7 +1096,7 @@ public class TestFdIntegration {
 
     @Test
     public void merge_SearchDocIsReWrittenAfterTagMerge() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         //DAT-279
         logger.info("## merge_SearchDocIsReWrittenAfterTagMerge");
         SystemUser su = registerSystemUser("merge_SimpleSearch");
@@ -1095,21 +1104,19 @@ public class TestFdIntegration {
                 new FortressInputBean("mergeSimpleSearch", false));
 
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
-        TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
-
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
-
         inputBean.addTag(tagInputA);
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
-
         Entity entityA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
+        waitForFirstSearchResult(su.getCompany(), entityA.getMetaKey());
+
+        TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
         inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
         // Without content, a search doc will not be created
         inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
 
         Entity entityB = mediationFacade.trackEntity(fortress, inputBean).getEntity();
-        waitForFirstSearchResult(su.getCompany(), entityA.getMetaKey());
         waitForFirstSearchResult(su.getCompany(), entityB.getMetaKey());
         Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getCode());
         assertNotNull(tagA);
@@ -1541,11 +1548,10 @@ public class TestFdIntegration {
      * @throws Exception
      */
     @Test
-    public void validate_StringsContainingValidNumbers() throws Exception{
+    public void validate_StringsContainingValidNumbers() throws Exception {
         try {
             assumeTrue(runMe);
             logger.info("## validate_MismatchSubsequentValue");
-            assumeTrue(runMe);
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
             engineConfig.setStoreEnabled("false");
@@ -1674,19 +1680,19 @@ public class TestFdIntegration {
 
         int timeout = 20;
 
-        while (entity.getSearchKey() == null && i <= timeout) {
+        while (entity.getSearch() ==null && i <= timeout) {
 
             entity = entityService.getEntity(company, metaKey);
             //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
             if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
                 waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
-            else if ( entity.getSearchKey() == null )
+            else if ( entity.getSearch() == null )
                 Thread.yield(); // Small pause to let things happen
 
             i++;
         }
 
-        if ( entity.getSearchKey() ==null ) {
+        if ( entity.getSearch() ==null ) {
             logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
             fail("Search reply not received from fd-search");
         }

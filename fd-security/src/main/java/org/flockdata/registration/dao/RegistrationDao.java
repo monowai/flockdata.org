@@ -28,9 +28,9 @@ import org.flockdata.model.Company;
  * Time: 6:31 PM
  */
 public interface RegistrationDao {
-    public org.flockdata.model.SystemUser findSysUserByName(String name);
+    org.flockdata.model.SystemUser findSysUserByName(String name);
 
-    public org.flockdata.model.SystemUser findByApiKey(String apiKey);
+    org.flockdata.model.SystemUser findByApiKey(String apiKey);
 
     org.flockdata.model.SystemUser save(Company company, String userName, String password);
 

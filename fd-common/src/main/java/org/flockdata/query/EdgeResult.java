@@ -92,9 +92,8 @@ public class EdgeResult {
         EdgeResult that = (EdgeResult) o;
 
         if (source != null ? !source.equals(that.source) : that.source != null) return false;
-        if (target != null ? !target.equals(that.target) : that.target != null) return false;
+        return !(target != null ? !target.equals(that.target) : that.target != null);
 
-        return true;
     }
 
     @Override

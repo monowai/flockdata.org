@@ -56,10 +56,8 @@ public class ConceptInputBean {
         ConceptInputBean that = (ConceptInputBean) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (relationships != null ? !relationships.equals(that.relationships) : that.relationships != null)
-            return false;
+        return !(relationships != null ? !relationships.equals(that.relationships) : that.relationships != null);
 
-        return true;
     }
 
     @Override

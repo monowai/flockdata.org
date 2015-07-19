@@ -37,19 +37,19 @@ import java.io.IOException;
  */
 public interface ImportProfileService {
 
-    public ProfileConfiguration get(Fortress fortress, DocumentType documentType ) throws FlockException ;
+    ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException ;
 
     void save(Company company, String fortressCode, String documentName, ImportProfile profile) throws FlockException;
 
-    public Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException;
+    Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException;
 
-    public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
+    void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
 
     void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
 
-    public void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
+    void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
-    public void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
+    void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 
-    public ProfileConfiguration get(Company company, String fortressCode, String documentName) throws FlockException;
+    ProfileConfiguration get(Company company, String fortressCode, String documentName) throws FlockException;
 }

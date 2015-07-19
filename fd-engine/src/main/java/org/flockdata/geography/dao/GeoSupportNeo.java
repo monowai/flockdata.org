@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.geography;
+package org.flockdata.geography.dao;
 
 import org.flockdata.model.Tag;
 import org.flockdata.model.GeoDataBean;
