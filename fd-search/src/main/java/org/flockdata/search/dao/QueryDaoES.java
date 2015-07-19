@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -417,8 +418,8 @@ public class QueryDaoES implements QueryDao {
                 result = new EsSearchResult(response.toString().getBytes());
                 result.setTotalHits(response.getHits().getTotalHits());
             } catch ( ElasticsearchException e){
-                Map<String,String>error = new HashMap<>();
-                error.put("ESQueryError", e.getMostSpecificCause().getMessage());
+                Map<String,Object>error = new HashMap<>();
+                error.put("errors", parseException(e.getRootCause().getMessage()));
 
                 try {
                     result = new EsSearchResult(JsonUtils.getObjectAsJsonBytes(error));
@@ -440,5 +441,23 @@ public class QueryDaoES implements QueryDao {
         }
         return result;
 
+    }
+
+    private Collection<String> parseException(String message) {
+
+        Collection<String> results = new ArrayList<>();
+        String[] failures = StringUtils.delimitedListToStringArray(message, "Parse Failure ");
+        if (failures.length == 0)
+            results.add( message);
+        else {
+            for (String failure : failures) {
+                // Exclude duplicates and query source
+                if ( !results.contains(failure) && ! failure.startsWith("[Failed to parse source"))
+                    results.add(failure);
+            }
+        }
+
+
+        return results;
     }
 }
