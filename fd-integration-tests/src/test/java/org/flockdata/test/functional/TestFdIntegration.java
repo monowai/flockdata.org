@@ -1650,7 +1650,7 @@ public class TestFdIntegration {
         return registerSystemUser(company, loginToCreate);
     }
 
-    private static String FD_SEARCH = "http://localhost:9090";
+    private static String FD_SEARCH = "http://localhost:9081";
     private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
