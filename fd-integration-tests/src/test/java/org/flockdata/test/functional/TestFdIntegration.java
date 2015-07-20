@@ -40,6 +40,7 @@ import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
@@ -74,10 +75,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -224,8 +222,6 @@ public class TestFdIntegration {
         waitAWhile(message, getSleepSeconds());
     }
 
-    @BeforeClass
-    @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
         FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
         properties.load(f);
@@ -272,8 +268,40 @@ public class TestFdIntegration {
 
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
-        esClient.shutdownClient();
+        if ( esClient !=null)
+            esClient.shutdownClient();
     }
+
+    @BeforeClass
+    @Rollback(false)
+    public static void pingFdSearch() throws Exception{
+        // Always run
+        RestTemplate restTemplate = getRestTemplate();
+        HttpHeaders httpHeaders = getHttpHeaders(null, null, null );
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        logger.info("**** Checking to see if we can ping fd-search");
+        try {
+            ResponseEntity<String> response = restTemplate.exchange("http://127.0.0.1:9081/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
+            assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
+        } catch ( Exception e){
+            runMe = false; // Everything will fail
+            throw new FlockException("Can't connect to FD-Search. No point in continuing");
+        }
+        cleanupElasticSearch();
+
+
+    }
+
+    static RestTemplate restTemplate = null;
+
+    private static RestTemplate getRestTemplate() {
+        if (restTemplate == null) {
+            restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        }
+        return restTemplate;
+    }
+
 
     @Test
     public void search_WhatFieldsIndexed() throws Exception {
