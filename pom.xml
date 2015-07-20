@@ -31,6 +31,7 @@
         <org.springsecurity-version>3.2.7.RELEASE</org.springsecurity-version>
         <!--<neo4j.version>2.2.2</neo4j.version>-->
         <neo4j.version>2.1.8</neo4j.version>
+        <org.springdata.neo4j>3.3.0.RELEASE</org.springdata.neo4j>
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj-version>1.8.4</org.aspectj-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>

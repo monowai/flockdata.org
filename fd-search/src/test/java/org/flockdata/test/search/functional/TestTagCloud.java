@@ -26,6 +26,7 @@ import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;

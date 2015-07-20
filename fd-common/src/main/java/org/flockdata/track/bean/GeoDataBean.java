@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.model;
+package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -20,6 +20,7 @@
 package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.track.bean.GeoDataBean;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;

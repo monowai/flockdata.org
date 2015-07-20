@@ -20,7 +20,7 @@
 package org.flockdata.geography.dao;
 
 import org.flockdata.model.Tag;
-import org.flockdata.model.GeoDataBean;
+import org.flockdata.track.bean.GeoDataBean;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
