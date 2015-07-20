@@ -64,10 +64,7 @@ import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,6 +280,7 @@ public class TestFdIntegration {
         try {
             ResponseEntity<String> response = restTemplate.exchange("http://127.0.0.1:9081/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
             assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
+
         } catch ( Exception e){
             runMe = false; // Everything will fail
             throw new FlockException("Can't connect to FD-Search. No point in continuing");
@@ -291,6 +289,17 @@ public class TestFdIntegration {
 
 
     }
+
+    @Before
+    public void testHealth()throws  Exception{
+        Map<String,String> health = engineConfig.getHealth();
+        assertNotNull(health);
+        assertFalse(health.isEmpty());
+        assertEquals("Ok", health.get("fd-search"));
+
+
+    }
+
 
     static RestTemplate restTemplate = null;
 
