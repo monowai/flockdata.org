@@ -278,7 +278,7 @@ public class TestFdIntegration {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         logger.info("**** Checking to see if we can ping fd-search");
         try {
-            ResponseEntity<String> response = restTemplate.exchange("http://127.0.0.1:9081/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH+"/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
             assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
 
         } catch ( Exception e){
@@ -1646,6 +1646,7 @@ public class TestFdIntegration {
         return registerSystemUser(company, loginToCreate);
     }
 
+    private static String FD_SEARCH = "http://localhost:9090";
     private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -1654,7 +1655,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange("http://localhost:9081/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(FD_SEARCH+"/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }
@@ -1669,7 +1670,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange("http://localhost:9081/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(FD_SEARCH+"/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }
