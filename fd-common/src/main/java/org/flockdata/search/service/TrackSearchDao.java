@@ -17,8 +17,9 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.model;
+package org.flockdata.search.service;
 
+import org.flockdata.model.Entity;
 import org.flockdata.track.bean.SearchChangeBean;
 
 import java.io.IOException;
