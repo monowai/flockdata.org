@@ -123,17 +123,17 @@ public class SearchServiceFacade {
         makeChangesSearchable(searchChanges);
     }
 
-    public Boolean makeChangesSearchable(Collection<SearchChangeBean> searchDocument) {
-        if (searchDocument.isEmpty())
+    public Boolean makeChangesSearchable(Collection<SearchChangeBean> searchDocuments) {
+        if (searchDocuments.isEmpty())
             //  return new AsyncResult<>(null);
             return false;
 
-        if (searchDocument.size() == 1)
-            logger.debug("Sending request to index entity [{}]]", searchDocument.iterator().next().getEntityId());
+        if (searchDocuments.size() == 1)
+            logger.debug("Sending request to index entity [{}]]", searchDocuments.iterator().next().getEntityId());
         else
-            logger.debug("Sending request to index [{}]] logs", searchDocument.size());
-        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
-        logger.debug("[{}] log requests sent to search", searchDocument.size());
+            logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
+        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocuments));
+        logger.debug("[{}] log requests sent to search", searchDocuments.size());
         return true;
     }
 

@@ -25,6 +25,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;

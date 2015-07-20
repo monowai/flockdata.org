@@ -36,6 +36,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.integration.FdChannels;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
@@ -189,6 +190,9 @@ public class TestFdIntegration {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired
+    FdChannels fdChannels;
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     private static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
@@ -367,7 +371,7 @@ public class TestFdIntegration {
 
     @Test
     public void search_pdfTrackedAndFound() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
@@ -1716,7 +1720,7 @@ public class TestFdIntegration {
         if (entity == null)
             return null;
 
-        int timeout = 20;
+        int timeout = 10;
 
         while (entity.getSearch() ==null && i <= timeout) {
 

@@ -45,7 +45,7 @@ import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.model.Entity;
 import org.flockdata.track.bean.SearchChangeBean;
-import org.flockdata.model.TrackSearchDao;
+import org.flockdata.search.service.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

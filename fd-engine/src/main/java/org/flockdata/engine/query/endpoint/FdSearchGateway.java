@@ -30,7 +30,7 @@ import org.springframework.integration.annotation.MessagingGateway;
  * Date: 6/07/13
  * Time: 2:31 PM
  */
-@MessagingGateway(asyncExecutor = "fd-engine")
+@MessagingGateway
 public interface FdSearchGateway {
 
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel", requestTimeout = 10000)

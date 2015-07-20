@@ -20,7 +20,7 @@
 package org.flockdata.test.search.functional;
 
 import org.flockdata.model.Entity;
-import org.flockdata.model.TrackSearchDao;
+import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;

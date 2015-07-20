@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 import org.flockdata.search.endpoint.TrackServiceEs;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.QueryServiceEs;
-import org.flockdata.model.TrackSearchDao;
+import org.flockdata.search.service.TrackSearchDao;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
