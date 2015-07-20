@@ -280,7 +280,7 @@ public class TestFdIntegration {
         RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHttpHeaders(null, null, null );
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-        logger.info("**** Checking to see if we can ping fd-search");
+        logger.info("**** Checking to see if we can ping fd-search @ {}", FD_SEARCH);
         try {
             ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH+"/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
             assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
