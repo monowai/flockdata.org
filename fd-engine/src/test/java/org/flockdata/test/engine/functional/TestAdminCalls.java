@@ -121,7 +121,7 @@ public class TestAdminCalls extends EngineBase {
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
-        exception.expect(SecurityException.class);
+        exception.expect(AuthenticationException.class);
         mediationFacade.purge(fortress);
         setSecurity();
         mediationFacade.purge(fortress);
