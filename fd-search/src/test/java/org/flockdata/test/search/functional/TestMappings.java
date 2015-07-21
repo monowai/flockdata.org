@@ -230,11 +230,11 @@ public class TestMappings extends ESBase {
 
         changeA = searchRepo.handle(changeA);
 
-        Thread.sleep(3000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
 
         // DAT-328
+        Thread.sleep(5000);
         doFacetQuery(entityA.getFortress().getIndexName(), entityA.getType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
