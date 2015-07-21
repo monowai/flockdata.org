@@ -21,7 +21,7 @@ package org.flockdata.test.engine.endpoint;
 
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Before;
 import org.junit.Test;

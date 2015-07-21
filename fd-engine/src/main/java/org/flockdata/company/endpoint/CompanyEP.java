@@ -21,7 +21,7 @@ package org.flockdata.company.endpoint;
 
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.*;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.DocumentResultBean;

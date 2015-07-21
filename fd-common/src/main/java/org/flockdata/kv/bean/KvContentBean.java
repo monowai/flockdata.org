@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -21,12 +21,11 @@ package org.flockdata.kv.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.Entity;
+import org.flockdata.kv.KvContent;
+import org.flockdata.model.Log;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -77,28 +76,28 @@ public class KvContentBean implements KvContent, Serializable{
         this();
         // ToDo: Code Smell - seems like we should have already got this from the KvManager already prepared
         this.bucket = parseBucket(trackResultBean.getEntity());
-        if (trackResultBean.getLogResult().getLogToIndex() != null) {
-            if ( trackResultBean.getLogResult().getLogToIndex().getLog()!=null) {
-                this.id = trackResultBean.getLogResult().getLogToIndex().getLog().getId();
-                this.storage= trackResultBean.getLogResult().getLogToIndex().getLog().getStorage();
+        if (trackResultBean.getCurrentLog() != null) {
+            if ( trackResultBean.getCurrentLog().getLog()!=null) {
+                this.id = trackResultBean.getCurrentLog().getLog().getId();
+                this.storage= trackResultBean.getCurrentLog().getLog().getStorage();
             }
             this.content = trackResultBean.getContentInput();
             content.setCallerRef(trackResultBean.getEntity().getCallerRef());
-            content.setMetaKey(trackResultBean.getEntity().getMetaKey());
+            content.setMetaKey(trackResultBean.getMetaKey());
         }
     }
 
-    public static String parseBucket(EntityBean entity) {
-        if ( entity == null )
-            return null;
-        return (entity.getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
-    }
+//    public static String parseBucket(EntityBean entity) {
+//        if ( entity == null )
+//            return null;
+//        return (entity.getIndexName() + "/" + entity.getType()).toLowerCase();
+//    }
 
     public static String parseBucket(Entity entity) {
         // ToDo: Figure this out - DAT-419
         if ( entity == null )
             return null;
-        return (entity.getFortress().getIndexName() + "/" + entity.getDocumentType()).toLowerCase();
+        return (entity.getFortress().getIndexName() + "/" + entity.getType()).toLowerCase();
     }
 
     public ContentInputBean getContent() {

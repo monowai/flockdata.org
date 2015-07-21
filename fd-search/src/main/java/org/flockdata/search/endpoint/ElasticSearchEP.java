@@ -40,8 +40,8 @@ public class ElasticSearchEP {
     @Autowired
     QueryService searchService;
 
-    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-
+    @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
+            method = RequestMethod.POST)
     public String simpleQuery(@RequestBody QueryParams queryParams) throws FlockException {
 
         return searchService.doSearch(queryParams);

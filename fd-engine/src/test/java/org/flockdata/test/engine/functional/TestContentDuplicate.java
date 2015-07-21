@@ -20,12 +20,12 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
  * Time: 1:44 PM
  */
 public class TestContentDuplicate  extends  EngineBase{
-    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
+    private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
     @org.junit.Before
     public void setup(){

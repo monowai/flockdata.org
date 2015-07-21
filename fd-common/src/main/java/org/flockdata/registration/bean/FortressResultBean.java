@@ -19,7 +19,7 @@
 
 package org.flockdata.registration.bean;
 
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
 
 import java.io.Serializable;
 

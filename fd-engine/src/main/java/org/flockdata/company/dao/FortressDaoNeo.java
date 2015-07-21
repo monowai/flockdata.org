@@ -19,12 +19,10 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.company.model.FortressNode;
-import org.flockdata.company.model.FortressUserNode;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
+import org.flockdata.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +47,7 @@ public class FortressDaoNeo  {
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public Fortress save(Company company, FortressInputBean fortressInput) {
-        FortressNode fortress = new FortressNode(fortressInput, company);
+        Fortress fortress = new Fortress(fortressInput, company);
         return fortressRepo.save(fortress);
     }
 
@@ -71,11 +69,11 @@ public class FortressDaoNeo  {
     }
 
     public FortressUser save(Fortress fortress, String fortressUserName) {
-        return fortressUserRepo.save(new FortressUserNode(fortress, fortressUserName));
+        return fortressUserRepo.save(new FortressUser(fortress, fortressUserName));
     }
 
     public String delete(Fortress fortress) {
-        fortressRepo.delete((FortressNode)fortress);
+        fortressRepo.delete(fortress);
         return "OK";
     }
 

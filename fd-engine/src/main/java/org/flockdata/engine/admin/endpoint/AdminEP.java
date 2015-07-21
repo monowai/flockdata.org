@@ -24,7 +24,7 @@ import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

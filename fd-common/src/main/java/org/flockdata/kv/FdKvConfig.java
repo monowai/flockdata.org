@@ -32,7 +32,7 @@ public interface FdKvConfig {
 
     void setKvStore(KvService.KV_STORE kvStore);
 
-    public void setKvStore(String kvStore);
+    void setKvStore(String kvStore);
 
     KvService.KV_STORE getKvStore();
 
@@ -42,8 +42,8 @@ public interface FdKvConfig {
 
     String getRiakUrl();
 
-    public Boolean getStoreEnabled();
+    Boolean getStoreEnabled();
 
-    public void setStoreEnabled(String enabled);
+    void setStoreEnabled(String enabled);
 
 }

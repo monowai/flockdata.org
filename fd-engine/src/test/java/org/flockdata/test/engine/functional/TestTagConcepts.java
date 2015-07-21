@@ -22,14 +22,14 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.RelationshipResultBean;
-import org.flockdata.track.model.DocumentType;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,6 +56,7 @@ public class TestTagConcepts extends EngineBase {
 
     @Override
     public void cleanUpGraph() {
+        engineConfig.setTestMode(true);
         super.cleanUpGraph();
     }
 
@@ -464,6 +465,7 @@ public class TestTagConcepts extends EngineBase {
                 logger.info(foundDoc.toString());
             }
             mediationFacade.purge( fortress);
+            waitAWhile("Waiting for Async processing to complete");
             assertEquals(0, conceptService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
             cleanUpGraph();

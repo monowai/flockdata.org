@@ -21,8 +21,8 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
@@ -76,9 +76,9 @@ public class EntityRetryService {
 
         if (engineConfig.isTestMode())   // We always run sync in test mode
             processAsync = false;
-        else if (resultBeans.size() == 1) { // When processing one result, defer to the isNew flag
+        else if (resultBeans.size() == 1) { // When processing one result, defer to the isNewEntity flag
             // Existing entities are processed sync, new ones async
-            processAsync = resultBeans.iterator().next().getEntity().isNew();
+            processAsync = resultBeans.iterator().next().getEntity().isNewEntity();
         } else { // Could have a mix of new and existing entities, so we need to
             // Split the batch between new and existing entities
             Collection<TrackResultBean> newEntities = TrackBatchSplitter.getNewEntities(resultBeans);
@@ -95,7 +95,7 @@ public class EntityRetryService {
             logService.processLogs(fortress, existingEntities).get();
             return resultBeans;
         }
-
+        processAsync = false;
         if (processAsync) {
             // DAT-342 - we already know what the content log will be so we can end
             //           this transaction and get on with writing the search results

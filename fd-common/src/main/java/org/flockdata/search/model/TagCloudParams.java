@@ -19,7 +19,7 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
 
 import java.util.ArrayList;
 

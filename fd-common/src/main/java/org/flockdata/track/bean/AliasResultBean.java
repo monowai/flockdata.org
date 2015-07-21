@@ -19,7 +19,7 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.Alias;
+import org.flockdata.model.Alias;
 
 /**
  * Created by mike on 20/05/15.

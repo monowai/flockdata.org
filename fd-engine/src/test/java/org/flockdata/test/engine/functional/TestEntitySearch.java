@@ -20,8 +20,8 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -40,7 +40,7 @@ import static junit.framework.TestCase.assertEquals;
  * Created by mike on 20/04/15.
  */
 public class TestEntitySearch extends EngineBase {
-    private Logger logger = LoggerFactory.getLogger(TestTrack.class);
+    private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
     @org.junit.Before
     public void setup(){

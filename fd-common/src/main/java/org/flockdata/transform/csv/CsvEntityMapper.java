@@ -25,7 +25,7 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.TransformationHelper;
@@ -131,7 +131,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
                 if (!colDef.getCrossReferences().isEmpty()) {
                     for (Map<String, String> key : colDef.getCrossReferences()) {
-                        addCrossReference(key.get("relationshipName"), new EntityKey(key.get("fortress"), key.get("documentName"), value));
+                        addCrossReference(key.get("relationshipName"), new EntityKeyBean(key.get("fortress"), key.get("documentName"), value));
                     }
                 }
 

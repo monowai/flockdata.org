@@ -19,8 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.EntityKey;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +30,12 @@ import java.util.Map;
  * Time: 12:24 PM
  */
 public class CrossReferenceInputBean {
-    Map<String,List<EntityKey>>references;
+    Map<String,List<EntityKeyBean>>references;
     private String fortress;
     private String documentType;
     private String callerRef;
     private String serviceMessage;
-    Map<String,List<EntityKey>>ignored;
+    Map<String,List<EntityKeyBean>>ignored;
 
     protected CrossReferenceInputBean(){}
 
@@ -69,7 +67,7 @@ public class CrossReferenceInputBean {
         return fortress;
     }
 
-    public Map<String,List<EntityKey>>getReferences(){
+    public Map<String,List<EntityKeyBean>>getReferences(){
         return references;
     }
 
@@ -82,9 +80,8 @@ public class CrossReferenceInputBean {
 
         if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
-        if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
+        return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
 
-        return true;
     }
 
     @Override
@@ -117,13 +114,13 @@ public class CrossReferenceInputBean {
         return documentType;
     }
 
-    public void setIgnored(String xRefName, List<EntityKey> ignored) {
+    public void setIgnored(String xRefName, List<EntityKeyBean> ignored) {
         if (this.ignored == null )
            this.ignored = new HashMap<>();
         this.ignored.put(xRefName, ignored);
     }
 
-    public Map<String,List<EntityKey>> getIgnored() {
+    public Map<String,List<EntityKeyBean>> getIgnored() {
         return ignored;
     }
 }

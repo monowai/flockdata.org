@@ -22,11 +22,11 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -69,9 +69,9 @@ public class TestCallerRef extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
             EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
-            assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey());
+            assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey());
             inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-            String metaKey = mediationFacade.trackEntity(fortress, inputBean).getEntityBean().getMetaKey();
+            String metaKey = mediationFacade.trackEntity(fortress, inputBean).getEntity().getMetaKey();
 
             assertNotNull(metaKey);
             Entity entity = entityService.getEntity(su.getCompany(), metaKey);
@@ -95,7 +95,7 @@ public class TestCallerRef extends EngineBase {
             EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
 
             // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
-            String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntityBean().getMetaKey();
+            String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
             Iterable<Entity> results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
             assertEquals(true, results.iterator().hasNext());
             assertEquals(metaKey, results.iterator().next().getMetaKey());
@@ -208,7 +208,7 @@ public class TestCallerRef extends EngineBase {
                     assert (docType != null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
-                    assertEquals(callerRef.toLowerCase(), trackResult.getEntityBean().getCallerRef().toLowerCase());
+                    assertEquals(callerRef.toLowerCase(), trackResult.getEntity().getCallerRef().toLowerCase());
                     Entity byCallerRef = entityService.findByCallerRef(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
                     Assert.assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());

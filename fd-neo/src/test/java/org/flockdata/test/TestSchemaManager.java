@@ -19,7 +19,7 @@
 
 package org.flockdata.test;
 
-import org.flockdata.track.TagManager;
+import org.flockdata.neo4j.TagManager;
 import org.junit.Test;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;

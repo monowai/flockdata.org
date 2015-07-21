@@ -23,12 +23,16 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -72,4 +76,9 @@ public interface FortressService {
     Fortress getFortress(Company company, String fortressName) throws NotFoundException;
 
     String delete(Company company, String fortressName);
+
+    Future<Void> createFortressUsers(Fortress fortress, List<EntityInputBean> inputBeans);
+
+    FortressUser createFortressUser(Fortress fortress, ContentInputBean inputBean);
+
 }

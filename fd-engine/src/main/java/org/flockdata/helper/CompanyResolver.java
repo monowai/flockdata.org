@@ -19,7 +19,7 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 
 import javax.servlet.http.HttpServletRequest;
 

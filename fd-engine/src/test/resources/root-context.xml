@@ -19,18 +19,11 @@
     <aop:aspectj-autoproxy/>
 
     <context:component-scan base-package=
-       "org.flockdata.engine.admin,
-		org.flockdata.engine.query,
-		org.flockdata.engine.schema,
-		org.flockdata.engine.tag,
-		org.flockdata.engine.track,
-		org.flockdata.registration,
-		org.flockdata.helper,
-		org.flockdata.configure,
-		org.flockdata.geography,
-		org.flockdata.company,
-		org.flockdata.kv">
+                                    "org.flockdata">
         <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+        <!-- SDN4 -->
+        <!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
+
     </context:component-scan>
 
 
@@ -39,18 +32,23 @@
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:config.properties"/>
 
-    <import resource="neo4j-context.xml"/>
+    <!--<import resource="neo4j-context.xml"/>-->
     <import resource="integration.xml"/>
     <import resource="test-security.xml" />
     <import resource="kv-context.xml"/>
-    <import resource="fde-task.xml"/>
+    <!--<import resource="fde-task.xml"/>-->
+    <import resource="neo4j-context.xml"/>
     <import resource="http-monitoring-integration.xml"/>
 
     <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-	<bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
+    <!--<bean id="template" class="org.springframework.data.neo4j.template.Neo4jTemplate"/>-->
+
+    <!--<bean id ="neoConfig" class = "org.flockdata.test.engine.FdNeoConfigTest"/>-->
+
+    <bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg>

@@ -20,12 +20,12 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.SystemUser;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.model.Tag;
 import org.junit.Test;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -147,7 +147,7 @@ public class TestTags extends EngineBase {
 
     }
 
-    @Test (expected = AmqpRejectAndDontRequeueException.class)
+    @Test
     public void exists_NotFoundRevertsToDefault() throws Exception {
         SystemUser iSystemUser = registerSystemUser("exists_NotFoundRevertsToDefault", mike_admin);
         // DAT-411
@@ -166,7 +166,7 @@ public class TestTags extends EngineBase {
 
         newTag = new TagInputBean("NEW-TAG")
                 .setMustExist(true, "");
-
+        exception.expect(AmqpRejectAndDontRequeueException.class);
         assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
 
     }

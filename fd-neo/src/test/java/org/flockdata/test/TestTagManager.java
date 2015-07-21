@@ -24,7 +24,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.track.TagManager;
+import org.flockdata.neo4j.TagManager;
 import org.flockdata.track.TagPayload;
 import org.junit.Test;
 import org.neo4j.harness.ServerControls;

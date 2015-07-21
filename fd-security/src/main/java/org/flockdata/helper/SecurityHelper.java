@@ -19,8 +19,8 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

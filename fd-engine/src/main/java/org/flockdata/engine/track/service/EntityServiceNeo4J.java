@@ -20,19 +20,18 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.concept.service.TxService;
-import org.flockdata.engine.track.dao.EntityDaoNeo;
-import org.flockdata.engine.track.model.EntityLogRelationship;
+import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.*;
+import org.flockdata.model.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
@@ -53,7 +52,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p>
+ * <p/>
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
@@ -139,9 +138,9 @@ public class EntityServiceNeo4J implements EntityService {
                 }
             }
             // We can update the entity name?
-            if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())){
+            if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())) {
                 saveEntity = true;
-                entity.setName( entityInputBean.getName());
+                entity.setName(entityInputBean.getName());
             }
 
 
@@ -162,12 +161,16 @@ public class EntityServiceNeo4J implements EntityService {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
+
+        TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
+        trackResult.setDocumentType(documentType);
+
         // Flag the entity as having been newly created. The flag is transient and
         // this saves on having to pass the property as a method variable when
         // associating the tags
         entity.setNew();
-        TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
-        trackResult.setDocumentType(documentType);
+        trackResult.setNewEntity();
+
         if (tags != null)
             tags.clear();
         trackResult.setTags(
@@ -175,7 +178,7 @@ public class EntityServiceNeo4J implements EntityService {
         );
 
         trackResult.setContentInput(entityInputBean.getContent());
-        if (entity.isNew() && entityInputBean.getContent() != null) {
+        if (entity.isNewEntity() && entityInputBean.getContent() != null) {
             // DAT-342
             // We prep the content up-front in order to get it distributed to other services
             // ASAP
@@ -190,16 +193,14 @@ public class EntityServiceNeo4J implements EntityService {
             Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser != null ? contentUser : entity.getCreatedBy()), trackResult, null, null);
 
             DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
-            EntityLog entityLog = new EntityLogRelationship(entity, log, contentWhen);
+            EntityLog entityLog = new EntityLog(entity, log, contentWhen);
 
             //if (trackResult.getContentInput().getWhen()!= null )
 
             logger.debug("Setting preparedLog for entity {}", entity);
-            LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
-            logResult.setLogToIndex(entityLog);
-
-            trackResult.setLogResult(logResult);
-            //trackResult.setPreparedLog( entityLog );
+            //LogResultBean logResult = new LogResultBean(trackResult.getContentInput());
+            //logResult.setLogToIndex(entityLog);
+            trackResult.setCurrentLog(entityLog);
         }
 
         return trackResult;
@@ -242,11 +243,14 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity getEntity(Company company, String metaKey) {
+    public Entity getEntity(Company company, String metaKey) throws NotFoundException {
         if (company == null)
-            return null;
+            throw new NotFoundException("Illegal Company");
 
-        return getEntity(company, metaKey, true);
+        Entity entity = getEntity(company, metaKey, true);
+        if (entity == null)
+            throw new NotFoundException("Unable to find the requested Entity by the metaKey " + metaKey);
+        return entity;
     }
 
     @Override
@@ -345,7 +349,7 @@ public class EntityServiceNeo4J implements EntityService {
             entityDao.delete(currentLog);
             newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
-            entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getWho().getCode()));
+            entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getMadeBy().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
             entity = entityDao.save(entity);
             entityTagService.moveTags(company, fromLog, entity);
@@ -364,7 +368,7 @@ public class EntityServiceNeo4J implements EntityService {
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
-            searchDocument = new EntitySearchChange(new EntityBean(entity));
+            searchDocument = new EntitySearchChange(entity);
             searchDocument.setDelete(true);
             searchDocument.setSearchKey(searchKey);
             return searchDocument;
@@ -375,7 +379,7 @@ public class EntityServiceNeo4J implements EntityService {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(new EntityBean(entity), newEntityLog, priorContent.getContent());
+            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent());
             searchDocument.setTags(entityTagService.getEntityTags(entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
@@ -520,7 +524,7 @@ public class EntityServiceNeo4J implements EntityService {
             assert (documentType != null);
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(fortress, documentType, inputBean, tags);
-            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntityBean().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
             arb.add(result);
         }
 
@@ -545,12 +549,12 @@ public class EntityServiceNeo4J implements EntityService {
         Collection<Entity> targets = new ArrayList<>();
         Collection<String> ignored = new ArrayList<>();
         for (String next : xRef) {
-            Entity m = getEntity(company, next);
-            if (m != null) {
-                targets.add(m);
-            } else {
+
+            try {
+                targets.add(getEntity(company, next));
+            } catch (NotFoundException nfe) {
                 ignored.add(next);
-                //logger.info ("Unable to find MetaKey ["+entity+"]. Skipping");
+
             }
         }
         entityDao.crossReference(entity, targets, relationshipName);
@@ -580,7 +584,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> entityKeys, String xRefName) throws FlockException {
+    public List<EntityKeyBean> crossReferenceEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String xRefName) throws FlockException {
         Fortress f = fortressService.findByCode(company, sourceKey.getFortressName());
         if (f == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
@@ -596,9 +600,9 @@ public class EntityServiceNeo4J implements EntityService {
 
         //16051954
         Collection<Entity> targets = new ArrayList<>();
-        List<EntityKey> ignored = new ArrayList<>();
+        List<EntityKeyBean> ignored = new ArrayList<>();
 
-        for (EntityKey entityKey : entityKeys) {
+        for (EntityKeyBean entityKey : entityKeys) {
             int count = 1;
 
             Collection<Entity> entities = new ArrayList<>();
@@ -655,7 +659,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public void purgeFortressDocs(Fortress fortress){
+    public void purgeFortressDocs(Fortress fortress) {
         entityDao.purgeFortressDocuments(fortress);
 
     }
@@ -676,7 +680,7 @@ public class EntityServiceNeo4J implements EntityService {
             return;
         }
 
-        if (entity.getSearchKey() == null) {
+        if (entity.getSearch() == null) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
@@ -758,11 +762,11 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans) {
         for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String, List<EntityKey>> references = crossReferenceInputBean.getReferences();
+            Map<String, List<EntityKeyBean>> references = crossReferenceInputBean.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
-                    List<EntityKey> notFound = crossReferenceEntities(company,
-                            new EntityKey(crossReferenceInputBean),
+                    List<EntityKeyBean> notFound = crossReferenceEntities(company,
+                            new EntityKeyBean(crossReferenceInputBean),
                             references.get(xRefName), xRefName);
                     crossReferenceInputBean.setIgnored(xRefName, notFound);
 //                    references.put(xRefName, notFound);

@@ -20,14 +20,9 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.*;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.Log;
 
 import java.util.Collection;
 import java.util.Set;
@@ -72,7 +67,7 @@ public interface EntityTagService {
 
     Entity moveTags(Company company, Log previousLog, Entity entity);
 
-    Collection<Long> mergeTags(Tag fromTag, Tag toTag);
+    Collection<Long> mergeTags(Long fromTag, Long toTag);
 
     void purgeUnusedTags(String label);
 

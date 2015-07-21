@@ -21,7 +21,7 @@ package org.flockdata.helper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.track.model.EntityContent;
+import org.flockdata.model.EntityContent;
 
 import java.io.*;
 import java.nio.charset.Charset;

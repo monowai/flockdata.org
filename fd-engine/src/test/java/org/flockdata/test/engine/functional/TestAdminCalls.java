@@ -20,12 +20,13 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.ApiKeyInterceptor;
+import org.flockdata.helper.NotFoundException;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -33,6 +34,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,7 +74,7 @@ public class TestAdminCalls extends EngineBase {
 
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -92,19 +94,22 @@ public class TestAdminCalls extends EngineBase {
         }
         setSecurity();
         mediationFacade.purge(fortress);
-        assertNull(entityService.getEntity(su.getCompany(), metaKey));
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
+        // This should fail
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), metaKey);
     }
 
     @Test
     public void deleteFortressPurgesEntitiesAndLogs() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
+        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -112,20 +117,18 @@ public class TestAdminCalls extends EngineBase {
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntityBean().getMetaKey()));
+        assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntity().getMetaKey()));
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
-        try {
-            mediationFacade.purge(fortress);
-            fail("An authorisation exception should have been thrown");
-        } catch (Exception e) {
-            // This is good
-        }
+        exception.expect(AuthenticationException.class);
+        mediationFacade.purge(fortress);
         setSecurity();
         mediationFacade.purge(fortress);
-        assertNull(entityService.getEntity(su.getCompany(), metaKey));
+        waitAWhile("Waiting for Async processing to complete");
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
+        exception.expect(NotFoundException.class);
+        assertNull(entityService.getEntity(su.getCompany(), metaKey));
     }
 
     @Test
@@ -138,7 +141,7 @@ public class TestAdminCalls extends EngineBase {
         inputBean.addTag(tagInputBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
 
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
@@ -152,16 +155,16 @@ public class TestAdminCalls extends EngineBase {
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
-        try {
-            mediationFacade.purge(su.getCompany(), fortress.getName());
-            fail("An authorisation exception should have been thrown");
-        } catch (Exception e) {
-            // This is good
-        }
+        exception.expect(AuthenticationException.class);
+        mediationFacade.purge(su.getCompany(), fortress.getName());
         setSecurity();
         mediationFacade.purge(fortress);
-        assertNull(entityService.getEntity(su.getCompany(), metaKey));
+        waitAWhile("Waiting for Async processing to complete");
+
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
+        // This should fail
+        exception.expect(NotFoundException.class);
+        assertNull(entityService.getEntity(su.getCompany(), metaKey));
 
 
     }
@@ -177,17 +180,17 @@ public class TestAdminCalls extends EngineBase {
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
-        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();
 
         assertNotNull(resultA);
 
         trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
-        trackBean.addTag(new TagInputBean("anyName", "TestTag","rlx"));
-        trackBean.addTag(new TagInputBean("otherName","TestTag", "rlxValue").setReverse(true));
+        trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
+        trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
         trackBean.setContent(logBean);
 
-        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntityBean().getMetaKey();
+        String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();
 
         Collection<String> others = new ArrayList<>();
         others.add(resultB);
@@ -198,8 +201,20 @@ public class TestAdminCalls extends EngineBase {
         entityService.crossReference(su.getCompany(), resultB, others, "rlxNameB");
 
         mediationFacade.purge(fortress);
-        assertNull(entityService.getEntity(su.getCompany(), resultA));
-        assertNull(entityService.getEntity(su.getCompany(), resultB));
+        waitAWhile("Waiting for Async processing to complete");
+        try {
+            assertNull(entityService.getEntity(su.getCompany(), resultA));
+            fail("Should have thrown notFound exception");
+        } catch (NotFoundException n) {
+            // good
+        }
+
+        try {
+            assertNull(entityService.getEntity(su.getCompany(), resultB));
+            fail("Should have thrown notFound exception");
+        } catch (NotFoundException n) {
+            // good
+        }
 
     }
 
@@ -247,7 +262,7 @@ public class TestAdminCalls extends EngineBase {
     public void testHealth() throws Exception {
         setSecurity();
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        SystemUser su = registerSystemUser("healthCheck", mike_admin );
+        SystemUser su = registerSystemUser("healthCheck", mike_admin);
         Map<String, Object> results = engineEndPoints.getHealth(su);
         assertFalse("We didn't get back the health results for a valid api account", results.isEmpty());
         if (results.get("fd-search").toString().equalsIgnoreCase("ok"))
@@ -283,8 +298,6 @@ public class TestAdminCalls extends EngineBase {
 
 
     }
-
-
 
 
 }

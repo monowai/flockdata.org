@@ -21,14 +21,15 @@ package org.flockdata.search.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.EngineGateway;
 import org.flockdata.search.service.TrackService;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.model.Entity;
+import org.flockdata.search.service.TrackSearchDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,11 +64,17 @@ public class TrackServiceEs implements TrackService {
 
     @Override
     @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
-    public void createSearchableChange(byte[] bytes) throws IOException {
+    public void createSearchableChange(byte[] bytes) throws FlockException {
         //SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
         //return true;
         //return results;
-        SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        SearchResults results ;
+        try {
+            results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
+        } catch (IOException e) {
+            logger.error("Unable to de-serialize the payload");
+            throw new FlockException("Unable to de-serialize the payload", e);
+        }
         if (!results.isEmpty()) {
             logger.debug("Processed {} requests. Sending back {} SearchChanges", results.getSearchResults().size(), results.getSearchResults().size());
             engineGateway.handleSearchResult(results);
@@ -78,7 +85,7 @@ public class TrackServiceEs implements TrackService {
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
      * <p/>
-     * It may or may not already exist.
+     * Handles scenarios where the content exists or doesn't
      *
      * @param changes to process
      * @throws java.io.IOException if there is a problem with mapping files. This exception will keep

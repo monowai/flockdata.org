@@ -19,7 +19,7 @@
 
 package org.flockdata.registration.bean;
 
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 
 /**
  * User: mike

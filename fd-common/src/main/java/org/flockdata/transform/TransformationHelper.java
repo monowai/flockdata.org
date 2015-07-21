@@ -25,7 +25,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

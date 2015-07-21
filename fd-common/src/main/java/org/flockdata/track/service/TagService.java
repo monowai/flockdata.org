@@ -24,8 +24,8 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 
 import java.util.Collection;
 import java.util.Map;

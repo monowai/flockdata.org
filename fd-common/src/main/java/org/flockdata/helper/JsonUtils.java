@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -37,6 +37,10 @@ import java.util.Map;
  */
 public class JsonUtils {
     private static final ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+
+    public static ObjectMapper getMapper() {
+        return mapper;
+    }
     public static byte[] getObjectAsJsonBytes(Object object) throws IOException {
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -80,12 +84,12 @@ public class JsonUtils {
 
 
     public static String getJSON(Object obj) {
-    	String json = null;
-    	try {
-			json = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-    	return json;
+        String json = null;
+        try {
+            json = mapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }

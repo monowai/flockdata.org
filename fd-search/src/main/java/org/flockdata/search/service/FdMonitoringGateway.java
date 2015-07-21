@@ -30,6 +30,6 @@ public interface FdMonitoringGateway {
      * @return PingResult
      */
     @Gateway(requestChannel = "pingFdEngineRequest", replyChannel = "pingFdEngineReply")
-    public PingResult ping();
+    PingResult ping();
 }
 

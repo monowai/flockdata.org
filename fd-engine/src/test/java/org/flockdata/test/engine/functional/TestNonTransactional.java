@@ -21,14 +21,14 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.FortressUser;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.EntityKey;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
@@ -75,11 +75,11 @@ public class TestNonTransactional extends EngineBase {
         inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
         TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);
 
-        Map<String, List<EntityKey>> refs = new HashMap<>();
-        List<EntityKey> callerRefs = new ArrayList<>();
+        Map<String, List<EntityKeyBean>> refs = new HashMap<>();
+        List<EntityKeyBean> callerRefs = new ArrayList<>();
 
-        callerRefs.add(new EntityKey("ABC321"));
-        callerRefs.add(new EntityKey("ABC333"));
+        callerRefs.add(new EntityKeyBean("ABC321"));
+        callerRefs.add(new EntityKeyBean("ABC333"));
 
         refs.put("cites",callerRefs);
         CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);

@@ -21,9 +21,9 @@ package org.flockdata.kv.redis;
 
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.AbstractKvRepo;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.kv.KvContent;
+import org.flockdata.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

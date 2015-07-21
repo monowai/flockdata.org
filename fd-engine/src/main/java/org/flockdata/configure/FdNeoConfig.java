@@ -25,21 +25,21 @@ package org.flockdata.configure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@Configuration
-@ComponentScan ("org.flockdata")
-@EnableNeo4jRepositories( "org.flockdata")
-@EnableTransactionManagement
 @EnableRetry
+@EnableTransactionManagement
+@EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao", "org.flockdata.engine.dao", "org.flockdata.geography.dao"})
+@Configuration
+@PropertySource(value = "classpath:/config.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class FdNeoConfig extends Neo4jConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(FdNeoConfig.class);
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
     public FdNeoConfig() {
         super();

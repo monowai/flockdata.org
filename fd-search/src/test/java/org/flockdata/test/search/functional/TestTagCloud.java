@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2015 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -19,20 +19,16 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.test.engine.SimpleEntityTagRelationship;
-import org.flockdata.test.engine.SimpleTag;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.SearchChange;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,14 +68,14 @@ public class TestTagCloud extends ESBase {
 
         Entity entity = Helper.getEntity(comp, fort, user, doc);
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        SearchChangeBean change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
-        SimpleTag tag = new SimpleTag(new TagInputBean("myTag", "TheLabel", "rlxname"));
+        Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
-        tags.add(new SimpleEntityTagRelationship(entity, tag, "rlxname", null));
+        tags.add(new EntityTagOut(entity, tag, "rlxname", null));
         change.setTags(tags);
 
         deleteEsIndex(entity.getFortress().getIndexName());
@@ -89,7 +85,7 @@ public class TestTagCloud extends ESBase {
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
-        tagCloudParams.addType(entity.getDocumentType());
+        tagCloudParams.addType(entity.getType());
         ArrayList<String>rlxs = new ArrayList<>();
         rlxs.add("rlxname");
         tagCloudParams.setRelationships(rlxs);

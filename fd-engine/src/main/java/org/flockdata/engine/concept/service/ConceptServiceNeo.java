@@ -19,16 +19,16 @@
 
 package org.flockdata.engine.concept.service;
 
-import org.flockdata.engine.concept.dao.ConceptDaoNeo;
+import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.DocumentType;
+import org.flockdata.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,7 +128,7 @@ public class ConceptServiceNeo implements ConceptService {
         logger.debug("Processing concepts for {}", fortress.getCompany());
         Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
         for (TrackResultBean resultBean : resultBeans) {
-            if (resultBean.getEntityBean() != null && resultBean.getEntityBean().getId() != null) {
+            if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
                 DocumentType docType = resultBean.getDocumentType();
                 Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {

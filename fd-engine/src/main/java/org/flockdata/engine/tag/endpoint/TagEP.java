@@ -25,8 +25,8 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +89,7 @@ public class TagEP {
         Company company = CompanyResolver.resolveCompany(request);
         Tag source = tagService.findTag(company, label, sourceTag);
         Tag target = tagService.findTag(company, label, targetTag);
-        mediationFacade.mergeTags(company, source, target);
+        mediationFacade.mergeTags(company, source.getId(), target.getId());
 
     }
 

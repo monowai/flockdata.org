@@ -19,9 +19,9 @@
 
 package org.flockdata.geography.service;
 
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 import org.flockdata.track.service.TagService;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

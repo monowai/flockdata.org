@@ -19,8 +19,8 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.model.Relationship;
-import org.flockdata.track.model.Concept;
+import org.flockdata.model.Relationship;
+import org.flockdata.model.Concept;
 
 import java.util.ArrayList;
 import java.util.Collection;

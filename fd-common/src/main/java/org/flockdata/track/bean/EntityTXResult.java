@@ -19,9 +19,9 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
+import org.flockdata.model.Log;
 
 
 /**
@@ -49,7 +49,7 @@ public class EntityTXResult {
         this();
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = entity.getMetaKey();
-        this.documentType = entity.getDocumentType();
+        this.documentType = entity.getType();
         this.callerRef = entity.getCallerRef();
         this.fortressName = entity.getFortress().getName();
         this.lastSystemChange = entity.getLastUpdate();

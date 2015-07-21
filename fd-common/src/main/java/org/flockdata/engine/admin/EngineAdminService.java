@@ -20,8 +20,8 @@
 package org.flockdata.engine.admin;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
 
 import java.util.Collection;
 import java.util.concurrent.Future;

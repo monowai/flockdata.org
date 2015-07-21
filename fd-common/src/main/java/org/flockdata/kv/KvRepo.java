@@ -19,9 +19,8 @@
 
 package org.flockdata.kv;
 
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Log;
 
 import java.io.IOException;
 
@@ -30,13 +29,13 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface KvRepo {
-    public void add(KvContent contentBean) throws IOException;
+    void add(KvContent contentBean) throws IOException;
 
-    public KvContent getValue(Entity entity, Log forLog);
+    KvContent getValue(Entity entity, Log forLog);
 
-    public void delete(Entity entity, Log log);
+    void delete(Entity entity, Log log);
 
-    public void purge(String index);
+    void purge(String index);
 
     String ping();
 

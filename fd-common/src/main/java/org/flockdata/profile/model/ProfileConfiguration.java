@@ -34,9 +34,9 @@ public interface ProfileConfiguration {
 
     ContentType getContentType();
 
-    public void setContent(Map<String, ColumnDefinition> columns);
+    void setContent(Map<String, ColumnDefinition> columns);
 
-    public Map<String, ColumnDefinition> getContent();
+    Map<String, ColumnDefinition> getContent();
 
     String getHandler();
 

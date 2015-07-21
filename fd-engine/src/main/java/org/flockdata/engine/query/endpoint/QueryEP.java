@@ -25,7 +25,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
