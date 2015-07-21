@@ -230,7 +230,7 @@ public class TestMappings extends ESBase {
 
         changeA = searchRepo.handle(changeA);
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
 
