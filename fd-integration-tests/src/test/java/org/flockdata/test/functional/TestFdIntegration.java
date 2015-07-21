@@ -43,6 +43,7 @@ import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
@@ -66,6 +67,7 @@ import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +141,10 @@ public class TestFdIntegration {
     private static boolean runMe = true; // pass -Dfd.debug=true to disable all tests
     private static int fortressMax = 1;
     private static JestClient esClient;
+
+    @Rule
+    // Use this to assert exception conditions
+    public final ExpectedException exception = ExpectedException.none();
 
     @Autowired
     EntityService entityService;
@@ -597,9 +603,9 @@ public class TestFdIntegration {
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "wally", "ignoreGraph", new DateTime(), "ABC123");
         entityInput.setTrackSuppressed(true);
         entityInput.setMetaOnly(true); // If true, the entity will be indexed
-        // Track suppressed but search is enabled
+        // Track is suppressed but search is enabled, so the enity will not exist.
+        exception.expect(NotFoundException.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
         String indexName = EntitySearchSchema.parseIndex(fortress);
         assertEquals(EntitySearchSchema.PREFIX + "monowai.trackgraph", indexName);
