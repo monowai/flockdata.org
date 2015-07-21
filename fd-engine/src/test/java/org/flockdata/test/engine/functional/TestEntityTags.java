@@ -28,17 +28,14 @@ package org.flockdata.test.engine.functional;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
-import org.flockdata.model.Tag;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
-import org.flockdata.model.*;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -411,7 +408,7 @@ public class TestEntityTags extends EngineBase {
 
     }
 
-    @Test(expected = FlockException.class)
+    @Test
     public void createLogForInvalidEntity() throws Exception {
         SystemUser su = registerSystemUser("createLogForInvalidEntity", mike_admin);
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
@@ -420,6 +417,7 @@ public class TestEntityTags extends EngineBase {
         // This should create the same Tag object
         mediationFacade.trackEntity(su.getCompany(), entity);
         ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), Helper.getRandomMap());
+        exception.expect(FlockException.class);
         mediationFacade.trackLog(su.getCompany(), contentInputBean);
 
     }

@@ -52,7 +52,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p>
+ * <p/>
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
@@ -138,9 +138,9 @@ public class EntityServiceNeo4J implements EntityService {
                 }
             }
             // We can update the entity name?
-            if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())){
+            if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())) {
                 saveEntity = true;
-                entity.setName( entityInputBean.getName());
+                entity.setName(entityInputBean.getName());
             }
 
 
@@ -243,11 +243,14 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity getEntity(Company company, String metaKey) {
+    public Entity getEntity(Company company, String metaKey) throws NotFoundException {
         if (company == null)
-            return null;
+            throw new NotFoundException("Illegal Company");
 
-        return getEntity(company, metaKey, true);
+        Entity entity = getEntity(company, metaKey, true);
+        if (entity == null)
+            throw new NotFoundException("Unable to find the requested Entity by the metaKey " + metaKey);
+        return entity;
     }
 
     @Override
@@ -546,12 +549,12 @@ public class EntityServiceNeo4J implements EntityService {
         Collection<Entity> targets = new ArrayList<>();
         Collection<String> ignored = new ArrayList<>();
         for (String next : xRef) {
-            Entity m = getEntity(company, next);
-            if (m != null) {
-                targets.add(m);
-            } else {
+
+            try {
+                targets.add(getEntity(company, next));
+            } catch (NotFoundException nfe) {
                 ignored.add(next);
-                //logger.info ("Unable to find MetaKey ["+entity+"]. Skipping");
+
             }
         }
         entityDao.crossReference(entity, targets, relationshipName);
@@ -656,7 +659,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public void purgeFortressDocs(Fortress fortress){
+    public void purgeFortressDocs(Fortress fortress) {
         entityDao.purgeFortressDocuments(fortress);
 
     }
@@ -677,7 +680,7 @@ public class EntityServiceNeo4J implements EntityService {
             return;
         }
 
-        if (entity.getSearch() ==  null) { // Search ACK
+        if (entity.getSearch() == null) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly

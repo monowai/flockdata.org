@@ -47,7 +47,7 @@ public interface EntityService {
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);
 
-    Entity getEntity(Company company, String metaKey);
+    Entity getEntity(Company company, String metaKey) throws NotFoundException;
 
     Entity getEntity(Company company, @NotEmpty String metaKey, boolean inflate);
 
