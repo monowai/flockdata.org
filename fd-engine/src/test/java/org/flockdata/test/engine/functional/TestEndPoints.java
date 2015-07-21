@@ -20,6 +20,7 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -33,6 +34,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -81,6 +84,42 @@ public class TestEndPoints extends EngineBase{
 
         assertEquals("usera", e.getLastUser().getCode());
         assertEquals("usera", e.getCreatedBy().getCode());
+    }
+
+    @Test
+    public void entity_findLogs() throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("entity_findLogs", "userA");
+        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_findLogs", true));
+        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        eib.setFortressUser("userA");
+        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        eib.setContent(cib);
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+        engineEndPoints.login("mike", "123");
+        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        assertNotNull(trackResult);
+        engineEndPoints.login("mike", "123");
+        Collection<EntityLog> entityLogs = engineEndPoints.getEntityLogs(su, trackResult.getMetaKey());
+        assertEquals(1, entityLogs.size());
+    }
+
+    @Test
+    public void entity_findLogsWithIllegalEntity() throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("entity_findLogs", "userA");
+        Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_findLogs", true));
+        EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        eib.setFortressUser("userA");
+        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        eib.setContent(cib);
+        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
+        engineEndPoints.login("mike", "123");
+        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        assertNotNull(trackResult);
+        engineEndPoints.login("mike", "123");
+        engineEndPoints.getEntityLogsIllegalEntity(su, trackResult.getMetaKey() +"123");
+
     }
 
     @Test

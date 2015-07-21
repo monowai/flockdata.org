@@ -22,6 +22,7 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.model.*;
@@ -31,6 +32,7 @@ import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public class TestEntityTrack extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
-    @org.junit.Before
+    @Before
     public void setup() {
         engineConfig.setDuplicateRegistration(true);
     }
@@ -281,7 +283,9 @@ public class TestEntityTrack extends EngineBase {
     @Test
     public void nullMetaKey() throws Exception {
         SystemUser su = registerSystemUser("nullMetaKey");
-        assertNull(entityService.getEntity(su.getCompany(), null));
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), null);
+
     }
 
     @Test

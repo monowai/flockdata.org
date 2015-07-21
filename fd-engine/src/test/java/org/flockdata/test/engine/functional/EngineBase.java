@@ -43,6 +43,8 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.track.service.*;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -68,6 +70,9 @@ import static org.junit.Assert.*;
 @ContextConfiguration(locations = { "classpath:root-context.xml",
 		"classpath:apiDispatcher-servlet.xml" })
 public abstract class EngineBase {
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
 
 	@Autowired
 	protected RegistrationService regService;

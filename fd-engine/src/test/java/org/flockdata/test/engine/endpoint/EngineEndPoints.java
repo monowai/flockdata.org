@@ -22,14 +22,14 @@ package org.flockdata.test.engine.endpoint;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.model.*;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.*;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ConceptResultBean;
+import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -159,7 +159,7 @@ public class EngineEndPoints {
         return JsonUtils.getBytesAsObject(json, TrackRequestResult.class);
     }
 
-    public org.flockdata.model.Company getCompany(String name, SystemUser su) throws Exception {
+    public Company getCompany(String name, SystemUser su) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/company/" + name)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
@@ -254,12 +254,29 @@ public class EngineEndPoints {
     }
 
     public Map<String, Object> getConnectedTags(String label, String code, String relationship, String targetLabel) throws Exception{
-        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/"+label+"/"+code+"/path/"+relationship+"/"+targetLabel)
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.getAsMap(json);
 
+    }
+
+    public Collection<EntityLog> getEntityLogs(SystemUser su, String metaKey) throws Exception {
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/entity/" + metaKey + "/log")
+                        .header("api-key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, EntityLog.class);
+    }
+
+    public void getEntityLogsIllegalEntity(SystemUser su, String metaKey) throws Exception {
+        getMockMvc().perform(MockMvcRequestBuilders.get("/entity/" + metaKey + "/log")
+                        .header("api-key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
     }
 }

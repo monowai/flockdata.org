@@ -80,7 +80,6 @@ public class EntityEP {
     private static Logger logger = LoggerFactory.getLogger(EntityEP.class);
 
 
-
 //    @RequestMapping(value = "/{fortress}/all/{callerRef}", method = RequestMethod.GET)
 //    public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
 //                                                          HttpServletRequest request) throws FlockException {
@@ -90,14 +89,15 @@ public class EntityEP {
 
 
     @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody
+    public
+    @ResponseBody
     EntityBean findByCallerRef(@PathVariable("fortress") String fortressName,
                                @PathVariable("documentType") String documentType,
                                @PathVariable("callerRef") String callerRef,
                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        Entity entity =  entityService.findByCallerRef(fortress, documentType, callerRef);
+        Entity entity = entityService.findByCallerRef(fortress, documentType, callerRef);
         return new EntityBean(entity);
     }
 
@@ -116,19 +116,22 @@ public class EntityEP {
     /**
      * locates a collection of Entity based on incoming collection of MetaKeys
      *
-     * @param toFind       keys to look for
+     * @param toFind keys to look for
      * @return Matching entities you are authorised to receive
      * @throws FlockException
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public @ResponseBody Collection<Entity> getEntities(@RequestBody Collection<String> toFind ,
-                                                        HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Collection<Entity> getEntities(@RequestBody Collection<String> toFind,
+                                   HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return entityService.getEntities(company, toFind).values();
     }
 
     @RequestMapping(value = "/{metaKey}/summary", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody
+    public
+    @ResponseBody
     EntitySummaryBean getEntitySummary(@PathVariable("metaKey") String metaKey,
                                        HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -138,8 +141,10 @@ public class EntityEP {
 
 
     @RequestMapping(value = "/{metaKey}/log", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
-                                                HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
+                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}/logs
         return entityService.getEntityLogs(company, metaKey);
@@ -162,16 +167,20 @@ public class EntityEP {
 
 
     @RequestMapping(value = "/{metaKey}/log/last/tags", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
-                                                             HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
+                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return entityService.getLastLogTags(company, metaKey);
     }
 
 
     @RequestMapping(value = "/{metaKey}/log/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Collection<EntityTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
-                                                         HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Collection<EntityTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+                                     HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         EntityLog tl = entityService.getEntityLog(company, metaKey, logId);
@@ -179,8 +188,10 @@ public class EntityEP {
     }
 
     @RequestMapping(value = "/{metaKey}/tags", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Collection<EntityTag> getEntityTags(@PathVariable("metaKey") String metaKey,
-                                                            HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Collection<EntityTag> getEntityTags(@PathVariable("metaKey") String metaKey,
+                                        HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
@@ -191,7 +202,8 @@ public class EntityEP {
     @RequestMapping(value = "/{metaKey}/log/last/attachment",
             produces = "application/pdf",
             method = RequestMethod.GET)
-    public @ResponseBody
+    public
+    @ResponseBody
     byte[] getAttachment(@PathVariable("metaKey") String metaKey,
                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -206,13 +218,15 @@ public class EntityEP {
             }
         }
 
-        throw new NotFoundException("Unable to find the content for the requested metaKey") ;
+        throw new NotFoundException("Unable to find the content for the requested metaKey");
 
     }
 
     @RequestMapping(value = "/{metaKey}/log/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
-                                                            HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
+                                       HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Entity entity = entityService.getEntity(company, metaKey);
 
@@ -227,14 +241,15 @@ public class EntityEP {
             }
         }
 
-        throw new NotFoundException("Unable to find any content for the requested metaKey") ;
+        throw new NotFoundException("Unable to find any content for the requested metaKey");
 
     }
 
     @RequestMapping(value = "/{metaKey}/log/{logId}", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody
+    public
+    @ResponseBody
     LogDetailBean getFullLog(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId,
-                                                  HttpServletRequest request) throws FlockException {
+                             HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         LogDetailBean change = entityService.getFullDetail(company, metaKey, logId);
 
@@ -245,9 +260,11 @@ public class EntityEP {
     }
 
     @RequestMapping(value = "/{metaKey}/log/{logId}/what", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getLogContent(@PathVariable("metaKey") String metaKey,
-                                                           @PathVariable("logId") Long logId,
-                                                           HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Map<String, Object> getLogContent(@PathVariable("metaKey") String metaKey,
+                                      @PathVariable("logId") Long logId,
+                                      HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         Entity entity = entityService.getEntity(company, metaKey);
@@ -273,8 +290,10 @@ public class EntityEP {
     }
 
     @RequestMapping(value = "/{metaKey}/log/last/what", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
-                                                           HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
+                                       HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         Entity entity = entityService.getEntity(company, metaKey);
@@ -283,8 +302,8 @@ public class EntityEP {
             EntityLog log = entityService.getLastEntityLog(entity.getId());
             if (log != null) {
                 KvContent content = kvService.getContent(entity, log.getLog());
-                if ( content == null )
-                    throw new FlockException("Unable to locate the content for "+metaKey +". The log was found - " +log);
+                if (content == null)
+                    throw new FlockException("Unable to locate the content for " + metaKey + ". The log was found - " + log);
                 return content.getWhat();
             }
         }
@@ -342,8 +361,10 @@ public class EntityEP {
      * @throws FlockException
      */
     @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
-                                                                         HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Map<String, Collection<Entity>> getCrossRefence(@PathVariable("metaKey") String metaKey, @PathVariable("xRefName") String xRefName,
+                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, metaKey, xRefName);
     }
@@ -351,15 +372,17 @@ public class EntityEP {
     /**
      * Locate cross referenced headers by Fortress + CallerRef
      *
-     * @param fortress     name of the callers application
-     * @param callerRef    unique key within the fortress
-     * @param xRefName     name of the xReference to lookup
+     * @param fortress  name of the callers application
+     * @param callerRef unique key within the fortress
+     * @param xRefName  name of the xReference to lookup
      * @return xRefName and collection of Entities
      * @throws FlockException if not exactly one CallerRef exists within the fortress
      */
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody  Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
-                                                                            HttpServletRequest request) throws FlockException {
+    public
+    @ResponseBody
+    Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
+                                                      HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return entityService.getCrossReference(company, fortress, callerRef, xRefName);
     }
