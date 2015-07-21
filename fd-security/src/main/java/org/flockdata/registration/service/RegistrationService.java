@@ -22,8 +22,7 @@ package org.flockdata.registration.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
 
 /**
  * User: mike
@@ -31,11 +30,11 @@ import org.flockdata.registration.model.SystemUser;
  * Time: 9:43 AM
  */
 public interface RegistrationService {
-    SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
+    org.flockdata.model.SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
 
-    SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
+    org.flockdata.model.SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
 
     Company resolveCompany(String apiKey) throws FlockException;
 
-    SystemUser getSystemUser(String s);
+    org.flockdata.model.SystemUser getSystemUser(String s);
 }

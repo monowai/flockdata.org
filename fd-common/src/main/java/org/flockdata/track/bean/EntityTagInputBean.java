@@ -20,7 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Tag;
 
 import javax.validation.constraints.NotNull;
 
@@ -97,5 +97,9 @@ public class EntityTagInputBean {
 
     public boolean isSince() {
         return since;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
     }
 }

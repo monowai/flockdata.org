@@ -21,8 +21,8 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;

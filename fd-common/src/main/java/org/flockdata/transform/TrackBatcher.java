@@ -22,11 +22,14 @@ package org.flockdata.transform;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.model.Company;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 

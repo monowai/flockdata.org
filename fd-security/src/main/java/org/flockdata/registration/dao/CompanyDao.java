@@ -20,8 +20,8 @@
 package org.flockdata.registration.dao;
 
 
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
+import org.flockdata.model.SystemUser;
 
 import java.util.Collection;
 
@@ -34,11 +34,11 @@ import java.util.Collection;
  * Time: 6:31 PM
  */
 public interface CompanyDao {
-    public Company update(Company systemUser);
+    Company update(Company systemUser);
 
-    public Company findByPropertyValue(String property, Object value);
+    Company findByPropertyValue(String property, Object value);
 
-    public SystemUser getAdminUser(Long companyId, String name);
+    SystemUser getAdminUser(Long companyId, String name);
 
     Company create(String companyName, String uniqueKey);
 

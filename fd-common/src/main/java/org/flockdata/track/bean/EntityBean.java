@@ -21,8 +21,8 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
@@ -70,9 +70,9 @@ public class EntityBean implements Serializable {
             this.props = entity.getProperties();
             this.searchKey = entity.getSearchKey();
             this.metaKey = entity.getMetaKey();
-            documentType = entity.getDocumentType();
+            documentType = entity.getType();
             callerRef = entity.getCallerRef();
-            whenCreated = entity.getWhenCreated();
+            whenCreated = entity.getDateCreated();
             if ( entity.getFortress()!=null )
                 indexName = entity.getFortress().getIndexName();
 
@@ -81,8 +81,8 @@ public class EntityBean implements Serializable {
             name = entity.getName();
             fortress = new FortressResultBean(entity.getFortress());
             event = entity.getEvent();
-            fortressDateCreated = entity.getFortressDateCreated();
-            fortressDateUpdated = entity.getFortressDateUpdated();
+            fortressDateCreated = entity.getFortressCreatedTz();
+            fortressDateUpdated = entity.getFortressUpdatedTz();
             if (entity.getLastUser()!=null )
                 lastUser = entity.getLastUser().getCode();
             if ( createdUser !=null )
@@ -193,9 +193,8 @@ public class EntityBean implements Serializable {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
-        if (searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null) return false;
+        return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
 
-        return true;
     }
 
     @Override

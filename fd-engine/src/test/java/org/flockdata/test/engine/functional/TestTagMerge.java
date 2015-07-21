@@ -21,12 +21,12 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -69,7 +69,7 @@ public class TestTagMerge extends EngineBase {
         // The above is the setup. We will look to merge tagA into tagB. The end result will be that
         // entity
 
-        Collection<Long>results =entityTagService.mergeTags(tagA, tagB);
+        Collection<Long>results =entityTagService.mergeTags(tagA.getId(), tagB.getId());
         assertEquals("One Entity should have been affected by this operation", 1, results.size());
         Long entityResult = results.iterator().next();
         assertEquals("The wrong Entity was affected by this operation", entityA.getId(), entityResult);

@@ -19,13 +19,12 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.SearchChange;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -72,12 +71,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, numCodeWithName, "rlxname"));
         tags.add(Helper.getEntityTag(entity, zipCode, "zip"));
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        SearchChangeBean change = new EntitySearchChange(entity);
         change.setWhat(what);
         change.setTags(tags);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChangeBean searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
@@ -112,12 +111,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
         tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        SearchChangeBean change = new EntitySearchChange(entity);
         change.setWhat(what);
         change.setTags(tags);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChangeBean searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
@@ -158,12 +157,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, procedure, "proc"));
         tags.add(Helper.getEntityTag(entity, procedureB, "proc"));
 
-        SearchChange change = new EntitySearchChange(new EntityBean(entity));
+        SearchChangeBean change = new EntitySearchChange(entity);
         change.setWhat(what);
         change.setTags(tags);
 
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChangeBean searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);

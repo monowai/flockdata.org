@@ -20,7 +20,7 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.registration.model.Relationship;
+import org.flockdata.model.Relationship;
 
 /**
  *

@@ -22,7 +22,7 @@ package org.flockdata.dao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 
 /**
  * Created with IntelliJ IDEA.

@@ -19,7 +19,8 @@
 
 package org.flockdata.registration.bean;
 
-import org.flockdata.registration.model.Company;
+
+import org.flockdata.model.Company;
 
 /**
  * User: Mike Holdsworth

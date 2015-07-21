@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Test;
 
 import static org.springframework.test.util.AssertionErrors.assertEquals;
@@ -35,15 +35,15 @@ public class EntityKeyTests {
     public void equalityAndDefaults() throws Exception{
 
         // ToDo: Case sensitivity
-        EntityKey entityKeyA = new EntityKey("abc", "123", "456");
-        EntityKey entityKeyB = new EntityKey("abc", "123", "456");
+        EntityKeyBean entityKeyA = new EntityKeyBean("abc", "123", "456");
+        EntityKeyBean entityKeyB = new EntityKeyBean("abc", "123", "456");
 
         assertEquals("Keys should match", entityKeyA, entityKeyB);
         assertEquals("Hashcodes should match", entityKeyA.hashCode(), entityKeyB.hashCode());
 
-        EntityKey entityKeyC = new EntityKey("abc", null, "456");
+        EntityKeyBean entityKeyC = new EntityKeyBean("abc", null, "456");
         assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
-        entityKeyC = new EntityKey();
+        entityKeyC = new EntityKeyBean();
         assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
     }
 }

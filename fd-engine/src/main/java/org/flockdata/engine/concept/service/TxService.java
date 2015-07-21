@@ -19,15 +19,15 @@
 
 package org.flockdata.engine.concept.service;
 
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.engine.track.dao.EntityDaoNeo;
+import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.model.Entity;
+import org.flockdata.model.TxRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +70,7 @@ public class TxService {
         TxRef tx = findTx(txRef);
         return (tx == null ? null : trackDao.findByTransaction(tx));
     }
+
     public TxRef handleTxRef(ContentInputBean input, Company company) {
         TxRef txRef = null;
         if (input.isTransactional()) {

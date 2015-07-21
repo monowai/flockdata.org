@@ -20,22 +20,22 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.engine.track.dao.EntityRepo;
-import org.flockdata.engine.track.dao.EntityTagDaoNeo;
-import org.flockdata.engine.track.dao.EntityTagRepo;
-import org.flockdata.engine.track.model.EntityTagIn;
-import org.flockdata.engine.track.model.EntityTagOut;
+import org.flockdata.engine.dao.EntityRepo;
+import org.flockdata.engine.dao.EntityTagDaoNeo;
+import org.flockdata.engine.dao.EntityTagRepo;
+import org.flockdata.model.EntityTagIn;
+import org.flockdata.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.EntityTag;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.Log;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
@@ -155,7 +155,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     public Collection<EntityTag> associateTags(Company company, Entity entity, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException {
         Collection<EntityTag> newEntityTags = new ArrayList<>();
         Collection<EntityTag> tagsToMove = new ArrayList<>();
-        Collection<EntityTag> existingTags = (entity.isNew() ? new ArrayList<>() : getEntityTags(entity));
+        Collection<EntityTag> existingTags = (entity.isNewEntity() ? new ArrayList<>() : getEntityTags(entity));
         for (TagInputBean tagInputBean : entityInputBean.getTags()) {
 
             Tag existingTag = getTag(existingTags, tagInputBean);
@@ -174,7 +174,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             }
         }
 
-        if (!entityInputBean.getTags().isEmpty() && !entity.isNew()) {
+        if (!entityInputBean.getTags().isEmpty() && !entity.isNewEntity()) {
             // We only consider relocating tags to the log if the caller passes at least one tag set
             for (EntityTag entityTag : existingTags) {
                 if (!newEntityTags.contains(entityTag))
@@ -221,9 +221,9 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         Map<String, Object> entityLinks = tagInputBean.getEntityLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
-        long when = (entity.getFortressDateUpdated()==null ?0:entity.getFortressDateUpdated().getMillis());
+        long when = (entity.getFortressUpdatedTz()==null ?0:entity.getFortressUpdatedTz().getMillis());
         if (when == 0)
-            when = entity.getWhenCreated();
+            when = entity.getDateCreated();
         for (String key : entityLinks.keySet()) {
             Object properties = entityLinks.get(key);
             Map<String, Object> propMap;
@@ -258,8 +258,8 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
 
         if ( isSinceRequired) {
-            long lastUpdate = (entity.getFortressDateUpdated() == null ? 0 : entity.getFortressDateUpdated().getMillis());
-            propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressDateCreated().getMillis() : lastUpdate));
+            long lastUpdate = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
+            propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressCreatedTz().getMillis() : lastUpdate));
         }
         EntityTag rel;
         if (isReversed)
@@ -370,7 +370,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @return Collection of affected Entity IDs
      */
     @Override
-    public Collection<Long> mergeTags(Tag fromTag, Tag toTag) {
+    public Collection<Long> mergeTags(Long fromTag, Long toTag) {
         return entityTagDao.mergeTags(fromTag, toTag);
     }
 

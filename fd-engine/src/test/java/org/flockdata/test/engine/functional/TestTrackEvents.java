@@ -19,21 +19,14 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.ChangeEvent;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.Log;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +35,6 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 6/09/13
  */
-@Transactional
 public class TestTrackEvents extends EngineBase {
 
     @Test
@@ -80,11 +72,11 @@ public class TestTrackEvents extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntityBean().getMetaKey();
+        String metaKey = resultBean.getEntity().getMetaKey();
         assertNotNull(metaKey);
 
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
-        assertNotNull(entity.getDocumentType());
+        assertNotNull(entity.getType());
 
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));

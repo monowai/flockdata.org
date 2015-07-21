@@ -19,16 +19,11 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.engine.concept.model.DocumentTypeNode;
-import org.flockdata.engine.tag.model.TagNode;
-import org.flockdata.engine.track.model.EntityNode;
-import org.flockdata.engine.track.model.EntityTagOut;
-import org.flockdata.company.model.FortressNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.company.model.CompanyNode;
+import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,19 +45,19 @@ public class TestHashcodeAndEquality {
 
 
         // We don't compare the relationships primary key for a tag
-        TagNode tagNode = getTag("Samsung", "plantif", 12345l);
-        TagNode tagNodeB =  getTag("Samsung", "plantif", 12345l);
+        Tag tagNode = getTag("Samsung", "plantif", 12345l);
+        Tag tagNodeB =  getTag("Samsung", "plantif", 12345l);
 
         assertEquals(tagNode, tagNodeB);
-        ArrayList<TagNode> tags = new ArrayList<>();
+        ArrayList<Tag> tags = new ArrayList<>();
         tags.add(tagNode);
         assertEquals(true, tags.contains(tagNodeB));
 
     }
 
-    private TagNode getTag(String name, String relationship, Long l) {
+    private Tag getTag(String name, String relationship, Long l) {
         TagInputBean tagInputBean = new TagInputBean(name, null, relationship);
-        TagNode tagNode = new TagNode(tagInputBean);
+        Tag tagNode = new Tag(tagInputBean);
         tagNode.setId(l);
         return tagNode;
     }
@@ -70,17 +65,17 @@ public class TestHashcodeAndEquality {
     @Test
     public void entityTags() throws Exception{
 
-        TagNode tagNode = getTag("Samsung", "plantif", 12345l);
-        TagNode tagNodeB = getTag("Apple", "defendant", 12343l);
+        Tag tagNode = getTag("Samsung", "plantif", 12345l);
+        Tag tagNodeB = getTag("Apple", "defendant", 12343l);
 
-        CompanyNode company = new CompanyNode("TestCo");
+        Company company = new Company("TestCo");
         company.setId(12313);
-        FortressNode fortress = new FortressNode(new FortressInputBean("Testing",true ), company);
-        DocumentTypeNode documentTypeNode = new DocumentTypeNode(fortress, "DocTest");
+        Fortress fortress = new Fortress(new FortressInputBean("Testing",true ), company);
+        DocumentType documentTypeNode = new DocumentType(fortress, "DocTest");
         EntityInputBean entityInput = new EntityInputBean();
         entityInput.setCallerRef("abc");
 
-        EntityNode entityNode = new EntityNode("123abc", fortress, entityInput, documentTypeNode);
+        Entity entityNode = new Entity("123abc", fortress, entityInput, documentTypeNode);
         EntityTagOut entityTagA = new EntityTagOut(entityNode, tagNode);
         EntityTagOut entityTagB = new EntityTagOut(entityNode, tagNodeB);
 

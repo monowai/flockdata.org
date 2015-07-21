@@ -20,7 +20,7 @@
 package org.flockdata.search.model;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.Fortress;
 
 /**
  * User: Mike Holdsworth

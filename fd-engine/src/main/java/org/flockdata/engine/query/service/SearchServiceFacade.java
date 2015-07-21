@@ -21,19 +21,15 @@ package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
-import org.flockdata.engine.track.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
+import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
+import org.flockdata.model.*;
 import org.flockdata.search.model.*;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.bean.LogResultBean;
-import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.*;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
@@ -119,25 +115,25 @@ public class SearchServiceFacade {
         logger.trace("Finished processing search results");
     }
 
-    public void makeChangeSearchable(SearchChange searchChange) {
+    public void makeChangeSearchable(SearchChangeBean searchChange) {
         if (searchChange == null)
             return;
-        Collection<SearchChange> searchChanges = new ArrayList<>();
+        Collection<SearchChangeBean> searchChanges = new ArrayList<>();
         searchChanges.add(searchChange);
         makeChangesSearchable(searchChanges);
     }
 
-    public Boolean makeChangesSearchable(Collection<SearchChange> searchDocument) {
-        if (searchDocument.isEmpty())
+    public Boolean makeChangesSearchable(Collection<SearchChangeBean> searchDocuments) {
+        if (searchDocuments.isEmpty())
             //  return new AsyncResult<>(null);
             return false;
 
-        if (searchDocument.size() == 1)
-            logger.debug("Sending request to index entity [{}]]", searchDocument.iterator().next().getEntityId());
+        if (searchDocuments.size() == 1)
+            logger.debug("Sending request to index entity [{}]]", searchDocuments.iterator().next().getEntityId());
         else
-            logger.debug("Sending request to index [{}]] logs", searchDocument.size());
-        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocument));
-        logger.debug("[{}] log requests sent to search", searchDocument.size());
+            logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
+        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocuments));
+        logger.debug("[{}] log requests sent to search", searchDocuments.size());
         return true;
     }
 
@@ -148,30 +144,30 @@ public class SearchServiceFacade {
      * @param trackResultBean track result to process
      * @return SearchChange that will can be indexed
      */
-    public SearchChange getSearchChange(TrackResultBean trackResultBean) {
+    public SearchChangeBean getSearchChange(TrackResultBean trackResultBean) {
         assert trackResultBean != null;
 
         Entity entity = trackResultBean.getEntity();
-        if (entity.getLastUser() != null)
+        if (entity.getLastUser() != null && entity.getLastUser().getCode()==null)
             fortressService.getUser(entity.getLastUser().getId());
 
         EntityLog entityLog = getLog(trackResultBean);
-        SearchChange searchDocument = new EntitySearchChange(trackResultBean.getEntityBean(), entityLog, trackResultBean.getContentInput());
+        SearchChangeBean searchDocument = new EntitySearchChange(trackResultBean.getEntity(), entityLog, trackResultBean.getContentInput());
 
         if (entityLog!=null) {
             // Used to reconcile that the change was actually indexed
             logger.trace("Preparing Search Document [{}]", entityLog);
 
             searchDocument.setLogId(entityLog.getId());
-            if (entityLog.getLog().getWho() != null)
-                searchDocument.setWho(entityLog.getLog().getWho().getCode());
+            if (entityLog.getLog().getMadeBy() != null)
+                searchDocument.setWho(entityLog.getLog().getMadeBy().getCode());
             if (entityLog.getSysWhen() != 0)
                 searchDocument.setSysWhen(entityLog.getSysWhen());
         }
         // ToDo: Can we optimize by using tags already tracked in the result bean?
         searchDocument.setTags(entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity()));
-        searchDocument.setDescription(trackResultBean.getEntityBean().getDescription());
-        searchDocument.setName(trackResultBean.getEntityBean().getName());
+        searchDocument.setDescription(trackResultBean.getEntity().getDescription());
+        searchDocument.setName(trackResultBean.getEntity().getName());
         searchDocument.setSearchKey(entity.getSearchKey());
         try {
             //if (logger.isTraceEnabled())
@@ -182,7 +178,7 @@ public class SearchServiceFacade {
         }
 
         if( searchDocument.getSysWhen() == 0l)
-            searchDocument.setSysWhen(trackResultBean.getEntityBean().getWhenCreated());
+            searchDocument.setSysWhen(trackResultBean.getEntity().getDateCreated());
 
         if (entity.getId() == null) {
             logger.debug("No entityId so we are not expecting a reply");
@@ -192,7 +188,7 @@ public class SearchServiceFacade {
         }
 
         // If we already have this search key, then don't bother us with a reply
-        if ( entity.getSearchKey() != null )
+        if ( entity.getSearch() !=null )
             searchDocument.setReplyRequired(false);
 
         return searchDocument;
@@ -208,18 +204,18 @@ public class SearchServiceFacade {
             //if () {
             // Update against the Entity only by re-indexing the search document
             EntitySearchChange searchDocument;
-            EntityBean entityBean = new EntityBean(entity);
+            //Entity entityBean = new EntityBean(entity);
             if (lastChange != null) {
                 KvContent content = kvGateway.getContent(entity, lastChange);
                 if (content == null) {
                     logger.error("Unable to locate content for {} ", entity);
                     return null;
                 }
-                searchDocument = new EntitySearchChange(entityBean, lastLog, content.getContent());
-                if (lastChange.getWho() != null)
-                    searchDocument.setWho(lastChange.getWho().getCode());
+                searchDocument = new EntitySearchChange(entity, lastLog, content.getContent());
+                if (lastChange.getMadeBy() != null)
+                    searchDocument.setWho(lastChange.getMadeBy().getCode());
             } else {
-                searchDocument = new EntitySearchChange(entityBean);
+                searchDocument = new EntitySearchChange(entity);
                 if (entity.getCreatedBy() != null)
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
@@ -248,20 +244,20 @@ public class SearchServiceFacade {
         logger.info("You have to manually purge the ElasticSearch index {}", indexName);
     }
 
-    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
-        Collection<TrackResultBean> results = new ArrayList<>();
-        results.add(trackResult);
-        makeChangesSearchable(fortress, results);
-
-    }
+//    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
+//        Collection<TrackResultBean> results = new ArrayList<>();
+//        results.add(trackResult);
+//        makeChangesSearchable(fortress, results);
+//
+//    }
 
     @Async("fd-search")
     public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         // ToDo: This needs to be an activation via message-q at least be retry
         logger.debug("Received request to make changes searchable {}", fortress);
-        Collection<SearchChange> changes = new ArrayList<>();
+        Collection<SearchChangeBean> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
-            SearchChange change = getChangeToPublish(fortress, resultBean);
+            SearchChangeBean change = getChangeToPublish(fortress, resultBean);
             if (change != null)
                 changes.add(change);
             else
@@ -281,18 +277,18 @@ public class SearchServiceFacade {
      * @param trackResultBean data from which to create the search change
      * @return null if search is not required or is being actively suppressed
      */
-    SearchChange getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
+    SearchChangeBean getChangeToPublish(Fortress fortress, TrackResultBean trackResultBean) {
         if (trackResultBean == null)
             return null;
 
-        if (trackResultBean.getEntityBean() == null || !fortress.isSearchActive())
+        if (trackResultBean.getEntity() == null || !fortress.isSearchActive())
             return null;
 
         if (trackResultBean.getEntityInputBean() != null && trackResultBean.getEntityInputBean().isMetaOnly()) {
             return getSearchChange(trackResultBean);
         }
 
-        if (trackResultBean.getLogResult()!=null && trackResultBean.getLogResult().getLogToIndex() !=null )
+        if (trackResultBean.getCurrentLog() != null)
             return getSearchChange(trackResultBean);
 
         return null;
@@ -300,27 +296,27 @@ public class SearchServiceFacade {
     }
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
-        LogResultBean logResultBean = trackResultBean.getLogResult();
+        //EntityLog entityLog = trackResultBean.getCurrentLog();
 
         if (!trackResultBean.processLog()) {
             logger.debug("Tracking this entity through to search has been suppressed by the caller");
             return null;
         }
-        EntityLog entityLog = null;
-        if (logResultBean != null && logResultBean.getLogToIndex() != null && logResultBean.getStatus() == ContentInputBean.LogStatus.OK) {
-            entityLog = logResultBean.getLogToIndex();
-            logger.debug("Returning logToIndex from resultBean");
+        if (trackResultBean.getLogStatus() != ContentInputBean.LogStatus.OK || trackResultBean.getCurrentLog() == null) {
+
+            logger.debug("No entity log to index against");
+            return null;
         }
-        return entityLog;
+        return trackResultBean.getCurrentLog();
     }
 
     public void refresh(Company company, Collection<Long> entities) {
         // To support DAT-279 - not going to work well with massive result sets
         Collection<Entity> entitiesSet = entityService.getEntities(entities);
-        Collection<SearchChange> searchChanges = new ArrayList<>();
+        Collection<SearchChangeBean> searchChanges = new ArrayList<>();
 
         for (Entity entity : entitiesSet) {
-            SearchChange change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
+            SearchChangeBean change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
             if (change != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
                 searchChanges.add(change);
         }

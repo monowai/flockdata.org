@@ -25,7 +25,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
@@ -66,7 +66,7 @@ public class TestCsvEntity {
         assertTrue("Tag Missing", json.containsKey("Tag"));
         assertTrue("Tag Value Missing", json.containsKey("TagVal"));
         assertTrue("Tag Value Missing", json.containsKey("ValTag"));
-        Map<String, List<EntityKey>> xRefs = mapper.getCrossReferences();
+        Map<String, List<EntityKeyBean>> xRefs = mapper.getCrossReferences();
 
         assertFalse(xRefs.isEmpty());
         assertEquals(2, xRefs.size());
@@ -79,7 +79,7 @@ public class TestCsvEntity {
             } else if ( s.equals("blah")){
                 assertEquals(1, xRefs.get("blah").size());
                 for (String s1 : xRefs.keySet()) {
-                    EntityKey ek = xRefs.get("blah").iterator().next();
+                    EntityKeyBean ek = xRefs.get("blah").iterator().next();
                     assertEquals("Olympic", ek.getFortressName());
                     assertEquals("Other", ek.getDocumentType());
                     assertEquals("qwerty", ek.getCallerRef());

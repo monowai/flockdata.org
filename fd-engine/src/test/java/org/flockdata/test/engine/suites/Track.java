@@ -32,7 +32,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         TestInputBeans.class,
         TestTxReference.class,
-        TestTrack.class,
+        TestEntityTrack.class,
         TestBatchSplitter.class,
         TestLogCounts.class,
         TestEntitySearch.class,

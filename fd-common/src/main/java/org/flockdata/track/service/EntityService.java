@@ -21,13 +21,14 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.Tag;
+import org.flockdata.kv.KvContent;
+import org.flockdata.model.Company;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.*;
+import org.flockdata.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ public interface EntityService {
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);
 
-    Entity getEntity(Company company, String metaKey);
+    Entity getEntity(Company company, String metaKey) throws NotFoundException;
 
     Entity getEntity(Company company, @NotEmpty String metaKey, boolean inflate);
 
@@ -72,7 +73,7 @@ public interface EntityService {
 
     int getLogCount(Company company, String metaKey) throws FlockException;
 
-    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
+    Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
 
     Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
 
@@ -98,7 +99,7 @@ public interface EntityService {
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
 
-    List<EntityKey> crossReferenceEntities(Company company, EntityKey sourceKey, Collection<EntityKey> targetKeys, String xRefName) throws FlockException;
+    List<EntityKeyBean> crossReferenceEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 

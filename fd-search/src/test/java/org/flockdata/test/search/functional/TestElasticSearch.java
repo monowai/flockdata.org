@@ -22,7 +22,7 @@ package org.flockdata.test.search.functional;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.endpoint.ElasticSearchEP;
-import org.flockdata.track.model.TrackSearchDao;
+import org.flockdata.search.service.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;

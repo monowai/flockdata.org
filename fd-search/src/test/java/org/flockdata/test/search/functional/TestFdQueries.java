@@ -23,7 +23,7 @@ import org.flockdata.search.model.*;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class TestFdQueries extends ESBase{
 
         Entity entity = Helper.getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+        EntitySearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
 

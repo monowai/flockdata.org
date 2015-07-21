@@ -19,13 +19,12 @@
 
 package org.flockdata.company.service;
 
-import org.flockdata.company.model.SystemUserNode;
+import org.flockdata.model.SystemUser;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Company;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.RegistrationService;
@@ -59,7 +58,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @Autowired
     private SecurityHelper securityHelper;
 
-    public static SystemUser GUEST = new SystemUserNode("Guest", null, null, false);
+    public static SystemUser GUEST = new SystemUser("Guest", null, null, false);
     private Logger logger = LoggerFactory.getLogger(RegistrationServiceNeo4j.class);
 
     @Override
@@ -82,13 +81,13 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     @Secured({SecurityHelper.ADMIN})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
+
+//        if (engineConfig.createSystemConstraints())
+//            schemaService.ensureSystemIndexes(null);
+
         Company company = companyService.findByName(regBean.getCompanyName());
         if (company == null) {
             company = companyService.create(regBean.getCompanyName());
-            // indexes have to happen outside of data update transactions
-            // else you'll get a Heuristic exception failure
-            if (engineConfig.createSystemConstraints())
-                schemaService.ensureSystemIndexes(company);
 
         }
 
@@ -114,7 +113,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
         SystemUser iSystemUser = systemUserService.findByLogin(systemUser);
         if (iSystemUser == null) {
             // Authenticated in the security system, but not in the graph
-            return new SystemUserNode(systemUser, null, null, true);
+            return new SystemUser(systemUser, null, null, true);
         } else {
             return iSystemUser;
         }

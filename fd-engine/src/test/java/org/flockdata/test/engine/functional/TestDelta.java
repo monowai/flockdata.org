@@ -20,14 +20,14 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.EntityLog;
+import org.flockdata.model.EntityLog;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -71,7 +71,7 @@ public class TestDelta extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
         EntityLog first = logService.getLastLog(result.getEntity());
         assertNotNull(first);
-        log = new ContentInputBean("Mike", result.getEntityBean().getMetaKey(), new DateTime(), jsonB);
+        log = new ContentInputBean("Mike", result.getEntity().getMetaKey(), new DateTime(), jsonB);
         mediationFacade.trackLog(su.getCompany(), log);
         EntityLog second = logService.getLastLog(result.getEntity());
         assertNotNull(second);

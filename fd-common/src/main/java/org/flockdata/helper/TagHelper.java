@@ -19,12 +19,14 @@
 
 package org.flockdata.helper;
 
+import org.flockdata.model.Tag;
+
 /**
  * Created by mike on 20/06/15.
  */
 public class TagHelper {
 
-    public static String resolveLabel(String label, String tagSuffix) {
+    public static String suffixLabel(String label, String tagSuffix) {
         if (label.startsWith(":"))
             label = label.substring(1);
 
@@ -36,5 +38,10 @@ public class TagHelper {
     public static String parseKey(String key) {
         return key.toLowerCase();
     }
+
+    public static boolean isDefault(String name) {
+        return name == null || Tag.DEFAULT_TAG.equals(name) ||Tag.DEFAULT.equals(name);
+    }
+
 
 }

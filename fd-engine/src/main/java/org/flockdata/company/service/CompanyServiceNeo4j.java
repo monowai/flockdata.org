@@ -20,14 +20,14 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.company.model.CompanyNode;
+import org.flockdata.model.Company;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.dao.CompanyDao;
-import org.flockdata.registration.model.Company;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.KeyGenService;
+import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +50,9 @@ public class CompanyServiceNeo4j implements CompanyService {
     PlatformConfig engineConfig;
 
     @Autowired
+    SchemaService schemaService;
+
+    @Autowired
     private SecurityHelper securityHelper;
 
     private static Logger logger = LoggerFactory.getLogger(CompanyServiceNeo4j.class);
@@ -69,22 +72,28 @@ public class CompanyServiceNeo4j implements CompanyService {
         return companyDao.findByPropertyValue("code", code);
     }
 
-    @Override
     @Transactional
-    public SystemUser getAdminUser(Company company, String name) {
+    public SystemUser getAdminUser(org.flockdata.model.Company company, String name) {
         return companyDao.getAdminUser(company.getId(), name);
     }
 
     @Override
     public Company create(String companyName) {
         // Change to async event via spring events
-        logger.debug("Saving company {}",companyName);
-        Company company = new CompanyNode(companyName, keyGenService.getUniqueKey());
-        return create(company);
+        //schemaService.ensureSystemIndexes(null);
+        Company company = findByName(companyName);
+        if ( company == null ) {
+            logger.debug("Saving company {}", companyName);
+            company = new Company(companyName, keyGenService.getUniqueKey());
+
+            return create(company);
+        }
+        return company;
 
     }
+
     @Transactional
-    public Company create(Company company){
+    public org.flockdata.model.Company create(org.flockdata.model.Company company){
         company = companyDao.create(company);
         logger.debug("Created company {}",company);
         return company;
@@ -94,13 +103,13 @@ public class CompanyServiceNeo4j implements CompanyService {
     @Override
     @Transactional
 //    @Cacheable(value = "companyKeys", unless = "#result == null")
-    public Company findByApiKey(String apiKey) {
+    public org.flockdata.model.Company findByApiKey(String apiKey) {
         return companyDao.findByPropertyValue("apiKey", apiKey);
     }
 
     @Override
     @Transactional
-    public Collection<Company> findCompanies(String userApiKey) {
+    public Collection<org.flockdata.model.Company> findCompanies(String userApiKey) {
         if (userApiKey == null) {
             SystemUser su = securityHelper.getSysUser(true);
             if (su != null)
@@ -115,7 +124,7 @@ public class CompanyServiceNeo4j implements CompanyService {
 
     @Override
     @Transactional
-    public Collection<Company> findCompanies() {
+    public Collection<org.flockdata.model.Company> findCompanies() {
         SystemUser su = securityHelper.getSysUser(true);
         if (su == null)
             return null;

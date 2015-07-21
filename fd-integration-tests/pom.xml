@@ -5,8 +5,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flockdata</artifactId>
-         <groupId>org.flockdata</groupId>
-         <version>0.99-BUILD-SNAPSHOT</version>
+        <groupId>org.flockdata</groupId>
+        <version>0.99-BUILD-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,9 +18,9 @@
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
 
-<!--This variable is passed to fd.search to control the log level. Example
-mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=info
--->
+        <!--This variable is passed to fd.search to control the log level. Example
+        mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=info
+        -->
         <fd.logLevel>${env.fd.logLevel}</fd.logLevel>
     </properties>
 
@@ -65,12 +65,12 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
             <type>jar</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.flockdata</groupId>
-            <artifactId>fd-engine</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.flockdata</groupId>-->
+        <!--<artifactId>fd-engine</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<type>test-jar</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.flockdata</groupId>
@@ -87,9 +87,9 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.springframework.integration</groupId>-->
-            <!--<artifactId>spring-integration-amqp</artifactId>-->
-            <!--<version>${org.springintegration.version}</version>-->
+        <!--<groupId>org.springframework.integration</groupId>-->
+        <!--<artifactId>spring-integration-amqp</artifactId>-->
+        <!--<version>${org.springintegration.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -116,10 +116,10 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
             <version>${stormpath.sdk.version}</version>
             <scope>runtime</scope>
         </dependency>
-		<dependency>
-			<groupId>com.stormpath.spring.security</groupId>
-			<artifactId>stormpath-spring-security-core</artifactId>
-			<version>${stormpath.spring.security.version}</version>
+        <dependency>
+            <groupId>com.stormpath.spring.security</groupId>
+            <artifactId>stormpath-spring-security-core</artifactId>
+            <version>${stormpath.spring.security.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -143,7 +143,7 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
                     <artifactId>spring-expression</artifactId>
                 </exclusion>
             </exclusions>
-		</dependency>
+        </dependency>
     </dependencies>
 
 
@@ -225,7 +225,8 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
                                 <systemProperties>
                                     <fd.integration>amqp</fd.integration>
                                     <fd.config>${project.basedir}/src/test/resources/config.properties</fd.config>
-                                    <log4j.configuration>file://${project.basedir}/src/test/resources/log4j-search.xml</log4j.configuration>
+                                    <log4j.configuration>file://${project.basedir}/src/test/resources/log4j-search.xml
+                                    </log4j.configuration>
                                     <java.awt.headless>true</java.awt.headless>
                                     <fd.logLevel>${fd.logLevel}</fd.logLevel>
                                 </systemProperties>
@@ -236,7 +237,7 @@ mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=
                                     <cargo.servlet.port>9081</cargo.servlet.port>
                                     <cargo.rmi.port>9086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
-<!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
+                                    <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
                                     <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
                                     <cargo.jvmargs>-Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                                 </properties>

@@ -19,15 +19,14 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.company.model.CompanyNode;
-import org.flockdata.engine.track.model.TxRefNode;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.TxRef;
+import org.flockdata.model.Company;
+import org.flockdata.model.TxRef;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -45,11 +44,11 @@ public class TestInputBeans {
 
     @Test
     public void testTxStatus() {
-        TxRefNode tx = new TxRefNode("abc", new CompanyNode(""));
+        org.flockdata.model.TxRef tx = new TxRef("abc", new Company(""));
 
         // Current status should be created
         assertEquals(TxRef.TxStatus.TX_CREATED, tx.getTxStatus());
-        TxRefNode.TxStatus previous = tx.commit();
+        TxRef.TxStatus previous = tx.commit();
         assertEquals(TxRef.TxStatus.TX_COMMITTED, tx.getTxStatus());
         assertEquals(TxRef.TxStatus.TX_CREATED, previous);
         previous = tx.rollback();

@@ -23,10 +23,11 @@ import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.registration.model.Company;
+import org.flockdata.model.Company;
+import org.flockdata.model.EntityLog;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.model.EntityKey;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,46 +84,46 @@ public class TrackEP {
      */
     @RequestMapping(value = "/", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     public
-    ResponseEntity<TrackResultBean> trackEntity(@RequestBody EntityInputBean input,
+    ResponseEntity<TrackRequestResult> trackEntity(@RequestBody EntityInputBean input,
                                                 HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         trackResultBean = mediationFacade.trackEntity(company, input);
 
         if ( trackResultBean.entityExists())
-            if ( trackResultBean.getLogResult()!= null && trackResultBean.getLogResult().isLogIgnored())
-                return new ResponseEntity<>(trackResultBean, HttpStatus.NOT_MODIFIED);
+            if ( trackResultBean.getCurrentLog()!= null && trackResultBean.isLogIgnored())
+                return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.NOT_MODIFIED);
 
         trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(trackResultBean, HttpStatus.CREATED);
+        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.CREATED);
 
     }
 
 
     @RequestMapping(value = "/log/", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public ResponseEntity<LogResultBean> trackLog(@RequestBody ContentInputBean input ,
-                                                  HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public ResponseEntity<EntityLog> trackLog(@RequestBody ContentInputBean input ,
+                                              HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        LogResultBean resultBean = mediationFacade.trackLog(company, input).getLogResult();
-        ContentInputBean.LogStatus ls = resultBean.getStatus();
+        TrackResultBean resultBean = mediationFacade.trackLog(company, input);
+        ContentInputBean.LogStatus ls = resultBean.getLogStatus();
         if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN))
-            return new ResponseEntity<>(resultBean, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.FORBIDDEN);
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
             throw new NotFoundException("Unable to locate the requested metaKey");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
             input.setFdMessage("Ignoring request to change as the 'what' has not changed");
-            return new ResponseEntity<>(resultBean, HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NOT_MODIFIED);
         } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
-            return new ResponseEntity<>(resultBean, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NO_CONTENT);
         }
 
-        return new ResponseEntity<>(resultBean, HttpStatus.CREATED);
+        return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.CREATED);
     }
 
 
     @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", produces = "application/json", method = RequestMethod.PUT)
-    public ResponseEntity<TrackResultBean> trackByClientRef(@RequestBody EntityInputBean input,
+    public ResponseEntity<TrackRequestResult> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
                                                             @PathVariable("callerRef") String callerRef ,
@@ -135,7 +136,7 @@ public class TrackEP {
         input.setMetaKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.addServiceMessage("OK");
-        return new ResponseEntity<>(trackResultBean, HttpStatus.OK);
+        return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.OK);
 
     }
 
@@ -158,13 +159,13 @@ public class TrackEP {
      * @throws org.flockdata.helper.FlockException if not exactly one Entity for the callerRef in the fortress
      */
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody  List<EntityKey> crossReferenceEntity(@PathVariable("fortress") String fortressName,
-                                                               @PathVariable("callerRef") String callerRef,
-                                                               @RequestBody Collection<EntityKey> entities,
-                                                               @PathVariable("xRefName") String xRefName,
-                                                               HttpServletRequest request) throws FlockException {
+    public @ResponseBody  List<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
+                                                                   @PathVariable("callerRef") String callerRef,
+                                                                   @RequestBody Collection<EntityKeyBean> entities,
+                                                                   @PathVariable("xRefName") String xRefName,
+                                                                   HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.crossReferenceEntities(company, new EntityKey(fortressName, "*", callerRef), entities, xRefName);
+        return entityService.crossReferenceEntities(company, new EntityKeyBean(fortressName, "*", callerRef), entities, xRefName);
     }
 
 

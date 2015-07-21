@@ -19,17 +19,15 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.EntityTagOut;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.model.Tag;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.test.engine.SimpleEntityTagRelationship;
-import org.flockdata.test.engine.SimpleTag;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,14 +54,14 @@ public class TestSupportFunctions extends ESBase {
 
         Entity entity = Helper.getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(new EntityBean(entity));
+        EntitySearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");
-        Tag tag = new SimpleTag(tagInput);
-        tags.add(new SimpleEntityTagRelationship(entity, tag, "mytag", null));
+        Tag tag = new Tag(tagInput);
+        tags.add(new EntityTagOut(entity, tag, "mytag", null));
         change.setTags(tags);
 
         SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));

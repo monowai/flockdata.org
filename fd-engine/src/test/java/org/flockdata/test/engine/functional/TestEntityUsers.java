@@ -19,16 +19,16 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.model.Fortress;
-import org.flockdata.registration.model.SystemUser;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
+import org.flockdata.model.Entity;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.model.EntityLog;
-import org.flockdata.track.model.SearchChange;
+import org.flockdata.model.EntityLog;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -48,7 +48,7 @@ import static junit.framework.TestCase.assertTrue;
  */
 public class TestEntityUsers extends EngineBase {
 
-        private Logger logger = LoggerFactory.getLogger(TestTrack.class);
+        private Logger logger = LoggerFactory.getLogger(TestEntityTrack.class);
 
         @org.junit.Before
         public void setup(){
@@ -74,7 +74,7 @@ public class TestEntityUsers extends EngineBase {
             Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
             assertEquals(1, logs.size());
             EntityLog log = logs.iterator().next();
-            assertEquals("billie", log.getLog().getWho().getCode().toLowerCase());
+            assertEquals("billie", log.getLog().getMadeBy().getCode().toLowerCase());
 
             entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), Helper.getSimpleMap("name", "b")));
             mediationFacade.trackEntity(su.getCompany(), entityBean);
@@ -88,9 +88,9 @@ public class TestEntityUsers extends EngineBase {
             boolean billieFound = false;
             boolean nemoFound = false;
             for (EntityLog entityLog : logs) {
-                if ( entityLog.getLog().getWho().getCode().equals("billie"))
+                if ( entityLog.getLog().getMadeBy().getCode().equals("billie"))
                     billieFound = true;
-                if (entityLog.getLog().getWho().getCode().equals("nemo"))
+                if (entityLog.getLog().getMadeBy().getCode().equals("nemo"))
                     nemoFound = true;
             }
             assertTrue("Didn't find Billie & Nemo", billieFound&&nemoFound);
@@ -115,10 +115,10 @@ public class TestEntityUsers extends EngineBase {
         Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
-        SearchChange searchChange = searchService.getSearchChange(resultBean);
+        SearchChangeBean searchChange = searchService.getSearchChange(resultBean);
         assertNotNull(searchChange);
 
-        searchChange = searchService.rebuild(entity, resultBean.getLogResult().getLogToIndex() );
+        searchChange = searchService.rebuild(entity, resultBean.getCurrentLog() );
         assertNotNull(searchChange);
 
     }

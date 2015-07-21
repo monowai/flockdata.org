@@ -19,12 +19,12 @@
 
 package org.flockdata.dao;
 
-import org.flockdata.registration.model.Tag;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.EntityTag;
+import org.flockdata.model.Tag;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.model.Company;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Company;
+import org.flockdata.model.Log;
 
 import java.util.Collection;
 import java.util.Map;

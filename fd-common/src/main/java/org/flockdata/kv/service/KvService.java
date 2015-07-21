@@ -23,9 +23,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.track.model.Entity;
-import org.flockdata.track.model.KvContent;
-import org.flockdata.track.model.Log;
+import org.flockdata.model.Entity;
+import org.flockdata.kv.KvContent;
+import org.flockdata.model.Log;
 
 import java.io.IOException;
 
@@ -55,5 +55,5 @@ public interface KvService {
 
     void doKvWrite(KvContentBean kvBean) throws FlockException;
 
-    public enum KV_STORE {REDIS, RIAK, MEMORY, NONE}
+    enum KV_STORE {REDIS, RIAK, MEMORY, NONE}
 }

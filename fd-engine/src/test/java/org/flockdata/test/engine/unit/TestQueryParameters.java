@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.engine.query.dao.MatrixDaoNeo4j;
+import org.flockdata.engine.dao.MatrixDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.query.KeyValue;
 import org.flockdata.query.MatrixInputBean;
