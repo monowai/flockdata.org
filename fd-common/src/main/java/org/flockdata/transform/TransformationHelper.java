@@ -121,6 +121,8 @@ public class TransformationHelper {
             String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
 
+            tag.setKeyPrefix(getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
+
             if (!colDef.isMustExist()) {     // Must exists only resolves the Code, so don't waste time setting the name
                 String name = getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
                 if (name != null && !name.equals(codeValue))
@@ -276,6 +278,13 @@ public class TransformationHelper {
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
                     newTag.setNotFoundCode(tagProfile.getNotFound());
+                    // Todo: Smell - how to return defaults consistently?
+                    Object keyPrefix = getValue(row, tagProfile.getKeyPrefix());
+                    if (keyPrefix == null && tagProfile.getKeyPrefix()!=null )
+                        keyPrefix = tagProfile.getKeyPrefix();
+                    if ( keyPrefix !=null )
+                        newTag.setKeyPrefix(keyPrefix.toString());
+
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 }

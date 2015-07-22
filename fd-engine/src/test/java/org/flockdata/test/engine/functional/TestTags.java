@@ -101,12 +101,12 @@ public class TestTags extends EngineBase {
         SystemUser sub = registerSystemUser("ABC", "gina");
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
-        assertNull(tagService.findTag(sub.getCompany(),"FLOP")); // Can't see the Monowai company tag
+        assertNull(tagService.findTag(sub.getCompany(),null , "FLOP")); // Can't see the Monowai company tag
 
         tagInput = new TagInputBean("FLOP");
         assertNotNull(tagService.createTag(sub.getCompany(), tagInput) );
-        assertNull(tagService.findTag(sub.getCompany(), "ABC"));
-        assertNotNull(tagService.findTag(sub.getCompany(), "FLOP"));
+        assertNull(tagService.findTag(sub.getCompany(),null , "ABC"));
+        assertNotNull(tagService.findTag(sub.getCompany(),null , "FLOP"));
     }
 
     @Test
@@ -116,9 +116,9 @@ public class TestTags extends EngineBase {
         Tag tag = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOP"));
         assertNotNull(tag);
 
-        Tag result = tagService.findTag(iSystemUser.getCompany(), "FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),null , "FLOP");
         assertNotNull(result);
-        tagService.findTag(iSystemUser.getCompany(),"FLOP");
+        tagService.findTag(iSystemUser.getCompany(), null, "FLOP");
         result = tagService.createTag(iSystemUser.getCompany(), new TagInputBean("FLOPPY"));
         assertNotNull(result);
         assertEquals("FLOPPY", result.getCode());
@@ -153,8 +153,8 @@ public class TestTags extends EngineBase {
         // DAT-411
         assertNotNull(iSystemUser);
 
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "NEW-TAG", "Testing"));
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "NotFound", "Testing"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "NEW-TAG",null , "Testing"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
                 .setMustExist(true, "NotFound")
                 .setLabel("Testing");
@@ -183,7 +183,7 @@ public class TestTags extends EngineBase {
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput);
 
         assertNotNull(tag);
-        Tag result = tagService.findTag(iSystemUser.getCompany(),"ZFLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),null , "ZFLOP");
 
         assertNotNull(result);
         assertEquals(123l, result.getProperty("num"));
@@ -204,7 +204,7 @@ public class TestTags extends EngineBase {
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput) ;
 
         assertNotNull(tag);
-        Tag result = tagService.findTag(iSystemUser.getCompany(),"FLOP");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),null , "FLOP");
         assertNotNull(result);
         assertEquals("FLOP", result.getCode());
         assertNotSame(123, result.getId());
@@ -226,14 +226,14 @@ public class TestTags extends EngineBase {
         Tag tag = tagService.createTag(iSystemUser.getCompany(), tagInput) ;
 
         assertNotNull(tag);
-        Tag result = tagService.findTag(iSystemUser.getCompany(),"Source");
+        Tag result = tagService.findTag(iSystemUser.getCompany(),null , "Source");
         assertNotNull(result);
 
-        result = tagService.findTag(iSystemUser.getCompany(),"Dest");
+        result = tagService.findTag(iSystemUser.getCompany(),null , "Dest");
         assertNotNull(result);
-        result = tagService.findTag(iSystemUser.getCompany(),"Dest2");
+        result = tagService.findTag(iSystemUser.getCompany(),null , "Dest2");
         assertNotNull(result);
-        result = tagService.findTag(iSystemUser.getCompany(),"Dest3");
+        result = tagService.findTag(iSystemUser.getCompany(),null , "Dest3");
         assertNotNull(result);
 
     }
@@ -319,7 +319,7 @@ public class TestTags extends EngineBase {
         SystemUser iSystemUser = registerSystemUser("duplicateTagsForSameIndexReturnSingleTag", mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setLabel(":TestTagA");
+        tagInputA.setLabel("TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         TagResultBean tagA = mediationFacade.createTag(iSystemUser.getCompany(), tagInputA);
@@ -327,7 +327,7 @@ public class TestTags extends EngineBase {
 
         // This should work as the tag is in a different index
         TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setLabel(":TestTagA");
+        tagInputB.setLabel("TestTagA");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
@@ -337,12 +337,12 @@ public class TestTags extends EngineBase {
     }
 
     @Test
-    public void tagUniqueForIndex() throws Exception {
+    public void unique_SameCodeDifferentLabel() throws Exception {
         engineConfig.setMultiTenanted(false);
-        SystemUser iSystemUser = registerSystemUser("tagUniqueForIndex", mike_admin);
+        SystemUser iSystemUser = registerSystemUser("unique_SameCodeDifferentLabel", mike_admin);
 
         TagInputBean tagInputA = new TagInputBean("Source");
-        tagInputA.setLabel(":TestTagA");
+        tagInputA.setLabel("TestTagA");
         tagInputA.setCode("CodeA");
         tagInputA.setName("NameA");
         Tag tagA = tagService.createTag(iSystemUser.getCompany(), tagInputA);
@@ -350,7 +350,7 @@ public class TestTags extends EngineBase {
 
         // Same code, but different label. Should create a new tag
         TagInputBean tagInputB = new TagInputBean("Source");
-        tagInputB.setLabel(":TestTagB");
+        tagInputB.setLabel("TestTagB");
         tagInputB.setCode("CodeA");
         tagInputB.setName("NameA");
         Tag tagB = tagService.createTag(iSystemUser.getCompany(), tagInputB);
@@ -459,9 +459,9 @@ public class TestTags extends EngineBase {
         tagInputA.setTargets("blah", new TagInputBean("BBBB").setLabel(":TB"));
         mediationFacade.createTags(iSystemUser.getCompany(), tagInputs);
 
-        Tag subTag = tagService.findTag(iSystemUser.getCompany(), "TB", "BBBB");
+        Tag subTag = tagService.findTag(iSystemUser.getCompany(), "TB",null , "BBBB");
         assertNotNull(subTag);
-        tagService.findTag(iSystemUser.getCompany(), "BBBB");
+        tagService.findTag(iSystemUser.getCompany(),null , "BBBB");
         assertNotNull(subTag);
 
         Collection<Tag> tags = tagService.findDirectedTags(tagA.getTag());
@@ -497,7 +497,7 @@ public class TestTags extends EngineBase {
 
         tagService.createAlias(su.getCompany(), tagResult, "Person", "xxx");
 
-        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), "xxx");
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(),null , "xxx");
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
 
@@ -520,12 +520,12 @@ public class TestTags extends EngineBase {
         aliases.add(alias2);
         tag.setAliases(aliases);
         Tag tagResult = tagService.createTag(su.getCompany(), tag);
-        assertEquals("2 Aliases should have been associated with the tag", 2, tagService.findTagAliases(su.getCompany(), tag.getLabel(), tag.getCode()).size());
-        Tag tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        assertEquals("2 Aliases should have been associated with the tag", 2, tagService.findTagAliases(su.getCompany(), tag.getLabel(),null , tag.getCode()).size());
+        Tag tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(),null , alias1.getCode());
         assertNotNull(tagFoundByAlias);
         assertEquals(tagFoundByAlias.getId(), tagResult.getId());
 
-        tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        tagFoundByAlias = tagService.findTag(su.getCompany(), tag.getLabel(),null , alias2.getCode());
         assertNotNull(tagFoundByAlias);
         assertEquals(tagFoundByAlias.getId(), tagResult.getId());
     }
@@ -550,20 +550,20 @@ public class TestTags extends EngineBase {
         tag.setAliases(aliases);
         Tag tagResult = tagService.createTag(su.getCompany(), tag);
 
-        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias1.getCode());
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(),null , alias1.getCode());
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
 
-        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias2.getCode());
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), null, alias2.getCode());
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
 
-        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), alias3.getCode());
+        tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), null, alias3.getCode());
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
 
-        tagService.findTag(su.getCompany(), tag.getLabel(), "iran");
-        Collection<AliasInputBean> inputs = tagService.findTagAliases(su.getCompany(), tag.getLabel(), "iran");
+        tagService.findTag(su.getCompany(), tag.getLabel(), null, "iran");
+        Collection<AliasInputBean> inputs = tagService.findTagAliases(su.getCompany(), tag.getLabel(),null , "iran");
         assertEquals ("Alias nodes are uniquely differentiated by code value only", 2, inputs.size());
 
 
@@ -593,7 +593,7 @@ public class TestTags extends EngineBase {
 
         byte[] bytes = JsonUtils.getObjectAsJsonBytes(tagResult);
         Collection<TagResultBean> converted = JsonUtils.getAsCollection(bytes, TagResultBean.class);
-        assertNotNull ( converted);
+        assertNotNull(converted);
 
     }
 
@@ -612,21 +612,45 @@ public class TestTags extends EngineBase {
 
         zipCode.setTargets("located", tractCode);
         Tag tagA = tagService.createTag(iSystemUser.getCompany(), zipCode);
-        Tag tagB = tagService.findTag(iSystemUser.getCompany(), tractCode.getLabel(), tractCode.getCode());
+        Tag tagB = tagService.findTag(iSystemUser.getCompany(), tractCode.getLabel(),null , tractCode.getCode());
         assertNotNull(tagA);
         assertNotNull(tagB);
 
         Map<String, Collection<TagResultBean>> results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
-        assertEquals( "didn't find by wildcard relationship", 1, results.size());
+        assertEquals("didn't find by wildcard relationship", 1, results.size());
         assertEquals(tractCode.getCode(), results.get("located").iterator().next().getCode());
 
         results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "located", tractCode.getLabel() );
-        assertEquals( "didn't find by named relationship", 1, results.size());
+        assertEquals("didn't find by named relationship", 1, results.size());
         assertEquals( tractCode.getCode(), results.get("located").iterator().next().getCode());
 
         results = tagService.findTags(iSystemUser.getCompany(), zipCode.getLabel(), zipCode.getCode(), "locatedx", tractCode.getLabel() );
-        assertEquals( "Should have found 0 by non-existent relationship", 0, results.size());
+        assertEquals("Should have found 0 by non-existent relationship", 0, results.size());
 
     }
 
+    @Test
+    public void keyPrefix_SameCodeSameLabel() throws Exception {
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("unique_SameCodeDifferentLabel", mike_admin);
+
+        TagInputBean tagInputA = new TagInputBean("Cambridge");
+        tagInputA.setLabel("City");
+        tagInputA.setKeyPrefix("NZ");
+        Tag tagA = tagService.createTag(su.getCompany(), tagInputA);
+
+        assertNotNull(tagA);
+
+        // Same code same index, different Key prefix
+        TagInputBean tagInputB = new TagInputBean("Cambridge");
+        tagInputB.setLabel("City");
+        tagInputB.setKeyPrefix("GB");
+        Tag tagB = tagService.createTag(su.getCompany(), tagInputB);
+        assertNotNull(tagB);
+        assertTrue(!tagA.getId().equals(tagB.getId()));
+
+        assertNotNull("Located by prefix/code failed", tagService.findTag(su.getCompany(), "City", "gb", "cambridge"));
+        assertNotNull("Located by prefix/code failed", tagService.findTag(su.getCompany(), "City", "nz", "cambridge"));
+        //assertEquals(2, tagService.findTag(su.getCompany(), "cambridge"));
+    }
 }

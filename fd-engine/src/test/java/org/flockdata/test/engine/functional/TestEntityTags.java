@@ -371,7 +371,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
-        Tag tag = tagService.findTag(su.getCompany(), "Taga");
+        Tag tag = tagService.findTag(su.getCompany(),null , "Taga");
         assertNotNull(tag);
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
         for (EntityTag entityTag : entityTags) {
@@ -635,10 +635,10 @@ public class TestEntityTags extends EngineBase {
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
         // Tags are not associated with the entity rather the structure is enforced while importing
-        Tag countryTag = tagService.findTag(su.getCompany(), "New Zealand");
-        Tag cityTag = tagService.findTag(su.getCompany(), "Wellington");
-        Tag sectionTag = tagService.findTag(su.getCompany(), "Thorndon");
-        Tag houseTag = tagService.findTag(su.getCompany(), "ABC House");
+        Tag countryTag = tagService.findTag(su.getCompany(),null , "New Zealand");
+        Tag cityTag = tagService.findTag(su.getCompany(),null , "Wellington");
+        Tag sectionTag = tagService.findTag(su.getCompany(), null, "Thorndon");
+        Tag houseTag = tagService.findTag(su.getCompany(),null , "ABC House");
 
         assertNotNull(countryTag);
         Assert.assertEquals(2, tagService.findDirectedTags(countryTag).size());  // Country has 2 cities
@@ -835,7 +835,7 @@ public class TestEntityTags extends EngineBase {
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
-        assertNotNull(tagService.findTag(fortress.getCompany(), "Country", "USA"));
+        assertNotNull(tagService.findTag(fortress.getCompany(), "Country",null , "USA"));
 
         Iterable<EntityTag> tags = entityTagService.getEntityTagsWithGeo(resultBean.getEntity());
         //assertFalse(tags.isEmpty());
@@ -1248,7 +1248,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(1, tags.size());
         assertEquals(tagInput.getNotFoundCode(), tags.iterator().next().getTag().getCode());
 
-        Tag byAlias = tagService.findTag(su.getCompany(), tagInput.getLabel(), tagInput.getCode());
+        Tag byAlias = tagService.findTag(su.getCompany(), tagInput.getLabel(),null , tagInput.getCode());
         assertNotNull("Fond tag should have resolved as mustExist code was set to Unknown", byAlias);
         assertEquals("Unknown", byAlias.getCode());
     }

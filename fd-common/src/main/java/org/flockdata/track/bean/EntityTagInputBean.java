@@ -40,6 +40,7 @@ public class EntityTagInputBean {
     private String type;
     private String index;
     private boolean since;
+    private String tagKeyPrefix;
 
     private EntityTagInputBean() {
     }
@@ -101,5 +102,13 @@ public class EntityTagInputBean {
 
     public void setIndex(String index) {
         this.index = index;
+    }
+
+    public String getTagKeyPrefix() {
+        return tagKeyPrefix;
+    }
+
+    public void setTagKeyPrefix(String tagKeyPrefix) {
+        this.tagKeyPrefix = tagKeyPrefix;
     }
 }

@@ -37,6 +37,7 @@ import java.util.Map;
 public class TagResultBean {
     String code;
     String name;
+    String key;
     String message;
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     Map<String,Object> properties = new HashMap<>();
@@ -64,7 +65,7 @@ public class TagResultBean {
         this.tag = tag;
         if (tag != null) {
             this.code = tag.getCode();
-
+            this.key = tag.getKey();
             this.name = tag.getName();
             if (code.equals(name))
                 name = null;
@@ -76,7 +77,9 @@ public class TagResultBean {
         }
     }
 
-
+    public String getKey() {
+        return key;
+    }
 
     public String getCode() {
         return code;

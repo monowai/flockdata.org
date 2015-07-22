@@ -410,6 +410,36 @@ public class EntitySearchChange implements SearchChangeBean {
         return fileName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntitySearchChange)) return false;
 
+        EntitySearchChange that = (EntitySearchChange) o;
 
+        if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
+        if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
+        if (companyName != null ? !companyName.equals(that.companyName) : that.companyName != null) return false;
+        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (logId != null ? !logId.equals(that.logId) : that.logId != null) return false;
+        if (entityId != null ? !entityId.equals(that.entityId) : that.entityId != null) return false;
+        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
+        return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = documentType != null ? documentType.hashCode() : 0;
+        result = 31 * result + (fortressName != null ? fortressName.hashCode() : 0);
+        result = 31 * result + (companyName != null ? companyName.hashCode() : 0);
+        result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
+        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (logId != null ? logId.hashCode() : 0);
+        result = 31 * result + (entityId != null ? entityId.hashCode() : 0);
+        result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
+        result = 31 * result + (searchKey != null ? searchKey.hashCode() : 0);
+        return result;
+    }
 }

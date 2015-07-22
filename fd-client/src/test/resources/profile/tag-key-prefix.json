@@ -1,0 +1,26 @@
+{
+  "documentName": "City",
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  // Don't write empty source column values in to the "what" map
+  "emptyIgnored": true,
+  "header": true,
+  "content": {
+    "name": {
+      "tag": true,
+      "label": "City",
+      "code": "city",
+      "keyPrefix": "#row['country']",
+      "targets": [
+        {
+          "code": "country",
+          "label": "Country",
+          "keyPrefix": "literal",
+          "mustExist": true,
+          "notFound": "Undefined",
+          "relationship": "region"
+        }
+      ]
+    }
+  }
+}
