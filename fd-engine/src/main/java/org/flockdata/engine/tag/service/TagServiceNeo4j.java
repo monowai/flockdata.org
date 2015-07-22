@@ -99,8 +99,8 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Tag findTag(Company company, String tagCode) {
-        return findTag(company, Tag.DEFAULT, tagCode);
+    public Tag findTag(Company company, String keyPrefix, String tagCode) {
+        return findTag(company, Tag.DEFAULT,keyPrefix , tagCode);
     }
 
     @Override
@@ -116,15 +116,15 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
-    public Tag findTag(Company company, String label, String tagCode) {
-       return findTag(company, label, tagCode, false);
+    public Tag findTag(Company company, String label, String keyPrefix, String tagCode) {
+       return findTag(company, label, keyPrefix, tagCode, false);
     }
 
     @Override
-    public Tag findTag(Company company, String label, String tagCode, boolean inflate) {
+    public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) {
         String suffix = engineAdmin.getTagSuffix(company);
 
-        Tag tag = tagDao.findTagNode(suffix, label, tagCode, inflate);
+        Tag tag = tagDao.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
 
         if (tag == null) {
             logger.debug("findTag notFound {}, {}", tagCode, label);
@@ -157,16 +157,27 @@ public class TagServiceNeo4j implements TagService {
      */
     @Override
     public Map<String, Collection<TagResultBean>> findTags(Company company, String sourceLabel, String sourceCode, String relationship, String targetLabel) throws NotFoundException {
-        Tag source = findTag(company, sourceLabel, sourceCode);
+        Tag source = findTag(company, sourceLabel,null , sourceCode);
         if (source == null)
             throw new NotFoundException("Unable to find the requested tag " + sourceCode);
         if ( relationship == null || relationship.equals("*"))
             relationship = "";
         return tagDao.findAllTags(source, relationship, targetLabel);
     }
+
     @Override
-    public Collection<AliasInputBean> findTagAliases(Company company, String label, String tagCode) throws NotFoundException {
-        Tag source = findTag(company, label, tagCode);
+    public Collection<Tag> findTag(Company company, String code) {
+        Collection<Tag>results = new ArrayList<>();
+
+        Tag t = findTag(company, null, code);
+        if ( t !=null )
+            results.add(t);
+        return results;
+    }
+
+    @Override
+    public Collection<AliasInputBean> findTagAliases(Company company, String label, String keyPrefix, String tagCode) throws NotFoundException {
+        Tag source = findTag(company, label, keyPrefix, tagCode);
         if (source == null)
             throw new NotFoundException("Unable to find the requested tag " + tagCode);
 

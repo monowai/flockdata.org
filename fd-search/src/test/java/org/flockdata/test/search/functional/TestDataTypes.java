@@ -19,11 +19,20 @@
 
 package org.flockdata.test.search.functional;
 
+import junit.framework.TestCase;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.search.service.TrackSearchDao;
+import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.SearchChangeBean;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -77,6 +86,35 @@ public class TestDataTypes extends ESBase {
 
         searchRepo.handle(change);
         fail("A mapping exception was not thrown");
+
+    }
+
+    @Test
+    public void serialize_SearchChanges () throws Exception {
+        Company mockCompany = new Company("company");
+        mockCompany.setName("company");
+
+        FortressInputBean fib = new FortressInputBean("fortress", false);
+        Fortress fortress = new Fortress(fib, mockCompany);
+
+        DateTime now = new DateTime();
+        EntityInputBean eib = new EntityInputBean("fortress",
+                "harry",
+                "docType",
+                now,
+                "abc");
+
+        DocumentType doc = new DocumentType(fortress, "docType");
+        Entity entity = new Entity("abc", fortress, eib, doc);
+
+
+        EntitySearchChange searchChange = new EntitySearchChange(entity);
+        EntitySearchChanges changes = new EntitySearchChanges(searchChange);
+        String json = JsonUtils.getJSON(changes);
+
+        EntitySearchChanges fromJson = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChanges.class);
+
+        TestCase.assertTrue("", fromJson.getChanges().size()==1);
 
     }
 }

@@ -77,11 +77,11 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     public void processTag(Entity entity, EntityTagInputBean entityTagInput) {
         String relationshipName = entityTagInput.getType();
 
-        boolean existing = relationshipExists(entity, entityTagInput.getTagCode(), relationshipName);
+        boolean existing = relationshipExists(entity, entityTagInput.getTagKeyPrefix(), entityTagInput.getTagCode(), relationshipName);
         if (existing)
             // We already have this tagged so get out of here
             return;
-        Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagCode());
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), entityTagInput.getIndex(), entityTagInput.getTagKeyPrefix(), entityTagInput.getTagCode());
         template.save(
                 getRelationship(entity, tag, relationshipName, false, new HashMap<>(), entityTagInput.isSince())
         );
@@ -89,7 +89,11 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Boolean relationshipExists(Entity entity, String tagCode, String relationshipType) {
-        Tag tag = tagService.findTag(entity.getFortress().getCompany(), tagCode);
+        return relationshipExists(entity, null, tagCode, relationshipType);
+    }
+    @Override
+    public Boolean relationshipExists(Entity entity, String keyPrefix, String tagCode, String relationshipType) {
+        Tag tag = tagService.findTag(entity.getFortress().getCompany(), keyPrefix, tagCode);
         if (tag == null)
             return false;
         Collection<EntityTag> entityTags = getEntityTags(entity);
@@ -350,7 +354,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Set<Entity> findEntityTags(Company company, String tagCode) throws FlockException {
-        Tag tag = tagService.findTag(company, tagCode);
+        Tag tag = tagService.findTag(company, null , tagCode);
         if (tag == null)
             throw new FlockException("Unable to find the tag [" + tagCode + "]");
         return entityTagDao.findEntityTags(tag);

@@ -37,6 +37,8 @@ public interface EntityTagService {
 
     Boolean relationshipExists(Entity entity, String name, String relationshipType);
 
+    Boolean relationshipExists(Entity entity, String keyPrefix, String tagCode, String relationshipType);
+
     Collection<EntityTag> associateTags(Company company, Entity ah, EntityLog lastLog, EntityInputBean entityInputBean) throws FlockException;
 
     Collection<EntityTag> findEntityTags(Company company, Entity entity);

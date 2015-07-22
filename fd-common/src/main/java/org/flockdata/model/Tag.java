@@ -84,7 +84,7 @@ public class Tag {
         else
             setCode(tagInput.getCode());
 
-        this.key = TagHelper.parseKey(getCode());
+        this.key = TagHelper.parseKey(tagInput);
         if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }

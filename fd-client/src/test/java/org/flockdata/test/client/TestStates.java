@@ -49,10 +49,10 @@ public class TestStates extends AbstractImport {
             assertEquals(1, stateTag.getTargets().size());
             TagInputBean country = stateTag.getTargets().get("region").iterator().next();
             assertNotNull(country);
-            assertTrue(stateTag.getCode().startsWith(country.getCode() + "-"));
+            assertTrue(stateTag.getKeyPrefix().equals(country.getCode()));
             if (country.getCode().equals("US")){
                 // Randomly check a US state for Census aliases
-                if ( stateTag.getCode().equals("US-CA")){
+                if ( stateTag.getCode().equals("CA")){
                     assertNotNull ( stateTag.getAliases());
                     assertEquals(2, stateTag.getAliases().size());
                     for (AliasInputBean aliasInputBean : stateTag.getAliases()) {

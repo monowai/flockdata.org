@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class TagProfile {
     private String name;
     private String code;
+    private String keyPrefix;
 
     private Boolean reverse =false;
     private String notFound;
@@ -68,6 +69,10 @@ public class TagProfile {
 
     public String getName() {
         return name;
+    }
+
+    public String getKeyPrefix() {
+        return keyPrefix;
     }
 
     /**

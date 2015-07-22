@@ -1165,9 +1165,9 @@ public class TestFdIntegration {
 
         Entity entityB = mediationFacade.trackEntity(fortress, inputBean).getEntity();
         waitForFirstSearchResult(su.getCompany(), entityB.getMetaKey());
-        Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getCode());
+        Tag tagA = tagService.findTag(su.getCompany(), null,tagInputA.getCode());
         assertNotNull(tagA);
-        Tag tagB = tagService.findTag(su.getCompany(), tagInputB.getCode());
+        Tag tagB = tagService.findTag(su.getCompany(),null, tagInputB.getCode());
         assertNotNull(tagB);
 
         doEsFieldQuery(fortress.getIndexName(), "tag.rlxa.movetag.code", "taga", 1);

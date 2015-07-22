@@ -61,9 +61,9 @@ public class TestTagMerge extends EngineBase {
         assertEquals(1, entityTagService.getEntityTags(entityA).size()) ;
         assertEquals(1, entityTagService.getEntityTags(entityB).size()) ;
 
-        Tag tagA = tagService.findTag(su.getCompany(), tagInputA.getCode());
+        Tag tagA = tagService.findTag(su.getCompany(), null, tagInputA.getCode());
         assertNotNull ( tagA);
-        Tag tagB = tagService.findTag(su.getCompany(), tagInputB.getCode());
+        Tag tagB = tagService.findTag(su.getCompany(), null, tagInputB.getCode());
         assertNotNull ( tagB);
 
         // The above is the setup. We will look to merge tagA into tagB. The end result will be that
@@ -79,7 +79,7 @@ public class TestTagMerge extends EngineBase {
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
 
-        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), tagInputA.getCode()));
+        assertNull("TagA should have been deleted", tagService.findTag(su.getCompany(), null , tagInputA.getCode()));
         tags = entityTagService.getEntityTags(entityB);
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());
@@ -104,7 +104,7 @@ public class TestTagMerge extends EngineBase {
         // Creating the tag for an entity
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        Tag tag = tagService.findTag(su.getCompany(), tagInput.getCode());
+        Tag tag = tagService.findTag(su.getCompany(),null , tagInput.getCode());
         assertNotNull ( tag);
 
         // The above is the setup.
@@ -124,7 +124,7 @@ public class TestTagMerge extends EngineBase {
         inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInput);
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest", "zzz");
+        Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest",null , "zzz");
         assertNotNull(aliasTag);
         assertEquals("The call to find tag with an alias should find the aliased tag", tag.getId(), aliasTag.getId());
 

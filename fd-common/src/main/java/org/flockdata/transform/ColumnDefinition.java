@@ -42,6 +42,7 @@ public class ColumnDefinition {
 
     private String code;   // Evaluate and setCode()
     private String source; // source property to read from
+    private String keyPrefix; // Optional value to prefix a code with
     private String target; // source property to write source to (rename the column)
     private String dateFormat =null; // Java valid date format
     private String timeZone; // To use for dates
@@ -49,7 +50,7 @@ public class ColumnDefinition {
 
     private Boolean persistent = true;
 
-    public enum ExpressionType {CODE, NAME, RELATIONSHIP, PROP_EXP, LABEL, CALLER_REF}
+    public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 
     // Flags that profile the properties of a column
     private boolean callerRef;
@@ -170,6 +171,10 @@ public class ColumnDefinition {
 
     public String getCode() {
         return code;
+    }
+
+    public String getKeyPrefix() {
+        return keyPrefix;
     }
 
     // Overrides the value name of the property
@@ -297,6 +302,8 @@ public class ColumnDefinition {
                 return code;
             case LABEL:
                 return label;
+            case KEY_PREFIX:
+                return keyPrefix;
             case RELATIONSHIP:
                 return rlxExp;
         }

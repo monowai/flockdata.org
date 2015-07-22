@@ -68,7 +68,7 @@ public class TagWrangler {
     // ToDo: Turn this in to ServerSide
     Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
-        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
+        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(),tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -194,13 +194,13 @@ public class TagWrangler {
         return results;
     }
 
-    public Tag findTagNode(String suffix, String label, String tagCode, boolean inflate) {
+    public Tag findTagNode(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
         if (tagCode == null )
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = TagHelper.suffixLabel(label, suffix);
 
-        Tag tag = tagByKey(theLabel, TagHelper.parseKey(tagCode));
+        Tag tag = tagByKey(theLabel, TagHelper.parseKey(keyPrefix, tagCode));
         if ( tag!=null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
@@ -369,6 +369,24 @@ public class TagWrangler {
         return tagResults;
     }
 
+//    public Collection<Tag> findTags(String label, String code) {
+//        Collection<Tag> tagResults = new ArrayList<>();
+//        // ToDo: Match to company - something like this.....
+//        //match (t:Law)-[:_TagLabel]-(c:FDCompany) where id(c)=0  return t,c;
+//        //match (t:Law)-[*..2]-(c:FDCompany) where id(c)=0  return t,c;
+//        String query = "match (tag:`" + label + "`) where tag.key = {key} return distinct (tag) as tag";
+//        // Look at PAGE
+//        Map<String,Object>params = new HashMap<>();
+//        params.put("key", TagHelper.parseKey(null, code));
+//        Iterable<Map<String, Object>> results = template.query(query, params);
+//        for (Map<String, Object> row : results) {
+//            Object o = row.get("tag");
+//            Tag t = template.projectTo(o, Tag.class);
+//            tagResults.add(t);
+//
+//        }
+//        return tagResults;
+//    }
 
 
 

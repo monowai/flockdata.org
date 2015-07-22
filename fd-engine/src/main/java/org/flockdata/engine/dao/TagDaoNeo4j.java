@@ -20,12 +20,12 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.registration.bean.AliasInputBean;
-import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.Tag;
-import org.flockdata.track.TagPayload;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
+import org.flockdata.registration.bean.AliasInputBean;
+import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.track.TagPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -79,7 +79,11 @@ public class TagDaoNeo4j {
 
     }
 
-    public Tag findTagNode(String suffix, String label, String tagCode, boolean inflate) {
-        return tagWrangler.findTagNode(suffix, label, tagCode, inflate);
+    public Tag findTagNode(String suffix, String label, String tagPrefix, String tagCode, boolean inflate) {
+        return tagWrangler.findTagNode(suffix, label, tagPrefix, tagCode, inflate);
     }
+
+//    public Collection<Tag> findTags(String suffix, String label, String tagCode, boolean inflate) {
+//        return tagWrangler.findTags(TagHelper.suffixLabel(label, suffix), tagCode);
+//    }
 }

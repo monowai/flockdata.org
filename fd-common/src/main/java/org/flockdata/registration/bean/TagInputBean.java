@@ -58,6 +58,7 @@ public class TagInputBean {
     private Collection<AliasInputBean> aliases;
     private String notFoundCode;
     private boolean since;
+    private String keyPrefix;
 
 
     public TagInputBean() {
@@ -258,6 +259,7 @@ public class TagInputBean {
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", label='" + label + '\'' +
+                ", keyPrefix='" + keyPrefix+ '\'' +
                 '}';
     }
 
@@ -269,18 +271,20 @@ public class TagInputBean {
         TagInputBean that = (TagInputBean) o;
 
         if (reverse != that.reverse) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (!code.equals(that.code)) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        return !(name != null ? !name.equals(that.name) : that.name != null);
+        return !(keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null);
 
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + code.hashCode();
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
+        result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);
         return result;
     }
 
@@ -388,4 +392,23 @@ public class TagInputBean {
         return !(notFoundCode == null  || notFoundCode.equals(""));
     }
 
+    /**
+     * Codes can have duplicate values in a Label but the key must be unique.
+     * When being created, the code is used as part of the key. Setting this property
+     * will prefix the key with this value.
+     *
+     * Useful in geo type scenarios. Take Cambridge - a city in England and in New Zealand
+     *
+     * With a tagPrefix we have uk.cambridge and nz.cambridge both with a code of Cambridge. Each
+     * tag is distinct but they share human readable properties
+     *
+     * @param keyPrefix  default is not set.
+     */
+    public void setKeyPrefix(String keyPrefix) {
+        this.keyPrefix = keyPrefix;
+    }
+
+    public String getKeyPrefix() {
+        return keyPrefix;
+    }
 }

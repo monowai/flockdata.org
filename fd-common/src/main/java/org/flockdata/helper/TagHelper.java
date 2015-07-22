@@ -20,6 +20,7 @@
 package org.flockdata.helper;
 
 import org.flockdata.model.Tag;
+import org.flockdata.registration.bean.TagInputBean;
 
 /**
  * Created by mike on 20/06/15.
@@ -44,4 +45,14 @@ public class TagHelper {
     }
 
 
+    public static String parseKey(TagInputBean tagInput) {
+        String prefix = (tagInput.getKeyPrefix()==null? "":tagInput.getKeyPrefix().toLowerCase() +".");
+        return prefix + tagInput.getCode().toLowerCase();
+    }
+
+    public static String parseKey(String keyPrefix, String tagCode) {
+        if ( keyPrefix == null )
+            return tagCode.toLowerCase();
+        return keyPrefix.toLowerCase() + "."+tagCode;
+    }
 }

@@ -41,19 +41,19 @@
 
             {
               "code": "BGN_name",
-              "description": "'BGN_name'"
+              "description": "BGN_name"
             },
             {
               "code": "BGN_proper",
-              "description": "'BGN_proper'"
+              "description": "BGN_proper"
             },
             {
               "code": "BGN_longname",
-              "description": "'BGN_longname'"
+              "description": "BGN_longname"
             },
             {
               "code": "ISOen_name",
-              "description": "'ISOen_name'"
+              "description": "ISOen_name"
             }
 
 

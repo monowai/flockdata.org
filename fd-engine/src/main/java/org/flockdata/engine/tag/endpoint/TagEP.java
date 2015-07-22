@@ -79,16 +79,27 @@ public class TagEP {
     public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return new TagResultBean(tagService.findTag(company, label, code, true));
+        return new TagResultBean(tagService.findTag(company, label,null , code, true));
     }
+
+    @RequestMapping(value = "/{label}/{keyPrefix}/{code}", produces = "application/json", method = RequestMethod.GET)
+    public TagResultBean getTagWithPrefix(@PathVariable("label") String label,
+                                          @PathVariable("keyPrefix") String keyPrefix,
+                                          @PathVariable("code") String code,
+
+                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return new TagResultBean(tagService.findTag(company, label,keyPrefix, code, true));
+    }
+
 
     @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void mergeTags(@PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label,
                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Tag source = tagService.findTag(company, label, sourceTag);
-        Tag target = tagService.findTag(company, label, targetTag);
+        Tag source = tagService.findTag(company, label, null, sourceTag);
+        Tag target = tagService.findTag(company, label, null, targetTag);
         mediationFacade.mergeTags(company, source.getId(), target.getId());
 
     }
@@ -98,7 +109,7 @@ public class TagEP {
     public void aliasTag(@PathVariable("sourceTag") String sourceTag, @PathVariable("akaValue") String akaValue, @PathVariable("label") String label,
                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Tag source = tagService.findTag(company, label, sourceTag);
+        Tag source = tagService.findTag(company, label, null , sourceTag);
         if (source == null)
             throw new NotFoundException(String.format("Unable to locate the tag {%s}/{%s}", label, sourceTag));
         mediationFacade.createAlias(company, label, source, akaValue);
@@ -109,7 +120,7 @@ public class TagEP {
     public Collection<AliasInputBean> getTagAliases(@PathVariable("label") String label, @PathVariable("code") String code,
                                                     HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return tagService.findTagAliases(company, label, code);
+        return tagService.findTagAliases(company, label, null, code);
     }
 
 

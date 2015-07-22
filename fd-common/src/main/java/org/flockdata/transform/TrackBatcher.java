@@ -147,7 +147,7 @@ public class TrackBatcher {
     }
 
     private String getTagKey(TagInputBean tag) {
-        return tag.getCode() + tag.getLabel();
+        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+".":"")+tag.getCode() + "." +tag.getLabel();
     }
 
     public void flush() throws FlockException {
