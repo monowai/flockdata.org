@@ -117,7 +117,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         if (entity != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
-            entityInputBean.setMetaKey(entity.getMetaKey());
+            //entityInputBean.setMetaKey(entity.getMetaKey());
 
             logger.trace("Existing entity [{}]", entity);
             TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
@@ -130,7 +130,7 @@ public class EntityServiceNeo4J implements EntityService {
             }
             boolean saveEntity = false;
 
-            // Entity properites can be updated
+            // Entity properties can be updated
             if (entityInputBean.getProperties() != null) {
                 if (entity.setProperties(entityInputBean.getProperties())) {
                     saveEntity = true;
@@ -221,7 +221,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + fortress.getId()); // We ain't tracking this
 
-        entityInput.setMetaKey(entity.getMetaKey());
+        //entityInput.setMetaKey(entity.getMetaKey());
         logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), fortress.getCode(), entity.getCallerKeyRef());
         return entity;
     }

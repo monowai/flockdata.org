@@ -40,10 +40,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -163,14 +160,19 @@ public class MediationFacadeNeo implements MediationFacade {
      */
 
     @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
-    public Collection<TrackResultBean> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
         Map<Fortress, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesByFortress(c, inputBeans);
-        Collection<TrackResultBean>results = new ArrayList<>();
+        Collection<TrackRequestResult> results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
-            results.addAll(trackEntities(fortress, byFortress.get(fortress), 100));
+            Collection<TrackResultBean>tr=
+                trackEntities(fortress, byFortress.get(fortress), 100);
+            for (TrackResultBean result : tr) {
+                results.add(new TrackRequestResult(result));
+            }
+
         }
         return results;
     }

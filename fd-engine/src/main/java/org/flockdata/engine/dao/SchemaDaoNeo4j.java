@@ -133,7 +133,7 @@ public class SchemaDaoNeo4j {
      * @param tagPayload collection to process
      */
     @Transactional
-    @Async
+    @Async("fd-track")
     public Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
         Collection<String> knownLabels = getAllLabels();
         Collection<String> labels = getLabelsToCreate(tagPayload, knownLabels);

@@ -19,6 +19,7 @@
 
 package org.flockdata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -83,11 +84,11 @@ public class FortressUser {
                 '}';
     }
 
-
     public String getName() {
         return name;
     }
 
+    @JsonIgnore
     public String getKey() {
         return key;
     }

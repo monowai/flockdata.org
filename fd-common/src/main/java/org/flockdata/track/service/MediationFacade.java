@@ -25,10 +25,7 @@ import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Tag;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.model.Entity;
 
 import java.io.IOException;
@@ -47,7 +44,7 @@ public interface MediationFacade {
 
     Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;
 
-    Collection<TrackResultBean> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
+    Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     Collection<TrackResultBean> trackEntities(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
