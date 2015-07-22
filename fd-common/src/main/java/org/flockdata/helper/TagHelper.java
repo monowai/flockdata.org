@@ -53,6 +53,6 @@ public class TagHelper {
     public static String parseKey(String keyPrefix, String tagCode) {
         if ( keyPrefix == null )
             return tagCode.toLowerCase();
-        return keyPrefix.toLowerCase() + "."+tagCode;
+        return keyPrefix.toLowerCase() + "."+tagCode.toLowerCase();
     }
 }

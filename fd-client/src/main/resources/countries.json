@@ -1,63 +1,61 @@
 {
-    "contentType": "csv",
-    "tagOrEntity": "tag",
-    "delimiter":";",
-    "header": true,
-    "content": {
-        "ISOen_name": {
-            "tag": true,
-            "label": "Country",
-            "code": "ISO3166A2",
-            "name": "ISOen_name",
-            "properties": [
-                {
-                    "source": "UNc_latitude",
-                    "target": "latitude"
-                },
-                {
-                    "source": "UNc_longitude",
-                    "target": "longitude"
-                }
-            ],
-            "targets": [
-                {
-                    "code": "BGN_capital",
-                    "label": "City",
-                    "relationship": "capital",
-                    "condition": "#row[HasCapital].trim().equals('1')",
-                    "properties": [
-                        {
-                            "source": "UNc_latitude",
-                            "target": "latitude"
-                        },
-                        {
-                            "source": "UNc_longitude",
-                            "target": "longitude"
-                        }
-                    ]
-                }
-            ],
-          "aliases": [
-
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "delimiter": ";",
+  "header": true,
+  "content": {
+    "ISOen_name": {
+      "tag": true,
+      "label": "Country",
+      "code": "ISO3166A2",
+      "name": "ISOen_name",
+      "properties": [
+        {
+          "source": "UNc_latitude",
+          "target": "latitude"
+        },
+        {
+          "source": "UNc_longitude",
+          "target": "longitude"
+        }
+      ],
+      "targets": [
+        {
+          "code": "BGN_capital",
+          "label": "City",
+          "keyPrefix": "#row['ISO3166A2']",
+          "relationship": "capital",
+          "condition": "#row[HasCapital].trim().equals('1')",
+          "properties": [
             {
-              "code": "BGN_name",
-              "description": "BGN_name"
+              "source": "UNc_latitude",
+              "target": "latitude"
             },
             {
-              "code": "BGN_proper",
-              "description": "BGN_proper"
-            },
-            {
-              "code": "BGN_longname",
-              "description": "BGN_longname"
-            },
-            {
-              "code": "ISOen_name",
-              "description": "ISOen_name"
+              "source": "UNc_longitude",
+              "target": "longitude"
             }
-
-
           ]
         }
+      ],
+      "aliases": [
+        {
+          "code": "BGN_name",
+          "description": "BGN_name"
+        },
+        {
+          "code": "BGN_proper",
+          "description": "BGN_proper"
+        },
+        {
+          "code": "BGN_longname",
+          "description": "BGN_longname"
+        },
+        {
+          "code": "ISOen_name",
+          "description": "ISOen_name"
+        }
+      ]
     }
+  }
 }
