@@ -19,9 +19,6 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.helper.FlockException;
-import org.flockdata.model.Fortress;
-
 /**
  * User: Mike Holdsworth
  * Since: 5/09/13
@@ -49,34 +46,7 @@ public class EntitySearchSchema {
     public static final String WHAT_DESCRIPTION = "description";
     public static final String FILENAME = "filename";
     public static final String CONTENT_TYPE = "contentType";
-    public static final String PREFIX = "fd.";
     public static final String PROPS = "udp";
-
-    public static String parseIndex(Fortress fortress) {
-
-        return parseIndex(fortress.getCompany().getCode()) + fortress.getCode();
-    }
-
-    private static String parseIndex(String companyCode) {
-        // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
-        if (companyCode == null || companyCode.equals(""))
-            companyCode = "*";
-
-        return PREFIX + companyCode.toLowerCase() + ".";
-    }
-
-    public static String parseIndex(String company, String fortress) {
-        return PREFIX + company.toLowerCase() + "." + fortress.toLowerCase();
-    }
-
-    public static String parseIndex(QueryParams queryParams) throws FlockException {
-        String prefix = parseIndex(queryParams.getCompany());
-        if (queryParams.getFortress() == null || queryParams.getFortress().equals(""))
-            return prefix + "*";
-
-
-        return prefix + queryParams.getFortress().toLowerCase();
-    }
 
     /**
      *

@@ -22,6 +22,7 @@ package org.flockdata.test.search.functional;
 import junit.framework.TestCase;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -78,7 +79,7 @@ public class TestMappings extends ESBase {
 
         change.setTags(tags);
 
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
         //searchRepo.ensureIndex(change.getIndexName(), change.getType());
         SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
@@ -88,8 +89,8 @@ public class TestMappings extends ESBase {
         entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
-        doFacetQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
-        doFieldQuery(entity.getFortress().getIndexName(), "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
+        doFacetQuery(IndexHelper.parseIndex(entity), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -123,7 +124,7 @@ public class TestMappings extends ESBase {
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
         change.setTags(tags);
 
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         Collection<SearchChangeBean> changes = new ArrayList<>();
         changes.add(change);
@@ -148,8 +149,8 @@ public class TestMappings extends ESBase {
         changeA.setDescription("Test Description");
         changeB.setDescription("Test Description");
 
-        deleteEsIndex(entityA.getFortress().getIndexName());
-        deleteEsIndex(entityB.getFortress().getIndexName());
+        deleteEsIndex(entityA);
+        deleteEsIndex(entityB);
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
         searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
@@ -162,10 +163,10 @@ public class TestMappings extends ESBase {
         assertNotNull(changeB.getSearchKey());
 
         // by default we analyze the @description field
-        doDefaultFieldQuery(entityA.getFortress().getIndexName(), "description", changeA.getDescription(), 1);
+        doDefaultFieldQuery(entityA, "description", changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
-        doDefaultFieldQuery(entityB.getFortress().getIndexName(), "description", changeB.getDescription(), 0);
+        doDefaultFieldQuery(entityB, "description", changeB.getDescription(), 0);
 
     }
 
@@ -191,8 +192,8 @@ public class TestMappings extends ESBase {
         changeA.setTags(tagsA);
         changeB.setTags(tagsB);
 
-        deleteEsIndex(entityA.getFortress().getIndexName());
-        deleteEsIndex(entityB.getFortress().getIndexName());
+        deleteEsIndex(entityA);
+        deleteEsIndex(entityB);
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
         searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
@@ -204,9 +205,11 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doFacetQuery(entityB.getFortress().getIndexName(), entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doFacetQuery(entityB.getFortress().getIndexName(), "tag.mytag.thelabel.code.facet", tag.getCode(), 2);
+        doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        String index = IndexHelper.getIndexRoot(entityA.getFortress()) +"*";
+
+        doFacetQuery(index, "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 
     }
 
@@ -224,7 +227,7 @@ public class TestMappings extends ESBase {
         tags.add(new EntityTagOut(entityA, tag, "mytag", null));
         changeA.setTags(tags);
 
-        deleteEsIndex(entityA.getFortress().getIndexName());
+        deleteEsIndex(entityA);
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
 
@@ -235,7 +238,7 @@ public class TestMappings extends ESBase {
 
         // DAT-328
         Thread.sleep(5000);
-        doFacetQuery(entityA.getFortress().getIndexName(), entityA.getType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
@@ -246,7 +249,7 @@ public class TestMappings extends ESBase {
         String user = "mikey";
 
         Entity entity = Helper.getEntity(comp, fort, user, fort);
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         Map<String, Object> what = Helper.getSimpleMap(
                 EntitySearchSchema.WHAT_CODE, "GEO");
@@ -277,19 +280,19 @@ public class TestMappings extends ESBase {
         change.setWhat(what);
         change.setTags(tags);
 
-        searchRepo.ensureIndex(change.getIndexName().toLowerCase(), change.getDocumentType());
+        searchRepo.ensureIndex(change);
         SearchChangeBean searchResult = searchRepo.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
 
-        String result = doQuery(change.getIndexName().toLowerCase(), "*", 1);
+        String result = doQuery(entity, "*", 1);
         logger.info(result);
         assertTrue(result.contains("points.country"));
         assertTrue(result.contains("174"));
         assertTrue(result.contains("-41"));
 
-        doCompletionQuery(change.getIndexName().toLowerCase(), "nz", 1, "Couldn't autocomplete on geo tag for NZ");
-        doCompletionQuery(change.getIndexName().toLowerCase(), "new", 1, "Couldn't autocomplete on geo tag for New Zealand");
+        doCompletionQuery(entity, "nz", 1, "Couldn't autocomplete on geo tag for NZ");
+        doCompletionQuery(entity, "new", 1, "Couldn't autocomplete on geo tag for New Zealand");
     }
 
 }

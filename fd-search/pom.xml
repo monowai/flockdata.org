@@ -13,7 +13,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>1.6.0</es.version>
+        <es.version>1.7.0</es.version>
         <!-- When upgrading ES, make sure attachment mapper and tika are in alignment-->
         <es.attachment-mapper.version>2.6.0</es.attachment-mapper.version>
         <tika.version>1.8</tika.version>

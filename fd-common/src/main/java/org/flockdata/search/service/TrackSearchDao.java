@@ -20,6 +20,7 @@
 package org.flockdata.search.service;
 
 import org.flockdata.model.Entity;
+import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.SearchChangeBean;
 
 import java.io.IOException;
@@ -71,4 +72,6 @@ public interface TrackSearchDao {
     Map<String, Object> ping();
 
     boolean ensureIndex(String indexName, String documentType) throws IOException;
+
+    boolean ensureIndex(EntitySearchChange change);
 }

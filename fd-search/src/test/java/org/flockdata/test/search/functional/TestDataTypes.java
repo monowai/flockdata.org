@@ -71,12 +71,12 @@ public class TestDataTypes extends ESBase {
         change.setWhat(numMap );
 
 
-        deleteEsIndex(entityA.getFortress().getIndexName());
+        deleteEsIndex(entityA);
         searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
-        change = searchRepo.handle(change);
+        searchRepo.handle(change);
         Thread.sleep(1000);
 
-        doQuery(change.getIndexName(), "*", 1);
+        doQuery(entityA, "*", 1);
 
         Entity entityB = Helper.getEntity(company, fortress, user, doc);
         Map<String,Object> strMap = Helper.getSimpleMap("num", "NA");

@@ -21,7 +21,7 @@ package org.flockdata.model;
 
 import org.flockdata.registration.bean.FortressInputBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.IndexHelper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -73,7 +73,7 @@ public class Fortress implements Serializable {
 
     public String getIndexName() {
         if ( indexName == null )
-            indexName = EntitySearchSchema.parseIndex(this);
+            indexName = IndexHelper.getIndexRoot(this);
         return indexName;
     }
 
@@ -116,7 +116,7 @@ public class Fortress implements Serializable {
     }
 
     public void setCompany(org.flockdata.model.Company ownedBy) {
-        this.indexName = EntitySearchSchema.parseIndex(ownedBy.getCode(),getCode() );
+        this.indexName = IndexHelper.getIndexRoot(ownedBy.getCode(), getCode());
         this.company = ownedBy;
 
     }
@@ -159,19 +159,13 @@ public class Fortress implements Serializable {
 
     @Override
     public String toString() {
-        String companyName ;
-        String companyId;
-        if ( company!=null ) {
-            companyName = company.getName();
-            companyId = company.getId().toString();
-        } else {
-            companyId ="[NULL]";
-            companyName ="[NULL]";
-        }
-        return "FortressNode{" +
+        return "Fortress{" +
                 "id=" + id +
+                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                (company !=null ? ", company='" + companyName + '\'' : ", companyId='" + companyId + '\'') +
+                ", searchActive=" + searchActive +
+                ", storeEnabled=" + storeEnabled +
+                ", indexName='" + indexName + '\'' +
                 '}';
     }
 

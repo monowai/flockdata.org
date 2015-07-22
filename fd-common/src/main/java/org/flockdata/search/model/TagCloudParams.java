@@ -20,6 +20,7 @@
 package org.flockdata.search.model;
 
 import org.flockdata.model.Fortress;
+import org.flockdata.search.IndexHelper;
 
 import java.util.ArrayList;
 
@@ -111,5 +112,10 @@ public class TagCloudParams implements QueryInterface {
 
     public void setSearchText(String query) {
         this.searchText = query;
+    }
+
+    public String[] getIndexes() {
+        return IndexHelper.getIndexesToQuery(company, fortress, getTypes());
+
     }
 }

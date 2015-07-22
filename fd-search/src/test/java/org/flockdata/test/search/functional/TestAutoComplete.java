@@ -22,6 +22,7 @@ package org.flockdata.test.search.functional;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.SearchChangeBean;
@@ -59,7 +60,7 @@ public class TestAutoComplete extends ESBase{
         Map<String, Object> what = Helper.getRandomMap();
 
         Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         // 2 char code as this is the minimum we will index from
         TagInputBean noName = new TagInputBean("11", "NumCode", "rlxname");
@@ -80,18 +81,19 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        logger.info(doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1));
+        logger.info(doQuery(entity, entity.getCallerRef(), 1));
 
-        doCompletionQuery(entity.getFortress().getIndexName(), noName.getCode(), 1, "Should be found as there is no name");
-        doCompletionQuery(entity.getFortress().getIndexName(), "code", 1, "Find by name, but Code is not indexed");
-        doCompletionQuery(entity.getFortress().getIndexName(), numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
-        doCompletionQuery(entity.getFortress().getIndexName(), zipCode.getCode(), 1, "Didn't find the zip code");
-        doFieldQuery(entity.getFortress().getIndexName(), "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(entity.getFortress().getIndexName(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doCompletionQuery(entity, noName.getCode(), 1, "Should be found as there is no name");
+        doCompletionQuery(entity, "code", 1, "Find by name, but Code is not indexed");
+        doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
+        doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
+        doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
+        doFacetQuery(IndexHelper.parseIndex(entity), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
 
 
 
     }
+
     @Test
     public void completion_ShortCodesIgnored() throws Exception {
 
@@ -101,7 +103,7 @@ public class TestAutoComplete extends ESBase{
         Map<String, Object> what = Helper.getRandomMap();
 
         Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         TagInputBean tagInputA = new TagInputBean("A", "AutoComplete").setName("Finding name should not be found as the code is too short");
         TagInputBean tagInputB = new TagInputBean("AB", "AutoComplete").setName("Finding code and name indexed");
@@ -120,11 +122,11 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        logger.info(doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1));
+        logger.info(doQuery(entity, entity.getCallerRef(), 1));
 
-        doCompletionQuery(entity.getFortress().getIndexName(), "find", 2, "Find by tag name failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "ab", 1, "Code is 2 chars and should be indexed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "a", 0, "Code less than 2 chars should have been ignored");
+        doCompletionQuery(entity, "find", 2, "Find by tag name failed");
+        doCompletionQuery(entity, "ab", 1, "Code is 2 chars and should be indexed");
+        doCompletionQuery(entity, "a", 0, "Code less than 2 chars should have been ignored");
 
 
     }
@@ -137,7 +139,7 @@ public class TestAutoComplete extends ESBase{
         Map<String, Object> what = Helper.getRandomMap();
 
         Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         TagInputBean tagInputA = new TagInputBean("tagCode", "AutoComplete", "blah");
 
@@ -166,15 +168,15 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(entity.getFortress().getIndexName(), entity.getCallerRef(), 1);
+        doQuery(entity, entity.getCallerRef(), 1);
 
-        doCompletionQuery(entity.getFortress().getIndexName(), "tag", 1, "Completion failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "tagc", 1, "Completion failed");
-        doCompletionQuery(entity.getFortress().getIndexName(), "tagcod", 1, "Completion failed");
+        doCompletionQuery(entity, "tag", 1, "Completion failed");
+        doCompletionQuery(entity, "tagc", 1, "Completion failed");
+        doCompletionQuery(entity, "tagcod", 1, "Completion failed");
 
-        doCompletionQuery(entity.getFortress().getIndexName(), "shep", 1, "Completion failed");
+        doCompletionQuery(entity, "shep", 1, "Completion failed");
 
-        doCompletionQuery(entity.getFortress().getIndexName(), "myv", 1, "Completion failed");
+        doCompletionQuery(entity, "myv", 1, "Completion failed");
         // Only supports "start with"
 //        doCompletionQuery(entity.getFortress().getIndexName(), "mars", 1, "Completion failed");
 
