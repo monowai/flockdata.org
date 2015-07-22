@@ -40,6 +40,8 @@ import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.search.IndexHelper;
+import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
@@ -83,7 +85,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         String existingIndexKey = searchChange.getSearchKey();
 
-        DeleteResponse dr = esClient.prepareDelete(indexName, recordType, existingIndexKey)
+        DeleteResponse dr = esClient.prepareDelete(IndexHelper.parseIndex(searchChange), recordType, existingIndexKey)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
@@ -104,16 +106,13 @@ public class TrackDaoES implements TrackSearchDao {
     private SearchChangeBean save(SearchChangeBean searchChange, String source) throws IOException {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
-        logger.debug("Received request to Save [{}]", searchChange.getMetaKey());
+        logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
 
-        logger.debug("Resolved SearchKey to [{}]", searchChange.getSearchKey());
         // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb = esClient.prepareIndex(indexName, documentType)
+        IndexRequestBuilder irb = esClient.prepareIndex(IndexHelper.parseIndex(searchChange), documentType)
                 .setSource(source);
 
-        //if (searchChange.getSearchKey() != null) {
         irb.setId(searchChange.getSearchKey());
-        //}
 
         try {
             IndexResponse ir = irb.execute().actionGet();
@@ -140,11 +139,16 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
+    @Override
+    public boolean ensureIndex(EntitySearchChange change) {
+        return ensureIndex(change.getIndexName(), change.getDocumentType());
+    }
+
     // ToDo: Fix this. Caching is not resetting after the index is deleted
     //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
-    public boolean ensureIndex(String indexName, String documentType) throws IOException {
+    public boolean ensureIndex(String indexName, String documentType) {
 
-        if (hasIndex(indexName)) {
+        if (hasIndex(IndexHelper.parseIndex(indexName, documentType))) {
             // Need to be able to allow for a "per document" mapping
             ensureMapping(indexName, documentType);
             return true;
@@ -162,7 +166,7 @@ public class TrackDaoES implements TrackSearchDao {
                 if (settings != null) {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(indexName)
+                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
                             .addMapping(documentType, mappingEs)
                             .setSettings(settings)
                             .execute()
@@ -170,7 +174,7 @@ public class TrackDaoES implements TrackSearchDao {
                 } else {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(indexName)
+                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
                             .addMapping(documentType, mappingEs)
                             .execute()
                             .actionGet();
@@ -185,16 +189,18 @@ public class TrackDaoES implements TrackSearchDao {
         return true;
     }
 
-    private void ensureMapping(String indexName, String documentType) throws IOException {
+
+    private void ensureMapping(String indexName, String documentType)  {
         // Mappings are on a per Document basis. We need to ensure the mapping exists for the
         //    same index but every document type
         logger.debug("Checking mapping for {}, {}", indexName, documentType);
 
         // Test if Type exist
-        String[] indexNames = new String[1];
-        indexNames[0] = indexName;
         String[] documentTypes = new String[1];
         documentTypes[0] = documentType;
+
+        String[] indexNames = new String[1];
+        indexNames[0] = IndexHelper.parseIndex(indexName, documentType);
 
         boolean hasTypeMapping = esClient.admin()
                 .indices()
@@ -204,7 +210,7 @@ public class TrackDaoES implements TrackSearchDao {
         if (!hasTypeMapping) {
             XContentBuilder mapping = getMapping(indexName, documentType);
             esClient.admin().indices()
-                    .preparePutMapping(indexName)
+                    .preparePutMapping(IndexHelper.parseIndex(indexName, documentType))
                     .setType(documentType)
                     .setSource(mapping)
                     .execute().actionGet();
@@ -239,7 +245,7 @@ public class TrackDaoES implements TrackSearchDao {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
 
             GetResponse response =
-                    esClient.prepareGet(searchChange.getIndexName(),
+                    esClient.prepareGet(IndexHelper.parseIndex(searchChange),
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey())
                             .execute()
@@ -279,7 +285,7 @@ public class TrackDaoES implements TrackSearchDao {
 
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = esClient
-                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+                    .prepareIndex(IndexHelper.parseIndex(searchChange), searchChange.getDocumentType(), searchChange.getSearchKey());
             //.setRouting(searchChange.getMetaKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
@@ -301,6 +307,7 @@ public class TrackDaoES implements TrackSearchDao {
         return searchChange;
     }
 
+
     //@CacheEvict(value = {"mappedIndexes"}, allEntries = true)
     public void purgeCache() {
 
@@ -317,7 +324,7 @@ public class TrackDaoES implements TrackSearchDao {
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esClient.prepareGet(indexName, documentType, id)
+        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName, documentType), documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
@@ -524,8 +531,8 @@ public class TrackDaoES implements TrackSearchDao {
 
     private Map<String, Object> defaultSettings = null;
 
-    private Map<String, Object> getSettings() throws IOException {
-        InputStream file = null;
+    private Map<String, Object> getSettings() {
+        InputStream file ;
         try {
 
             if (defaultSettings == null) {
@@ -542,14 +549,11 @@ public class TrackDaoES implements TrackSearchDao {
                 } else
                     logger.debug("Overriding default settings with file on disk {}", settings);
                 defaultSettings = getMapFromStream(file);
+                file.close();
                 logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
             }
         } catch (IOException e) {
             logger.error("Error in building settings for the ES index", e);
-        } finally {
-            if (file != null) {
-                file.close();
-            }
         }
         return defaultSettings;
     }
@@ -562,13 +566,17 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    private XContentBuilder getMapping(String indexName, String documentType) throws IOException {
+    private XContentBuilder getMapping(String indexName, String documentType)  {
 
-        XContentBuilder xbMapping;
-        Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType));
-        Map<String, Object> docMap = new HashMap<>();
-        docMap.put(documentType, map.get("mapping"));
-        xbMapping = jsonBuilder().map(docMap);
+        XContentBuilder xbMapping = null;
+        try {
+            Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType));
+            Map<String, Object> docMap = new HashMap<>();
+            docMap.put(documentType, map.get("mapping"));
+            xbMapping = jsonBuilder().map(docMap);
+        } catch (IOException e) {
+            logger.error("Problem getting the search mapping", e);
+        }
 
         return xbMapping;
     }

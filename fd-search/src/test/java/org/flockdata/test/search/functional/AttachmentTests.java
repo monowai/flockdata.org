@@ -58,14 +58,14 @@ public class AttachmentTests extends ESBase {
         SearchChangeBean changeA = new EntitySearchChange(entity);
         changeA.setAttachment(Helper.getPdfDoc());
 
-        deleteEsIndex(entity.getFortress().getIndexName());
+        deleteEsIndex(entity);
 
         searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
         changeA = searchRepo.handle(changeA);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
-        doQuery(changeA.getIndexName(), "brown", 1);
+        doQuery(entity, "brown", 1);
 
     }
 

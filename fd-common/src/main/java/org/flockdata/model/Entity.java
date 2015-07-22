@@ -22,7 +22,7 @@ package org.flockdata.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -159,7 +159,7 @@ public class Entity implements Serializable {
 
         this.description = entityInput.getDescription();
 
-        indexName = EntitySearchSchema.parseIndex(this.fortress);
+        indexName = IndexHelper.getIndexRoot(this.fortress);
 
         if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(entityInput.getProperties());

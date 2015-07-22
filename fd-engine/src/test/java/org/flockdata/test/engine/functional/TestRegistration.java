@@ -26,7 +26,7 @@ import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.FortressUser;
 import org.flockdata.model.SystemUser;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.IndexHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -82,7 +82,7 @@ public class TestRegistration extends EngineBase {
 
         Fortress f = new Fortress(new FortressInputBean("TESTING", true), su.getCompany());
         assertNotNull ( f.getIndexName());
-        assertEquals(EntitySearchSchema.parseIndex(f), f.getIndexName());
+        assertEquals(IndexHelper.getIndexRoot(f), f.getIndexName());
     }
 
     @Test

@@ -27,8 +27,9 @@ import io.searchbox.core.Search;
 import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
-import io.searchbox.indices.mapping.GetMapping;
 import junit.framework.TestCase;
+import org.flockdata.model.Entity;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.endpoint.TrackServiceEs;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.QueryServiceEs;
@@ -72,9 +73,15 @@ public class ESBase {
     @Autowired
     QueryServiceEs queryServiceEs;
 
-    static void deleteEsIndex(String indexName) throws Exception {
+    static void deleteEsIndex(Entity entity) throws Exception{
+        deleteEsIndex(entity.getFortress().getIndexName(), entity.getType());
+    }
+
+
+
+    static void deleteEsIndex(String indexName, String documentType) throws Exception {
         logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase()).build());
+        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase() + "." + documentType.toLowerCase()).build());
     }
 
     @BeforeClass
@@ -93,8 +100,8 @@ public class ESBase {
 
     }
 
-    String doFacetQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
-        return doFacetQuery(index, field, queryString, expectedHitCount, null);
+    String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
+        return doFacetQuery(IndexHelper.parseIndex(entity), field, queryString, expectedHitCount, null);
     }
 
     /**
@@ -162,7 +169,7 @@ public class ESBase {
 
     /**
      * Scans an analyzed field looking for the queryString
-     * @param index
+     * @param entity
      * @param field
      * @param queryString
      * @param expectedHitCount
@@ -170,7 +177,7 @@ public class ESBase {
      * @return
      * @throws Exception
      */
-    String doFieldQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    String doFieldQuery(Entity entity, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         int runCount = 0, nbrResult;
         JestResult result;
         int esTimeout = 5;
@@ -186,7 +193,7 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(index)
+                    .addIndex(IndexHelper.parseIndex(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -203,7 +210,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-        logger.trace("searching index [{}] field [{}] for [{}]", index, field, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", IndexHelper.parseIndex(entity), field, queryString);
         if (exceptionMessage == null)
             exceptionMessage = result.getJsonString();
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
@@ -220,7 +227,7 @@ public class ESBase {
         }
     }
 
-    String doCompletionQuery(String index, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    String doCompletionQuery(Entity entity, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
         SuggestResult result;
@@ -236,7 +243,7 @@ public class ESBase {
 
 
         Suggest search = new Suggest.Builder(query).
-                addIndex(index).
+                addIndex(IndexHelper.parseIndex(entity)).
                 build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -251,7 +258,9 @@ public class ESBase {
         return result.getJsonString();
     }
 
-    String doQuery(String index, String queryString, int expectedHitCount) throws Exception {
+
+
+    String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         //waitAWhile();
@@ -269,14 +278,14 @@ public class ESBase {
 
             //
             Search search = new Search.Builder(query)
-                    .addIndex(index)
+                    .addIndex(IndexHelper.parseIndex(entity))
                     .build();
 
             jResult = esClient.execute(search);
             assertNotNull(jResult);
             if (expectedHitCount == -1) {
-                assertEquals("Expected the index [" + index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
-                logger.debug("Confirmed index {} was deleted and empty", index);
+                assertEquals("Expected the index [" + IndexHelper.parseIndex(entity) + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
+                logger.debug("Confirmed index {} was deleted and empty", IndexHelper.parseIndex(entity));
                 return null;
             }
             if (jResult.getErrorMessage() == null) {
@@ -292,13 +301,13 @@ public class ESBase {
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         assertNotNull(jResult);
-        Assert.assertEquals(index + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(IndexHelper.parseIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 
     }
 
-    String doFacetQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    String doFacetQuery(Entity entity, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -319,12 +328,12 @@ public class ESBase {
                     "    }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(index)
+                    .addIndex(IndexHelper.parseIndex(entity))
                     .addType(type)
                     .build();
 
             result = esClient.execute(search);
-            String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            String message = IndexHelper.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
             assertNotNull(message, result);
             assertNotNull(message, result.getJsonObject());
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
@@ -333,7 +342,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < 5);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + IndexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -349,11 +358,11 @@ public class ESBase {
                     .getAsJsonArray().toString();
     }
 
-    String doDefaultFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
-        return doDefaultFieldQuery(index, null, field, queryString, expectedHitCount);
+    String doDefaultFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
+        return doDefaultFieldQuery(entity, null, field, queryString, expectedHitCount);
     }
 
-    String doDefaultFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    String doDefaultFieldQuery(Entity entity, String type, String field, String queryString, int expectedHitCount) throws Exception {
         int runCount = 0, nbrResult;
         JestResult result;
         do {
@@ -368,12 +377,12 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(index)
+                    .addIndex(IndexHelper.parseIndex(entity))
                     .addType(type)
                     .build();
 
             result = esClient.execute(search);
-            String message = index + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            String message = entity + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
             assertNotNull(message, result);
             assertNotNull(message, result.getJsonObject());
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
@@ -382,7 +391,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < 5);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + index + "' for [" + queryString + "] in field [" + field + "]", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + entity + "' for [" + queryString + "] in field [" + field + "]", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -398,22 +407,5 @@ public class ESBase {
                     .getAsJsonArray().toString();
     }
 
-    String getMapping(String indexName) throws Exception {
-        return getMapping(indexName, null);
-    }
-
-    String getMapping(String indexName, String type) throws Exception {
-
-        GetMapping mapping = new GetMapping.Builder()
-                .addIndex(indexName)
-                .addType(type)
-                .build();
-
-
-        JestResult jResult = esClient.execute(mapping);
-        if (jResult == null)
-            return null;
-        return jResult.getJsonString();
-    }
 
 }

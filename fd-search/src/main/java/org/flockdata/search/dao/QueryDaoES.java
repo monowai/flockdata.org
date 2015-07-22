@@ -43,6 +43,7 @@ import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.*;
 import org.slf4j.Logger;
@@ -124,8 +125,9 @@ public class QueryDaoES implements QueryDao {
 
         Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
-        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(tagCloudParams.getCompany(), tagCloudParams.getFortress()))
-                .setTypes(tagCloudParams.getTypes());
+        SearchRequestBuilder query = client.prepareSearch(
+                tagCloudParams.getIndexes())
+                ;
 
         if (tagCloudParams.getRelationships() != null)
             tagCloudParams.getRelationships().clear();
@@ -218,7 +220,7 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+        SearchRequestBuilder query = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
@@ -249,7 +251,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
-        SearchResponse result = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+        SearchResponse result = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
                 .execute()
                 .actionGet();
@@ -279,7 +281,7 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = EntitySearchSchema.parseDocTypes(queryParams.getTypes());
         }
-        SearchRequestBuilder query = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams))
+        SearchRequestBuilder query = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .addField(EntitySearchSchema.FORTRESS)
@@ -400,7 +402,7 @@ public class QueryDaoES implements QueryDao {
             else
                 query = query + "}";
 
-            SearchRequestBuilder esQuery = client.prepareSearch(EntitySearchSchema.parseIndex(queryParams));
+            SearchRequestBuilder esQuery = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams));
 
             if ( queryParams.getSize()!=null )
                 esQuery.setSize(queryParams.getSize());
@@ -431,7 +433,7 @@ public class QueryDaoES implements QueryDao {
 
         } else {
             GetResponse response =
-                    client.prepareGet(EntitySearchSchema.parseIndex(queryParams),
+                    client.prepareGet(IndexHelper.parseIndex(queryParams),
                             queryParams.getTypes()[0],
                             queryParams.getCallerRef())
                             .execute()
