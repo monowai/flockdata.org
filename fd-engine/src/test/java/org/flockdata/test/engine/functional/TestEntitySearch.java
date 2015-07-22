@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class TestEntitySearch extends EngineBase {
         ArrayList<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
         beans.add(beanB);
-        Collection<TrackResultBean> results = mediationFacade.trackEntities(beans, su.getApiKey());
+        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
         assertEquals(2, results.size());
 
     }
@@ -91,7 +91,7 @@ public class TestEntitySearch extends EngineBase {
         ArrayList<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
         beans.add(beanB);
-        Collection<TrackResultBean> results = mediationFacade.trackEntities(beans, su.getApiKey());
+        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
         assertEquals(2, results.size());
 
         results = mediationFacade.trackEntities(beans, su.getApiKey());

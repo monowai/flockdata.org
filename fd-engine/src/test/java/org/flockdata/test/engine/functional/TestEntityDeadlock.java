@@ -19,15 +19,11 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
-import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
+import org.flockdata.track.bean.TrackRequestResult;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,7 +159,7 @@ public class TestEntityDeadlock extends EngineBase {
         CountDownLatch startSignal;
         int count = 0;
         int myThread;
-        Entity entity =null ;
+        String entityKey =null ;
 
         boolean worked = false;
         private boolean done;
@@ -193,7 +189,7 @@ public class TestEntityDeadlock extends EngineBase {
         }
 
         public boolean isWorked() {
-            return entity!=null;
+            return entityKey!=null;
         }
 
         @Override
@@ -202,9 +198,9 @@ public class TestEntityDeadlock extends EngineBase {
             logger.debug("Running "+myThread);
             try {
                 startSignal.await();
-                Collection<TrackResultBean> results = mediationFacade.trackEntities(inputBeans, apiKey);
+                Collection<TrackRequestResult> results = mediationFacade.trackEntities(inputBeans, apiKey);
                 assertEquals("Error creating entity", 1, results.size());
-                entity = results.iterator().next().getEntity();
+                entityKey = results.iterator().next().getMetaKey();
 
 
 

@@ -90,6 +90,7 @@ public class Log  {
         this.contentType = contentType;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getFileName() {
         return fileName;
     }
@@ -142,6 +143,7 @@ public class Log  {
         return id;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getChecksum() {
         return checkSum;
     }
@@ -150,6 +152,7 @@ public class Log  {
         this.checkSum = checksum;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public FortressUser getMadeBy() {
         return madeBy;
     }
