@@ -64,7 +64,7 @@ public class TestStates extends AbstractImport {
                 // Validate that iso+name exists
                 assertNotNull ( stateTag.getAliases());
                 assertEquals(1, stateTag.getAliases().size());
-                assertEquals(country.getCode() + "-" + stateTag.getName(), stateTag.getAliases().iterator().next().getCode());
+                assertEquals(stateTag.getName(), stateTag.getAliases().iterator().next().getCode());
 
             }
         }
