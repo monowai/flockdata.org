@@ -39,6 +39,7 @@ public class TagResultBean {
     String name;
     String key;
     String message;
+    Boolean newTag;
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     Map<String,Object> properties = new HashMap<>();
 
@@ -63,7 +64,9 @@ public class TagResultBean {
     public TagResultBean (Tag tag ) {
         this();
         this.tag = tag;
+
         if (tag != null) {
+            this.newTag = tag.isNew();
             this.code = tag.getCode();
             this.key = tag.getKey();
             this.name = tag.getName();
@@ -114,4 +117,9 @@ public class TagResultBean {
         return properties;
     }
 
+    @JsonIgnore
+    // Used as a hint to see if we should attempt to create a TagLabel for this tag
+    public boolean isNew() {
+        return newTag;
+    }
 }

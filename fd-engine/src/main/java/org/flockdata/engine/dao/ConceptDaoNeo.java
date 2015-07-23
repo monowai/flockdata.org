@@ -58,12 +58,11 @@ public class ConceptDaoNeo {
 
         for (DocumentType docType : conceptInput.keySet()) {
             logger.trace("Looking for existing concepts {}", docType.getName());
-            org.flockdata.model.DocumentType documentType = docType;
 
-            template.fetch(documentType.getConcepts());
+            template.fetch(docType.getConcepts());
 
-            Collection<org.flockdata.model.Concept> concepts = documentType.getConcepts();
-            logger.trace("[{}] - Found {} existing concepts", documentType.getName(), concepts.size());
+            Collection<Concept> concepts = docType.getConcepts();
+            logger.trace("[{}] - Found {} existing concepts", docType.getName(), concepts.size());
             boolean save = false;
             for (ConceptInputBean concept : conceptInput.get(docType)) {
                 //logger.debug("Looking to create [{}]", concept.getName());
@@ -85,8 +84,8 @@ public class ConceptDaoNeo {
                         }
                     }
                     // DAT-112 removed save check. ToDo: Room for optimization?
-                    if (!documentType.getConcepts().contains(existingConcept)) {
-                        documentType.add(existingConcept);
+                    if (!docType.getConcepts().contains(existingConcept)) {
+                        docType.add(existingConcept);
                         logger.debug("Creating concept {}", existingConcept);
                         save = true;
                     }
@@ -95,7 +94,7 @@ public class ConceptDaoNeo {
 
             if (save) {
                 logger.trace("About to register {} concepts", concepts.size());
-                documentTypeRepo.save(documentType);
+                documentTypeRepo.save(docType);
                 logger.trace("{} Concepts registered", concepts.size());
             }
         }
@@ -151,7 +150,7 @@ public class ConceptDaoNeo {
             documentResults.add(documentResult);
 
             if (withRelationships) {
-                for (org.flockdata.model.Concept concept : document.getConcepts()) {
+                for (Concept concept : document.getConcepts()) {
 
                     template.fetch(concept);
                     template.fetch(concept.getRelationships());
@@ -172,7 +171,7 @@ public class ConceptDaoNeo {
 //                    fauxDocument.getConcepts().add(new ConceptResultBean(userConcept));
             } else {
                 // Just return the concepts
-                for (org.flockdata.model.Concept concept : document.getConcepts()) {
+                for (Concept concept : document.getConcepts()) {
                     template.fetch(concept);
                     documentResult.add(new ConceptResultBean(concept));
                 }

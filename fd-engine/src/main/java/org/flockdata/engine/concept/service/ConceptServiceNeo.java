@@ -122,6 +122,7 @@ public class ConceptServiceNeo implements ConceptService {
         return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
 
     }
+
     @Override
     public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         assert fortress != null;
