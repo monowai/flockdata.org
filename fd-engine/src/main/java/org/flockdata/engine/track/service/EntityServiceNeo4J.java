@@ -596,7 +596,8 @@ public class EntityServiceNeo4J implements EntityService {
             fromEntity = entityDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
-            throw new FlockException("Unable to locate the Entity [" + sourceKey + "]");
+            // ToDo: Should we create it??
+            throw new FlockException("Unable to locate the source Entity [" + sourceKey + "]");
 
         //16051954
         Collection<Entity> targets = new ArrayList<>();

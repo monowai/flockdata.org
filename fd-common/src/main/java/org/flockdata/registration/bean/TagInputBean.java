@@ -404,8 +404,9 @@ public class TagInputBean {
      *
      * @param keyPrefix  default is not set.
      */
-    public void setKeyPrefix(String keyPrefix) {
+    public TagInputBean setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
+        return this;
     }
 
     public String getKeyPrefix() {

@@ -101,12 +101,12 @@ public class TestTags extends EngineBase {
         SystemUser sub = registerSystemUser("ABC", "gina");
         Authentication authGina = new UsernamePasswordAuthenticationToken("gina", "user1");
         SecurityContextHolder.getContext().setAuthentication(authGina);
-        assertNull(tagService.findTag(sub.getCompany(),null , "FLOP")); // Can't see the Monowai company tag
+        assertNull(tagService.findTag(sub.getCompany(), null, "FLOP")); // Can't see the Monowai company tag
 
         tagInput = new TagInputBean("FLOP");
         assertNotNull(tagService.createTag(sub.getCompany(), tagInput) );
         assertNull(tagService.findTag(sub.getCompany(),null , "ABC"));
-        assertNotNull(tagService.findTag(sub.getCompany(),null , "FLOP"));
+        assertNotNull(tagService.findTag(sub.getCompany(), null, "FLOP"));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class TestTags extends EngineBase {
         // DAT-411
         assertNotNull(iSystemUser);
 
-        assertNull(tagService.findTag(iSystemUser.getCompany(), "NEW-TAG",null , "Testing"));
+        assertNull(tagService.findTag(iSystemUser.getCompany(), "NEW-TAG", null, "Testing"));
         assertNull(tagService.findTag(iSystemUser.getCompany(), "NotFound", null, "Testing"));
         TagInputBean newTag = new TagInputBean("NEW-TAG")
                 .setMustExist(true, "NotFound")
@@ -497,11 +497,58 @@ public class TestTags extends EngineBase {
 
         tagService.createAlias(su.getCompany(), tagResult, "Person", "xxx");
 
-        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(),null , "xxx");
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), null, "xxx");
         assertNotNull(tagAlias);
         assertEquals(tagAlias.getId(), tagResult.getId());
 
     }
+
+    @Test
+    public void scenario_SimpleAliasWithTagPrefix ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasFound", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
+
+        TagInputBean tag = new TagInputBean("Holdsworth, Mike")
+                .setLabel("Person")
+                .setKeyPrefix("aaa");
+
+        Tag tagResult = tagService.createTag(su.getCompany(), tag);
+
+        tagService.createAlias(su.getCompany(), tagResult, "Person", "xxx");
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tag.getLabel(), "aaa", "xxx");
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResult.getId());
+
+    }
+
+    @Test
+    public void scenario_differentTagsSameAliasValue ()throws Exception{
+        SystemUser su = registerSystemUser("scenario_AliasFound", mike_admin);
+        fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
+
+        TagInputBean tagA = new TagInputBean("Ohio")
+                .setLabel("State")
+                .setKeyPrefix("US");
+
+        TagInputBean tagB = new TagInputBean("Ohio")
+                .setLabel("State")
+                .setKeyPrefix("ZZ");
+
+        Tag tagResultA = tagService.createTag(su.getCompany(), tagA);
+        Tag tagResultB = tagService.createTag(su.getCompany(), tagB);
+
+        assertFalse(tagResultA.getId().equals(tagResultB.getId()));
+
+        tagService.createAlias(su.getCompany(), tagResultA, "State", "xxx");
+        tagService.createAlias(su.getCompany(), tagResultB, "State", "xxx");
+
+        Tag tagAlias = tagService.findTag(su.getCompany(), tagA.getLabel(), "us", "xxx");
+        assertNotNull(tagAlias);
+        assertEquals(tagAlias.getId(), tagResultA.getId());
+
+    }
+
 
     @Test
     public void scenario_AliasCollectionCreated ()throws Exception{
