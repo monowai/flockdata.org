@@ -24,10 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.TagInputBean;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Labels;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
@@ -52,8 +49,10 @@ public class Tag {
     @GraphId
     Long id;
 
+    @Indexed
     private String key;
 
+    @Indexed
     private String code;
 
     @Labels

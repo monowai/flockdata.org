@@ -200,14 +200,26 @@ public class TagWrangler {
 
         String theLabel = TagHelper.suffixLabel(label, suffix);
 
-        Tag tag = tagByKey(theLabel, TagHelper.parseKey(keyPrefix, tagCode));
+        Tag tag = tagByKey(theLabel, keyPrefix, tagCode);
         if ( tag!=null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 
-    private Tag tagByKey(String theLabel, String tagKey) {
+    /**
+     * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will
+     * attempt to locate the alias based on tagcode
+     *
+     * ToDo: A version to located by user defined AliasLabel
+     *
+     * @param theLabel  Type of tag to look for
+     * @param keyPrefix optional prefix that the Key might have
+     * @param tagCode   mandatory value of the code
+     * @return resolved tag
+     */
+    private Tag tagByKey(String theLabel, String keyPrefix, String tagCode) {
+        String tagKey = TagHelper.parseKey(keyPrefix, tagCode);
         StopWatch watch =getWatch(theLabel + " / " + tagKey);
 
         Collection<Tag>tags = tagRepo.findByKey(tagKey);
@@ -215,7 +227,7 @@ public class TagWrangler {
         if ( tags.size() ==1 ){
             Tag tag = tags.iterator().next();
             if ( tag.getLabel().equals(theLabel) ||(theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG))) {
-                stopWatch(watch, theLabel, tagKey);
+                stopWatch(watch, theLabel, tagCode);
                 return tag;
             }
         }
@@ -235,18 +247,18 @@ public class TagWrangler {
             }
         }
         if ( tResult != null ) {
-            stopWatch(watch, "byKey", theLabel, tagKey);
+            stopWatch(watch, "byKey", theLabel, tagCode);
             return tResult;
         }
 
-        logger.trace("Locating by alias {}, {}", theLabel, tagKey);
+        logger.trace("Locating by alias {}, {}", theLabel, tagCode);
 
         String query;
 
         query = "match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return a";
 
         Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", tagKey);
+        params.put("tagKey", TagHelper.parseKey(tagCode));
         Iterable<Map<String, Object>> result = template.query(query, params);
         Iterator<Map<String, Object>> results = result.iterator();
         Tag tagResult = null;
@@ -264,9 +276,9 @@ public class TagWrangler {
 
         }
         if ( tagResult == null )
-            logger.trace("Not found {}, {}", theLabel, tagKey);
+            logger.trace("Not found {}, {}", theLabel, tagCode);
         else
-            stopWatch(watch, "byAlias", theLabel, tagKey);
+            stopWatch(watch, "byAlias", theLabel, tagCode);
 
         return tagResult;
     }
@@ -307,7 +319,7 @@ public class TagWrangler {
      *
      * @param company               associate the tag with this company
      * @param tagSuffix
-     *@param startTag              notional start node
+     * @param startTag              notional start node
      * @param associatedTag         tag to make or get
      * @param rlxName               relationship name
      * @param createdValues         running list of values already created - performance op.
