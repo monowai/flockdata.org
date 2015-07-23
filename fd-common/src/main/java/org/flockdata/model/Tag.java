@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.TagInputBean;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
@@ -70,6 +71,9 @@ public class Tag {
 
     private String name;
 
+    @Transient
+    private Boolean isNew = false;
+
     protected Tag() {
         labels.add("Tag");
         labels.add("_Tag"); // Required for SDN 3.x
@@ -93,10 +97,12 @@ public class Tag {
         }
     }
 
+    // Called only when creating a new Tag
     public Tag(TagInputBean tagInput, String tagLabel) {
         this(tagInput);
         if (!labels.contains(tagLabel))
             labels.add(tagLabel);
+        isNew = true;
     }
 
     public String getName() {
@@ -207,5 +213,11 @@ public class Tag {
     public boolean isDefault() {
         return getLabel() == null || DEFAULT_TAG.equals(getLabel());
     }
+
+    @JsonIgnore
+    public Boolean isNew() {
+        return isNew;
+    }
+
 
 }

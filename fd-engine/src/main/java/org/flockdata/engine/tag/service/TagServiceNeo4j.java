@@ -25,11 +25,11 @@ import org.flockdata.engine.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
 import org.flockdata.track.TagPayload;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
@@ -92,7 +92,7 @@ public class TagServiceNeo4j implements TagService {
         Collection<TagResultBean> results = tagDao.save(payload);
 
         for (TagResultBean result : results) {
-            if ( !result.getTag().isDefault())
+            if ( result.isNew() && !result.getTag().isDefault() )
                 conceptDao.registerTag(company, result.getTag().getLabel());
         }
         return results;
