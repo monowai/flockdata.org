@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.flockdata</groupId>
         <artifactId>flockdata</artifactId>
-        <version>0.98-BUILD-SNAPSHOT</version>
+         <version>0.98-BUILD-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,6 +13,7 @@
 
     <properties>
         <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
+        <org.springdata.neo4j>3.3.1.RELEASE</org.springdata.neo4j>
     </properties>
 
     <dependencies>
