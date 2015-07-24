@@ -95,6 +95,13 @@
     </scm>
 
     <distributionManagement>
+        <repository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>sona-releases</id>
+            <name>FlockData Releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <layout>default</layout>
+        </repository>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
