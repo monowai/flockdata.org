@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -115,6 +116,23 @@ public class TagWrangler {
         else {
             label = tagInput.getLabel();
         }
+        if ( tagInput.getKeyPrefix()!=null && tagInput.getKeyPrefix().contains(":") ){
+            // Label:Value to set the prefix
+            // DAT-479 indirect lookup
+            String[] values = StringUtils.split(tagInput.getKeyPrefix(), ":");
+            if ( values.length ==2 ){
+                Tag indirect = findTagNode(suffix, values[0], null, values[1], false);
+                if ( indirect == null ) {
+                    // ToDo: Exception or literal?
+                    logger.debug("Indirect syntax was found but resolved to no tag");
+                    throw new AmqpRejectAndDontRequeueException("Unable to resolve the indirect tag" +tagInput.getKeyPrefix());
+                } else {
+                    tagInput.setKeyPrefix(indirect.getCode());
+                }
+
+            }
+        }
+
         Tag tag = new Tag(tagInput, label);
 
         logger.trace("Saving {}", tag);
