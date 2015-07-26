@@ -759,4 +759,44 @@ public class TestTags extends EngineBase {
         assertNotNull("Located by prefix/code failed", tagService.findTag(su.getCompany(), "City", "nz", "cambridge"));
         //assertEquals(2, tagService.findTag(su.getCompany(), "cambridge"));
     }
+
+    @Test
+    public void keyPrefix_withIndirectLookup() throws Exception {
+        // DAT-479
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("keyPrefix_withIndirectLookup", mike_admin);
+
+        TagInputBean gb = new TagInputBean("GB", "Country").setName("Great Britain");
+        AliasInputBean aib = new AliasInputBean("Great Britain"); // Alternate way of finding GB
+        gb.addAlias(aib);
+        TagInputBean nz = new TagInputBean("NZ", "Country").setName("New Zealand");
+        tagService.createTag(su.getCompany(), gb);
+        tagService.createTag(su.getCompany(), nz);
+
+        TagInputBean nzCity = new TagInputBean("Cambridge");
+        nzCity.setLabel("City");
+        nzCity.setKeyPrefix("Country:NZ"); // Instructs the server to do a Label:Value lookup to obtain the keyPrefix
+        Tag tagA = tagService.createTag(su.getCompany(), nzCity);
+
+        assertNotNull(tagA);
+
+        // Same code same index, different Key prefix
+        TagInputBean gbCity = new TagInputBean("Cambridge");
+        gbCity.setLabel("City");
+        gbCity.setKeyPrefix("Country:Great Britain"); // Check it also resolved by the alias we created
+        Tag tagB = tagService.createTag(su.getCompany(), gbCity);
+        assertNotNull(tagB);
+        assertTrue(!tagA.getId().equals(tagB.getId()));
+
+        Tag gbTag = tagService.findTag(su.getCompany(), "City", "gb", "cambridge");
+        Tag nzTag = tagService.findTag(su.getCompany(), "City", "nz", "cambridge");
+
+        assertNotNull("Located by prefix/code failed", gbTag);
+        assertEquals("gb.cambridge", gbTag.getKey());
+        assertNotNull("Located by prefix/code failed", nzTag);
+        assertEquals("nz.cambridge", nzTag.getKey());
+        // Ensure we can't create a duplicate City
+        Tag tagC = tagService.createTag(su.getCompany(), nzCity);
+        assertEquals("Shouldn't have created a new Tag for an existing City", nzTag.getId(), tagC.getId());
+    }
 }
