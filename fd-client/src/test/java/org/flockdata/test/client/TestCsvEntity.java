@@ -253,8 +253,8 @@ public class TestCsvEntity {
         ImportProfile params = getImportParams("/nestedTags.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"transaction_id", "zip", "state", "city", "country"};
-        String[] data = new String[]{"1", "123", "CA", "San Francisco", "United States"};
+        String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
+        String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
         Map<String, Object> json = mapper.setData(headers, data, params);
         assertNotNull(json);
 
@@ -278,6 +278,7 @@ public class TestCsvEntity {
         TagInputBean stateTag = stateTags.get("city").iterator().next();
         assertNotNull(stateTag);
         assertEquals("CA", stateTag.getCode());
+        assertEquals("California", stateTag.getName());
 
         Map<String, Collection<TagInputBean>> countryTags = stateTag.getTargets();
         TagInputBean countryTag = countryTags.get("state").iterator().next();
