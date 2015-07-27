@@ -275,6 +275,11 @@ public class TransformationHelper {
                 } else {
                     newTag = new TagInputBean(value.toString())
                             .setLabel(tagProfile.getLabel());
+                    Object name = getValue(row, tagProfile.getName());
+
+                    if ( name!=null )
+                        newTag.setName(name.toString());
+
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
                     newTag.setNotFoundCode(tagProfile.getNotFound());
