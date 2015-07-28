@@ -150,12 +150,20 @@ public class TransformationHelper {
 
             tag.setReverse(colDef.getReverse());
             if (colDef.hasProperites()) {
-                for (ColumnDefinition thisCol : colDef.getProperties()) {
+                for (ColumnDefinition propertyColumn : colDef.getProperties()) {
                     if (colDef.isPersistent()) {
-                        String sourceCol = thisCol.getSource();
-                        value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
+                        String sourceCol = propertyColumn.getSource();
+
+                        if ( sourceCol != null )
+                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
+                        else {
+                            Object val = TransformationHelper.getValue(row, propertyColumn.getValue());
+                            if ( val !=null )
+                                value = val.toString();
+                        }
+
                         if (value != null)
-                            tag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), getValue(value, thisCol));
+                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), getValue(value, propertyColumn));
                     }
                 }
             }
@@ -268,7 +276,7 @@ public class TransformationHelper {
                     String iso = value.toString();
 
                     newTag = new TagInputBean(iso)
-                            .setLabel(tagProfile.getLabel())
+                            .setLabel("Country")
                             .setNotFoundCode(tagProfile.getNotFound());
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
@@ -277,7 +285,7 @@ public class TransformationHelper {
                             .setLabel(tagProfile.getLabel());
                     Object name = getValue(row, tagProfile.getName());
 
-                    if ( name!=null )
+                    if (name != null)
                         newTag.setName(name.toString());
 
                     newTag.setReverse(tagProfile.getReverse());
@@ -285,22 +293,31 @@ public class TransformationHelper {
                     newTag.setNotFoundCode(tagProfile.getNotFound());
                     // Todo: Smell - how to return defaults consistently?
                     Object keyPrefix = getValue(row, tagProfile.getKeyPrefix());
-                    if (keyPrefix == null && tagProfile.getKeyPrefix()!=null )
+                    if (keyPrefix == null && tagProfile.getKeyPrefix() != null)
                         keyPrefix = tagProfile.getKeyPrefix();
-                    if ( keyPrefix !=null )
+                    if (keyPrefix != null)
                         newTag.setKeyPrefix(keyPrefix.toString());
 
                     setInTo.setTargets(tagProfile.getRelationship(), newTag);
 
                 }
                 if (tagProfile.hasProperites()) {
-                    for (ColumnDefinition thisCol : tagProfile.getProperties()) {
-                        if (thisCol.isPersistent()) {
-                            String sourceCol = thisCol.getSource();
-                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, thisCol, row.get(sourceCol));
-                            Object oValue = getValue(value, thisCol);
+                    for (ColumnDefinition propertyColumn : tagProfile.getProperties()) {
+                        if (propertyColumn.isPersistent()) {
+                            // Code Smell - this code is duplicated from getTagInputBean
+
+                            String sourceCol = propertyColumn.getSource();
+                            if ( sourceCol != null )
+                                value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
+                            else {
+                                Object val = TransformationHelper.getValue(row, propertyColumn.getValue());
+                                if ( val !=null )
+                                    value = val.toString();
+                            }
+
+                            Object oValue = getValue(value, propertyColumn);
                             if (newTag != null && oValue != null)
-                                newTag.setProperty(thisCol.getTarget() == null ? sourceCol : thisCol.getTarget(), oValue);
+                                newTag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), oValue);
                         }
                     }
                 }
@@ -351,11 +368,11 @@ public class TransformationHelper {
         if (dataType != null)
             if (dataType.equalsIgnoreCase("string"))
                 tryAsNumber = false;
-            else if (dataType.equalsIgnoreCase("number")){
+            else if (dataType.equalsIgnoreCase("number")) {
                 tryAsNumber = true;
                 // User wants us to coerce this to a number
                 // To do so requires tidying up a few common formatting issues
-                if (value != null ) {
+                if (value != null) {
                     value = removeLeadingZeros(value.toString());
                     value = removeSeparator(value.toString());
                 }
@@ -363,7 +380,7 @@ public class TransformationHelper {
             }
         if (tryAsNumber) {
 
-            if ( value != null && NumberUtils.isNumber(value.toString())) {
+            if (value != null && NumberUtils.isNumber(value.toString())) {
                 value = NumberUtils.createNumber(value.toString());
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
@@ -382,9 +399,10 @@ public class TransformationHelper {
 
 
     }
+
     // Remove the thousands separator using the default locale
-    private static Number removeSeparator(String str)  {
-        if ( str==null || str.length()==0)
+    private static Number removeSeparator(String str) {
+        if (str == null || str.length() == 0)
             return null;
         try {
             return NumberFormat.getNumberInstance().parse(str);
@@ -520,7 +538,7 @@ public class TransformationHelper {
         if (colDef.isDateEpoc()) {
             return Long.parseLong(value) * 1000;
         }
-        if ( colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
+        if (colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
             return Timestamp.valueOf(value).getTime();
         }
 
@@ -534,7 +552,7 @@ public class TransformationHelper {
             // Try first as DateTime
             LocalDateTime date = LocalDateTime.parse(value, pattern);
             return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
-        }catch (DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             // Just a plain date
             LocalDate date = LocalDate.parse(value, pattern);
             return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
