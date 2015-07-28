@@ -20,17 +20,13 @@
 package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Company;
-import org.flockdata.track.bean.CrossReferenceInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.TrackBatcher;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -54,78 +50,40 @@ public class TestImporterPreparsing extends AbstractImport {
         ImportProfile params = ClientConfiguration.getImportParams("/pre-parse.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/properties-rlx.txt", fdWriter, null, configuration);
+        long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
         assertEquals(4, rows);
 
-    }
+        List<EntityInputBean> entityBatch = getFdWriter().getEntities();
 
-    FdWriter fdWriter = new FdWriter() {
-        @Override
-        public SystemUserResultBean me() {
-            return null;
-        }
-
-        @Override
-        public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-
-            // Check that the payload will serialize
-            ObjectMapper om = new ObjectMapper();
-            try {
-                om.writeValueAsString(tagInputBeans);
-            } catch (Exception e) {
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            // Check that the payload will serialize
-            assertEquals(4, entityBatch.size());
-            for (EntityInputBean entityInputBean : entityBatch) {
-                assertFalse("Expression not parsed for callerRef",entityInputBean.getCallerRef().contains("|"));
-                assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
-                TagInputBean politician= null;
-                for (TagInputBean tagInputBean : entityInputBean.getTags()) {
-                    assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
-                    if ( tagInputBean.getLabel().equals("Politician"))
-                        politician= tagInputBean;
-                    if ( tagInputBean.getLabel().equals("InterestGroup")){
-                        assertEquals("direct", tagInputBean.getEntityLinks().keySet().iterator().next());
-                    }
+        for (EntityInputBean entityInputBean : entityBatch) {
+            assertFalse("Expression not parsed for callerRef",entityInputBean.getCallerRef().contains("|"));
+            assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
+            TagInputBean politician= null;
+            for (TagInputBean tagInputBean : entityInputBean.getTags()) {
+                assertFalse("Expression not parsed for code", tagInputBean.getCode().contains("|"));
+                if ( tagInputBean.getLabel().equals("Politician"))
+                    politician= tagInputBean;
+                if ( tagInputBean.getLabel().equals("InterestGroup")){
+                    assertEquals("direct", tagInputBean.getEntityLinks().keySet().iterator().next());
+                    TestCase.assertEquals(2, tagInputBean.getProperties().size());
+                    TestCase.assertNotNull(tagInputBean.getProperties().get("amount"));
+                    TestCase.assertEquals("ABC123", tagInputBean.getProperties().get("calculatedColumn"));
                 }
-                assertNotNull(politician);
-                HashMap link = (HashMap) politician.getEntityLinks().get("receives");
-                assertNotNull(link);
-                assertNotNull(link.get("amount"));
-                assertTrue("Amount not calculated as a value", Integer.parseInt(link.get("amount").toString()) >0);
-
             }
-            ObjectMapper om = new ObjectMapper();
-            try {
-                om.writeValueAsString(entityBatch);
-            } catch (Exception e) {
-                throw new FlockException("Failed to serialize");
-            }
-            return null;
+            assertNotNull(politician);
+            HashMap link = (HashMap) politician.getEntityLinks().get("receives");
+            assertNotNull(link);
+            assertNotNull(link.get("amount"));
+            assertTrue("Amount not calculated as a value", Integer.parseInt(link.get("amount").toString()) >0);
 
         }
-
-        @Override
-        public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-            return 0;
+        ObjectMapper om = new ObjectMapper();
+        try {
+            om.writeValueAsString(entityBatch);
+        } catch (Exception e) {
+            throw new FlockException("Failed to serialize");
         }
 
-        @Override
-        public boolean isSimulateOnly() {
-            // Setting this to true will mean that the flush routines above are not called
-            return false;
-        }
-
-        @Override
-        public void close(TrackBatcher trackBatcher) {
-
-        }
-    };
+    }
 
 }

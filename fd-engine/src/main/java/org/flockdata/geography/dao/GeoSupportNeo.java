@@ -43,15 +43,61 @@ public class GeoSupportNeo {
     @Cacheable(value = "geoData", key = "#loc.id")
     public GeoDataBean getGeoData(Tag loc) {
         logger.debug ( "Cache miss for {}", loc.getId() );
-        //String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..3]->(c:Country)) where id(located)={locNode} return nodes(p)";
-        String query = "match (located:Tag)-[r:state|address]->(o)-[*1..2]->(x:Country)  where id(located)={locNode} return located, o , x" ;
+        String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
+        //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
-        Iterable<Map<String, Object>> queryResults = template.query(query, params);
-        for (Map<String, Object> row : queryResults) {
-            return getGeoData(row, loc);
+        Map<String, Object> rows = template.query(query, params).singleOrNull();
+
+        if (rows== null || rows.isEmpty())
+                return null;
+
+        return getGeoData(rows, loc);
+    }
+
+    GeoDataBean getGeoData(Map<String, Object>row, Tag sourceTag){
+        if ( row.isEmpty())
+            return null;
+
+        GeoDataBean geoData = new GeoDataBean();
+
+        if ( row.containsKey("nodes")) {
+            Iterable<Node> nodes = (Iterable<Node>) row.get("nodes");
+            for (Node node : nodes) {
+                setFromNode(sourceTag, geoData, node);
+            }
+        } else {
+            for (String key : row.keySet()) {
+                Node node = (Node) row.get(key);
+                setFromNode(sourceTag, geoData, node);
+            }
         }
-        return null;
+
+        return geoData;
+    }
+
+    private void setFromNode(Tag sourceTag, GeoDataBean geoData, Node node) {
+        String label = getUserDefinedLabel(node);
+        // Check we don't add the same tag twice
+        if ( label !=null && ! label.equals(sourceTag.getLabel())){
+
+            String code;
+            String name = null;
+            Double lat = null;
+            Double lon = null;
+            code = (String) node.getProperty("code");
+            if (node.hasProperty("name")) {
+                name = (String) node.getProperty("name");
+                if ( name.equals(code))
+                    name = null;
+            }
+            if (node.hasProperty("props-latitude"))
+                lat = (Double) node.getProperty("props-latitude");
+
+            if (node.hasProperty("props-longitude"))
+                lon = (Double) node.getProperty("props-longitude");
+            geoData.add(label.toLowerCase(), code, name, lat, lon);
+        }
     }
 
     private String getUserDefinedLabel(Node node ){
@@ -65,40 +111,4 @@ public class GeoSupportNeo {
 
     }
 
-    GeoDataBean getGeoData(Map<String, Object>row, Tag sourceTag){
-        if ( row.isEmpty())
-            return null;
-
-        //Iterable<Node> nodes = (Iterable<Node>) row.get("nodes(p)");
-        //;
-
-        GeoDataBean geoData = new GeoDataBean();
-
-        for (String key: row.keySet()) {
-            Node node = (Node) row.get(key);
-            String label = getUserDefinedLabel(node);
-            // Check we don't add the same tag twice
-            if ( label !=null && ! label.equals(sourceTag.getLabel())){
-
-                String code;
-                String name = null;
-                Double lat = null;
-                Double lon = null;
-                code = (String) node.getProperty("code");
-                if (node.hasProperty("name")) {
-                    name = (String) node.getProperty("name");
-                    if ( name.equals(code))
-                        name = null;
-                }
-                if (node.hasProperty("props-latitude"))
-                    lat = (Double) node.getProperty("props-latitude");
-
-                if (node.hasProperty("props-longitude"))
-                    lon = (Double) node.getProperty("props-longitude");
-                geoData.add(label.toLowerCase(), code, name, lat, lon);
-            }
-        }
-
-        return geoData;
-    }
 }
