@@ -125,7 +125,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 } else if (colDef.isTag()) {
                     TagInputBean tag = new TagInputBean();
 
-                    if (TransformationHelper.getTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
+                    if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
                         addTag(tag);
                     }
                 }

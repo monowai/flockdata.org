@@ -20,15 +20,20 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
+import org.flockdata.client.Configure;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.GeoPayload;
 import org.flockdata.transform.GeoSupport;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +44,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  *
  * Created by mike on 17/01/15.
  */
-public class TestGeography {
+public class TestGeography extends AbstractImport{
 
     private Logger logger = getLogger(TestGeography.class);
 
@@ -148,12 +153,38 @@ public class TestGeography {
     @Test
     public void geoTools() throws Exception {
         // http://epsg.io/2193
-        double [] coords = GeoSupport.convert("EPSG:2193", 1762370.616143, 5437327.768345);
-        TestCase.assertTrue(coords[1]< -40d);
+        // Goes in as Lat Lon
+        double [] coords = GeoSupport.convert(new GeoPayload("EPSG:2193", 1762370.616143, 5437327.768345));
+
+        //geoDataBean.
+        TestCase.assertTrue(coords[1] < -40d);
         TestCase.assertTrue(coords[0] > 170d);
         // Output an example link
         // http://stackoverflow.com/questions/2660201/what-parameters-should-i-use-in-a-google-maps-url-to-go-to-a-lat-lon
+        // Lon Lat
+        // Most sites use lon/lat
         logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", coords[1], coords[0]);
+    }
+
+    @Test
+    public void setPropertiesFromSource () throws Exception {
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/import-geo.json";
+        File file = new File(fileName);
+        ClientConfiguration configuration = Configure.readConfiguration(file);
+        TestCase.assertNotNull(configuration);
+
+        ImportProfile params = ClientConfiguration.getImportParams(fileName);
+        TestCase.assertEquals('|', params.getDelimiter());
+        TestCase.assertEquals(true, params.hasHeader());
+
+        fileProcessor.processFile(params, "/data/import-geo.txt", getFdWriter(), null, configuration);
+
+        List<TagInputBean> tags = getFdWriter().getTags();
+        assertEquals(1, tags.size());
+
+        TagInputBean tag = tags.iterator().next();
+        assertEquals(2, tag.getProperties().size());
     }
 
 

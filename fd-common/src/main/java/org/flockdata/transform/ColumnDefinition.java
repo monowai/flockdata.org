@@ -83,6 +83,10 @@ public class ColumnDefinition {
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
 
+    @JsonDeserialize(using = GeoDeserializer.class)
+    private GeoPayload geoData;
+
+
     private ArrayList<AliasInputBean> aliases;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
@@ -389,4 +393,11 @@ public class ColumnDefinition {
         return persistent;
     }
 
+    public GeoPayload getGeoData() {
+        return geoData;
+    }
+
+    public void setGeoData(GeoPayload geoData) {
+        this.geoData = geoData;
+    }
 }
