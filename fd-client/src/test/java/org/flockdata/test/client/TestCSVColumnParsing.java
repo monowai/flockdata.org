@@ -78,7 +78,7 @@ public class TestCSVColumnParsing extends AbstractImport {
         assertTrue("Failed to find InterestGroup Tag", foundC);
         assertTrue("Failed to find Politician Tag", foundD);
         for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
-            assertEquals("4111320141231324700", entityInputBean.getCallerRef());
+            assertEquals("4111320141231324700", entityInputBean.getCode());
         }
     }
 

@@ -130,11 +130,11 @@ public class TrackDaoES implements TrackSearchDao {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error "+indexName+"- callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
+            logger.error("Parsing error "+indexName+"- callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error on index " + indexName, e);
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCallerRef() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         }
 
     }
@@ -236,7 +236,7 @@ public class TrackDaoES implements TrackSearchDao {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
-            searchChange.setSearchKey((searchChange.getCallerRef() == null ? searchChange.getMetaKey() : searchChange.getCallerRef()));
+            searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getMetaKey() : searchChange.getCode()));
             logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
             return save(searchChange, source);
         }
@@ -404,8 +404,8 @@ public class TrackDaoES implements TrackSearchDao {
         // Time that this change was indexed by fd-engine
         indexMe.put(EntitySearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
 
-        if (searchChange.getCallerRef() != null)
-            indexMe.put(EntitySearchSchema.CALLER_REF, searchChange.getCallerRef());
+        if (searchChange.getCode() != null)
+            indexMe.put(EntitySearchSchema.CODE, searchChange.getCode());
 
         if (searchChange.getDescription() != null)
             indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());

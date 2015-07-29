@@ -73,17 +73,17 @@ public interface EntityService {
 
     int getLogCount(Company company, String metaKey) throws FlockException;
 
-    Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef);
+    Entity findByCode(Fortress fortress, DocumentType documentType, String callerRef);
 
-    Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
+    Entity findByCode(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
 
     Entity findByCallerRefFull(Long fortressId, String documentType, String callerRef);
 
     Entity findByCallerRefFull(Fortress fortress, String documentType, String callerRef);
 
-    Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) throws NotFoundException;
+    Iterable<Entity> findByCode(Company company, String fortressName, String callerRef) throws NotFoundException;
 
-    Entity findByCallerRef(Fortress fortress, String documentName, String callerRef);
+    Entity findByCode(Fortress fortress, String documentName, String callerRef);
 
     EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
 

@@ -277,7 +277,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
 
@@ -296,7 +296,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);

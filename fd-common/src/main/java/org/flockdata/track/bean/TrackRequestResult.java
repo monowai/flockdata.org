@@ -25,7 +25,7 @@ public class TrackRequestResult implements Serializable{
     public TrackRequestResult(TrackResultBean resultBean){
         this();
         this.metaKey = resultBean.getMetaKey();
-        this.callerRef = resultBean.getEntity().getCallerRef();
+        this.callerRef = resultBean.getEntity().getCode();
         this.fortressCode = resultBean.getEntity().getFortress().getCode();
         logStatus = resultBean.getLogStatus();
         serviceMessages  = resultBean.getServiceMessages();

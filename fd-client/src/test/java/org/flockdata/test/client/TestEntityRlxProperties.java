@@ -59,8 +59,8 @@ public class TestEntityRlxProperties extends AbstractImport{
         List<EntityInputBean> entityBatch = getFdWriter().getEntities();
         assertEquals(4, entityBatch.size());
         for (EntityInputBean entityInputBean : entityBatch) {
-            assertFalse("Expression not parsed for callerRef",entityInputBean.getCallerRef().contains("|"));
-            assertTrue( "Caller ref appears invalid", entityInputBean.getCallerRef().length() >4);
+            assertFalse("Expression not parsed for callerRef",entityInputBean.getCode().contains("|"));
+            assertTrue( "Caller ref appears invalid", entityInputBean.getCode().length() >4);
             assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
             TagInputBean politician= null;
             for (TagInputBean tagInputBean : entityInputBean.getTags()) {

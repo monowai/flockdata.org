@@ -81,7 +81,7 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        logger.info(doQuery(entity, entity.getCallerRef(), 1));
+        logger.info(doQuery(entity, entity.getCode(), 1));
 
         doCompletionQuery(entity, noName.getCode(), 1, "Should be found as there is no name");
         doCompletionQuery(entity, "code", 1, "Find by name, but Code is not indexed");
@@ -122,7 +122,7 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        logger.info(doQuery(entity, entity.getCallerRef(), 1));
+        logger.info(doQuery(entity, entity.getCode(), 1));
 
         doCompletionQuery(entity, "find", 2, "Find by tag name failed");
         doCompletionQuery(entity, "ab", 1, "Code is 2 chars and should be indexed");
@@ -168,7 +168,7 @@ public class TestAutoComplete extends ESBase{
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
-        doQuery(entity, entity.getCallerRef(), 1);
+        doQuery(entity, entity.getCode(), 1);
 
         doCompletionQuery(entity, "tag", 1, "Completion failed");
         doCompletionQuery(entity, "tagc", 1, "Completion failed");

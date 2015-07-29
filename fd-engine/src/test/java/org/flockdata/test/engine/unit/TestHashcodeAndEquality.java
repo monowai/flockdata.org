@@ -73,7 +73,7 @@ public class TestHashcodeAndEquality {
         Fortress fortress = new Fortress(new FortressInputBean("Testing",true ), company);
         DocumentType documentTypeNode = new DocumentType(fortress, "DocTest");
         EntityInputBean entityInput = new EntityInputBean();
-        entityInput.setCallerRef("abc");
+        entityInput.setCode("abc");
 
         Entity entityNode = new Entity("123abc", fortress, entityInput, documentTypeNode);
         EntityTagOut entityTagA = new EntityTagOut(entityNode, tagNode);

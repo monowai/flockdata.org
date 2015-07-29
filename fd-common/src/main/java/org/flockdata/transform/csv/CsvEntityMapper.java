@@ -104,7 +104,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                 if (colDef.isCallerRef()) {
                     String callerRef = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
-                    setCallerRef(callerRef);
+                    setCode(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
                     // Implies a tag because it is a comma delimited list of values
