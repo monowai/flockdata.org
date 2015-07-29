@@ -141,7 +141,7 @@ public class TestGeography {
 
     /**
      * FD uses GeoTools for GIS mapping. Here we are converting an arbitary address in NZ
-     * from a NZTM formato to the more popular WGS84
+     * from a NZTM format to to the more popular WGS84
      *
      * @throws Exception
      */
