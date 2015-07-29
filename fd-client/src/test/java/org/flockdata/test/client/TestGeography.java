@@ -19,16 +19,20 @@
 
 package org.flockdata.test.client;
 
+import junit.framework.TestCase;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.GeoSupport;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * SPeL tests and custom properties for tags
@@ -36,6 +40,8 @@ import static org.junit.Assert.assertNotNull;
  * Created by mike on 17/01/15.
  */
 public class TestGeography {
+
+    private Logger logger = getLogger(TestGeography.class);
 
     @Test
     public void string_Countries() throws Exception {
@@ -131,6 +137,23 @@ public class TestGeography {
             assertEquals(0, next.getProperties().size());
         }
 
+    }
+
+    /**
+     * FD uses GeoTools for GIS mapping. Here we are converting an arbitary address in NZ
+     * from a NZTM formato to the more popular WGS84
+     *
+     * @throws Exception
+     */
+    @Test
+    public void geoTools() throws Exception {
+        // http://epsg.io/2193
+        double [] coords = GeoSupport.convert("EPSG:2193", 1762370.616143, 5437327.768345);
+        TestCase.assertTrue(coords[1]< -40d);
+        TestCase.assertTrue(coords[0] > 170d);
+        // Output an example link
+        // http://stackoverflow.com/questions/2660201/what-parameters-should-i-use-in-a-google-maps-url-to-go-to-a-lat-lon
+        logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", coords[1], coords[0]);
     }
 
 
