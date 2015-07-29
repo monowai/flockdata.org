@@ -1122,7 +1122,7 @@ public class TestEntityTrack extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean("A Description", "wally", "TestTrack", new DateTime());
 
-        inputBean.setMetaOnly(true);
+        inputBean.setEntityOnly(true);
         TrackResultBean result = mediationFacade.trackEntity(fortress, inputBean); // Mock result as we're not tracking
         assertNotNull("Event should not be null for metaOnly==true", result.getEntity().getEvent());
 

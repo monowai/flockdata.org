@@ -424,7 +424,7 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityWithTagsProcess"));
         DateTime now = new DateTime();
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now, "ABCXYZ123");
-        inputBean.setMetaOnly(true);
+        inputBean.setEntityOnly(true);
         inputBean.addTag(new TagInputBean("testTagNameZZ", null, "someAuditRLX"));
         inputBean.setEvent("TagTest");
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -448,7 +448,7 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_UserDefinedProperties"));
         DateTime now = new DateTime();
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now, "ABCXYZ123");
-        inputBean.setMetaOnly(true);
+        inputBean.setEntityOnly(true);
 
         inputBean.setProperty("myString", "hello world");
         inputBean.setProperty("myNum", 123.45);
@@ -472,7 +472,7 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searc_passThroughQuery"));
         DateTime now = new DateTime();
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now );
-        inputBean.setMetaOnly(true);
+        inputBean.setEntityOnly(true);
 
         inputBean.setProperty("myString", "hello world");
         inputBean.setProperty("myNum", 123.45);
@@ -505,7 +505,7 @@ public class TestFdIntegration {
         DateTime now = new DateTime();
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "immutableLoc", now, "ZZZ123");
         inputBean.setEvent("immutableEntityWithNoLogsAreIndexed");
-        inputBean.setMetaOnly(true); // Must be true to make over to search
+        inputBean.setEntityOnly(true); // Must be true to make over to search
         TrackResultBean trackResult;
         trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         waitForFirstSearchResult(su.getCompany(), trackResult.getEntity().getMetaKey());
@@ -602,7 +602,7 @@ public class TestFdIntegration {
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "wally", "ignoreGraph", new DateTime(), "ABC123");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true); // If true, the entity will be indexed
+        entityInput.setEntityOnly(true); // If true, the entity will be indexed
         // Track is suppressed but search is enabled, so the enity will not exist.
         exception.expect(NotFoundException.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -613,14 +613,14 @@ public class TestFdIntegration {
         doEsQuery(result.getEntity(), "*", 1);
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true);
+        entityInput.setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         doEsQuery(result.getEntity(), "*", 2);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true);
+        entityInput.setEntityOnly(true);
         Entity entity = mediationFacade.trackEntity(su.getCompany(), entityInput).getEntity();
         assertNull(entity.getMetaKey());
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
@@ -629,14 +629,14 @@ public class TestFdIntegration {
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true);
+        entityInput.setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(result.getEntity(), "*", 2);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC125");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true);
+        entityInput.setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(result.getEntity(), "*", 3);
@@ -929,7 +929,7 @@ public class TestFdIntegration {
         String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.code in ES
         entityInputBean.addTag(new TagInputBean("labelA", "ThisLabel", relationshipName));
         entityInputBean.addTag(new TagInputBean("labelB", "ThatLabel", relationshipName));
-        entityInputBean.setMetaOnly(true);
+        entityInputBean.setEntityOnly(true);
         Entity entity = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
@@ -940,7 +940,7 @@ public class TestFdIntegration {
         entityInputBean.addTag(new TagInputBean("labelA", "ThisLabel", relationshipName));
         entityInputBean.addTag(new TagInputBean("labelB", "ThatLabel", relationshipName));
 
-        entityInputBean.setMetaOnly(true);
+        entityInputBean.setEntityOnly(true);
 
         entity = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)

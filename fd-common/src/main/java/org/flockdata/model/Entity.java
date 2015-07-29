@@ -183,7 +183,7 @@ public class Entity implements Serializable {
         }
 
         //lastUpdate = 0l;
-        if (entityInput.isMetaOnly())
+        if (entityInput.isEntityOnly())
             this.event = entityInput.getEvent();
         this.suppressSearch(entityInput.isSearchSuppressed());
 

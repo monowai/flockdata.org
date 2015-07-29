@@ -52,7 +52,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
-    private boolean metaOnly = false;
+    private boolean entityOnly = false;
     private String timezone;
     private boolean archiveTags = true;
     private String updateUser;
@@ -193,7 +193,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     public void setContent(ContentInputBean content) {
         this.content = content;
         if (content != null) {
-            this.metaOnly = false;
+            this.entityOnly = false;
             //this.when = content.getWhen();
         }
     }
@@ -359,14 +359,14 @@ public class EntityInputBean implements Serializable, UserProperties{
      * Flags that this Entity will never have a content. It will still be tracked through
      * in to the Search Service.
      *
-     * @param metaOnly if false then the entity will not be indexed in search until a content is added
+     * @param entityOnly if false then the entity will not be indexed in search until a content is added
      */
-    public void setMetaOnly(boolean metaOnly) {
-        this.metaOnly = metaOnly;
+    public void setEntityOnly(boolean entityOnly) {
+        this.entityOnly = entityOnly;
     }
 
-    public boolean isMetaOnly() {
-        return metaOnly;
+    public boolean isEntityOnly() {
+        return entityOnly;
     }
 
     public void setTimezone(String timezone) {

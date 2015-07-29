@@ -424,7 +424,7 @@ public class FileProcessor {
                             EntityInputBean entityInputBean = (EntityInputBean) row;
 
                             if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
-                                entityInputBean.setMetaOnly(true);
+                                entityInputBean.setEntityOnly(true);
                                 // It's all Meta baby - no log information
                             } else {
                                 String updatingUser = entityInputBean.getUpdateUser();
