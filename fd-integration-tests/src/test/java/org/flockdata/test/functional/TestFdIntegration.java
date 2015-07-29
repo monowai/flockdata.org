@@ -572,7 +572,7 @@ public class TestFdIntegration {
 
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity);
-        assertNotNull(entityService.findByCallerRef(fo, inputBean.getDocumentName(), inputBean.getCallerRef()));
+        assertNotNull(entityService.findByCode(fo, inputBean.getDocumentName(), inputBean.getCode()));
         assertNotNull(fortressService.getFortressUser(fo, "wally", true));
         assertNull(fortressService.getFortressUser(fo, "wallyz", false));
 
@@ -1107,7 +1107,7 @@ public class TestFdIntegration {
         doEsQuery(entity, "*", 0);
 
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
-        assertEquals("Search Key set to callerRef", entity.getCallerRef(), entity.getSearchKey());
+        assertEquals("Search Key set to callerRef", entity.getCode(), entity.getSearchKey());
     }
 
     @Test
@@ -1207,7 +1207,7 @@ public class TestFdIntegration {
         helper.publish(batchBeans);
         waitAWhile("AMQP", 8000);
         helper.close();
-        Entity entityA = entityService.findByCallerRef(fortress, inputBean.getDocumentName(), inputBean.getCallerRef());
+        Entity entityA = entityService.findByCode(fortress, inputBean.getDocumentName(), inputBean.getCode());
         assertNotNull(entityA);
 
 
@@ -1473,7 +1473,7 @@ public class TestFdIntegration {
 
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
-        assertEquals(input.getCallerRef(), entity.getSearchKey());
+        assertEquals(input.getCode(), entity.getSearchKey());
         doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);

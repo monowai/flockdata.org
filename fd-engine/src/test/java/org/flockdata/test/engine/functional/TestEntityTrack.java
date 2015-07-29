@@ -76,12 +76,12 @@ public class TestEntityTrack extends EngineBase {
         fortressService.registerFortress(su.getCompany(), fortress);
 
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), null, "TestTrack", new DateTime(), "ABC123");
-        inputBean.setCallerRef("ABC123");
+        inputBean.setCode("ABC123");
         // This call expects the service layer to create the missing fortress from the entityInput
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
-        assertNotNull("Find by callerRef failed", entityService.findByCallerRef(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCallerRef()));
+        assertNotNull("Find by callerRef failed", entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCode()));
         assertNotNull("Find by metaKey failed", entityService.getEntity(su.getCompany(), result.getMetaKey()));
     }
 
@@ -102,7 +102,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
         assertNotNull ("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
-        Entity e = entityService.findByCallerRef(su.getCompany(), fortressInput.getName(), inputBean.getDocumentName(), inputBean.getCallerRef());
+        Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentName(), inputBean.getCode());
         assertNotNull(e);
         assertNotNull("Locating an entity by callerRef did not set the fortress", e.getFortress());
         assertNotNull("Did not find the Company in the Fortress", e.getFortress().getCompany());
@@ -213,7 +213,7 @@ public class TestEntityTrack extends EngineBase {
         entityInputBeans.add(inputBean);
 
         mediationFacade.trackEntities(fortWP, entityInputBeans, 1);
-        Entity entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCode(fortWP, "CompanyNode", callerRef);
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
 
@@ -270,14 +270,14 @@ public class TestEntityTrack extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
         assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean));
 
-        Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCallerRef());
+        Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCode());
         assertNotNull("Unable to locate entity by callerRef", entity);
 
         ContentInputBean contentBean = new ContentInputBean("wally", new DateTime(), Helper.getSimpleMap("blah", 1));
         contentBean.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
         TrackResultBean input = mediationFacade.trackLog(su.getCompany(), contentBean);
         assertNotNull(input.getEntity().getMetaKey());
-        assertNotNull(entityService.findByCallerRef(fortress, contentBean.getDocumentType(), contentBean.getCallerRef()));
+        assertNotNull(entityService.findByCode(fortress, contentBean.getDocumentType(), contentBean.getCallerRef()));
     }
 
     @Test
@@ -309,13 +309,13 @@ public class TestEntityTrack extends EngineBase {
 
         setSecurity(mike_admin);
 
-        assertNotNull(entityService.findByCallerRef(fortressA, "TestTrack", "ABC123"));
-        assertNull("Caller refs are case sensitive so this should not be found", entityService.findByCallerRef(fortressA, "TestTrack", "abc123"));
-        assertNull("Security - shouldn't be able to see this entity", entityService.findByCallerRef(fortressA, "TestTrack", "123ABC"));
+        assertNotNull(entityService.findByCode(fortressA, "TestTrack", "ABC123"));
+        assertNull("Caller refs are case sensitive so this should not be found", entityService.findByCode(fortressA, "TestTrack", "abc123"));
+        assertNull("Security - shouldn't be able to see this entity", entityService.findByCode(fortressA, "TestTrack", "123ABC"));
 
         setSecurity(harry);
         assertNull("User does not belong to this company.Fortress so should not be able to see it",
-                entityService.findByCallerRef(suB.getCompany(), fortressA.getCode(), "TestTrack", "ABC123"));
+                entityService.findByCode(suB.getCompany(), fortressA.getCode(), "TestTrack", "ABC123"));
 
         try {
             assertNull(entityService.getEntity(suB.getCompany(), key));
@@ -338,7 +338,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(ahKey);
 
         assertNotNull(entityService.getEntity(su.getCompany(), ahKey));
-        assertNotNull(entityService.findByCallerRef(fortress, "TestTrack", "ABC123"));
+        assertNotNull(entityService.findByCode(fortress, "TestTrack", "ABC123"));
         assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
         assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
@@ -946,7 +946,7 @@ public class TestEntityTrack extends EngineBase {
 
         inputBeans.clear();
 
-        entity = entityService.findByCallerRef(fortress, "TestTrack", callerRef);
+        entity = entityService.findByCode(fortress, "TestTrack", callerRef);
         assertNotNull(entity);
 
         // Now we record a change
@@ -960,7 +960,7 @@ public class TestEntityTrack extends EngineBase {
         logger.debug("Current count now at {}", entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         waitForLogCount(su.getCompany(), entity, 2);
-        entity = entityService.findByCallerRef(fortress, "TestTrack", callerRef);
+        entity = entityService.findByCode(fortress, "TestTrack", callerRef);
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
         KvContent what = kvService.getContent(entity, lastLog.getLog());
@@ -1195,7 +1195,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
-        assertNotNull(entityService.findByCallerRef(su.getCompany(), fortress.getName(), aib.getDocumentType(), aib.getCallerRef()));
+        assertNotNull(entityService.findByCode(su.getCompany(), fortress.getName(), aib.getDocumentType(), aib.getCallerRef()));
     }
 
     @Autowired

@@ -49,7 +49,7 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
                     ColumnDefinition colDef = profile.getColumnDef(entry.getKey());
                     if ( colDef != null ) {
                         if ( colDef.isCallerRef())
-                            setCallerRef(nodeField.asText());
+                            setCode(nodeField.asText());
                         if ( colDef.isTitle())
                             setName(nodeField.asText());
                         if ( colDef.isDescription())

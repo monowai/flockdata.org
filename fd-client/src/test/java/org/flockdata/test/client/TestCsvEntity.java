@@ -88,7 +88,7 @@ public class TestCsvEntity {
             }
         }
         assertEquals(true, foundBlah & foundExposed);
-        Assert.assertEquals(data[0], mapper.getCallerRef());
+        Assert.assertEquals(data[0], mapper.getCode());
         List<TagInputBean> tags = mapper.getTags();
         int tagsFound = 0;
         boolean callerRefFoundAsATag = false;
@@ -197,7 +197,7 @@ public class TestCsvEntity {
         EntityInputBean header = (EntityInputBean) row;
         row.setData(headers, values, params);
 
-        assertEquals(values[0] + "." + values[3], header.getCallerRef());
+        assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {

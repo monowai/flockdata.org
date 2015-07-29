@@ -351,7 +351,7 @@ public class FdRestWriter implements FdWriter {
             for (EntityInputBean entityInput : entityInputs) {
                 params.put("fortress", entityInput.getFortress());
                 params.put("documentName", entityInput.getDocumentName());
-                params.put("callerRef", entityInput.getCallerRef());
+                params.put("callerRef", entityInput.getCode());
                 HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{callerRef}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);

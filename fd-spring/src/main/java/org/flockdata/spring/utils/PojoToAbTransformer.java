@@ -96,7 +96,7 @@ public class PojoToAbTransformer {
 
                             if (fieldAnnotation instanceof DatagioCallerRef) {
                                 auditWhat = false;
-                                entityInputBean.setCallerRef(field.get(pojo).toString());
+                                entityInputBean.setCode(field.get(pojo).toString());
                             }
 
                             // ToDo: AuditUser

@@ -126,14 +126,14 @@ public class EntityDaoNeo {
         return entity;
     }
 
-    public Collection<Entity> findByCallerRef(Long fortressId, String callerRef) {
-        return entityRepo.findByCallerRef(fortressId, callerRef);
+    public Collection<Entity> findByCode(Long fortressId, String callerRef) {
+        return entityRepo.findByCode(fortressId, callerRef);
 
     }
 
-    public Entity findByCallerRefUnique(Long fortressId, String callerRef) throws FlockException {
+    public Entity findByCodeUnique(Long fortressId, String callerRef) throws FlockException {
         int count = 0;
-        Iterable<Entity> entities = findByCallerRef(fortressId, callerRef);
+        Iterable<Entity> entities = findByCode(fortressId, callerRef);
         Entity result = null;
         for (Entity entity : entities) {
             count++;
@@ -147,12 +147,12 @@ public class EntityDaoNeo {
 
     }
 
-    public Entity findByCallerRef(Long fortressId, Long documentId, String callerRef) {
+    public Entity findByCode(Long fortressId, Long documentId, String callerRef) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCallerRef fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
+            logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
         String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
-        Entity result= entityRepo.findBySchemaPropertyValue("callerKeyRef", keyToFind);
+        Entity result= entityRepo.findBySchemaPropertyValue("key", keyToFind);
 
         fetch(result);
         return result;

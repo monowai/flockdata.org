@@ -53,7 +53,7 @@ public class CrossReferenceInputBean {
 //    }
 
     public CrossReferenceInputBean(EntityInputBean entityInputBean) {
-        this.callerRef = entityInputBean.getCallerRef();
+        this.callerRef = entityInputBean.getCode();
         this.fortress = entityInputBean.getFortress();
         this.documentType = entityInputBean.getDocumentName();
         this.references = entityInputBean.getCrossReferences();

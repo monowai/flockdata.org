@@ -76,9 +76,9 @@ public class TestCallerRef extends EngineBase {
             assertNotNull(metaKey);
             Entity entity = entityService.getEntity(su.getCompany(), metaKey);
             assertNotNull(entity);
-            assertNull(entity.getCallerRef());
+            assertNull(entity.getCode());
 
-            assertNotNull("Not found via the metaKey as it was null when entity created.", entityService.findByCallerRef(fortress, "TestTrack", metaKey));
+            assertNotNull("Not found via the metaKey as it was null when entity created.", entityService.findByCode(fortress, "TestTrack", metaKey));
         } finally {
             cleanUpGraph(); // No transaction so need to clear down the graph
         }
@@ -96,7 +96,7 @@ public class TestCallerRef extends EngineBase {
 
             // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
             String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
-            Iterable<Entity> results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
+            Iterable<Entity> results = entityService.findByCode(su.getCompany(), fortress.getName(), "ABC123");
             assertEquals(true, results.iterator().hasNext());
             assertEquals(metaKey, results.iterator().next().getMetaKey());
 
@@ -104,11 +104,11 @@ public class TestCallerRef extends EngineBase {
             inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
             mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-            results = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "ABC123");
+            results = entityService.findByCode(su.getCompany(), fortress.getName(), "ABC123");
             int count = 0;
             // Should be a total of 2, both for the same fortress but different document types
             for (Entity result : results) {
-                assertEquals("ABC123", result.getCallerRef());
+                assertEquals("ABC123", result.getCode());
                 count++;
             }
             assertEquals(2, count);
@@ -151,7 +151,7 @@ public class TestCallerRef extends EngineBase {
 
             latch.await();
 
-            assertNotNull(entityService.findByCallerRef(fortress, docType, callerRef));
+            assertNotNull(entityService.findByCode(fortress, docType, callerRef));
             logger.info("Runner Count {}", runners.size());
             int i = 1;
 
@@ -208,8 +208,8 @@ public class TestCallerRef extends EngineBase {
                     assert (docType != null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
                     assertNotNull(trackResult);
-                    assertEquals(callerRef.toLowerCase(), trackResult.getEntity().getCallerRef().toLowerCase());
-                    Entity byCallerRef = entityService.findByCallerRef(fortress, docType, callerRef);
+                    assertEquals(callerRef.toLowerCase(), trackResult.getEntity().getCode().toLowerCase());
+                    Entity byCallerRef = entityService.findByCode(fortress, docType, callerRef);
                     assertNotNull(byCallerRef);
                     Assert.assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());
                     count++;

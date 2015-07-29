@@ -53,9 +53,9 @@ public class Entity implements Serializable {
     private ArrayList<String> labels = new ArrayList<>();
 
     @Indexed(unique = true)
-    private String callerKeyRef;
+    private String key;
 
-    private String callerRef;
+    private String code;
 
     private String name;
 
@@ -149,11 +149,11 @@ public class Entity implements Serializable {
         newEntity = true;
 
         docType = docType.toLowerCase();
-        callerRef = entityInput.getCallerRef();
-        callerKeyRef = this.fortress.getId() + "." + documentType.getId() + "." + (callerRef != null ? callerRef : metaKey);
+        code = entityInput.getCode();
+        key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
-            this.name = (callerRef == null ? docType : (docType + "." + callerRef));
+            this.name = (code == null ? docType : (docType + "." + code));
         else
             this.name = entityInput.getName();
 
@@ -206,8 +206,8 @@ public class Entity implements Serializable {
         return fortress;
     }
 
-    public String getCallerKeyRef() {
-        return this.callerKeyRef;
+    public String getKey() {
+        return this.key;
     }
 
     public String getName() {
@@ -301,8 +301,8 @@ public class Entity implements Serializable {
     }
 
     public void setSearchKey(String searchKey) {
-        // By default the searchkey is the callerRef. Let's save disk space
-        if ( searchKey!=null && searchKey.equals(callerRef))
+        // By default the searchkey is the code. Let's save disk space
+        if ( searchKey!=null && searchKey.equals(code))
             this.searchKey = null;
         else
             this.searchKey = searchKey;
@@ -311,12 +311,12 @@ public class Entity implements Serializable {
     public String getSearchKey() {
 //        if ( search  == 0) // No search reply received so searchKey is not yet valid
 //            return null;
-        return (searchKey == null ? callerRef: searchKey);
+        return (searchKey == null ? code : searchKey);
 
     }
 
-    public String getCallerRef() {
-        return this.callerRef;
+    public String getCode() {
+        return this.code;
     }
 
     public long getDateCreated() {

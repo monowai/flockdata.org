@@ -82,7 +82,7 @@ public class KvContentBean implements KvContent, Serializable{
                 this.storage= trackResultBean.getCurrentLog().getLog().getStorage();
             }
             this.content = trackResultBean.getContentInput();
-            content.setCallerRef(trackResultBean.getEntity().getCallerRef());
+            content.setCallerRef(trackResultBean.getEntity().getCode());
             content.setMetaKey(trackResultBean.getMetaKey());
         }
     }
