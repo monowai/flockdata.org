@@ -79,7 +79,7 @@ public class TransformationHelper {
         return row;
     }
 
-    public static boolean getTagInputBean(TagInputBean tag,
+    public static boolean setTagInputBean(TagInputBean tag,
                                           Map<String, Object> row,
                                           String column,
                                           Map<String, ColumnDefinition> content,
@@ -381,6 +381,8 @@ public class TransformationHelper {
         if (tryAsNumber) {
 
             if (value != null && NumberUtils.isNumber(value.toString())) {
+                if ( dataType !=null && dataType.equals("double"))
+                    value = value +"d";
                 value = NumberUtils.createNumber(value.toString());
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
@@ -476,7 +478,7 @@ public class TransformationHelper {
 
     }
 
-    private static Object getValue(Map<String, Object> row, String expression) {
+    public static Object getValue(Map<String, Object> row, String expression) {
         Object result;
         try {
             if (row.containsKey(expression))

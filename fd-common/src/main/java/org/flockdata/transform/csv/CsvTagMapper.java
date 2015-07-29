@@ -25,6 +25,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.transform.GeoSupport;
 import org.flockdata.transform.TransformationHelper;
 
 import java.util.Map;
@@ -54,7 +55,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
             if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    TransformationHelper.getTagInputBean(this, row, column, content, value);
+                    TransformationHelper.setTagInputBean(this, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
                     setName(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
@@ -66,6 +67,25 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
                     Object oValue = TransformationHelper.getValue(value, colDef);
                     if (oValue != null)
                         setProperty(colDef.getTarget(), oValue);
+                }
+                if ( colDef.getGeoData() != null ){
+                    Double x = null, y = null;
+                    Object o = TransformationHelper.getValue(row, colDef.getGeoData().getX());
+                    if ( o !=null )
+                        x = Double.parseDouble(o.toString());
+                    o = TransformationHelper.getValue(row, colDef.getGeoData().getY());
+                    if ( o !=null )
+                        y = Double.parseDouble(o.toString());
+
+                    if ( x !=null && y!=null ) {
+                        colDef.getGeoData().setxValue(x);
+                        colDef.getGeoData().setyValue(y);
+                        double[] points = GeoSupport.convert(colDef.getGeoData());
+                        if (points != null) {
+                            setProperty("lon", points[0]);
+                            setProperty("lat", points[1]);
+                        }
+                    }
                 }
 
 
