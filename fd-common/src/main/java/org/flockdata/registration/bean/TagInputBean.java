@@ -36,7 +36,7 @@ import java.util.Map;
  * Date: 29/06/13
  * Time: 1:20 PM
  */
-public class TagInputBean {
+public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     @NotEmpty
     private String name;
@@ -185,17 +185,25 @@ public class TagInputBean {
         return this.targets;
     }
 
+    @Override
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public TagInputBean setProperty(String key, Object value) {
+    @Override
+    public void setProperty(String key, Object value) {
         if ( properties == null )
             properties = new HashMap<>();
         if ( key !=null && value != null )
             properties.put(key, value);
-        return this;
+    }
+
+    @Override
+    public Object getProperty(String key){
+        if (properties == null )
+            return null;
+        return properties.get(key);
     }
 
     public boolean isReverse() {

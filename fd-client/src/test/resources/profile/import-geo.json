@@ -15,14 +15,18 @@
           "code": "MESHBLOCK_ID",
           "relationship" :"mesh",
           "keyPrefix": "nz",
-          "label": "TRACT"
+          "label": "TRACT",
+          "geoData": {
+            "sourceFormat": "EPSG:2193",
+            "x": "X_COORDINATE",
+            "y": "Y_COORDINATE"
+          }
         }
       ],
       "geoData": {
         "sourceFormat": "EPSG:2193",
         "x": "X_COORDINATE",
-        "y": "Y_COORDINATE",
-        "storeInverted": true
+        "y": "Y_COORDINATE"
       }
     },
     "X_COORDINATE":{

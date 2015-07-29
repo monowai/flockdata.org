@@ -22,26 +22,15 @@ package org.flockdata.transform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Tag;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Tag;
 import org.flockdata.transform.tags.TagProfile;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.LoggerFactory;
-import org.springframework.expression.ExpressionException;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -53,8 +42,6 @@ import java.util.*;
  */
 public class TransformationHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
-
-    private static final ExpressionParser parser = new SpelExpressionParser();
 
     public static Map<String, Object> convertToMap(ProfileConfiguration profileConfig, String[] headerRow, String[] line) {
         int col = 0;
@@ -68,7 +55,7 @@ public class TransformationHelper {
                     colDef = profileConfig.getColumnDef(Integer.toString(col));
 
                 Object value = line[col];
-                convertValue(row, value, column, colDef, profileConfig);
+                transformValue(row, value, column, colDef, profileConfig);
                 col++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -91,8 +78,8 @@ public class TransformationHelper {
             // ToDo: Eliminate this block. Twas only in place to support the way we handle labels
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
-            tag.setName(getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
-            tag.setCode(getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
+            tag.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
+            tag.setCode(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
             tag.setNotFoundCode(colDef.getNotFound());
             if (column != null && value != null) {
                 String relationship = getRelationshipName(row, colDef);
@@ -118,13 +105,13 @@ public class TransformationHelper {
                     .setLabel(colDef.isCountry() ? "Country" : label)
                     .setNotFoundCode(colDef.getNotFound());
 
-            String codeValue = getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
+            String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
 
-            tag.setKeyPrefix(getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
+            tag.setKeyPrefix(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.KEY_PREFIX, colDef, null));
 
             if (!colDef.isMustExist()) {     // Must exists only resolves the Code, so don't waste time setting the name
-                String name = getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
+                String name = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, codeValue);
                 if (name != null && !name.equals(codeValue))
                     tag.setName(name);
             }
@@ -137,7 +124,7 @@ public class TransformationHelper {
                 Map<String, Object> rlxProperties = new HashMap<>();
                 if (colDef.getRlxProperties() != null) {
                     for (ColumnDefinition columnDefinition : colDef.getRlxProperties()) {
-                        Object propValue = getValue(row.get(columnDefinition.getSource()), columnDefinition);
+                        Object propValue = ExpressionHelper.getValue(row.get(columnDefinition.getSource()), columnDefinition);
                         if (propValue != null)
                             rlxProperties.put(columnDefinition.getTarget(),
                                     propValue);
@@ -155,15 +142,15 @@ public class TransformationHelper {
                         String sourceCol = propertyColumn.getSource();
 
                         if ( sourceCol != null )
-                            value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
+                            value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
                         else {
-                            Object val = TransformationHelper.getValue(row, propertyColumn.getValue());
+                            Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
                             if ( val !=null )
                                 value = val.toString();
                         }
 
                         if (value != null)
-                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), getValue(value, propertyColumn));
+                            tag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), ExpressionHelper.getValue(value, propertyColumn));
                     }
                 }
             }
@@ -172,16 +159,15 @@ public class TransformationHelper {
         if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row
+        setNestedTags(tag, colDef.getTargets(), row );
 
-        );
         return true;
     }
 
     private static String resolveValue(String value, String column, ColumnDefinition colDef, Map<String, Object> row) {
         if (value == null)
             return column; // Default to the column Name
-        Object result = getValue(row, ColumnDefinition.ExpressionType.LABEL, colDef, value);
+        Object result = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.LABEL, colDef, value);
         if (result == null)
             return null;
         return result.toString();
@@ -213,7 +199,7 @@ public class TransformationHelper {
             if (row.containsKey(aliasInputBean.getCode()))
                 code = colValue.toString();
             else
-                code = getValue(row, aliasInputBean.getCode());
+                code = ExpressionHelper.getValue(row, aliasInputBean.getCode());
             if (code != null && !code.equals("")) {
                 String codeValue = code.toString();
                 AliasInputBean alias = new AliasInputBean(codeValue);
@@ -235,18 +221,19 @@ public class TransformationHelper {
         if (colDef.getRlxExp() == null)
             return null;
 
-        return getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, Tag.UNDEFINED);
+        return ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.RELATIONSHIP, colDef, Tag.UNDEFINED);
     }
 
     private static boolean evaluateTag(TagProfile tagProfile, Map<String, Object> row) {
         String condition = tagProfile.getCondition();
         if (condition == null)
             return true;
-        Object result = evaluateExpression(row, condition);
+        Object result = ExpressionHelper.evaluateExpression(row, condition);
         return Boolean.parseBoolean(result.toString());
     }
 
     public static TagInputBean setNestedTags(TagInputBean setInTo, ArrayList<TagProfile> tagsToAnalyse, Map<String, Object> row) throws FlockException {
+
         if (tagsToAnalyse == null)
             return null;
 
@@ -257,7 +244,7 @@ public class TransformationHelper {
                 Object value = row.get(tagProfile.getCode());
 
                 if (value == null || value.equals("")) {
-                    value = getValue(row, tagProfile.getCode());
+                    value = ExpressionHelper.getValue(row, tagProfile.getCode());
                     if (value == null || value.equals("")) {
                         logger.debug("No code or code could be found for column {}. A code is required to uniquely identify a tag. Processing continues the but relationship will be ignored", tagProfile.getCode());
                         return setInTo;
@@ -283,7 +270,7 @@ public class TransformationHelper {
                 } else {
                     newTag = new TagInputBean(value.toString())
                             .setLabel(tagProfile.getLabel());
-                    Object name = getValue(row, tagProfile.getName());
+                    Object name = ExpressionHelper.getValue(row, tagProfile.getName());
 
                     if (name != null)
                         newTag.setName(name.toString());
@@ -292,7 +279,7 @@ public class TransformationHelper {
                     newTag.setMustExist(tagProfile.isMustExist());
                     newTag.setNotFoundCode(tagProfile.getNotFound());
                     // Todo: Smell - how to return defaults consistently?
-                    Object keyPrefix = getValue(row, tagProfile.getKeyPrefix());
+                    Object keyPrefix = ExpressionHelper.getValue(row, tagProfile.getKeyPrefix());
                     if (keyPrefix == null && tagProfile.getKeyPrefix() != null)
                         keyPrefix = tagProfile.getKeyPrefix();
                     if (keyPrefix != null)
@@ -308,19 +295,24 @@ public class TransformationHelper {
 
                             String sourceCol = propertyColumn.getSource();
                             if ( sourceCol != null )
-                                value = TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
+                                value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
                             else {
-                                Object val = TransformationHelper.getValue(row, propertyColumn.getValue());
+                                Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
                                 if ( val !=null )
                                     value = val.toString();
                             }
 
-                            Object oValue = getValue(value, propertyColumn);
+                            Object oValue = ExpressionHelper.getValue(value, propertyColumn);
                             if (newTag != null && oValue != null)
                                 newTag.setProperty(propertyColumn.getTarget() == null ? sourceCol : propertyColumn.getTarget(), oValue);
                         }
                     }
                 }
+                if ( tagProfile.getGeoData() != null ){
+                    doGeoTransform(newTag, row, tagProfile);
+
+                }
+
                 if (tagProfile.hasAliases()) {
                     setAliases(newTag, tagProfile, row);
                 }
@@ -349,7 +341,7 @@ public class TransformationHelper {
         return results;
     }
 
-    public static void convertValue(Map<String, Object> row, Object value, String column, ColumnDefinition colDef, ProfileConfiguration importProfile) {
+    public static void transformValue(Map<String, Object> row, Object value, String column, ColumnDefinition colDef, ProfileConfiguration importProfile) {
 
         Boolean tryAsNumber = true;
         String dataType = null;
@@ -428,90 +420,6 @@ public class TransformationHelper {
 
     }
 
-    public static Object getValue(Object value, ColumnDefinition colDef) {
-        if (value == null || value.equals("null"))
-            return null;
-        else if (NumberUtils.isNumber(value.toString())) {
-            if (colDef != null && colDef.getDataType() != null && colDef.getDataType().equalsIgnoreCase("string"))
-                return String.valueOf(value);
-            else
-                return NumberUtils.createNumber(value.toString());
-        } else {
-            return value.toString().trim();
-        }
-    }
-
-    public static String getValue(Map<String, Object> row, ColumnDefinition.ExpressionType expCol, ColumnDefinition colDef, Object defaultValue) {
-        if (colDef == null)
-            return getNullSafeDefault(defaultValue, null);
-
-        String expression = colDef.getExpression(expCol);
-        if (expression == null) {
-            return getNullSafeDefault(defaultValue, colDef);
-        }
-        Object result = getValue(row, expression);
-        if (result == null)
-            return getNullSafeDefault(defaultValue, colDef);
-        return result.toString().trim();
-
-
-    }
-
-    /**
-     * Returns a value based on the expression. To evaluate a column, you must do so using #row['col'] syntax
-     *
-     * @param row
-     * @param expression
-     * @param colDef
-     * @param defaultValue
-     * @return
-     */
-    public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue) {
-        if (colDef == null)
-            return getNullSafeDefault(defaultValue, colDef);
-
-        Object result = evaluateExpression(row, expression);
-        if (result == null)
-            return getNullSafeDefault(defaultValue, colDef);
-        return result.toString().trim();
-
-
-    }
-
-    public static Object getValue(Map<String, Object> row, String expression) {
-        Object result;
-        try {
-            if (row.containsKey(expression))
-                result = row.get(expression);  // Pull value straight from the row
-            else
-                result = evaluateExpression(row, expression);
-        } catch (ExpressionException | StringIndexOutOfBoundsException e) {
-            logger.trace("Expression error parsing [" + expression + "]. Returning null");
-            result = null;
-        }
-        return result;
-    }
-
-    static StandardEvaluationContext context = new StandardEvaluationContext();
-
-    private static Object evaluateExpression(Map<String, Object> row, String expression) {
-        if (expression == null)
-            return null;
-
-        context.setVariable("row", row);
-        return parser.parseExpression(expression).getValue(context);
-    }
-
-    private static String getNullSafeDefault(Object defaultValue, ColumnDefinition colDef) {
-        if (defaultValue == null || defaultValue.equals("")) {
-            // May be a literal value to set the property to
-            if (colDef == null)
-                return null;
-            return colDef.getNullOrEmpty();
-        }
-        return defaultValue.toString().trim();
-    }
-
     public static String[] defaultHeader(String[] line, ProfileConfiguration profileConfig) {
         int col = 0;
         Collection<String> header = new ArrayList<>(line.length);
@@ -531,33 +439,26 @@ public class TransformationHelper {
 
             col++;
         }
-        return header.toArray(new String[0]);
+        return header.toArray(new String[header.size()]);
     }
 
-    public static Long parseDate(ColumnDefinition colDef, String value) {
-        if (value == null || value.equals(""))
-            return null;
-        if (colDef.isDateEpoc()) {
-            return Long.parseLong(value) * 1000;
-        }
-        if (colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
-            return Timestamp.valueOf(value).getTime();
-        }
+    public static void doGeoTransform(UserProperties propertyTarget, Map<String, Object> row, GeoDefinition geoDef) throws FlockException {
+        Double x = null, y = null;
+        Object o = ExpressionHelper.getValue(row, geoDef.getGeoData().getX());
+        if ( o !=null )
+            x = Double.parseDouble(o.toString());
+        o = ExpressionHelper.getValue(row, geoDef.getGeoData().getY());
+        if ( o !=null )
+            y = Double.parseDouble(o.toString());
 
-        if (NumberUtils.isDigits(value))  // plain old java millis
-            return Long.parseLong(value);
-
-        // Date formats
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
-        try {
-
-            // Try first as DateTime
-            LocalDateTime date = LocalDateTime.parse(value, pattern);
-            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
-        } catch (DateTimeParseException e) {
-            // Just a plain date
-            LocalDate date = LocalDate.parse(value, pattern);
-            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+        if ( x !=null && y!=null ) {
+            geoDef.getGeoData().setxValue(x);
+            geoDef.getGeoData().setyValue(y);
+            double[] points = GeoSupport.convert(geoDef.getGeoData());
+            if (points != null) {
+                propertyTarget.setProperty("lat", points[0]);
+                propertyTarget.setProperty("lon", points[1]);
+            }
         }
     }
 }
