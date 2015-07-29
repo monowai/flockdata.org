@@ -28,6 +28,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
+import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
@@ -75,10 +76,10 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                 if (colDef.isDescription()) {
 
-                    setDescription(TransformationHelper.getValue(row, colDef.getValue(), colDef, value));
+                    setDescription(ExpressionHelper.getValue(row, colDef.getValue(), colDef, value));
                 }
                 if (colDef.isTitle()) {
-                    String title = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
+                    String title = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                     setName(title);
                 }
                 if (colDef.isCreateUser()) { // The user in the calling system
@@ -88,12 +89,12 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     setUpdateUser(value);
                 }
                 if (colDef.isCreateDate()) {
-                    Long millis = TransformationHelper.parseDate(colDef, value);
+                    Long millis = ExpressionHelper.parseDate(colDef, value);
                     if (millis != null)
                         setWhen(new DateTime(millis));
                 }
                 if (colDef.isUpdateDate()) {
-                    Long millis = TransformationHelper.parseDate(colDef, value);
+                    Long millis = ExpressionHelper.parseDate(colDef, value);
                     if (millis != null) {
                         // Multiple date fields can be candidates for the last change
                         // Ths will set it to the most recent last change
@@ -103,7 +104,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
 
                 if (colDef.isCallerRef()) {
-                    String callerRef = TransformationHelper.getValue(row, colDef.getValue(), colDef, value);
+                    String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                     setCode(callerRef);
                 }
                 if (colDef.getDelimiter() != null) {
@@ -140,8 +141,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         //String sourceCol = columnDefinition.getSource();
                         if (columnDefinition.isPersistent()) {
 
-                            value = TransformationHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
-                            Object oValue = TransformationHelper.getValue(value, columnDefinition);
+                            value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
+                            Object oValue = ExpressionHelper.getValue(value, columnDefinition);
                             if (columnDefinition.getTarget() != null)
                                 valueColumn = columnDefinition.getTarget();
                             if (oValue != null)
@@ -150,6 +151,11 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
                     }
                 }
+
+                if ( colDef.getGeoData() != null ){
+                    TransformationHelper.doGeoTransform(this, row, colDef);
+                }
+
 
             } // ignoreMe
         }

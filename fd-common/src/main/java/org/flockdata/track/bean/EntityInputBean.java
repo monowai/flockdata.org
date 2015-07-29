@@ -22,6 +22,7 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.transform.UserProperties;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
@@ -32,7 +33,7 @@ import java.util.*;
  * Date: 11/05/13
  * Time: 9:19 AM
  */
-public class EntityInputBean implements Serializable{
+public class EntityInputBean implements Serializable, UserProperties{
     private String metaKey;
     private String code;
     private String fortress;
@@ -202,16 +203,21 @@ public class EntityInputBean implements Serializable{
         return content;
     }
 
+    @Override
+    public Object getProperty(String key){
+        if (properties == null )
+            return null;
+        return properties.get(key);
+    }
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public EntityInputBean setProperty(String key, Object value) {
+    public void setProperty(String key, Object value) {
         if ( properties == null )
             properties = new HashMap<>();
         properties.put(key, value);
-        return this;
     }
 
     public String getEvent() {

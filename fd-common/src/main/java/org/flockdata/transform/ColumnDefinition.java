@@ -38,7 +38,7 @@ import java.util.TimeZone;
  * Time: 7:44 AM
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ColumnDefinition {
+public class ColumnDefinition implements GeoDefinition {
 
     private String code;   // Evaluate and setCode()
     private String source; // source property to read from
@@ -393,6 +393,7 @@ public class ColumnDefinition {
         return persistent;
     }
 
+    @Override
     public GeoPayload getGeoData() {
         return geoData;
     }
