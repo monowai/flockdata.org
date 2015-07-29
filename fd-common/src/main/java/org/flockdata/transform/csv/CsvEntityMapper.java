@@ -109,6 +109,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
                 if (colDef.getDelimiter() != null) {
                     // Implies a tag because it is a comma delimited list of values
+                    // Only simple mapping is achieved here
                     if (value != null && !value.equals("")) {
                         TagProfile tagProfile = new TagProfile();
                         tagProfile.setLabel(colDef.getLabel());

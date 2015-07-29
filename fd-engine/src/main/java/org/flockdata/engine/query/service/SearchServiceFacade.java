@@ -284,7 +284,7 @@ public class SearchServiceFacade {
         if (trackResultBean.getEntity() == null || !fortress.isSearchActive())
             return null;
 
-        if (trackResultBean.getEntityInputBean() != null && trackResultBean.getEntityInputBean().isMetaOnly()) {
+        if (trackResultBean.getEntityInputBean() != null && trackResultBean.getEntityInputBean().isEntityOnly()) {
             return getSearchChange(trackResultBean);
         }
 

@@ -1153,7 +1153,7 @@ public class TestEntityTags extends EngineBase {
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "wally", "ignoreGraph", new DateTime(), "ABC123");
         entityInput.setTrackSuppressed(true);
-        entityInput.setMetaOnly(true); // If true, the entity will be indexed
+        entityInput.setEntityOnly(true); // If true, the entity will be indexed
         // Track suppressed but search is enabled
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(searchService.getSearchChange(result));
