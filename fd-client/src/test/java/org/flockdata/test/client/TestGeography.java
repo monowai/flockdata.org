@@ -177,11 +177,12 @@ public class TestGeography extends AbstractImport{
         ImportProfile params = ClientConfiguration.getImportParams(fileName);
         TestCase.assertEquals('|', params.getDelimiter());
         TestCase.assertEquals(true, params.hasHeader());
+        TestCase.assertNotNull(params.getCondition());
 
         fileProcessor.processFile(params, "/data/import-geo.txt", getFdWriter(), null, configuration);
 
         List<TagInputBean> tags = getFdWriter().getTags();
-        assertEquals(1, tags.size());
+        assertEquals("Condition expression did not evaluate", 1, tags.size());
 
         TagInputBean tag = tags.iterator().next();
         assertEquals(2, tag.getProperties().size());

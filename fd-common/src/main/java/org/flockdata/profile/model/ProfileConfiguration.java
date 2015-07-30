@@ -74,6 +74,8 @@ public interface ProfileConfiguration {
 
     boolean isEmptyIgnored();
 
+    String getCondition();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

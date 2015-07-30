@@ -3,6 +3,7 @@
   "tagOrEntity": "tag",
   "header": true,
   "delimiter": "|",
+  "condition": "#row['ACTION_INDICATOR'] !='D'",
   "content": {
     "DELIVERY_POINT_ID": {
       "tag": true,
