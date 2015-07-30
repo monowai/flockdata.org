@@ -168,7 +168,7 @@ public class MediationFacadeNeo implements MediationFacade {
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
             Collection<TrackResultBean>tr=
-                trackEntities(fortress, byFortress.get(fortress), 1);
+                trackEntities(fortress, byFortress.get(fortress), 2);
             for (TrackResultBean result : tr) {
                 results.add(new TrackRequestResult(result));
             }
