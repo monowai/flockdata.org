@@ -713,7 +713,6 @@ public class TestTags extends EngineBase {
 
         // Same code, but different label. Should create a new tag
         TagInputBean tractCode = new TagInputBean("codeB", "Tract").
-                setCode("CodeA").
                 setName("NameA");
 
         zipCode.setTargets("located", tractCode);

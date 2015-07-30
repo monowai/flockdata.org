@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.IndexHelper;
+import org.flockdata.track.EntityHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -129,7 +130,7 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String uniqueKey, org.flockdata.model.Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public Entity(String uniqueKey, Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
@@ -150,7 +151,8 @@ public class Entity implements Serializable {
 
         docType = docType.toLowerCase();
         code = entityInput.getCode();
-        key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
+        key = EntityHelper.parseKey(this.fortress.getId(), documentType.getId(), (code != null ? code : metaKey));
+        //key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
             this.name = (code == null ? docType : (docType + "." + code));
@@ -189,7 +191,7 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String guid, org.flockdata.model.Fortress fortress, EntityInputBean mib, DocumentType doc, org.flockdata.model.FortressUser user) throws FlockException {
+    public Entity(String guid, Fortress fortress, EntityInputBean mib, DocumentType doc, org.flockdata.model.FortressUser user) throws FlockException {
         this(guid, fortress, mib, doc);
         setCreatedBy(user);
     }
