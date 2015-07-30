@@ -116,22 +116,8 @@ public class TagWrangler {
         else {
             label = tagInput.getLabel();
         }
-        if ( tagInput.getKeyPrefix()!=null && tagInput.getKeyPrefix().contains(":") ){
-            // Label:Value to set the prefix
-            // DAT-479 indirect lookup
-            String[] values = StringUtils.split(tagInput.getKeyPrefix(), ":");
-            if ( values.length ==2 ){
-                Tag indirect = findTagNode(suffix, values[0], null, values[1], false);
-                if ( indirect == null ) {
-                    // ToDo: Exception or literal?
-                    logger.debug("Indirect syntax was found but resolved to no tag");
-                    throw new AmqpRejectAndDontRequeueException("Unable to resolve the indirect tag" +tagInput.getKeyPrefix());
-                } else {
-                    tagInput.setKeyPrefix(indirect.getCode());
-                }
 
-            }
-        }
+        resolveKeyPrefix(suffix, tagInput);
 
         Tag tag = new Tag(tagInput, label);
 
@@ -212,13 +198,40 @@ public class TagWrangler {
         return results;
     }
 
+    private void resolveKeyPrefix(String suffix, TagInputBean tagInput){
+        String prefix = resolveKeyPrefix(suffix, tagInput.getKeyPrefix());
+        if ( prefix !=null )
+            tagInput.setKeyPrefix(prefix);
+    }
+
+    private String resolveKeyPrefix (String suffix, String keyPrefix ){
+        if ( keyPrefix!=null && keyPrefix.contains(":") ){
+            // Label:Value to set the prefix
+            // DAT-479 indirect lookup
+            String[] values = StringUtils.split(keyPrefix, ":");
+            if ( values.length ==2 ){
+                Tag indirect = findTagNode(suffix, values[0], null, values[1], false);
+                if ( indirect == null ) {
+                    // ToDo: Exception or literal?
+                    logger.debug("Indirect syntax was found but resolved to no tag");
+                    throw new AmqpRejectAndDontRequeueException("Unable to resolve the indirect tag" +keyPrefix);
+                } else {
+                    return indirect.getCode();
+                }
+
+            }
+        }
+        return keyPrefix;
+    }
+
     public Tag findTagNode(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
         if (tagCode == null )
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = TagHelper.suffixLabel(label, suffix);
+        String kp = resolveKeyPrefix(suffix, keyPrefix);
 
-        Tag tag = tagByKey(theLabel, keyPrefix, tagCode);
+        Tag tag = tagByKey(theLabel, kp, tagCode);
         if ( tag!=null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
@@ -237,6 +250,8 @@ public class TagWrangler {
      * @return resolved tag
      */
     private Tag tagByKey(String theLabel, String keyPrefix, String tagCode) {
+        if ( keyPrefix!=null && keyPrefix.contains(":"))
+            throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", theLabel, tagCode, keyPrefix));
         String tagKey = TagHelper.parseKey(keyPrefix, tagCode);
         StopWatch watch =getWatch(theLabel + " / " + tagKey);
 
