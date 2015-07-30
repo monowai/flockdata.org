@@ -275,7 +275,7 @@ public class FileProcessor {
                     writeCrossReferences(writer, referenceInputBeans));
         }
 
-        return endProcess(watch, rows);
+        return endProcess(watch, rows, 0);
     }
 
     private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
@@ -350,7 +350,7 @@ public class FileProcessor {
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
             }
-            return endProcess(watch, rows);
+            return endProcess(watch, rows, 0);
 
 
         } catch (XMLStreamException | JAXBException e1) {
@@ -368,6 +368,7 @@ public class FileProcessor {
         DelimitedMappable row;
         DelimitedMappable mappable = (DelimitedMappable) importProfile.getMappable();
 
+        long ignoreCount = 0;
         long currentRow = 0;
         Collection<TagInputBean> tags = new ArrayList<>();
         boolean writeToFile = false; // Haven't figured out how to integrate this yet
@@ -454,6 +455,8 @@ public class FileProcessor {
                             if (stopProcessing(currentRow, then)) {
                                 break;
                             }
+                        } else {
+                            ignoreCount++;
                         }
 
 
@@ -480,7 +483,7 @@ public class FileProcessor {
             }
         }
 
-        return endProcess(watch, currentRow);
+        return endProcess(watch, currentRow, ignoreCount);
     }
 
     public boolean stopProcessing(long currentRow) {
@@ -556,14 +559,14 @@ public class FileProcessor {
         return fileObject;
     }
 
-    public long endProcess(StopWatch watch, long rows) {
+    public long endProcess(StopWatch watch, long rows, long ignoreCount) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         long rowsProcessed = rows - skipCount;
         if (skipCount > 0)
-            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
+            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows, ignored {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount,ignoreCount, rows);
         else
-            logger.info("Completed {} rows in {} secs. rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows);
+            logger.info("Completed {} rows in {} secs. Ignored {} rows rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), ignoreCount, rows);
         return rows;
     }
 

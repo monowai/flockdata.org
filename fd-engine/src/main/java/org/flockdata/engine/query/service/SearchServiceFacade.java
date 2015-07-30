@@ -33,11 +33,19 @@ import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
+import org.neo4j.graphdb.ConstraintViolationException;
+import org.neo4j.graphdb.NotFoundException;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -252,8 +260,11 @@ public class SearchServiceFacade {
 //    }
 
     @Async("fd-search")
+    @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+            maxAttempts = 20,
+            backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     public void makeChangesSearchable(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
-        // ToDo: This needs to be an activation via message-q at least be retry
+        // ToDo: This needs to be an activation via message-q
         logger.debug("Received request to make changes searchable {}", fortress);
         Collection<SearchChangeBean> changes = new ArrayList<>();
         for (TrackResultBean resultBean : resultBeans) {
