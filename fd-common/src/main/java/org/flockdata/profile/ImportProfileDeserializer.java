@@ -66,6 +66,10 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (column != null)
             importProfile.setTagOrEntity(column.asText().equalsIgnoreCase("entity")? ProfileConfiguration.DataType.ENTITY : ProfileConfiguration.DataType.TAG);
 
+        column = node.get("condition");
+        if ( column!=null && ! column.isNull())
+            importProfile.setCondition(column.asText());
+
         column = node.get("fortressUser");
         if (column != null&& !column.isNull())
             importProfile.setFortressUser(column.asText());

@@ -77,7 +77,6 @@ public class ColumnDefinition implements GeoDefinition {
     private String valueOnError;// Value to set to if the format causes an exception
 
     private String nullOrEmpty;
-//    private String appendJoinText = " ";
     private String notFound;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
@@ -87,18 +86,15 @@ public class ColumnDefinition implements GeoDefinition {
     private GeoPayload geoData;
 
 
-    private ArrayList<AliasInputBean> aliases;
-
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
+    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
+    private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
     private String rlxExp; // Relationship expression
-
     private String delimiter;
 
-
-    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
 
     public String getLabel() {
@@ -398,7 +394,5 @@ public class ColumnDefinition implements GeoDefinition {
         return geoData;
     }
 
-    public void setGeoData(GeoPayload geoData) {
-        this.geoData = geoData;
-    }
+
 }

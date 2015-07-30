@@ -60,6 +60,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
         setArchiveTags(importProfile.isArchiveTags());
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
+        if ( !TransformationHelper.processRow(row, importProfile))
+            return null;
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String sourceColumn : content.keySet()) {

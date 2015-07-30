@@ -461,4 +461,15 @@ public class TransformationHelper {
             }
         }
     }
+
+    public static boolean processRow(Map<String, Object> row, ProfileConfiguration importProfile) {
+        String condition = importProfile.getCondition();
+        if ( condition != null ) {
+            Object evaluate = ExpressionHelper.getValue(row, condition);
+            if (evaluate !=null )
+                return Boolean.parseBoolean(evaluate.toString()); // Don't evaluate this row
+        }
+        return true;
+
+    }
 }

@@ -419,40 +419,41 @@ public class FileProcessor {
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile);
-                        //logger.info(jsonData);
-                        if (DataType == ProfileConfiguration.DataType.ENTITY) {
-                            EntityInputBean entityInputBean = (EntityInputBean) row;
+                        if ( jsonData!=null ) {
+                            if (DataType == ProfileConfiguration.DataType.ENTITY) {
+                                EntityInputBean entityInputBean = (EntityInputBean) row;
 
-                            if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
-                                entityInputBean.setEntityOnly(true);
-                                // It's all Meta baby - no log information
-                            } else {
-                                String updatingUser = entityInputBean.getUpdateUser();
-                                if (updatingUser == null)
-                                    updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
+                                if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
+                                    entityInputBean.setEntityOnly(true);
+                                    // It's all Meta baby - no log information
+                                } else {
+                                    String updatingUser = entityInputBean.getUpdateUser();
+                                    if (updatingUser == null)
+                                        updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
 
-                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
-                                contentInputBean.setEvent(importProfile.getEvent());
-                                entityInputBean.setContent(contentInputBean);
+                                    ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
+                                    contentInputBean.setEvent(importProfile.getEvent());
+                                    entityInputBean.setContent(contentInputBean);
+                                }
+                                if (!entityInputBean.getCrossReferences().isEmpty()) {
+                                    referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
+                                    currentRow = currentRow + entityInputBean.getCrossReferences().size();
+                                }
+
+                                trackBatcher.batchEntity(entityInputBean);
+                            } else {// Tag
+                                if (!jsonData.isEmpty()) {
+                                    TagInputBean tagInputBean = (TagInputBean) row;
+
+                                    if (writeToFile)
+                                        tags.add(tagInputBean);
+                                    else
+                                        trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
+                                }
                             }
-                            if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
-                                currentRow = currentRow + entityInputBean.getCrossReferences().size();
+                            if (stopProcessing(currentRow, then)) {
+                                break;
                             }
-
-                            trackBatcher.batchEntity(entityInputBean);
-                        } else {// Tag
-                            if (!jsonData.isEmpty()) {
-                                TagInputBean tagInputBean = (TagInputBean) row;
-
-                                if (writeToFile)
-                                    tags.add(tagInputBean);
-                                else
-                                    trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
-                            }
-                        }
-                        if (stopProcessing(currentRow, then)) {
-                            break;
                         }
 
 
@@ -511,6 +512,7 @@ public class FileProcessor {
     private boolean ignoreRow(String[] nextLine) {
         return nextLine[0].startsWith("#");
     }
+    static StandardEvaluationContext context = new StandardEvaluationContext();
 
     private String[] preProcess(String[] row, ProfileConfiguration importProfile) {
         String[] result = new String[row.length];
@@ -532,7 +534,6 @@ public class FileProcessor {
     private static final ExpressionParser parser = new SpelExpressionParser();
 
     private static Object evaluateExpression(Object value, String expression) {
-        StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("value", value);
         return parser.parseExpression(expression).getValue(context);
     }
