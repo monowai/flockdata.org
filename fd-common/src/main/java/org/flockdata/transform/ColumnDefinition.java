@@ -97,6 +97,8 @@ public class ColumnDefinition implements GeoDefinition {
 
     private boolean updateDate;
 
+    private boolean merge;
+
     public String getLabel() {
         return label;
     }
@@ -393,6 +395,15 @@ public class ColumnDefinition implements GeoDefinition {
     public GeoPayload getGeoData() {
         return geoData;
     }
+
+    /**
+     *
+     * @return should properties in this payload be merged if the tag is existing?
+     */
+    public boolean isMerge() {
+        return merge;
+    }
+
 
 
 }

@@ -56,6 +56,7 @@ public class TagProfile implements GeoDefinition {
     private GeoPayload geoData;
 
     private boolean mustExist;
+    private boolean merge;
 
     public Boolean getReverse() {
         return reverse;
@@ -181,4 +182,11 @@ public class TagProfile implements GeoDefinition {
         return geoData;
     }
 
+    public boolean isMerge() {
+        return merge;
+    }
+
+    public void setMerge(boolean merge) {
+        this.merge = merge;
+    }
 }

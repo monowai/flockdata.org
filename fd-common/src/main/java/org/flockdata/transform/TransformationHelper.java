@@ -75,12 +75,16 @@ public class TransformationHelper {
         Map<String, Object> properties = new HashMap<>();
 
         if (colDef.isValueAsProperty()) {
-            // ToDo: Eliminate this block. Twas only in place to support the way we handle labels
+            // ToDo: Eliminate this block. Twas only in place to support the way we handled labels which can
+            //       now be addressed with expressions
             tag.setMustExist(colDef.isMustExist()).setLabel(column);
             tag.setReverse(colDef.getReverse());
             tag.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
             tag.setCode(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
             tag.setNotFoundCode(colDef.getNotFound());
+            if ( colDef.isMerge())
+                tag.setMerge(true);
+
             if (column != null && value != null) {
                 String relationship = getRelationshipName(row, colDef);
 
@@ -104,6 +108,9 @@ public class TransformationHelper {
             tag.setMustExist(colDef.isMustExist())
                     .setLabel(colDef.isCountry() ? "Country" : label)
                     .setNotFoundCode(colDef.getNotFound());
+
+            if ( colDef.isMerge())
+                tag.setMerge(true);
 
             String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
             tag.setCode(codeValue);
@@ -275,6 +282,9 @@ public class TransformationHelper {
                     if (name != null)
                         newTag.setName(name.toString());
 
+                    if ( tagProfile.isMerge())
+                        newTag.setMerge(true);
+
                     newTag.setReverse(tagProfile.getReverse());
                     newTag.setMustExist(tagProfile.isMustExist());
                     newTag.setNotFoundCode(tagProfile.getNotFound());
@@ -310,7 +320,6 @@ public class TransformationHelper {
                 }
                 if ( tagProfile.getGeoData() != null ){
                     doGeoTransform(newTag, row, tagProfile);
-
                 }
 
                 if (tagProfile.hasAliases()) {
