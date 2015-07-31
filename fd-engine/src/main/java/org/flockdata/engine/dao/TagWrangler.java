@@ -21,13 +21,13 @@ package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.flockdata.helper.TagHelper;
+import org.flockdata.model.Alias;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.Tag;
 import org.flockdata.track.TagPayload;
-import org.flockdata.model.Alias;
-import org.flockdata.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -60,15 +60,17 @@ public class TagWrangler {
     public Collection<TagResultBean>save(TagPayload payload){
         Collection<TagResultBean>results = new ArrayList<>(payload.getTags().size());
         List<String> createdValues = new ArrayList<>();
-        results.addAll(payload.getTags().stream().map(tagInputBean -> new TagResultBean(
-                save(payload.getCompany(), tagInputBean, payload.getTenant(), createdValues, payload.isIgnoreRelationships()))).collect(Collectors.toList()));
+        results.addAll(payload.getTags().stream().map(tagInputBean ->
+                save(payload.getCompany(), tagInputBean, payload.getTenant(), createdValues, payload.isIgnoreRelationships())).collect(Collectors.toList()));
         return results;
 
     }
 
     // ToDo: Turn this in to ServerSide
-    Tag save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
         // Check exists
+        boolean isNew = false;
+        TagResultBean tagResultBean;
         Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(),tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
@@ -84,10 +86,12 @@ public class TagWrangler {
                     // Creating an alias so that we don't have to process this all again. The alias will be against the undefined tag.
                     aliases.add( new AliasInputBean(tagInput.getCode()));
                     notFound.setAliases(aliases);
-                    startTag = save(company, notFound, tagSuffix, createdValues, suppressRelationships);
+                    tagResultBean = save(company, notFound, tagSuffix, createdValues, suppressRelationships);
+                    startTag = tagResultBean.getTag();
                 } else
-                    throw new AmqpRejectAndDontRequeueException("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
+                    return new TagResultBean(tagInput);
             } else {
+                isNew =true;
                 startTag = createTag(tagInput, tagSuffix);
             }
         } else {
@@ -112,7 +116,7 @@ public class TagWrangler {
 
         }
 
-        return startTag;
+        return new TagResultBean(tagInput, startTag, isNew);
     }
 
     private Tag createTag(TagInputBean tagInput, String suffix) {
@@ -156,7 +160,7 @@ public class TagWrangler {
 
     }
 
-    private Tag save(Company company, String tagSuffix, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
+    private TagResultBean save(Company company, String tagSuffix, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
 
         return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
     }
@@ -371,7 +375,7 @@ public class TagWrangler {
      */
     private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
 
-        Tag endTag = save(company, tagSuffix, associatedTag, createdValues, suppressRelationships);
+        Tag endTag = save(company, tagSuffix, associatedTag, createdValues, suppressRelationships).getTag();
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
