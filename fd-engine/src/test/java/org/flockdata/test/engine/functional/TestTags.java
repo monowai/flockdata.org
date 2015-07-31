@@ -798,4 +798,27 @@ public class TestTags extends EngineBase {
         Tag tagC = tagService.createTag(su.getCompany(), nzCity);
         assertEquals("Shouldn't have created a new Tag for an existing City", nzTag.getId(), tagC.getId());
     }
+
+    @Test
+    public void merge_PropertiesInToExistingTag() throws Exception {
+        // DAT-484
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("DAT-484", mike_admin);
+
+        TagInputBean deliveryPoint = new TagInputBean("1233210", "DeliveryPoint").setName("7 Manor Drive");
+        tagService.createTag(su.getCompany(), deliveryPoint);
+
+        // We now have an existing tag with no properties
+
+        deliveryPoint.setProperty("bat", 123);
+        deliveryPoint.setProperty("log", 456);
+
+        Tag tag = tagService.createTag(su.getCompany(), deliveryPoint);
+        assertEquals("No merge instruction was given so the properties should not have been added", 0, tag.getProperties().size());
+
+        // Now instruct the payload that it should merge
+        deliveryPoint.setMerge(true);
+        tag = tagService.createTag(su.getCompany(), deliveryPoint);
+        assertEquals("Merged properties were not added", 2, tag.getProperties().size());
+    }
 }

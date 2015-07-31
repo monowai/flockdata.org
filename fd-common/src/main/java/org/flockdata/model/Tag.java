@@ -220,4 +220,8 @@ public class Tag {
     }
 
 
+    public void addProperty(String key, Object property) {
+        props.setProperty(key, property);
+        //getProperties().put(key, property);
+    }
 }
