@@ -59,6 +59,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     private String notFoundCode;
     private boolean since;
     private String keyPrefix;
+    private boolean merge = false;
 
 
     public TagInputBean() {
@@ -419,5 +420,18 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     public String getKeyPrefix() {
         return keyPrefix;
+    }
+
+    public void setMerge(boolean merge) {
+        this.merge = merge;
+    }
+
+    /**
+     * Default == false
+     * if true, then properties in this payload will be added to an existing tag
+     * @return caller wants to merge properties
+     */
+    public boolean isMerge() {
+        return merge;
     }
 }

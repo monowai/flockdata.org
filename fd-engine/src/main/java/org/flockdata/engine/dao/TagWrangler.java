@@ -90,6 +90,17 @@ public class TagWrangler {
             } else {
                 startTag = createTag(tagInput, tagSuffix);
             }
+        } else {
+            // Existing Tag
+            if (tagInput.isMerge()){
+                boolean changed = false;
+                for (String key : tagInput.getProperties().keySet()) {
+                    startTag.addProperty(key, tagInput.getProperty(key));
+                    changed = true;
+                }
+                if ( changed)
+                    template.save(startTag);
+            }
         }
 
         Map<String, Collection<TagInputBean>> targets = tagInput.getTargets();
