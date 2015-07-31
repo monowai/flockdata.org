@@ -217,7 +217,7 @@ public class TestTags extends EngineBase {
 
         Tag tag = tagService.createTag(iSystemUser.getCompany(), newTag);
 
-        assertNotNull("The NotFound tag was not created for a non-existent tag",tag);
+        assertNotNull("The NotFound tag was not created for a non-existent tag", tag);
         assertEquals("NotFound", tag.getCode());
         assertEquals("Testing", tag.getLabel());
 
@@ -227,6 +227,49 @@ public class TestTags extends EngineBase {
 
         exception.expect(AmqpRejectAndDontRequeueException.class);
         assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
+
+    }
+
+    @Test
+    public void mustExist_SingleTagInBatchFails() throws Exception {
+        SystemUser su = registerSystemUser("mustExist_SingleTagInBatchFails", mike_admin);
+        // DAT-411
+        assertNotNull(su);
+
+        assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
+        assertNull(tagService.findTag(su.getCompany(), "OtherTag", null, "Testing"));
+
+        TagInputBean mustExist = new TagInputBean("NEW-TAG")
+                .setMustExist(true)
+                .setLabel("Testing");
+
+        TagInputBean tagCreates = new TagInputBean("OtherTag")
+                .setLabel("Testing");
+
+        Collection<TagInputBean>tags = new ArrayList<>();
+        tags.add(mustExist);
+        tags.add(tagCreates);
+        Collection<TagResultBean> results = tagService.createTags(su.getCompany(), tags);
+        assertEquals("Two results for two inputs", 2, results.size());
+
+        for (TagResultBean result : results) {
+            if ( result.getCode().equals(mustExist.getCode())){
+                assertTrue("The tag should not have been created",result.getTag()== null );
+                assertFalse("The tag should not have been created",result.isNew());
+                assertNotNull(result.getMessage());
+                assertEquals(mustExist.getCode(), result.getCode());
+            } else if ( result.getCode().equals(tagCreates.getCode())){
+                // The inverse of above
+                assertFalse("The tag should have been created",result.getTag()== null );
+                assertTrue("The tag should have been created", result.isNew());
+                assertNull(result.getMessage());
+                assertEquals(tagCreates.getCode(), result.getCode());
+                assertEquals(tagCreates.getCode(), result.getTag().getCode());
+
+            }   else {
+                throw new Exception ( "Unexpected tag" + result.toString());
+            }
+        }
 
     }
 

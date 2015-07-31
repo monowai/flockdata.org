@@ -39,7 +39,7 @@ public class TagResultBean {
     String name;
     String key;
     String message;
-    Boolean newTag;
+    Boolean newTag = false;
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     Map<String,Object> properties = new HashMap<>();
 
@@ -47,6 +47,11 @@ public class TagResultBean {
 
     private Tag tag =null;
     public TagResultBean(){}
+
+    public TagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
+        this(tagInput, startTag);
+        this.newTag = isNew;
+    }
 
     public TagResultBean(TagInputBean tagInputBean, Tag tag){
 
@@ -78,6 +83,10 @@ public class TagResultBean {
                 aliases.add(new AliasResultBean(alias));
             }
         }
+    }
+
+    public TagResultBean(TagInputBean tagInput) {
+        this(tagInput, null);
     }
 
     public String getKey() {
@@ -121,5 +130,9 @@ public class TagResultBean {
     // Used as a hint to see if we should attempt to create a TagLabel for this tag
     public boolean isNew() {
         return newTag;
+    }
+
+    void setNew(){
+        this.newTag = true;
     }
 }
