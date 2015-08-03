@@ -34,10 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by mike on 28/01/15.
@@ -60,7 +57,7 @@ public class TestEntityRlxProperties extends AbstractImport{
         assertEquals(4, entityBatch.size());
         for (EntityInputBean entityInputBean : entityBatch) {
             assertFalse("Expression not parsed for callerRef",entityInputBean.getCode().contains("|"));
-            assertTrue( "Caller ref appears invalid", entityInputBean.getCode().length() >4);
+            assertTrue("Caller ref appears invalid", entityInputBean.getCode().length() > 4);
             assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
             TagInputBean politician= null;
             for (TagInputBean tagInputBean : entityInputBean.getTags()) {

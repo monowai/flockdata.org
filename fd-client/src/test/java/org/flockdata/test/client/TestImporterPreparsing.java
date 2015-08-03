@@ -35,7 +35,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by mike on 28/01/15.

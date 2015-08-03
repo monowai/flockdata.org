@@ -13,7 +13,6 @@
     <artifactId>fd-integration-tests</artifactId>
 
     <properties>
-        <neo4j.version>2.1.6</neo4j.version>
         <!--<org.springdata.neo4j>3.1.1.RELEASE</org.springdata.neo4j>-->
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
@@ -21,7 +20,7 @@
         <!--This variable is passed to fd.search to control the log level. Example
         mvn clean install -Dfd.integration=amqp -Dfd.auth.provider=simple -Dfd.logLevel=info
         -->
-        <fd.logLevel>${env.fd.logLevel}</fd.logLevel>
+        <!--<fd.logLevel>${env.fd.logLevel}</fd.logLevel>-->
     </properties>
 
     <dependencies>
@@ -36,7 +35,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${org.springframework-version}</version>
             <exclusions>
                 <!-- Exclude Commons Logging in favor of SLF4j -->
                 <exclusion>
@@ -49,13 +47,21 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>${org.springsecurity-version}</version>
         </dependency>
 
         <dependency>
@@ -64,38 +70,21 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>org.flockdata</groupId>-->
-        <!--<artifactId>fd-engine</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--<type>test-jar</type>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
-
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-search</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.integration</groupId>-->
-        <!--<artifactId>spring-integration-amqp</artifactId>-->
-        <!--<version>${org.springintegration.version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
-            <version>3.4.1</version>
         </dependency>
 
         <dependency>
@@ -152,20 +141,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.17</version>
                 <configuration>
                     <skipTests>false</skipTests>
                     <!--Exlude Integration Tests from the standard build (mvn clean install)-->
@@ -186,7 +170,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.17</version>
                         <configuration>
                             <junitArtifactName>junit:junit</junitArtifactName>
                             <argLine>-Xmx768m</argLine>
@@ -213,13 +196,13 @@
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.4.9</version>
+                        <version>1.4.15</version>
                         <configuration>
                             <container>
-                                <containerId>tomcat7x</containerId>
+                                <containerId>tomcat8x</containerId>
                                 <zipUrlInstaller>
                                     <url>
-                                        http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.55/bin/apache-tomcat-7.0.55.zip
+                                        http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.24/bin/apache-tomcat-8.0.24.zip
                                     </url>
                                 </zipUrlInstaller>
                                 <systemProperties>
@@ -277,13 +260,5 @@
             </build>
         </profile>
     </profiles>
-    <repositories>
-        <repository>
-            <id>sonatype</id>
-            <name>Sonatype Groups</name>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
 
-
-    </repositories>
 </project>
