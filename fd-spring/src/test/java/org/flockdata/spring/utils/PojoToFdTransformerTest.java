@@ -40,7 +40,7 @@ public class PojoToFdTransformerTest {
         EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentName(), "pojo1");
-        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
     }
 
     @Test
@@ -52,7 +52,7 @@ public class PojoToFdTransformerTest {
         EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentName(), "testDocType");
-        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class PojoToFdTransformerTest {
         EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
         //Assert.assertEquals(metaInputBean.getMetaKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentName(), "pojo3");
-        Assert.assertEquals(entityInputBean.getCallerRef(), "email@email.com");
+        Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
     }
 
     @Trackable

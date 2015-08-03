@@ -19,12 +19,13 @@
 
 package org.flockdata.transform.csv;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.DelimitedMappable;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 
 import java.util.Map;
@@ -40,6 +41,10 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
     @Override
     public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
+
+        if ( !TransformationHelper.processRow(row, importProfile))
+            return null;
+
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String column : content.keySet()) {
@@ -54,18 +59,21 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
             if (colDef != null) {
 
                 if (colDef.isTag()) {
-                    TransformationHelper.getTagInputBean(this, row, column, content, value);
+                    TransformationHelper.setTagInputBean(this, row, column, content, value);
                 }
                 if (colDef.isTitle()) {
-                    setName(TransformationHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
+                    setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
                     if (colDef.getCode() != null)
                         row.get(colDef.getCode());
                 }
                 if (colDef.getTarget() != null && colDef.isPersistent()) {
-                    value = TransformationHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
-                    Object oValue = TransformationHelper.getValue(value, colDef);
+                    value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
+                    Object oValue = ExpressionHelper.getValue(value, colDef);
                     if (oValue != null)
                         setProperty(colDef.getTarget(), oValue);
+                }
+                if ( colDef.getGeoData() != null ){
+                    TransformationHelper.doGeoTransform(this, row, colDef);
                 }
 
 

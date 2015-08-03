@@ -66,7 +66,7 @@ public class TestContentDuplicate  extends  EngineBase{
             inputBean.setContent(contentBean);
             mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
-        Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), "TestDoc", "123");
+        Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), "TestDoc", "123");
         assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
 
         // Reprocess forward

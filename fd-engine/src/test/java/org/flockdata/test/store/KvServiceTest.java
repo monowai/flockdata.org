@@ -79,7 +79,9 @@ public class KvServiceTest {
     @Before
     public void resetKvStore(){
         kvConfig.setStoreEnabled("true");
+        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
     }
+
     @BeforeClass
     public static void setup() throws Exception {
 
@@ -98,7 +100,8 @@ public class KvServiceTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        //redisServer.stop();
+        if ( redisServer!=null && redisServer.isActive())
+            redisServer.stop();
     }
 
     @Test

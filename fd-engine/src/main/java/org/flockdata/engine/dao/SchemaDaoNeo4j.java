@@ -74,6 +74,10 @@ public class SchemaDaoNeo4j {
         runQuery("create constraint on (t:CountryAlias) assert t.key is unique");
         runQuery("create constraint on (t:State) assert t.key is unique");
         runQuery("create constraint on (t:StateAlias) assert t.key is unique");
+        runQuery("create constraint on (t:City) assert t.key is unique");
+        runQuery("create constraint on (t:CityAlias) assert t.key is unique");
+        runQuery("create constraint on (t:Suburb) assert t.key is unique");
+        runQuery("create constraint on (t:SuburbAlias) assert t.key is unique");
 
         // These are required for SDN 4
         // commented out in SDN3 because the Pojos prefer to create the indexes and constraints

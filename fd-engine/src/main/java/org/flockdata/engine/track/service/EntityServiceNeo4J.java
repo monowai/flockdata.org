@@ -112,11 +112,11 @@ public class EntityServiceNeo4J implements EntityService {
             entity = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
 
-        if (entity == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals(EMPTY)))
-            entity = findByCallerRef(fortress, documentType, entityInputBean.getCallerRef());
+        if (entity == null && (entityInputBean.getCode() != null && !entityInputBean.getCode().equals(EMPTY)))
+            entity = findByCode(fortress, documentType, entityInputBean.getCode());
 
         if (entity != null) {
-            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entity.getMetaKey());
+            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCode(), entity.getMetaKey());
             //entityInputBean.setMetaKey(entity.getMetaKey());
 
             logger.trace("Existing entity [{}]", entity);
@@ -222,7 +222,7 @@ public class EntityServiceNeo4J implements EntityService {
             entityInput.setMetaKey("NT " + fortress.getId()); // We ain't tracking this
 
         //entityInput.setMetaKey(entity.getMetaKey());
-        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), fortress.getCode(), entity.getCallerKeyRef());
+        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), fortress.getCode(), entity.getKey());
         return entity;
     }
 
@@ -375,7 +375,7 @@ public class EntityServiceNeo4J implements EntityService {
         }
 
         // Sync the update to fd-search.
-        if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
+        if (entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
@@ -404,12 +404,12 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity findByCallerRef(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException {
+    public Entity findByCode(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException {
         Fortress iFortress = fortressService.findByName(company, fortress);
         if (iFortress == null)
             return null;
 
-        return findByCallerRef(iFortress, documentCode, callerRef);
+        return findByCode(iFortress, documentCode, callerRef);
     }
 
     @Override
@@ -430,7 +430,7 @@ public class EntityServiceNeo4J implements EntityService {
      */
     @Override
     public Entity findByCallerRefFull(Fortress fortress, String documentType, String callerRef) {
-        return findByCallerRef(fortress, documentType, callerRef);
+        return findByCode(fortress, documentType, callerRef);
     }
 
     /**
@@ -443,24 +443,23 @@ public class EntityServiceNeo4J implements EntityService {
      * @return entities
      */
     @Override
-    public Iterable<Entity> findByCallerRef(Company company, String fortressName, String callerRef) throws NotFoundException {
+    public Iterable<Entity> findByCode(Company company, String fortressName, String callerRef) throws NotFoundException {
         Fortress fortress = fortressService.findByName(company, fortressName);
-        return findByCallerRef(fortress, callerRef);
+        return findByCode(fortress, callerRef);
     }
 
-    private Collection<Entity> findByCallerRef(Fortress fortress, String callerRef) {
-        return entityDao.findByCallerRef(fortress.getId(), callerRef.trim());
+    private Collection<Entity> findByCode(Fortress fortress, String callerRef) {
+        return entityDao.findByCode(fortress.getId(), callerRef.trim());
     }
 
-    @Override
-    public Entity findByCallerRef(Fortress fortress, String documentName, String callerRef) {
+    public Entity findByCode(Fortress fortress, String documentName, String callerRef) {
 
         DocumentType doc = conceptService.resolveByDocCode(fortress, documentName, false);
         if (doc == null) {
             logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentName, callerRef);
             return null;
         }
-        return findByCallerRef(fortress, doc, callerRef);
+        return findByCode(fortress, doc, callerRef);
 
     }
 
@@ -470,8 +469,8 @@ public class EntityServiceNeo4J implements EntityService {
      * @param callerRef    fortressName primary key
      * @return LogResultBean or NULL.
      */
-    public Entity findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {
-        return entityDao.findByCallerRef(fortress.getId(), documentType.getId(), callerRef.trim());
+    public Entity findByCode(Fortress fortress, DocumentType documentType, String callerRef) {
+        return entityDao.findByCode(fortress.getId(), documentType.getId(), callerRef.trim());
     }
 
     @Override
@@ -524,7 +523,7 @@ public class EntityServiceNeo4J implements EntityService {
             assert (documentType != null);
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(fortress, documentType, inputBean, tags);
-            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCallerRef(), inputBean.getDocumentName());
+            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentName());
             arb.add(result);
         }
 
@@ -575,7 +574,7 @@ public class EntityServiceNeo4J implements EntityService {
     public Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
 
-        Entity source = entityDao.findByCallerRefUnique(fortress.getId(), callerRef);
+        Entity source = entityDao.findByCodeUnique(fortress.getId(), callerRef);
         if (source == null) {
             throw new FlockException("Unable to find the Entity [" + callerRef + "]");
         }
@@ -590,10 +589,10 @@ public class EntityServiceNeo4J implements EntityService {
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
         Entity fromEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
-            fromEntity = entityDao.findByCallerRefUnique(f.getId(), sourceKey.getCallerRef());
+            fromEntity = entityDao.findByCodeUnique(f.getId(), sourceKey.getCallerRef());
         else {
             DocumentType document = conceptService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
-            fromEntity = entityDao.findByCallerRef(f.getId(), document.getId(), sourceKey.getCallerRef());
+            fromEntity = entityDao.findByCode(f.getId(), document.getId(), sourceKey.getCallerRef());
         }
         if (fromEntity == null)
             // ToDo: Should we create it??
@@ -608,15 +607,15 @@ public class EntityServiceNeo4J implements EntityService {
 
             Collection<Entity> entities = new ArrayList<>();
             if (entityKey.getDocumentType().equals("*"))
-                entities = findByCallerRef(f, entityKey.getCallerRef());
+                entities = findByCode(f, entityKey.getCallerRef());
             else {
-                Entity mh = findByCallerRef(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
+                Entity mh = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
                 if (mh == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
                     DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
-                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCallerRef(entityKey.getCallerRef());
+                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCallerRef());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);
                         mh = trackResult.getEntity();
                     } else {

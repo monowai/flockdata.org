@@ -287,7 +287,7 @@ public class QueryDaoES implements QueryDao {
                 .addField(EntitySearchSchema.FORTRESS)
                 .addField(EntitySearchSchema.LAST_EVENT)
                 .addField(EntitySearchSchema.DESCRIPTION)
-                .addField(EntitySearchSchema.CALLER_REF)
+                .addField(EntitySearchSchema.CODE)
                 .addField(EntitySearchSchema.WHO)
                 .addField(EntitySearchSchema.UPDATED)
                 .addField(EntitySearchSchema.CREATED)
@@ -350,7 +350,7 @@ public class QueryDaoES implements QueryDao {
 
                         sr.setDescription(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION)));
 
-                        sr.setCallerRef(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CALLER_REF)));
+                        sr.setCallerRef(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CODE)));
                         if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {
                                 sr.addFieldValue(field, getHitValue(searchHitFields.getFields().get(field)));

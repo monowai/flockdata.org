@@ -217,7 +217,7 @@ public class Importer {
             System.exit(-1);
         } finally {
             if (fileProcessor != null)
-                fileProcessor.endProcess(watch, totalRows);
+                fileProcessor.endProcess(watch, totalRows, 0);
 
 
         }

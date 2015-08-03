@@ -51,9 +51,9 @@ public interface EntityRepo extends GraphRepository<Entity> {
 
     @Query( elementClass = Entity.class, value =
             " match (fortress:Fortress)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
-                    " and entity.callerRef ={1}" +
+                    " and entity.code ={1}" +
                     " return entity ")
-    Collection<Entity> findByCallerRef(Long fortressId, String callerRef);
+    Collection<Entity> findByCode(Long fortressId, String code);
 
 //    @Query( elementClass = EntityNode.class, value = "match (c:FDCompany) where id(c)={0} with c match (entities:Entity)-[]-(:Fortress)-[]-(c) " +
 //            " where  entities.metaKey in {1}  " +

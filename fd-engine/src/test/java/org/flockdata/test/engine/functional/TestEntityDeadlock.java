@@ -95,7 +95,7 @@ public class TestEntityDeadlock extends EngineBase {
         for (int thread = 0; thread < threadMax; thread++) {
             assertEquals("Thread "+ (thread +1), true, runners.get(thread).isWorked());
             for (int count = 0; count < docCount; count++) {
-                Entity entity = entityService.findByCallerRef(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
+                Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
                 Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
                 assertEquals(tagCount, entityTags.size());

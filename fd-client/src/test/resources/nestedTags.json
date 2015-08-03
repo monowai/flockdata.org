@@ -2,7 +2,6 @@
     "documentName": "Sales",
     "contentType": "csv",
     "tagOrTrack": "track",
-    "staticDataClazz": "com.absales.DataResolver",
     "entityOnly": false,
     "fortress": "Sales",
     "fortressUser": "batch",
@@ -24,6 +23,7 @@
                         {
                             "relationship": "city",
                             "code": "state",
+                            "name": "stateName",
                             "label": "State",
                             "targets": [
                                 {

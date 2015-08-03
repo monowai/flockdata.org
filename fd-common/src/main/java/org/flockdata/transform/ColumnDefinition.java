@@ -38,7 +38,7 @@ import java.util.TimeZone;
  * Time: 7:44 AM
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ColumnDefinition {
+public class ColumnDefinition implements GeoDefinition {
 
     private String code;   // Evaluate and setCode()
     private String source; // source property to read from
@@ -77,25 +77,27 @@ public class ColumnDefinition {
     private String valueOnError;// Value to set to if the format causes an exception
 
     private String nullOrEmpty;
-//    private String appendJoinText = " ";
     private String notFound;
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> rlxProperties;
 
-    private ArrayList<AliasInputBean> aliases;
+    @JsonDeserialize(using = GeoDeserializer.class)
+    private GeoPayload geoData;
+
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
+    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
+    private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
     private String rlxExp; // Relationship expression
-
     private String delimiter;
 
-
-    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
     private boolean updateDate;
+
+    private boolean merge;
 
     public String getLabel() {
         return label;
@@ -388,5 +390,20 @@ public class ColumnDefinition {
     public boolean isPersistent() {
         return persistent;
     }
+
+    @Override
+    public GeoPayload getGeoData() {
+        return geoData;
+    }
+
+    /**
+     *
+     * @return should properties in this payload be merged if the tag is existing?
+     */
+    public boolean isMerge() {
+        return merge;
+    }
+
+
 
 }

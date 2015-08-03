@@ -58,7 +58,7 @@ public class EntitySearchChange implements SearchChangeBean {
     private String who;
     private String event;
     private String metaKey;
-    private String callerRef;
+    private String code;
     private Long logId;
     private HashMap<String, Map<String,ArrayList<SearchTag>>> tagValues = new HashMap<>();
     private Long entityId;
@@ -104,7 +104,7 @@ public class EntitySearchChange implements SearchChangeBean {
         setFortress(entity.getFortress());
         this.indexName = entity.getFortress().getIndexName();
         this.searchKey = entity.getSearchKey();
-        this.callerRef = entity.getCallerRef();
+        this.code = entity.getCode();
         if (entity.getLastUser() != null)
             this.who = entity.getLastUser().getCode();
         else
@@ -287,8 +287,8 @@ public class EntitySearchChange implements SearchChangeBean {
         }
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     /**
@@ -360,7 +360,7 @@ public class EntitySearchChange implements SearchChangeBean {
         return "EntitySearchChange{" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
-                ", callerRef='" + callerRef + '\'' +
+                ", code='" + code + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
     }
@@ -421,7 +421,7 @@ public class EntitySearchChange implements SearchChangeBean {
         if (fortressName != null ? !fortressName.equals(that.fortressName) : that.fortressName != null) return false;
         if (companyName != null ? !companyName.equals(that.companyName) : that.companyName != null) return false;
         if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
-        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (logId != null ? !logId.equals(that.logId) : that.logId != null) return false;
         if (entityId != null ? !entityId.equals(that.entityId) : that.entityId != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
@@ -435,7 +435,7 @@ public class EntitySearchChange implements SearchChangeBean {
         result = 31 * result + (fortressName != null ? fortressName.hashCode() : 0);
         result = 31 * result + (companyName != null ? companyName.hashCode() : 0);
         result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
-        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (logId != null ? logId.hashCode() : 0);
         result = 31 * result + (entityId != null ? entityId.hashCode() : 0);
         result = 31 * result + (indexName != null ? indexName.hashCode() : 0);

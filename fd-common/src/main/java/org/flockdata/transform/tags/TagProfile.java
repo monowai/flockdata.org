@@ -19,8 +19,12 @@
 
 package org.flockdata.transform.tags;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.GeoDefinition;
+import org.flockdata.transform.GeoDeserializer;
+import org.flockdata.transform.GeoPayload;
 
 import java.util.ArrayList;
 
@@ -29,7 +33,7 @@ import java.util.ArrayList;
  * Date: 27/05/14
  * Time: 3:51 PM
  */
-public class TagProfile {
+public class TagProfile implements GeoDefinition {
     private String name;
     private String code;
     private String keyPrefix;
@@ -46,10 +50,13 @@ public class TagProfile {
     private ArrayList<TagProfile> targets;
     private ArrayList<ColumnDefinition>properties;
     private ArrayList<ColumnDefinition>rlxProperties;
-
     private ArrayList<AliasInputBean>aliases;
 
+    @JsonDeserialize(using = GeoDeserializer.class)
+    private GeoPayload geoData;
+
     private boolean mustExist;
+    private boolean merge;
 
     public Boolean getReverse() {
         return reverse;
@@ -168,5 +175,18 @@ public class TagProfile {
 
     public String getNotFound() {
         return notFound;
+    }
+
+    @Override
+    public GeoPayload getGeoData() {
+        return geoData;
+    }
+
+    public boolean isMerge() {
+        return merge;
+    }
+
+    public void setMerge(boolean merge) {
+        this.merge = merge;
     }
 }

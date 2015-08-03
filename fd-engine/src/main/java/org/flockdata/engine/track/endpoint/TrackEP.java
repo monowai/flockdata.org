@@ -132,7 +132,7 @@ public class TrackEP {
         TrackResultBean trackResultBean;
         input.setFortress(fortress);
         input.setDocumentName(recordType);
-        input.setCallerRef(callerRef);
+        input.setCode(callerRef);
         input.setMetaKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.addServiceMessage("OK");

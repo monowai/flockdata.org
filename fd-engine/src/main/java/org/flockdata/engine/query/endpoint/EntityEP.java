@@ -97,7 +97,7 @@ public class EntityEP {
                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        Entity entity = entityService.findByCallerRef(fortress, documentType, callerRef);
+        Entity entity = entityService.findByCode(fortress, documentType, callerRef);
         return new EntityBean(entity);
     }
 

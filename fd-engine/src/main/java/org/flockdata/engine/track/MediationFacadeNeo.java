@@ -168,7 +168,7 @@ public class MediationFacadeNeo implements MediationFacade {
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (Fortress fortress : byFortress.keySet()) {
             Collection<TrackResultBean>tr=
-                trackEntities(fortress, byFortress.get(fortress), 100);
+                trackEntities(fortress, byFortress.get(fortress), 2);
             for (TrackResultBean result : tr) {
                 results.add(new TrackRequestResult(result));
             }
@@ -277,7 +277,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
 
@@ -296,7 +296,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = entityService.findByCallerRef(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
         return logService.writeLog(entity, input);
@@ -315,7 +315,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
-        if (!fortress.isSearchActive())
+        if (!fortress.isSearchEnabled())
             throw new FlockException("The fortress does not have search enabled. Nothing to do!");
 
         String message = null;
