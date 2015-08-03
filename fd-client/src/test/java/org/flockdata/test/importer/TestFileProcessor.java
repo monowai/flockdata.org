@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Validate File Processor routines - Please add to this as you can
