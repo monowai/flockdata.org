@@ -382,7 +382,7 @@ public class TestFdIntegration {
 
         SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound"));
-        assertTrue("Search should not be disabled", fortressA.isSearchActive());
+        assertTrue("Search should not be disabled", fortressA.isSearchEnabled());
         String docType = "Contract";
         String callerRef = "PDF-TRACK-123";
         EntityInputBean entityInputBean =

@@ -375,7 +375,7 @@ public class EntityServiceNeo4J implements EntityService {
         }
 
         // Sync the update to fd-search.
-        if (entity.getFortress().isSearchActive() && !entity.isSearchSuppressed()) {
+        if (entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
