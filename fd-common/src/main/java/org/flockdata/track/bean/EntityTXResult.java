@@ -50,7 +50,7 @@ public class EntityTXResult {
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = entity.getMetaKey();
         this.documentType = entity.getType();
-        this.callerRef = entity.getCallerRef();
+        this.callerRef = entity.getCode();
         this.fortressName = entity.getFortress().getName();
         this.lastSystemChange = entity.getLastUpdate();
         this.entityLog = log;

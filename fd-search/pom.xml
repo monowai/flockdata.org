@@ -6,8 +6,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flockdata</artifactId>
-         <groupId>org.flockdata</groupId>
-         <version>0.98-BUILD-SNAPSHOT</version>
+        <groupId>org.flockdata</groupId>
+        <version>0.98-BUILD-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-search</artifactId>
@@ -25,107 +25,55 @@
     </properties>
 
     <dependencies>
-        <!-- Spring -->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-web</artifactId>-->
-            <!--<version>${spring-boot.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-            <!--<version>${spring-boot.version}</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.3</version>
-        </dependency>
-        <!-- Required because common/model imports the annotations-->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>${neo4j.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-access</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- END - Required because common/model imports the annotations-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-core</artifactId>
-            <version>${org.springintegration.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-http</artifactId>
-            <version>${org.springintegration.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-amqp</artifactId>
-            <version>${org.springintegration.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-stream</artifactId>
-            <version>${org.springintegration.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${org.springsecurity-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${org.springsecurity-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${org.springsecurity-version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.aspectj</groupId>-->
-            <!--<artifactId>aspectjrt</artifactId>-->
-            <!--<version>${org.aspectj-version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.aspectj</groupId>-->
-            <!--<artifactId>aspectjtools</artifactId>-->
-            <!--<version>${org.aspectj-version}</version>-->
-        <!--</dependency>-->
-        <!-- Servlet -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-servlet-api</artifactId>
@@ -136,7 +84,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -191,36 +138,8 @@
             <scope>test</scope>
 
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>net.sf.ehcache</groupId>-->
-            <!--<artifactId>ehcache</artifactId>-->
-            <!--<version>${ehcache.version}</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.slf4j</groupId>-->
-                    <!--<artifactId>slf4j-log4j12</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>commons-logging</groupId>-->
-                    <!--<artifactId>commons-logging</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--<type>pom</type>-->
-        <!--</dependency>-->
-    </dependencies>
 
-    <!--<dependencyManagement>-->
-        <!--<dependencies>-->
-            <!--<dependency>-->
-                <!--&lt;!&ndash; Import dependency management from Spring Boot &ndash;&gt;-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-dependencies</artifactId>-->
-                <!--<version>${spring-boot.version}</version>-->
-                <!--<type>pom</type>-->
-                <!--<scope>import</scope>-->
-            <!--</dependency>-->
-        <!--</dependencies>-->
-    <!--</dependencyManagement>-->
+    </dependencies>
 
     <build>
         <resources>
@@ -235,14 +154,13 @@
 
         <plugins>
             <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-                <!--<version>${spring-boot.version}</version>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--<version>${spring-boot.version}</version>-->
             <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -253,7 +171,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <archive>
@@ -262,7 +179,8 @@
                         </manifest>
                     </archive>
                     <packagingExcludes>WEB-INF/classes/log4j.xml,
-                                       WEB-INF/classes/fd.monowai.*/</packagingExcludes>
+                        WEB-INF/classes/fd.monowai.*/
+                    </packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -284,7 +202,6 @@
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.1</version>
                 <executions>
                     <execution>
                         <id>tomcat-run</id>
@@ -316,17 +233,17 @@
                                 <dependency>
                                     <groupId>org.slf4j</groupId>
                                     <artifactId>slf4j-api</artifactId>
-                                    <version>${org.slf4j-version}</version>
+                                    <version>${org.slf4j.version}</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>org.slf4j</groupId>
                                     <artifactId>jul-to-slf4j</artifactId>
-                                    <version>${org.slf4j-version}</version>
+                                    <version>${org.slf4j.version}</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>org.slf4j</groupId>
                                     <artifactId>slf4j-log4j12</artifactId>
-                                    <version>${org.slf4j-version}</version>
+                                    <version>${org.slf4j.version}</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>log4j</groupId>

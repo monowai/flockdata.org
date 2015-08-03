@@ -42,8 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-
+import static junit.framework.TestCase.assertTrue;
 /**
  * User: mike
  * Date: 8/05/14
@@ -88,7 +87,7 @@ public class TestCsvEntity {
             }
         }
         assertEquals(true, foundBlah & foundExposed);
-        Assert.assertEquals(data[0], mapper.getCallerRef());
+        Assert.assertEquals(data[0], mapper.getCode());
         List<TagInputBean> tags = mapper.getTags();
         int tagsFound = 0;
         boolean callerRefFoundAsATag = false;
@@ -197,7 +196,7 @@ public class TestCsvEntity {
         EntityInputBean header = (EntityInputBean) row;
         row.setData(headers, values, params);
 
-        assertEquals(values[0] + "." + values[3], header.getCallerRef());
+        assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
         assertEquals("Silver and Bronze medal values are 0 so should not be included", 5, header.getTags().size());
         for (TagInputBean tagInputBean : header.getTags()) {
@@ -253,8 +252,8 @@ public class TestCsvEntity {
         ImportProfile params = getImportParams("/nestedTags.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
-        String[] headers = new String[]{"transaction_id", "zip", "state", "city", "country"};
-        String[] data = new String[]{"1", "123", "CA", "San Francisco", "United States"};
+        String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
+        String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
         Map<String, Object> json = mapper.setData(headers, data, params);
         assertNotNull(json);
 
@@ -278,6 +277,7 @@ public class TestCsvEntity {
         TagInputBean stateTag = stateTags.get("city").iterator().next();
         assertNotNull(stateTag);
         assertEquals("CA", stateTag.getCode());
+        assertEquals("California", stateTag.getName());
 
         Map<String, Collection<TagInputBean>> countryTags = stateTag.getTargets();
         TagInputBean countryTag = countryTags.get("state").iterator().next();

@@ -71,7 +71,7 @@ public class EntityBean implements Serializable {
             this.searchKey = entity.getSearchKey();
             this.metaKey = entity.getMetaKey();
             documentType = entity.getType();
-            callerRef = entity.getCallerRef();
+            callerRef = entity.getCode();
             whenCreated = entity.getDateCreated();
             if ( entity.getFortress()!=null )
                 indexName = entity.getFortress().getIndexName();

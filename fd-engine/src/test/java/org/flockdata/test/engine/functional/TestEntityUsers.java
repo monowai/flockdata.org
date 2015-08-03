@@ -68,7 +68,7 @@ public class TestEntityUsers extends EngineBase {
             entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
             mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-            Entity entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+            Entity entity = entityService.findByCode(fortWP, "CompanyNode", callerRef);
             Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
             Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
@@ -80,7 +80,7 @@ public class TestEntityUsers extends EngineBase {
             mediationFacade.trackEntity(su.getCompany(), entityBean);
             assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
-            entity = entityService.findByCallerRef(fortWP, "CompanyNode", callerRef);
+            entity = entityService.findByCode(fortWP, "CompanyNode", callerRef);
             Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
             logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
@@ -112,7 +112,7 @@ public class TestEntityUsers extends EngineBase {
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        Entity entity = entityService.findByCallerRef(fortress, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
         SearchChangeBean searchChange = searchService.getSearchChange(resultBean);

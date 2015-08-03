@@ -217,7 +217,7 @@ public class TestTags extends EngineBase {
 
         Tag tag = tagService.createTag(iSystemUser.getCompany(), newTag);
 
-        assertNotNull("The NotFound tag was not created for a non-existent tag",tag);
+        assertNotNull("The NotFound tag was not created for a non-existent tag", tag);
         assertEquals("NotFound", tag.getCode());
         assertEquals("Testing", tag.getLabel());
 
@@ -227,6 +227,49 @@ public class TestTags extends EngineBase {
 
         exception.expect(AmqpRejectAndDontRequeueException.class);
         assertNull("blank code is the same as no code", tagService.createTag(iSystemUser.getCompany(), newTag));
+
+    }
+
+    @Test
+    public void mustExist_SingleTagInBatchFails() throws Exception {
+        SystemUser su = registerSystemUser("mustExist_SingleTagInBatchFails", mike_admin);
+        // DAT-411
+        assertNotNull(su);
+
+        assertNull(tagService.findTag(su.getCompany(), "NEW-TAG", null, "Testing"));
+        assertNull(tagService.findTag(su.getCompany(), "OtherTag", null, "Testing"));
+
+        TagInputBean mustExist = new TagInputBean("NEW-TAG")
+                .setMustExist(true)
+                .setLabel("Testing");
+
+        TagInputBean tagCreates = new TagInputBean("OtherTag")
+                .setLabel("Testing");
+
+        Collection<TagInputBean>tags = new ArrayList<>();
+        tags.add(mustExist);
+        tags.add(tagCreates);
+        Collection<TagResultBean> results = tagService.createTags(su.getCompany(), tags);
+        assertEquals("Two results for two inputs", 2, results.size());
+
+        for (TagResultBean result : results) {
+            if ( result.getCode().equals(mustExist.getCode())){
+                assertTrue("The tag should not have been created",result.getTag()== null );
+                assertFalse("The tag should not have been created",result.isNew());
+                assertNotNull(result.getMessage());
+                assertEquals(mustExist.getCode(), result.getCode());
+            } else if ( result.getCode().equals(tagCreates.getCode())){
+                // The inverse of above
+                assertFalse("The tag should have been created",result.getTag()== null );
+                assertTrue("The tag should have been created", result.isNew());
+                assertNull(result.getMessage());
+                assertEquals(tagCreates.getCode(), result.getCode());
+                assertEquals(tagCreates.getCode(), result.getTag().getCode());
+
+            }   else {
+                throw new Exception ( "Unexpected tag" + result.toString());
+            }
+        }
 
     }
 
@@ -713,7 +756,6 @@ public class TestTags extends EngineBase {
 
         // Same code, but different label. Should create a new tag
         TagInputBean tractCode = new TagInputBean("codeB", "Tract").
-                setCode("CodeA").
                 setName("NameA");
 
         zipCode.setTargets("located", tractCode);
@@ -758,5 +800,68 @@ public class TestTags extends EngineBase {
         assertNotNull("Located by prefix/code failed", tagService.findTag(su.getCompany(), "City", "gb", "cambridge"));
         assertNotNull("Located by prefix/code failed", tagService.findTag(su.getCompany(), "City", "nz", "cambridge"));
         //assertEquals(2, tagService.findTag(su.getCompany(), "cambridge"));
+    }
+
+    @Test
+    public void keyPrefix_withIndirectLookup() throws Exception {
+        // DAT-479
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("keyPrefix_withIndirectLookup", mike_admin);
+
+        TagInputBean gb = new TagInputBean("GB", "Country").setName("Great Britain");
+        AliasInputBean aib = new AliasInputBean("Great Britain"); // Alternate way of finding GB
+        gb.addAlias(aib);
+        TagInputBean nz = new TagInputBean("NZ", "Country").setName("New Zealand");
+        tagService.createTag(su.getCompany(), gb);
+        tagService.createTag(su.getCompany(), nz);
+
+        TagInputBean nzCity = new TagInputBean("Cambridge");
+        nzCity.setLabel("City");
+        nzCity.setKeyPrefix("Country:NZ"); // Instructs the server to do a Label:Value lookup to obtain the keyPrefix
+        Tag tagA = tagService.createTag(su.getCompany(), nzCity);
+
+        assertNotNull(tagA);
+
+        // Same code same index, different Key prefix
+        TagInputBean gbCity = new TagInputBean("Cambridge");
+        gbCity.setLabel("City");
+        gbCity.setKeyPrefix("Country:Great Britain"); // Check it also resolved by the alias we created
+        Tag tagB = tagService.createTag(su.getCompany(), gbCity);
+        assertNotNull(tagB);
+        assertTrue(!tagA.getId().equals(tagB.getId()));
+
+        Tag gbTag = tagService.findTag(su.getCompany(), "City", "gb", "cambridge");
+        Tag nzTag = tagService.findTag(su.getCompany(), "City", "nz", "cambridge");
+
+        assertNotNull("Located by prefix/code failed", gbTag);
+        assertEquals("gb.cambridge", gbTag.getKey());
+        assertNotNull("Located by prefix/code failed", nzTag);
+        assertEquals("nz.cambridge", nzTag.getKey());
+        // Ensure we can't create a duplicate City
+        Tag tagC = tagService.createTag(su.getCompany(), nzCity);
+        assertEquals("Shouldn't have created a new Tag for an existing City", nzTag.getId(), tagC.getId());
+    }
+
+    @Test
+    public void merge_PropertiesInToExistingTag() throws Exception {
+        // DAT-484
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("DAT-484", mike_admin);
+
+        TagInputBean deliveryPoint = new TagInputBean("1233210", "DeliveryPoint").setName("7 Manor Drive");
+        tagService.createTag(su.getCompany(), deliveryPoint);
+
+        // We now have an existing tag with no properties
+
+        deliveryPoint.setProperty("bat", 123);
+        deliveryPoint.setProperty("log", 456);
+
+        Tag tag = tagService.createTag(su.getCompany(), deliveryPoint);
+        assertEquals("No merge instruction was given so the properties should not have been added", 0, tag.getProperties().size());
+
+        // Now instruct the payload that it should merge
+        deliveryPoint.setMerge(true);
+        tag = tagService.createTag(su.getCompany(), deliveryPoint);
+        assertEquals("Merged properties were not added", 2, tag.getProperties().size());
     }
 }

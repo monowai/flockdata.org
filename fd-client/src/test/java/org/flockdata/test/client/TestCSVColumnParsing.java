@@ -31,8 +31,8 @@ import java.io.File;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Created by mike on 27/01/15.
@@ -78,7 +78,7 @@ public class TestCSVColumnParsing extends AbstractImport {
         assertTrue("Failed to find InterestGroup Tag", foundC);
         assertTrue("Failed to find Politician Tag", foundD);
         for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
-            assertEquals("4111320141231324700", entityInputBean.getCallerRef());
+            assertEquals("4111320141231324700", entityInputBean.getCode());
         }
     }
 

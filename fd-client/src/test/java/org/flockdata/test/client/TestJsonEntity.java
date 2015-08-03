@@ -59,7 +59,7 @@ public class TestJsonEntity extends AbstractImport{
             JsonNode theMap = mapper.readTree(file);
             entity.setData(theMap, params);
             assertEquals(11, entity.getTags().size());
-            assertEquals("hr4015-113", entity.getCallerRef());
+            assertEquals("hr4015-113", entity.getCode());
             assertEquals("hr", entity.getDocumentName());
             assertNotNull(entity.getName());
             for (TagInputBean tagInputBean : entity.getTags()) {

@@ -98,7 +98,7 @@ curl -u batch:123 -X GET http://localhost:8080/fd-engine/v1/profiles/me/
 ### Create an Application Fortress
 This is one of your computer systems that you want to track information coming from
 ```
-curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/fortress/ -d '{"name": "demo-app","searchActive": true}'
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/fortress/ -d '{"name": "demo-app","searchEnabled": true}'
 ```
 ### Track a Data Event
 You should have started [fd-search](../fd-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
@@ -108,7 +108,7 @@ curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:80
   "event":"Create",
   "documentName":"Debtor",
   "fortressUser":""Batch",
-  "callerRef":"myRef",
+  "code":"myRef",
   "log": {   "fortressUser": "ak0919",
            		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
   }

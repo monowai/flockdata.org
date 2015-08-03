@@ -117,14 +117,14 @@ public class TestEntityCrossReference extends EngineBase {
         TestCase.assertFalse(xrefResults.isEmpty());
         Collection<Entity>entities = xrefResults.get("anyrlx");
         assertEquals(1, entities.size());
-        assertEquals("ABC321", entities.iterator().next().getCallerRef());
+        assertEquals("ABC321", entities.iterator().next().getCode());
 
         // Inverse of above - 321 returns 123
         xrefResults = entityService.getCrossReference(su.getCompany(), trackResultBean.getEntity().getMetaKey(), "anyrlx");
         TestCase.assertFalse(xrefResults.isEmpty());
         entities = xrefResults.get("anyrlx");
         assertEquals(1, entities.size());
-        assertEquals("ABC123", entities.iterator().next().getCallerRef());
+        assertEquals("ABC123", entities.iterator().next().getCode());
 
     }
 

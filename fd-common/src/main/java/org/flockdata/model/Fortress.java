@@ -49,12 +49,12 @@ public class Fortress implements Serializable {
     private Company company;
 
     private Boolean accumulatingChanges = false;
-    private Boolean searchActive = true;
+    private Boolean storeEnabled = Boolean.TRUE;
+    private Boolean searchEnabled = true;
     private String timeZone;
     private String languageTag;
     private Boolean system = Boolean.FALSE;
     private Boolean enabled = Boolean.TRUE;
-    private Boolean storeEnabled = Boolean.TRUE;
 
     @Indexed (unique = true)
     private String indexName = null;
@@ -79,7 +79,7 @@ public class Fortress implements Serializable {
 
     Fortress setFortressInput(FortressInputBean fortressInputBean) {
         setName(fortressInputBean.getName().trim());
-        setSearchActive(fortressInputBean.getSearchActive());
+        setSearchEnabled(fortressInputBean.getSearchActive());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
         storeEnabled = fortressInputBean.getStoreActive();
@@ -142,19 +142,19 @@ public class Fortress implements Serializable {
         return accumulatingChanges;
     }
 
-    public Boolean isSearchActive() {
-        return searchActive;
+    public Boolean isSearchEnabled() {
+        return searchEnabled;
     }
 
-    public void setSearchActive(Boolean searchActive) {
-        if (searchActive != null)
-            this.searchActive = searchActive;
+    public void setSearchEnabled(Boolean searchEnabled) {
+        if (searchEnabled != null)
+            this.searchEnabled = searchEnabled;
     }
 
     public void setAccumulatingChanges(Boolean addChanges) {
         this.accumulatingChanges = addChanges;
         if (addChanges)
-            searchActive = false;
+            searchEnabled = false;
     }
 
     @Override
@@ -163,7 +163,7 @@ public class Fortress implements Serializable {
                 "id=" + id +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", searchActive=" + searchActive +
+                ", searchEnabled=" + searchEnabled +
                 ", storeEnabled=" + storeEnabled +
                 ", indexName='" + indexName + '\'' +
                 '}';

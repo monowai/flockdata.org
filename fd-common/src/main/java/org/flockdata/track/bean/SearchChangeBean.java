@@ -84,7 +84,7 @@ public interface SearchChangeBean {
 
     String getDocumentType();
 
-    String getCallerRef();
+    String getCode();
 
     String getEvent();
 

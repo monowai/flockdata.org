@@ -63,6 +63,9 @@ public class ImportProfile implements ProfileConfiguration {
     private String preParseRowExp;
     private Map<String, Object> properties;
 
+    private String condition; // an expression that determines if the row will be processed
+
+
     public ImportProfile() {
 
     }
@@ -274,5 +277,18 @@ public class ImportProfile implements ProfileConfiguration {
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    /**
+     * true/null (default) == process the row
+     *
+     * @return Expression to evaluate. If it evaluates to false, then the row will be skipped
+     */
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

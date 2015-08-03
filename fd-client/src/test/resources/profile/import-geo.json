@@ -1,0 +1,41 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "tag",
+  "header": true,
+  "delimiter": "|",
+  "condition": "#row['ACTION_INDICATOR'] !='D'",
+  "content": {
+    "DELIVERY_POINT_ID": {
+      "tag": true,
+      "label": "Address",
+      "keyPrefix": "nz",
+      "dataType": "string",
+      "mustExist": true,
+      "targets": [
+        {
+          "code": "MESHBLOCK_ID",
+          "relationship" :"mesh",
+          "keyPrefix": "nz",
+          "label": "TRACT",
+          "geoData": {
+            "sourceFormat": "EPSG:2193",
+            "x": "X_COORDINATE",
+            "y": "Y_COORDINATE"
+          }
+        }
+      ],
+      "geoData": {
+        "sourceFormat": "EPSG:2193",
+        "x": "X_COORDINATE",
+        "y": "Y_COORDINATE"
+      }
+    },
+    "X_COORDINATE":{
+      "dataType": "double"
+    },
+    "Y_COORDINATE":{
+      "dataType": "double"
+    }
+  }
+
+}

@@ -275,7 +275,7 @@ public class FileProcessor {
                     writeCrossReferences(writer, referenceInputBeans));
         }
 
-        return endProcess(watch, rows);
+        return endProcess(watch, rows, 0);
     }
 
     private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
@@ -350,7 +350,7 @@ public class FileProcessor {
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
             }
-            return endProcess(watch, rows);
+            return endProcess(watch, rows, 0);
 
 
         } catch (XMLStreamException | JAXBException e1) {
@@ -368,6 +368,7 @@ public class FileProcessor {
         DelimitedMappable row;
         DelimitedMappable mappable = (DelimitedMappable) importProfile.getMappable();
 
+        long ignoreCount = 0;
         long currentRow = 0;
         Collection<TagInputBean> tags = new ArrayList<>();
         boolean writeToFile = false; // Haven't figured out how to integrate this yet
@@ -419,40 +420,43 @@ public class FileProcessor {
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile);
-                        //logger.info(jsonData);
-                        if (DataType == ProfileConfiguration.DataType.ENTITY) {
-                            EntityInputBean entityInputBean = (EntityInputBean) row;
+                        if ( jsonData!=null ) {
+                            if (DataType == ProfileConfiguration.DataType.ENTITY) {
+                                EntityInputBean entityInputBean = (EntityInputBean) row;
 
-                            if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
-                                entityInputBean.setMetaOnly(true);
-                                // It's all Meta baby - no log information
-                            } else {
-                                String updatingUser = entityInputBean.getUpdateUser();
-                                if (updatingUser == null)
-                                    updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
+                                if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
+                                    entityInputBean.setEntityOnly(true);
+                                    // It's all Meta baby - no log information
+                                } else {
+                                    String updatingUser = entityInputBean.getUpdateUser();
+                                    if (updatingUser == null)
+                                        updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
 
-                                ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
-                                contentInputBean.setEvent(importProfile.getEvent());
-                                entityInputBean.setContent(contentInputBean);
+                                    ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
+                                    contentInputBean.setEvent(importProfile.getEvent());
+                                    entityInputBean.setContent(contentInputBean);
+                                }
+                                if (!entityInputBean.getCrossReferences().isEmpty()) {
+                                    referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
+                                    currentRow = currentRow + entityInputBean.getCrossReferences().size();
+                                }
+
+                                trackBatcher.batchEntity(entityInputBean);
+                            } else {// Tag
+                                if (!jsonData.isEmpty()) {
+                                    TagInputBean tagInputBean = (TagInputBean) row;
+
+                                    if (writeToFile)
+                                        tags.add(tagInputBean);
+                                    else
+                                        trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
+                                }
                             }
-                            if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
-                                currentRow = currentRow + entityInputBean.getCrossReferences().size();
+                            if (stopProcessing(currentRow, then)) {
+                                break;
                             }
-
-                            trackBatcher.batchEntity(entityInputBean);
-                        } else {// Tag
-                            if (!jsonData.isEmpty()) {
-                                TagInputBean tagInputBean = (TagInputBean) row;
-
-                                if (writeToFile)
-                                    tags.add(tagInputBean);
-                                else
-                                    trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
-                            }
-                        }
-                        if (stopProcessing(currentRow, then)) {
-                            break;
+                        } else {
+                            ignoreCount++;
                         }
 
 
@@ -479,7 +483,7 @@ public class FileProcessor {
             }
         }
 
-        return endProcess(watch, currentRow);
+        return endProcess(watch, currentRow, ignoreCount);
     }
 
     public boolean stopProcessing(long currentRow) {
@@ -511,6 +515,7 @@ public class FileProcessor {
     private boolean ignoreRow(String[] nextLine) {
         return nextLine[0].startsWith("#");
     }
+    static StandardEvaluationContext context = new StandardEvaluationContext();
 
     private String[] preProcess(String[] row, ProfileConfiguration importProfile) {
         String[] result = new String[row.length];
@@ -532,7 +537,6 @@ public class FileProcessor {
     private static final ExpressionParser parser = new SpelExpressionParser();
 
     private static Object evaluateExpression(Object value, String expression) {
-        StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("value", value);
         return parser.parseExpression(expression).getValue(context);
     }
@@ -555,14 +559,14 @@ public class FileProcessor {
         return fileObject;
     }
 
-    public long endProcess(StopWatch watch, long rows) {
+    public long endProcess(StopWatch watch, long rows, long ignoreCount) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         long rowsProcessed = rows - skipCount;
         if (skipCount > 0)
-            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, rows);
+            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows, ignored {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount,ignoreCount, rows);
         else
-            logger.info("Completed {} rows in {} secs. rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), rows);
+            logger.info("Completed {} rows in {} secs. Ignored {} rows rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), ignoreCount, rows);
         return rows;
     }
 

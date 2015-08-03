@@ -148,7 +148,7 @@ public class TestAdminCalls extends EngineBase {
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 
-        inputBean.setCallerRef("123abc");
+        inputBean.setCode("123abc");
         inputBean.setMetaKey(null);
         inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
         mediationFacade.trackEntity(fortress, inputBean);
