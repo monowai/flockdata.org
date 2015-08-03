@@ -293,7 +293,7 @@ public class AdminService implements EngineAdminService {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
             if (!lastLog.isMocked()) {
                 EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
-                if (searchDoc != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
+                if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
                     searchDocuments.add(searchDoc);
             }
         }

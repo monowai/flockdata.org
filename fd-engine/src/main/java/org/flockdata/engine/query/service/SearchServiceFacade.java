@@ -292,7 +292,7 @@ public class SearchServiceFacade {
         if (trackResultBean == null)
             return null;
 
-        if (trackResultBean.getEntity() == null || !fortress.isSearchActive())
+        if (trackResultBean.getEntity() == null || !fortress.isSearchEnabled())
             return null;
 
         if (trackResultBean.getEntityInputBean() != null && trackResultBean.getEntityInputBean().isEntityOnly()) {
@@ -328,7 +328,7 @@ public class SearchServiceFacade {
 
         for (Entity entity : entitiesSet) {
             SearchChangeBean change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
-            if (change != null && entity.getFortress().isSearchActive() && !entity.isSearchSuppressed())
+            if (change != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
                 searchChanges.add(change);
         }
         makeChangesSearchable(searchChanges);

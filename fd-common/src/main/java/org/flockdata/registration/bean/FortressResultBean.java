@@ -48,7 +48,7 @@ public class FortressResultBean implements Serializable{
         this.indexName = fortress.getIndexName();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
-        this.searchEnabled = fortress.isSearchActive();
+        this.searchEnabled = fortress.isSearchEnabled();
         this.companyName = fortress.getCompany().getName();
         this.storeEnabled = fortress.isStoreEnabled();
     }

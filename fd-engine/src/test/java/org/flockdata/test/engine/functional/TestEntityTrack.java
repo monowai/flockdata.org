@@ -170,7 +170,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(1, results.size());
         Fortress fortress = fortressService.getFortress(su.getCompany(), fortressName);
         assertNotNull(fortress);
-        assertFalse(fortress.isSearchActive());
+        assertFalse(fortress.isSearchEnabled());
         Entity entity = entityService.getEntity(su.getCompany(), results.iterator().next().getMetaKey());
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
@@ -931,7 +931,7 @@ public class TestEntityTrack extends EngineBase {
     public void lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad() throws Exception {
         SystemUser su = registerSystemUser("lastLog_CorrectlySequencesInSeparateCallsViaBatchLoad");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityEntityDiff", true));
-        assertFalse(fortress.isSearchActive());
+        assertFalse(fortress.isSearchEnabled());
         String callerRef = UUID.randomUUID().toString();
         List<EntityInputBean> inputBeans = new ArrayList<>();
 

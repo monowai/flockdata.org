@@ -315,7 +315,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (fortress == null)
             throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", fortressCode));
 
-        if (!fortress.isSearchActive())
+        if (!fortress.isSearchEnabled())
             throw new FlockException("The fortress does not have search enabled. Nothing to do!");
 
         String message = null;
