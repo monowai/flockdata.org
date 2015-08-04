@@ -277,12 +277,8 @@ public class QueryDaoES implements QueryDao {
         StopWatch watch = new StopWatch();
 
         watch.start(queryParams.toString());
-        String[] types = Strings.EMPTY_ARRAY;
-        if (queryParams.getTypes() != null) {
-            types = EntitySearchSchema.parseDocTypes(queryParams.getTypes());
-        }
+
         SearchRequestBuilder query = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
-                .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .addField(EntitySearchSchema.FORTRESS)
                 .addField(EntitySearchSchema.LAST_EVENT)
