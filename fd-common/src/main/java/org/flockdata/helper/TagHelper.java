@@ -19,6 +19,8 @@
 
 package org.flockdata.helper;
 
+import org.flockdata.dao.EntityTagDao;
+import org.flockdata.model.EntityTag;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 
@@ -41,18 +43,28 @@ public class TagHelper {
     }
 
     public static boolean isDefault(String name) {
-        return name == null || Tag.DEFAULT_TAG.equals(name) ||Tag.DEFAULT.equals(name);
+        return name == null || Tag.DEFAULT_TAG.equals(name) || Tag.DEFAULT.equals(name);
     }
 
 
     public static String parseKey(TagInputBean tagInput) {
-        String prefix = (tagInput.getKeyPrefix()==null? "":tagInput.getKeyPrefix().toLowerCase() +".");
+        String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + ".");
         return prefix + tagInput.getCode().toLowerCase();
     }
 
     public static String parseKey(String keyPrefix, String tagCode) {
-        if ( keyPrefix == null )
+        if (keyPrefix == null)
             return tagCode.toLowerCase();
-        return keyPrefix.toLowerCase() + "."+tagCode.toLowerCase();
+        return keyPrefix.toLowerCase() + "." + tagCode.toLowerCase();
+    }
+
+    public static boolean isSystemKey(String key) {
+        boolean systemKey = false;
+
+        if (key.equals(EntityTag.SINCE) || key.equals(EntityTagDao.FD_WHEN) || key.equals(Tag.LAT) || key.equals(Tag.LON))
+            systemKey = true;
+        return systemKey;
+
+
     }
 }
