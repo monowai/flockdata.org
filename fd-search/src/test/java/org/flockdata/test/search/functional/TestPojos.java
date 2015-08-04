@@ -19,11 +19,14 @@
 
 package org.flockdata.test.search.functional;
 
+import junit.framework.TestCase;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.QueryParams;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -34,7 +37,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Time: 15:31
  * To change this template use File | Settings | File Templates.
  */
-public class QueryGeneratorTest {
+public class TestPojos {
 
     @Test
     public void testGetSimpleQuery_Quoted() throws Exception {
@@ -54,4 +57,33 @@ public class QueryGeneratorTest {
         String query = QueryGenerator.getSimpleQuery(new QueryParams("test"),true);
         Assert.assertTrue(query.contains("highlight"));
     }
+
+    @Test
+    public void indexHelper() throws Exception {
+
+        String company = "qc";
+
+        QueryParams qp = new QueryParams();
+        qp.setCompany(company);
+        qp.setSearchText("*");
+
+        String indexRoot = IndexHelper.getIndexRoot(company, null);
+        assertEquals(IndexHelper.PREFIX + company.toLowerCase() + ".*", indexRoot);
+
+        // Varargs set to a 0 length array
+        qp.setTypes();
+
+        String[] indexes = IndexHelper.getIndexesToQuery(qp);
+        TestCase.assertFalse(indexes == null);
+        TestCase.assertEquals(1, indexes.length);
+        assertEquals(indexRoot, indexes[0]);
+
+        qp.setFortress("*");
+        indexes = IndexHelper.getIndexesToQuery(qp);
+        TestCase.assertFalse(indexes == null);
+        TestCase.assertEquals(1, indexes.length);
+        assertEquals(indexRoot, indexes[0]);
+
+    }
+
 }

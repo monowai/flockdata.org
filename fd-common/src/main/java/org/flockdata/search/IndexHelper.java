@@ -62,11 +62,14 @@ public class IndexHelper {
      * @return One index line per Root+Type combination
      */
     public static String[] getIndexesToQuery(String company, String fortress, String[] types){
-        String[] results = new String[types!=null?types.length:1];
+        int length = 1;
+        if ( types !=null && types.length > 0 )
+            length = types.length;
+        String[] results = new String[ length];
 
         String indexRoot = getIndexRoot(company, fortress);
-        if ( types == null) {
-            results[0] = indexRoot + "*";
+        if ( types == null || types.length ==0) {
+            results[0] = indexRoot + ( indexRoot.endsWith(".*")?"":".*" );
         } else {
             int count = 0;
             for (String type : types) {
