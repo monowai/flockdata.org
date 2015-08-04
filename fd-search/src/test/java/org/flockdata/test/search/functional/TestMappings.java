@@ -20,13 +20,17 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.model.*;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.EntityTagOut;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.GeoDataBean;
+import org.flockdata.track.bean.GeoDataBeans;
 import org.flockdata.track.bean.SearchChangeBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -267,12 +271,16 @@ public class TestMappings extends ESBase {
         tagProps.put("str", "hello");
         EntityTag entityTag = new EntityTagOut(entity, tag, "entity-relationship", tagProps);
         // DAT-442 Geo refactoring
+        GeoDataBeans geoPayLoad = new GeoDataBeans();
         GeoDataBean geoData = new GeoDataBean();
+        GeoDataBean streetData = new GeoDataBean();
+        streetData.add("street", "abc", "123 Main Street", 168.0, -13.03);
         geoData.add("country", "NZ", "New Zealand", 174.0, -41.0);
-        assertEquals("NZ", geoData.getProperties().get("country.code"));
-        assertEquals("New Zealand", geoData.getProperties().get("country.name"));
-        assertEquals("174.0,-41.0", geoData.getProperties().get("points.country"));
-        entityTag.setGeoData(geoData);
+        geoPayLoad.add("country", geoData);
+        geoPayLoad.add("street", streetData);
+        geoData = geoPayLoad.getGeoBeans().get("country");
+        TestCase.assertNotNull(geoData);
+        entityTag.setGeoData(geoPayLoad);
         tags.add(entityTag);
 
         EntitySearchChange change = new EntitySearchChange(entity);
@@ -287,12 +295,13 @@ public class TestMappings extends ESBase {
 
         String result = doQuery(entity, "*", 1);
         logger.info(result);
-        assertTrue(result.contains("points.country"));
+        assertTrue("Couldn't find the country GeoPoints", result.contains("points\":{\"country\""));
+        assertTrue("Should be two geo points", result.contains("\"street\""));
         assertTrue(result.contains("174"));
         assertTrue(result.contains("-41"));
 
         doCompletionQuery(entity, "nz", 1, "Couldn't autocomplete on geo tag for NZ");
-        doCompletionQuery(entity, "new", 1, "Couldn't autocomplete on geo tag for New Zealand");
+        doCompletionQuery(entity, "new ze", 1, "Couldn't autocomplete on geo tag for New Zealand");
     }
 
 }

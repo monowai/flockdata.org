@@ -20,7 +20,7 @@
 package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.track.bean.GeoDataBean;
+import org.flockdata.track.bean.GeoDataBeans;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
@@ -39,7 +39,7 @@ public abstract class EntityTag implements  Comparable<EntityTag>{
     protected DynamicProperties properties = new DynamicPropertiesContainer();
 
     @Transient
-    protected GeoDataBean geoData;
+    protected GeoDataBeans geo;
 
     public abstract Long getId() ;
 
@@ -56,8 +56,8 @@ public abstract class EntityTag implements  Comparable<EntityTag>{
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public GeoDataBean getGeoData() {
-        return geoData;
+    public GeoDataBeans  getGeoData() {
+        return geo;
     }
 
     public abstract Boolean isReversed();
@@ -68,8 +68,8 @@ public abstract class EntityTag implements  Comparable<EntityTag>{
         return properties.getProperty(key);
     }
 
-    public EntityTag setGeoData(GeoDataBean geoData) {
-        this.geoData = geoData;
+    public EntityTag setGeoData(GeoDataBeans geoBeans ) {
+        this.geo= geoBeans;
         return this;
     }
 

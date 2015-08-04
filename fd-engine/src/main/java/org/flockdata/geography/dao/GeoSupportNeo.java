@@ -21,12 +21,12 @@ package org.flockdata.geography.dao;
 
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
+import org.flockdata.track.bean.GeoDataBeans;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +40,8 @@ public class GeoSupportNeo {
 
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
-    @Cacheable(value = "geoData", key = "#loc.id")
-    public GeoDataBean getGeoData(Tag loc) {
+    //@Cacheable(value = "geoData", key = "#loc.id")
+    public GeoDataBeans getGeoData(Tag loc) {
         logger.debug ( "Cache miss for {}", loc.getId() );
         String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
         //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
@@ -55,31 +55,33 @@ public class GeoSupportNeo {
         return getGeoData(rows, loc);
     }
 
-    GeoDataBean getGeoData(Map<String, Object>row, Tag sourceTag){
+    GeoDataBeans getGeoData(Map<String, Object>row, Tag sourceTag){
         if ( row.isEmpty())
             return null;
 
-        GeoDataBean geoData = new GeoDataBean();
+        GeoDataBeans  geoBeans = new GeoDataBeans();
 
         if ( row.containsKey("nodes")) {
             Iterable<Node> nodes = (Iterable<Node>) row.get("nodes");
             for (Node node : nodes) {
-                setFromNode(sourceTag, geoData, node);
+                setFromNode(sourceTag, geoBeans, node);
+
             }
         } else {
             for (String key : row.keySet()) {
                 Node node = (Node) row.get(key);
-                setFromNode(sourceTag, geoData, node);
+                setFromNode(sourceTag, geoBeans, node);
             }
         }
 
-        return geoData;
+        return geoBeans;
     }
 
-    private void setFromNode(Tag sourceTag, GeoDataBean geoData, Node node) {
+    private GeoDataBean setFromNode(Tag sourceTag,GeoDataBeans geoBeans, Node node) {
+        GeoDataBean geoData = new GeoDataBean();
         String label = getUserDefinedLabel(node);
         // Check we don't add the same tag twice
-        if ( label !=null && ! label.equals(sourceTag.getLabel())){
+        if ( label !=null ){
 
             String code;
             String name = null;
@@ -91,13 +93,21 @@ public class GeoSupportNeo {
                 if ( name.equals(code))
                     name = null;
             }
-            if (node.hasProperty("props-latitude"))
-                lat = (Double) node.getProperty("props-latitude");
+            if (node.hasProperty(Tag.NODE_LAT))
+                lat = (Double) node.getProperty(Tag.NODE_LAT);
 
-            if (node.hasProperty("props-longitude"))
-                lon = (Double) node.getProperty("props-longitude");
+            if (node.hasProperty(Tag.NODE_LON))
+                lon = (Double) node.getProperty(Tag.NODE_LON);
             geoData.add(label.toLowerCase(), code, name, lat, lon);
+            geoBeans.add(label.toLowerCase(), geoData);
+            if ( label.equals(sourceTag.getLabel())){
+                geoData.setCode(null);
+                geoData.setName(null);
+            }
+
         }
+
+        return geoData;
     }
 
     private String getUserDefinedLabel(Node node ){

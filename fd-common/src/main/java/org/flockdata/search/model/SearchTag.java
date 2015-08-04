@@ -21,13 +21,18 @@ package org.flockdata.search.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.flockdata.dao.EntityTagDao;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.EntityTag;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.flockdata.helper.TagHelper.isSystemKey;
+
 /**
+ * Creates a representation of a tag, plug it's geo content, suitable for representation
+ * in fd-search
+ *
  * Created by mike on 7/02/15.
  */
 public class SearchTag {
@@ -35,8 +40,10 @@ public class SearchTag {
     String name;
     Map<String, Object> properties;
     Map<String, Object> rlx;
-    Map<String,Object> geo;
+    Map<String,Object> geo = null;
+    Map<String,String> points = new HashMap<>();
 
+    String geoDesc;
 
     SearchTag() {
     }
@@ -54,17 +61,39 @@ public class SearchTag {
             this.code = null;
 
         if (entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty())
-            this.properties = entityTag.getTag().getProperties();
+            this.properties = new HashMap<>();
+            for (String key : entityTag.getTag().getProperties().keySet()) {
+                if ( !TagHelper.isSystemKey(key))
+                    this.properties.put(key, entityTag.getTag().getProperty(key));
+            }
+            //this.properties = entityTag.getTag().getProperties();
+
 
         if (entityTag.getGeoData() != null) {
-            this.geo = entityTag.getGeoData().getProperties();
+            if ( geo == null)
+                geo = new HashMap<>();
+            for (String s : entityTag.getGeoData().getGeoBeans().keySet()) {
+                Object geoCode = entityTag.getGeoData().getGeoBeans().get(s).getCode();
+                if ( geoCode!= null )
+                    geo.put(s+".code", geoCode);
+                if ( entityTag.getGeoData().getGeoBeans().get(s).getName()!=null )
+                    geo.put(s+".name", entityTag.getGeoData().getGeoBeans().get(s).getName());
+                if ( entityTag.getGeoData().getPoints()!=null){
+                    geo.put("points",  entityTag.getGeoData().getPoints());
+                }
+                this.geoDesc = entityTag.getGeoData().getDescription();
+            }
+
+            //this.geoDesc =entityTag.getGeoData().getDescription();
         }
         if ( entityTag.getProperties()!=null && !entityTag.getProperties().isEmpty()){
             this.rlx = new HashMap<>();
             // Know one will want to see these column values. Applicable for a graph viz.
             entityTag.getProperties().keySet().stream().filter
-                    (key -> !key.equals("since") && !key.equals(EntityTagDao.FD_WHEN)).
-                    forEach(key -> rlx.put(key, entityTag.getProperties().get(key)));
+                    (key -> !isSystemKey(key)).
+                    forEach(key -> {
+                        rlx.put(key, entityTag.getProperties().get(key));
+                    });
         }
 
     }
@@ -79,6 +108,10 @@ public class SearchTag {
         return name;
     }
 
+    /**
+     *
+     * @return Tags user defined properties
+     */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
         return properties;
@@ -90,8 +123,13 @@ public class SearchTag {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Map<String,Object> getGeo() {
+    public Map<String, Object> getGeo() {
         return geo;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<String, String> getPoints() {
+        return points;
     }
 
     @Override
@@ -100,5 +138,10 @@ public class SearchTag {
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getGeoDesc() {
+        return geoDesc;
     }
 }

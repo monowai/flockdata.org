@@ -40,14 +40,14 @@ import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
-import org.flockdata.model.Entity;
-import org.flockdata.track.bean.SearchChangeBean;
 import org.flockdata.search.service.TrackSearchDao;
+import org.flockdata.track.bean.SearchChangeBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -130,7 +130,7 @@ public class TrackDaoES implements TrackSearchDao {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error "+indexName+"- callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
+            logger.error("Parsing error " + indexName + "- callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error on index " + indexName, e);
@@ -180,7 +180,7 @@ public class TrackDaoES implements TrackSearchDao {
                             .actionGet();
                 }
             } catch (ElasticsearchException esx) {
-                if (! (esx instanceof IndexAlreadyExistsException)) {
+                if (!(esx instanceof IndexAlreadyExistsException)) {
                     logger.error("Error while ensuring index.... " + indexName, esx);
                     throw esx;
                 }
@@ -190,7 +190,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
 
-    private void ensureMapping(String indexName, String documentType)  {
+    private void ensureMapping(String indexName, String documentType) {
         // Mappings are on a per Document basis. We need to ensure the mapping exists for the
         //    same index but every document type
         logger.debug("Checking mapping for {}, {}", indexName, documentType);
@@ -299,8 +299,8 @@ public class TrackDaoES implements TrackSearchDao {
             logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
             purgeCache();
             return save(searchChange, source);
-        } catch ( NoShardAvailableActionException e){
-            logger.error( "Shard problem updating " + searchChange);
+        } catch (NoShardAvailableActionException e) {
+            logger.error("Shard problem updating " + searchChange);
             //throw new AmqpRejectAndDontRequeueException("Shard problem updating " + searchChange);
             return save(searchChange, source);
         }
@@ -495,34 +495,36 @@ public class TrackDaoES implements TrackSearchDao {
         // ToDo: externalise config
         final int minTagLength = 2;
         if (!tagCodes.contains(tag.getCode())) {
-            if (tag.getCode()!=null && tag.getCode().length() >= minTagLength) {
+            if (tag.getCode() != null && tag.getCode().length() >= minTagLength) {
                 // DAT-446 - Favour the description over a numeric tag code
                 // MKH - let fd-engine decide this
                 //boolean isAlphaNumeric = true;//!NumberUtils.isNumber(tag.getCode());
                 // Always store the code if there is no description or it is Alpha Numeric
                 //if ( tag.getName() == null || isAlphaNumeric )
-                    tagCodes.add(tag.getCode() );
+                tagCodes.add(tag.getCode());
             }
-            if ( tag.getName()!=null ){
+            if (tag.getName() != null) {
                 String key = tag.getName();
-                if ( !tagCodes.contains(key))
+                if (!tagCodes.contains(key))
                     tagCodes.add(key);
             }
         }
         if (tag.getGeo() != null) {
-            Map<String, Object> o = tag.getGeo();
-            for (String s : o.keySet()) {
-                String geoCode = o.get(s).toString();
-                if (!o.containsKey(geoCode)) {
+            Map<String, Object> geoBeans = tag.getGeo();
+            for (String key : geoBeans.keySet()) {
+//                GeoDataBean geoBean = geoBeans.get(key);
+                String code = geoBeans.get(key).toString();
+                if (!tagCodes.contains(code)) {
                     // ToDo: Figure out autocomplete across ngrams
-                    if (s.endsWith(".code")) {
-                        String nameCol = s.substring(0, s.indexOf('.')) + ".name";
-                        String geoName = null;
-                        if (o.containsKey(nameCol))
-                            geoName = o.get(nameCol).toString();
+                    if (key.endsWith(".code")) {
+                        String nameKey = key.substring(0, key.indexOf('.')) + ".name";
+                        String name = null;
+                        if (geoBeans.containsKey(nameKey))
+                            name = geoBeans.get(nameKey).toString();
 
-                        tagCodes.add(geoCode + (geoName != null ? " - " + geoName : ""));
-                        tagCodes.add(geoName + " - " + geoCode);
+                        tagCodes.add(code + (name != null ? " - " + name : ""));
+                        if (name != null)
+                            tagCodes.add(name + " - " + code);
                     }
                 }
             }
@@ -532,7 +534,7 @@ public class TrackDaoES implements TrackSearchDao {
     private Map<String, Object> defaultSettings = null;
 
     private Map<String, Object> getSettings() {
-        InputStream file ;
+        InputStream file;
         try {
 
             if (defaultSettings == null) {
@@ -566,7 +568,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    private XContentBuilder getMapping(String indexName, String documentType)  {
+    private XContentBuilder getMapping(String indexName, String documentType) {
 
         XContentBuilder xbMapping = null;
         try {
