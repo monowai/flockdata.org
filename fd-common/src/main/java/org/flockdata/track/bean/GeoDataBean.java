@@ -19,7 +19,7 @@
 
 package org.flockdata.track.bean;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,33 +32,53 @@ import java.util.Map;
  */
 public class GeoDataBean {
 
+    //private String description = null;
+    private String code;
+    private String name = null;
+    private Map<String,String>points;
+
+
     public GeoDataBean() {
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-//    public Map<String, String> getPoints() {
-//        return points;
+//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//    public Map<String, Object> getProperties() {
+//        return properties;
 //    }
-//
-//    Map<String, String> points = new HashMap<>();
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
+    //Map<String, Object> properties = new HashMap<>();
 
-    Map<String, Object> properties = new HashMap<>();
-
-    public void add(String prefix, String code, String name, Double lat, Double lon) {
-        properties.put(prefix+".code", code);
+    public void add(String type, String code, String name, Double lat, Double lon) {
+        if ( code !=null)
+            this.code = code;
         if ( name !=null )
-            properties.put(prefix+".name", name);
-        // ToDo: Map user defined properties?
-        setLatLong(prefix, lat, lon);
+            this.name = name;
+
+        if (lat != null && lon != null) {
+            if ( points == null )
+                points = new HashMap<>();
+            points.put(type, lat.toString() + "," + lon.toString());
+        }
     }
 
-    private void setLatLong(String label, Double lat, Double lon) {
-        if (lat != null && lon != null)
-            properties.put("points."+label, lat.toString() + "," + lon.toString());
+    public String getName() {
+        return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    @JsonIgnore
+    public Map<String, String> getPoints() {
+        return points;
+    }
 }
