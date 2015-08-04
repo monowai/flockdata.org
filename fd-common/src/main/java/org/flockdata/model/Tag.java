@@ -46,6 +46,11 @@ public class Tag {
     public static final String DEFAULT_TAG="Tag";
     public static final String DEFAULT=":" + DEFAULT_TAG ;
     public static final String UNDEFINED = "undefined";
+    public static final String PROPS_PREFIX = "props-";
+    public static final String LAT = "latitude";
+    public static final String LON = "longitude";
+    public static final String NODE_LAT = PROPS_PREFIX+LAT;
+    public static final String NODE_LON = PROPS_PREFIX+LON;
 
     @GraphId
     Long id;

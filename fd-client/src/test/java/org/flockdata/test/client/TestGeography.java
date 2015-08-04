@@ -21,6 +21,7 @@ package org.flockdata.test.client;
 
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
+import org.flockdata.model.Tag;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -186,12 +187,12 @@ public class TestGeography extends AbstractImport{
 
         TagInputBean tag = tags.iterator().next();
         assertEquals(2, tag.getProperties().size());
-        logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", tag.getProperty("lon"), tag.getProperty("lat"));
+        logger.info("http://maps.google.com/maps?z=12&t=m&q=loc:{}+{}", tag.getProperty(Tag.LON), tag.getProperty(Tag.LAT));
         // Check that geo properties are set on nested tags
         TagInputBean mesh = tag.getTargets().get("mesh").iterator().next();
         assertEquals("Geo properties not set in to nested tag", 2, mesh.getProperties().size());
-        assertEquals(tag.getProperty("lon"),mesh.getProperty("lon"));
-        assertEquals(tag.getProperty("lat"),mesh.getProperty("lat"));
+        assertEquals(tag.getProperty(Tag.LON),mesh.getProperty(Tag.LON));
+        assertEquals(tag.getProperty(Tag.LAT),mesh.getProperty(Tag.LAT));
 
     }
 

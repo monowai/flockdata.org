@@ -43,8 +43,6 @@ public class TagResultBean {
     ArrayList<AliasResultBean> aliases = new ArrayList<>();
     Map<String,Object> properties = new HashMap<>();
 
-    public static final String PROPS_PREFIX = "props-";
-
     private Tag tag =null;
     public TagResultBean(){}
 
