@@ -280,8 +280,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         TagInputBean that = (TagInputBean) o;
 
         if (reverse != that.reverse) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (!code.equals(that.code)) return false;
+        if (!code.equalsIgnoreCase(that.code)) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
         return !(keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null);
 
@@ -289,8 +288,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + code.hashCode();
+        int result = code.toLowerCase().hashCode();
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
         result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);
@@ -433,5 +431,43 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      */
     public boolean isMerge() {
         return merge;
+    }
+
+    public boolean contains(String code, String label, String keyPrefix) {
+       return findTargetTag(code, label, keyPrefix) !=null;
+    }
+
+    /**
+     * determines if the targets Map contains a TagInputBean with requested properties
+     * Tags are uniquely identified by either Code or keyPrefix+"."+code within a Label
+     *
+     * @since DAT-491
+     * @param code      case-insensitive - mandatory
+     * @param label     case-sensitive - mandatory
+     * @param keyPrefix case-insensitive - optional
+     * @return
+     */
+    public TagInputBean findTargetTag(String code, String label, String keyPrefix) {
+        if ( targets == null || targets.isEmpty())
+            return null;
+
+        for (String key : targets.keySet()) {
+            for (TagInputBean tagInputBean : targets.get(key)) {
+                if ( tagInputBean.getCode().equalsIgnoreCase(code) && tagInputBean.getLabel().equals(label)) {
+                    if ( keyPrefix == null || keyPrefix.length() ==0 )
+                        return tagInputBean;// Ignoring the keyPrefix
+                    if ( tagInputBean.getKeyPrefix().equalsIgnoreCase(keyPrefix))
+                        return tagInputBean;
+                }
+                TagInputBean found = tagInputBean.findTargetTag(code, label, keyPrefix);
+                if ( found!=null )
+                    return found;
+            }
+        }
+        return null;
+    }
+
+    public boolean contains(String code, String label) {
+        return contains(code, label, null);
     }
 }
