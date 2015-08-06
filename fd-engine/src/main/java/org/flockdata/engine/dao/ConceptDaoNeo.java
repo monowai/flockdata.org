@@ -19,10 +19,11 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.helper.TagHelper;
+import org.flockdata.model.*;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,7 +202,7 @@ public class ConceptDaoNeo {
      * @return true if it was created for the first time
      */
     public boolean registerTag(Company company, String labelName) {
-        if (SchemaDaoNeo4j.isSystemLabel(labelName))
+        if (TagHelper.isSystemLabel(labelName))
             return true;
 
         if (!schemaTagDefExists(company, labelName)) {

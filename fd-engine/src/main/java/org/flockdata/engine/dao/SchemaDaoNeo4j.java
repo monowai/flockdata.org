@@ -21,14 +21,12 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.TagInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * Maintains company specific Schema details. Structure of the nodes that FD has established
@@ -130,70 +127,22 @@ public class SchemaDaoNeo4j {
     }
 
 
-    /**
-     * Make sure a unique index exists for the tag
-     * Being a schema alteration function this is synchronised to avoid concurrent modifications
-     *
-     * @param tagPayload collection to process
-     */
-    @Transactional
-    @Async("fd-track")
-    public Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
-        Collection<String> knownLabels = getAllLabels();
-        Collection<String> labels = getLabelsToCreate(tagPayload, knownLabels);
-        int size = labels.size();
+    @Cacheable (value = "labels") // Caches the fact that a constraint has been created
+    public String ensureUniqueIndex(String label) {
+        boolean quoted = label.contains(" ") || label.contains("/");
 
-        if (size > 0) {
-            logger.debug("Made " + size + " constraints");
-            for (String label : labels) {
-                boolean quoted = label.contains(" ") || label.contains("/");
+        String cLabel = quoted ?"`"+label: label;
 
-                String cLabel = quoted ?"`"+label: label;
-
-                runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
-                runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
-
-            }
-
-        }
-        logger.debug("No label constraints required");
-
-        return new AsyncResult<>(Boolean.TRUE);
+        runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
+        runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
+        return label;
     }
 
-    private Collection<String> getAllLabels() {
+    public Collection<String> getAllLabels() {
         return new ArrayList<>();
     }
 
-    private Collection<String> getLabelsToCreate(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
-        Collection<String> toCreate = new ArrayList<>();
-        for (TagInputBean tagInput : tagInputs) {
-            if (tagInput != null) {
-                logger.trace("Checking label for {}", tagInput);
-                String label = tagInput.getLabel();
-                if (!knownLabels.contains(label) && !toCreate.contains(label)) {
-                    if (!(tagInput.isDefault() || isSystemLabel(tagInput.getLabel()))) {
-                        logger.debug("Calculated candidate label index for [" + tagInput.getLabel() + "]");
-                        toCreate.add(tagInput.getLabel());
-                        knownLabels.add(tagInput.getLabel());
-                    }
-                }
-                if (!tagInput.getTargets().isEmpty()) {
-                    tagInput.getTargets()
-                            .keySet()
-                            .stream()
-                            .filter(key
-                                    -> key != null)
-                            .forEach(key
-                                    -> toCreate.addAll(getLabelsToCreate(tagInput.getTargets().get(key), knownLabels)));
-                }
-            } else
-                logger.debug("Why is this null?");
 
-        }
-        return toCreate;
-
-    }
 
     @Transactional
     public void purge(Fortress fortress) {
@@ -206,16 +155,5 @@ public class SchemaDaoNeo4j {
         params.put("fortId", fortress.getId());
         runQuery(docRlx, params);
     }
-
-    public static boolean isSystemLabel(String index) {
-        return (index.equals("Country") || index.equals("City"));
-    }
-
-
-    @Transactional
-    public void waitForIndexes() {
-        //template.getGraphDatabaseService().schema().awaitIndexesOnline(6000, TimeUnit.MILLISECONDS);
-    }
-
 
 }

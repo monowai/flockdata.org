@@ -20,6 +20,7 @@
 package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
@@ -53,6 +54,9 @@ public class TagWrangler {
 
     @Autowired
     Neo4jTemplate template;
+
+    @Autowired
+    IndexRetryService indexRetryService;
 
     @Autowired
     TagRepo tagRepo;
@@ -92,7 +96,7 @@ public class TagWrangler {
                     return new TagResultBean(tagInput);
             } else {
                 isNew =true;
-                startTag = createTag(tagInput, tagSuffix);
+                startTag = createTag(company, tagInput, tagSuffix);
             }
         } else {
             // Existing Tag
@@ -119,7 +123,13 @@ public class TagWrangler {
         return new TagResultBean(tagInput, startTag, isNew);
     }
 
-    private Tag createTag(TagInputBean tagInput, String suffix) {
+    private Tag createTag(Company company, TagInputBean tagInput, String suffix) {
+//        boolean schemaReady;
+//        Collection<TagInputBean>tagInputBeans = new ArrayList<>();
+//        tagInputBeans.add(tagInput);
+//        do {
+//            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
+//        } while (!schemaReady);
 
         logger.trace("createTag {}", tagInput);
         // ToDo: Should a label be suffixed with company in multi-tenanted? - more time to think!!
@@ -209,12 +219,12 @@ public class TagWrangler {
     }
 
     private void resolveKeyPrefix(String suffix, TagInputBean tagInput){
-        String prefix = resolveKeyPrefix(suffix, tagInput.getKeyPrefix());
+        String prefix = resolveKeyPrefix(tagInput.getKeyPrefix(), suffix);
         if ( prefix !=null )
             tagInput.setKeyPrefix(prefix);
     }
 
-    private String resolveKeyPrefix (String suffix, String keyPrefix ){
+    private String resolveKeyPrefix(String keyPrefix, String suffix){
         if ( keyPrefix!=null && keyPrefix.contains(":") ){
             // Label:Value to set the prefix
             // DAT-479 indirect lookup
@@ -239,7 +249,7 @@ public class TagWrangler {
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = TagHelper.suffixLabel(label, suffix);
-        String kp = resolveKeyPrefix(suffix, keyPrefix);
+        String kp = resolveKeyPrefix(keyPrefix, suffix);
 
         Tag tag = tagByKey(theLabel, kp, tagCode);
         if ( tag!=null && inflate)
@@ -365,12 +375,14 @@ public class TagWrangler {
      * @param startTag              notional start node
      * @param associatedTag         tag to make or get
      * @param rlxName               relationship name
-     * @param createdValues         running list of values already created - performance op.
+     * @param cachedValues         running list of values already created - performance op.
      * @param suppressRelationships      @return the created tag
      */
-    private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
+    private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> cachedValues, boolean suppressRelationships) {
 
-        Tag endTag = save(company, associatedTag, tagSuffix, createdValues, suppressRelationships).getTag();
+        Tag endTag = findTagNode(tagSuffix, associatedTag.getLabel(),associatedTag.getKeyPrefix(), (associatedTag.getCode() == null ? associatedTag.getName() : associatedTag.getCode()), false);
+        if ( endTag == null )
+            endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships).getTag();
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
@@ -378,18 +390,18 @@ public class TagWrangler {
         Tag startId = (!associatedTag.isReverse() ? startTag : endTag);
         Tag endId = (!associatedTag.isReverse() ? endTag : startTag);
         String key = rlxName + ":" + startId.getId() + ":" + endId.getId();
-        if (createdValues.contains(key))
+        if (cachedValues.contains(key))
             return;
 
-        createRelationship(rlxName, createdValues, startId, endId, key);
+        cachedValues.add(createRelationship(rlxName, startId, endId, key));
     }
 
 
-    private void createRelationship(String rlxName, Collection<String> createdValues, Tag startTag, Tag endTag, String key) {
-        if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
+    private String createRelationship(String rlxName, Tag startTag, Tag endTag, String key) {
+        //if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
             template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
 
-        createdValues.add(key);
+        return key;
     }
 
 
