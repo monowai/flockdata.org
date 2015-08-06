@@ -96,9 +96,9 @@ public class Tag {
         if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
-        if (!(tagInput.getLabel() == null)) {
-            this.labels.add(tagInput.getLabel());
-            //this.labels.add("_"+tagInput.getLabel());
+        String label =tagInput.getLabel();
+        if (label!= null) {
+            this.labels.add(label);
         }
     }
 

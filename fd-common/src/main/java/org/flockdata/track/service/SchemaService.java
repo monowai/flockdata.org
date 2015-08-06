@@ -19,11 +19,12 @@
 
 package org.flockdata.track.service;
 
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.TagInputBean;
 
 import java.util.Collection;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -36,6 +37,6 @@ public interface SchemaService {
 
     void purge(Fortress fortress);
 
-    Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
+    Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
 
 }

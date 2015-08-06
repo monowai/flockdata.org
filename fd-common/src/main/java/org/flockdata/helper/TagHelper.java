@@ -67,4 +67,8 @@ public class TagHelper {
 
 
     }
+
+    public static boolean isSystemLabel(String index) {
+        return (index.equals("Country") || index.equals("City"));
+    }
 }
