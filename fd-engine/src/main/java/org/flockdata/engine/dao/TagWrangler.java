@@ -160,11 +160,6 @@ public class TagWrangler {
 
     }
 
-    private TagResultBean save(Company company, String tagSuffix, TagInputBean tagInput, Collection<String> createdValues, boolean suppressRelationships) {
-
-        return save(company, tagInput, tagSuffix, createdValues, suppressRelationships);
-    }
-
     public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
         String query = "match (t) -["+ (!relationship.equals("")? "r:"+relationship :"r")+"]-(targetTag:"+targetLabel+") where id(t)={id}  return r, targetTag";
         Map<String, Object> params = new HashMap<>();
@@ -375,7 +370,7 @@ public class TagWrangler {
      */
     private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> createdValues, boolean suppressRelationships) {
 
-        Tag endTag = save(company, tagSuffix, associatedTag, createdValues, suppressRelationships).getTag();
+        Tag endTag = save(company, associatedTag, tagSuffix, createdValues, suppressRelationships).getTag();
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
