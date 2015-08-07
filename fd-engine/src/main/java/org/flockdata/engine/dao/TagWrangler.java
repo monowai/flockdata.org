@@ -71,7 +71,7 @@ public class TagWrangler {
     }
 
     // ToDo: Turn this in to ServerSide
-    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> createdValues, boolean suppressRelationships) {
+    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
         // Check exists
         boolean isNew = false;
         TagResultBean tagResultBean;
@@ -90,7 +90,7 @@ public class TagWrangler {
                     // Creating an alias so that we don't have to process this all again. The alias will be against the undefined tag.
                     aliases.add(new AliasInputBean(tagInput.getCode()));
                     notFound.setAliases(aliases);
-                    tagResultBean = save(company, notFound, tagSuffix, createdValues, suppressRelationships);
+                    tagResultBean = save(company, notFound, tagSuffix, cachedValues, suppressRelationships);
                     startTag = tagResultBean.getTag();
                 } else
                     return new TagResultBean(tagInput);
@@ -116,7 +116,7 @@ public class TagWrangler {
             for (String rlxName : targets.keySet()) {
                 Collection<TagInputBean> associatedTag = targets.get(rlxName);
                 for (TagInputBean tagInputBean : associatedTag) {
-                    processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, createdValues, suppressRelationships);
+                    processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, cachedValues, suppressRelationships);
                 }
 
             }
