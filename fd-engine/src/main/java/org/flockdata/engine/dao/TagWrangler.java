@@ -29,6 +29,8 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.track.TagPayload;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -398,8 +400,13 @@ public class TagWrangler {
 
 
     private String createRelationship(String rlxName, Tag startTag, Tag endTag, String key) {
-        //if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
-        template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
+//        if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
+//            template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
+
+        Node start = template.getNode(startTag.getId());
+        //start.createRelationshipTo()
+        Node end = template.getNode(endTag.getId());
+        Relationship r = template.getOrCreateRelationship("rlxNames", "rlx", rlxName + ":" + startTag.getId() + ":" + endTag.getId(), start, end, rlxName, null);
 
         return key;
     }

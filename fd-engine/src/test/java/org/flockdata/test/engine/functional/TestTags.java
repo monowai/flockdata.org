@@ -28,15 +28,13 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.junit.Test;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -47,29 +45,36 @@ import static org.junit.Assert.*;
  */
 public class TestTags extends EngineBase {
 
+    @Test
     public void duplicateTagLists() throws Exception {
         SystemUser iSystemUser = registerSystemUser("duplicateTagLists", mike_admin);
         assertNotNull(iSystemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
-        //TODo: remove company from input/TagIB <> inherit Tag
-        tags.add(new TagInputBean("FLOP"));
-        tags.add(new TagInputBean("FLOP"));
-        tags.add(new TagInputBean("FLOP"));
-        tags.add(new TagInputBean("FLOP"));
-        tags.add(new TagInputBean("FLOP"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
 
         Iterable<TagResultBean> tagResults = tagService.createTags(iSystemUser.getCompany(), tags);
         assertNotNull(tagResults);
         int count = 0;
+        Boolean oneIsNew = null;
         for (TagResultBean next : tagResults) {
-            assertEquals("FLOP", next.getName());
+            assertEquals("FLOP", next.getCode());
             //assertEquals("flop", next.getKey());
+            if ( next.isNew()) {
+                assertNull(oneIsNew); // we only want this set once
+                oneIsNew = Boolean.TRUE;
+            }
+
             count++;
         }
-        assertEquals(1, count);
+        assertNotNull(oneIsNew);
+        assertEquals("Every input gets a response", 5, count);
+
         tags = new ArrayList<>();
-        //TODo: remove company from input/TagIB <> inherit Tag
         tags.add(new TagInputBean("FLOP"));
         tags.add(new TagInputBean("FLOPPY"));
         tags.add(new TagInputBean("FLOPSY"));
@@ -79,6 +84,10 @@ public class TestTags extends EngineBase {
         count = 0;
         for (TagResultBean next : tagResults) {
             assertNotNull(next);
+            if ( next.getCode().equals("FLOP"))
+                assertFalse(next.isNew()); // created in previous run
+            else
+                assertTrue(next.isNew());
             count++;
         }
         assertEquals(5, count);
@@ -776,6 +785,25 @@ public class TestTags extends EngineBase {
         assertEquals("Should have found 0 by non-existent relationship", 0, results.size());
 
     }
+
+    @Test
+    public void duplicate_Relationships() throws Exception {
+        TagInputBean root = new TagInputBean("root", "Interest");
+        root.setTargets("should-be-one", new TagInputBean("un", "Important"));
+        SystemUser iSystemUser = registerSystemUser("duplicate_Relationships", mike_admin);
+
+        Collection<TagResultBean> tags = tagService.createTags(iSystemUser.getCompany(), Collections.singleton(root));
+        tagService.createTags(iSystemUser.getCompany(), Collections.singleton(root));
+        // check a duplicate relationship between identical tags does not get created
+        String cypher = "match (t)-[r]-(o) where id(t)={t} return count(r) as value;";
+        Map<String,Object>params = new HashMap<>();
+        params.put("t",tags.iterator().next().getTag().getId());
+        Result<Map<String, Object>> results = template.query(cypher, params);
+        for (Map<String, Object> row : results) {
+            assertEquals(1l, row.get("value"));
+        }
+    }
+
 
     @Test
     public void keyPrefix_SameCodeSameLabel() throws Exception {
