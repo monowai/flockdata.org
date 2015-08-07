@@ -91,6 +91,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     public Boolean relationshipExists(Entity entity, String tagCode, String relationshipType) {
         return relationshipExists(entity, null, tagCode, relationshipType);
     }
+
     @Override
     public Boolean relationshipExists(Entity entity, String keyPrefix, String tagCode, String relationshipType) {
         Tag tag = tagService.findTag(entity.getFortress().getCompany(), keyPrefix, tagCode);
@@ -150,7 +151,8 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * <p>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
-     *  @param company
+     *
+     * @param company
      * @param entity          Entity to associate userTags with
      * @param lastLog
      * @param entityInputBean payload
@@ -197,7 +199,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         }
         if (!entityInputBean.isTrackSuppressed())
             for (EntityTag entityTag : newEntityTags) {
-                if ( entityTag.getId()==null) // ToDo: This check should be redundant
+                if (entityTag.getId() == null) // ToDo: This check should be redundant
                     template.saveOnly(entityTag);
             }
         return newEntityTags;
@@ -225,9 +227,13 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         Map<String, Object> entityLinks = tagInputBean.getEntityLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
-        long when = (entity.getFortressUpdatedTz()==null ?0:entity.getFortressUpdatedTz().getMillis());
+        long when = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
         if (when == 0)
             when = entity.getDateCreated();
+
+        if (entityLinks == null) {
+            return new ArrayList<>();
+        }
         for (String key : entityLinks.keySet()) {
             Object properties = entityLinks.get(key);
             Map<String, Object> propMap;
@@ -259,9 +265,10 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @param propMap          properties to associate with the relationship
      * @return Null or the EntityTag that was created
      */
-    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
+    EntityTag getRelationship(Entity entity, Tag tag, String relationshipName, Boolean
+            isReversed, Map<String, Object> propMap, boolean isSinceRequired) {
 
-        if ( isSinceRequired) {
+        if (isSinceRequired) {
             long lastUpdate = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
             propMap.put(EntityTag.SINCE, (lastUpdate == 0 ? entity.getFortressCreatedTz().getMillis() : lastUpdate));
         }
@@ -354,7 +361,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     @Override
     public Set<Entity> findEntityTags(Company company, String tagCode) throws FlockException {
-        Tag tag = tagService.findTag(company, null , tagCode);
+        Tag tag = tagService.findTag(company, null, tagCode);
         if (tag == null)
             throw new FlockException("Unable to find the tag [" + tagCode + "]");
         return entityTagDao.findEntityTags(tag);

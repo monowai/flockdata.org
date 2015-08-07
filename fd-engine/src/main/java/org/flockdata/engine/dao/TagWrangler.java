@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 /**
  * Move to Neo4j server extension
- *
+ * <p>
  * Created by mike on 20/06/15.
  */
 
@@ -61,8 +61,8 @@ public class TagWrangler {
     @Autowired
     TagRepo tagRepo;
 
-    public Collection<TagResultBean>save(TagPayload payload){
-        Collection<TagResultBean>results = new ArrayList<>(payload.getTags().size());
+    public Collection<TagResultBean> save(TagPayload payload) {
+        Collection<TagResultBean> results = new ArrayList<>(payload.getTags().size());
         List<String> createdValues = new ArrayList<>();
         results.addAll(payload.getTags().stream().map(tagInputBean ->
                 save(payload.getCompany(), tagInputBean, payload.getTenant(), createdValues, payload.isIgnoreRelationships())).collect(Collectors.toList()));
@@ -75,49 +75,51 @@ public class TagWrangler {
         // Check exists
         boolean isNew = false;
         TagResultBean tagResultBean;
-        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(),tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
+        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(), tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
                 tagInput.setServiceMessage("Tag [" + tagInput + "] should exist for [" + tagInput.getLabel() + "] but doesn't. Ignoring this request.");
-                if (tagInput.getNotFoundCode() !=null && !tagInput.getNotFoundCode().equals("")){
+                if (tagInput.getNotFoundCode() != null && !tagInput.getNotFoundCode().equals("")) {
                     TagInputBean notFound = new TagInputBean(tagInput.getNotFoundCode())
                             .setLabel(tagInput.getLabel());
 
                     tagInput.setServiceMessage("Tag [" + tagInput + "] should exist as a [" + tagInput.getLabel() + "] but doesn't. Assigning to [" + tagInput.getNotFoundCode() + "]. An alias is been created for " + tagInput.getCode());
                     logger.info(tagInput.setServiceMessage());
-                    ArrayList<AliasInputBean>aliases = new ArrayList<>();
+                    ArrayList<AliasInputBean> aliases = new ArrayList<>();
                     // Creating an alias so that we don't have to process this all again. The alias will be against the undefined tag.
-                    aliases.add( new AliasInputBean(tagInput.getCode()));
+                    aliases.add(new AliasInputBean(tagInput.getCode()));
                     notFound.setAliases(aliases);
                     tagResultBean = save(company, notFound, tagSuffix, createdValues, suppressRelationships);
                     startTag = tagResultBean.getTag();
                 } else
                     return new TagResultBean(tagInput);
             } else {
-                isNew =true;
+                isNew = true;
                 startTag = createTag(company, tagInput, tagSuffix);
             }
         } else {
             // Existing Tag
-            if (tagInput.isMerge()){
+            if (tagInput.isMerge() && tagInput.hasTagProperties()) {
                 boolean changed = false;
                 for (String key : tagInput.getProperties().keySet()) {
                     startTag.addProperty(key, tagInput.getProperty(key));
                     changed = true;
                 }
-                if ( changed)
+                if (changed)
                     template.save(startTag);
             }
         }
 
-        Map<String, Collection<TagInputBean>> targets = tagInput.getTargets();
-        for (String rlxName : targets.keySet()) {
-            Collection<TagInputBean> associatedTag = targets.get(rlxName);
-            for (TagInputBean tagInputBean : associatedTag) {
-                processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, createdValues, suppressRelationships);
-            }
+        if (tagInput.hasTargets()) {
+            Map<String, Collection<TagInputBean>> targets = tagInput.getTargets();
+            for (String rlxName : targets.keySet()) {
+                Collection<TagInputBean> associatedTag = targets.get(rlxName);
+                for (TagInputBean tagInputBean : associatedTag) {
+                    processAssociatedTags(company, tagSuffix, startTag, tagInputBean, rlxName, createdValues, suppressRelationships);
+                }
 
+            }
         }
 
         return new TagResultBean(tagInput, startTag, isNew);
@@ -171,17 +173,17 @@ public class TagWrangler {
     }
 
     public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
-        String query = "match (t) -["+ (!relationship.equals("")? "r:"+relationship :"r")+"]-(targetTag:"+targetLabel+") where id(t)={id}  return r, targetTag";
+        String query = "match (t) -[" + (!relationship.equals("") ? "r:" + relationship : "r") + "]-(targetTag:" + targetLabel + ") where id(t)={id}  return r, targetTag";
         Map<String, Object> params = new HashMap<>();
         params.put("id", sourceTag.getId());
         Iterable<Map<String, Object>> result = template.query(query, params);
-        Map<String,Collection<TagResultBean>> tagResults = new HashMap<>();
+        Map<String, Collection<TagResultBean>> tagResults = new HashMap<>();
         for (Map<String, Object> mapResult : result) {
             Tag n = template.projectTo(mapResult.get("targetTag"), Tag.class);
 
-            String rType= ((org.neo4j.graphdb.Relationship)mapResult.get("r")).getType().name();
-            Collection<TagResultBean>tagResultBeans = tagResults.get(rType);
-            if ( tagResultBeans == null ){
+            String rType = ((org.neo4j.graphdb.Relationship) mapResult.get("r")).getType().name();
+            Collection<TagResultBean> tagResultBeans = tagResults.get(rType);
+            if (tagResultBeans == null) {
                 tagResultBeans = new ArrayList<>();
                 tagResults.put(rType, tagResultBeans);
             }
@@ -218,23 +220,23 @@ public class TagWrangler {
         return results;
     }
 
-    private void resolveKeyPrefix(String suffix, TagInputBean tagInput){
+    private void resolveKeyPrefix(String suffix, TagInputBean tagInput) {
         String prefix = resolveKeyPrefix(tagInput.getKeyPrefix(), suffix);
-        if ( prefix !=null )
+        if (prefix != null)
             tagInput.setKeyPrefix(prefix);
     }
 
-    private String resolveKeyPrefix(String keyPrefix, String suffix){
-        if ( keyPrefix!=null && keyPrefix.contains(":") ){
+    private String resolveKeyPrefix(String keyPrefix, String suffix) {
+        if (keyPrefix != null && keyPrefix.contains(":")) {
             // Label:Value to set the prefix
             // DAT-479 indirect lookup
             String[] values = StringUtils.split(keyPrefix, ":");
-            if ( values.length ==2 ){
+            if (values.length == 2) {
                 Tag indirect = findTagNode(suffix, values[0], null, values[1], false);
-                if ( indirect == null ) {
+                if (indirect == null) {
                     // ToDo: Exception or literal?
                     logger.debug("Indirect syntax was found but resolved to no tag");
-                    throw new AmqpRejectAndDontRequeueException("Unable to resolve the indirect tag" +keyPrefix);
+                    throw new AmqpRejectAndDontRequeueException("Unable to resolve the indirect tag" + keyPrefix);
                 } else {
                     return indirect.getCode();
                 }
@@ -245,14 +247,14 @@ public class TagWrangler {
     }
 
     public Tag findTagNode(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
-        if (tagCode == null )
+        if (tagCode == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String theLabel = TagHelper.suffixLabel(label, suffix);
         String kp = resolveKeyPrefix(keyPrefix, suffix);
 
         Tag tag = tagByKey(theLabel, kp, tagCode);
-        if ( tag!=null && inflate)
+        if (tag != null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
@@ -261,7 +263,7 @@ public class TagWrangler {
     /**
      * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will
      * attempt to locate the alias based on tagcode
-     *
+     * <p>
      * ToDo: A version to located by user defined AliasLabel
      *
      * @param theLabel  Type of tag to look for
@@ -270,16 +272,16 @@ public class TagWrangler {
      * @return resolved tag
      */
     private Tag tagByKey(String theLabel, String keyPrefix, String tagCode) {
-        if ( keyPrefix!=null && keyPrefix.contains(":"))
+        if (keyPrefix != null && keyPrefix.contains(":"))
             throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", theLabel, tagCode, keyPrefix));
         String tagKey = TagHelper.parseKey(keyPrefix, tagCode);
-        StopWatch watch =getWatch(theLabel + " / " + tagKey);
+        StopWatch watch = getWatch(theLabel + " / " + tagKey);
 
-        Collection<Tag>tags = tagRepo.findByKey(tagKey);
+        Collection<Tag> tags = tagRepo.findByKey(tagKey);
 
-        if ( tags.size() ==1 ){
+        if (tags.size() == 1) {
             Tag tag = tags.iterator().next();
-            if ( tag.getLabel().equals(theLabel) ||(theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_"+Tag.DEFAULT_TAG))) {
+            if (tag.getLabel().equals(theLabel) || (theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_" + Tag.DEFAULT_TAG))) {
                 stopWatch(watch, theLabel, tagCode);
                 return tag;
             }
@@ -290,8 +292,8 @@ public class TagWrangler {
         // See if the tagKey is unique for the requested label
         Tag tResult = null;
         for (Tag tag : tags) {
-            if (tag.getLabel().equalsIgnoreCase(theLabel) ) {
-                if ( tResult == null) {
+            if (tag.getLabel().equalsIgnoreCase(theLabel)) {
+                if (tResult == null) {
                     tResult = tag;
                 } else {
                     // Deleting tags that should not exist here
@@ -299,7 +301,7 @@ public class TagWrangler {
                 }
             }
         }
-        if ( tResult != null ) {
+        if (tResult != null) {
             stopWatch(watch, "byKey", theLabel, tagCode);
             return tResult;
         }
@@ -328,7 +330,7 @@ public class TagWrangler {
             }
 
         }
-        if ( tagResult == null )
+        if (tagResult == null)
             logger.trace("Not found {}, {}", theLabel, tagCode);
         else
             stopWatch(watch, "byAlias", theLabel, tagCode);
@@ -336,7 +338,7 @@ public class TagWrangler {
         return tagResult;
     }
 
-    StopWatch getWatch(String id){
+    StopWatch getWatch(String id) {
         StopWatch watch = null;
 
         if (logger.isDebugEnabled()) {
@@ -346,12 +348,12 @@ public class TagWrangler {
         return watch;
     }
 
-    private void stopWatch(StopWatch watch, Object... args){
-        if ( watch == null )
+    private void stopWatch(StopWatch watch, Object... args) {
+        if (watch == null)
             return;
 
         watch.stop();
-        logger.info( watch.prettyPrint());
+        logger.info(watch.prettyPrint());
     }
 
     private Tag getTag(Map<String, Object> mapResult) {
@@ -375,14 +377,12 @@ public class TagWrangler {
      * @param startTag              notional start node
      * @param associatedTag         tag to make or get
      * @param rlxName               relationship name
-     * @param cachedValues         running list of values already created - performance op.
-     * @param suppressRelationships      @return the created tag
+     * @param cachedValues          running list of values already created - performance op.
+     * @param suppressRelationships @return the created tag
      */
     private void processAssociatedTags(Company company, String tagSuffix, Tag startTag, TagInputBean associatedTag, String rlxName, Collection<String> cachedValues, boolean suppressRelationships) {
 
-        Tag endTag = findTagNode(tagSuffix, associatedTag.getLabel(),associatedTag.getKeyPrefix(), (associatedTag.getCode() == null ? associatedTag.getName() : associatedTag.getCode()), false);
-        if ( endTag == null )
-            endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships).getTag();
+        Tag endTag = save(company, associatedTag, tagSuffix, cachedValues, suppressRelationships).getTag();
         if (suppressRelationships)
             return;
         //Node endNode = template.getNode(tag.getId());
@@ -399,7 +399,7 @@ public class TagWrangler {
 
     private String createRelationship(String rlxName, Tag startTag, Tag endTag, String key) {
         //if ((template.getRelationshipBetween(startTag, endTag, rlxName) == null))
-            template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
+        template.createRelationshipBetween(template.getNode(startTag.getId()), template.getNode(endTag.getId()), rlxName, null);
 
         return key;
     }
@@ -454,7 +454,6 @@ public class TagWrangler {
 //        }
 //        return tagResults;
 //    }
-
 
 
 }
