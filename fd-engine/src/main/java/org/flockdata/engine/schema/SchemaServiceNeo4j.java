@@ -98,7 +98,7 @@ public class SchemaServiceNeo4j implements SchemaService {
                         knownLabels.add(tagInput.getLabel());
                     }
                 }
-                if (!tagInput.getTargets().isEmpty()) {
+                if (tagInput.hasTargets()) {
                     tagInput.getTargets()
                             .keySet()
                             .stream()

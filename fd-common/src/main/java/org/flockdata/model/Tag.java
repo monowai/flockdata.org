@@ -93,7 +93,7 @@ public class Tag {
             setCode(tagInput.getCode());
 
         this.key = TagHelper.parseKey(tagInput);
-        if (tagInput.getProperties() != null && !tagInput.getProperties().isEmpty()) {
+        if (tagInput.hasTagProperties()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
         String label =tagInput.getLabel();
@@ -128,6 +128,7 @@ public class Tag {
                 "id=" + id +
                 ", label='" + getLabel() + '\'' +
                 ", code='" + code + '\'' +
+                ", key='" + key + '\'' +
                 '}';
     }
 

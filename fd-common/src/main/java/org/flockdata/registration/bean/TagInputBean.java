@@ -45,12 +45,12 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     private boolean reverse = false;
 
-    private Map<String, Collection<TagInputBean>> targets = new HashMap<>();
+    private Map<String, Collection<TagInputBean>> targets ;
 
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> properties ;
     private String label = Tag.DEFAULT_TAG;
 
-    Map<String, Object> entityLinks = new HashMap<>();
+    Map<String, Object> entityLinks ;
 
     private String entityLink = null;
     private boolean mustExist = false;
@@ -58,7 +58,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     private Collection<AliasInputBean> aliases;
     private String notFoundCode;
     private boolean since;
-    private String keyPrefix;
+    private String keyPrefix=null;
     private boolean merge = false;
 
 
@@ -162,6 +162,8 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public TagInputBean setTargets(String relationshipName, Collection<TagInputBean> fromThoseTags) {
+        if ( targets == null )
+            targets = new HashMap<>();
         Collection<TagInputBean> theseTags = targets.get(relationshipName);
         if ( theseTags == null )
             targets.put(relationshipName, fromThoseTags);
@@ -176,8 +178,10 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public TagInputBean mergeTags (TagInputBean mergeFrom){
-        for (String next : mergeFrom.getTargets().keySet()) {
-            setTargets(next, mergeFrom.getTargets().get(next));
+        if ( mergeFrom.hasTargets()) {
+            for (String next : mergeFrom.getTargets().keySet()) {
+                setTargets(next, mergeFrom.getTargets().get(next));
+            }
         }
         return this;
     }
@@ -245,6 +249,8 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @param properties        properties to store against the relationship
      */
     public TagInputBean addEntityLink(String relationshipName, Map<String, Object> properties) {
+        if ( entityLinks == null )
+            entityLinks = new HashMap<>();
         if ( entityLinks.get(relationshipName) == null )
             this.entityLinks.put(relationshipName, properties);
         return this;
@@ -257,7 +263,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     }
 
     public Map<String, Object> getEntityLinks() {
-        if ( entityLinks.isEmpty() && entityLink !=null )
+        if ( (entityLinks== null ||entityLinks.isEmpty()) && entityLink !=null )
             addEntityLink(entityLink);
         return entityLinks;
     }
@@ -448,7 +454,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
      * @return
      */
     public TagInputBean findTargetTag(String code, String label, String keyPrefix) {
-        if ( targets == null || targets.isEmpty())
+        if ( !hasTargets())
             return null;
 
         for (String key : targets.keySet()) {
@@ -470,4 +476,13 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     public boolean contains(String code, String label) {
         return contains(code, label, null);
     }
+
+    public boolean hasTargets() {
+        return this.targets!=null && !targets.isEmpty();
+    }
+
+    public boolean hasTagProperties() {
+        return this.properties!=null && !properties.isEmpty();
+    }
+
 }
