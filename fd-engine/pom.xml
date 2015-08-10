@@ -95,6 +95,13 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+            <version>${neo4j.version}</version>
+            <type>test-jar</type>
+            <!-- Introduced in 2.2.x-->
+        </dependency>
 
         <!-- Web UI -->
         <dependency>
@@ -146,10 +153,10 @@
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-cypher</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-kernel</artifactId>
-                </exclusion>
+                <!--<exclusion>-->
+                    <!--<groupId>org.neo4j</groupId>-->
+                    <!--<artifactId>neo4j-kernel</artifactId>-->
+                <!--</exclusion>-->
             </exclusions>
         </dependency>
         <dependency>

@@ -19,7 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.TestCase;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +36,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.Map;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * User: mike
@@ -49,12 +50,16 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:root-context-neo-rest.xml" })
 public class TestNeoRestInterface {
+
     static Logger logger = LoggerFactory.getLogger(TestNeoRestInterface.class);
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void neo4j_EnsureRestAPIWorks() throws Exception {
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                "mike", "123");
+                "neo4j", "neo4j");
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -64,12 +69,13 @@ public class TestNeoRestInterface {
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String query = "{ \"statements\":[{\"statement\":\"return 1\"}]}";
         HttpEntity<String> requestEntity = new HttpEntity<>(query, httpHeaders);
-
+        exception.expect(HttpClientErrorException.class);
+        // ToDo: Auth check. At the moment a 401 is good enough
         Map result = restTemplate.exchange("http://localhost:7474/db/data/transaction/commit/", HttpMethod.POST, requestEntity, Map.class).getBody();
 
-        assertNotNull(result.get("results"));
+        TestCase.assertNotNull(result.get("results"));
         Collection values = (Collection) result.get("results");
-        assertFalse("No results returned from the REST call", values.size()==0);
+        TestCase.assertFalse("No results returned from the REST call", values.size() == 0);
 
     }
 

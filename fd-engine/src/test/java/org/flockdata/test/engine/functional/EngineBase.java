@@ -20,12 +20,10 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
-import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
@@ -33,14 +31,12 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.data.neo4j.support.node.Neo4jHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -168,7 +163,11 @@ public abstract class EngineBase {
 	public void cleanUpGraph() {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
         //           might be started giving you sporadic failures.
-		Neo4jHelper.cleanDb(template);
+        // DAT-493 Function removed
+        // https://github.com/spring-projects/spring-data-neo4j/issues/308
+		//Neo4jHelper.cleanDb(template);
+        template.query("match (n)-[r]-() delete r,n", null);
+        template.query("match (n) delete n", null);
 		engineConfig.setDuplicateRegistration(true);
 		engineConfig.setTestMode(true);
 	}

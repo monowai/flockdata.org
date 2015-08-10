@@ -32,7 +32,6 @@ import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -75,11 +74,11 @@ public class TestTags extends EngineBase {
         assertEquals("Every input gets a response", 5, count);
 
         tags = new ArrayList<>();
-        tags.add(new TagInputBean("FLOP"));
-        tags.add(new TagInputBean("FLOPPY"));
-        tags.add(new TagInputBean("FLOPSY"));
-        tags.add(new TagInputBean("FLOPPO"));
-        tags.add(new TagInputBean("FLOPER"));
+        tags.add(new TagInputBean("FLOP", "DUPE"));
+        tags.add(new TagInputBean("FLOPPY", "DUPE"));
+        tags.add(new TagInputBean("FLOPSY", "DUPE"));
+        tags.add(new TagInputBean("FLOPPO", "DUPE"));
+        tags.add(new TagInputBean("FLOPER", "DUPE"));
         tagResults = tagService.createTags(iSystemUser.getCompany(), tags);
         count = 0;
         for (TagResultBean next : tagResults) {
@@ -94,8 +93,7 @@ public class TestTags extends EngineBase {
 
     }
 
-    @org.junit.Test
-    @Transactional
+    @Test
     public void secureMultiTenantedTags() throws Exception {
         engineConfig.setMultiTenanted(true);
         SystemUser iSystemUser = registerSystemUser("secureMultiTenantedTags", mike_admin);
@@ -500,13 +498,20 @@ public class TestTags extends EngineBase {
     public void geographyEndPoints() throws Exception {
         engineConfig.setMultiTenanted(false);
         SystemUser su = registerSystemUser("geographyEndPoints", mike_admin);
+        // Clear down issues - the Country may already be in the DB
+        Collection<Tag> co = geoService.findCountries(su.getCompany());
 
-        TagInputBean tagInputBean = new TagInputBean("New Zealand").setLabel("Country");
+        int existingSize = co .size();
+
+        TagInputBean tagInputBean = new TagInputBean("Atlantis").setLabel("Country");
         ArrayList<TagInputBean> countries = new ArrayList<>();
         countries.add(tagInputBean);
-        mediationFacade.createTags(su.getCompany(), countries);
-        Collection<Tag> co = geoService.findCountries(su.getCompany());
-        assertEquals(1, co.size());
+        Collection<TagResultBean> results = mediationFacade.createTags(su.getCompany(), countries);
+        assertEquals(1, results.size());
+        assertTrue(results.iterator().next().isNew());
+        co = geoService.findCountries(su.getCompany());
+
+        assertEquals(existingSize+1, co.size());
 
     }
 
