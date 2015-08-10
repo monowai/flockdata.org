@@ -33,6 +33,7 @@ import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StopWatch;
@@ -58,8 +59,18 @@ public class MatrixDaoNeo4j implements MatrixDao {
     SchemaDaoNeo4j schemaDaoNeo4j;
 
     @Override
-    public MatrixResults getMatrix(Company company, MatrixInputBean input) throws FlockException {
+    public MatrixResults buildMatrix(Company company, MatrixInputBean input) throws FlockException {
 
+        if ( company == null )
+            throw new FlockException("Authorised company could not be identified");
+
+        if (input.getCypher() != null)
+            return buildMatrixFromCypher(company, input);
+
+        return buildMatrixWithSearch(company, input);
+    }
+
+    public MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
         // DAT-109 enhancements
         MetaKeyResults metaKeyResults = null;
 
@@ -73,7 +84,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
-        String conceptsFrom= CypherHelper.getConcepts("tag1", input.getConcepts());
+        String conceptsFrom = CypherHelper.getConcepts("tag1", input.getConcepts());
         String conceptsTo = CypherHelper.getConcepts("tag2", input.getConcepts());
 
         String fromRlx = CypherHelper.getRelationships(input.getFromRlxs());
@@ -85,7 +96,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
             conceptString = conceptString + " and ( " + conceptsTo + ") ";
         }
         boolean docFilter = !(docIndexes.equals(":Entity") || docIndexes.equals(""));
-        //ToDo: Restrict Entities by Company
+        //ToDo: MultiTenant requires restriction by Company
+
         String entityFilter;
         if (metaKeyResults == null)
             entityFilter = (docFilter ? " where " + docIndexes : "");
@@ -108,7 +120,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         if (input.isSumByCol()) {
             //sumCol = ", sum( entity.`props-value`) as sumValue ";
-            sumCol = ", sum( entity.`"+input.getSumColumn()+"`) as sumValue ";
+            sumCol = ", sum( entity.`" + input.getSumColumn() + "`) as sumValue ";
             sumVal = ", collect(sumValue) as sumValues";
         }
 
@@ -159,12 +171,12 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
             String conceptFrom = row.get(conceptFmCol).toString();
 
-            if ( input.isByKey()) {
+            if (input.isByKey()) {
                 // Edges will be indexed by Id. This will set the Name values in to the Node collection
                 KeyValue source = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
                 Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
                 Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
-                if ( !labels.contains(source))
+                if (!labels.contains(source))
                     labels.add(source);
                 setTargetTags(labels, targetIds, targetVals);
             }
@@ -203,9 +215,43 @@ public class MatrixDaoNeo4j implements MatrixDao {
             throw new FlockException("Excessive amount of data was requested. Query cancelled " + edgeResults.get().size());
 
         results.setSampleSize(input.getSampleSize());
-        if (metaKeyResults!=null)
+        if (metaKeyResults != null)
             results.setTotalHits(metaKeyResults.getTotalHits());
         return results;
+    }
+
+    private MatrixResults buildMatrixFromCypher(Company company, MatrixInputBean input) {
+        // Make sure no destructive statements
+        Result<Map<String, Object>> results = template.query(input.getCypher(), null);
+        //match (s:Tag {key:'sports.icc'})-[]-(c:Division)-[r]-(d:Division) return c.code as source, d.code as target ;
+        EdgeResults edgeResults = new EdgeResults();
+        Map<String, Object> uniqueKeys = new HashMap<>();
+
+        for (Map<String, Object> result : results) {
+
+            String conceptFrom = result.get("source").toString();
+            String conceptTo = result.get("target").toString();
+            String conceptKey = conceptFrom + "/" + conceptTo;
+
+            boolean selfRlx = conceptFrom.equals(conceptTo);
+            if (!selfRlx) {
+                String inverseKey = conceptTo + "/" + conceptFrom;
+                if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
+
+
+                    edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0));
+                    if (input.isReciprocalExcluded())
+                        uniqueKeys.put(conceptKey, true);
+
+
+                }
+            }
+        }
+
+
+        MatrixResults matricResults = new MatrixResults();
+        matricResults.setEdges(edgeResults.get());
+        return matricResults;
 
     }
 
@@ -213,7 +259,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         Iterator<Object> tagNames = names.iterator();
         for (Object id : ids) {
             KeyValue kv = new KeyValue(id.toString(), tagNames.next());
-            if ( !labels.contains(kv))
+            if (!labels.contains(kv))
                 labels.add(kv);
         }
         return labels;

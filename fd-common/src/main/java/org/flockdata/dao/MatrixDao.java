@@ -33,5 +33,5 @@ import org.flockdata.model.Company;
  */
 public interface MatrixDao {
 
-    MatrixResults getMatrix(Company company, MatrixInputBean inputBean) throws FlockException;
+    MatrixResults buildMatrix(Company company, MatrixInputBean inputBean) throws FlockException;
 }
