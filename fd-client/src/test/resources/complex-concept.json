@@ -12,6 +12,7 @@
       "relationship": "won"
     },
     "Country": {
+      "relationship":"from",
       "country": true
     },
     "Sport": {

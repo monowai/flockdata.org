@@ -218,7 +218,7 @@ public class TestCsvEntity {
                 sportTag = true;
             }
             if (tagInputBean.getCode().equals("United States")) {
-                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("Country"));
+                assertNotNull("Relationship name not working", tagInputBean.getEntityLinks().containsKey("from"));
                 countryTag = true;
             }
             if (tagInputBean.getCode().equals("Sport")) {
