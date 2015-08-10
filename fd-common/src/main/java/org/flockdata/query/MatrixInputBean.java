@@ -45,6 +45,7 @@ public class MatrixInputBean {
     private String sumCol;  // TBC: Should we let the user pick a column
     private boolean sumByCol =false;
     private String sumColumn ="props-value";
+    private String cypher;
 
     public ArrayList<String> getToRlxs() {
         return toRlxs;
@@ -171,5 +172,13 @@ public class MatrixInputBean {
 
     public void setSumColumn(String sumColumn) {
         this.sumColumn = sumColumn;
+    }
+
+    public String getCypher() {
+        return cypher;
+    }
+
+    public void setCypher(String cypher) {
+        this.cypher = cypher;
     }
 }

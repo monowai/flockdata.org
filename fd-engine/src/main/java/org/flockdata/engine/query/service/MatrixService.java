@@ -42,6 +42,6 @@ public class MatrixService {
     MatrixDao matrixDao;
 
     public MatrixResults getMatrix(Company company, MatrixInputBean matrixInput) throws FlockException {
-        return matrixDao.getMatrix(company, matrixInput);
+        return matrixDao.buildMatrix(company, matrixInput);
     }
 }
