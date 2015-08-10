@@ -64,7 +64,7 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
             assertFalse(tagInputBean.getCode().contains("|"));
             assertFalse(tagInputBean.getName().contains("|"));
             TestCase.assertEquals(1, tagInputBean.getTargets().size());
-            TestCase.assertFalse("non-persistent mapping was not ignored", tagInputBean.getProperties().containsKey("year"));
+            assertFalse("non-persistent mapping was not ignored", tagInputBean.hasTagProperties());
             Collection<TagInputBean> targets = tagInputBean.getTargets().get("represents");
             for (TagInputBean represents : targets ) {
                 assertFalse(represents.getCode().contains("|"));

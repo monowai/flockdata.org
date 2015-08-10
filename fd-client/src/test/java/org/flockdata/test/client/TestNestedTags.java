@@ -24,11 +24,9 @@ import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -49,8 +47,7 @@ public class TestNestedTags extends AbstractImport {
         assertEquals(1, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             System.out.println(tagInputBean);
-            Map<String, Collection<TagInputBean>> targets = tagInputBean.getTargets();
-            assertTrue("The target tag should not exist as the source value was missing", targets.isEmpty());
+            assertFalse("The target tag should not exist as the source value was missing", tagInputBean.hasTargets());
         }
     }
 }

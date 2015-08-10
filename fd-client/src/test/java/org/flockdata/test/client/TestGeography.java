@@ -100,7 +100,7 @@ public class TestGeography extends AbstractImport{
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
         tag = new CsvTagMapper(); // Clear down the object
         tag.setData(headers, data, params);
-        assertEquals("Capital city was not suppressed", 0, tag.getTargets().size());
+        TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class TestGeography extends AbstractImport{
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
         Collection<TagInputBean> capitals = tag.getTargets().get("capital");
         for (TagInputBean next : capitals) {
-            assertEquals(0, next.getProperties().size());
+            TestCase.assertFalse(next.hasTagProperties());
         }
 
     }
