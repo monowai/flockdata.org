@@ -213,7 +213,7 @@ public class TestCsvEntity {
                 athleteTag = true;
             }
             if (tagInputBean.getCode().equals("Swimming")) {
-                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("undefined"));
+                assertNotNull("Default relationship name not working", tagInputBean.getEntityLinks().containsKey("blah"));
                 assertEquals("Sport", tagInputBean.getLabel());
                 sportTag = true;
             }

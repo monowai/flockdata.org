@@ -123,9 +123,9 @@ public class TransformationHelper {
                     tag.setName(name);
             }
 
-            String relationship = getRelationshipName(row, colDef);
-
             setAliases(tag, colDef, row);
+
+            String relationship = getRelationshipName(row, colDef);
 
             if (relationship != null) {
                 Map<String, Object> rlxProperties = new HashMap<>();

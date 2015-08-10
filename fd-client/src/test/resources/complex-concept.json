@@ -16,6 +16,7 @@
     },
     "Sport": {
       "tag": true,
+      "relationship": "blah",
       "mustExist": false,
       "targets": [
         {
