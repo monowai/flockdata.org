@@ -32,7 +32,7 @@
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
         <org.springbatch.version>3.0.2.RELEASE</org.springbatch.version>
-        <neo4j.version>2.2.3</neo4j.version>
+        <neo4j.version>2.2.4</neo4j.version>
         <org.springdata.neo4j>3.3.2.RELEASE</org.springdata.neo4j>
         <!--<neo4j.version>2.1.8</neo4j.version>-->
         <!--<org.springdata.neo4j>3.3.0.RELEASE</org.springdata.neo4j>-->
