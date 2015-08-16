@@ -53,14 +53,14 @@ public class SchemaDaoNeo4j {
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(SchemaDaoNeo4j.class);
-    
-    Result<Map<String, Object>> runQuery(String statement){
+
+    Result<Map<String, Object>> runQuery(String statement) {
         return runQuery(statement, null);
     }
 
     // Just here to minimize the use of the template object
     private Result<Map<String, Object>> runQuery(String statement, HashMap<String, Object> params) {
-        return template.query(statement, params );
+        return template.query(statement, params);
     }
 
 
@@ -127,11 +127,12 @@ public class SchemaDaoNeo4j {
     }
 
 
-    @Cacheable (value = "labels") // Caches the fact that a constraint has been created
+    @Cacheable(value = "labels", unless = "#result==null") // Caches the fact that a constraint has been created
+    @Transactional
     public String ensureUniqueIndex(String label) {
         boolean quoted = label.contains(" ") || label.contains("/");
 
-        String cLabel = quoted ?"`"+label: label;
+        String cLabel = quoted ? "`" + label : label;
 
         runQuery("create constraint on (t:" + cLabel + (quoted ? "`" : "") + ") assert t.key is unique");
         runQuery("create constraint on (t:" + cLabel + "Alias " + (quoted ? "`" : "") + ") assert t.key is unique");
@@ -141,7 +142,6 @@ public class SchemaDaoNeo4j {
     public Collection<String> getAllLabels() {
         return new ArrayList<>();
     }
-
 
 
     @Transactional

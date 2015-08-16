@@ -28,15 +28,10 @@ import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -60,9 +55,6 @@ public class SchemaServiceNeo4j implements SchemaService {
         schemaDao.purge(fortress);
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Async("fd-track")
     /**
      * Ensures unique indexes exist for the payload
      *
@@ -70,7 +62,9 @@ public class SchemaServiceNeo4j implements SchemaService {
      *
      * @param tagPayload collection to process
      */
-    public Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
+    @Override
+//    @Async("fd-track")
+    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagPayload) {
 
         Collection<String> knownLabels = schemaDao.getAllLabels();
         Collection<String> labels = getLabelsToCreate(tagPayload, knownLabels);
@@ -82,7 +76,7 @@ public class SchemaServiceNeo4j implements SchemaService {
 
         } else
             logger.debug("No label constraints required");
-        return new AsyncResult<>(Boolean.TRUE);
+        return Boolean.TRUE;
     }
 
     private Collection<String> getLabelsToCreate(Iterable<TagInputBean> tagInputs, Collection<String> knownLabels) {
