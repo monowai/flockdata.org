@@ -42,4 +42,8 @@ public interface ConceptService {
     DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
 
     void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
+
+    DocumentType save(DocumentType documentType);
+
+    DocumentType findDocumentType(Fortress fortress, String code);
 }

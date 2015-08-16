@@ -198,7 +198,7 @@ public class EntityTagDaoNeo {
             if (entityTag.getTag().getLocated() != null || locatedOnEntity ) {
                 template.fetch(entityTag.getTag());
                 entityTag.setGeoData(
-                        geoSupport.getGeoData( (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
+                        geoSupport.getGeoData( entity, (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
                 );
             }
         }

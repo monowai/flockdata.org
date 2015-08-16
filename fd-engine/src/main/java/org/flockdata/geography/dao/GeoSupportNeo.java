@@ -19,9 +19,14 @@
 
 package org.flockdata.geography.dao;
 
+import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Fortress;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
+import org.flockdata.track.service.FortressService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -41,12 +46,12 @@ public class GeoSupportNeo {
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
     //@Cacheable(value = "geoData", key = "#loc.id")
-    public GeoDataBeans getGeoData(Tag loc) {
-        logger.debug ( "Cache miss for {}", loc.getId() );
-        String query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
-        //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
+    public GeoDataBeans getGeoData(Entity e, Tag loc) {
+        logger.debug("Cache miss for {}", loc.getId());
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
+
+        String query = getQuery(e);
         Map<String, Object> rows = template.query(query, params).singleOrNull();
 
         if (rows== null || rows.isEmpty())
@@ -119,6 +124,40 @@ public class GeoSupportNeo {
         }
         return null;
 
+    }
+
+    @Autowired
+    ConceptDaoNeo conceptDao;
+
+    @Autowired
+    FortressService fortressService;
+
+    /**
+     * Enables the overloading of the cypher query used to identify the geo path from the entity.
+     *
+     * By default it will connect the shortestPath to a Country with up to 4 hops from the starting node.
+     *
+     * Query MUST return a nodes(path)
+     * @param e the entity
+     * @return cypher query to execute
+     */
+    private String getQuery (Entity e ){
+        // DAT-495
+        Fortress f = e.getFortress();
+
+        if (f.getCompany() == null )
+            f = fortressService.getFortress(f.getId());
+
+        String docType = e.getType();
+
+        DocumentType documentType = conceptDao.findDocumentType(f, docType, false);
+        String query = documentType.getGeoQuery();
+
+        if ( query == null )
+            // This is the default way we use if not otherwise defined against the doctype
+            query = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
+        //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
+        return query;
     }
 
 }

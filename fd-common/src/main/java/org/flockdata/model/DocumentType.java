@@ -56,6 +56,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<org.flockdata.model.Concept> concepts;
+    private String geoQuery;
 
     protected DocumentType() {
     }
@@ -158,4 +159,11 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
 
+    public String getGeoQuery() {
+        return geoQuery;
+    }
+
+    public void setGeoQuery(String geoQuery) {
+        this.geoQuery = geoQuery;
+    }
 }
