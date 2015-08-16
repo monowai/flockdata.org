@@ -24,15 +24,13 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.concept.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.engine.track.service.ConceptRetryService;
 import org.flockdata.engine.track.service.EntityRetryService;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.FlockServiceException;
-import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
+import org.flockdata.helper.*;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -107,6 +105,9 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Autowired
     ConceptRetryService conceptRetryService;
+
+    @Autowired
+    IndexRetryService indexRetryService;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -205,7 +206,7 @@ public class MediationFacadeNeo implements MediationFacade {
         //logger.debug("About to create tags");
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-
+        //indexRetryService.ensureUniqueIndexes(getTags(inputBeans) );
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
         Future<DocumentType> docType = docTypeRetryService.createDocTypes(fortress, first);
@@ -250,7 +251,7 @@ public class MediationFacadeNeo implements MediationFacade {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
             for (TagInputBean tag : entityInputBean.getTags()) {
-                if ( !tags.contains(tag))
+                if ( !TagHelper.isSystemLabel(tag.getLabel()) && !tags.contains(tag))
                     tags.add(tag);
             }
             ///entityInputBean.getTags().stream().filter(tag -> !tag.isMustExist() && !tags.contains(tag)).forEach(tags::add);

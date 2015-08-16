@@ -644,11 +644,11 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
         TagInputBean tagA = new TagInputBean("Ohio")
-                .setLabel("State")
+                .setLabel("StateX")
                 .setKeyPrefix("US");
 
         TagInputBean tagB = new TagInputBean("Ohio")
-                .setLabel("State")
+                .setLabel("StateX")
                 .setKeyPrefix("ZZ");
 
         Tag tagResultA = tagService.createTag(su.getCompany(), tagA);
@@ -656,8 +656,8 @@ public class TestTags extends EngineBase {
 
         assertFalse(tagResultA.getId().equals(tagResultB.getId()));
 
-        tagService.createAlias(su.getCompany(), tagResultA, "State", "xxx");
-        tagService.createAlias(su.getCompany(), tagResultB, "State", "xxx");
+        tagService.createAlias(su.getCompany(), tagResultA, "StateX", "xxx");
+        tagService.createAlias(su.getCompany(), tagResultB, "StateX", "xxx");
 
         Tag tagAlias = tagService.findTag(su.getCompany(), tagA.getLabel(), "us", "xxx");
         assertNotNull(tagAlias);

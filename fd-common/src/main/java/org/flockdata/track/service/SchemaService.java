@@ -24,7 +24,6 @@ import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.TagInputBean;
 
 import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -37,6 +36,6 @@ public interface SchemaService {
 
     void purge(Fortress fortress);
 
-    Future<Boolean> ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
+    Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs);
 
 }
