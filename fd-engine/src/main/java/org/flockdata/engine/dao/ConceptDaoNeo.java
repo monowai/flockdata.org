@@ -217,4 +217,7 @@ public class ConceptDaoNeo {
         template.saveOnly(tagLabelNode);
     }
 
+    public DocumentType save(DocumentType documentType) {
+        return template.save(documentType);
+    }
 }

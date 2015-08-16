@@ -155,4 +155,14 @@ public class ConceptServiceNeo implements ConceptService {
         if (!payload.isEmpty())
             conceptDao.registerConcepts(payload);
     }
+
+    @Override
+    public DocumentType save(DocumentType documentType) {
+        return conceptDao.save(documentType);
+    }
+
+    @Override
+    public DocumentType findDocumentType(Fortress fortress, String code) {
+        return conceptDao.findDocumentType(fortress, code, false);
+    }
 }
