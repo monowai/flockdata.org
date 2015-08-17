@@ -72,6 +72,9 @@ public class TagWrangler {
 
     }
 
+    @Autowired
+    AliasDaoNeo aliasDao;
+
     // ToDo: Turn this in to ServerSide
     TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
         // Check exists
@@ -109,7 +112,27 @@ public class TagWrangler {
                     changed = true;
                 }
                 if (changed)
-                    template.save(startTag);
+                    startTag = template.save(startTag);
+            }
+        }
+        String label = tagInput.getLabel();
+
+        if (tagInput.hasAliases()) {
+            Collection<Alias> aliases = new ArrayList<>();
+            for (AliasInputBean newAlias : tagInput.getAliases()) {
+
+                Alias alias = aliasDao.findAlias(label, newAlias, startTag);
+                alias.setTag(startTag);
+                aliases.add(alias);
+            }
+            if (!aliases.isEmpty())
+                template.fetch(startTag.getAliases());
+            for (Alias alias : aliases) {
+                if (!startTag.hasAlias(label, alias.getKey())) {
+                    template.saveOnly(alias);
+                    startTag.addAlias(alias);
+                }
+
             }
         }
 
@@ -152,23 +175,6 @@ public class TagWrangler {
 
         logger.trace("Saving {}", tag);
         tag = template.save(tag);
-        Collection<Alias> aliases = null;
-        if (tagInput.hasAliases()) {
-            aliases = new ArrayList<>();
-            for (AliasInputBean newAlias : tagInput.getAliases()) {
-                Alias alias = new Alias(label, newAlias, TagHelper.parseKey(newAlias.getCode()), tag);
-                alias.setTag(tag);
-                aliases.add(alias);
-            }
-        }
-        if (aliases != null)
-            for (Alias alias : aliases) {
-                if (!tag.hasAlias(label, alias.getKey())) {
-                    template.saveOnly(alias);
-                    tag.addAlias(alias);
-                }
-
-            }
         logger.debug("Saved {}", tag);
         return tag;
 

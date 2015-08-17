@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
@@ -677,7 +678,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         if (entity == null) {
             logger.error("metaKey could not be found for [{}]", searchResult);
-            return;
+            throw new AmqpRejectAndDontRequeueException("metaKey could not be found for [{"+searchResult.getMetaKey()+"}]");
         }
 
         if (entity.getSearch() == null) { // Search ACK
