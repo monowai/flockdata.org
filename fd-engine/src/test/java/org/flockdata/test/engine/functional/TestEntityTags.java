@@ -1141,6 +1141,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(2, tags.size());
 
     }
+
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
         // Validates that you can still get a SearchChange to index from an entity with no log
@@ -1156,6 +1157,7 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(searchService.getSearchChange(result));
 
     }
+
     @Test
     public void search_seperateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
