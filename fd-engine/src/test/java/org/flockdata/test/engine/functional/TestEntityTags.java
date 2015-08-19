@@ -1249,6 +1249,14 @@ public class TestEntityTags extends EngineBase {
         assertEquals("Unknown", byAlias.getCode());
     }
 
+    /**
+     * Checks that a custom query can be used to return a Geographic node path rather than
+     * having to use FlockData's internal default resolution strategy
+     *
+     * DAT-495 introduces this
+     *
+     * @throws Exception
+     */
     @Test
     public void geo_CustomPath() throws Exception {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
