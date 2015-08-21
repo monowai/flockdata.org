@@ -207,6 +207,7 @@ public class MediationFacadeNeo implements MediationFacade {
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //indexRetryService.ensureUniqueIndexes(getTags(inputBeans) );
+        createTags(fortress.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
         Future<DocumentType> docType = docTypeRetryService.createDocTypes(fortress, first);
@@ -321,15 +322,16 @@ public class MediationFacadeNeo implements MediationFacade {
 
         String message = null;
         if (fortress.isStoreDisabled()) {
-            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortressCode);
+            message = String.format("Content store has been disabled for the fortress %s. \r\nIf your search document has a Content Body then reprocess from source to create it" +
+                    "\r\nYou can elect to enable the KV Store for content storage if wish", fortressCode);
             logger.warn(message);
         }
         if (message != null) {
             message = message + "\n";
         }
         adminService.doReindex(fortress);
-        message = message + "Reindex Search request is processing entities for [" + fortressCode + "]";
-        logger.info("Reindex Search request is processing entities for [" + fortressCode + "]");
+        message = message + "Reindex Search request is re-processing Entities and Tags for [" + fortressCode + "]";
+        logger.info("Reindex Search request is processing Entities for [" + fortressCode + "]");
         return message;
 
 
@@ -357,7 +359,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (message != null) {
             message = message + "\n";
         }
-        message = message + "Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]";
+        message = message + "Reindex Search request is processing Entities and Tags for [" + fortressName + "] and document type [" + docType + "]";
         logger.info("Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]");
         return message;
     }
