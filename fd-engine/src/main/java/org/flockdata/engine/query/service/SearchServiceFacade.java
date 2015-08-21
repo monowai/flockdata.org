@@ -29,7 +29,10 @@ import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.search.model.*;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.EntityTagFinder;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
@@ -84,6 +87,9 @@ public class SearchServiceFacade {
 
     @Autowired
     FortressService fortressService;
+
+    @Autowired
+    EntityTagFinder childToRootFinder;
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
 
@@ -145,6 +151,24 @@ public class SearchServiceFacade {
         return true;
     }
 
+    public Iterable<EntityTag> getEntityTags(Entity entity){
+        //DocumentType documentType = fortressService.findDocumentType(entity);
+        EntityTagFinder tagFinder = null;
+        try {
+            tagFinder = fortressService.getSearchTagFinder(entity);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            logger.error("Unable to create specified EntityTagFinder");
+        }
+        if ( tagFinder == null) {
+            // Default behaviour - all tags directly connected to the entity and any GEO payloads
+            return entityTagService.getEntityTagsWithGeo(entity);
+        } else {
+            return childToRootFinder.getEntityTags(entity);
+
+
+        }
+
+    }
     /**
      * This is the primary function to populates an object for indexing into the search service
      *
@@ -173,7 +197,7 @@ public class SearchServiceFacade {
                 searchDocument.setSysWhen(entityLog.getSysWhen());
         }
         // ToDo: Can we optimize by using tags already tracked in the result bean?
-        searchDocument.setTags(entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity()));
+        searchDocument.setTags(getEntityTags(trackResultBean.getEntity()));
         searchDocument.setDescription(trackResultBean.getEntity().getDescription());
         searchDocument.setName(trackResultBean.getEntity().getName());
         searchDocument.setSearchKey(entity.getSearchKey());
@@ -214,12 +238,16 @@ public class SearchServiceFacade {
             EntitySearchChange searchDocument;
             //Entity entityBean = new EntityBean(entity);
             if (lastChange != null) {
-                KvContent content = kvGateway.getContent(entity, lastChange);
-                if (content == null) {
-                    logger.error("Unable to locate content for {} ", entity);
-                    return null;
-                }
-                searchDocument = new EntitySearchChange(entity, lastLog, content.getContent());
+                if ( !entity.isNoLogs()) {
+                    KvContent content = kvGateway.getContent(entity, lastChange);
+                    if (content == null) {
+                        logger.error("Unable to locate content for {} ", entity);
+                        return null;
+                    }
+                    searchDocument = new EntitySearchChange(entity, lastLog, content.getContent());
+                } else
+                    searchDocument = new EntitySearchChange(entity);
+
                 if (lastChange.getMadeBy() != null)
                     searchDocument.setWho(lastChange.getMadeBy().getCode());
             } else {
@@ -228,7 +256,7 @@ public class SearchServiceFacade {
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
 
-            searchDocument.setTags(entityTagService.getEntityTagsWithGeo(entity));
+            searchDocument.setTags(getEntityTags(entity));
             searchDocument.setReplyRequired(false);
 
             return searchDocument;

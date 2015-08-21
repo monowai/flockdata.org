@@ -162,7 +162,7 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public DocumentType findDocumentType(Fortress fortress, String code) {
-        return conceptDao.findDocumentType(fortress, code, false);
+    public DocumentType findDocumentType(Fortress fortress, String documentName) {
+        return conceptDao.findDocumentType(fortress, documentName, false);
     }
 }

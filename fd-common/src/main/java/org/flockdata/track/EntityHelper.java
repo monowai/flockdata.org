@@ -26,4 +26,16 @@ public class EntityHelper {
     public static String parseKey(Long fortressId, Long documentId, String callerRef) {
         return  "" + fortressId + "." + documentId + "." + callerRef;
     }
+
+    public static String getLabel(Iterable<String> labels) {
+        for (String label : labels) {
+            if (!isInternalLabel(label))
+                return label;
+        }
+        return null;
+    }
+
+    public static boolean isInternalLabel(String label) {
+        return label.equalsIgnoreCase("_Entity") || label.equalsIgnoreCase("Entity");
+    }
 }

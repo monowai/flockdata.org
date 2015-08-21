@@ -156,7 +156,8 @@ public class Tag {
     public String getLabel() {
 
         for (String label : labels) {
-            if (!label.equals("_Tag") && !label.equals("Tag"))
+            if ( !TagHelper.isInternalLabel(label))
+//            if (!label.equals("_Tag") && !label.equals("Tag"))
                 return label;
         }
         return "Tag";

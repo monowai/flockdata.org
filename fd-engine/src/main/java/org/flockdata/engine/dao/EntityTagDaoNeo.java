@@ -24,8 +24,8 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.geography.dao.GeoSupportNeo;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Tag;
 import org.flockdata.model.*;
+import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -55,6 +55,18 @@ public class EntityTagDaoNeo {
 
     @Autowired
     TagService tagService;
+
+    @Autowired
+    ConceptDaoNeo conceptDao;
+
+    @Autowired
+    FortressService fortressService;
+
+    @Autowired
+    EntityTagRepo eout;
+
+    @Autowired
+    EntityTagInRepo ein;
 
     @Autowired
     PlatformConfig engineConfig;
@@ -210,23 +222,23 @@ public class EntityTagDaoNeo {
         ArrayList<EntityTag> results = new ArrayList<>();
         if ((entity != null ? entity.getId() : null) == null)
             return results;
+        getEntityTagsDefault(entity, results);
+        return results;
 
+    }
+
+    /**
+     * The standard way that the entity tag payload is handled
+     * The results are populated by reference
+     */
+    public void getEntityTagsDefault(Entity entity, Collection<EntityTag> results) {
         results.addAll(eout.getEntityTagsOut(entity.getId()));
-
         results.addAll(eout.getEntityTagsIn(entity.getId()));
 
         for (EntityTag entityTag : results) {
             entityTag.setRelationship(template.getRelationship(entityTag.getId()).getType().name());
         }
-        return results;
-
     }
-
-    @Autowired
-    EntityTagRepo eout;
-
-    @Autowired
-    EntityTagInRepo ein;
 
     public Collection<Long> mergeTags(Long fromTag, Long toTag) {
         // DAT-279

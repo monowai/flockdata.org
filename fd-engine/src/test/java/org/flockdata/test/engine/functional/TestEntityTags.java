@@ -25,6 +25,7 @@ package org.flockdata.test.engine.functional;
  * Time: 4:49 PM
  */
 
+import org.apache.commons.lang3.ClassUtils;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -34,7 +35,10 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
+import org.flockdata.search.model.SearchTag;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.engine.track.service.ChildToRootFinder;
+import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -217,7 +221,7 @@ public class TestEntityTags extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         ContentInputBean contentInputBean = new ContentInputBean(Helper.getRandomMap());
         entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", null,"aaaa"));
+        entityInput.addTag(new TagInputBean("TagA", null, "aaaa"));
         entityInput.setContent(contentInputBean);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -238,8 +242,8 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "auditTest", "aTest", new DateTime(), "abc");
         entityInput.addTag(new TagInputBean("TagA", null, "AAAA"));
         entityInput.addTag(new TagInputBean("TagB", null,"BBBB"));
-        entityInput.addTag(new TagInputBean("TagC", null,"CCCC"));
-        entityInput.addTag(new TagInputBean("TagD", null,"DDDD"));
+        entityInput.addTag(new TagInputBean("TagC", null, "CCCC"));
+        entityInput.addTag(new TagInputBean("TagD", null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -389,7 +393,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         entity.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
-        entity.addTag(new TagInputBean("TagA",null, "camel"));
+        entity.addTag(new TagInputBean("TagA", null, "camel"));
         entity.addTag(new TagInputBean("taga",null, "lower"));
         entity.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entity);
@@ -1296,8 +1300,85 @@ public class TestEntityTags extends EngineBase {
             found ++;
         }
         assertEquals(expected, found);
+    }
 
+    @Test
+    public void custom_TagPath() throws Exception {
+        SystemUser su = registerSystemUser("custom_TagPath", mike_admin);
+        FortressInputBean fib = new FortressInputBean("custom_TagPath", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
+        DocumentType documentType = new DocumentType(fortress, "DAT-498");
+        documentType.setSearchTagFinder(ClassUtils.getPackageName(ChildToRootFinder.class) + "." + ClassUtils.getSimpleName(ChildToRootFinder.class));
+        conceptService.save(documentType);
+        documentType = conceptService.findDocumentType(fortress,documentType.getName());
+        assertNotNull(documentType);
+        assertNull(documentType.getGeoQuery());
+        assertNotNull(documentType.getSearchTagFinder());
+
+        // Establish a multi path hierarchy
+        TagInputBean interest = new TagInputBean("Motor", "Interest");
+        TagInputBean category = new TagInputBean("cars", "Category");
+        TagInputBean luxury = new TagInputBean("luxury cars", "Division");
+        TagInputBean brands = new TagInputBean("brands", "Division");
+        TagInputBean audi = new TagInputBean("audi", "Division");
+        TagInputBean term = new TagInputBean("audi a3", "Term");
+
+        interest.setTargets("is", category);
+        category.setTargets("typed", luxury);
+        category.setTargets("typed", brands);
+        brands.setTargets("sub", audi);
+        audi.setTargets("classifying", term);
+        luxury.setTargets("classifying", term);
+        mediationFacade.createTag(su.getCompany(), interest);
+
+        EntityInputBean entityInputBean = new EntityInputBean(fortress.getName(), "blah", documentType.getName(), new DateTime());
+        entityInputBean.setEntityOnly(true);
+        term.setEntityLink("references");
+        entityInputBean.addTag(term); // Terms are connected to entities
+        TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
+        assertNotNull(trackResultBean.getEntity());
+        EntityTagFinder etFinder = fortressService.getSearchTagFinder(trackResultBean.getEntity());
+        assertNotNull("Unable to create the requested EntityTagFinder implementation ", etFinder);
+
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), trackResultBean.getEntity());
+        assertFalse("The custom EntityTag path should have been used to find the tags", entityTags.isEmpty());
+        SearchChangeBean searchChange = searchService.getSearchChange(trackResultBean);
+        assertFalse(searchChange.getTagValues().isEmpty());
+        boolean divisonFound = false;
+        boolean termFound = false;
+        boolean categoryFound = false;
+        boolean interestFound = false;
+        for (String s : searchChange.getTagValues().keySet()) {
+            Map<String, ArrayList<SearchTag>> stringArrayListMap = searchChange.getTagValues().get(s);
+            for (String labelType : stringArrayListMap.keySet()) {
+                switch (labelType) {
+                    case  "division":
+                        assertEquals(3, stringArrayListMap.get(labelType).size());
+                        divisonFound = true;
+                        break;
+                    case  "term":
+                        assertEquals(1, stringArrayListMap.get(labelType).size());
+                        termFound = true;
+                        break;
+                    case  "category":
+                        assertEquals(1, stringArrayListMap.get(labelType).size());
+                        categoryFound = true;
+                        break;
+                    case  "interest":
+                        assertEquals(1, stringArrayListMap.get(labelType).size());
+                        interestFound = true;
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected entry " +labelType);
+                }
+            }
+        }
+        assertTrue("Division not found", divisonFound);
+        assertTrue("Term not found", termFound);
+        assertTrue("Category not found", categoryFound);
+        assertTrue("Interest not found", interestFound);
     }
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {

@@ -71,4 +71,10 @@ public class TagHelper {
     public static boolean isSystemLabel(String index) {
         return (index.equals("Country") || index.equals("City"));
     }
+
+    public static boolean isInternalLabel(String label) {
+        if (label.equals("_Tag") || label.equals("Tag"))
+            return true;
+        return false;
+    }
 }

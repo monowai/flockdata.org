@@ -28,6 +28,12 @@
            eternal="true"
            memoryStoreEvictionPolicy="LRU"/>
 
+    <cache name="geoQuery"
+           maxElementsInMemory="50"
+           eternal="true"
+           memoryStoreEvictionPolicy="LFU"/>
+
+
     <cache name="fortressDocType"
            maxElementsInMemory="200"
            eternal="true"
