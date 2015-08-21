@@ -392,8 +392,8 @@ public class TrackDaoES implements TrackSearchDao {
 
         // When the Entity was created in the fortress
         indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
-        //if ( searchChange.getUpdatedDate()!=null)
-        indexMe.put(EntitySearchSchema.UPDATED, searchChange.getUpdatedDate());
+        if ( searchChange.getUpdatedDate()!=null)
+            indexMe.put(EntitySearchSchema.UPDATED, searchChange.getUpdatedDate());
 
         if (searchChange.hasAttachment()) { // DAT-159
             indexMe.put(EntitySearchSchema.ATTACHMENT, searchChange.getAttachment());
@@ -433,7 +433,11 @@ public class TrackDaoES implements TrackSearchDao {
                 if (values.size() == 1) {
                     // DAT-329
                     SearchTag searchTag = values.iterator().next();
-                    squash.put(relationship, searchTag);
+//                    if ( searchTag.hasSingleProperty())
+//                        squash.put(relationship, searchTag.getCode());
+//                    else
+                        squash.put(relationship, searchTag);
+
                     gatherTag(uniqueTags, searchTag);
 
                 } else {
