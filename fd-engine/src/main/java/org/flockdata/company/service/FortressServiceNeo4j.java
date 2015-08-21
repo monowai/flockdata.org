@@ -26,21 +26,19 @@ import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressUser;
-import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.model.DocumentType;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -68,6 +66,9 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Autowired
     private PlatformConfig engineConfig;
+
+    @Autowired
+    EntityTagFinder childToRootFinder;
 
     @Override
     public Fortress getFortress(Long id) {
@@ -192,9 +193,9 @@ public class FortressServiceNeo4j implements FortressService {
         if (company == null)
             throw new FlockException("Unable to identify the requested company");
         Collection<Fortress> fortresses = fortressDao.findFortresses(company.getId());
-        Collection<FortressResultBean>results = new ArrayList<>(fortresses.size());
+        Collection<FortressResultBean> results = new ArrayList<>(fortresses.size());
         for (Fortress fortress : fortresses) {
-            results.add( new FortressResultBean(fortress));
+            results.add(new FortressResultBean(fortress));
         }
         return results;
 
@@ -240,7 +241,7 @@ public class FortressServiceNeo4j implements FortressService {
             return fortress;
         }
         if (createIfMissing) {
-            if ( fib.getStoreActive() == null )
+            if (fib.getStoreActive() == null)
                 fib.setStoreActive(storeEnabled);
             fortress = save(company, fib);
             logger.trace("Created fortress {}", fortress);
@@ -278,10 +279,10 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public String delete(Company company, String fortressCode) {
-        Fortress fortress ;
-            fortress = findByCode(company, fortressCode);
+        Fortress fortress;
+        fortress = findByCode(company, fortressCode);
 
-        if ( fortress == null)
+        if (fortress == null)
             return "Not Found";
 
         return fortressDao.delete(fortress);
@@ -316,4 +317,48 @@ public class FortressServiceNeo4j implements FortressService {
         return null;
     }
 
+    @Cacheable(value = "geoQuery", key = "#entity.id")
+    public String getGeoQuery(Entity entity) {
+        DocumentType documentType = findDocumentType(entity);
+        return documentType.getGeoQuery();
+    }
+
+    private Map<Long,EntityTagFinder>tagFinders= new HashMap<>();
+
+    @Override
+    /**
+     * Returns the implementing class of an EntityTagFinder so you can provide runtime node paths
+     *
+     */
+    public EntityTagFinder getSearchTagFinder(Entity entity) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        EntityTagFinder tagFinder = tagFinders.get(entity.getId());
+        if ( tagFinder == null ) {
+            DocumentType documentType = findDocumentType(entity);
+            if ( documentType == null )
+                return null; // The docType *should* exist
+            if ( documentType.getSearchTagFinder() !=null){
+                return childToRootFinder;
+//                Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(documentType.getTagFinderClass());
+//                if ( !EntityTagFinder.class.isAssignableFrom(clazz)) {
+//                    logger.error("{} - Requested class {} is not assignable from EntityTagFinder", documentType.toString(), documentType.getTagFinderClass());
+//                    return null;
+//                }
+//                // Make the class
+//                return (EntityTagFinder) clazz.newInstance();
+//
+            }
+        }
+        return tagFinder;
+    }
+
+    public DocumentType findDocumentType(Entity entity) {
+        Fortress f = entity.getFortress();
+
+        if (f.getCompany() == null)
+            f = getFortress(f.getId());
+
+        String docType = entity.getType();
+        return conceptDao.findDocumentType(f, docType, false);
+
+    }
 }

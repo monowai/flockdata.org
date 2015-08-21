@@ -57,6 +57,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<org.flockdata.model.Concept> concepts;
     private String geoQuery;
+    private String searchTagFinder;
 
     protected DocumentType() {
     }
@@ -165,5 +166,13 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public void setGeoQuery(String geoQuery) {
         this.geoQuery = geoQuery;
+    }
+
+    public String getSearchTagFinder() {
+        return searchTagFinder;
+    }
+
+    public void setSearchTagFinder(String tagFinderClass) {
+        this.searchTagFinder = tagFinderClass;
     }
 }

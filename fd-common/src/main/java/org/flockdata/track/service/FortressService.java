@@ -21,11 +21,13 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.model.Entity;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
+import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -81,4 +83,7 @@ public interface FortressService {
 
     FortressUser createFortressUser(Fortress fortress, ContentInputBean inputBean);
 
+    String getGeoQuery(Entity entity);
+
+    EntityTagFinder getSearchTagFinder(Entity entity) throws ClassNotFoundException, IllegalAccessException, InstantiationException;
 }

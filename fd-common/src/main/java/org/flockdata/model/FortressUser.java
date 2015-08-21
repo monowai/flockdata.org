@@ -78,7 +78,7 @@ public class FortressUser {
 
     @Override
     public String toString() {
-        return "FortressUserNode{" +
+        return "FortressUser{" +
                 "id=" + id +
                 ", name='" + code + '\'' +
                 '}';
