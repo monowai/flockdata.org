@@ -291,11 +291,11 @@ public class AdminService implements EngineAdminService {
         Collection<SearchChangeBean> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
-            if (!lastLog.isMocked()) {
+            //if (!lastLog.isMocked()) {
                 EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
                 if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
                     searchDocuments.add(searchDoc);
-            }
+            //}
         }
         searchService.makeChangesSearchable(searchDocuments);
         return skipCount;
