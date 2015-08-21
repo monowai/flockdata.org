@@ -19,6 +19,7 @@
 
 package org.flockdata.search.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.TagHelper;
@@ -143,5 +144,11 @@ public class SearchTag {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getGeoDesc() {
         return geoDesc;
+    }
+
+    @JsonIgnore
+    public boolean hasSingleProperty() {
+        return ( (properties == null || properties.isEmpty()) && (rlx==null || rlx.isEmpty()) && name == null );
+
     }
 }
