@@ -33,7 +33,7 @@ import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.SchemaService;
@@ -288,7 +288,7 @@ public class AdminService implements EngineAdminService {
     @Async("fd-track")
     @Transactional
     Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
-        Collection<SearchChangeBean> searchDocuments = new ArrayList<>(entities.size());
+        Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
             //if (!lastLog.isMocked()) {

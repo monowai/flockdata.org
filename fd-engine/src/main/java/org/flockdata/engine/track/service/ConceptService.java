@@ -46,4 +46,6 @@ public interface ConceptService {
     DocumentType save(DocumentType documentType);
 
     DocumentType findDocumentType(Fortress fortress, String documentName);
+
+    DocumentType resolveDocumentType(Fortress fortress, DocumentType documentType);
 }

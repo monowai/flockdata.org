@@ -85,5 +85,5 @@ public interface FortressService {
 
     String getGeoQuery(Entity entity);
 
-    EntityTagFinder getSearchTagFinder(Entity entity) throws ClassNotFoundException, IllegalAccessException, InstantiationException;
+    EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity);
 }

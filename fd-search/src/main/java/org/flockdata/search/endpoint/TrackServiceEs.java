@@ -113,7 +113,7 @@ public class TrackServiceEs implements TrackService {
             if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName()+ "/"+searchChange.getDocumentType())) {
                 trackSearch.purgeCache();
                 // Batches must be for the same fortress/doctype combo
-                trackSearch.ensureIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+                trackSearch.ensureIndex(searchChange);
                 String key = searchChange.getIndexName()+ "/"+searchChange.getDocumentType();
                 checked.put(key, true);
             }

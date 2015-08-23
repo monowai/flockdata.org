@@ -119,6 +119,26 @@ public class ConceptDaoNeo {
         return docResult;
     }
 
+
+    /**
+     * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
+     *
+     * @param fortress        fortress generating
+     * @param docName         name of the Label
+     * @param createIfMissing if not found will create
+     * @return the node
+     */
+    public DocumentType findDocumentType(Fortress fortress, DocumentType documentType, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, documentType.getName());
+
+        if (docResult == null && createIfMissing) {
+            //documentType.setFortress(fortress); // fortress was set by the caller
+            docResult = documentTypeRepo.save(documentType);
+        }
+
+        return docResult;
+    }
+
     DocumentType documentExists(Fortress fortress, String docCode) {
         assert fortress != null;
         String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docCode);

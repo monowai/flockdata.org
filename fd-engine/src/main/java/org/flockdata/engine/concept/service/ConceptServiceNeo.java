@@ -100,8 +100,14 @@ public class ConceptServiceNeo implements ConceptService {
      */
 //    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     @Override
+    @Deprecated // use resolveDocumentType(Fortress fortress, DocumentType documentType)
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
+    }
+
+    @Override
+    public DocumentType resolveDocumentType(Fortress fortress, DocumentType documentType){
+        return conceptDao.findDocumentType(fortress, documentType, true);
     }
 
     /**

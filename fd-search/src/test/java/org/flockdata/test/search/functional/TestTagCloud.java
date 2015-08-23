@@ -28,7 +28,7 @@ import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +68,7 @@ public class TestTagCloud extends ESBase {
 
         Entity entity = Helper.getEntity(comp, fort, user, doc);
 
-        SearchChangeBean change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -76,7 +76,7 @@ public class TestTagCloud extends ESBase {
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
         tags.add(new EntityTagOut(entity, tag, "rlxname", null));
-        change.setTags(tags);
+        change.setTags(null, tags);
 
         deleteEsIndex(entity);
 

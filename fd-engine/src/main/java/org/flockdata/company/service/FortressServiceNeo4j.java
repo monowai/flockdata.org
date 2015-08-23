@@ -34,6 +34,7 @@ import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +67,6 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Autowired
     private PlatformConfig engineConfig;
-
-    @Autowired
-    EntityTagFinder childToRootFinder;
 
     @Override
     public Fortress getFortress(Long id) {
@@ -330,25 +328,17 @@ public class FortressServiceNeo4j implements FortressService {
      * Returns the implementing class of an EntityTagFinder so you can provide runtime node paths
      *
      */
-    public EntityTagFinder getSearchTagFinder(Entity entity) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity) {
         EntityTagFinder tagFinder = tagFinders.get(entity.getId());
         if ( tagFinder == null ) {
             DocumentType documentType = findDocumentType(entity);
-            if ( documentType == null )
-                return null; // The docType *should* exist
-            if ( documentType.getSearchTagFinder() !=null){
-                return childToRootFinder;
-//                Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(documentType.getTagFinderClass());
-//                if ( !EntityTagFinder.class.isAssignableFrom(clazz)) {
-//                    logger.error("{} - Requested class {} is not assignable from EntityTagFinder", documentType.toString(), documentType.getTagFinderClass());
-//                    return null;
-//                }
-//                // Make the class
-//                return (EntityTagFinder) clazz.newInstance();
-//
+            if ( documentType == null || documentType.getTagStructure() == null || documentType.getTagStructure()== EntityService.TAG_STRUCTURE.DEFAULT)
+                return EntityService.TAG_STRUCTURE.DEFAULT; // The docType *should* exist
+            if ( documentType.getTagStructure() == EntityService.TAG_STRUCTURE.TAXONOMY){
+                return EntityService.TAG_STRUCTURE.TAXONOMY;
             }
         }
-        return tagFinder;
+        return EntityService.TAG_STRUCTURE.DEFAULT;
     }
 
     public DocumentType findDocumentType(Entity entity) {

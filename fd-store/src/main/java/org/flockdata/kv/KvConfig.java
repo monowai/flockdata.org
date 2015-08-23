@@ -79,7 +79,7 @@ public class KvConfig implements FdKvConfig {
             setKvStore( KV_STORE.MEMORY);
         else {
             setKvStore( KV_STORE.NONE);
-            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to NONE");
+            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to DEFAULT");
         }
 
     }
