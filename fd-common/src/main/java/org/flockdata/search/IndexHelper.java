@@ -4,7 +4,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 
 /**
  * Provides centralized access to the way that FD constructs indexes
@@ -27,7 +27,7 @@ public class IndexHelper {
         return parseIndex(fortress.getIndexName(), "*");
     }
 
-    public static String parseIndex(SearchChangeBean searchChange) {
+    public static String parseIndex(SearchChange searchChange) {
         return parseIndex(searchChange.getIndexName(), searchChange.getDocumentType());
     }
 

@@ -19,6 +19,7 @@
 
 package org.flockdata.model;
 
+import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
@@ -56,10 +57,33 @@ public class DocumentType  implements Comparable<DocumentType> {
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<org.flockdata.model.Concept> concepts;
+
     private String geoQuery;
-    private String searchTagFinder;
+
+    // DAT-498
+    private EntityService.TAG_STRUCTURE tagStructure;
 
     protected DocumentType() {
+    }
+
+    public DocumentType(String documentName) {
+        this(null, documentName);
+    }
+
+    /**
+     *
+     * @param fortress      System that owns the documentType
+     * @param documentType  The input that will create a real DocumentType
+     */
+    public DocumentType(Fortress fortress, DocumentType documentType) {
+        this.code = parse(fortress, documentType.getCode());
+        this.name = documentType.getName();
+        this.tagStructure = documentType.getTagStructure();
+        if ( fortress !=null ){
+            this.companyKey = fortress.getCompany().getId() + "." + code;
+            setFortress(fortress);
+        }
+
     }
 
     public DocumentType(Fortress fortress, String documentName) {
@@ -168,11 +192,11 @@ public class DocumentType  implements Comparable<DocumentType> {
         this.geoQuery = geoQuery;
     }
 
-    public String getSearchTagFinder() {
-        return searchTagFinder;
+    public EntityService.TAG_STRUCTURE getTagStructure() {
+        return tagStructure;
     }
-
-    public void setSearchTagFinder(String tagFinderClass) {
-        this.searchTagFinder = tagFinderClass;
+    // DAT-498
+    public void setTagStructure(EntityService.TAG_STRUCTURE tagFinderClass) {
+        this.tagStructure = tagFinderClass;
     }
 }

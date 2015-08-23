@@ -20,8 +20,7 @@
 package org.flockdata.search.service;
 
 import org.flockdata.model.Entity;
-import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 
 import java.io.IOException;
 import java.util.Map;
@@ -38,7 +37,7 @@ public interface TrackSearchDao {
      *
      * @param searchChange values to update from
      */
-    SearchChangeBean handle(SearchChangeBean searchChange) throws IOException;
+    SearchChange handle(SearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey
@@ -67,11 +66,11 @@ public interface TrackSearchDao {
      * can delete a specific instance
      *
      */
-    boolean delete(SearchChangeBean searchChange);
+    boolean delete(SearchChange searchChange);
 
     Map<String, Object> ping();
 
     boolean ensureIndex(String indexName, String documentType) throws IOException;
 
-    boolean ensureIndex(EntitySearchChange change);
+    boolean ensureIndex(SearchChange change);
 }

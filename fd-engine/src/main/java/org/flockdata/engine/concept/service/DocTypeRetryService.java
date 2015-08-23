@@ -54,8 +54,15 @@ public class DocTypeRetryService {
 
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
+        DocumentType result;
+        if (inputBean.getDocumentType() == null)
+            // OldWay
+            result = new DocumentType(fortress, inputBean.getDocumentName());
+        else
+        //  new way DAT-498 - a way to pass the DocType properties
+            result =  new DocumentType(fortress, inputBean.getDocumentType());
 
-        DocumentType result = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
+        result = conceptService.resolveDocumentType(fortress, result);
         logger.debug("Finished result = {}"+ result);
         return new AsyncResult<>(result);
     }

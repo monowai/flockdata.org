@@ -1,5 +1,6 @@
 package org.flockdata.test.search.functional;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -12,8 +13,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestTagPayload extends ESBase {
 
-//    @Test
-//    public void nestedTag_SearchDoc () throws Exception {
-//
-//    }
+    @Test
+    public void nestedTag_SearchDoc () throws Exception {
+        System.out.print("implement me");
+    }
 }

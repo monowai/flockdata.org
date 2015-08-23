@@ -42,12 +42,11 @@ import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
-import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.search.service.TrackSearchDao;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -79,7 +78,7 @@ public class TrackDaoES implements TrackSearchDao {
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
     @Override
-    public boolean delete(SearchChangeBean searchChange) {
+    public boolean delete(SearchChange searchChange) {
         String indexName = searchChange.getIndexName();
         String recordType = searchChange.getDocumentType();
 
@@ -103,7 +102,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param source       Json to save
      * @return key value of the child document
      */
-    private SearchChangeBean save(SearchChangeBean searchChange, String source) throws IOException {
+    private SearchChange save(SearchChange searchChange, String source) throws IOException {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
@@ -140,7 +139,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     @Override
-    public boolean ensureIndex(EntitySearchChange change) {
+    public boolean ensureIndex(SearchChange change) {
         return ensureIndex(change.getIndexName(), change.getDocumentType());
     }
 
@@ -232,7 +231,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     @Override
-    public SearchChangeBean handle(SearchChangeBean searchChange) throws IOException {
+    public SearchChange handle(SearchChange searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
@@ -355,7 +354,7 @@ public class TrackDaoES implements TrackSearchDao {
         return results;
     }
 
-    private String getJsonToIndex(SearchChangeBean searchChange) {
+    private String getJsonToIndex(SearchChange searchChange) {
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
         try {
@@ -373,7 +372,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param searchChange searchChange
      * @return document to index
      */
-    private Map<String, Object> getMapFromChange(SearchChangeBean searchChange) {
+    private Map<String, Object> getMapFromChange(SearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
@@ -392,7 +391,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         // When the Entity was created in the fortress
         indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
-        if ( searchChange.getUpdatedDate()!=null)
+        if (searchChange.getUpdatedDate() != null)
             indexMe.put(EntitySearchSchema.UPDATED, searchChange.getUpdatedDate());
 
         if (searchChange.hasAttachment()) { // DAT-159
@@ -436,7 +435,7 @@ public class TrackDaoES implements TrackSearchDao {
 //                    if ( searchTag.hasSingleProperty())
 //                        squash.put(relationship, searchTag.getCode());
 //                    else
-                        squash.put(relationship, searchTag);
+                    squash.put(relationship, searchTag);
 
                     gatherTag(uniqueTags, searchTag);
 
@@ -489,7 +488,7 @@ public class TrackDaoES implements TrackSearchDao {
      * @param tagCodes modified by reference
      * @param fromTags tags to analyze
      */
-    private void gatherTags(Collection<String> tagCodes, ArrayList<SearchTag> fromTags) {
+    private void gatherTags(Collection<String> tagCodes, Collection<SearchTag> fromTags) {
         for (SearchTag value : fromTags) {
             gatherTag(tagCodes, value);
         }
@@ -531,6 +530,13 @@ public class TrackDaoES implements TrackSearchDao {
                             tagCodes.add(name + " - " + code);
                     }
                 }
+            }
+        }
+        if (!tag.getParent().isEmpty()) {
+            for (String key : tag.getParent().keySet()) {
+                Collection<SearchTag> nestedSearchTags = tag.getParent().get(key);
+                gatherTags(tagCodes, nestedSearchTags);
+//                logger.info(key);
             }
         }
     }

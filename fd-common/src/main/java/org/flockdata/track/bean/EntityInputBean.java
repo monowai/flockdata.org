@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -39,6 +40,8 @@ public class EntityInputBean implements Serializable, UserProperties{
     private String fortress;
     private String fortressUser;
     private String documentName;
+    private DocumentType documentType;
+
     private Date when = null; // Created Date
 
     private Date lastChange = null;
@@ -155,7 +158,9 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public String getDocumentName() {
-        return documentName;
+        if ( documentType==null )
+            return documentName;
+        return documentType.getName();
     }
 
     /**
@@ -460,5 +465,9 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     public FortressUser getUser() {
         return user;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
     }
 }

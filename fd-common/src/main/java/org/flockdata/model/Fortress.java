@@ -37,10 +37,10 @@ public class Fortress implements Serializable {
     @GraphId
     Long id;
 
-    //@Indexed
+    @Indexed
     private String code;
 
-    //@Indexed
+    @Indexed
     private String name;
 
     //@Relationship(type = "OWNS", direction = Relationship.INCOMING)

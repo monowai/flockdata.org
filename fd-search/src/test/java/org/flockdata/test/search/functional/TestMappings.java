@@ -31,7 +31,7 @@ import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -126,11 +126,11 @@ public class TestMappings extends ESBase {
         Tag tag = new Tag(tagInput);
 
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
-        change.setTags(tags);
+        change.setTags( tags);
 
         deleteEsIndex(entity);
 
-        Collection<SearchChangeBean> changes = new ArrayList<>();
+        Collection<SearchChange> changes = new ArrayList<>();
         changes.add(change);
         changes.add(changeB);
         EntitySearchChanges searchChanges = new EntitySearchChanges(changes);
@@ -146,8 +146,8 @@ public class TestMappings extends ESBase {
         Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fort");
         Entity entityB = Helper.getEntity("cust", "fortb", "anyuser", "fortb");
 
-        SearchChangeBean changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChangeBean changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -156,8 +156,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
-        searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
+        searchRepo.ensureIndex(changeA);
+        searchRepo.ensureIndex(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -181,8 +181,8 @@ public class TestMappings extends ESBase {
         Entity entityB = Helper.getEntity("cust", "fort", "anyuser", "doctype");
 
 
-        SearchChangeBean changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChangeBean changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
 
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
@@ -199,8 +199,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
-        searchRepo.ensureIndex(changeB.getIndexName(), changeB.getDocumentType());
+        searchRepo.ensureIndex(changeA);
+        searchRepo.ensureIndex(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -222,7 +222,7 @@ public class TestMappings extends ESBase {
         Map<String, Object> json = Helper.getBigJsonText(20);
         Entity entityA = Helper.getEntity("cust", "fort-tag-rlx", "anyuser", "fortdoc");
 
-        SearchChangeBean changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
 
         Tag tag = new Tag(new TagInputBean("aValue", "myTag", "myTag"));
         tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
@@ -233,7 +233,7 @@ public class TestMappings extends ESBase {
 
         deleteEsIndex(entityA);
 
-        searchRepo.ensureIndex(changeA.getIndexName(), changeA.getDocumentType());
+        searchRepo.ensureIndex(changeA);
 
         changeA = searchRepo.handle(changeA);
 
@@ -289,7 +289,7 @@ public class TestMappings extends ESBase {
         change.setTags(tags);
 
         searchRepo.ensureIndex(change);
-        SearchChangeBean searchResult = searchRepo.handle(change);
+        SearchChange searchResult = searchRepo.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
 
