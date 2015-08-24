@@ -1,5 +1,107 @@
 {
   "mapping": {
+    "dynamic_templates": [
+      {
+        "inline_tag_code_template": {
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "match_mapping_type": "string",
+          "path_match": "tag.*.parent.*.code"
+        }
+      },
+      {
+        "inline_tag_name_template": {
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "match_mapping_type": "string",
+          "path_match": "tag.*.parent.*.name"
+        }
+      },
+      {
+        "geo_points": {
+          "mapping": {
+            "type": "geo_point",
+            "lat_lon": true,
+            "geohash": true,
+            "geohash_precision": "1km"
+          },
+          "match_mapping_type": "string",
+          "path_match": "tag.*.geo.points.*"
+        }
+      },
+      {
+        "geo_code": {
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "match_mapping_type": "string",
+          "path_match": "tag.*.geo.*.code"
+        }
+      },
+      {
+        "geo_name": {
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "match_mapping_type": "string",
+          "path_match": "tag.*.geo.*.name"
+        }
+      }
+    ],
     "_all": {
       "auto_boost": true
     },
@@ -61,6 +163,67 @@
                     }
                   }
                 }
+              },
+              "parent": {
+                "properties": {
+                  "category": {
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "boost": 3,
+                        "fields": {
+                          "facet": {
+                            "type": "string",
+                            "boost": 5,
+                            "index": "not_analyzed",
+                            "doc_values": true,
+                            "norms": {
+                              "enabled": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "division": {
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "boost": 3,
+                        "fields": {
+                          "facet": {
+                            "type": "string",
+                            "boost": 5,
+                            "index": "not_analyzed",
+                            "doc_values": true,
+                            "norms": {
+                              "enabled": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "interest": {
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "boost": 3,
+                        "fields": {
+                          "facet": {
+                            "type": "string",
+                            "boost": 5,
+                            "index": "not_analyzed",
+                            "doc_values": true,
+                            "norms": {
+                              "enabled": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -98,107 +261,5 @@
         "index": "not_analyzed"
       }
     }
-  },
-  "dynamic_templates": [
-    {
-      "inline_tag_code_template": {
-        "path_match": "tag.*.code",
-        "match_mapping_type": "string",
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "type": "string",
-              "boost": "3.0",
-              "index": "analyzed"
-            },
-            "facet": {
-              "type": "string",
-              "boost": "5.0",
-              "doc_values": true,
-              "index": "not_analyzed"
-            }
-          }
-        }
-      }
-    },
-    {
-      "inline_tag_name_template": {
-        "path_match": "tag.*.name",
-        "match_mapping_type": "string",
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "type": "string",
-              "boost": "3.0",
-              "index": "analyzed"
-            },
-            "facet": {
-              "type": "string",
-              "boost": "5.0",
-              "doc_values": true,
-              "index": "not_analyzed"
-            }
-          }
-        }
-      }
-    },
-    {
-      "geo_points": {
-        "mapping": {
-          "geohash": true,
-          "geohash_precision": "1km",
-          "type": "geo_point",
-          "lat_lon": true
-        },
-        "match_mapping_type": "string",
-        "path_match": "tag.*.geo.points.*"
-      }
-    },
-    {
-      "geo_code": {
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "index": "analyzed",
-              "boost": "3.0",
-              "type": "string"
-            },
-            "facet": {
-              "index": "not_analyzed",
-              "boost": "5.0",
-              "type": "string",
-              "doc_values": true
-            }
-          }
-        },
-        "match_mapping_type": "string",
-        "path_match": "tag.*.geo.*.code"
-      }
-    },
-    {
-      "geo_name": {
-        "mapping": {
-          "type": "multi_field",
-          "fields": {
-            "{name}": {
-              "index": "analyzed",
-              "boost": "3.0",
-              "type": "string"
-            },
-            "facet": {
-              "index": "not_analyzed",
-              "boost": "5.0",
-              "type": "string",
-              "doc_values": true
-            }
-          }
-        },
-        "match_mapping_type": "string",
-        "path_match": "tag.*.geo.*.name"
-      }
-    }
-  ]
+  }
 }

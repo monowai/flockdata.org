@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.VersionHelper;
+import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +70,13 @@ public class SearchAdmin {
 
 
     String esDefaultMapping= "fd-default-mapping.json";
-    public String getEsDefaultMapping(){
-        return getEsMappingPath()+"/"+esDefaultMapping;
+    String esNestedMapping = "fd-term-mapping.json";
+
+    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStrucure){
+        if ( tagStrucure== EntityService.TAG_STRUCTURE.TAXONOMY)
+            return getEsMappingPath()+"/"+esNestedMapping;
+        else
+            return getEsMappingPath()+"/"+esDefaultMapping;
     }
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
@@ -100,7 +106,7 @@ public class SearchAdmin {
         }
         healthResults.put("fd.config", config);
         healthResults.put("es.default settings", getEsDefaultSettings());
-        healthResults.put("es.default mapping", getEsDefaultMapping());
+        healthResults.put("es.default mapping", getEsDefaultMapping(EntityService.TAG_STRUCTURE.DEFAULT));
 
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);

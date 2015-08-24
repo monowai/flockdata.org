@@ -118,7 +118,7 @@ public class TestAutoComplete extends ESBase{
         change.setWhat(what);
         change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
         SearchChange searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);

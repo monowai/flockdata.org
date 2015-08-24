@@ -47,6 +47,7 @@ import org.flockdata.search.model.SearchTag;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -140,22 +141,22 @@ public class TrackDaoES implements TrackSearchDao {
 
     @Override
     public boolean ensureIndex(SearchChange change) {
-        return ensureIndex(change.getIndexName(), change.getDocumentType());
+        return ensureIndex(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
     }
 
     // ToDo: Fix this. Caching is not resetting after the index is deleted
     //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
-    public boolean ensureIndex(String indexName, String documentType) {
+    public boolean ensureIndex(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
 
         if (hasIndex(IndexHelper.parseIndex(indexName, documentType))) {
             // Need to be able to allow for a "per document" mapping
-            ensureMapping(indexName, documentType);
+            ensureMapping(indexName, documentType, tagStructure);
             return true;
         }
 
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         //if (hasIndex(indexName)) return true;
-        XContentBuilder mappingEs = getMapping(indexName, documentType);
+        XContentBuilder mappingEs = getMapping(indexName, documentType, tagStructure);
         // create Index  and Set Mapping
         if (mappingEs != null) {
             //Settings settings = Builder
@@ -189,7 +190,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
 
-    private void ensureMapping(String indexName, String documentType) {
+    private void ensureMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
         // Mappings are on a per Document basis. We need to ensure the mapping exists for the
         //    same index but every document type
         logger.debug("Checking mapping for {}, {}", indexName, documentType);
@@ -207,7 +208,7 @@ public class TrackDaoES implements TrackSearchDao {
                 .actionGet()
                 .isExists();
         if (!hasTypeMapping) {
-            XContentBuilder mapping = getMapping(indexName, documentType);
+            XContentBuilder mapping = getMapping(indexName, documentType, tagStructure);
             esClient.admin().indices()
                     .preparePutMapping(IndexHelper.parseIndex(indexName, documentType))
                     .setType(documentType)
@@ -578,11 +579,11 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    private XContentBuilder getMapping(String indexName, String documentType) {
+    private XContentBuilder getMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
 
         XContentBuilder xbMapping = null;
         try {
-            Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType));
+            Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType), tagStructure);
             Map<String, Object> docMap = new HashMap<>();
             docMap.put(documentType, map.get("mapping"));
             xbMapping = jsonBuilder().map(docMap);
@@ -597,21 +598,21 @@ public class TrackDaoES implements TrackSearchDao {
         return indexName + "/" + documentType + ".json";
     }
 
-    private Map<String, Object> getDefaultMapping(String key) throws IOException {
+    private Map<String, Object> getDefaultMapping(String keyName, EntityService.TAG_STRUCTURE tagStrucure) throws IOException {
         Map<String, Object> found;
 
         // Locate file on disk
         try {
-            found = getMapping(searchAdmin.getEsMappingPath() + "/" + key);
+            found = getMapping(searchAdmin.getEsMappingPath() + "/" + keyName);
             if (found != null) {
-                logger.debug("Found custom mapping for {}", key);
+                logger.debug("Found custom mapping for {}", keyName);
                 return found;
             }
         } catch (IOException ioe) {
-            logger.debug("Custom mapping does not exists for {} - reverting to default", key);
+            logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
         }
 
-        String esDefault = searchAdmin.getEsDefaultMapping();
+        String esDefault = searchAdmin.getEsDefaultMapping(tagStrucure);
         try {
             // Chance to find it on disk
             found = getMapping(esDefault);
