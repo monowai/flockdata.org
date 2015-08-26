@@ -57,10 +57,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.IndexHelper;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.SearchResult;
+import org.flockdata.search.model.*;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
@@ -109,11 +106,11 @@ import static org.springframework.test.util.AssertionErrors.fail;
 /**
  * Allows the fd-engine services to be tested against fd-search with actual integration.
  * fd-search is stated by Cargo as a Tomcat server while fd-engine is debuggable in-process.
- *
+ * <p>
  * Note that Logs and Search docs are written asyncronously. For this reason you will see
  * various "waitAWhile" loops giving other threads time to process the payloads before
  * making assertions.
- *
+ * <p>
  * <p>
  * This approach requires RabbitMQ to be installed to allow integration to occur.
  * <p>
@@ -223,7 +220,7 @@ public class TestFdIntegration {
 
     }
 
-    static long getSleepSeconds(){
+    static long getSleepSeconds() {
         String ss = System.getProperty("sleepSeconds");
         if (ss == null || ss.equals(""))
             ss = "3";
@@ -250,18 +247,18 @@ public class TestFdIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","suppress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","testfortress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","ngram*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","rebuildtest*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","audittest*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","suppress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","entitywithtagsprocess*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","trackgraph*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai","111*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111*"));
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i +"*");
+            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i + "*");
         }
 
     }
@@ -281,23 +278,23 @@ public class TestFdIntegration {
 
     @AfterClass
     public static void shutDownElasticSearch() throws Exception {
-        if ( esClient !=null)
+        if (esClient != null)
             esClient.shutdownClient();
     }
 
     @BeforeClass
     @Rollback(false)
-    public static void pingFdSearch() throws Exception{
+    public static void pingFdSearch() throws Exception {
         // Always run
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHttpHeaders(null, null, null );
+        HttpHeaders httpHeaders = getHttpHeaders(null, null, null);
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         logger.info("**** Checking to see if we can ping fd-search @ {}", FD_SEARCH);
         try {
-            ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH+"/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH + "/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
             assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
 
-        } catch ( Exception e){
+        } catch (Exception e) {
             runMe = false; // Everything will fail
             throw new FlockException("Can't connect to FD-Search. No point in continuing");
         }
@@ -307,8 +304,8 @@ public class TestFdIntegration {
     }
 
     @Before
-    public void testHealth()throws  Exception{
-        Map<String,String> health = engineConfig.getHealth();
+    public void testHealth() throws Exception {
+        Map<String, String> health = engineConfig.getHealth();
         assertNotNull(health);
         assertFalse(health.isEmpty());
         assertEquals("Ok", health.get("fd-search"));
@@ -477,7 +474,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("searc_passThroughQuery");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searc_passThroughQuery"));
         DateTime now = new DateTime();
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now );
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TrackTags", now);
         inputBean.setEntityOnly(true);
 
         inputBean.setProperty("myString", "hello world");
@@ -492,13 +489,13 @@ public class TestFdIntegration {
         String queryString = "{\"query_string\": {\n" +
                 "      \"query\": \"hello world\"\n" +
                 "  }}";
-        Map<String,Object>query  = JsonUtils.getAsMap(queryString);
+        Map<String, Object> query = JsonUtils.getAsMap(queryString);
 
         qp.setQuery(query);
         EsSearchResult searchResult = queryService.search(su.getCompany(), qp);
         assertNotNull(searchResult);
         assertEquals(1, searchResult.getTotalHits());
-        Map<String,Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
+        Map<String, Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
         assertFalse(mapResult.isEmpty());
     }
 
@@ -679,7 +676,7 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         // Analyzed tags require exact match...
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
-        doEsQuery( result.getEntity(), "happy days", 1);
+        doEsQuery(result.getEntity(), "happy days", 1);
         // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
@@ -719,7 +716,7 @@ public class TestFdIntegration {
         Long searchUpdated = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
         assertTrue("Fortress update was not set in to searchDoc", searchUpdated > 0);
         assertEquals("Created date mismatch", createdDate.getMillis(), searchCreated.longValue());
-        assertEquals("Last Change date mismatch: expected " +fUpdate2 +" was " + new DateTime(searchUpdated) , fUpdateDate2.getMillis(), searchUpdated.longValue());
+        assertEquals("Last Change date mismatch: expected " + fUpdate2 + " was " + new DateTime(searchUpdated), fUpdateDate2.getMillis(), searchUpdated.longValue());
         doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
         doEsTermQuery(entity, EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
@@ -835,8 +832,8 @@ public class TestFdIntegration {
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestQuery", new DateTime(), "ABC123");
         inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
 
-        TrackResultBean result =mediationFacade.trackEntity(su.getCompany(), inputBean);
-        assertNotNull(result) ;
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertNotNull(result);
         waitForFirstSearchResult(su.getCompany(), result.getEntity()); // 2nd document in the index
 
         inputBean = new EntityInputBean(fo.getName(), "wally", inputBean.getDocumentName(), new DateTime(), "ABC124");
@@ -887,7 +884,7 @@ public class TestFdIntegration {
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
-        assertNotNull ( log);
+        assertNotNull(log);
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
         // We have one with a metaKey and one without
@@ -957,16 +954,16 @@ public class TestFdIntegration {
         MatrixInputBean matrixInputBean = new MatrixInputBean();
         matrixInputBean.setQueryString("*");
 
-        ArrayList<String>tags = new ArrayList<>();
+        ArrayList<String> tags = new ArrayList<>();
         tags.add("ThisLabel");
         tags.add("ThatLabel");
 
-        ArrayList<String>rlx = new ArrayList<>();
+        ArrayList<String> rlx = new ArrayList<>();
         rlx.add(relationshipName.toLowerCase());
         matrixInputBean.setFromRlxs(rlx);
         matrixInputBean.setToRlxs(rlx);
         matrixInputBean.setConcepts(tags);
-        ArrayList<String>fortresses = new ArrayList<>();
+        ArrayList<String> fortresses = new ArrayList<>();
         fortresses.add(fortress.getName().toLowerCase());
         matrixInputBean.setFortresses(fortresses);
         matrixInputBean.setByKey(false);
@@ -1121,7 +1118,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("Romeo");
         Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ngram"));
         EntityInputBean inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
-        TagInputBean tagInputBean = new TagInputBean("Description", "testLabel","linked");
+        TagInputBean tagInputBean = new TagInputBean("Description", "testLabel", "linked");
         inputBean.addTag(tagInputBean);
 
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1167,9 +1164,9 @@ public class TestFdIntegration {
 
         Entity entityB = mediationFacade.trackEntity(fortress, inputBean).getEntity();
         waitForFirstSearchResult(su.getCompany(), entityB.getMetaKey());
-        Tag tagA = tagService.findTag(su.getCompany(), null,tagInputA.getCode());
+        Tag tagA = tagService.findTag(su.getCompany(), null, tagInputA.getCode());
         assertNotNull(tagA);
-        Tag tagB = tagService.findTag(su.getCompany(),null, tagInputB.getCode());
+        Tag tagB = tagService.findTag(su.getCompany(), null, tagInputB.getCode());
         assertNotNull(tagB);
 
         doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "taga", 1);
@@ -1206,7 +1203,7 @@ public class TestFdIntegration {
         AmqpHelper helper = new AmqpHelper(configuration);
 
         // ToDo: We're not tracking the response code
-        Collection<EntityInputBean>batchBeans = new ArrayList<>();
+        Collection<EntityInputBean> batchBeans = new ArrayList<>();
         batchBeans.add(inputBean);
         helper.publish(batchBeans);
         waitAWhile("AMQP", 8000);
@@ -1353,14 +1350,14 @@ public class TestFdIntegration {
     public void geo_TagsWork() throws Exception {
         assumeTrue(runMe);
         logger.info("geo_TagsWork");
-        SystemUser su = registerSystemUser( "geoTag", "geo_Tag");
+        SystemUser su = registerSystemUser("geoTag", "geo_Tag");
         // DAT-339
         assertNotNull(su);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("GeoFortress"));
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime(), "abc");
-        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
         String country = "USA";
         String city = "Los Angeles";
@@ -1384,11 +1381,11 @@ public class TestFdIntegration {
         doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.state.code", "ca", 1);
         doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.state.name", "california", 1);
 
-        doEsFieldQuery( resultBean.getEntity(), "tag.owns.institution.geo.country.code", "usa", 1);
-        doEsFieldQuery( resultBean.getEntity(), "tag.owns.institution.geo.country.name", "united states", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.country.code", "usa", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.country.name", "united states", 1);
 
-        doEsFieldQuery( resultBean.getEntity(), "tag.owns.institution.geo.city.code", "la", 1);
-        doEsFieldQuery( resultBean.getEntity(), "tag.owns.institution.geo.city.name", "los angeles", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.city.code", "la", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.city.name", "los angeles", 1);
 
     }
 
@@ -1402,7 +1399,7 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("geo_CachingMultiLocations"));
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime());
-        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
 
         String la = "Los Angeles";
@@ -1424,7 +1421,7 @@ public class TestFdIntegration {
 
         // Create second one with different geo data
         entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime());
-        content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová")) ;
+        content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
         institutionTag = new TagInputBean("mikecorpb", "Institution", "owns");
         // Institution is in a city
@@ -1441,7 +1438,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
         waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
 
-        doEsFieldQuery( fortress, "tag.owns.institution.geo.state.code", california.getCode().toLowerCase(), 1);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.state.code", california.getCode().toLowerCase(), 1);
         doEsFieldQuery(fortress, "tag.owns.institution.geo.city.name", losAngeles.getName().toLowerCase(), 1);
         doEsFieldQuery(fortress, "tag.owns.institution.geo.state.code", "tx", 1);
         doEsFieldQuery(fortress, "tag.owns.institution.geo.city.code", "dallas", 1);
@@ -1449,14 +1446,14 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void store_DisabledByCallerRef () throws Exception{
+    public void store_DisabledByCallerRef() throws Exception {
         // DAT-347 Check content retrieved from KV Store when storage is disabled
         assumeTrue(runMe);
         logger.debug("## store_DisabledByCallerRef");
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_DisabledByCallerRef");
 
-        FortressInputBean fib= new FortressInputBean("store_DisabledByCallerRef");
+        FortressInputBean fib = new FortressInputBean("store_DisabledByCallerRef");
         fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
@@ -1497,14 +1494,14 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void store_DisabledByWithNoCallerRef () throws Exception{
+    public void store_DisabledByWithNoCallerRef() throws Exception {
         // DAT-347 Check content retrieved from KV Store when storage is disabled
         assumeTrue(runMe);
         logger.debug("## store_DisabledByWithNoCallerRef");
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_DisabledByWithNoCallerRef");
 
-        FortressInputBean fib= new FortressInputBean("store_DisabledByWithNoCallerRef");
+        FortressInputBean fib = new FortressInputBean("store_DisabledByWithNoCallerRef");
         fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
@@ -1543,14 +1540,14 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void storeDisabled_ReprocessingContentForExistingEntity () throws Exception{
+    public void storeDisabled_ReprocessingContentForExistingEntity() throws Exception {
         // DAT-353 Track in an entity. Validate the content. Update the content. Validate the
         //         update is found.
         assumeTrue(runMe);
         Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("## store_DisabledReprocessContent");
 
-        FortressInputBean fib= new FortressInputBean("store_DisabledReprocessContent");
+        FortressInputBean fib = new FortressInputBean("store_DisabledReprocessContent");
         fib.setStoreActive(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
@@ -1594,7 +1591,6 @@ public class TestFdIntegration {
     }
 
     /**
-     *
      * @throws Exception
      */
     @Test
@@ -1616,8 +1612,8 @@ public class TestFdIntegration {
 
             TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
             waitForFirstSearchResult(su.getCompany(), result.getEntity());
-            Entity entity = entityService.getEntity(su.getCompany(),result.getEntity().getMetaKey());
-            assertNotNull ( entity.getSearchKey());
+            Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
+            assertNotNull(entity.getSearchKey());
             KvContent kvc = kvService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "1234");
@@ -1643,7 +1639,7 @@ public class TestFdIntegration {
     }
 
     @Test
-    public void tags_TaxonomyStructure () throws Exception {
+    public void tags_TaxonomyStructure() throws Exception {
 //        assumeTrue(runMe);
 
         logger.info("## tags_TaxonomyStructure");
@@ -1674,11 +1670,11 @@ public class TestFdIntegration {
         luxury.setTargets("typed", category);
         category.setTargets("is", interest);
 
-        brands.setTargets("typed", category );
+        brands.setTargets("typed", category);
         audi.setTargets("sub", brands);
         term.setTargets("classifying", audi);
 
-        Collection<TagInputBean>tags = new ArrayList<>();
+        Collection<TagInputBean> tags = new ArrayList<>();
         tags.add(term);
         eib.setTags(tags);
         eib.setEntityOnly(true);
@@ -1694,7 +1690,7 @@ public class TestFdIntegration {
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, foundDoc.getTagStructure());
 
         TrackRequestResult result = JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), TrackRequestResult.class);
-        assertNotNull ( result);
+        assertNotNull(result);
         assertNotNull(result.getMetaKey());
 
         // Nested query
@@ -1702,9 +1698,25 @@ public class TestFdIntegration {
         assertNotNull(entity);
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
         assertEquals(1, entityTags.size());
+        EntityTag termTag = entityTags.iterator().next();
+        assertEquals("Term", termTag.getTag().getLabel());
+        // Validate the structure
+
         SearchChange searchDoc = searchService.getSearchDocument(entity, null, null);
-        assertNotNull ( searchDoc);
+        assertNotNull(searchDoc);
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchDoc.getTagStructure());
+        //EntityTag termTag = searchDoc.getTagValues().;
+        assertTrue("Couldn't find the term relationship", searchDoc.getTagValues().containsKey("term"));
+        Map<String, ArrayList<SearchTag>> tagMap = searchDoc.getTagValues().get("term");
+        assertTrue("Couldn't find the root level term relationship", tagMap.containsKey("term"));
+        Collection<SearchTag>searchTags = tagMap.get("term");
+        assertEquals(1, searchTags.size());
+        SearchTag termSearchTag = searchTags.iterator().next();
+        assertEquals("audi a3",termSearchTag.getCode());
+
+        // division, interest and category
+        assertEquals(3, termSearchTag.getParent().size());
+
         waitAWhile("letting search catchup");
 
         doEsFieldQuery(entity, "metaKey", result.getMetaKey(), 1);
@@ -1732,6 +1744,7 @@ public class TestFdIntegration {
     }
 
     private static String FD_SEARCH = "http://localhost:9081";
+
     private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -1740,7 +1753,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange(FD_SEARCH+"/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(FD_SEARCH + "/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }
@@ -1755,7 +1768,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange(FD_SEARCH+"/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(FD_SEARCH + "/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }
@@ -1803,19 +1816,19 @@ public class TestFdIntegration {
 
         int timeout = 10;
 
-        while (entity.getSearch() ==null && i <= timeout) {
+        while (entity.getSearch() == null && i <= timeout) {
 
             entity = entityService.getEntity(company, metaKey);
             //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
             if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
                 waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
-            else if ( entity.getSearch() == null )
+            else if (entity.getSearch() == null)
                 Thread.yield(); // Small pause to let things happen
 
             i++;
         }
 
-        if ( entity.getSearch() ==null ) {
+        if (entity.getSearch() == null) {
             logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
             fail("Search reply not received from fd-search");
         }
@@ -1892,13 +1905,13 @@ public class TestFdIntegration {
                     "  },\n" +
                     "  \"filter\": {\n" +
                     "    \"nested\": {\n" +
-                    "      \"path\": \""+path+"\",\n" +
+                    "      \"path\": \"" + path + "\",\n" +
                     "      \"filter\": {\n" +
                     "        \"bool\": {\n" +
                     "          \"must\": [\n" +
                     "            {\n" +
                     "              \"term\": {\n" +
-                    "                \""+field+"\": \""+term+"\"\n" +
+                    "                \"" + field + "\": \"" + term + "\"\n" +
                     "              }\n" +
                     "            }\n" +
                     "          ]\n" +
@@ -2061,11 +2074,11 @@ public class TestFdIntegration {
     }
 
     private String doEsFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(entity), field,queryString,expectedHitCount);
+        return doEsFieldQuery(IndexHelper.parseIndex(entity), field, queryString, expectedHitCount);
     }
 
     private String doEsFieldQuery(Fortress fortress, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(fortress), field,queryString,expectedHitCount);
+        return doEsFieldQuery(IndexHelper.parseIndex(fortress), field, queryString, expectedHitCount);
     }
 
     /**
@@ -2113,7 +2126,7 @@ public class TestFdIntegration {
         Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}\n\r"+objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
+        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}\n\r" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
                 expectedHitCount, nbrResult);
         if (nbrResult == 0)
             return "";
