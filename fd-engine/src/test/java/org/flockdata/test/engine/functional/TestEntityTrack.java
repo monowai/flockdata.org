@@ -30,6 +30,7 @@ import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
@@ -101,12 +102,44 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
-        assertNotNull ("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
+        assertNotNull("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
         Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentName(), inputBean.getCode());
         assertNotNull(e);
         assertNotNull("Locating an entity by callerRef did not set the fortress", e.getFortress());
         assertNotNull("Did not find the Company in the Fortress", e.getFortress().getCompany());
         assertNotNull("Should have found an entity connected to a fortress user", e.getCreatedBy());
+
+    }
+
+    @Test
+    public void docTypeFromInput() throws Exception {
+        logger.debug("### docTypeFromInput");
+
+        //Transaction t = beginManualTransaction();
+        SystemUser su = registerSystemUser("docTypeFromInput", mike_admin);
+        assertNotNull(su);
+        engineConfig.setConceptsEnabled("false");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("docTypeFromInput", true));
+        DocumentType docTypeObject = new DocumentType(fortress, "docTypeFromInput");
+        docTypeObject.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
+
+        EntityInputBean eib = new EntityInputBean(docTypeObject, "!123321!");
+        eib.setFortress(fortress.getName());
+        eib.setEntityOnly(true);
+
+
+        TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
+        assertNotNull(trackResult);
+        Entity entity = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
+        assertNotNull(entity);
+        assertEquals(docTypeObject.getName(), entity.getType());
+        Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
+        assertEquals(1, docs.size());
+        DocumentType byName = conceptService.findDocumentType(fortress, docTypeObject.getName());
+        assertNotNull(byName);
+        assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, byName.getTagStructure());
+        //DocumentType dType = conceptService.resolveByDocCode(fortress, "ABC123", true);
 
     }
 

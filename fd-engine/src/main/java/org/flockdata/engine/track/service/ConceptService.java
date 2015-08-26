@@ -47,5 +47,7 @@ public interface ConceptService {
 
     DocumentType findDocumentType(Fortress fortress, String documentName);
 
+    DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
+
     DocumentType resolveDocumentType(Fortress fortress, DocumentType documentType);
 }

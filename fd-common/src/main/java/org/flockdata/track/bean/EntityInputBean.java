@@ -94,6 +94,13 @@ public class EntityInputBean implements Serializable, UserProperties{
         this.documentName = documentName;
     }
 
+    public EntityInputBean(DocumentType docType, String code) {
+        this.code = code;
+        this.fortress = docType.getFortress().getName();
+        this.documentType = docType;
+
+    }
+
     public void setMetaKey(String metaKey) {
         this.metaKey = metaKey;
     }
@@ -214,6 +221,7 @@ public class EntityInputBean implements Serializable, UserProperties{
             return null;
         return properties.get(key);
     }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;

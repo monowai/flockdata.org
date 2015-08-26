@@ -1321,12 +1321,12 @@ public class TestEntityTags extends EngineBase {
         TagInputBean audi = new TagInputBean("audi", "Division");
         TagInputBean term = new TagInputBean("audi a3", "Term");
 
-        interest.setTargets("is", category);
-        category.setTargets("typed", luxury);
-        category.setTargets("typed", brands);
-        brands.setTargets("sub", audi);
-        audi.setTargets("classifying", term);
-        luxury.setTargets("classifying", term);
+        category.setTargets("is", interest);
+        luxury.setTargets("typed", category);
+        brands.setTargets("typed", category);
+        audi.setTargets("sub", brands);
+        term.setTargets("classifying", audi);
+        term.setTargets("classifying", luxury);
         mediationFacade.createTag(su.getCompany(), interest);
 
         EntityInputBean entityInputBean = new EntityInputBean(fortress.getName(), "blah", documentType.getName(), new DateTime());

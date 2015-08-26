@@ -39,7 +39,9 @@ import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.integration.FdChannels;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -59,10 +61,7 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
@@ -163,6 +162,9 @@ public class TestFdIntegration {
     CompanyService companyService;
 
     @Autowired
+    SearchServiceFacade searchService;
+
+    @Autowired
     LogService logService;
 
     @Autowired
@@ -182,9 +184,13 @@ public class TestFdIntegration {
     QueryService queryService;
 
     @Autowired
+    ConceptService conceptService;
+
+    @Autowired
     KvService kvService;
 
-    static MockMvc mockMvc;
+    @Autowired
+    MatrixService matrixService;
 
     @Autowired
     WebApplicationContext wac;
@@ -203,7 +209,7 @@ public class TestFdIntegration {
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     private static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
-
+    static MockMvc mockMvc;
     String company = "Monowai";
     static Properties properties = new Properties();
     int esTimeout = 10; // Max attempts to find the result in ES
@@ -977,8 +983,6 @@ public class TestFdIntegration {
 
 
     }
-    @Autowired
-    MatrixService matrixService;
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
@@ -1638,6 +1642,78 @@ public class TestFdIntegration {
 
     }
 
+    @Test
+    public void tags_TaxonomyStructure () throws Exception {
+//        assumeTrue(runMe);
+
+        logger.info("## tags_TaxonomyStructure");
+
+        setDefaultAuth();
+        SystemUser su = registerSystemUser("tags_TaxonomyStructure", "tags_TaxonomyStructure");
+        assertNotNull(su);
+        engineConfig.setStoreEnabled("false");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
+        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+
+        DocumentType docType = new DocumentType(fortress, "DAT-498", EntityService.TAG_STRUCTURE.TAXONOMY);
+        EntityInputBean eib = new EntityInputBean(docType, "abc");
+
+        // Establish a multi path hierarchy
+        TagInputBean interest = new TagInputBean("Motor", "Interest");
+        TagInputBean category = new TagInputBean("cars", "Category");
+        TagInputBean luxury = new TagInputBean("luxury cars", "Division");
+        TagInputBean brands = new TagInputBean("brands", "Division");
+        TagInputBean audi = new TagInputBean("audi", "Division");
+
+        // Working from bottom up - (term)-[..]-(Interest)
+        TagInputBean term = new TagInputBean("audi a3", "Term").setEntityLink("viewed");
+
+        term.setTargets("classifying", luxury);
+
+        luxury.setTargets("typed", category);
+        category.setTargets("is", interest);
+
+        brands.setTargets("typed", category );
+        audi.setTargets("sub", brands);
+        term.setTargets("classifying", audi);
+
+        Collection<TagInputBean>tags = new ArrayList<>();
+        tags.add(term);
+        eib.setTags(tags);
+        eib.setEntityOnly(true);
+
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/track/")
+                        .header("api-key", su.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(eib))
+        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+
+        DocumentType foundDoc = conceptService.resolveByDocCode(fortress, docType.getName(), false);
+        assertNotNull(foundDoc);
+        assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, foundDoc.getTagStructure());
+
+        TrackRequestResult result = JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), TrackRequestResult.class);
+        assertNotNull ( result);
+        assertNotNull(result.getMetaKey());
+
+        // Nested query
+        Entity entity = entityService.getEntity(su.getCompany(), result.getMetaKey());
+        assertNotNull(entity);
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
+        assertEquals(1, entityTags.size());
+        SearchChange searchDoc = searchService.getSearchDocument(entity, null, null);
+        assertNotNull ( searchDoc);
+        assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchDoc.getTagStructure());
+        waitAWhile("letting search catchup");
+
+        doEsFieldQuery(entity, "metaKey", result.getMetaKey(), 1);
+
+        // Assert that we can find the category as a nested tag in ES
+        doEsNestedQuery(entity, "tag.term", "tag.term.parent.category.code", "cars", 1);
+
+
+    }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
@@ -1799,6 +1875,68 @@ public class TestFdIntegration {
         assertNotNull(node.get(EntitySearchSchema.DOC_TYPE));
         assertNotNull(node.get(EntitySearchSchema.FORTRESS));
 
+    }
+
+    private String doEsNestedQuery(Entity entity, String path, String field, String term, int expectedHitCount) throws Exception {
+        // There should only ever be one document for a given metaKey.
+        // Let's assert that
+        int runCount = 0, nbrResult;
+        logger.debug("doEsQuery {}", term);
+        JestResult jResult;
+        do {
+            if (runCount > 0)
+                waitAWhile("Sleep {} for fd-search to catch up");
+            String query = "{\n" +
+                    "  \"query\": {\n" +
+                    "    \"match_all\": {}\n" +
+                    "  },\n" +
+                    "  \"filter\": {\n" +
+                    "    \"nested\": {\n" +
+                    "      \"path\": \""+path+"\",\n" +
+                    "      \"filter\": {\n" +
+                    "        \"bool\": {\n" +
+                    "          \"must\": [\n" +
+                    "            {\n" +
+                    "              \"term\": {\n" +
+                    "                \""+field+"\": \""+term+"\"\n" +
+                    "              }\n" +
+                    "            }\n" +
+                    "          ]\n" +
+                    "        }\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+
+            Search search = new Search.Builder(query)
+                    .addIndex(IndexHelper.parseIndex(entity))
+                    .build();
+
+            jResult = esClient.execute(search);
+            assertNotNull(jResult);
+            if (expectedHitCount == -1) {
+                assertEquals("Expected the index [" + entity + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
+                logger.debug("Confirmed index {} was deleted and empty", entity);
+                return null;
+            }
+            if (jResult.getErrorMessage() == null) {
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
+                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+            } else {
+                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+            }
+            runCount++;
+        } while (nbrResult != expectedHitCount && runCount < esTimeout);
+        logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
+
+        assertNotNull(jResult);
+        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
+
+        assertEquals(entity + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
+                expectedHitCount, nbrResult);
+        return jResult.getJsonString();
     }
 
     private String doEsQuery(Entity entity, String queryString) throws Exception {

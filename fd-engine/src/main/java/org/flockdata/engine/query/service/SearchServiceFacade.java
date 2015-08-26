@@ -169,7 +169,13 @@ public class SearchServiceFacade {
             fortressService.getUser(entity.getLastUser().getId());
 
         EntityLog entityLog = getLog(trackResultBean);
-        SearchChange searchDocument = new EntitySearchChange(trackResultBean.getEntity(), entityLog, trackResultBean.getContentInput());
+
+        return getSearchDocument(entity, entityLog, trackResultBean.getContentInput());
+    }
+
+    public SearchChange getSearchDocument(Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
+
+        SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput);
 
         if (entityLog != null) {
             // Used to reconcile that the change was actually indexed
@@ -183,9 +189,9 @@ public class SearchServiceFacade {
         }
         // ToDo: Can we optimize by using tags already tracked in the result bean?
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(trackResultBean.getEntity()));
-        searchDocument.setDescription(trackResultBean.getEntity().getDescription());
-        searchDocument.setName(trackResultBean.getEntity().getName());
+        searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+        searchDocument.setDescription(entity.getDescription());
+        searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
         try {
             //if (logger.isTraceEnabled())
@@ -196,7 +202,7 @@ public class SearchServiceFacade {
         }
 
         if (searchDocument.getSysWhen() == 0l)
-            searchDocument.setSysWhen(trackResultBean.getEntity().getDateCreated());
+            searchDocument.setSysWhen(entity.getDateCreated());
 
         if (entity.getId() == null) {
             logger.debug("No entityId so we are not expecting a reply");
@@ -211,6 +217,7 @@ public class SearchServiceFacade {
 
         return searchDocument;
     }
+
 
     public EntitySearchChange rebuild(Entity entity, EntityLog lastLog) {
 

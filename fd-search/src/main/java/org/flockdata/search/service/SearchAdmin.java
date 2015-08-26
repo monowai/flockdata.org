@@ -58,6 +58,12 @@ public class SearchAdmin {
 
     @Value("${es.mappings}")
     String esMappingPath;
+
+    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
+    String esDefaultMapping= "fd-default-mapping.json";
+    String esTaxonomyMapping = "fd-taxonomy-mapping.json";
+
+
     public String getEsMappingPath(){
         if ( esMappingPath.equals("${es.mappings}"))
             return ""; // Internal
@@ -68,18 +74,12 @@ public class SearchAdmin {
         return getEsMappingPath()+ "/fd-default-settings.json";
     }
 
-
-    String esDefaultMapping= "fd-default-mapping.json";
-    String esNestedMapping = "fd-term-mapping.json";
-
     public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStrucure){
         if ( tagStrucure== EntityService.TAG_STRUCTURE.TAXONOMY)
-            return getEsMappingPath()+"/"+esNestedMapping;
+            return getEsMappingPath()+"/"+ esTaxonomyMapping;
         else
             return getEsMappingPath()+"/"+esDefaultMapping;
     }
-
-    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
 //    @Secured({"ROLE_FD_ADMIN"})
     // DAT-382
