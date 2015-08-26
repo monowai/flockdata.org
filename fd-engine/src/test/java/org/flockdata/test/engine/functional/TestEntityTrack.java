@@ -116,11 +116,16 @@ public class TestEntityTrack extends EngineBase {
         logger.debug("### docTypeFromInput");
 
         //Transaction t = beginManualTransaction();
+        cleanUpGraph();
         SystemUser su = registerSystemUser("docTypeFromInput", mike_admin);
         assertNotNull(su);
         engineConfig.setConceptsEnabled("false");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("docTypeFromInput", true));
+
+        Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
+        assertEquals("DB has stray DocumentType objects lying around",0, docs.size());
+
         DocumentType docTypeObject = new DocumentType(fortress, "docTypeFromInput");
         docTypeObject.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
 
@@ -134,7 +139,7 @@ public class TestEntityTrack extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
         assertNotNull(entity);
         assertEquals(docTypeObject.getName(), entity.getType());
-        Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
+        docs = conceptService.getDocumentsInUse(su.getCompany());
         assertEquals(1, docs.size());
         DocumentType byName = conceptService.findDocumentType(fortress, docTypeObject.getName());
         assertNotNull(byName);
