@@ -93,7 +93,7 @@ public class TaxonomyTags implements EntityTagFinder {
     }
 
     private String getSearchTagQuery() {
-        return "match (e:Entity) where id(e) = {id} with e match (e)-[]-(et:Tag) with et match path = ((et)<-[*1..5]-(o:Interest))  with path unwind nodes(path) as node return node;";
+        return "match (e:Entity) where id(e) = {id} with e match (e)-[]-(et:Tag) with et match path = ((et)-[*1..5]->(o:Interest))  with path unwind nodes(path) as node return node;";
     }
 
     private Map<String, Object> getParams(Entity entity) {

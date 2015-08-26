@@ -76,8 +76,8 @@ public class DocumentType  implements Comparable<DocumentType> {
      * @param documentType  The input that will create a real DocumentType
      */
     public DocumentType(Fortress fortress, DocumentType documentType) {
-        this.code = parse(fortress, documentType.getCode());
         this.name = documentType.getName();
+        this.code = parse(fortress, documentType.getName());
         this.tagStructure = documentType.getTagStructure();
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
@@ -101,6 +101,11 @@ public class DocumentType  implements Comparable<DocumentType> {
     public DocumentType(DocumentType document) {
         this(document.getFortress(), document.getName());
         this.id = document.getId();
+    }
+
+    public DocumentType(Fortress fortress, String name, EntityService.TAG_STRUCTURE tagStructure) {
+        this(fortress, name);
+        this.tagStructure = tagStructure ;
     }
 
     public void setFortress(Fortress fortress) {
@@ -135,7 +140,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         return fortress;
     }
 
-    public void add(org.flockdata.model.Concept concept) {
+    public void add(Concept concept) {
         if ( concepts == null )
             concepts = new ArrayList<>();
         concepts.add( concept);
@@ -152,7 +157,6 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public static String parse(Fortress fortress, String documentType) {
-//        return documentName.toLowerCase().replaceAll("\\s", ".");
         return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
@@ -195,6 +199,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     public EntityService.TAG_STRUCTURE getTagStructure() {
         return tagStructure;
     }
+
     // DAT-498
     public void setTagStructure(EntityService.TAG_STRUCTURE tagFinderClass) {
         this.tagStructure = tagFinderClass;
