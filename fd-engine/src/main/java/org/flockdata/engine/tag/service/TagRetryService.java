@@ -69,9 +69,12 @@ public class TagRetryService {
 
     public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans, boolean suppressRelationships) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
+        if ( tagInputBeans == null ||tagInputBeans.isEmpty())
+            return new ArrayList<>();
+
         boolean schemaReady;
         do {
-            schemaReady = indexRetryService.ensureUniqueIndexes(company, tagInputBeans);
+            schemaReady = indexRetryService.ensureUniqueIndexes(tagInputBeans);
         } while (!schemaReady);
 
 

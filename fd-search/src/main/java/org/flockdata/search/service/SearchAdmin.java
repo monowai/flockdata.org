@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.VersionHelper;
+import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,12 @@ public class SearchAdmin {
 
     @Value("${es.mappings}")
     String esMappingPath;
+
+    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
+    String esDefaultMapping= "fd-default-mapping.json";
+    String esTaxonomyMapping = "fd-taxonomy-mapping.json";
+
+
     public String getEsMappingPath(){
         if ( esMappingPath.equals("${es.mappings}"))
             return ""; // Internal
@@ -67,13 +74,12 @@ public class SearchAdmin {
         return getEsMappingPath()+ "/fd-default-settings.json";
     }
 
-
-    String esDefaultMapping= "fd-default-mapping.json";
-    public String getEsDefaultMapping(){
-        return getEsMappingPath()+"/"+esDefaultMapping;
+    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStrucure){
+        if ( tagStrucure== EntityService.TAG_STRUCTURE.TAXONOMY)
+            return getEsMappingPath()+"/"+ esTaxonomyMapping;
+        else
+            return getEsMappingPath()+"/"+esDefaultMapping;
     }
-
-    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
 //    @Secured({"ROLE_FD_ADMIN"})
     // DAT-382
@@ -100,7 +106,7 @@ public class SearchAdmin {
         }
         healthResults.put("fd.config", config);
         healthResults.put("es.default settings", getEsDefaultSettings());
-        healthResults.put("es.default mapping", getEsDefaultMapping());
+        healthResults.put("es.default mapping", getEsDefaultMapping(EntityService.TAG_STRUCTURE.DEFAULT));
 
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);

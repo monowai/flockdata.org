@@ -100,6 +100,8 @@ public class Entity implements Serializable {
 
     private boolean searchSuppressed;
 
+    private boolean noLogs = false;
+
     DynamicProperties props = new DynamicPropertiesContainer();
 
     @Transient
@@ -138,6 +140,7 @@ public class Entity implements Serializable {
 
         labels.add(documentType.getName());
         metaKey = uniqueKey;
+        this.noLogs = entityInput.isEntityOnly();
         this.fortress = fortress;//(FortressNode)documentType.getFortress();
         // DAT-278
         String docType = documentType.getName();
@@ -222,11 +225,7 @@ public class Entity implements Serializable {
     @JsonIgnore
     public String getType() {
         // DAT-278
-        for (String label : labels) {
-            if (!label.equalsIgnoreCase("_Entity") && !label.equalsIgnoreCase("Entity"))
-                return label;
-        }
-        return null;
+        return EntityHelper.getLabel(labels);
     }
 
     public org.flockdata.model.FortressUser getLastUser() {
@@ -407,4 +406,10 @@ public class Entity implements Serializable {
     public boolean isNewEntity() {
         return newEntity;
     }
+
+    // Stores the EntityInputBean entityOnly value
+    public boolean isNoLogs() {
+        return noLogs;
+    }
+
 }

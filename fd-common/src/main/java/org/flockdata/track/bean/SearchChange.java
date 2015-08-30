@@ -21,6 +21,7 @@ package org.flockdata.track.bean;
 
 import org.flockdata.model.EntityTag;
 import org.flockdata.search.model.SearchTag;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.Map;
  * Date: 21/04/13
  * Time: 7:44 PM
  */
-public interface SearchChangeBean {
+public interface SearchChange {
     /**
      * @return search keys unique document identifier
      */
@@ -54,7 +55,7 @@ public interface SearchChangeBean {
 
     HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
-    void setTags(Iterable<EntityTag> tagSet);
+    void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
 
     /**
      * @return who made this change
@@ -136,4 +137,8 @@ public interface SearchChangeBean {
     String getContentType();
 
     Map<String,Object> getProps();
+
+    EntityService.TAG_STRUCTURE getTagStructure();
+
+    void setTags(ArrayList<EntityTag> tagsB);
 }

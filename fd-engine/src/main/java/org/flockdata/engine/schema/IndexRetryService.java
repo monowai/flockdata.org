@@ -19,20 +19,19 @@
 
 package org.flockdata.engine.schema;
 
-import org.flockdata.model.Company;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -48,15 +47,10 @@ public class IndexRetryService {
 
     private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
 
-    @Retryable(include =  {DeadlockDetectedException.class},
+    @Retryable(include =  {DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class},
             maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
-    public Boolean ensureUniqueIndexes(Company company, Collection<TagInputBean> tagInputs){
-        try {
-            return schemaService.ensureUniqueIndexes(tagInputs).get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Schema error ", e);
-        }
-        return false;
+    public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs){
+            return schemaService.ensureUniqueIndexes(tagInputs);
     }
 
 }

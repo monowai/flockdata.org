@@ -19,7 +19,7 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,9 +31,12 @@ import java.util.Collection;
  */
 
 public class EntitySearchChanges {
+
     Collection <EntitySearchChange> searchChanges = new ArrayList<>();
+
     public EntitySearchChanges(){}
-    public EntitySearchChanges(Collection<SearchChangeBean> searchDocuments) {
+
+    public EntitySearchChanges(Collection<SearchChange> searchDocuments) {
         this();
         this.searchChanges = (Collection <EntitySearchChange>)(Collection)searchDocuments;
     }

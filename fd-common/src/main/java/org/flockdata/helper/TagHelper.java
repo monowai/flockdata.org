@@ -23,6 +23,7 @@ import org.flockdata.dao.EntityTagDao;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.neo4j.graphdb.Label;
 
 /**
  * Created by mike on 20/06/15.
@@ -70,5 +71,19 @@ public class TagHelper {
 
     public static boolean isSystemLabel(String index) {
         return (index.equals("Country") || index.equals("City"));
+    }
+
+    public static boolean isInternalLabel(String label) {
+        if (label.equals("_Tag") || label.equals("Tag"))
+            return true;
+        return false;
+    }
+
+    public static String getLabel(Iterable<Label> labels) {
+        for (Label label : labels) {
+            if ( !isInternalLabel(label.name()))
+                return label.name();
+        }
+        return "Tag";
     }
 }

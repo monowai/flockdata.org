@@ -90,20 +90,25 @@ public class TestEntityDeadlock extends EngineBase {
         }
         startSignal.countDown();
         latch.await();
-        Long id = null;
+        Tag found= null;
 
         for (int thread = 0; thread < threadMax; thread++) {
             assertEquals("Thread "+ (thread +1), true, runners.get(thread).isWorked());
             for (int count = 0; count < docCount; count++) {
+                //Thread.sleep(2000);
                 Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), docType, "ABC" + thread + "" + count);
                 assertNotNull(entity);
                 Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
+                if ( entityTags.size() == 0 ){
+                    logger.debug("Why is this 0?");
+                }
                 assertEquals(tagCount, entityTags.size());
                 // Make sure every thread's tags point to the same tag
-                if (id == null )
-                    id = entityTags.iterator().next().getTag().getId();
+                if (found == null )
+                    found = entityTags.iterator().next().getTag();
                 else
-                    assertEquals(id, entityTags.iterator().next().getTag().getId());
+                    assertEquals( found.toString() + " / "+ entityTags.iterator().next().getTag().toString(),
+                            found.getId(), entityTags.iterator().next().getTag().getId());
             }
         }
         assertNotNull(tagService.findTag(fortress.getCompany(), "Deadlock",null , tags.get(0).getCode()));
@@ -160,6 +165,7 @@ public class TestEntityDeadlock extends EngineBase {
         int count = 0;
         int myThread;
         String entityKey =null ;
+        Company company = null;
 
         boolean worked = false;
         private boolean done;
@@ -174,6 +180,7 @@ public class TestEntityDeadlock extends EngineBase {
             this.maxRun = maxRun;
             this.myThread = myThread;
             this.apiKey = su.getApiKey();
+            this.company = su.getCompany();
             inputBeans = new ArrayList<>();
             int count = 0;
             while (count < maxRun) {
@@ -184,26 +191,19 @@ public class TestEntityDeadlock extends EngineBase {
             }
         }
 
-        public int getMaxRun() {
-            return maxRun;
-        }
-
         public boolean isWorked() {
             return entityKey!=null;
         }
 
         @Override
         public void run() {
-            worked = true;
             logger.debug("Running "+myThread);
             try {
                 startSignal.await();
                 Collection<TrackRequestResult> results = mediationFacade.trackEntities(inputBeans, apiKey);
                 assertEquals("Error creating entity", 1, results.size());
                 entityKey = results.iterator().next().getMetaKey();
-
-
-
+                assertNotNull(entityService.getEntity(company, entityKey));
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             } finally {
@@ -215,10 +215,6 @@ public class TestEntityDeadlock extends EngineBase {
 
         public int getCount() {
             return count;
-        }
-
-        public boolean isDone() {
-            return done;
         }
 
     }

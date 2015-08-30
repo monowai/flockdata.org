@@ -105,24 +105,44 @@ public class ConceptDaoNeo {
      * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
      *
      * @param fortress        fortress generating
-     * @param docName         name of the Label
+     * @param docType         name of the Label
      * @param createIfMissing if not found will create
      * @return the node
      */
-    public DocumentType findDocumentType(Fortress fortress, String docName, Boolean createIfMissing) {
-        DocumentType docResult = documentExists(fortress, docName);
+    public DocumentType findDocumentType(Fortress fortress, String docType, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, docType);
 
         if (docResult == null && createIfMissing) {
-            docResult = documentTypeRepo.save(new DocumentType(fortress, docName));
+            docResult = documentTypeRepo.save(new DocumentType(fortress, docType));
         }
 
         return docResult;
     }
 
-    DocumentType documentExists(Fortress fortress, String docCode) {
+
+    /**
+     * Tracks the DocumentTypes used by a Fortress that can be used to find Entities
+     *
+     * @param fortress        fortress generating
+     * @param documentType    prototype
+     * @param createIfMissing if not found will create
+     * @return the node
+     */
+    public DocumentType findDocumentType(Fortress fortress, DocumentType documentType, Boolean createIfMissing) {
+        DocumentType docResult = documentExists(fortress, documentType.getName());
+
+        if (docResult == null && createIfMissing) {
+            //documentType.setFortress(fortress); // fortress was set by the caller
+            docResult = documentTypeRepo.save(documentType);
+        }
+
+        return docResult;
+    }
+
+    DocumentType documentExists(Fortress fortress, String docType) {
         assert fortress != null;
-        String arg = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docCode);
-        return documentTypeRepo.findFortressDocCode(arg);
+        String docKey = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docType);
+        return documentTypeRepo.findFortressDocCode(docKey);
     }
 
     // Query Routines
@@ -217,4 +237,7 @@ public class ConceptDaoNeo {
         template.saveOnly(tagLabelNode);
     }
 
+    public DocumentType save(DocumentType documentType) {
+        return template.save(documentType);
+    }
 }

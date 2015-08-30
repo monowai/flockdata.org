@@ -19,7 +19,7 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.HashMap;
@@ -76,7 +76,7 @@ public class SearchResult {
     protected SearchResult() {
     }
 
-    public SearchResult(SearchChangeBean thisChange) {
+    public SearchResult(SearchChange thisChange) {
         this();
         this.entityId = thisChange.getEntityId();
         this.fortress = thisChange.getFortressName();
