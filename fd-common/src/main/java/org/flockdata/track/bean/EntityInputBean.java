@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -39,6 +40,8 @@ public class EntityInputBean implements Serializable, UserProperties{
     private String fortress;
     private String fortressUser;
     private String documentName;
+    private DocumentType documentType;
+
     private Date when = null; // Created Date
 
     private Date lastChange = null;
@@ -65,30 +68,37 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @param fortressName      Application/Division or System that owns this information
      * @param fortressUser  who in the fortressName created it
-     * @param documentCode  within the fortressName, this is a document of this unique type
+     * @param documentName  within the fortressName, this is a document of this unique type
      * @param fortressWhen  when did this occur in the fortressName
      * @param code     case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(String fortressName, String fortressUser, String documentCode, DateTime fortressWhen, String code) {
+    public EntityInputBean(String fortressName, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
         if (fortressWhen != null) {
             setWhen(fortressWhen);
         }
         setFortress(fortressName);
         setFortressUser( fortressUser);
-        setDocumentName(documentCode);
+        setDocumentName(documentName);
         setCode(code);
     }
 
-    public EntityInputBean(String description, String fortressUser, String documentCode, DateTime fortressWhen) {
-        this(description, fortressUser, documentCode, fortressWhen, null);
+    public EntityInputBean(String description, String fortressUser, String documentName, DateTime fortressWhen) {
+        this(description, fortressUser, documentName, fortressWhen, null);
 
     }
 
-    public EntityInputBean(String fortressName, String docTypeName) {
+    public EntityInputBean(String fortressName, String documentName) {
         this();
         this.fortress= fortressName;
-        this.documentName = docTypeName;
+        this.documentName = documentName;
+    }
+
+    public EntityInputBean(DocumentType docType, String code) {
+        this.code = code;
+        this.fortress = docType.getFortress().getName();
+        this.documentType = docType;
+
     }
 
     public void setMetaKey(String metaKey) {
@@ -155,7 +165,9 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public String getDocumentName() {
-        return documentName;
+        if ( documentType==null )
+            return documentName;
+        return documentType.getName();
     }
 
     /**
@@ -209,6 +221,7 @@ public class EntityInputBean implements Serializable, UserProperties{
             return null;
         return properties.get(key);
     }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return properties;
@@ -460,5 +473,9 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     public FortressUser getUser() {
         return user;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
     }
 }

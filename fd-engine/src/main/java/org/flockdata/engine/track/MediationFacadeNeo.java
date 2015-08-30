@@ -24,15 +24,13 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.concept.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
+import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.engine.track.service.ConceptRetryService;
 import org.flockdata.engine.track.service.EntityRetryService;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
-import org.flockdata.helper.FlockException;
-import org.flockdata.helper.FlockServiceException;
-import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
+import org.flockdata.helper.*;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -109,6 +107,9 @@ public class MediationFacadeNeo implements MediationFacade {
     ConceptRetryService conceptRetryService;
 
     @Autowired
+    IndexRetryService indexRetryService;
+
+    @Autowired
     SecurityHelper securityHelper;
 
     @Autowired
@@ -143,7 +144,7 @@ public class MediationFacadeNeo implements MediationFacade {
 
         if (tagInputs.isEmpty())
             return null;
-
+        indexRetryService.ensureUniqueIndexes(tagInputs);
         return tagRetryService.createTagsFuture(company, tagInputs).get();
     }
 
@@ -205,7 +206,8 @@ public class MediationFacadeNeo implements MediationFacade {
         //logger.debug("About to create tags");
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-
+        //indexRetryService.ensureUniqueIndexes(getTags(inputBeans) );
+        createTags(fortress.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
         Future<DocumentType> docType = docTypeRetryService.createDocTypes(fortress, first);
@@ -250,7 +252,7 @@ public class MediationFacadeNeo implements MediationFacade {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         for (EntityInputBean entityInputBean : entityInputBeans) {
             for (TagInputBean tag : entityInputBean.getTags()) {
-                if ( !tags.contains(tag))
+                if ( !TagHelper.isSystemLabel(tag.getLabel()) && !tags.contains(tag))
                     tags.add(tag);
             }
             ///entityInputBean.getTags().stream().filter(tag -> !tag.isMustExist() && !tags.contains(tag)).forEach(tags::add);
@@ -320,15 +322,16 @@ public class MediationFacadeNeo implements MediationFacade {
 
         String message = null;
         if (fortress.isStoreDisabled()) {
-            message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortressCode);
+            message = String.format("Content store has been disabled for the fortress %s. \r\nIf your search document has a Content Body then reprocess from source to create it" +
+                    "\r\nYou can elect to enable the KV Store for content storage if wish", fortressCode);
             logger.warn(message);
         }
         if (message != null) {
             message = message + "\n";
         }
         adminService.doReindex(fortress);
-        message = message + "Reindex Search request is processing entities for [" + fortressCode + "]";
-        logger.info("Reindex Search request is processing entities for [" + fortressCode + "]");
+        message = message + "Reindex Search request is re-processing Entities and Tags for [" + fortressCode + "]";
+        logger.info("Reindex Search request is processing Entities for [" + fortressCode + "]");
         return message;
 
 
@@ -356,7 +359,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (message != null) {
             message = message + "\n";
         }
-        message = message + "Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]";
+        message = message + "Reindex Search request is processing Entities and Tags for [" + fortressName + "] and document type [" + docType + "]";
         logger.info("Reindex Search request is processing entities for [" + fortressName + "] and document type [" + docType + "]");
         return message;
     }

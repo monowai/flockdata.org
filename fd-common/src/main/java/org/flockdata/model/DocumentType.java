@@ -19,6 +19,7 @@
 
 package org.flockdata.model;
 
+import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;
@@ -57,7 +58,32 @@ public class DocumentType  implements Comparable<DocumentType> {
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<org.flockdata.model.Concept> concepts;
 
+    private String geoQuery;
+
+    // DAT-498
+    private EntityService.TAG_STRUCTURE tagStructure;
+
     protected DocumentType() {
+    }
+
+    public DocumentType(String documentName) {
+        this(null, documentName);
+    }
+
+    /**
+     *
+     * @param fortress      System that owns the documentType
+     * @param documentType  The input that will create a real DocumentType
+     */
+    public DocumentType(Fortress fortress, DocumentType documentType) {
+        this.name = documentType.getName();
+        this.code = parse(fortress, documentType.getName());
+        this.tagStructure = documentType.getTagStructure();
+        if ( fortress !=null ){
+            this.companyKey = fortress.getCompany().getId() + "." + code;
+            setFortress(fortress);
+        }
+
     }
 
     public DocumentType(Fortress fortress, String documentName) {
@@ -75,6 +101,11 @@ public class DocumentType  implements Comparable<DocumentType> {
     public DocumentType(DocumentType document) {
         this(document.getFortress(), document.getName());
         this.id = document.getId();
+    }
+
+    public DocumentType(Fortress fortress, String name, EntityService.TAG_STRUCTURE tagStructure) {
+        this(fortress, name);
+        this.tagStructure = tagStructure ;
     }
 
     public void setFortress(Fortress fortress) {
@@ -109,7 +140,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         return fortress;
     }
 
-    public void add(org.flockdata.model.Concept concept) {
+    public void add(Concept concept) {
         if ( concepts == null )
             concepts = new ArrayList<>();
         concepts.add( concept);
@@ -126,7 +157,6 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public static String parse(Fortress fortress, String documentType) {
-//        return documentName.toLowerCase().replaceAll("\\s", ".");
         return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
@@ -158,4 +188,20 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
 
+    public String getGeoQuery() {
+        return geoQuery;
+    }
+
+    public void setGeoQuery(String geoQuery) {
+        this.geoQuery = geoQuery;
+    }
+
+    public EntityService.TAG_STRUCTURE getTagStructure() {
+        return tagStructure;
+    }
+
+    // DAT-498
+    public void setTagStructure(EntityService.TAG_STRUCTURE tagFinderClass) {
+        this.tagStructure = tagFinderClass;
+    }
 }

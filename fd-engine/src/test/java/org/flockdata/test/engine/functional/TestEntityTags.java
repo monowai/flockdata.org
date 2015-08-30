@@ -27,25 +27,22 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.search.model.SearchResult;
-import org.flockdata.search.model.SearchResults;
+import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -220,7 +217,7 @@ public class TestEntityTags extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         ContentInputBean contentInputBean = new ContentInputBean(Helper.getRandomMap());
         entityInput = new EntityInputBean(fortress.getName(), "DAT386", "DAT386", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", null,"aaaa"));
+        entityInput.addTag(new TagInputBean("TagA", null, "aaaa"));
         entityInput.setContent(contentInputBean);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
@@ -239,10 +236,10 @@ public class TestEntityTags extends EngineBase {
         tagService.createTag(su.getCompany(), tagInput);
         //assertNotNull(result);
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "auditTest", "aTest", new DateTime(), "abc");
-        entityInput.addTag(new TagInputBean("TagA", null,"AAAA"));
+        entityInput.addTag(new TagInputBean("TagA", null, "AAAA"));
         entityInput.addTag(new TagInputBean("TagB", null,"BBBB"));
-        entityInput.addTag(new TagInputBean("TagC", null,"CCCC"));
-        entityInput.addTag(new TagInputBean("TagD", null,"DDDD"));
+        entityInput.addTag(new TagInputBean("TagC", null, "CCCC"));
+        entityInput.addTag(new TagInputBean("TagD", null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -274,7 +271,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagA",null, "AAAA"));
         entityInput.addTag(new TagInputBean("TagB",null, "BBBB"));
         entityInput.addTag(new TagInputBean("TagC",null, "CCCC"));
-        entityInput.addTag(new TagInputBean("TagD",null, "DDDD"));
+        entityInput.addTag(new TagInputBean("TagD", null, "DDDD"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
         Collection<EntityTag> tagSet = entityTagService.findEntityTags(su.getCompany(), entity);
@@ -367,11 +364,11 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entityInput = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         entityInput.addTag(new TagInputBean("TagA",null, "camel"));
-        entityInput.addTag(new TagInputBean("taga", null,"lower"));
+        entityInput.addTag(new TagInputBean("taga", null, "lower"));
         entityInput.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
-        Tag tag = tagService.findTag(su.getCompany(),null , "Taga");
+        Tag tag = tagService.findTag(su.getCompany(), null, "Taga");
         assertNotNull(tag);
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), entity);
         for (EntityTag entityTag : entityTags) {
@@ -392,7 +389,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entity = new EntityInputBean("ABC", "auditTest", "aTest", new DateTime(), "abc");
         entity.setTrackSuppressed(true);
         // This should create the same Tag object, but return one row for each relationships
-        entity.addTag(new TagInputBean("TagA",null, "camel"));
+        entity.addTag(new TagInputBean("TagA", null, "camel"));
         entity.addTag(new TagInputBean("taga",null, "lower"));
         entity.addTag(new TagInputBean("tAgA", null,"mixed"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entity);
@@ -725,7 +722,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
-        SearchChangeBean searchChange = searchService.getSearchChange(resultBean);
+        SearchChange searchChange = searchService.getSearchChange(resultBean);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }
@@ -767,7 +764,7 @@ public class TestEntityTags extends EngineBase {
                     tag.getGeoData());
         }
 
-        SearchChangeBean searchChange = searchService.getSearchChange(resultBean);
+        SearchChange searchChange = searchService.getSearchChange(resultBean);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }
@@ -1011,7 +1008,7 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
-        inputBean.addTag(new TagInputBean("TagA", "TestTag","camel"));
+        inputBean.addTag(new TagInputBean("TagA", "TestTag", "camel"));
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(resultBean);
@@ -1144,6 +1141,7 @@ public class TestEntityTags extends EngineBase {
         assertEquals(2, tags.size());
 
     }
+
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
         // Validates that you can still get a SearchChange to index from an entity with no log
@@ -1159,6 +1157,7 @@ public class TestEntityTags extends EngineBase {
         assertNotNull(searchService.getSearchChange(result));
 
     }
+
     @Test
     public void search_seperateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
@@ -1168,7 +1167,7 @@ public class TestEntityTags extends EngineBase {
         inputBean.setDescription("This is a description");
 
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        SearchChangeBean searchChange = searchService.getSearchChange(trackResult);
+        SearchChange searchChange = searchService.getSearchChange(trackResult);
 
         searchChange.setSearchKey("SearchKey"); // any value
 
@@ -1182,7 +1181,7 @@ public class TestEntityTags extends EngineBase {
         // Logging after the entity has been created
         trackResult= mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getMetaKey(), new DateTime(), what));
         assertNotNull(trackResult.getEntity().getSearchKey());
-        SearchChangeBean searchChangeB = searchService.getSearchChange(trackResult);
+        SearchChange searchChangeB = searchService.getSearchChange(trackResult);
         assertEquals(searchChange.getEntityId(), searchChangeB.getEntityId());
         assertEquals("The log should be using the same search identifier", searchChange.getSearchKey(), searchChangeB.getSearchKey());
 
@@ -1218,13 +1217,12 @@ public class TestEntityTags extends EngineBase {
     }
 
     // Use this to mock the search service result
-    private SearchResults getSearchResults(SearchChangeBean searchChange) {
+    private SearchResults getSearchResults(SearchChange searchChange) {
         SearchResults searchResults = new SearchResults();
         SearchResult searchResult = new SearchResult(searchChange);
         searchResults.addSearchResult(searchResult);
         return searchResults;
     }
-
 
     @Test
     public void undefined_Tag() throws Exception{
@@ -1251,6 +1249,131 @@ public class TestEntityTags extends EngineBase {
         Tag byAlias = tagService.findTag(su.getCompany(), tagInput.getLabel(),null , tagInput.getCode());
         assertNotNull("Found tag should have resolved as mustExist code was set to Unknown", byAlias);
         assertEquals("Unknown", byAlias.getCode());
+    }
+
+    /**
+     * Checks that a custom query can be used to return a Geographic node path rather than
+     * having to use FlockData's internal default resolution strategy
+     *
+     * DAT-495 introduces this
+     *
+     * @throws Exception
+     */
+    @Test
+    public void geo_CustomPath() throws Exception {
+        SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
+        FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        DocumentType documentType = new DocumentType(fortress, "DAT-495");
+
+        documentType = conceptService.save(documentType);
+        assertNull(documentType.getGeoQuery());
+
+        // DocumentType specific query string to define how the geo chain is connected
+        String query = "match p=(located:Tag)-[*1..2]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes";
+        documentType.setGeoQuery(query);
+        conceptService.save(documentType);
+        documentType = conceptService.findDocumentType(fortress, documentType.getName());
+        assertNotNull(documentType);
+        assertEquals(query, documentType.getGeoQuery());
+
+        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT-495", "DAT-495", new DateTime(), "abc");
+
+        TagInputBean tagInput = new TagInputBean("123 Main Road", "Address", "geodata");
+        tagInput.setTargets("to-country", new TagInputBean("AT", "Country").setName("Atlantis"));
+
+        Collection<TagInputBean>tags = new ArrayList<>();
+        tags.add(tagInput);
+        entityInput.setTags(tags);
+        TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
+        Iterable<EntityTag> entityTags = entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity());
+        int expected = 1;
+        int found = 0;
+        for (EntityTag entityTag : entityTags) {
+            assertNotNull ( "custom geo query string did not find the geo path", entityTag.getGeoData());
+            found ++;
+        }
+        assertEquals(expected, found);
+    }
+
+    @Test
+    public void custom_TagPath() throws Exception {
+        SystemUser su = registerSystemUser("custom_TagPath", mike_admin);
+        FortressInputBean fib = new FortressInputBean("custom_TagPath", true);
+        fib.setStoreActive(false);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        DocumentType documentType = new DocumentType(fortress, "DAT-498");
+        documentType.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
+        conceptService.save(documentType);
+        documentType = conceptService.findDocumentType(fortress,documentType.getName());
+        assertNotNull(documentType);
+        assertNull(documentType.getGeoQuery());
+        assertNotNull(documentType.getTagStructure());
+
+        // Establish a multi path hierarchy
+        TagInputBean interest = new TagInputBean("Motor", "Interest");
+        TagInputBean category = new TagInputBean("cars", "Category");
+        TagInputBean luxury = new TagInputBean("luxury cars", "Division");
+        TagInputBean brands = new TagInputBean("brands", "Division");
+        TagInputBean audi = new TagInputBean("audi", "Division");
+        TagInputBean term = new TagInputBean("audi a3", "Term");
+
+        category.setTargets("is", interest);
+        luxury.setTargets("typed", category);
+        brands.setTargets("typed", category);
+        audi.setTargets("sub", brands);
+        term.setTargets("classifying", audi);
+        term.setTargets("classifying", luxury);
+        mediationFacade.createTag(su.getCompany(), interest);
+
+        EntityInputBean entityInputBean = new EntityInputBean(fortress.getName(), "blah", documentType.getName(), new DateTime());
+        entityInputBean.setEntityOnly(true);
+        term.setEntityLink("references");
+        entityInputBean.addTag(term); // Terms are connected to entities
+        TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
+        assertNotNull(trackResultBean.getEntity());
+        EntityService.TAG_STRUCTURE etFinder = fortressService.getTagStructureFinder(trackResultBean.getEntity());
+        assertNotNull("Unable to create the requested EntityTagFinder implementation ", etFinder);
+        assertNotEquals(EntityService.TAG_STRUCTURE.DEFAULT, etFinder);
+
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), trackResultBean.getEntity());
+        assertFalse("The custom EntityTag path should have been used to find the tags", entityTags.isEmpty());
+        SearchChange searchChange = searchService.getSearchChange(trackResultBean);
+        assertFalse(searchChange.getTagValues().isEmpty());
+
+        boolean divisonFound = false;
+        boolean categoryFound = false;
+        boolean interestFound = false;
+        for (String s : searchChange.getTagValues().keySet()) {
+            Map<String, ArrayList<SearchTag>> stringArrayListMap = searchChange.getTagValues().get(s);
+            for (String labelType : stringArrayListMap.keySet()) {
+                switch (labelType) {
+                    case  "term":
+                        assertEquals(1, stringArrayListMap.get(labelType).size());
+                        SearchTag theTerm = stringArrayListMap.get(labelType).iterator().next();
+                        assertEquals("audi a3", theTerm.getCode());
+                        assertEquals(3, theTerm.getParent().size());
+                        divisonFound = theTerm.getParent().get("division")!=null;
+                        interestFound = theTerm.getParent().get("interest")!=null;
+                        categoryFound = theTerm.getParent().get("category")!=null;
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected entry " +labelType);
+                }
+            }
+        }
+        assertTrue("Division not found", divisonFound);
+        assertTrue("Category not found", categoryFound);
+        assertTrue("Interest not found", interestFound);
+
+        String json = JsonUtils.getJSON(searchChange);
+        SearchChange deserialized = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChange.class);
+        assertNotNull(deserialized);
+        assertEquals(searchChange.getTagValues().size(), deserialized.getTagValues().size());
+        assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchChange.getTagStructure());
     }
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {

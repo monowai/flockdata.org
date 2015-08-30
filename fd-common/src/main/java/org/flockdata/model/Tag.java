@@ -29,10 +29,7 @@ import org.springframework.data.neo4j.annotation.*;
 import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -43,14 +40,14 @@ import java.util.Set;
 @TypeAlias("Tag")
 public class Tag {
 
-    public static final String DEFAULT_TAG="Tag";
-    public static final String DEFAULT=":" + DEFAULT_TAG ;
+    public static final String DEFAULT_TAG = "Tag";
+    public static final String DEFAULT = ":" + DEFAULT_TAG;
     public static final String UNDEFINED = "undefined";
     public static final String PROPS_PREFIX = "props-";
     public static final String LAT = "latitude";
     public static final String LON = "longitude";
-    public static final String NODE_LAT = PROPS_PREFIX+LAT;
-    public static final String NODE_LON = PROPS_PREFIX+LON;
+    public static final String NODE_LAT = PROPS_PREFIX + LAT;
+    public static final String NODE_LON = PROPS_PREFIX + LON;
 
     @GraphId
     Long id;
@@ -96,8 +93,8 @@ public class Tag {
         if (tagInput.hasTagProperties()) {
             props = new DynamicPropertiesContainer(tagInput.getProperties());
         }
-        String label =tagInput.getLabel();
-        if (label!= null) {
+        String label = tagInput.getLabel();
+        if (label != null) {
             this.labels.add(label);
         }
     }
@@ -140,6 +137,7 @@ public class Tag {
         return props.getProperty(name);
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getProperties() {
         return props.asMap();
     }
@@ -156,7 +154,8 @@ public class Tag {
     public String getLabel() {
 
         for (String label : labels) {
-            if (!label.equals("_Tag") && !label.equals("Tag"))
+            if (!TagHelper.isInternalLabel(label))
+//            if (!label.equals("_Tag") && !label.equals("Tag"))
                 return label;
         }
         return "Tag";
@@ -229,5 +228,31 @@ public class Tag {
     public void addProperty(String key, Object property) {
         props.setProperty(key, property);
         //getProperties().put(key, property);
+    }
+
+    @Transient
+    Map<String, Collection<Tag>> subTags = new HashMap<>();
+
+    @JsonIgnore
+    public void addSubTag(String key, Collection<Tag> o) {
+        subTags.put(key, o);
+    }
+
+    @JsonIgnore
+    public Map<String, Collection<Tag>> getSubTags() {
+        return subTags;
+    }
+
+    @JsonIgnore
+    public Collection<Tag> getSubTags(String key) {
+        return subTags.get(key);
+    }
+
+    public boolean hasSubTags() {
+        return (subTags != null && !subTags.isEmpty());
+    }
+
+    public boolean hasProperties() {
+        return(getProperties() != null && !getProperties().isEmpty());
     }
 }

@@ -19,12 +19,19 @@
 
 package org.flockdata.engine.dao;
 
-import org.flockdata.model.Tag;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
+import org.flockdata.model.Tag;
+import org.flockdata.registration.bean.AliasInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.Result;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * User: mike
@@ -36,8 +43,30 @@ public class AliasDaoNeo {
     @Autowired
     AliasRepo aliasRepo;
 
+    @Autowired
+    Neo4jTemplate template;
+
+
     public Collection<Alias> findTagAliases ( Tag tag ){
         return aliasRepo.findTagAliases(tag.getId());
     }
 
+    public Alias findAlias(String label, AliasInputBean newAlias, Tag startTag) {
+        Alias alias = null;
+        String key = TagHelper.parseKey(newAlias.getCode());
+        String query = "match (a:`" + label + "Alias` {key:{key}}) return a";
+        Map<String,Object> params = new HashMap<>();
+        params.put("key", key);
+        Result<Map<String, Object>> dbResults = template.query(query, params);
+        Iterator<Map<String, Object>> results = dbResults.iterator();
+        while (results.hasNext()) {
+            Map<String, Object> mapResult = results.next();
+            alias = template.projectTo(mapResult.get("a"), Alias.class);
+        }
+
+        if ( alias == null )
+            alias = new Alias(label, newAlias, key, startTag);
+
+        return alias;
+    }
 }

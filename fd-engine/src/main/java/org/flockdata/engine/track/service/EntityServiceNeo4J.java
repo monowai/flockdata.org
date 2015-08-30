@@ -21,17 +21,18 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.dao.EntityDaoNeo;
+import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
-import org.flockdata.model.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
@@ -41,6 +42,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
@@ -52,7 +54,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p/>
+ * <p>
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
@@ -91,6 +93,9 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Autowired
     TagService tagService;
+
+    @Autowired
+    SearchServiceFacade searchService;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
@@ -380,7 +385,9 @@ public class EntityServiceNeo4J implements EntityService {
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
             searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent());
-            searchDocument.setTags(entityTagService.getEntityTags(entity));
+            //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
+            searchService.setTags(entity, searchDocument);
+
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
         }
@@ -677,7 +684,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         if (entity == null) {
             logger.error("metaKey could not be found for [{}]", searchResult);
-            return;
+            throw new AmqpRejectAndDontRequeueException("metaKey could not be found for [{" + searchResult.getMetaKey() + "}]");
         }
 
         if (entity.getSearch() == null) { // Search ACK

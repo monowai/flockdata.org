@@ -100,8 +100,14 @@ public class ConceptServiceNeo implements ConceptService {
      */
 //    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     @Override
+    @Deprecated // use resolveDocumentType(Fortress fortress, DocumentType documentType)
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
         return resolveByDocCode(fortress, documentCode, true);
+    }
+
+    @Override
+    public DocumentType resolveDocumentType(Fortress fortress, DocumentType documentType){
+        return conceptDao.findDocumentType(fortress, documentType, true);
     }
 
     /**
@@ -155,4 +161,20 @@ public class ConceptServiceNeo implements ConceptService {
         if (!payload.isEmpty())
             conceptDao.registerConcepts(payload);
     }
+
+    @Override
+    public DocumentType save(DocumentType documentType) {
+        return conceptDao.save(documentType);
+    }
+
+    @Override
+    public DocumentType findDocumentType(Fortress fortress, String documentName) {
+        return findDocumentType(fortress, documentName, false);
+    }
+
+    @Override
+    public DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing) {
+        return conceptDao.findDocumentType(fortress, documentName, createIfMissing);
+    }
+
 }

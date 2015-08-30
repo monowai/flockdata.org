@@ -511,7 +511,7 @@ public class TestTags extends EngineBase {
         assertTrue(results.iterator().next().isNew());
         co = geoService.findCountries(su.getCompany());
 
-        assertEquals(existingSize+1, co.size());
+        assertEquals(existingSize + 1, co.size());
 
     }
 
@@ -644,11 +644,11 @@ public class TestTags extends EngineBase {
         fortressService.registerFortress(su.getCompany(), new FortressInputBean("scenario_AliasFound", true));
 
         TagInputBean tagA = new TagInputBean("Ohio")
-                .setLabel("State")
+                .setLabel("StateX")
                 .setKeyPrefix("US");
 
         TagInputBean tagB = new TagInputBean("Ohio")
-                .setLabel("State")
+                .setLabel("StateX")
                 .setKeyPrefix("ZZ");
 
         Tag tagResultA = tagService.createTag(su.getCompany(), tagA);
@@ -656,8 +656,8 @@ public class TestTags extends EngineBase {
 
         assertFalse(tagResultA.getId().equals(tagResultB.getId()));
 
-        tagService.createAlias(su.getCompany(), tagResultA, "State", "xxx");
-        tagService.createAlias(su.getCompany(), tagResultB, "State", "xxx");
+        tagService.createAlias(su.getCompany(), tagResultA, "StateX", "xxx");
+        tagService.createAlias(su.getCompany(), tagResultB, "StateX", "xxx");
 
         Tag tagAlias = tagService.findTag(su.getCompany(), tagA.getLabel(), "us", "xxx");
         assertNotNull(tagAlias);
@@ -896,5 +896,32 @@ public class TestTags extends EngineBase {
         deliveryPoint.setMerge(true);
         tag = tagService.createTag(su.getCompany(), deliveryPoint);
         assertEquals("Merged properties were not added", 2, tag.getProperties().size());
+    }
+
+    @Test
+    public void recreate_AliasRelationship () throws Exception {
+        engineConfig.setMultiTenanted(false);
+        SystemUser su = registerSystemUser("nested_NullPointer", mike_admin);
+
+        TagInputBean deliveryPoint = new TagInputBean("asdf", "Nested").setName("7 Manor Drive");
+        AliasInputBean dpAlias = new AliasInputBean("123", "MyAliasTest");
+        deliveryPoint.addAlias(dpAlias);
+
+        TagResultBean tagResultBean = mediationFacade.createTag(su.getCompany(), deliveryPoint);
+
+        assertNotNull(tagService.findTag(su.getCompany(), deliveryPoint.getLabel(), null, dpAlias.getCode()));
+
+        // Check that no errors occur when processing the payload a second time
+        mediationFacade.createTag(su.getCompany(), deliveryPoint);
+
+        // Delete the relationship and reporcess
+
+        String cypher = "match (t)-[r]-() where id(t)= {tagId} delete r;";
+        Map<String,Object>params = new HashMap<>();
+        params.put("tagId",tagResultBean.getTag().getId());
+        template.query(cypher, params);
+
+        // Should re-create the relationship
+        mediationFacade.createTag(su.getCompany(), deliveryPoint);
     }
 }

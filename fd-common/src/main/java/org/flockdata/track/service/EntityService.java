@@ -42,6 +42,8 @@ import java.util.concurrent.ExecutionException;
  */
 public interface EntityService {
 
+    public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
+
     KvContent getWhat(Entity entity, Log change);
 
     @Deprecated

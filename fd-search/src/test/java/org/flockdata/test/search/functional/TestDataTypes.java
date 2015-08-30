@@ -31,7 +31,7 @@ import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,14 +65,14 @@ public class TestDataTypes extends ESBase {
 
         Entity entityA = Helper.getEntity(company, fortress, user, doc);
 
-        SearchChangeBean change = new EntitySearchChange(entityA);
+        SearchChange change = new EntitySearchChange(entityA);
         change.setDescription("Test Description");
         Map<String,Object> numMap = Helper.getSimpleMap("num", 100);
         change.setWhat(numMap );
 
 
         deleteEsIndex(entityA);
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType());
+        searchRepo.ensureIndex(change);
         searchRepo.handle(change);
         Thread.sleep(1000);
 

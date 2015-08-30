@@ -26,13 +26,11 @@ import org.flockdata.model.EntityLog;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.SearchChangeBean;
+import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Encapsulates the information to make an Entity and it's log in to
@@ -44,7 +42,7 @@ import java.util.Map;
  * Date: 25/04/13
  * Time: 9:33 PM
  */
-public class EntitySearchChange implements SearchChangeBean {
+public class EntitySearchChange implements SearchChange {
 
     private String documentType;
     private String description;
@@ -72,26 +70,16 @@ public class EntitySearchChange implements SearchChangeBean {
 
     private Date updatedDate; // Last updated in the fortress;
 
-
     private String contentType;
     private String fileName;
+    private EntityService.TAG_STRUCTURE tagStructure;
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
     }
 
-//    /**
-//     *
-//     * @param entity  server side entity
-//     * @deprecated use the EntityBean version of this
-//     */
-//    public EntitySearchChange(Entity entity) {
-//        this(en);
-//    }
-
-
     /**
-     * extracts relevant entity records to be used in indexing
+     * extracts relevant entity properties to index
      *
      * @param entity details
      */
@@ -231,7 +219,9 @@ public class EntitySearchChange implements SearchChangeBean {
         return tagValues;
     }
 
-    public void setTags(Iterable<EntityTag> entityTags) {
+    @JsonIgnore
+    public void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
+        this.tagStructure = tagStructure;
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
             Map<String, ArrayList<SearchTag>> tagValues = this.tagValues.get(entityTag.getRelationship().toLowerCase());
@@ -406,6 +396,16 @@ public class EntitySearchChange implements SearchChangeBean {
         return props;
     }
 
+    @Override
+    public EntityService.TAG_STRUCTURE getTagStructure() {
+        return tagStructure;
+    }
+
+    @Override
+    public void setTags(ArrayList<EntityTag> tags) {
+        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -441,5 +441,9 @@ public class EntitySearchChange implements SearchChangeBean {
         result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
         result = 31 * result + (searchKey != null ? searchKey.hashCode() : 0);
         return result;
+    }
+
+    public void setTags(Collection<EntityTag> tags) {
+        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
     }
 }

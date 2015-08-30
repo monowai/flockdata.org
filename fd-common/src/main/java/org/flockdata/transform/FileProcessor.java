@@ -420,7 +420,7 @@ public class FileProcessor {
                         nextLine = preProcess(nextLine, importProfile);
                         // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
                         Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile);
-                        if ( jsonData!=null ) {
+                        if (jsonData != null) {
                             if (DataType == ProfileConfiguration.DataType.ENTITY) {
                                 EntityInputBean entityInputBean = (EntityInputBean) row;
 
@@ -455,12 +455,10 @@ public class FileProcessor {
                             if (stopProcessing(currentRow, then)) {
                                 break;
                             }
-                        } else {
-                            ignoreCount++;
                         }
-
-
                     }
+                } else {
+                    ignoreCount++;
                 }
             }
         } finally {
@@ -515,6 +513,7 @@ public class FileProcessor {
     private boolean ignoreRow(String[] nextLine) {
         return nextLine[0].startsWith("#");
     }
+
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
     private String[] preProcess(String[] row, ProfileConfiguration importProfile) {
@@ -564,7 +563,7 @@ public class FileProcessor {
         double mins = watch.getTotalTimeSeconds() / 60;
         long rowsProcessed = rows - skipCount;
         if (skipCount > 0)
-            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows, ignored {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount,ignoreCount, rows);
+            logger.info("Completed {} rows in {} secs. rpm = {}. Skipped first {} rows, ignored {} rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, ignoreCount, rows);
         else
             logger.info("Completed {} rows in {} secs. Ignored {} rows rpm = {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), ignoreCount, rows);
         return rows;

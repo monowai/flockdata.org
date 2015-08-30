@@ -52,10 +52,11 @@ public class TestEntitySearch {
         // ToDo: What is the diff between these relationships
         tags.add( new EntityTagOut(e, getTag("NameA", relationship), relationship, null ));
         tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
-        tags.add( new EntityTagOut(e, getTag("NameC", relationship), relationship, null ));
+        tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e);
-        entitySearchChange.setTags(tags);
+
+        entitySearchChange.setTags( tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
         Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);
