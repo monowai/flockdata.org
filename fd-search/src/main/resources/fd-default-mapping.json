@@ -9,7 +9,6 @@
     "properties": {
       "attachment": {
         "type": "attachment",
-        "path": "full",
         "fields": {
           "attachment": {
             "type": "string",

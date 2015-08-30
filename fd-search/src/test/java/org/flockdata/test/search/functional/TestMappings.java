@@ -300,7 +300,7 @@ public class TestMappings extends ESBase {
         assertTrue(result.contains("174"));
         assertTrue(result.contains("-41"));
 
-        doCompletionQuery(entity, "nz", 1, "Couldn't autocomplete on geo tag for NZ");
+        doCompletionQuery(entity, "nz", 1, "Couldn't autocomplete on geo tag for NZ. If there are results, then the field name may be in error");
         doCompletionQuery(entity, "new ze", 1, "Couldn't autocomplete on geo tag for New Zealand");
     }
 
