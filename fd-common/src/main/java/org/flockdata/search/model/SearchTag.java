@@ -83,9 +83,9 @@ public class SearchTag {
             for (String s : entityTag.getGeoData().getGeoBeans().keySet()) {
                 Object geoCode = entityTag.getGeoData().getGeoBeans().get(s).getCode();
                 if (geoCode != null)
-                    geo.put(s + ".code", geoCode);
+                    geo.put(s + "Code", geoCode);
                 if (entityTag.getGeoData().getGeoBeans().get(s).getName() != null)
-                    geo.put(s + ".name", entityTag.getGeoData().getGeoBeans().get(s).getName());
+                    geo.put(s + "Name", entityTag.getGeoData().getGeoBeans().get(s).getName());
                 if (entityTag.getGeoData().getPoints() != null) {
                     geo.put("points", entityTag.getGeoData().getPoints());
                 }

@@ -1378,20 +1378,20 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
         waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.state.code", "ca", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.state.name", "california", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateCode", "ca", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateName", "california", 1);
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.country.code", "usa", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.country.name", "united states", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryCode", "usa", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryName", "united states", 1);
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.city.code", "la", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.city.name", "los angeles", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityCode", "la", 1);
+        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityName", "los angeles", 1);
 
     }
 
     @Test
     public void geo_CachingMultiLocations() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("geo_CachingMultiLocations");
         SystemUser su = registerSystemUser("geo_CachingMultiLocations", "geo_CachingMultiLocations");
         assertNotNull(su);
@@ -1438,11 +1438,11 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
         waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
 
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.state.code", california.getCode().toLowerCase(), 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.city.name", losAngeles.getName().toLowerCase(), 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.state.code", "tx", 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.city.code", "dallas", 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.country.code", unitedStates.getCode().toLowerCase(), 2);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.stateCode", california.getCode().toLowerCase(), 1);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.cityName", losAngeles.getName().toLowerCase(), 1);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.stateCode", "tx", 1);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.cityCode", "dallas", 1);
+        doEsFieldQuery(fortress, "tag.owns.institution.geo.countryCode", unitedStates.getCode().toLowerCase(), 2);
     }
 
     @Test

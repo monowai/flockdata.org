@@ -520,8 +520,9 @@ public class TrackDaoES implements TrackSearchDao {
                 String code = geoBeans.get(key).toString();
                 if (!tagCodes.contains(code)) {
                     // ToDo: Figure out autocomplete across ngrams
-                    if (key.endsWith(".code")) {
-                        String nameKey = key.substring(0, key.indexOf('.')) + ".name";
+                    // DAT-501 ES 2.0 does not support field names with a .
+                    if (key.endsWith("Code")) {
+                        String nameKey = key.substring(0, key.indexOf("Code")) + "Name";
                         String name = null;
                         if (geoBeans.containsKey(nameKey))
                             name = geoBeans.get(nameKey).toString();

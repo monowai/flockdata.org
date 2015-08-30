@@ -76,7 +76,7 @@
             }
           },
           "match_mapping_type": "string",
-          "path_match": "tag.*.geo.*.code"
+          "path_match": "tag.*.geo.*Code"
         }
       },
       {
@@ -98,7 +98,7 @@
             }
           },
           "match_mapping_type": "string",
-          "path_match": "tag.*.geo.*.name"
+          "path_match": "tag.*.geo.*Name"
         }
       }
     ],
@@ -163,60 +163,61 @@
                     }
                   }
                 }
-              },
-              "parent": {
-                "properties": {
-                  "category": {
-                    "properties": {
-                      "code": {
-                        "type": "string",
-                        "boost": 3,
-                        "fields": {
-                          "facet": {
-                            "type": "string",
-                            "boost": 5,
-                            "index": "not_analyzed",
-                            "doc_values": true,
-                            "norms": {
-                              "enabled": true
+              ,
+                "parent": {
+                  "properties": {
+                    "category": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "boost": 3,
+                          "fields": {
+                            "facet": {
+                              "type": "string",
+                              "boost": 5,
+                              "index": "not_analyzed",
+                              "doc_values": true,
+                              "norms": {
+                                "enabled": true
+                              }
                             }
                           }
                         }
                       }
-                    }
-                  },
-                  "division": {
-                    "properties": {
-                      "code": {
-                        "type": "string",
-                        "boost": 3,
-                        "fields": {
-                          "facet": {
-                            "type": "string",
-                            "boost": 5,
-                            "index": "not_analyzed",
-                            "doc_values": true,
-                            "norms": {
-                              "enabled": true
+                    },
+                    "division": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "boost": 3,
+                          "fields": {
+                            "facet": {
+                              "type": "string",
+                              "boost": 5,
+                              "index": "not_analyzed",
+                              "doc_values": true,
+                              "norms": {
+                                "enabled": true
+                              }
                             }
                           }
                         }
                       }
-                    }
-                  },
-                  "interest": {
-                    "properties": {
-                      "code": {
-                        "type": "string",
-                        "boost": 3,
-                        "fields": {
-                          "facet": {
-                            "type": "string",
-                            "boost": 5,
-                            "index": "not_analyzed",
-                            "doc_values": true,
-                            "norms": {
-                              "enabled": true
+                    },
+                    "interest": {
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "boost": 3,
+                          "fields": {
+                            "facet": {
+                              "type": "string",
+                              "boost": 5,
+                              "index": "not_analyzed",
+                              "doc_values": true,
+                              "norms": {
+                                "enabled": true
+                              }
                             }
                           }
                         }
