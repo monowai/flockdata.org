@@ -465,8 +465,8 @@ public class TransformationHelper {
             geoDef.getGeoData().setyValue(y);
             double[] points = GeoSupport.convert(geoDef.getGeoData());
             if (points != null) {
-                propertyTarget.setProperty(Tag.LAT, points[0]);
-                propertyTarget.setProperty(Tag.LON, points[1]);
+                propertyTarget.setProperty(Tag.LON, points[0]);
+                propertyTarget.setProperty(Tag.LAT, points[1]);
             }
         }
     }
