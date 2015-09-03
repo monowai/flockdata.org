@@ -37,11 +37,11 @@ public interface EntityRepo extends GraphRepository<Entity> {
                     "return entity")
     Set<Entity> findEntitiesByTxRef(Long txRef);
 
-    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
-                    " where id(fortress)={0} " +
-                    " return track ORDER BY track.dateCreated ASC" +
-                    " skip {1} limit 100 ")
-    Set<Entity> findEntities(Long fortressId, Long skip);
+    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:TRACKS]->(entity:Entity) " +
+                    " where id(fortress)={0} and id(entity) > {1}" +
+                    " return entity ORDER BY id(entity) ASC" +
+                    " limit 100 ")
+    Set<Entity> findEntities(Long fortressId, Long lastEntity);
 
     @Query(  value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
             " where id(fortress)={0} " +

@@ -171,8 +171,8 @@ public class EntityDaoNeo {
         return entityRepo.findEntitiesByTxRef(txRef);
     }
 
-    public Collection<Entity> findEntities(Long fortressId, Long skipTo) {
-        return entityRepo.findEntities(fortressId, skipTo);
+    public Collection<Entity> findEntities(Long fortressId, Long lastEntityId) {
+        return entityRepo.findEntities(fortressId, lastEntityId);
     }
 
     public Collection<Entity> findEntities(Long fortressId, String label, Long skipTo) {
