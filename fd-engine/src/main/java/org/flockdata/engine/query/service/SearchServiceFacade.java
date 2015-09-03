@@ -251,6 +251,7 @@ public class SearchServiceFacade {
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
             searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
             searchDocument.setReplyRequired(false);
+            searchDocument.setForceReindex(true);
 
             return searchDocument;
             //}

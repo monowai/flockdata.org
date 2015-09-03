@@ -337,6 +337,33 @@ public class MediationFacadeNeo implements MediationFacade {
 
     }
 
+    @Override
+    @Secured({SecurityHelper.ADMIN})
+    public String reindex(Company company, Entity entity) throws FlockException {
+        Fortress fortress = entity.getFortress();
+        if (fortress == null)
+            throw new NotFoundException(String.format("No fortress to reindex with the name %s could be found", entity.getFortress().getCode()));
+
+        if (!fortress.isSearchEnabled())
+            throw new FlockException("The fortress does not have search enabled. Nothing to do!");
+
+        String message = null;
+        if (fortress.isStoreDisabled()) {
+            message = String.format("Content store has been disabled for this Entity %s. \r\nIf your search document has a Content Body then reprocess from source to create it" +
+                    "\r\nYou can elect to enable the KV Store for content storage if wish", entity.getMetaKey());
+            logger.warn(message);
+        }
+        if (message != null) {
+            message = message + "\n";
+        }
+        adminService.doReindex(fortress,entity);
+        message = message + "Reindex Search request is re-processing Entity and Tags for [" + entity.getMetaKey() + "]";
+        logger.info("Reindex Search request is processing Entities for [" + entity.getMetaKey() + "]");
+        return message;
+
+
+    }
+
     /**
      * Rebuilds all search documents for the supplied fortress of the supplied document label
      *

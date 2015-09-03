@@ -257,6 +257,14 @@ public class AdminService implements EngineAdminService {
 
     }
 
+    @Override
+    public Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException {
+        Collection<Entity>entities = new ArrayList<>();
+        entities.add(entity);
+        Long result = reindexEntities(entities, 0l );
+        return new AsyncResult<>(result);
+    }
+
     long reindex(Fortress fortress) {
         Long processCount = 0l;
         Collection<Entity> entities;
@@ -265,7 +273,7 @@ public class AdminService implements EngineAdminService {
             if (entities.isEmpty())
                 return processCount;
             processCount = processCount + entities.size();
-            reindexEntities(fortress.getCompany(), entities, processCount);
+            reindexEntities(entities, processCount);
 
         } while (!entities.isEmpty());
         return processCount;
@@ -279,7 +287,7 @@ public class AdminService implements EngineAdminService {
             if (entities.isEmpty())
                 return processCount;
             processCount = processCount + entities.size();
-            reindexEntities(fortress.getCompany(), entities, processCount);
+            reindexEntities(entities, processCount);
 
         } while (!entities.isEmpty());
         return processCount;
@@ -287,7 +295,7 @@ public class AdminService implements EngineAdminService {
 
     @Async("fd-track")
     @Transactional
-    Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
+    Long reindexEntities(Collection<Entity> entities, Long skipCount) {
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
