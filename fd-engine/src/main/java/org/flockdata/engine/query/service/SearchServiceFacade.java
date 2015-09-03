@@ -218,7 +218,13 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-
+    /**
+     * Forces an entity to be re-indexed from the graph through to ElasticSearch
+     *
+     * @param entity  current view of the entity
+     * @param lastLog last known content data
+     * @return SearchChange payload that can be sent to fd-search
+     */
     public EntitySearchChange rebuild(Entity entity, EntityLog lastLog) {
 
         try {
@@ -279,13 +285,6 @@ public class SearchServiceFacade {
         // ToDO: Implement this
         logger.info("You have to manually purge the ElasticSearch index {}", indexName);
     }
-
-//    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
-//        Collection<TrackResultBean> results = new ArrayList<>();
-//        results.add(trackResult);
-//        makeChangesSearchable(fortress, results);
-//
-//    }
 
     @Async("fd-search")
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
