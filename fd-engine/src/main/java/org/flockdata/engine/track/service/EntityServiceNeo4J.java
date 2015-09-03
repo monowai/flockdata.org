@@ -278,8 +278,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<Entity> getEntities(Fortress fortress, Long skipTo) {
-        return entityDao.findEntities(fortress.getId(), skipTo);
+    public Collection<Entity> getEntities(Fortress fortress, Long lastEntityId) {
+        return entityDao.findEntities(fortress.getId(), lastEntityId);
     }
 
     @Override
