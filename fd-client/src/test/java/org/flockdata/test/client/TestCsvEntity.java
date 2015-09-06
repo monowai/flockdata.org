@@ -65,7 +65,7 @@ public class TestCsvEntity {
         assertTrue("Tag Missing", json.containsKey("Tag"));
         assertTrue("Tag Value Missing", json.containsKey("TagVal"));
         assertTrue("Tag Value Missing", json.containsKey("ValTag"));
-        Map<String, List<EntityKeyBean>> xRefs = mapper.getCrossReferences();
+        Map<String, List<EntityKeyBean>> xRefs = mapper.getEntityLinks();
 
         assertFalse(xRefs.isEmpty());
         assertEquals(2, xRefs.size());

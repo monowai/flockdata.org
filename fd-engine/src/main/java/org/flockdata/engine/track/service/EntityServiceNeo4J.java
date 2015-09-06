@@ -767,8 +767,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans) {
-        for (CrossReferenceInputBean crossReferenceInputBean : crossReferenceInputBeans) {
+    public List<EntityLinkInputBean> crossReferenceEntities(Company company, List<EntityLinkInputBean> crossReferenceInputBeans) {
+        for (EntityLinkInputBean crossReferenceInputBean : crossReferenceInputBeans) {
             Map<String, List<EntityKeyBean>> references = crossReferenceInputBean.getReferences();
             for (String xRefName : references.keySet()) {
                 try {

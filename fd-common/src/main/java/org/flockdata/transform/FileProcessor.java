@@ -34,7 +34,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.transform.json.JsonEntityMapper;
@@ -221,7 +221,7 @@ public class FileProcessor {
 
         JsonFactory jfactory = new JsonFactory();
         JsonParser jParser;
-        List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
+        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
 
@@ -272,21 +272,21 @@ public class FileProcessor {
         }
         if (!referenceInputBeans.isEmpty()) {
             logger.debug("Wrote [{}] cross references",
-                    writeCrossReferences(writer, referenceInputBeans));
+                    writeEntityLinks(writer, referenceInputBeans));
         }
 
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
+    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         JsonEntityMapper entityInputBean = new JsonEntityMapper();
         entityInputBean.setData(node, importProfile);
         if (entityInputBean.getFortress() == null)
             entityInputBean.setFortress(importProfile.getFortressName());
 
-        if (!entityInputBean.getCrossReferences().isEmpty()) {
-            referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
-            entityInputBean.getCrossReferences().size();
+        if (!entityInputBean.getEntityLinks().isEmpty()) {
+            referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+            entityInputBean.getEntityLinks().size();
         }
 
         ContentInputBean contentInputBean = new ContentInputBean();
@@ -308,7 +308,7 @@ public class FileProcessor {
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
             mappable.positionReader(xsr);
-            List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
+            List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
 
             String dataType = mappable.getDataType();
             watch.start();
@@ -326,9 +326,9 @@ public class FileProcessor {
                     if (entityInputBean.getFortressUser() == null)
                         entityInputBean.setFortressUser(importProfile.getFortressUser());
 
-                    if (!entityInputBean.getCrossReferences().isEmpty()) {
-                        referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
-                        entityInputBean.getCrossReferences().size();
+                    if (!entityInputBean.getEntityLinks().isEmpty()) {
+                        referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+                        entityInputBean.getEntityLinks().size();
                     }
                     if (contentInputBean != null) {
                         if (contentInputBean.getFortressUser() == null)
@@ -348,7 +348,7 @@ public class FileProcessor {
                 writer.close(trackBatcher);
             }
             if (!referenceInputBeans.isEmpty()) {
-                logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
+                logger.debug("Wrote [{}] cross references", writeEntityLinks(writer, referenceInputBeans));
             }
             return endProcess(watch, rows, 0);
 
@@ -358,8 +358,8 @@ public class FileProcessor {
         }
     }
 
-    private int writeCrossReferences(FdWriter fdWriter, List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
-        return fdWriter.flushXReferences(referenceInputBeans);
+    private int writeEntityLinks(FdWriter fdWriter, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+        return fdWriter.flushEntityLinks(referenceInputBeans);
     }
 
     private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
@@ -378,7 +378,7 @@ public class FileProcessor {
         Reader fileObject = getReader(file);
 
         br = new BufferedReader(fileObject);
-        List<CrossReferenceInputBean> referenceInputBeans = new ArrayList<>();
+        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
             CSVReader csvReader;
@@ -436,9 +436,9 @@ public class FileProcessor {
                                     contentInputBean.setEvent(importProfile.getEvent());
                                     entityInputBean.setContent(contentInputBean);
                                 }
-                                if (!entityInputBean.getCrossReferences().isEmpty()) {
-                                    referenceInputBeans.add(new CrossReferenceInputBean(entityInputBean));
-                                    currentRow = currentRow + entityInputBean.getCrossReferences().size();
+                                if (!entityInputBean.getEntityLinks().isEmpty()) {
+                                    referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+                                    currentRow = currentRow + entityInputBean.getEntityLinks().size();
                                 }
 
                                 trackBatcher.batchEntity(entityInputBean);
@@ -467,7 +467,7 @@ public class FileProcessor {
 
             if (!referenceInputBeans.isEmpty()) {
                 // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
-                logger.debug("Wrote [{}] cross references", writeCrossReferences(writer, referenceInputBeans));
+                logger.debug("Wrote [{}] x entity links", writeEntityLinks(writer, referenceInputBeans));
             }
             br.close();
         }

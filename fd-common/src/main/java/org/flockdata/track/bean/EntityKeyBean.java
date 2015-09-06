@@ -42,7 +42,7 @@ public class EntityKeyBean {
         this.callerRef = callerRef;
     }
 
-    public EntityKeyBean(CrossReferenceInputBean crossReferenceInputBean) {
+    public EntityKeyBean(EntityLinkInputBean crossReferenceInputBean) {
         this.fortressName = crossReferenceInputBean.getFortress();
         this.documentType = crossReferenceInputBean.getDocumentType();
         this.callerRef = crossReferenceInputBean.getCallerRef();

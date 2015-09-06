@@ -455,7 +455,7 @@ public class EntityDaoNeo {
 
     @Transactional
     public void purgeEntities(Collection<String> entities) {
-        entityRepo.purgeCrossReferences(entities);
+        entityRepo.purgeEntityLinks(entities);
         entityRepo.purgeEntities(entities);
     }
 

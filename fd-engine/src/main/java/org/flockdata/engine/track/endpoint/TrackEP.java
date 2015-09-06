@@ -140,7 +140,7 @@ public class TrackEP {
 
     }
 
-    @RequestMapping(value = "/{metaKey}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{metaKey}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
     public @ResponseBody Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
@@ -158,7 +158,7 @@ public class TrackEP {
      * @return unresolvable caller references
      * @throws org.flockdata.helper.FlockException if not exactly one Entity for the callerRef in the fortress
      */
-    @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
     public @ResponseBody  List<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
                                                                    @PathVariable("callerRef") String callerRef,
                                                                    @RequestBody Collection<EntityKeyBean> entities,
@@ -169,8 +169,8 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/xref", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody List<CrossReferenceInputBean> crossReferenceEntities(@RequestBody List<CrossReferenceInputBean> crossReferenceInputBeans,
+    @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
+    public @ResponseBody List<EntityLinkInputBean> crossReferenceEntities(@RequestBody List<EntityLinkInputBean> crossReferenceInputBeans,
                                                                               HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
