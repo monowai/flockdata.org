@@ -26,7 +26,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.model.Entity;
@@ -98,7 +98,7 @@ public class TestEntityCrossReference extends EngineBase {
         // DAT-443 - Request to xreference with an entity that does not yet exists.
         // Only will work if the fortress and doctype are known
         callerRefs.add(new EntityKeyBean(fortress.getName(), trackResultBean.getDocumentType().getName(), "ABC321"));
-        EntityKeyBean sourceKey = new EntityKeyBean(new CrossReferenceInputBean(inputBean));
+        EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
         List<EntityKeyBean> results = entityService.crossReferenceEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
         TestCase.assertTrue(results.isEmpty());
 
@@ -211,14 +211,14 @@ public class TestEntityCrossReference extends EngineBase {
         callerRefs.add(new EntityKeyBean("ABC333"));
 
         refs.put("cites",callerRefs);
-        inputBean.setCrossReferences(refs);
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
-        List<CrossReferenceInputBean > entities = new ArrayList<>();
+        inputBean.setEntityLinks(refs);
+        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
+        List<EntityLinkInputBean> entities = new ArrayList<>();
         entities.add(bean);
 
-        List<CrossReferenceInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), entities);
+        List<EntityLinkInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), entities);
         assertEquals(1, notFound.size());
-        for (CrossReferenceInputBean crossReferenceInputBean : notFound) {
+        for (EntityLinkInputBean crossReferenceInputBean : notFound) {
             assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
         }
 
@@ -243,13 +243,13 @@ public class TestEntityCrossReference extends EngineBase {
         entityKeys.add(new EntityKeyBean(fortressB.getName(), "DocTypeS", "ABC333"));
 
         refs.put("cites",entityKeys);
-        inputBean.setCrossReferences(refs);
+        inputBean.setEntityLinks(refs);
 
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
-        List<CrossReferenceInputBean > inputs = new ArrayList<>();
+        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
+        List<EntityLinkInputBean> inputs = new ArrayList<>();
         inputs.add(bean);
 
-        List<CrossReferenceInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
+        List<EntityLinkInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
 
         // These are the two records that will cite the previously created entity

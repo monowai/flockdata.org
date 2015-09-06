@@ -127,7 +127,7 @@ public interface EntityService {
 
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
-    List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);
+    List<EntityLinkInputBean> crossReferenceEntities(Company company, List<EntityLinkInputBean> crossReferenceInputBeans);
 
     Entity save(Entity entity);
 

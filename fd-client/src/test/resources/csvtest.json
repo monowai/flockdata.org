@@ -40,7 +40,7 @@
             "nullOrEmpty": "Undefined"   // Default if Value is missing in source file
         },
         "xRef": {
-            "crossReferences": [
+            "entityLinks": [
                 {
                     "fortress": "Olympic",
                     "documentName": "Celebration",

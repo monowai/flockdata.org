@@ -25,7 +25,7 @@ import org.flockdata.helper.SecurityHelper;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
@@ -82,7 +82,7 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
+    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         return 0;
     }
 

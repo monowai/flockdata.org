@@ -68,7 +68,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
     void purgePeopleRelationships(Collection<String> entities);
 
     @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.metaKey in {0} delete otherRlx")
-    void purgeCrossReferences(Collection<String> entities);
+    void purgeEntityLinks(Collection<String> entities);
 
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where entity.metaKey in {0} delete track, entity ")
     void purgeEntities(Collection<String> entities);
