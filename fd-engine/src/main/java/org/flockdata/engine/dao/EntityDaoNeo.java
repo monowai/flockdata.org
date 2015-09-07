@@ -401,12 +401,12 @@ public class EntityDaoNeo {
 
     }
 
-    public void crossReference(Entity entity, Collection<Entity> entities, String refName) {
-        Node source = template.getPersistentState(entity);
+    public void linkEntities(Entity entity, Collection<Entity> entities, String refName) {
+        Node target = template.getPersistentState(entity);
         for (Entity sourceEntity : entities) {
             Node dest = template.getPersistentState(sourceEntity);
-            if (template.getRelationshipBetween(source, sourceEntity, refName) == null)
-                template.createRelationshipBetween(source, dest, refName, null);
+            if (template.getRelationshipBetween(sourceEntity, target, refName) == null)
+                template.createRelationshipBetween(dest, target, refName, null);
         }
     }
 

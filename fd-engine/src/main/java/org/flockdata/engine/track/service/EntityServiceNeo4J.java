@@ -563,7 +563,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             }
         }
-        entityDao.crossReference(entity, targets, relationshipName);
+        entityDao.linkEntities(entity, targets, relationshipName);
         return ignored;
     }
 
@@ -590,7 +590,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityKeyBean> crossReferenceEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String xRefName) throws FlockException {
+    public List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String xRefName) throws FlockException {
         Fortress f = fortressService.findByCode(company, sourceKey.getFortressName());
         if (f == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
@@ -646,7 +646,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         }
         if (!targets.isEmpty())
-            entityDao.crossReference(fromEntity, targets, xRefName);
+            entityDao.linkEntities(fromEntity, targets, xRefName);
         return ignored;
     }
 
@@ -767,23 +767,23 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityLinkInputBean> crossReferenceEntities(Company company, List<EntityLinkInputBean> crossReferenceInputBeans) {
-        for (EntityLinkInputBean crossReferenceInputBean : crossReferenceInputBeans) {
-            Map<String, List<EntityKeyBean>> references = crossReferenceInputBean.getReferences();
+    public List<EntityLinkInputBean> linkEntities(Company company, List<EntityLinkInputBean> entityLinks) {
+        for (EntityLinkInputBean entityLink : entityLinks) {
+            Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
-                    List<EntityKeyBean> notFound = crossReferenceEntities(company,
-                            new EntityKeyBean(crossReferenceInputBean),
+                    List<EntityKeyBean> notFound = linkEntities(company,
+                            new EntityKeyBean(entityLink),
                             references.get(xRefName), xRefName);
-                    crossReferenceInputBean.setIgnored(xRefName, notFound);
+                    entityLink.setIgnored(xRefName, notFound);
 //                    references.put(xRefName, notFound);
                 } catch (FlockException de) {
                     logger.error("Exception while cross-referencing Entities. This message is being returned to the caller - [{}]", de.getMessage());
-                    crossReferenceInputBean.setServiceMessage(de.getMessage());
+                    entityLink.setServiceMessage(de.getMessage());
                 }
             }
         }
-        return crossReferenceInputBeans;
+        return entityLinks;
     }
 
     @Override

@@ -101,7 +101,7 @@ public interface EntityService {
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
 
-    List<EntityKeyBean> crossReferenceEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
+    List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 
@@ -127,7 +127,7 @@ public interface EntityService {
 
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
-    List<EntityLinkInputBean> crossReferenceEntities(Company company, List<EntityLinkInputBean> crossReferenceInputBeans);
+    List<EntityLinkInputBean> linkEntities(Company company, List<EntityLinkInputBean> crossReferenceInputBeans);
 
     Entity save(Entity entity);
 

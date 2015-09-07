@@ -39,19 +39,6 @@ public class EntityLinkInputBean {
 
     protected EntityLinkInputBean(){}
 
-//    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<EntityKey>>references){
-//        this();
-//        this.callerRef = callerRef;
-//        this.fortress = fortress;
-//        this.references = references;
-//    }
-//
-//    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<EntityKey>>references){
-//        this(sourceFortress, sourceCallerRef, references);
-//        if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
-//            this.documentType = sourceDocumentType;
-//    }
-
     public EntityLinkInputBean(EntityInputBean entityInputBean) {
         this.callerRef = entityInputBean.getCode();
         this.fortress = entityInputBean.getFortress();

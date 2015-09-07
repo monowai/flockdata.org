@@ -100,7 +100,7 @@ public class FdRestWriter implements FdWriter {
         this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
         this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
         this.HEALTH = configuration.getEngineURL() + "/v1/admin/health/";
-        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/xref/";
+        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/link/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
         this.batchSize = configuration.getBatchSize();

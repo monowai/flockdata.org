@@ -165,17 +165,16 @@ public class TrackEP {
                                                                    @PathVariable("xRefName") String xRefName,
                                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.crossReferenceEntities(company, new EntityKeyBean(fortressName, "*", callerRef), entities, xRefName);
+        return entityService.linkEntities(company, new EntityKeyBean(fortressName, "*", callerRef), entities, xRefName);
     }
 
 
     @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody List<EntityLinkInputBean> crossReferenceEntities(@RequestBody List<EntityLinkInputBean> crossReferenceInputBeans,
-                                                                              HttpServletRequest request) throws FlockException {
+    public @ResponseBody List<EntityLinkInputBean> linkEntities(@RequestBody List<EntityLinkInputBean> entityLinkInputBeans,
+                                                                HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
-        return entityService.crossReferenceEntities(company, crossReferenceInputBeans);
-        //return crossReferenceInputBeans;
+        return entityService.linkEntities(company, entityLinkInputBeans);
     }
 
 
