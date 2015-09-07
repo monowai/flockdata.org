@@ -242,9 +242,9 @@ public class AdminService implements EngineAdminService {
     @Async("fd-track")
     @Transactional
     public Future<Long> doReindex(Fortress fortress) throws FlockException {
-        long result = reindex(fortress);
-        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortress.getName() + "]");
-        return new AsyncResult<>(result);
+        long reindexCount = reindex(fortress);
+        logger.info("Reindex Search request completed. Processed [" + reindexCount + "] entities for [" + fortress.getName() + "]");
+        return new AsyncResult<>(reindexCount);
     }
 
     @Override
@@ -273,7 +273,7 @@ public class AdminService implements EngineAdminService {
             entities = entityService.getEntities(fortress, lastEntityId);
             processed = processed + entities.size();
             if (entities.isEmpty())
-                return lastEntityId;
+                return processed;
             lastEntityId = reindexEntities(entities, lastEntityId);
 
         } while (!entities.isEmpty());
