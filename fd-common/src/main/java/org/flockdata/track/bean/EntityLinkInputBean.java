@@ -40,10 +40,20 @@ public class EntityLinkInputBean {
     protected EntityLinkInputBean(){}
 
     public EntityLinkInputBean(EntityInputBean entityInputBean) {
-        this.callerRef = entityInputBean.getCode();
-        this.fortress = entityInputBean.getFortress();
-        this.documentType = entityInputBean.getDocumentName();
+        this(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCode());
         this.references = entityInputBean.getEntityLinks();
+    }
+
+    /**
+     *
+     * @param fortress          Parent fortress
+     * @param documentName      Parent docType
+     * @param code              Parent code reference
+     */
+    public EntityLinkInputBean(String fortress, String documentName, String code) {
+        this.callerRef = code;
+        this.fortress = fortress;
+        this.documentType = documentName;
     }
 
     public String getCallerRef() {

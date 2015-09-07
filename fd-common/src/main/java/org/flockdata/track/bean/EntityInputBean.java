@@ -328,8 +328,7 @@ public class EntityInputBean implements Serializable, UserProperties{
         this.trackSuppressed = trackSuppressed;
     }
 
-    public void addCrossReference(String relationshipName, EntityKeyBean entityKey){
-        //new CrossReferenceInputBean(getFortresses(), code, c)
+    public void addEntityLink(String relationshipName, EntityKeyBean entityKey){
         List<EntityKeyBean>refs = entityLinks.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();

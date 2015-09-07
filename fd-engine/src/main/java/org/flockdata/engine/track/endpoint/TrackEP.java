@@ -170,7 +170,7 @@ public class TrackEP {
 
 
     @RequestMapping(value = "/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody List<EntityLinkInputBean> linkEntities(@RequestBody List<EntityLinkInputBean> entityLinkInputBeans,
+    public @ResponseBody Collection<EntityLinkInputBean> linkEntities(@RequestBody List<EntityLinkInputBean> entityLinkInputBeans,
                                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
