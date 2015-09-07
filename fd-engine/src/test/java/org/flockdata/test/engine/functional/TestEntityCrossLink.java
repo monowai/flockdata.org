@@ -21,6 +21,7 @@ package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
@@ -42,6 +43,9 @@ import static org.junit.Assert.*;
  * Time: 4:12 PM
  */
 public class TestEntityCrossLink extends EngineBase {
+
+    public static final String PARENT = "parent";
+
     /**
      * Foundation assumption.
      *
@@ -58,8 +62,15 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
+
         EntityInputBean parent = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean parentResult = mediationFacade.trackEntity(su.getCompany(), parent);
+
+        DocumentType childDoc = new DocumentType(fortressA, "DocTypeZ");
+        childDoc.setParent(parentResult.getDocumentType());
+        childDoc = conceptService.findOrCreate(fortressA, childDoc);
+        assertTrue(childDoc.hasParent());
+        assertEquals(childDoc.getParent().getId(), parentResult.getDocumentType().getId());
 
         EntityInputBean child = new EntityInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
 
@@ -70,10 +81,10 @@ public class TestEntityCrossLink extends EngineBase {
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey);
-        entityService.linkEntities(su.getCompany(), childKey, parents, "references");
+        entityService.linkEntities(su.getCompany(), childKey, parents, PARENT);
 
 
-        String cypher = "match (parent:Entity)-[references]->(child:Entity) where id(parent)={parentId} return child";
+        String cypher = "match (parent:Entity)-[p:"+PARENT+"]->(child:Entity) where id(parent)={parentId} return child";
         Map<String, Object> params = new HashMap<>();
         params.put("parentId", parentResult.getEntity().getId());
         Result<Map<String, Object>> results = template.query(cypher, params);
@@ -85,9 +96,14 @@ public class TestEntityCrossLink extends EngineBase {
 
         }
         assertTrue("We couldn't find the child connected to the parent", found);
-        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getMetaKey(), "references");
-        assertTrue(linked.containsKey("references"));
-        assertEquals(childResult.getEntity().getId(), linked.get("references").iterator().next().getId());
+        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getMetaKey(), PARENT);
+        assertTrue(linked.containsKey(PARENT));
+        assertEquals(childResult.getEntity().getId(), linked.get(PARENT).iterator().next().getId());
+
+        SearchChange searchChange = searchService.getSearchChange(childResult);
+        assertNotNull(searchChange.getParent());
+        assertEquals(parent.getCode(), searchChange.getParent().getCallerRef());
+
 
     }
 

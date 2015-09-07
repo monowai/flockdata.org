@@ -19,6 +19,7 @@
 
 package org.flockdata.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
@@ -56,7 +57,10 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
-    Collection<org.flockdata.model.Concept> concepts;
+    Collection<Concept> concepts;
+
+    @RelatedTo(elementClass = Concept.class,  type = "PARENT", direction = Direction.INCOMING)
+    DocumentType parent;
 
     private String geoQuery;
 
@@ -204,4 +208,18 @@ public class DocumentType  implements Comparable<DocumentType> {
     public void setTagStructure(EntityService.TAG_STRUCTURE tagFinderClass) {
         this.tagStructure = tagFinderClass;
     }
+
+    public DocumentType getParent() {
+        return parent;
+    }
+
+    public void setParent(DocumentType parent) {
+        this.parent = parent;
+    }
+
+    @JsonIgnore
+    public boolean hasParent() {
+        return parent!=null;
+    }
+
 }

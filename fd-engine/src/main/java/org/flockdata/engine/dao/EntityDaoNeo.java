@@ -489,6 +489,10 @@ public class EntityDaoNeo {
     }
 
     public Collection<String> getEntityBatch(Long id, int limit) {
-        return entityRepo.findEntitiesWithLimit(id, limit );
+        return entityRepo.findEntitiesWithLimit(id, limit);
+    }
+
+    public Entity findParent(Entity childEntity) {
+        return entityRepo.findParent(childEntity.getId());
     }
 }

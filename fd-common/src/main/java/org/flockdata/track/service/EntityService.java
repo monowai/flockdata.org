@@ -34,6 +34,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -41,6 +42,8 @@ import java.util.concurrent.ExecutionException;
  * Time: 4:22 PM
  */
 public interface EntityService {
+
+    EntityKeyBean findParent(Entity entity);
 
     public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 

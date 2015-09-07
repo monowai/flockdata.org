@@ -1702,7 +1702,7 @@ public class TestFdIntegration {
         assertEquals("Term", termTag.getTag().getLabel());
         // Validate the structure
 
-        SearchChange searchDoc = searchService.getSearchDocument(entity, null, null);
+        SearchChange searchDoc = searchService.getSearchDocument(foundDoc, entity, null, null);
         assertNotNull(searchDoc);
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchDoc.getTagStructure());
         //EntityTag termTag = searchDoc.getTagValues().;

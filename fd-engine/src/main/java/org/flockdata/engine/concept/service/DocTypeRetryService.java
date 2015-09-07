@@ -62,7 +62,7 @@ public class DocTypeRetryService {
         //  new way DAT-498 - a way to pass the DocType properties
             result =  new DocumentType(fortress, inputBean.getDocumentType());
 
-        result = conceptService.resolveDocumentType(fortress, result);
+        result = conceptService.findOrCreate(fortress, result);
         logger.debug("Finished result = {}"+ result);
         return new AsyncResult<>(result);
     }
