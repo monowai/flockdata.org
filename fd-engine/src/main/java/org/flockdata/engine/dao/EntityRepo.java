@@ -78,4 +78,6 @@ public interface EntityRepo extends GraphRepository<Entity> {
             "return entity ")
     Collection<Entity> getEntities(Collection<Long> entities);
 
+    @Query(value = "match (child:Entity)<-[p:parent]-(parent:Entity) where id(child) = {0} return parent")
+    Entity findParent(Long childId);
 }

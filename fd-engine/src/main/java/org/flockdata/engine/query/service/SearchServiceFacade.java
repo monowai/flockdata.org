@@ -31,6 +31,7 @@ import org.flockdata.model.*;
 import org.flockdata.search.model.*;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
@@ -62,7 +63,6 @@ import java.util.Collection;
  * User: mike
  * Date: 4/04/14
  * Time: 9:18 AM
- * To change this template use File | Settings | File Templates.
  */
 @Service
 @Transactional
@@ -95,7 +95,6 @@ public class SearchServiceFacade {
     EntityTagFinder defaultTagFinder;
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
-    private EntitySearchChange tags;
 
     //
     @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
@@ -170,10 +169,26 @@ public class SearchServiceFacade {
 
         EntityLog entityLog = getLog(trackResultBean);
 
-        return getSearchDocument(entity, entityLog, trackResultBean.getContentInput());
+        return getSearchDocument(trackResultBean.getDocumentType(), entity, entityLog, trackResultBean.getContentInput());
     }
 
-    public SearchChange getSearchDocument(Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
+    /**
+     * Here we construct a SearchChange for the supplied parameters. The input represents the state of data to index so
+     * this should always be called with a transaction.
+     *
+     * The function will additionally find the appropriate TagStructure to index as well as set any Parent, entity
+     *  with a [p:parent] relationship to another entity, that may be associated.
+     *
+     * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
+     *
+     *
+     * @param foundDoc
+     * @param entity        Entity to index
+     * @param entityLog     Log to work with (usually the "current" log)
+     * @param contentInput  Content data
+     * @return              object ready to index
+     */
+    public SearchChange getSearchDocument(DocumentType foundDoc, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
 
         SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput);
 
@@ -193,6 +208,15 @@ public class SearchServiceFacade {
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
+
+        if ( foundDoc.hasParent() ) {
+            EntityKeyBean parent = entityService.findParent(entity);
+
+            if (parent != null)
+                searchDocument.setParent(parent);
+        }
+
+
         try {
             //if (logger.isTraceEnabled())
             logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));

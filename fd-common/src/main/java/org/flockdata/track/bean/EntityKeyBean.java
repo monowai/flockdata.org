@@ -19,6 +19,8 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.model.Entity;
+
 /**
  * User: mike
  * Date: 9/07/14
@@ -46,6 +48,12 @@ public class EntityKeyBean {
         this.fortressName = crossReferenceInputBean.getFortress();
         this.documentType = crossReferenceInputBean.getDocumentType();
         this.callerRef = crossReferenceInputBean.getCallerRef();
+    }
+
+    public EntityKeyBean(Entity entity) {
+        this.fortressName = entity.getFortress().getName();
+        this.callerRef = entity.getCode();
+        this.documentType = entity.getType();
     }
 
     public String getFortressName() {
