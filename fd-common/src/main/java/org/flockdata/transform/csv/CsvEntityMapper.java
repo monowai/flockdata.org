@@ -135,7 +135,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 }
                 if (!colDef.getEntityLinks().isEmpty()) {
                     for (Map<String, String> key : colDef.getEntityLinks()) {
-                        addCrossReference(key.get("relationshipName"), new EntityKeyBean(key.get("fortress"), key.get("documentName"), value));
+                        addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("fortress"), key.get("documentName"), value));
                     }
                 }
 

@@ -590,7 +590,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String xRefName) throws FlockException {
+    public List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String linkName) throws FlockException {
         Fortress f = fortressService.findByCode(company, sourceKey.getFortressName());
         if (f == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
@@ -616,21 +616,21 @@ public class EntityServiceNeo4J implements EntityService {
             if (entityKey.getDocumentType().equals("*"))
                 entities = findByCode(f, entityKey.getCallerRef());
             else {
-                Entity mh = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
-                if (mh == null) {
+                Entity entity = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
+                if (entity == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
                     DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
                         EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCallerRef());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);
-                        mh = trackResult.getEntity();
+                        entity = trackResult.getEntity();
                     } else {
                         ignored.add(entityKey);
                     }
                 }
-                if (mh != null) {
-                    entities.add(mh);
+                if (entity != null) {
+                    entities.add(entity);
                     //entities = array;
                 }
             }
@@ -646,7 +646,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         }
         if (!targets.isEmpty())
-            entityDao.linkEntities(fromEntity, targets, xRefName);
+            entityDao.linkEntities(fromEntity, targets, linkName);
         return ignored;
     }
 
@@ -767,7 +767,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityLinkInputBean> linkEntities(Company company, List<EntityLinkInputBean> entityLinks) {
+    public Collection<EntityLinkInputBean> linkEntities(Company company, Collection<EntityLinkInputBean> entityLinks) {
         for (EntityLinkInputBean entityLink : entityLinks) {
             Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {
