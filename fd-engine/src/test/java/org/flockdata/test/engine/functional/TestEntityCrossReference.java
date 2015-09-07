@@ -99,7 +99,7 @@ public class TestEntityCrossReference extends EngineBase {
         // Only will work if the fortress and doctype are known
         callerRefs.add(new EntityKeyBean(fortress.getName(), trackResultBean.getDocumentType().getName(), "ABC321"));
         EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
-        List<EntityKeyBean> results = entityService.crossReferenceEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
+        List<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
         TestCase.assertTrue(results.isEmpty());
 
         inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC321");
@@ -149,7 +149,7 @@ public class TestEntityCrossReference extends EngineBase {
         xRef.add(new EntityKeyBean("Doesn't matter"));
         try {
             EntityKeyBean entityKey = new EntityKeyBean(fortress.getName(), "*", callerRef);
-            entityService.crossReferenceEntities(su.getCompany(), entityKey, xRef, "cites");
+            entityService.linkEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
         } catch ( FlockException e ){
             // good stuff!
@@ -176,7 +176,7 @@ public class TestEntityCrossReference extends EngineBase {
         callerRefs.add(new EntityKeyBean("ABC333"));
 
         EntityKeyBean entityKey = new EntityKeyBean(fortress.getName(), "*", "ABC123")  ;
-        Collection<EntityKeyBean> notFound = entityService.crossReferenceEntities(su.getCompany(), entityKey, callerRefs, "cites");
+        Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, callerRefs, "cites");
         assertEquals(0, notFound.size());
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
         assertNotNull ( results);
@@ -216,7 +216,7 @@ public class TestEntityCrossReference extends EngineBase {
         List<EntityLinkInputBean> entities = new ArrayList<>();
         entities.add(bean);
 
-        List<EntityLinkInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), entities);
+        List<EntityLinkInputBean> notFound = entityService.linkEntities(su.getCompany(), entities);
         assertEquals(1, notFound.size());
         for (EntityLinkInputBean crossReferenceInputBean : notFound) {
             assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
@@ -249,7 +249,7 @@ public class TestEntityCrossReference extends EngineBase {
         List<EntityLinkInputBean> inputs = new ArrayList<>();
         inputs.add(bean);
 
-        List<EntityLinkInputBean> notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
+        List<EntityLinkInputBean> notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
 
         // These are the two records that will cite the previously created entity
@@ -257,7 +257,7 @@ public class TestEntityCrossReference extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
         EntityInputBean inputBeanC = new EntityInputBean(fortressB.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
         mediationFacade.trackEntity(su.getCompany(), inputBeanC);
-        notFound = entityService.crossReferenceEntities(su.getCompany(), inputs);
+        notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(0, notFound.iterator().next().getIgnored().get("cites").size());
 
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
