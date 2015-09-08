@@ -80,8 +80,9 @@ public class ESBase {
 
 
     static void deleteEsIndex(String indexName, String documentType) throws Exception {
-        logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase() + "." + documentType.toLowerCase()).build());
+        String deleteMe = IndexHelper.parseIndex(indexName, documentType);
+        logger.info("%% Delete Index {}", deleteMe);
+        esClient.execute(new DeleteIndex.Builder(deleteMe).build());
     }
 
     @BeforeClass
@@ -101,7 +102,7 @@ public class ESBase {
     }
 
     String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doFacetQuery(IndexHelper.parseIndex(entity), field, queryString, expectedHitCount, null);
+        return doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount, null);
     }
 
     /**
@@ -115,7 +116,7 @@ public class ESBase {
      * @return
      * @throws Exception
      */
-    String doFacetQuery(String index, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    String doFacetQuery(String index, String type, String field, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -132,8 +133,11 @@ public class ESBase {
                     "           }\n" +
                     "      }\n" +
                     "}";
+            if ( type!=null && type.equals("*"))
+                type = null;
             Search search = new Search.Builder(query)
                     .addIndex(index)
+                    .addType(type)
                     .build();
 
             result = esClient.execute(search);

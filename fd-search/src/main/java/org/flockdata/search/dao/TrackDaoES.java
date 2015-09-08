@@ -204,7 +204,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         boolean hasTypeMapping = esClient.admin()
                 .indices()
-                .typesExists(new TypesExistsRequest(indexNames, documentTypes))
+                .typesExists(new TypesExistsRequest(indexNames, documentType))
                 .actionGet()
                 .isExists();
         if (!hasTypeMapping) {

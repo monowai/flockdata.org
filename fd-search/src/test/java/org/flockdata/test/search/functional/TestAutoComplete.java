@@ -89,7 +89,7 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
         doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(IndexHelper.parseIndex(entity), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
 
 
 
