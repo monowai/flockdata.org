@@ -182,13 +182,13 @@ public class SearchServiceFacade {
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
      *
-     * @param foundDoc
+     * @param docType
      * @param entity        Entity to index
      * @param entityLog     Log to work with (usually the "current" log)
      * @param contentInput  Content data
      * @return              object ready to index
      */
-    public SearchChange getSearchDocument(DocumentType foundDoc, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
+    public SearchChange getSearchDocument(DocumentType docType, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
 
         SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput);
 
@@ -209,7 +209,8 @@ public class SearchServiceFacade {
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
 
-        if ( foundDoc.hasParent() ) {
+
+        if ( docType !=null && docType.hasParent() ) {
             EntityKeyBean parent = entityService.findParent(entity);
 
             if (parent != null)
@@ -218,8 +219,8 @@ public class SearchServiceFacade {
 
 
         try {
-            //if (logger.isTraceEnabled())
-            logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
+            if (logger.isTraceEnabled())
+                logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             return null;

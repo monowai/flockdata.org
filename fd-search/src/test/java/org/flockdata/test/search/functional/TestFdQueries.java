@@ -50,9 +50,9 @@ public class TestFdQueries extends ESBase{
     public void query_EndPoints() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
-        String fortress = "query_EndPoints";
-        String company = "query_EndPoints";
-        String doc = "qp";
+        String fortress = "epFortress";
+        String company = "epCompany";
+        String doc = "epDocType";
         String user = "mike";
 
         Entity entity = Helper.getEntity(company, fortress, user, doc);
