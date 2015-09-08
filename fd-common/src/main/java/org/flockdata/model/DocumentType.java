@@ -59,7 +59,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
     Collection<Concept> concepts;
 
-    @RelatedTo(elementClass = Concept.class,  type = "PARENT", direction = Direction.INCOMING)
+    @RelatedTo(elementClass = DocumentType.class,  type = "PARENT", direction = Direction.INCOMING)
     DocumentType parent;
 
     private String geoQuery;

@@ -398,7 +398,9 @@ public class QueryDaoES implements QueryDao {
             else
                 query = query + "}";
 
-            SearchRequestBuilder esQuery = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams));
+            SearchRequestBuilder esQuery = client
+                    .prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
+                    .setTypes(queryParams.getTypes());
 
             if ( queryParams.getSize()!=null )
                 esQuery.setSize(queryParams.getSize());

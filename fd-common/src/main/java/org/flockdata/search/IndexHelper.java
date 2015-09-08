@@ -7,7 +7,8 @@ import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.SearchChange;
 
 /**
- * Provides centralized access to the way that FD constructs indexes
+ * Provides centralized access to the way that FD parses data for ElasticSearch indexes
+ *
  * Created by mike on 23/07/15.
  */
 public class IndexHelper {
@@ -32,11 +33,12 @@ public class IndexHelper {
     }
 
     public static String parseIndex(String indexRoot, String documentType) {
-        return (indexRoot +"."+documentType).toLowerCase();
+        //return (indexRoot +"."+documentType).toLowerCase();
+        return indexRoot;
     }
 
     public static String parseIndex(QueryParams queryParams) {
-        return getIndexRoot(queryParams.getCompany(), queryParams.getFortress())+ "."+queryParams.getTypes()[0];
+        return getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
     }
 
     public static String getIndexRoot(Fortress fortress) {
@@ -69,11 +71,11 @@ public class IndexHelper {
 
         String indexRoot = getIndexRoot(company, fortress);
         if ( types == null || types.length ==0) {
-            results[0] = indexRoot + ( indexRoot.endsWith(".*")?"":".*" );
+            results[0] = indexRoot + ( indexRoot.endsWith(".*")?"":"*" );
         } else {
             int count = 0;
             for (String type : types) {
-                results[count] = indexRoot + "."+type.toLowerCase();
+                results[count] = indexRoot ;//+ "."+type.toLowerCase();
                 count ++;
             }
         }
@@ -89,4 +91,12 @@ public class IndexHelper {
         return PREFIX + companyCode.toLowerCase() + ".";
     }
 
+
+    public static String parseType(Entity entity) {
+        return parseType(entity.getType());
+    }
+
+    public static String parseType(String type) {
+        return type.toLowerCase();
+    }
 }
