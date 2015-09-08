@@ -23,6 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
@@ -58,7 +59,7 @@ public class EsRepo extends AbstractKvRepo{
     public KvContent getValue(Entity entity, Log forLog)  {
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(entity.getFortress().getCompany().getName());
-        queryParams.setTypes(entity.getType().toLowerCase());
+        queryParams.setTypes(IndexHelper.parseType(entity));
         queryParams.setFortress(entity.getFortress().getName());
         queryParams.setCallerRef(entity.getSearchKey());
         ContentInputBean contentInput = new ContentInputBean();
