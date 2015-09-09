@@ -156,8 +156,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA);
-        searchRepo.ensureIndex(changeB);
+        indexMappingService.ensureIndexMapping(changeA);
+        indexMappingService.ensureIndexMapping(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -199,8 +199,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA);
-        searchRepo.ensureIndex(changeB);
+        indexMappingService.ensureIndexMapping(changeA);
+        indexMappingService.ensureIndexMapping(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -233,7 +233,7 @@ public class TestMappings extends ESBase {
 
         deleteEsIndex(entityA);
 
-        searchRepo.ensureIndex(changeA);
+        indexMappingService.ensureIndexMapping(changeA);
 
         changeA = searchRepo.handle(changeA);
 
@@ -288,7 +288,7 @@ public class TestMappings extends ESBase {
         change.setWhat(what);
         change.setTags(tags);
 
-        searchRepo.ensureIndex(change);
+        indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);

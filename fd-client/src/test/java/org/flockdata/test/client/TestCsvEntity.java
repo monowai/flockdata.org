@@ -81,7 +81,7 @@ public class TestCsvEntity {
                     EntityKeyBean ek = xRefs.get("blah").iterator().next();
                     assertEquals("Olympic", ek.getFortressName());
                     assertEquals("Other", ek.getDocumentType());
-                    assertEquals("qwerty", ek.getCallerRef());
+                    assertEquals("qwerty", ek.getCode());
                 }
                 foundBlah = true;
             }

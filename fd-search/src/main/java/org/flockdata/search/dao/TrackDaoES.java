@@ -21,45 +21,32 @@ package org.flockdata.search.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.mapper.MapperParsingException;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
-import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.track.bean.SearchChange;
-import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * User: Mike Holdsworth
@@ -72,9 +59,6 @@ public class TrackDaoES implements TrackSearchDao {
 
     @Autowired
     private Client esClient;
-
-    @Autowired
-    private SearchAdmin searchAdmin;
 
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
@@ -139,97 +123,7 @@ public class TrackDaoES implements TrackSearchDao {
 
     }
 
-    @Override
-    public boolean ensureIndex(SearchChange change) {
-        return ensureIndex(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
-    }
 
-    // ToDo: Fix this. Caching is not resetting after the index is deleted
-    //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
-    public boolean ensureIndex(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
-
-        if (hasIndex(IndexHelper.parseIndex(indexName, documentType))) {
-            // Need to be able to allow for a "per document" mapping
-            ensureMapping(indexName, documentType, tagStructure);
-            return true;
-        }
-
-        logger.debug("Ensuring index {}, {}", indexName, documentType);
-        //if (hasIndex(indexName)) return true;
-        XContentBuilder mappingEs = getMapping(indexName, documentType, tagStructure);
-        // create Index  and Set Mapping
-        if (mappingEs != null) {
-            //Settings settings = Builder
-            logger.debug("Creating new index {} for document type {}", indexName, documentType);
-            Map<String, Object> settings = getSettings();
-            try {
-                if (settings != null) {
-                    esClient.admin()
-                            .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
-                            .addMapping(documentType, mappingEs)
-                            .setSettings(settings)
-                            .execute()
-                            .actionGet();
-                } else {
-                    esClient.admin()
-                            .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
-                            .addMapping(documentType, mappingEs)
-                            .execute()
-                            .actionGet();
-                }
-            } catch (ElasticsearchException esx) {
-                if (!(esx instanceof IndexAlreadyExistsException)) {
-                    logger.error("Error while ensuring index.... " + indexName, esx);
-                    throw esx;
-                }
-            }
-        }
-        return true;
-    }
-
-
-    private void ensureMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
-        // Mappings are on a per Document basis. We need to ensure the mapping exists for the
-        //    same index but every document type
-        logger.debug("Checking mapping for {}, {}", indexName, documentType);
-
-        // Test if Type exist
-        String[] documentTypes = new String[1];
-        documentTypes[0] = documentType;
-
-        String[] indexNames = new String[1];
-        indexNames[0] = IndexHelper.parseIndex(indexName, documentType);
-
-        boolean hasTypeMapping = esClient.admin()
-                .indices()
-                .typesExists(new TypesExistsRequest(indexNames, documentType))
-                .actionGet()
-                .isExists();
-        if (!hasTypeMapping) {
-            XContentBuilder mapping = getMapping(indexName, documentType, tagStructure);
-            esClient.admin().indices()
-                    .preparePutMapping(IndexHelper.parseIndex(indexName, documentType))
-                    .setType(documentType)
-                    .setSource(mapping)
-                    .execute().actionGet();
-            logger.debug("Created default mapping and applied settings for {}, {}", indexName, documentType);
-        }
-    }
-
-    private boolean hasIndex(String indexName) {
-        boolean hasIndex = esClient
-                .admin()
-                .indices()
-                .exists(new IndicesExistsRequest(indexName))
-                .actionGet().isExists();
-        if (hasIndex) {
-            logger.trace("Index {} ", indexName);
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public SearchChange handle(SearchChange searchChange) throws IOException {
@@ -296,7 +190,7 @@ public class TrackDaoES implements TrackSearchDao {
                 logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
             }
         } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-            logger.info("Attempt to update non-existent index [{}]. Moving to create it", searchChange.getIndexName());
+            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getIndexName());
             purgeCache();
             return save(searchChange, source);
         } catch (NoShardAvailableActionException e) {
@@ -543,103 +437,6 @@ public class TrackDaoES implements TrackSearchDao {
         }
     }
 
-    private Map<String, Object> defaultSettings = null;
 
-    private Map<String, Object> getSettings() {
-        InputStream file;
-        try {
-
-            if (defaultSettings == null) {
-                String settings = searchAdmin.getEsDefaultSettings();
-                // Look for a file in a configuration folder
-                file = getClass().getClassLoader().getResourceAsStream(settings);
-                if (file == null) {
-                    // Read it from inside the WAR
-                    file = getClass().getClassLoader().getResourceAsStream("/fd-default-settings.json");
-                    logger.info("No default settings exists. Using FD defaults /fd-default-settings.json");
-
-                    if (file == null) // for JUnit tests
-                        file = new FileInputStream(settings);
-                } else
-                    logger.debug("Overriding default settings with file on disk {}", settings);
-                defaultSettings = getMapFromStream(file);
-                file.close();
-                logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
-            }
-        } catch (IOException e) {
-            logger.error("Error in building settings for the ES index", e);
-        }
-        return defaultSettings;
-    }
-
-    private Map<String, Object> getMapFromStream(InputStream file) throws IOException {
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
-        TypeFactory typeFactory = mapper.getTypeFactory();
-        MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
-        return mapper.readValue(file, mapType);
-
-    }
-
-    private XContentBuilder getMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
-
-        XContentBuilder xbMapping = null;
-        try {
-            Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType), tagStructure);
-            Map<String, Object> docMap = new HashMap<>();
-            docMap.put(documentType, map.get("mapping"));
-            xbMapping = jsonBuilder().map(docMap);
-        } catch (IOException e) {
-            logger.error("Problem getting the search mapping", e);
-        }
-
-        return xbMapping;
-    }
-
-    private String getKeyName(String indexName, String documentType) {
-        return indexName + "/" + documentType + ".json";
-    }
-
-    private Map<String, Object> getDefaultMapping(String keyName, EntityService.TAG_STRUCTURE tagStrucure) throws IOException {
-        Map<String, Object> found;
-
-        // Locate file on disk
-        try {
-            found = getMapping(searchAdmin.getEsMappingPath() + "/" + keyName);
-            if (found != null) {
-                logger.debug("Found custom mapping for {}", keyName);
-                return found;
-            }
-        } catch (IOException ioe) {
-            logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
-        }
-
-        String esDefault = searchAdmin.getEsDefaultMapping(tagStrucure);
-        try {
-            // Chance to find it on disk
-            found = getMapping(esDefault);
-            logger.debug("Overriding packaged mapping with local default of [{}]. {} keys", esDefault, found.keySet().size());
-        } catch (IOException ioe) {
-            // Extract it from the WAR
-            logger.debug("Reading default mapping from the package");
-            found = getMapping("/fd-default-mapping.json");
-        }
-        return found;
-    }
-
-    private Map<String, Object> getMapping(String fileName) throws IOException {
-        logger.debug("Looking for {}", fileName);
-        InputStream file = null;
-        try {
-            file = getClass().getClassLoader().getResourceAsStream(fileName);
-            if (file == null)
-                // running from JUnit can only read this as a file input stream
-                file = new FileInputStream(fileName);
-            return getMapFromStream(file);
-        } finally {
-            if (file != null) {
-                file.close();
-            }
-        }
-    }
 
 }

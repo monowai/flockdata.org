@@ -102,7 +102,7 @@ public class TestEntityCrossLink extends EngineBase {
 
         SearchChange searchChange = searchService.getSearchChange(childResult);
         assertNotNull(searchChange.getParent());
-        assertEquals(parent.getCode(), searchChange.getParent().getCallerRef());
+        assertEquals(parent.getCode(), searchChange.getParent().getCode());
 
 
     }

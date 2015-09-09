@@ -32,6 +32,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.endpoint.TrackServiceEs;
 import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.TrackSearchDao;
 import org.junit.Assert;
@@ -65,6 +66,10 @@ public class ESBase {
 
     @Autowired
     TrackSearchDao searchRepo;
+
+    @Autowired
+    IndexMappingService indexMappingService;
+
 
     @Qualifier("trackServiceEs")
     @Autowired

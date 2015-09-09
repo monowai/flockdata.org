@@ -614,10 +614,10 @@ public class EntityServiceNeo4J implements EntityService {
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
         Entity fromEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
-            fromEntity = entityDao.findByCodeUnique(f.getId(), sourceKey.getCallerRef());
+            fromEntity = entityDao.findByCodeUnique(f.getId(), sourceKey.getCode());
         else {
             DocumentType document = conceptService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
-            fromEntity = entityDao.findByCode(f.getId(), document.getId(), sourceKey.getCallerRef());
+            fromEntity = entityDao.findByCode(f.getId(), document.getId(), sourceKey.getCode());
         }
         if (fromEntity == null)
             // ToDo: Should we create it??
@@ -632,15 +632,15 @@ public class EntityServiceNeo4J implements EntityService {
 
             Collection<Entity> entities = new ArrayList<>();
             if (entityKey.getDocumentType().equals("*"))
-                entities = findByCode(f, entityKey.getCallerRef());
+                entities = findByCode(f, entityKey.getCode());
             else {
-                Entity entity = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCallerRef());
+                Entity entity = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCode());
                 if (entity == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
                     DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
-                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCallerRef());
+                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCode());
                         TrackResultBean trackResult = createEntity(f, documentType, eib, null);
                         entity = trackResult.getEntity();
                     } else {

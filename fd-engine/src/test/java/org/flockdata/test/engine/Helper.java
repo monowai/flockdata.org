@@ -75,7 +75,7 @@ public class Helper {
         return getEntity(comp, fort, userName, docType, callerRef);
     }
 
-    public static Entity getEntity(String comp, String fort, String userName, String docType, String callerRef) throws FlockException {
+    public static Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {
         // These are the minimum objects necessary to create Entity data
 
         Company mockCompany = new Company(comp);
@@ -85,10 +85,10 @@ public class Helper {
         Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(docType, fort, userName, callerRef, now);
+        EntityInputBean mib = getEntityInputBean(docType, fort, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
-        return new Entity(callerRef, fortress, mib, doc);
+        return new Entity(code, fortress, mib, doc);
 
     }
 

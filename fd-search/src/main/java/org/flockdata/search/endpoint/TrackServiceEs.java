@@ -27,6 +27,7 @@ import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.EngineGateway;
+import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.TrackService;
 import org.flockdata.model.Entity;
 import org.flockdata.search.service.TrackSearchDao;
@@ -52,6 +53,10 @@ import java.util.Map;
 @Transactional
 @MessageEndpoint
 public class TrackServiceEs implements TrackService {
+
+    @Autowired
+    private IndexMappingService indexMappingService;
+
     @Autowired
     private TrackSearchDao trackSearch;
 
@@ -113,7 +118,7 @@ public class TrackServiceEs implements TrackService {
             if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName()+ "/"+searchChange.getDocumentType())) {
                 trackSearch.purgeCache();
                 // Batches must be for the same fortress/doctype combo
-                trackSearch.ensureIndex(searchChange);
+                indexMappingService.ensureIndexMapping(searchChange);
                 String key = searchChange.getIndexName()+ "/"+searchChange.getDocumentType();
                 checked.put(key, true);
             }
