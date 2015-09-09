@@ -6,6 +6,9 @@ import org.flockdata.model.Fortress;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.SearchChange;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Provides centralized access to the way that FD parses data for ElasticSearch indexes
  *
@@ -66,8 +69,9 @@ public class IndexHelper {
     public static String[] getIndexesToQuery(String company, String fortress, String[] types){
         int length = 1;
         if ( types !=null && types.length > 0 )
-            length = types.length;
+            length = 1;
         String[] results = new String[ length];
+        Collection<String> found = new ArrayList<>();
 
         String indexRoot = getIndexRoot(company, fortress);
         if ( types == null || types.length ==0) {
@@ -75,8 +79,11 @@ public class IndexHelper {
         } else {
             int count = 0;
             for (String type : types) {
-                results[count] = indexRoot ;//+ "."+type.toLowerCase();
-                count ++;
+                if ( !found.contains(indexRoot)) {
+                    results[count] = indexRoot; //+ "."+type.toLowerCase();
+                    found.add(indexRoot);
+                    count++;
+                }
             }
         }
 
