@@ -133,6 +133,9 @@ public class QueryDaoES implements QueryDao {
             tagCloudParams.getRelationships().clear();
         if (tagCloudParams.getTags() != null)
             tagCloudParams.getTags().clear();
+
+        query.setTypes(tagCloudParams.getTypes());
+
         query.setExtraSource(QueryGenerator.getFilteredQuery(tagCloudParams, false));
         for (String whatAndTagField : whatAndTagFields) {
             query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
