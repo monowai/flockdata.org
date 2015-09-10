@@ -42,12 +42,11 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
-//        boolean result = ensureIndexMapping(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
+
         String indexName = change.getIndexName();
         String documentType = change.getDocumentType();
-        EntityService.TAG_STRUCTURE tagStructure = change.getTagStructure();
 
-        if (hasIndex(IndexHelper.parseIndex(indexName, documentType))) {
+        if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
             putMapping(change);
             return true;
@@ -118,7 +117,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
         }
     }
 
-    private boolean hasIndex(String indexName) {
+    private boolean hasIndex(SearchChange change) {
+        String indexName = IndexHelper.parseIndex(change.getIndexName(), change.getDocumentType());
         boolean hasIndex = esClient
                 .admin()
                 .indices()
