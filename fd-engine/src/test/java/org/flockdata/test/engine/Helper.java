@@ -85,10 +85,10 @@ public class Helper {
         Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean mib = getEntityInputBean(docType, fort, userName, code, now);
+        EntityInputBean entityInput = getEntityInputBean(docType, fort, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
-        return new Entity(code, fortress, mib, doc);
+        return new Entity(Long.toString(System.currentTimeMillis()), fortress, entityInput, doc);
 
     }
 

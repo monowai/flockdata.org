@@ -26,6 +26,7 @@ import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
@@ -70,7 +71,7 @@ public class TrackDaoES implements TrackSearchDao {
         String existingIndexKey = searchChange.getSearchKey();
 
         DeleteResponse dr = esClient.prepareDelete(IndexHelper.parseIndex(searchChange), recordType, existingIndexKey)
-                //.setRouting(entity.getMetaKey())
+                .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
 
@@ -94,9 +95,14 @@ public class TrackDaoES implements TrackSearchDao {
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb = esClient.prepareIndex(IndexHelper.parseIndex(searchChange), documentType)
+
                 .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
+        if ( searchChange.getParent()!=null )
+            irb.setParent(searchChange.getParent().getCode());
+        else
+            irb.setRouting(searchChange.getCode());
 
         try {
             IndexResponse ir = irb.execute().actionGet();
@@ -124,7 +130,6 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
 
-
     @Override
     public SearchChange handle(SearchChange searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
@@ -138,12 +143,19 @@ public class TrackDaoES implements TrackSearchDao {
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
 
-            GetResponse response =
+            GetRequestBuilder request =
                     esClient.prepareGet(IndexHelper.parseIndex(searchChange),
                             searchChange.getDocumentType(),
-                            searchChange.getSearchKey())
-                            .execute()
-                            .actionGet();
+                            searchChange.getSearchKey());
+
+            if ( searchChange.getParent() !=null ) {
+                request.setParent(searchChange.getParent().getCode());
+            }
+
+
+            GetResponse response = request.execute()
+                    .actionGet();
+
             logger.debug("executed get request for {}", searchChange.toString());
             if (response.isExists() && !response.isSourceEmpty()) {
                 logger.debug("Document exists!");
@@ -436,7 +448,6 @@ public class TrackDaoES implements TrackSearchDao {
             }
         }
     }
-
 
 
 }

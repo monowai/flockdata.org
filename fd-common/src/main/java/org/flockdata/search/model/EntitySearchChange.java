@@ -350,8 +350,7 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public String toString() {
         return "EntitySearchChange{" +
-                "fortressName='" + fortressName + '\'' +
-                ", documentType='" + documentType + '\'' +
+                "indexName='" + indexName + '\'' +
                 ", code='" + code + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
