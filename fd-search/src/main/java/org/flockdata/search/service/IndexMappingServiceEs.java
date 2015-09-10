@@ -172,7 +172,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         XContentBuilder xbMapping = null;
         try {
-            Map<String, Object> map = getDefaultMapping(getKeyName(change), change.getTagStructure());
+            Map<String, Object> map = getDefaultMapping(change);
             Map<String, Object> docMap = new HashMap<>();
             docMap.put(change.getDocumentType(), map.get("mapping"));
             xbMapping = jsonBuilder().map(docMap);
@@ -187,7 +187,9 @@ public class IndexMappingServiceEs implements IndexMappingService {
         return change.getIndexName() + "/" + change.getDocumentType() + ".json";
     }
 
-    private Map<String, Object> getDefaultMapping(String keyName, EntityService.TAG_STRUCTURE tagStrucure) throws IOException {
+    private Map<String, Object> getDefaultMapping(SearchChange change) throws IOException {
+        String keyName = getKeyName(change) ;
+        EntityService.TAG_STRUCTURE tagStructure = change.getTagStructure();
         Map<String, Object> found;
 
         // Locate file on disk
@@ -201,7 +203,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
         }
 
-        String esDefault = searchAdmin.getEsDefaultMapping(tagStrucure);
+        String esDefault = searchAdmin.getEsDefaultMapping(tagStructure);
         try {
             // Chance to find it on disk
             found = getMapping(esDefault);
