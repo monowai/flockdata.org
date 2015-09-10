@@ -32,6 +32,7 @@ public class EntityKeyBean {
     private String fortressName;
     private String documentType;
     private String company;
+    private String metaKey;
     private String code;
 
 
@@ -65,6 +66,7 @@ public class EntityKeyBean {
         this.fortressName = entity.getFortress().getName();
         this.code = entity.getCode();
         this.documentType = entity.getType();
+        this.metaKey = entity.getMetaKey();
     }
 
     public String getFortressName() {
@@ -101,6 +103,10 @@ public class EntityKeyBean {
             return false;
         return !(fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null);
 
+    }
+
+    public String getMetaKey() {
+        return metaKey;
     }
 
     @Override

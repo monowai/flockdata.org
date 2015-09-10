@@ -174,7 +174,13 @@ public class IndexMappingServiceEs implements IndexMappingService {
         try {
             Map<String, Object> map = getDefaultMapping(change);
             Map<String, Object> docMap = new HashMap<>();
-            docMap.put(change.getDocumentType(), map.get("mapping"));
+            Map<String,Object>theMapping = (Map<String, Object>) map.get("mapping");
+            if ( change.getParent() != null ){
+                HashMap<String,Object>parentMap = new HashMap<> ();
+                parentMap.put ("type", IndexHelper.parseType(change.getParent().getDocumentType()));
+                theMapping.put("_parent", parentMap);
+            }
+            docMap.put(change.getDocumentType(), theMapping);
             xbMapping = jsonBuilder().map(docMap);
         } catch (IOException e) {
             logger.error("Problem getting the search mapping", e);

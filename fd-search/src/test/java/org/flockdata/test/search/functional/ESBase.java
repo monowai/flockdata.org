@@ -62,7 +62,7 @@ public class ESBase {
 
     static Properties properties = new Properties();
 
-    private static JestClient esClient;
+    static JestClient esClient;
 
     @Autowired
     TrackSearchDao searchRepo;
@@ -81,8 +81,6 @@ public class ESBase {
     static void deleteEsIndex(Entity entity) throws Exception{
         deleteEsIndex(entity.getFortress().getIndexName(), entity.getType());
     }
-
-
 
     static void deleteEsIndex(String indexName, String documentType) throws Exception {
         String deleteMe = IndexHelper.parseIndex(indexName, documentType);
@@ -104,10 +102,6 @@ public class ESBase {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-    }
-
-    String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount, null);
     }
 
     /**
@@ -267,9 +261,10 @@ public class ESBase {
         return result.getJsonString();
     }
 
-
-
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
+        return doQuery(IndexHelper.parseIndex(entity), IndexHelper.parseType(entity), queryString, expectedHitCount);
+    }
+    String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         //waitAWhile();
@@ -286,15 +281,18 @@ public class ESBase {
                     "}";
 
             //
-            Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .build();
+            Search.Builder builder= new Search.Builder(query)
+                    .addIndex(index);
 
+            if ( type !=null && !type.equals("*"))
+                    builder.addType(type)  ;
+
+            Search search = builder.build();
             jResult = esClient.execute(search);
             assertNotNull(jResult);
             if (expectedHitCount == -1) {
-                assertEquals("Expected the index [" + IndexHelper.parseIndex(entity) + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
-                logger.debug("Confirmed index {} was deleted and empty", IndexHelper.parseIndex(entity));
+                assertEquals("Expected the index [" +index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
+                logger.debug("Confirmed index {} was deleted and empty", index);
                 return null;
             }
             if (jResult.getErrorMessage() == null) {
@@ -310,7 +308,7 @@ public class ESBase {
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
 
         assertNotNull(jResult);
-        Assert.assertEquals(IndexHelper.parseIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(index + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 
