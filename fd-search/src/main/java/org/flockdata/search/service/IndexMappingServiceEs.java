@@ -11,7 +11,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.search.IndexHelper;
-import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
@@ -43,25 +42,20 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
-        boolean result = ensureIndexMapping(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
-        if ( result && change.getParent()!=null )
-            return ensureChildMapping(change.getParent());
-        return result;
-    }
-
-    // ToDo: Fix this. Caching should reset after the index is deleted. Needs a listener
-    //@Cacheable(value = "mappedIndexes", key = "#indexName +'/'+ #documentType")
-    public boolean ensureIndexMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
+//        boolean result = ensureIndexMapping(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
+        String indexName = change.getIndexName();
+        String documentType = change.getDocumentType();
+        EntityService.TAG_STRUCTURE tagStructure = change.getTagStructure();
 
         if (hasIndex(IndexHelper.parseIndex(indexName, documentType))) {
             // Need to be able to allow for a "per document" mapping
-            putMapping(indexName, documentType, tagStructure);
+            putMapping(change);
             return true;
         }
 
         logger.debug("Ensuring index {}, {}", indexName, documentType);
         //if (hasIndex(indexName)) return true;
-        XContentBuilder esMapping = getMapping(indexName, documentType, tagStructure);
+        XContentBuilder esMapping = getMapping(change);
         // create Index  and Set Mapping
         if (esMapping != null) {
             //Settings settings = Builder
@@ -95,71 +89,33 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
 
-    private void putMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
+    private void putMapping(SearchChange change) {
         // Mappings are on a per Index basis. We need to ensure the mapping exists for the
         //    same index but every document type
-        logger.debug("Checking mapping for {}, {}", indexName, documentType);
+        logger.debug("Checking mapping for {}, {}", change.getIndexName(), change.getDocumentType());
 
         // Test if Type exist
         String[] documentTypes = new String[1];
-        documentTypes[0] = documentType;
+        documentTypes[0] = change.getDocumentType();
 
         String[] indexNames = new String[1];
-        indexNames[0] = IndexHelper.parseIndex(indexName, documentType);
+        indexNames[0] = IndexHelper.parseIndex(change.getIndexName(), change.getDocumentType());
 
         boolean hasIndexMapping = esClient.admin()
                 .indices()
                 //.exists( new IndicesExistsRequest(indexNames))
-                .typesExists(new TypesExistsRequest(indexNames,documentType))
+                .typesExists(new TypesExistsRequest(indexNames,change.getDocumentType()))
                 .actionGet()
                 .isExists();
         if (!hasIndexMapping) {
-            XContentBuilder mapping = getMapping(indexName, documentType, tagStructure);
+            XContentBuilder mapping = getMapping(change);
             esClient.admin().indices()
-                    .preparePutMapping(IndexHelper.parseIndex(indexName, documentType))
-                    .setType(documentType)
+                    .preparePutMapping(indexNames[0])
+                    .setType(change.getDocumentType())
                     .setSource(mapping)
                     .execute().actionGet();
-            logger.debug("Created default mapping and applied settings for {}, {}", indexName, documentType);
+            logger.debug("Created default mapping and applied settings for {}, {}", indexNames[0], change.getDocumentType());
         }
-    }
-
-    private boolean ensureChildMapping(EntityKeyBean entityKeyBean){
-        logger.info("Checking for ChildMapping {}", entityKeyBean.getIndexName());
-        //ensureChildMapping(entityKeyBean.getIndexName(), IndexHelper.parseType(entityKeyBean.getDocumentType()));
-        return true;
-    }
-
-    private void ensureChildMapping(String indexName, String documentType) {
-        // Mappings are on a per Index basis. We need to ensure the mapping exists for the
-        //    same index but every document type
-        logger.debug("Checking mapping for {}, {}", indexName, documentType);
-
-        // Test if Type exist
-        //String[] documentTypes = new String[1];
-        //documentTypes[0] = documentType;
-
-        String[] indexNames = new String[1];
-        indexNames[0] = IndexHelper.parseIndex(indexName, documentType);
-
-        boolean hasTypeMapping = esClient.admin()
-                .indices()
-                .typesExists(new TypesExistsRequest(indexNames, documentType))
-                .actionGet()
-                .isExists();
-        if (!hasTypeMapping) {
-            XContentBuilder mapping = getChildMapping(indexName, documentType);
-            esClient.admin().indices()
-                    .preparePutMapping(IndexHelper.parseIndex(indexName, documentType))
-                    .setType(documentType)
-                    .setSource(mapping)
-                    .execute().actionGet();
-            logger.debug("Created default mapping and applied settings for {}, {}", indexName, documentType);
-        }
-    }
-
-    private XContentBuilder getChildMapping(String indexName, String documentType) {
-        return null;
     }
 
     private boolean hasIndex(String indexName) {
@@ -212,13 +168,13 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     }
 
-    private XContentBuilder getMapping(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) {
+    private XContentBuilder getMapping(SearchChange change) {
 
         XContentBuilder xbMapping = null;
         try {
-            Map<String, Object> map = getDefaultMapping(getKeyName(indexName, documentType), tagStructure);
+            Map<String, Object> map = getDefaultMapping(getKeyName(change), change.getTagStructure());
             Map<String, Object> docMap = new HashMap<>();
-            docMap.put(documentType, map.get("mapping"));
+            docMap.put(change.getDocumentType(), map.get("mapping"));
             xbMapping = jsonBuilder().map(docMap);
         } catch (IOException e) {
             logger.error("Problem getting the search mapping", e);
@@ -227,8 +183,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
         return xbMapping;
     }
 
-    private String getKeyName(String indexName, String documentType) {
-        return indexName + "/" + documentType + ".json";
+    private String getKeyName(SearchChange change) {
+        return change.getIndexName() + "/" + change.getDocumentType() + ".json";
     }
 
     private Map<String, Object> getDefaultMapping(String keyName, EntityService.TAG_STRUCTURE tagStrucure) throws IOException {
