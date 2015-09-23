@@ -21,7 +21,6 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.concept.service.TxService;
 import org.flockdata.engine.dao.EntityDaoNeo;
-import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
@@ -93,9 +92,6 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Autowired
     TagService tagService;
-
-    @Autowired
-    SearchServiceFacade searchService;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
@@ -404,7 +400,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent());
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-            searchService.setTags(entity, searchDocument);
+
 
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);

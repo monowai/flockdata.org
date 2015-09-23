@@ -466,6 +466,7 @@ public class MediationFacadeNeo implements MediationFacade {
         //entity = entityService.getEntity(entity);
         searchChange = entityService.cancelLastLog(company, entity);
         if (searchChange != null) {
+            searchService.setTags(entity, searchChange);
             searchService.makeChangeSearchable(searchChange);
         } else {
             logger.info("ToDo: Delete the search document {}", entity);
