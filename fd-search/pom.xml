@@ -13,7 +13,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>1.7.1</es.version>
+        <es.version>1.7.2</es.version>
         <!-- When upgrading ES, make sure attachment mapper and tika are in alignment-->
         <es.attachment-mapper.version>2.6.0</es.attachment-mapper.version>
         <tika.version>1.8</tika.version>
@@ -181,22 +181,6 @@
                     <packagingExcludes>WEB-INF/classes/log4j.xml,
                         WEB-INF/classes/fd.monowai.*/
                     </packagingExcludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.17</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
