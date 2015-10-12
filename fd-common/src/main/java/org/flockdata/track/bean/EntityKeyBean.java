@@ -19,6 +19,10 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
+import org.flockdata.search.IndexHelper;
+
 /**
  * User: mike
  * Date: 9/07/14
@@ -27,25 +31,42 @@ package org.flockdata.track.bean;
 public class EntityKeyBean {
     private String fortressName;
     private String documentType;
-    private String callerRef;
+    private String company;
+    private String metaKey;
+    private String code;
 
 
     public EntityKeyBean(){}
 
-    public EntityKeyBean(String fortressName, String documentType, String callerRef){
+    public EntityKeyBean (DocumentType documentType, String code){
+        this.fortressName = documentType.getFortress().getName();
+        this.company = documentType.getFortress().getCompany().getCode();
+        this.documentType = documentType.getName();
+        this.code = code;
+
+    }
+
+    public EntityKeyBean(String fortressName, String documentType, String code){
         this.fortressName = fortressName;
         this.documentType = documentType;
-        this.callerRef = callerRef;
+        this.code = code;
     }
 
-    public EntityKeyBean(String callerRef) {
-        this.callerRef = callerRef;
+    public EntityKeyBean(String code) {
+        this.code = code;
     }
 
-    public EntityKeyBean(CrossReferenceInputBean crossReferenceInputBean) {
+    public EntityKeyBean(EntityLinkInputBean crossReferenceInputBean) {
         this.fortressName = crossReferenceInputBean.getFortress();
         this.documentType = crossReferenceInputBean.getDocumentType();
-        this.callerRef = crossReferenceInputBean.getCallerRef();
+        this.code = crossReferenceInputBean.getCallerRef();
+    }
+
+    public EntityKeyBean(Entity entity) {
+        this.fortressName = entity.getFortress().getName();
+        this.code = entity.getCode();
+        this.documentType = entity.getType();
+        this.metaKey = entity.getMetaKey();
     }
 
     public String getFortressName() {
@@ -58,8 +79,16 @@ public class EntityKeyBean {
         return documentType;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public String getIndexName() {
+        return IndexHelper.getIndexRoot(company, fortressName);
     }
 
     @Override
@@ -69,18 +98,22 @@ public class EntityKeyBean {
 
         EntityKeyBean entityKey = (EntityKeyBean) o;
 
-        if (!callerRef.equals(entityKey.callerRef)) return false;
+        if (!code.equals(entityKey.code)) return false;
         if (documentType != null ? !documentType.equals(entityKey.documentType) : entityKey.documentType != null)
             return false;
         return !(fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null);
 
     }
 
+    public String getMetaKey() {
+        return metaKey;
+    }
+
     @Override
     public int hashCode() {
         int result = fortressName != null ? fortressName.hashCode() : 0;
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
-        result = 31 * result + callerRef.hashCode();
+        result = 31 * result + code.hashCode();
         return result;
     }
 
@@ -89,7 +122,7 @@ public class EntityKeyBean {
         return "EntityKey {" +
                 "fortressName='" + fortressName + '\'' +
                 ", documentType='" + documentType + '\'' +
-                ", callerRef='" + callerRef + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 }

@@ -132,14 +132,14 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String uniqueKey, Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public Entity(String metaKey, Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
         assert fortress != null;
 
         labels.add(documentType.getName());
-        metaKey = uniqueKey;
+        this.metaKey = metaKey;
         this.noLogs = entityInput.isEntityOnly();
         this.fortress = fortress;//(FortressNode)documentType.getFortress();
         // DAT-278
@@ -154,7 +154,7 @@ public class Entity implements Serializable {
 
         docType = docType.toLowerCase();
         code = entityInput.getCode();
-        key = EntityHelper.parseKey(this.fortress.getId(), documentType.getId(), (code != null ? code : metaKey));
+        key = EntityHelper.parseKey(this.fortress.getId(), documentType.getId(), (code != null ? code : this.metaKey));
         //key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))

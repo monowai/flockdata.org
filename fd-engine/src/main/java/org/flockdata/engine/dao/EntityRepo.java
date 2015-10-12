@@ -37,11 +37,11 @@ public interface EntityRepo extends GraphRepository<Entity> {
                     "return entity")
     Set<Entity> findEntitiesByTxRef(Long txRef);
 
-    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
-                    " where id(fortress)={0} " +
-                    " return track ORDER BY track.dateCreated ASC" +
-                    " skip {1} limit 100 ")
-    Set<Entity> findEntities(Long fortressId, Long skip);
+    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:TRACKS]->(entity:Entity) " +
+                    " where id(fortress)={0} and id(entity) > {1}" +
+                    " return entity ORDER BY id(entity) ASC" +
+                    " limit 100 ")
+    Set<Entity> findEntities(Long fortressId, Long lastEntity);
 
     @Query(  value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
             " where id(fortress)={0} " +
@@ -68,7 +68,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
     void purgePeopleRelationships(Collection<String> entities);
 
     @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.metaKey in {0} delete otherRlx")
-    void purgeCrossReferences(Collection<String> entities);
+    void purgeEntityLinks(Collection<String> entities);
 
     @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where entity.metaKey in {0} delete track, entity ")
     void purgeEntities(Collection<String> entities);
@@ -78,4 +78,6 @@ public interface EntityRepo extends GraphRepository<Entity> {
             "return entity ")
     Collection<Entity> getEntities(Collection<Long> entities);
 
+    @Query(value = "match (child:Entity)<-[p:parent]-(parent:Entity) where id(child) = {0} return parent")
+    Entity findParent(Long childId);
 }

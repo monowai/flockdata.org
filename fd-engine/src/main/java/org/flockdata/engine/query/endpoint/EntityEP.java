@@ -113,6 +113,18 @@ public class EntityEP {
         return new EntityBean(result);
     }
 
+    @RequestMapping(value = "/{metaKey}/reindex", method = RequestMethod.GET)
+    public String reindexEntity(@PathVariable("metaKey") String metaKey,
+                                HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
+        Entity entity = entityService.getEntity(company, metaKey, true);
+        if (entity == null)
+            throw new NotFoundException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
+
+        return mediationFacade.reindex(company, entity);
+    }
+
     /**
      * locates a collection of Entity based on incoming collection of MetaKeys
      *

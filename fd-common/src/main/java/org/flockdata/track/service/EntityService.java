@@ -34,6 +34,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -41,6 +42,8 @@ import java.util.concurrent.ExecutionException;
  * Time: 4:22 PM
  */
 public interface EntityService {
+
+    EntityKeyBean findParent(Entity entity);
 
     public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
@@ -101,7 +104,7 @@ public interface EntityService {
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
 
-    List<EntityKeyBean> crossReferenceEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
+    List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 
@@ -127,7 +130,7 @@ public interface EntityService {
 
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
-    List<CrossReferenceInputBean> crossReferenceEntities(Company company, List<CrossReferenceInputBean> crossReferenceInputBeans);
+    Collection<EntityLinkInputBean> linkEntities(Company company, Collection<EntityLinkInputBean> entityLinks);
 
     Entity save(Entity entity);
 

@@ -20,7 +20,6 @@
 package org.flockdata.test.search.functional;
 
 import org.flockdata.model.Entity;
-import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
@@ -41,8 +40,6 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:root-context.xml"})
 public class AttachmentTests extends ESBase {
-    @Autowired
-    TrackSearchDao searchRepo;
 
     @Autowired
     ElasticSearchEP searchEP;
@@ -60,7 +57,7 @@ public class AttachmentTests extends ESBase {
 
         deleteEsIndex(entity);
 
-        searchRepo.ensureIndex(changeA);
+        indexMappingService.ensureIndexMapping(changeA);
         changeA = searchRepo.handle(changeA);
         Thread.sleep(1000);
         assertNotNull(changeA);

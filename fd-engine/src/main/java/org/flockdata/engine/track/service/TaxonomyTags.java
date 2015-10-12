@@ -58,8 +58,11 @@ public class TaxonomyTags implements EntityTagFinder {
                         term = terms.get(node.getId());
                         if ( term == null ) {
                             Tag tag = template.projectTo(node, Tag.class);
+
+                            // ETO is arbitrary
                             term = new EntityTagOut(entity, tag);
-                            term.setRelationship(tag.getLabel());
+                            String relationship = "viewed";     // ToDo: Dynamic, not static
+                            term.setRelationship(relationship);
                             terms.put(tag.getId(), term);
                             results.add(term);
                         }

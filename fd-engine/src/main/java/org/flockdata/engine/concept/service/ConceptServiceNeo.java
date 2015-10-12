@@ -106,7 +106,7 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public DocumentType resolveDocumentType(Fortress fortress, DocumentType documentType){
+    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType){
         return conceptDao.findDocumentType(fortress, documentType, true);
     }
 

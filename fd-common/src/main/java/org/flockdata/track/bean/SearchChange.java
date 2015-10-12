@@ -40,6 +40,8 @@ public interface SearchChange {
      */
     String getSearchKey();
 
+    EntityKeyBean getParent();
+
     void setSearchKey(String parent);
 
     /**
@@ -141,4 +143,6 @@ public interface SearchChange {
     EntityService.TAG_STRUCTURE getTagStructure();
 
     void setTags(ArrayList<EntityTag> tagsB);
+
+    void setParent(EntityKeyBean parent);
 }

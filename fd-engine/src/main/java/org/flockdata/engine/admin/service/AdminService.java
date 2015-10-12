@@ -92,16 +92,16 @@ public class AdminService implements EngineAdminService {
         // single fortress
         NumberFormat nf = NumberFormat.getInstance();
 
-        StopWatch watch = new StopWatch("Purge Fortress " + fortress );
+        StopWatch watch = new StopWatch("Purge Fortress " + fortress);
         watch.start();
-        boolean keepRunning ;
+        boolean keepRunning;
         schemaService.purge(fortress);
         entityService.purgeFortressDocs(fortress);
         long total = 0;
         do {
             Collection<String> entities = entityService.getEntityBatch(fortress, 2000);
             entityService.purge(fortress, entities);
-            keepRunning = entities.size()> 0;
+            keepRunning = entities.size() > 0;
             total = total + entities.size();
             if (total % 100000 == 0)
                 logger.info("Progress update - {} entities purged ... ", nf.format(total));
@@ -129,7 +129,7 @@ public class AdminService implements EngineAdminService {
         int size = 1000;
         boolean continueSearch;
 
-        QueryParams qp ;
+        QueryParams qp;
         try {
             qp = getPagedQueryParams(company, size, docType);
         } catch (IOException e) {
@@ -142,7 +142,7 @@ public class AdminService implements EngineAdminService {
         int rowsAnalyzed = 0;
         NumberFormat nf = NumberFormat.getInstance();
         String totalHits = null;
-        StopWatch watch = new StopWatch("Validate Search Docs " + company.getName() + "/"+ docType);
+        StopWatch watch = new StopWatch("Validate Search Docs " + company.getName() + "/" + docType);
         watch.start();
         do {
             qp.setFrom(start);
@@ -242,9 +242,9 @@ public class AdminService implements EngineAdminService {
     @Async("fd-track")
     @Transactional
     public Future<Long> doReindex(Fortress fortress) throws FlockException {
-        long result = reindex(fortress);
-        logger.info("Reindex Search request completed. Processed [" + result + "] entities for [" + fortress.getName() + "]");
-        return new AsyncResult<>(result);
+        long reindexCount = reindex(fortress);
+        logger.info("Reindex Search request completed. Processed [" + reindexCount + "] entities for [" + fortress.getName() + "]");
+        return new AsyncResult<>(reindexCount);
     }
 
     @Override
@@ -257,47 +257,58 @@ public class AdminService implements EngineAdminService {
 
     }
 
+    @Override
+    public Future<Long> doReindex(Fortress fortress, Entity entity) throws FlockException {
+        Collection<Entity> entities = new ArrayList<>();
+        entities.add(entity);
+        reindexEntities(entities, 0l);
+        return new AsyncResult<>(1l);
+    }
+
     long reindex(Fortress fortress) {
-        Long processCount = 0l;
+        Long lastEntityId = 0l;
+        Long processed = 0l;
         Collection<Entity> entities;
         do {
-            entities = entityService.getEntities(fortress, processCount);
+            entities = entityService.getEntities(fortress, lastEntityId);
+            processed = processed + entities.size();
             if (entities.isEmpty())
-                return processCount;
-            processCount = processCount + entities.size();
-            reindexEntities(fortress.getCompany(), entities, processCount);
+                return processed;
+            lastEntityId = reindexEntities(entities, lastEntityId);
 
         } while (!entities.isEmpty());
-        return processCount;
+        return processed;
     }
 
     long reindexByDocType(Fortress fortress, String docType) {
-        Long processCount = 0l;
+        Long lastEntityId = 0l;
+        Long processed = 0l;
+
         Collection<Entity> entities;
         do {
-            entities = entityService.getEntities(fortress, docType, processCount);
+            entities = entityService.getEntities(fortress, docType, lastEntityId);
+            processed = processed + entities.size();
             if (entities.isEmpty())
-                return processCount;
-            processCount = processCount + entities.size();
-            reindexEntities(fortress.getCompany(), entities, processCount);
+                return lastEntityId;
+            reindexEntities(entities, lastEntityId);
 
         } while (!entities.isEmpty());
-        return processCount;
+        return processed;
     }
 
     @Async("fd-track")
     @Transactional
-    Long reindexEntities(Company company, Collection<Entity> entities, Long skipCount) {
+    Long reindexEntities(Collection<Entity> entities, Long lastEntityId) {
+
         Collection<SearchChange> searchDocuments = new ArrayList<>(entities.size());
         for (Entity entity : entities) {
             EntityLog lastLog = entityService.getLastEntityLog(entity.getId());
-            //if (!lastLog.isMocked()) {
-                EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
-                if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
-                    searchDocuments.add(searchDoc);
-            //}
+            EntitySearchChange searchDoc = searchService.rebuild(entity, lastLog);
+            lastEntityId = entity.getId();
+            if (searchDoc != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
+                searchDocuments.add(searchDoc);
         }
         searchService.makeChangesSearchable(searchDocuments);
-        return skipCount;
+        return lastEntityId;
     }
 }

@@ -77,7 +77,7 @@ public class TestAutoComplete extends ESBase{
         change.setWhat(what);
         change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
-        searchRepo.ensureIndex(change);
+        indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);
@@ -89,7 +89,7 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
         doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(IndexHelper.parseIndex(entity), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
 
 
 
@@ -118,7 +118,7 @@ public class TestAutoComplete extends ESBase{
         change.setWhat(what);
         change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
-        searchRepo.ensureIndex(change.getIndexName(), change.getDocumentType(), change.getTagStructure());
+        indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);
@@ -164,7 +164,7 @@ public class TestAutoComplete extends ESBase{
         change.setWhat(what);
         change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
-        searchRepo.ensureIndex(change);
+        indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
 
         assertNotNull(searchResult);

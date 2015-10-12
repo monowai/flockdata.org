@@ -247,18 +247,18 @@ public class TestFdIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph*"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111*"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111"), "");
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i + "*");
+            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i , "");
         }
 
     }
@@ -271,9 +271,10 @@ public class TestFdIntegration {
         engineConfig.setStoreEnabled("true"); // Rest to default state for each test
     }
 
-    private static void deleteEsIndex(String indexName) throws Exception {
-        logger.info("%% Delete Index {}", indexName);
-        esClient.execute(new DeleteIndex.Builder(indexName.toLowerCase()).build());
+    private static void deleteEsIndex(String indexName, String docType) throws Exception {
+        String deleteMe = IndexHelper.parseIndex(indexName, docType);
+        logger.info("%% Delete Index {}", deleteMe);
+        esClient.execute(new DeleteIndex.Builder(deleteMe).build());
     }
 
     @AfterClass
@@ -533,7 +534,7 @@ public class TestFdIntegration {
 
     @Test
     public void admin_rebuildSearchIndexFromEngine() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## admin_rebuildSearchIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
@@ -1133,8 +1134,8 @@ public class TestFdIntegration {
         getMapping(indexName);
 
         // Completion only works as "Starts with"
-        doCompletionQuery(IndexHelper.parseIndex(entity), "des", 1, "didn't find the tag");
-        doCompletionQuery(IndexHelper.parseIndex(entity), "descr", 1, "didn't find the tag");
+        doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(), "des", 1, "didn't find the tag");
+        doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(),"descr", 1, "didn't find the tag");
         // This is a description
         // 123456789012345678901
 
@@ -1220,10 +1221,10 @@ public class TestFdIntegration {
         logger.info("## stressWithHighVolume");
         int runMax = 10, logMax = 10, fortress = 1;
 
-        for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i + ".companynode");
+        //for (int i = 1; i < fortressMax + 1; i++) {
+            //deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i + ".companynode");
             //doEsQuery(IndexHelper.PREFIX + "monowai.bulkloada" + i+".companynode", "*", -1);
-        }
+        //}
 
         waitAWhile("Wait {} secs for index to delete ");
 
@@ -1391,7 +1392,7 @@ public class TestFdIntegration {
 
     @Test
     public void geo_CachingMultiLocations() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("geo_CachingMultiLocations");
         SystemUser su = registerSystemUser("geo_CachingMultiLocations", "geo_CachingMultiLocations");
         assertNotNull(su);
@@ -1438,11 +1439,11 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
         waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
 
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.stateCode", california.getCode().toLowerCase(), 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.cityName", losAngeles.getName().toLowerCase(), 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.stateCode", "tx", 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.cityCode", "dallas", 1);
-        doEsFieldQuery(fortress, "tag.owns.institution.geo.countryCode", unitedStates.getCode().toLowerCase(), 2);
+        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", california.getCode().toLowerCase(), 1);
+        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityName", losAngeles.getName().toLowerCase(), 1);
+        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", "tx", 1);
+        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityCode", "dallas", 1);
+        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.countryCode", unitedStates.getCode().toLowerCase(), 2);
     }
 
     @Test
@@ -1596,7 +1597,7 @@ public class TestFdIntegration {
     @Test
     public void validate_StringsContainingValidNumbers() throws Exception {
         try {
-            assumeTrue(runMe);
+            //assumeTrue(runMe);
             logger.info("## validate_MismatchSubsequentValue");
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
@@ -1640,7 +1641,7 @@ public class TestFdIntegration {
 
     @Test
     public void tags_TaxonomyStructure() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
 
         logger.info("## tags_TaxonomyStructure");
 
@@ -1702,12 +1703,12 @@ public class TestFdIntegration {
         assertEquals("Term", termTag.getTag().getLabel());
         // Validate the structure
 
-        SearchChange searchDoc = searchService.getSearchDocument(entity, null, null);
+        SearchChange searchDoc = searchService.getSearchDocument(foundDoc, entity, null, null);
         assertNotNull(searchDoc);
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchDoc.getTagStructure());
         //EntityTag termTag = searchDoc.getTagValues().;
-        assertTrue("Couldn't find the term relationship", searchDoc.getTagValues().containsKey("term"));
-        Map<String, ArrayList<SearchTag>> tagMap = searchDoc.getTagValues().get("term");
+        assertTrue("Couldn't find the term relationship", searchDoc.getTagValues().containsKey("viewed"));
+        Map<String, ArrayList<SearchTag>> tagMap = searchDoc.getTagValues().get("viewed");
         assertTrue("Couldn't find the root level term relationship", tagMap.containsKey("term"));
         Collection<SearchTag>searchTags = tagMap.get("term");
         assertEquals(1, searchTags.size());
@@ -1722,7 +1723,7 @@ public class TestFdIntegration {
         doEsFieldQuery(entity, "metaKey", result.getMetaKey(), 1);
 
         // Assert that we can find the category as a nested tag in ES
-        doEsNestedQuery(entity, "tag.term", "tag.term.parent.category.code", "cars", 1);
+        doEsNestedQuery(entity, "tag.viewed.term", "tag.viewed.term.parent.category.code", "cars", 1);
 
 
     }
@@ -1923,6 +1924,7 @@ public class TestFdIntegration {
 
             Search search = new Search.Builder(query)
                     .addIndex(IndexHelper.parseIndex(entity))
+                    .addType(IndexHelper.parseType(entity))
                     .build();
 
             jResult = esClient.execute(search);
@@ -1975,6 +1977,7 @@ public class TestFdIntegration {
 
             Search search = new Search.Builder(query)
                     .addIndex(IndexHelper.parseIndex(entity))
+                    .addType(IndexHelper.parseType(entity))
                     .build();
 
             jResult = esClient.execute(search);
@@ -2036,6 +2039,7 @@ public class TestFdIntegration {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(IndexHelper.parseIndex(entity))
+                    .addType(entity.getType().toLowerCase())
                     .build();
 
             jResult = esClient.execute(search);
@@ -2074,11 +2078,7 @@ public class TestFdIntegration {
     }
 
     private String doEsFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(entity), field, queryString, expectedHitCount);
-    }
-
-    private String doEsFieldQuery(Fortress fortress, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(fortress), field, queryString, expectedHitCount);
+        return doEsFieldQuery(IndexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount);
     }
 
     /**
@@ -2092,7 +2092,7 @@ public class TestFdIntegration {
      * @return query _source
      * @throws Exception if expectedHitCount != actual hit count
      */
-    private String doEsFieldQuery(String index, String field, String queryString, int expectedHitCount) throws Exception {
+    private String doEsFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -2112,6 +2112,7 @@ public class TestFdIntegration {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(index)
+                    .addType(IndexHelper.parseType(type))
                     .build();
 
             jResult = esClient.execute(search);
@@ -2221,7 +2222,7 @@ public class TestFdIntegration {
         throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }
 
-    String doCompletionQuery(String index, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    String doCompletionQuery(String index, String type, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -2239,9 +2240,10 @@ public class TestFdIntegration {
                 "}";
 
 
-        Suggest search = new Suggest.Builder(query).
-                addIndex(index).
-                build();
+        Suggest search = new Suggest.Builder(query)
+                .addIndex(index)
+                .addType(IndexHelper.parseType(type))
+                .build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
 

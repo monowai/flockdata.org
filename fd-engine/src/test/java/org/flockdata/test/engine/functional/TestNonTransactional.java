@@ -24,7 +24,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
 import org.flockdata.model.SystemUser;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -82,8 +82,8 @@ public class TestNonTransactional extends EngineBase {
         callerRefs.add(new EntityKeyBean("ABC333"));
 
         refs.put("cites",callerRefs);
-        CrossReferenceInputBean bean = new CrossReferenceInputBean(inputBean);
-        List<CrossReferenceInputBean > inputs = new ArrayList<>();
+        EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
+        List<EntityLinkInputBean> inputs = new ArrayList<>();
         inputs.add(bean);
         Collection<EntityTag> tagsA = entityTagService.getEntityTags(docA.getEntity());
         assertEquals(1, tagsA.size());

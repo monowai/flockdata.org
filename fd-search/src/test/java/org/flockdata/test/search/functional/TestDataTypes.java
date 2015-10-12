@@ -72,7 +72,7 @@ public class TestDataTypes extends ESBase {
 
 
         deleteEsIndex(entityA);
-        searchRepo.ensureIndex(change);
+        indexMappingService.ensureIndexMapping(change);
         searchRepo.handle(change);
         Thread.sleep(1000);
 

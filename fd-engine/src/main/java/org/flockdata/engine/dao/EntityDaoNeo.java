@@ -171,8 +171,8 @@ public class EntityDaoNeo {
         return entityRepo.findEntitiesByTxRef(txRef);
     }
 
-    public Collection<Entity> findEntities(Long fortressId, Long skipTo) {
-        return entityRepo.findEntities(fortressId, skipTo);
+    public Collection<Entity> findEntities(Long fortressId, Long lastEntityId) {
+        return entityRepo.findEntities(fortressId, lastEntityId);
     }
 
     public Collection<Entity> findEntities(Long fortressId, String label, Long skipTo) {
@@ -401,12 +401,12 @@ public class EntityDaoNeo {
 
     }
 
-    public void crossReference(Entity entity, Collection<Entity> entities, String refName) {
-        Node source = template.getPersistentState(entity);
+    public void linkEntities(Entity entity, Collection<Entity> entities, String refName) {
+        Node target = template.getPersistentState(entity);
         for (Entity sourceEntity : entities) {
             Node dest = template.getPersistentState(sourceEntity);
-            if (template.getRelationshipBetween(source, sourceEntity, refName) == null)
-                template.createRelationshipBetween(source, dest, refName, null);
+            if (template.getRelationshipBetween(sourceEntity, target, refName) == null)
+                template.createRelationshipBetween(dest, target, refName, null);
         }
     }
 
@@ -455,7 +455,7 @@ public class EntityDaoNeo {
 
     @Transactional
     public void purgeEntities(Collection<String> entities) {
-        entityRepo.purgeCrossReferences(entities);
+        entityRepo.purgeEntityLinks(entities);
         entityRepo.purgeEntities(entities);
     }
 
@@ -489,6 +489,10 @@ public class EntityDaoNeo {
     }
 
     public Collection<String> getEntityBatch(Long id, int limit) {
-        return entityRepo.findEntitiesWithLimit(id, limit );
+        return entityRepo.findEntitiesWithLimit(id, limit);
+    }
+
+    public Entity findParent(Entity childEntity) {
+        return entityRepo.findParent(childEntity.getId());
     }
 }

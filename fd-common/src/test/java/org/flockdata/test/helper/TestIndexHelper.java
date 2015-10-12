@@ -47,20 +47,20 @@ public class TestIndexHelper {
         qp.setTypes("Type0", "type1");
 
         String[] indexes = IndexHelper.getIndexesToQuery(qp);
-        TestCase.assertEquals(2, indexes.length);
+        TestCase.assertEquals(1, indexes.length);
         for (String index : indexes) {
-            assertTrue(index.startsWith(IndexHelper.PREFIX+company.toLowerCase()+".*.type"));
+            assertTrue(index.startsWith(IndexHelper.PREFIX+company.toLowerCase()+".*"));
         }
         //validateIndexes(company, fortress, indexes);
     }
 
     private void validateIndexes(String company, String fortress, String[] indexes) throws Exception {
         assertNotNull(indexes);
-        assertEquals(2, indexes.length);
+        assertEquals(1, indexes.length);
         int count = 0;
         int foundCount = 0;
         for (String index : indexes) {
-            if ( index.equals(IndexHelper.PREFIX+company.toLowerCase()+"."+fortress.toLowerCase()+".type"+count)) {
+            if ( index.equals(IndexHelper.PREFIX+company.toLowerCase()+"."+fortress.toLowerCase())) {
                 foundCount++;
                 count++;
             }

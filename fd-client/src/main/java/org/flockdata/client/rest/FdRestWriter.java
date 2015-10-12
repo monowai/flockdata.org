@@ -28,7 +28,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.*;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -100,7 +100,7 @@ public class FdRestWriter implements FdWriter {
         this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
         this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
         this.HEALTH = configuration.getEngineURL() + "/v1/admin/health/";
-        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/xref/";
+        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/link/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
         this.batchSize = configuration.getBatchSize();
@@ -262,13 +262,13 @@ public class FdRestWriter implements FdWriter {
         this.simulateOnly = simulateOnly;
     }
 
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
+    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
         if (simulateOnly)
             return 0;
         RestTemplate restTemplate = getRestTemplate();
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<CrossReferenceInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
+        HttpEntity<List<EntityLinkInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
         try {
             ResponseEntity<ArrayList> response = restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, ArrayList.class);
             logServerMessages(response);

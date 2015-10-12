@@ -29,7 +29,7 @@ import java.util.Map;
  * Date: 2/04/14
  * Time: 12:24 PM
  */
-public class CrossReferenceInputBean {
+public class EntityLinkInputBean {
     Map<String,List<EntityKeyBean>>references;
     private String fortress;
     private String documentType;
@@ -37,26 +37,23 @@ public class CrossReferenceInputBean {
     private String serviceMessage;
     Map<String,List<EntityKeyBean>>ignored;
 
-    protected CrossReferenceInputBean(){}
+    protected EntityLinkInputBean(){}
 
-//    public CrossReferenceInputBean(String fortress, String callerRef, Map<String,List<EntityKey>>references){
-//        this();
-//        this.callerRef = callerRef;
-//        this.fortress = fortress;
-//        this.references = references;
-//    }
-//
-//    public CrossReferenceInputBean(String sourceFortress, String sourceDocumentType, String sourceCallerRef, Map<String,List<EntityKey>>references){
-//        this(sourceFortress, sourceCallerRef, references);
-//        if ( sourceDocumentType!=null && !sourceDocumentType.equals("*"))
-//            this.documentType = sourceDocumentType;
-//    }
+    public EntityLinkInputBean(EntityInputBean entityInputBean) {
+        this(entityInputBean.getFortress(), entityInputBean.getDocumentName(), entityInputBean.getCode());
+        this.references = entityInputBean.getEntityLinks();
+    }
 
-    public CrossReferenceInputBean(EntityInputBean entityInputBean) {
-        this.callerRef = entityInputBean.getCode();
-        this.fortress = entityInputBean.getFortress();
-        this.documentType = entityInputBean.getDocumentName();
-        this.references = entityInputBean.getCrossReferences();
+    /**
+     *
+     * @param fortress          Parent fortress
+     * @param documentName      Parent docType
+     * @param code              Parent code reference
+     */
+    public EntityLinkInputBean(String fortress, String documentName, String code) {
+        this.callerRef = code;
+        this.fortress = fortress;
+        this.documentType = documentName;
     }
 
     public String getCallerRef() {
@@ -74,9 +71,9 @@ public class CrossReferenceInputBean {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CrossReferenceInputBean)) return false;
+        if (!(o instanceof EntityLinkInputBean)) return false;
 
-        CrossReferenceInputBean that = (CrossReferenceInputBean) o;
+        EntityLinkInputBean that = (EntityLinkInputBean) o;
 
         if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;

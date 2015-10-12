@@ -106,7 +106,7 @@ public class EntityRequests extends RequestBase {
         Map<String, Expression> vars = new HashMap<>();
         vars.put("fortressId", expressionParser.parseExpression("payload[0]"));
         vars.put("docId", expressionParser.parseExpression("payload[1]"));
-        vars.put("callerRef", expressionParser.parseExpression("payload[2]"));
+        vars.put("code", expressionParser.parseExpression("payload[2]"));
         handler.setUriVariableExpressions(vars);
 
         handler.setHttpMethod(HttpMethod.GET);

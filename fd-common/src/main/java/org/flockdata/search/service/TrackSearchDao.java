@@ -71,7 +71,4 @@ public interface TrackSearchDao {
 
     Map<String, Object> ping();
 
-    boolean ensureIndex(String indexName, String documentType, EntityService.TAG_STRUCTURE tagStructure) throws IOException;
-
-    boolean ensureIndex(SearchChange change);
 }

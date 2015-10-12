@@ -93,7 +93,7 @@ public class TestMappings extends ESBase {
         entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
-        doFacetQuery(IndexHelper.parseIndex(entity), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
@@ -156,8 +156,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA);
-        searchRepo.ensureIndex(changeB);
+        indexMappingService.ensureIndexMapping(changeA);
+        indexMappingService.ensureIndexMapping(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -199,8 +199,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        searchRepo.ensureIndex(changeA);
-        searchRepo.ensureIndex(changeB);
+        indexMappingService.ensureIndexMapping(changeA);
+        indexMappingService.ensureIndexMapping(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
         Thread.sleep(1000);
@@ -213,7 +213,7 @@ public class TestMappings extends ESBase {
         doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         String index = IndexHelper.getIndexRoot(entityA.getFortress()) +"*";
 
-        doFacetQuery(index, "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
+        doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 
     }
 
@@ -233,7 +233,7 @@ public class TestMappings extends ESBase {
 
         deleteEsIndex(entityA);
 
-        searchRepo.ensureIndex(changeA);
+        indexMappingService.ensureIndexMapping(changeA);
 
         changeA = searchRepo.handle(changeA);
 
@@ -288,7 +288,7 @@ public class TestMappings extends ESBase {
         change.setWhat(what);
         change.setTags(tags);
 
-        searchRepo.ensureIndex(change);
+        indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
