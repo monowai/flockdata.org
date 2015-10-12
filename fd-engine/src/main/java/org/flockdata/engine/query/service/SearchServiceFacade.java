@@ -31,6 +31,7 @@ import org.flockdata.model.*;
 import org.flockdata.search.model.*;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
@@ -62,7 +63,6 @@ import java.util.Collection;
  * User: mike
  * Date: 4/04/14
  * Time: 9:18 AM
- * To change this template use File | Settings | File Templates.
  */
 @Service
 @Transactional
@@ -95,7 +95,6 @@ public class SearchServiceFacade {
     EntityTagFinder defaultTagFinder;
 
     static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
-    private EntitySearchChange tags;
 
     //
     @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
@@ -170,10 +169,26 @@ public class SearchServiceFacade {
 
         EntityLog entityLog = getLog(trackResultBean);
 
-        return getSearchDocument(entity, entityLog, trackResultBean.getContentInput());
+        return getSearchDocument(trackResultBean.getDocumentType(), entity, entityLog, trackResultBean.getContentInput());
     }
 
-    public SearchChange getSearchDocument(Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
+    /**
+     * Here we construct a SearchChange for the supplied parameters. The input represents the state of data to index so
+     * this should always be called with a transaction.
+     *
+     * The function will additionally find the appropriate TagStructure to index as well as set any Parent, entity
+     *  with a [p:parent] relationship to another entity, that may be associated.
+     *
+     * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
+     *
+     *
+     * @param docType
+     * @param entity        Entity to index
+     * @param entityLog     Log to work with (usually the "current" log)
+     * @param contentInput  Content data
+     * @return              object ready to index
+     */
+    public SearchChange getSearchDocument(DocumentType docType, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
 
         SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput);
 
@@ -193,9 +208,19 @@ public class SearchServiceFacade {
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
+
+
+        if ( docType !=null && docType.hasParent() ) {
+            EntityKeyBean parent = entityService.findParent(entity);
+
+            if (parent != null)
+                searchDocument.setParent(parent);
+        }
+
+
         try {
-            //if (logger.isTraceEnabled())
-            logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
+            if (logger.isTraceEnabled())
+                logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             return null;
@@ -218,7 +243,13 @@ public class SearchServiceFacade {
         return searchDocument;
     }
 
-
+    /**
+     * Forces an entity to be re-indexed from the graph through to ElasticSearch
+     *
+     * @param entity  current view of the entity
+     * @param lastLog last known content data
+     * @return SearchChange payload that can be sent to fd-search
+     */
     public EntitySearchChange rebuild(Entity entity, EntityLog lastLog) {
 
         try {
@@ -251,6 +282,7 @@ public class SearchServiceFacade {
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
             searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
             searchDocument.setReplyRequired(false);
+            searchDocument.setForceReindex(true);
 
             return searchDocument;
             //}
@@ -278,13 +310,6 @@ public class SearchServiceFacade {
         // ToDO: Implement this
         logger.info("You have to manually purge the ElasticSearch index {}", indexName);
     }
-
-//    public void makeChangeSearchable(Fortress fortress, TrackResultBean trackResult) {
-//        Collection<TrackResultBean> results = new ArrayList<>();
-//        results.add(trackResult);
-//        makeChangesSearchable(fortress, results);
-//
-//    }
 
     @Async("fd-search")
     @Retryable(include = {NotFoundException.class, InvalidDataAccessResourceUsageException.class, DataIntegrityViolationException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},

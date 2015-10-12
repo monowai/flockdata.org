@@ -88,7 +88,7 @@ public class ColumnDefinition implements GeoDefinition {
 
     @JsonDeserialize(using = ColumnDeserializer.class)
     private ArrayList<ColumnDefinition> properties; // Properties to add to an object
-    private ArrayList<Map<String, String>> crossReferences = new ArrayList<>();
+    private ArrayList<Map<String, String>> entityLinks = new ArrayList<>();
     private ArrayList<AliasInputBean> aliases;
 
     private String relationship; // Explicit relationship name
@@ -248,8 +248,8 @@ public class ColumnDefinition implements GeoDefinition {
         return nullOrEmpty;
     }
 
-    public ArrayList<Map<String, String>> getCrossReferences() {
-        return crossReferences;
+    public ArrayList<Map<String, String>> getEntityLinks() {
+        return entityLinks;
     }
 
     public boolean isUpdateDate() {

@@ -23,7 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
@@ -66,7 +66,7 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException {
+    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         return 0;
     }
     private boolean simulateOnly = false;

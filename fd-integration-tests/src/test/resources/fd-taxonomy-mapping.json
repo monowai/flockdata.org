@@ -146,77 +146,80 @@
       },
       "tag": {
         "properties": {
-          "term": {
-            "type": "nested",
+          "viewed": {
             "properties": {
-              "code": {
-                "type": "string",
-                "boost": 3,
-                "fields": {
-                  "facet": {
+              "term": {
+                "type": "nested",
+                "properties": {
+                  "code": {
                     "type": "string",
-                    "boost": 5,
-                    "index": "not_analyzed",
-                    "doc_values": true,
-                    "norms": {
-                      "enabled": true
-                    }
-                  }
-                }
-              ,
-                "parent": {
-                  "properties": {
-                    "category": {
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "boost": 3,
-                          "fields": {
-                            "facet": {
-                              "type": "string",
-                              "boost": 5,
-                              "index": "not_analyzed",
-                              "doc_values": true,
-                              "norms": {
-                                "enabled": true
-                              }
-                            }
-                          }
+                    "boost": 3,
+                    "fields": {
+                      "facet": {
+                        "type": "string",
+                        "boost": 5,
+                        "index": "not_analyzed",
+                        "doc_values": true,
+                        "norms": {
+                          "enabled": true
                         }
                       }
                     },
-                    "division": {
+                    "parent": {
                       "properties": {
-                        "code": {
-                          "type": "string",
-                          "boost": 3,
-                          "fields": {
-                            "facet": {
+                        "category": {
+                          "properties": {
+                            "code": {
                               "type": "string",
-                              "boost": 5,
-                              "index": "not_analyzed",
-                              "doc_values": true,
-                              "norms": {
-                                "enabled": true
+                              "boost": 3,
+                              "fields": {
+                                "facet": {
+                                  "type": "string",
+                                  "boost": 5,
+                                  "index": "not_analyzed",
+                                  "doc_values": true,
+                                  "norms": {
+                                    "enabled": true
+                                  }
+                                }
                               }
                             }
                           }
-                        }
-                      }
-                    },
-                    "interest": {
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "boost": 3,
-                          "fields": {
-                            "facet": {
+                        },
+                        "division": {
+                          "properties": {
+                            "code": {
                               "type": "string",
-                              "boost": 5,
-                              "index": "not_analyzed",
-                              "doc_values": true,
-                              "norms": {
-                                "enabled": true
+                              "boost": 3,
+                              "fields": {
+                                "facet": {
+                                  "type": "string",
+                                  "boost": 5,
+                                  "index": "not_analyzed",
+                                  "doc_values": true,
+                                  "norms": {
+                                    "enabled": true
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "interest": {
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "boost": 3,
+                              "fields": {
+                                "facet": {
+                                  "type": "string",
+                                  "boost": 5,
+                                  "index": "not_analyzed",
+                                  "doc_values": true,
+                                  "norms": {
+                                    "enabled": true
+                                  }
+                                }
                               }
                             }
                           }

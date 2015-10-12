@@ -74,8 +74,8 @@ public class SearchAdmin {
         return getEsMappingPath()+ "/fd-default-settings.json";
     }
 
-    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStrucure){
-        if ( tagStrucure== EntityService.TAG_STRUCTURE.TAXONOMY)
+    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStructure){
+        if ( tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
             return getEsMappingPath()+"/"+ esTaxonomyMapping;
         else
             return getEsMappingPath()+"/"+esDefaultMapping;

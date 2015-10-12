@@ -22,7 +22,7 @@ package org.flockdata.transform;
 import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.CrossReferenceInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
 
@@ -44,7 +44,7 @@ public interface FdWriter {
 
     String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException;
 
-    int flushXReferences(List<CrossReferenceInputBean> referenceInputBeans) throws FlockException;
+    int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException;
 
     /**
      * if True, then the writer will not persist changes

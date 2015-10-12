@@ -47,7 +47,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private Date lastChange = null;
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
-    private transient Map<String,List<EntityKeyBean>> crossReferences = new HashMap<>();
+    private transient Map<String,List<EntityKeyBean>> entityLinks = new HashMap<>();
     Map<String, Object> properties = new HashMap<>();
 
     private String event = "Create";
@@ -328,12 +328,11 @@ public class EntityInputBean implements Serializable, UserProperties{
         this.trackSuppressed = trackSuppressed;
     }
 
-    public void addCrossReference(String relationshipName, EntityKeyBean entityKey){
-        //new CrossReferenceInputBean(getFortresses(), code, c)
-        List<EntityKeyBean>refs = crossReferences.get(relationshipName);
+    public void addEntityLink(String relationshipName, EntityKeyBean entityKey){
+        List<EntityKeyBean>refs = entityLinks.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();
-            crossReferences.put(relationshipName, refs);
+            entityLinks.put(relationshipName, refs);
         }
         refs.add(entityKey);
     }
@@ -341,12 +340,12 @@ public class EntityInputBean implements Serializable, UserProperties{
     /**
      * Format is "referenceName", Collection<code>
      * All callerRefs are assumed to belong to this same fortressName
-     * "This" code is assume to be the starting point for the CrossReferences to link to
+     * "This" code is assume to be the starting point for the EntityLinks to link to
      *
-     * @return crossReferences
+     * @return entityLinks
      */
-    public Map<String,List<EntityKeyBean>> getCrossReferences(){
-        return crossReferences;
+    public Map<String,List<EntityKeyBean>> getEntityLinks(){
+        return entityLinks;
     }
 
     @Override
@@ -429,8 +428,8 @@ public class EntityInputBean implements Serializable, UserProperties{
         return updateUser;
     }
 
-    public void setCrossReferences(Map<String, List<EntityKeyBean>> crossReferences) {
-        this.crossReferences = crossReferences;
+    public void setEntityLinks(Map<String, List<EntityKeyBean>> entityLinks) {
+        this.entityLinks = entityLinks;
     }
 
     // When last updated in the fortress
