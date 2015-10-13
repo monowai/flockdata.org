@@ -19,16 +19,19 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.model.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -42,7 +45,13 @@ public class FortressDaoNeo  {
     private FortressRepository fortressRepo;
 
     @Autowired
+    private FortressSegmentRepository fortressSegmentRepo;
+
+    @Autowired
     private FortressUserRepository fortressUserRepo;
+
+    @Autowired
+    Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
@@ -85,5 +94,17 @@ public class FortressDaoNeo  {
         return fortressRepo.getFortressByCode(companyId, fortressCode.toLowerCase());
     }
 
+    public FortressSegment saveSegment(FortressSegment segment){
+        return fortressSegmentRepo.save(segment);
+    }
 
+    public FortressSegment getDefaultSegement(Fortress fortress){
+        FortressSegment segment = fortress.getDefaultSegment();
+        template.fetch(segment);
+        return segment;
+    }
+
+    public Collection<FortressSegment> getSegments(Fortress fortress) {
+        return fortressSegmentRepo.findFortressSegments(fortress.getId()) ;
+    }
 }

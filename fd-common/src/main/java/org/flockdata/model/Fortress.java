@@ -19,8 +19,8 @@
 
 package org.flockdata.model;
 
-import org.flockdata.registration.bean.FortressInputBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexHelper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
@@ -48,6 +48,10 @@ public class Fortress implements Serializable {
     @Fetch
     private Company company;
 
+
+    @RelatedTo(type = "DEFAULT", direction = Direction.OUTGOING)
+    private FortressSegment defaultSegment;
+
     private Boolean accumulatingChanges = false;
     private Boolean storeEnabled = Boolean.TRUE;
     private Boolean searchEnabled = true;
@@ -68,6 +72,7 @@ public class Fortress implements Serializable {
         getLanguageTag();
         setFortressInput(fortressInputBean);
         setCompany(ownedBy);
+        defaultSegment = new FortressSegment(this);
 
     }
 
@@ -195,6 +200,10 @@ public class Fortress implements Serializable {
 
     public Boolean isSystem() {
         return system;
+    }
+
+    public FortressSegment getDefaultSegment() {
+        return defaultSegment;
     }
 
     @Override
