@@ -72,7 +72,8 @@ public class QueryParams implements QueryInterface{
 
     public QueryParams() {}
 
-    public QueryParams(Fortress fortress) {
+
+    private QueryParams(Fortress fortress) {
         this();
         setFortress(fortress.getCode());
         setCompany(fortress.getCompany().getCode());
