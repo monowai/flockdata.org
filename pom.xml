@@ -32,7 +32,7 @@
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
         <org.springbatch.version>3.0.2.RELEASE</org.springbatch.version>
-        <neo4j.version>2.2.5</neo4j.version>
+        <neo4j.version>2.2.6</neo4j.version>
         <org.springdata.neo4j>3.3.2.RELEASE</org.springdata.neo4j>
         <!--<neo4j.version>2.1.8</neo4j.version>-->
         <!--<org.springdata.neo4j>3.3.0.RELEASE</org.springdata.neo4j>-->
@@ -40,7 +40,7 @@
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj.version>1.8.4</org.aspectj.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
-        <jackson.version>2.2.3</jackson.version>
+        <jackson.version>2.6.3</jackson.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
@@ -147,14 +147,19 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>1.2</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.6.3</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -185,11 +190,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.0.0.GA</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>4.3.0.Final</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -434,6 +434,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                         <source>${java.version}</source>
@@ -449,7 +450,7 @@
 
                 <plugin>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.6</version>
                     <configuration>
                         <packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>
                         <packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>
@@ -458,7 +459,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.5.3</version>
                     <configuration>
                         <useReleaseProfile>false</useReleaseProfile>
                         <releaseProfiles>release</releaseProfiles>
@@ -468,7 +469,7 @@
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.3</version>
+                    <version>1.6.6</version>
                     <extensions>true</extensions>
                     <configuration>
                         <serverId>ossrh</serverId>
@@ -484,7 +485,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.5.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.tomcat.maven</groupId>

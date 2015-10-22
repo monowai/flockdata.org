@@ -76,7 +76,7 @@ public class TestTagCloud extends ESBase {
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
         tags.add(new EntityTagOut(entity, tag, "rlxname", null));
-        change.setTags(null, tags);
+        change.setStructuredTags(null, tags);
 
         deleteEsIndex(entity);
 

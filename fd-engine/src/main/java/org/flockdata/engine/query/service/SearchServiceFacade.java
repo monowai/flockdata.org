@@ -204,7 +204,7 @@ public class SearchServiceFacade {
         }
         // ToDo: Can we optimize by using tags already tracked in the result bean?
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
         searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
@@ -280,7 +280,7 @@ public class SearchServiceFacade {
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-            searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+            searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
             searchDocument.setReplyRequired(false);
             searchDocument.setForceReindex(true);
 
@@ -389,7 +389,7 @@ public class SearchServiceFacade {
 
     public void setTags(Entity entity, SearchChange searchDocument) {
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
-        searchDocument.setTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
+        searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
 
     }
 }

@@ -21,7 +21,6 @@ package org.flockdata.track.bean;
 
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.search.IndexHelper;
 
 /**
  * User: mike
@@ -85,10 +84,6 @@ public class EntityKeyBean {
 
     public String getCompany() {
         return company;
-    }
-
-    public String getIndexName() {
-        return IndexHelper.getIndexRoot(company, fortressName);
     }
 
     @Override
