@@ -62,4 +62,9 @@ public class FortressSegment {
     public boolean isDefault() {
         return code.equals(DEFAULT);
     }
+
+    @JsonIgnore
+    public Company getCompany() {
+        return fortress.getCompany();
+    }
 }

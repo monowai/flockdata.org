@@ -372,7 +372,7 @@ public class TestFdIntegration {
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
 
-        assertEquals(IndexHelper.PREFIX + "testcompany.tracktest", entity.getFortress().getIndexName());
+        assertEquals(IndexHelper.PREFIX + "testcompany.tracktest", entity.getFortress().getRootIndex());
 
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
 
@@ -881,7 +881,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
         Entity entity = result.getEntity();
-        assertEquals(IndexHelper.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
+        assertEquals(IndexHelper.PREFIX + "monowai." + fo.getCode(), entity.getSegment().getFortress());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
@@ -1014,7 +1014,6 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
 
         waitForFirstSearchResult(su.getCompany(), entity);
-        String indexName = entity.getFortress().getIndexName();
 
         doEsQuery(entity, "andy");
 
@@ -1130,7 +1129,7 @@ public class TestFdIntegration {
         entity = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), what)).getEntity();
         waitForFirstSearchResult(su.getCompany(), entity);
 
-        String indexName = entity.getFortress().getIndexName();
+        String indexName = entity.getFortress().getRootIndex();
         getMapping(indexName);
 
         // Completion only works as "Starts with"

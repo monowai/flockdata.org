@@ -120,7 +120,7 @@ public class Log  {
         //DAT-349 creates a mock node when storage is disabled
         this.id = 0l;
         this.mocked = true;
-        this.madeBy = (entity.getCreatedBy()==null ? new FortressUser(entity.getFortress(), null) :entity.getCreatedBy());
+        this.madeBy = (entity.getCreatedBy()==null ? new FortressUser(entity.getSegment().getFortress(), null) :entity.getCreatedBy());
         this.event = (entity.getEvent() == null ? "Create":entity.getEvent());
         this.storage = KvService.KV_STORE.NONE.name();
     }

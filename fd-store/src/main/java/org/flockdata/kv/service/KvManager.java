@@ -33,7 +33,7 @@ import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.kv.none.EsRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
-import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.model.Entity;
@@ -134,7 +134,7 @@ public class KvManager implements KvService {
     public void doWrite(Entity entity, KvContentBean kvBean) throws FlockServiceException {
         // Code smell - we're resolving the storage twice
         if (kvBean.getStorage() == null ){
-            kvBean.setStorage(getKvStore(entity.getFortress()).name());
+            kvBean.setStorage(getKvStore(entity.getSegment()).name());
         }
         if ( kvBean.getStorage().equals(KV_STORE.NONE.name()))
             return;
@@ -163,7 +163,7 @@ public class KvManager implements KvService {
     @Override
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
-        KV_STORE storage = getKvStore(trackResult.getEntity().getFortress());
+        KV_STORE storage = getKvStore(trackResult.getEntity().getSegment());
 
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
         kvContent.setStorage(storage.name());
@@ -172,9 +172,9 @@ public class KvManager implements KvService {
         return getKvRepo(storage).prepareLog(log, kvContent);
     }
 
-    private KV_STORE getKvStore(Fortress fortress) {
+    private KV_STORE getKvStore(FortressSegment segment) {
         KV_STORE storage;
-        if ( fortress.isStoreEnabled())
+        if ( segment.getFortress().isStoreEnabled())
             storage = kvConfig.getKvStore();
         else
             storage = KV_STORE.NONE;

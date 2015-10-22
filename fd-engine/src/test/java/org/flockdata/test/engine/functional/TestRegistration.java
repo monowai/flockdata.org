@@ -81,8 +81,8 @@ public class TestRegistration extends EngineBase {
         SystemUser su = registerSystemUser("searchIndexTest", mike_admin);
 
         Fortress f = new Fortress(new FortressInputBean("TESTING", true), su.getCompany());
-        assertNotNull ( f.getIndexName());
-        assertEquals(IndexHelper.getIndexRoot(f), f.getIndexName());
+        assertNotNull ( f.getRootIndex());
+        assertEquals(IndexHelper.getIndexRoot(f), f.getRootIndex());
     }
 
     @Test

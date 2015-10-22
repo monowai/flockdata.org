@@ -110,11 +110,11 @@ public class AdminService implements EngineAdminService {
 
         if (fortress.isStoreEnabled() && engineConfig.getKvStore() != KvService.KV_STORE.NONE) {
             logger.info("Purging KV");
-            kvService.purge(fortress.getIndexName());
+            kvService.purge(fortress.getRootIndex());
         }
         fortressService.purge(fortress);
         engineConfig.resetCache();
-        searchService.purge(fortress.getIndexName());
+        searchService.purge(fortress.getRootIndex());
         watch.stop();
         logger.info("Completed purge. Removed " + nf.format(total) + " entities for fortress " + fortress);
 

@@ -79,7 +79,7 @@ public class ESBase {
     QueryServiceEs queryServiceEs;
 
     static void deleteEsIndex(Entity entity) throws Exception{
-        deleteEsIndex(entity.getFortress().getIndexName(), entity.getType());
+        deleteEsIndex(entity.getFortress().getRootIndex(), entity.getType());
     }
 
     static void deleteEsIndex(String indexName, String documentType) throws Exception {

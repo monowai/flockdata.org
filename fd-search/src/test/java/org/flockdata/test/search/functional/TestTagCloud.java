@@ -83,7 +83,7 @@ public class TestTagCloud extends ESBase {
         trackRepo.handle(change);
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
-        tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
+        tagCloudParams.setCompany(entity.getSegment().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
         tagCloudParams.addType(entity.getType());
         ArrayList<String>rlxs = new ArrayList<>();

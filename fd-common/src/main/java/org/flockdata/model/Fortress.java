@@ -50,6 +50,7 @@ public class Fortress implements Serializable {
 
 
     @RelatedTo(type = "DEFAULT", direction = Direction.OUTGOING)
+    @Fetch
     private FortressSegment defaultSegment;
 
     private Boolean accumulatingChanges = false;
@@ -61,7 +62,7 @@ public class Fortress implements Serializable {
     private Boolean enabled = Boolean.TRUE;
 
     @Indexed (unique = true)
-    private String indexName = null;
+    private String rootIndex = null;
 
     protected Fortress() {
     }
@@ -76,10 +77,10 @@ public class Fortress implements Serializable {
 
     }
 
-    public String getIndexName() {
-        if ( indexName == null )
-            indexName = IndexHelper.getIndexRoot(this);
-        return indexName;
+    public String getRootIndex() {
+        if ( rootIndex == null )
+            rootIndex = IndexHelper.getIndexRoot(this);
+        return rootIndex;
     }
 
     Fortress setFortressInput(FortressInputBean fortressInputBean) {
@@ -121,7 +122,7 @@ public class Fortress implements Serializable {
     }
 
     public void setCompany(org.flockdata.model.Company ownedBy) {
-        this.indexName = IndexHelper.getIndexRoot(ownedBy.getCode(), getCode());
+        this.rootIndex = IndexHelper.getIndexRoot(ownedBy.getCode(), getCode());
         this.company = ownedBy;
 
     }
@@ -170,7 +171,7 @@ public class Fortress implements Serializable {
                 ", name='" + name + '\'' +
                 ", searchEnabled=" + searchEnabled +
                 ", storeEnabled=" + storeEnabled +
-                ", indexName='" + indexName + '\'' +
+                ", rootIndex='" + rootIndex + '\'' +
                 '}';
     }
 
@@ -202,6 +203,7 @@ public class Fortress implements Serializable {
         return system;
     }
 
+    @JsonIgnore
     public FortressSegment getDefaultSegment() {
         return defaultSegment;
     }
@@ -215,14 +217,14 @@ public class Fortress implements Serializable {
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (company != null ? !company.equals(that.company) : that.company != null) return false;
-        if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
+        if (rootIndex != null ? !rootIndex.equals(that.rootIndex) : that.rootIndex != null) return false;
         return !(id != null ? !id.equals(that.id) : that.id != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = indexName != null ? indexName.hashCode() : 0;
+        int result = rootIndex != null ? rootIndex.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);

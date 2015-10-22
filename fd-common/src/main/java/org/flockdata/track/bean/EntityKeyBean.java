@@ -63,7 +63,7 @@ public class EntityKeyBean {
     }
 
     public EntityKeyBean(Entity entity) {
-        this.fortressName = entity.getFortress().getName();
+        this.fortressName = entity.getSegment().getFortress().getName();
         this.code = entity.getCode();
         this.documentType = entity.getType();
         this.metaKey = entity.getMetaKey();

@@ -45,7 +45,7 @@ public class FortressResultBean implements Serializable{
         this();
         this.name = fortress.getName();
         this.code = fortress.getCode();
-        this.indexName = fortress.getIndexName();
+        this.indexName = fortress.getRootIndex();
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
         this.searchEnabled = fortress.isSearchEnabled();

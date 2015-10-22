@@ -381,7 +381,7 @@ public class SearchServiceFacade {
 
         for (Entity entity : entitiesSet) {
             SearchChange change = rebuild(entity, entityService.getLastEntityLog(entity.getId()));
-            if (change != null && entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
+            if (change != null && entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed())
                 searchChanges.add(change);
         }
         makeChangesSearchable(searchChanges);

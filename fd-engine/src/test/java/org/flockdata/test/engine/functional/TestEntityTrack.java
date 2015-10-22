@@ -105,8 +105,8 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
         Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentName(), inputBean.getCode());
         assertNotNull(e);
-        assertNotNull("Locating an entity by callerRef did not set the fortress", e.getFortress());
-        assertNotNull("Did not find the Company in the Fortress", e.getFortress().getCompany());
+        assertNotNull("Locating an entity by callerRef did not set the fortress", e.getSegment());
+        assertNotNull("Did not find the Company in the Fortress", e.getSegment().getCompany());
         assertNotNull("Should have found an entity connected to a fortress user", e.getCreatedBy());
 
     }
@@ -289,7 +289,7 @@ public class TestEntityTrack extends EngineBase {
         EntitySummaryBean entitySummary = entityService.getEntitySummary(su.getCompany(), metaKey);
         assertNotNull(entitySummary);
         assertEquals(metaKey, entitySummary.getEntity().getMetaKey());
-        assertNotNull(entitySummary.getEntity().getFortress());
+        assertNotNull(entitySummary.getEntity().getSegment());
         assertNotNull(entitySummary.getEntity().getCreatedBy());
         assertNotNull(entitySummary.getEntity().getLastUser());
         assertEquals(2, entitySummary.getChanges().size());
@@ -1051,7 +1051,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         Entity entity = result.getEntity();
-        assertEquals(IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getIndexName());
+        assertEquals(IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
@@ -1085,8 +1085,8 @@ public class TestEntityTrack extends EngineBase {
 
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         logger.debug("***  problem {}", entity.toString());
-        logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getFortress(), entity.getFortress().getCompany(), result.getEntity().getFortress());
-        assertEquals("Why is this failing", IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getIndexName());
+        logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getSegment(), entity.getSegment().getCompany(), result.getEntity().getSegment());
+        assertEquals("Why is this failing", IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
