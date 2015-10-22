@@ -57,7 +57,7 @@ public interface SearchChange {
 
     HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
-    void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
+    void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
 
     /**
      * @return who made this change
@@ -142,7 +142,7 @@ public interface SearchChange {
 
     EntityService.TAG_STRUCTURE getTagStructure();
 
-    void setTags(ArrayList<EntityTag> tagsB);
+    void setStructuredTags(ArrayList<EntityTag> tagsB);
 
     void setParent(EntityKeyBean parent);
 }

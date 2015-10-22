@@ -225,7 +225,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @JsonIgnore
-    public void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
+    public void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
         this.tagStructure = tagStructure;
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
@@ -406,8 +406,8 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setTags(ArrayList<EntityTag> tags) {
-        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    public void setStructuredTags(ArrayList<EntityTag> tags) {
+        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
     }
 
     @Override
@@ -457,7 +457,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     public void setTags(Collection<EntityTag> tags) {
-        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
     }
 
     public void setSegment(String segment) {
