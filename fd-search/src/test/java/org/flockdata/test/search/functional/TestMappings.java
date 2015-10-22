@@ -211,7 +211,7 @@ public class TestMappings extends ESBase {
 
         doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        String index = IndexHelper.getIndexRoot(entityA.getFortress()) +"*";
+        String index = IndexHelper.getIndexRoot(entityA.getSegment()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 

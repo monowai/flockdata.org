@@ -67,7 +67,7 @@ public class TestSupportFunctions extends ESBase {
         SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(1000);
 
-        queryServiceEs.getTags(entity.getFortress().getIndexName());
+        queryServiceEs.getTags(entity.getFortress().getRootIndex());
 
     }
 }

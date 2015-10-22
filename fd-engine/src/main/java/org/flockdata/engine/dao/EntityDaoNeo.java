@@ -79,9 +79,9 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    public Entity create(EntityInputBean inputBean, Fortress fortress, FortressUser fortressUser, DocumentType documentType) throws FlockException {
+    public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
-        Entity entity = new Entity(metaKey, fortress, inputBean, documentType);
+        Entity entity = new Entity(metaKey, segment, inputBean, documentType);
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
         if (!inputBean.isTrackSuppressed()) {
@@ -177,9 +177,9 @@ public class EntityDaoNeo {
 
     public Collection<Entity> findEntities(Long fortressId, String label, Long skipTo) {
         //ToDo: Should this pass in timestamp it got to??
-        String cypher = "match (f:Fortress)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortressUser} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
+        String cypher = "match (f:Fortress)-[:DEFINES]-(s:FortressSegment)-[:TRACKS]->(meta:`" + label + "`) where id(f)={fortress} return meta ORDER BY meta.dateCreated ASC skip {skip} limit 100 ";
         Map<String, Object> args = new HashMap<>();
-        args.put("fortressUser", fortressId);
+        args.put("fortress", fortressId);
         args.put("skip", skipTo);
         Iterable<Map<String, Object>> result = template.query(cypher, args);
 
@@ -294,7 +294,7 @@ public class EntityDaoNeo {
 
     private EntityLog getMockLog(Entity entity){
         // DAT-349 returns a mock log if storage history is not being maintained by a KV impl
-        if ( !entity.getFortress().isStoreEnabled()){
+        if ( !entity.getSegment().getFortress().isStoreEnabled()){
             Log log = new Log(entity);
             return new EntityLog(entity, log, entity.getFortressCreatedTz());
         }
@@ -337,7 +337,7 @@ public class EntityDaoNeo {
         if (entity.getId() == null)// Graph tracking is suppressed; caller is only creating search docs
             return entityLog;
 
-        if ( entity.getFortress().isStoreDisabled() )
+        if ( entity.getSegment().getFortress().isStoreDisabled() )
             return entityLog;
 
         logger.debug(entity.getMetaKey());
@@ -430,7 +430,7 @@ public class EntityDaoNeo {
         Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), metaKeys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
-            if ( foundEntity.getFortress().getCompany().getId().equals(company.getId()))
+            if ( foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId()))
                 unsorted.put(foundEntity.getMetaKey(), foundEntity);
         }
         return unsorted;

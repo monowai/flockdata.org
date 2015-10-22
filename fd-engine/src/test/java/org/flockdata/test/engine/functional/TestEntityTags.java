@@ -921,7 +921,7 @@ public class TestEntityTags extends EngineBase {
 
         validateTag(entity, null, 1);
         validateTag(entity, "TEST-CREATE", 1);
-        Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity.getFortress().getCompany(), entity);
+        Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity.getSegment().getCompany(), entity);
         for (EntityTag entityTag : entityTags) {
             assertEquals("Archived relationship name was not restored", "rlx-test", entityTag.getRelationship());
         }
@@ -1378,7 +1378,7 @@ public class TestEntityTags extends EngineBase {
 
     private void validateTag(Entity entity, String tagName, int totalExpected) {
         Collection<EntityTag> entityTags;
-        entityTags = entityTagService.findEntityTags(entity.getFortress().getCompany(), entity);
+        entityTags = entityTagService.findEntityTags(entity.getSegment().getCompany(), entity);
         if (tagName == null) {
             assertEquals("Total Expected Tags is incorrect", totalExpected, entityTags.size());
             return;

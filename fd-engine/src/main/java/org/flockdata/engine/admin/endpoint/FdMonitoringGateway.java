@@ -23,6 +23,7 @@ import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.messaging.handler.annotation.Payload;
 
+//@MessagingGateway ???
 public interface FdMonitoringGateway {
     /**
      * A required Payload must be declared due to spring Integration constraint
