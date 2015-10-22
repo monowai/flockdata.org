@@ -486,7 +486,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(summary);
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         String queryString = "{\"query_string\": {\n" +
                 "      \"query\": \"hello world\"\n" +
                 "  }}";
@@ -815,7 +815,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 2);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         String queryResult = runFdViewQuery(qp);
         assertNotNull(queryResult);
@@ -847,7 +847,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 2);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
@@ -881,7 +881,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
         Entity entity = result.getEntity();
-        assertEquals(IndexHelper.PREFIX + "monowai." + fo.getCode(), entity.getSegment().getFortress());
+
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
@@ -891,7 +891,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 1);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
@@ -1318,7 +1318,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
 
-        QueryParams q = new QueryParams(fortress)
+        QueryParams q = new QueryParams(fortress.getDefaultSegment())
                 .setSearchText(searchFor);
         doEsQuery(result.getEntity(), searchFor, 1);
 

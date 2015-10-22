@@ -63,7 +63,7 @@ public class IndexHelper {
     public static String getIndexRoot(String company, String fortress, String segment) {
         return PREFIX + company.toLowerCase() + "." +
                 (fortress == null ? "*": fortress.toLowerCase())+
-                (segment.equals(FortressSegment.DEFAULT) ? "*": segment.toLowerCase())
+                (segment == null || segment.equals(FortressSegment.DEFAULT) ? "": segment.toLowerCase())
 
                 ;
     }
