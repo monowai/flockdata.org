@@ -33,6 +33,7 @@ public class TestIndexHelper {
         QueryParams qp = new QueryParams();
         qp.setCompany(company);
         qp.setFortress(fortress);
+        qp.setSegment(segment);
         qp.setTypes("Type0", "type1");
 
         String[] indexes = IndexHelper.getIndexesToQuery(qp);
