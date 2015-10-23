@@ -20,7 +20,14 @@ public class IndexHelper {
     public static final String PREFIX = "fd.";
 
     public static String parseIndex(Entity entity) {
-        return parseIndex(entity.getSegment().getFortress().getRootIndex(), entity.getType());
+        if (entity.getSegment().isDefault())
+            return entity.getSegment().getFortress().getRootIndex();
+        else {
+            String index = parseIndex(entity.getSegment().getFortress().getRootIndex());
+            index = index + "." + entity.getSegment().getCode().toLowerCase();
+            return index;
+        }
+
     }
 
     /**
@@ -29,14 +36,14 @@ public class IndexHelper {
      * @return {indexRoot}.*
      */
     public static String parseIndex(Fortress fortress) {
-        return parseIndex(fortress.getRootIndex(), "*");
+        return parseIndex(fortress.getRootIndex());
     }
 
     public static String parseIndex(SearchChange searchChange) {
-        return parseIndex(searchChange.getIndexName(), searchChange.getDocumentType());
+        return parseIndex(searchChange.getIndexName());
     }
 
-    public static String parseIndex(String indexRoot, String documentType) {
+    public static String parseIndex(String indexRoot) {
         //return (indexRoot +"."+documentType).toLowerCase();
         return indexRoot;
     }

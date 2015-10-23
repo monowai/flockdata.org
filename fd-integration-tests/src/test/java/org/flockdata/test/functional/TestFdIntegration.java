@@ -272,7 +272,7 @@ public class TestFdIntegration {
     }
 
     private static void deleteEsIndex(String indexName, String docType) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName, docType);
+        String deleteMe = IndexHelper.parseIndex(indexName);
         logger.info("%% Delete Index {}", deleteMe);
         esClient.execute(new DeleteIndex.Builder(deleteMe).build());
     }
@@ -1725,6 +1725,38 @@ public class TestFdIntegration {
         doEsNestedQuery(entity, "tag.viewed.term", "tag.viewed.term.parent.category.code", "cars", 1);
 
 
+    }
+
+    @Test
+    public void segments_ExistInElasticSearch() throws Exception {
+//        assumeTrue(runMe);
+
+        logger.info("## segments_ExistInElasticSearch");
+
+        setDefaultAuth();
+        SystemUser su = registerSystemUser("segments_ExistInElasticSearch", "segments_ExistInElasticSearch");
+        assertNotNull(su);
+        engineConfig.setStoreEnabled("false");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
+        FortressSegment segment2014 = new FortressSegment(fortress, "2014");
+        fortressService.addSegment(segment2014);
+        FortressSegment segment2015 = new FortressSegment(fortress, "2015");
+        fortressService.addSegment(segment2015);
+
+        assertEquals(2, fortressService.getSegments(fortress).size());
+
+        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+
+        DocumentType docType = new DocumentType(fortress, "DAT-506", EntityService.TAG_STRUCTURE.TAXONOMY);
+        EntityInputBean entityInputBean = new EntityInputBean(docType, "abc");
+        entityInputBean.setSegment(segment2014.getCode());
+
+        Entity entity2014 = mediationFacade
+                .trackEntity(su.getCompany(), entityInputBean)
+                .getEntity();
+
+        assertEquals(segment2014.getId(), entity2014.getSegment().getId());
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {

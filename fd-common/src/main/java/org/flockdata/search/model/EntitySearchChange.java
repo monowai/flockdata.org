@@ -96,6 +96,9 @@ public class EntitySearchChange implements SearchChange {
         if (!entity.getSegment().isDefault())
             setSegment(entity.getSegment().getCode());
         this.indexName = entity.getSegment().getFortress().getRootIndex();
+        if ( !entity.getSegment().isDefault()){
+            this.indexName = this.indexName + "."+entity.getSegment().getCode().toLowerCase();
+        }
         this.searchKey = entity.getSearchKey();
         this.code = entity.getCode();
         if (entity.getLastUser() != null)

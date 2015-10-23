@@ -60,6 +60,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private boolean archiveTags = true;
     private String updateUser;
     private FortressUser user;
+    private String segment;
 
     public EntityInputBean() {
     }
@@ -476,5 +477,13 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public void setSegment(String segment) {
+        this.segment = segment;
+    }
+
+    public String getSegment() {
+        return segment;
     }
 }

@@ -230,7 +230,7 @@ public class TrackDaoES implements TrackSearchDao {
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName, documentType), documentType, id)
+        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName), documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
