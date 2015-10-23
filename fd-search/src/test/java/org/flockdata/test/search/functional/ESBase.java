@@ -83,7 +83,7 @@ public class ESBase {
     }
 
     static void deleteEsIndex(String indexName, String documentType) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName, documentType);
+        String deleteMe = IndexHelper.parseIndex(indexName);
         logger.info("%% Delete Index {}", deleteMe);
         esClient.execute(new DeleteIndex.Builder(deleteMe).build());
     }

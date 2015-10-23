@@ -419,4 +419,8 @@ public class Entity implements Serializable {
     public Fortress getFortress() {
         return segment.getFortress();
     }
+
+    public void setSegment(FortressSegment segment) {
+        this.segment = segment;
+    }
 }

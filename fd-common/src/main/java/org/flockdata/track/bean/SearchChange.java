@@ -145,4 +145,6 @@ public interface SearchChange {
     void setStructuredTags(ArrayList<EntityTag> tagsB);
 
     void setParent(EntityKeyBean parent);
+
+    String getSegment();
 }
