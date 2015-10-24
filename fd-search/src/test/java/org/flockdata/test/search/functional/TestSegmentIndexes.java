@@ -35,8 +35,8 @@ public class TestSegmentIndexes extends ESBase{
         String company = "company";
         String user = "mike";
 
-        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase() +".2014", "Invoice");
-        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase() +".2015", "Invoice");
+        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase() +".2014", "invoice");
+        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase() +".2015", "invoice");
 //        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase(), "child");
 
         Entity entity = Helper.getEntity(company, fortress, user, "Invoice", "123");
@@ -54,7 +54,7 @@ public class TestSegmentIndexes extends ESBase{
         change = new EntitySearchChange(entityOtherSegment);
         trackService.createSearchableChange(new EntitySearchChanges(change));
 
-
+        Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
         doQuery(entity, entity.getMetaKey(), 1);
         //"Each doc should be in it's own segmented index"

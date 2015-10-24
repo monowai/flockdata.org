@@ -71,7 +71,7 @@ public class TestCallerRef extends EngineBase {
             EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
             assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey());
             inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
-            String metaKey = mediationFacade.trackEntity(fortress, inputBean).getEntity().getMetaKey();
+            String metaKey = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean).getEntity().getMetaKey();
 
             assertNotNull(metaKey);
             Entity entity = entityService.getEntity(su.getCompany(), metaKey);
@@ -206,7 +206,7 @@ public class TestCallerRef extends EngineBase {
                 while (count < maxRun) {
                     EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
-                    TrackResultBean trackResult = mediationFacade.trackEntity(fortress, inputBean);
+                    TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
                     assertNotNull(trackResult);
                     assertEquals(callerRef.toLowerCase(), trackResult.getEntity().getCode().toLowerCase());
                     Entity byCallerRef = entityService.findByCode(fortress, docType, callerRef);

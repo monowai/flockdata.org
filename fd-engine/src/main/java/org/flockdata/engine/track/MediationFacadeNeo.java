@@ -183,19 +183,26 @@ public class MediationFacadeNeo implements MediationFacade {
      * <p>
      * This is synchronous and blocks until completed
      *
-     * @param fortress  - system that owns the data
+     * @param segment  - system that owns the data
      * @param inputBean - input
      * @return non-null
      * @throws org.flockdata.helper.FlockException illegal input
      * @throws IOException                         json processing exception
      */
     @Override
-    public TrackResultBean trackEntity(final Fortress fortress, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+    public TrackResultBean trackEntity(final FortressSegment segment, final EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         List<EntityInputBean> inputs = new ArrayList<>(1);
         inputs.add(inputBean);
-        Collection<TrackResultBean> results = trackEntities(fortress.getDefaultSegment(), inputs, 1);
+        Collection<TrackResultBean> results = trackEntities(segment, inputs, 1);
         return results.iterator().next();
     }
+
+    @Override
+    public TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException {
+        return trackEntity(fortress.getDefaultSegment(), inputBean);
+    }
+
+
 
     @Override
     public Collection<TrackResultBean> trackEntities(final Fortress fortress, final List<EntityInputBean> inputBeans, int splitListInTo) throws FlockException, IOException, ExecutionException, InterruptedException {
@@ -274,7 +281,12 @@ public class MediationFacadeNeo implements MediationFacade {
                     new FortressInputBean(inputBean.getFortress(), IGNORE_SEARCH_ENGINE)
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
-        return trackEntity(fortress, inputBean);
+        FortressSegment segment;
+        if ( inputBean.getSegment() != null )
+            segment = fortressService.addSegment(new FortressSegment(fortress, inputBean.getSegment()));
+        else
+            segment = fortress.getDefaultSegment();
+        return trackEntity(segment, inputBean);
     }
 
     @Override
