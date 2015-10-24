@@ -49,7 +49,7 @@ public interface MediationFacade {
 
     TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackEntity(FortressSegment segment, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
@@ -78,4 +78,6 @@ public interface MediationFacade {
     Map<String,Object> getLogContent(Entity entity, Long logId);
 
     String validateFromSearch(Company company, String fortressName, String docType) throws FlockException;
+
+    TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
 }

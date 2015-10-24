@@ -44,7 +44,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = change.getDocumentType();
+        String documentType = IndexHelper.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping

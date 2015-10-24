@@ -151,7 +151,7 @@ public class TestAdminCalls extends EngineBase {
         inputBean.setCode("123abc");
         inputBean.setMetaKey(null);
         inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
-        mediationFacade.trackEntity(fortress, inputBean);
+        mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress

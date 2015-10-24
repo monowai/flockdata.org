@@ -157,7 +157,7 @@ public class TestEntityTags extends EngineBase {
 
         DateTime fCreated = new DateTime().minus(10000);
         EntityInputBean entityBean = new EntityInputBean(fortress.getName(), "anyone", "aTest", fCreated, "abc");
-        TrackResultBean resultBean = mediationFacade.trackEntity(fortress, entityBean);
+        TrackResultBean resultBean = mediationFacade.trackEntity(fortress.getDefaultSegment(), entityBean);
         Entity entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
 
         assertEquals(fCreated.getMillis(), entity.getFortressCreatedTz().getMillis());
@@ -184,7 +184,7 @@ public class TestEntityTags extends EngineBase {
         entityBean.setArchiveTags(false);// We don't have a reference to the original tag in the Input
         // as we assigned it in a secondary step, so will accumulate tags and stop them being archived
         entityBean.setContent(contentInputBean);
-        mediationFacade.trackEntity(fortress, entityBean);
+        mediationFacade.trackEntity(fortress.getDefaultSegment(), entityBean);
         entity = entityService.getEntity(su.getCompany(), resultBean.getEntity().getMetaKey());
         assertEquals(fCreated, entity.getFortressCreatedTz());
         assertEquals(fUpdated.getMillis(), entity.getFortressUpdatedTz().getMillis());
