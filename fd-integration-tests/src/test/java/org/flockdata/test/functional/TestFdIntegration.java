@@ -247,18 +247,18 @@ public class TestFdIntegration {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph"), "");
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111"), "");
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph"));
+        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111"));
 
         for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i , "");
+            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i);
         }
 
     }
@@ -271,7 +271,7 @@ public class TestFdIntegration {
         engineConfig.setStoreEnabled("true"); // Rest to default state for each test
     }
 
-    private static void deleteEsIndex(String indexName, String docType) throws Exception {
+    private static void deleteEsIndex(String indexName) throws Exception {
         String deleteMe = IndexHelper.parseIndex(indexName);
         logger.info("%% Delete Index {}", deleteMe);
         esClient.execute(new DeleteIndex.Builder(deleteMe).build());
