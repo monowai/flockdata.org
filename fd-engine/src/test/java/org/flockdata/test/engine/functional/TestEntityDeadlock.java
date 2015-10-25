@@ -60,7 +60,7 @@ public class TestEntityDeadlock extends EngineBase {
      *
      * @throws Exception
      */
-    @Test
+//    @Test
     //@Repeat(value = 1)
     public void entitiesUnderLoad() throws Exception {
         // This test suffered under DAT-348 and was quarantined.
