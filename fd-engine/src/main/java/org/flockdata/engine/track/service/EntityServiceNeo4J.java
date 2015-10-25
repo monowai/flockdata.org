@@ -124,22 +124,22 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInputBean, Collection<Tag> tags) throws FlockException {
+    public TrackResultBean createEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInputBean, Collection<Tag> tags) throws FlockException {
 
         Entity entity = null;
         if (entityInputBean.getMetaKey() != null) {
-            entity = getEntity(segment.getCompany(), entityInputBean.getMetaKey());
+            entity = getEntity(fortress.getCompany(), entityInputBean.getMetaKey());
         }
 
         if (entity == null && (entityInputBean.getCode() != null && !entityInputBean.getCode().equals(EMPTY)))
-            entity = findByCode(segment.getFortress(), documentType, entityInputBean.getCode());
+            entity = findByCode(fortress, documentType, entityInputBean.getCode());
 
         if (entity != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCode(), entity.getMetaKey());
             //entityInputBean.setMetaKey(entity.getMetaKey());
 
             logger.trace("Existing entity [{}]", entity);
-            TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, entityInputBean);
+            TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
             trackResult.entityExisted();
             trackResult.setContentInput(entityInputBean.getContent());
             trackResult.setDocumentType(documentType);
@@ -169,19 +169,19 @@ public class EntityServiceNeo4J implements EntityService {
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
             trackResult.setTags(
-                    entityTagService.associateTags(segment.getCompany(), entity, entityLog, entityInputBean)
+                    entityTagService.associateTags(fortress.getCompany(), entity, entityLog, entityInputBean)
             );
             return trackResult;
         }
 
         try {
-            entity = makeEntity(segment, documentType, entityInputBean);
+            entity = makeEntity(fortress, documentType, entityInputBean);
         } catch (FlockException e) {
             logger.error(e.getMessage());
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
 
-        TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, entityInputBean);
+        TrackResultBean trackResult = new TrackResultBean(fortress, entity, entityInputBean);
         trackResult.setDocumentType(documentType);
 
         // Flag the entity as having been newly created. The flag is transient and
@@ -193,7 +193,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (tags != null)
             tags.clear();
         trackResult.setTags(
-                entityTagService.associateTags(segment.getCompany(), entity, null, entityInputBean)
+                entityTagService.associateTags(fortress.getCompany(), entity, null, entityInputBean)
         );
 
         trackResult.setContentInput(entityInputBean.getContent());
@@ -204,14 +204,14 @@ public class EntityServiceNeo4J implements EntityService {
             // Minimal defaults that are otherwise set in the LogService
             FortressUser contentUser = null;
             if (entityInputBean.getContent().getFortressUser() != null)
-                contentUser = fortressService.getFortressUser(segment.getFortress(), entityInputBean.getContent().getFortressUser());
+                contentUser = fortressService.getFortressUser(fortress, entityInputBean.getContent().getFortressUser());
 
             if (entityInputBean.getContent().getEvent() == null) {
                 entityInputBean.getContent().setEvent(Log.CREATE);
             }
-            Log log = entityDao.prepareLog(segment.getCompany(), (contentUser != null ? contentUser : entity.getCreatedBy()), trackResult, null, null);
+            Log log = entityDao.prepareLog(fortress.getCompany(), (contentUser != null ? contentUser : entity.getCreatedBy()), trackResult, null, null);
 
-            DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(segment.getFortress().getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
+            DateTime contentWhen = (trackResult.getContentInput().getWhen() == null ? new DateTime(DateTimeZone.forID(fortress.getTimeZone())) : new DateTime(trackResult.getContentInput().getWhen()));
             EntityLog entityLog = new EntityLog(entity, log, contentWhen);
 
             //if (trackResult.getContentInput().getWhen()!= null )
@@ -226,22 +226,22 @@ public class EntityServiceNeo4J implements EntityService {
 
     }
 
-    public Entity makeEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
+    public Entity makeEntity(Fortress fortress, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
         String fortressUser = entityInput.getFortressUser();
         if (fortressUser == null && entityInput.getContent() != null)
             fortressUser = entityInput.getContent().getFortressUser();
 
         FortressUser entityUser = null;
         if (fortressUser != null)
-            entityUser = fortressService.getFortressUser(segment.getFortress(), fortressUser);
+            entityUser = fortressService.getFortressUser(fortress, fortressUser);
 
 
-        Entity entity = entityDao.create(entityInput, segment, entityUser, documentType);
+        Entity entity = entityDao.create(entityInput, fortress, entityUser, documentType);
         if (entity.getId() == null)
-            entityInput.setMetaKey("NT " + segment.getFortress().getId()); // We ain't tracking this
+            entityInput.setMetaKey("NT " + fortress.getId()); // We ain't tracking this
 
         //entityInput.setMetaKey(entity.getMetaKey());
-        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), segment.getFortress().getCode(), entity.getKey());
+        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), fortress.getCode(), entity.getKey());
         return entity;
     }
 
@@ -277,13 +277,13 @@ public class EntityServiceNeo4J implements EntityService {
 
         if (company == null)
             return getEntity(metaKey);
-        Entity entity = entityDao.findEntity(metaKey, inflate);
-        if (entity == null || entity.getSegment() == null)
+        Entity ah = entityDao.findEntity(metaKey, inflate);
+        if (ah == null || ah.getFortress() == null)
             return null;
 
-        if (!(entity.getSegment().getFortress().getCompany().getId().equals(company.getId())))
-            throw new SecurityException("CompanyNode mismatch. [" + metaKey + "] working for [" + company.getName() + "] cannot write meta records for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
-        return entity;
+        if (!(ah.getFortress().getCompany().getId().equals(company.getId())))
+            throw new SecurityException("CompanyNode mismatch. [" + metaKey + "] working for [" + company.getName() + "] cannot write meta records for [" + ah.getFortress().getCompany().getName() + "]");
+        return ah;
     }
 
     @Override
@@ -324,7 +324,7 @@ public class EntityServiceNeo4J implements EntityService {
     @Override
     public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
         Entity entity = getEntity(company, metaKey);
-        if (entity.getSegment().getFortress().isStoreEnabled())
+        if (entity.getFortress().isStoreEnabled())
             return entityDao.getLogs(entity);
         Set<EntityLog> logs = new HashSet<>();
         logs.add(entityDao.getLastEntityLog(entity));
@@ -368,7 +368,7 @@ public class EntityServiceNeo4J implements EntityService {
             entityDao.delete(currentLog);
             newEntityLog = entityDao.getLog(entity, fromLog.getEntityLog().getId());
             entity.setLastChange(fromLog);
-            entity.setLastUser(fortressService.getFortressUser(entity.getSegment().getFortress(), fromLog.getMadeBy().getCode()));
+            entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), fromLog.getMadeBy().getCode()));
             entity.setFortressLastWhen(newEntityLog.getFortressWhen());
             entity = entityDao.save(entity);
             entityTagService.moveTags(company, fromLog, entity);
@@ -377,7 +377,7 @@ public class EntityServiceNeo4J implements EntityService {
             // No changes left, there is now just an entity
             // ToDo: What to to with the entity? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
             // Delete from ElasticSearch??
-            entity.setLastUser(fortressService.getFortressUser(entity.getSegment().getFortress(), entity.getCreatedBy().getCode()));
+            entity.setLastUser(fortressService.getFortressUser(entity.getFortress(), entity.getCreatedBy().getCode()));
             entity.setFortressLastWhen(0l);
             entity.setSearchKey(null);
             entity = entityDao.save(entity);
@@ -394,7 +394,7 @@ public class EntityServiceNeo4J implements EntityService {
         }
 
         // Sync the update to fd-search.
-        if (entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
+        if (entity.getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
@@ -532,18 +532,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> entityInputs, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> entityInputs, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
             if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
-                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())) {
-                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(fortress, inputBean.getDocumentName());
             }
             assert (documentType != null);
             assert (documentType.getCode() != null);
-            TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
+            TrackResultBean result = createEntity(fortress, documentType, inputBean, tags);
             logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentName());
             arb.add(result);
         }
@@ -605,15 +605,15 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String linkName) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, sourceKey.getFortressName());
-        if (fortress == null)
+        Fortress f = fortressService.findByCode(company, sourceKey.getFortressName());
+        if (f == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
         Entity fromEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
-            fromEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
+            fromEntity = entityDao.findByCodeUnique(f.getId(), sourceKey.getCode());
         else {
-            DocumentType document = conceptService.resolveByDocCode(fortress, sourceKey.getDocumentType(), false);
-            fromEntity = entityDao.findByCode(fortress.getId(), document.getId(), sourceKey.getCode());
+            DocumentType document = conceptService.resolveByDocCode(f, sourceKey.getDocumentType(), false);
+            fromEntity = entityDao.findByCode(f.getId(), document.getId(), sourceKey.getCode());
         }
         if (fromEntity == null)
             // ToDo: Should we create it??
@@ -628,16 +628,16 @@ public class EntityServiceNeo4J implements EntityService {
 
             Collection<Entity> entities = new ArrayList<>();
             if (entityKey.getDocumentType().equals("*"))
-                entities = findByCode(fortress, entityKey.getCode());
+                entities = findByCode(f, entityKey.getCode());
             else {
                 Entity entity = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCode());
                 if (entity == null) {
                     // DAT-443
                     // Create a place holding entity if the requested one does not exist
-                    DocumentType documentType = conceptService.resolveByDocCode(fortress, entityKey.getDocumentType(), false);
+                    DocumentType documentType = conceptService.resolveByDocCode(f, entityKey.getDocumentType(), false);
                     if (documentType != null) {
-                        EntityInputBean eib = new EntityInputBean(fortress.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCode());
-                        TrackResultBean trackResult = createEntity(fortress.getDefaultSegment(), documentType, eib, null);
+                        EntityInputBean eib = new EntityInputBean(f.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCode());
+                        TrackResultBean trackResult = createEntity(f, documentType, eib, null);
                         entity = trackResult.getEntity();
                     } else {
                         ignored.add(entityKey);

@@ -43,8 +43,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
 
-        final String indexName = change.getIndexName();
-        String documentType = IndexHelper.parseType(change.getDocumentType());
+        String indexName = change.getIndexName();
+        String documentType = change.getDocumentType();
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -64,7 +64,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 if (esSettings != null) {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName))
+                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
                             .addMapping(documentType, esMapping)
                             .setSettings(esSettings)
                             .execute()
@@ -72,7 +72,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 } else {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName))
+                            .prepareCreate(IndexHelper.parseIndex(indexName, documentType))
                             .addMapping(documentType, esMapping)
                             .execute()
                             .actionGet();
@@ -98,7 +98,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         documentTypes[0] = change.getDocumentType();
 
         String[] indexNames = new String[1];
-        indexNames[0] = change.getIndexName();
+        indexNames[0] = IndexHelper.parseIndex(change.getIndexName(), change.getDocumentType());
 
         boolean hasIndexMapping = esClient.admin()
                 .indices()
@@ -118,7 +118,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
     private boolean hasIndex(SearchChange change) {
-        String indexName = change.getIndexName();
+        String indexName = IndexHelper.parseIndex(change.getIndexName(), change.getDocumentType());
         boolean hasIndex = esClient
                 .admin()
                 .indices()
