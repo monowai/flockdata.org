@@ -88,7 +88,7 @@ public class Helper {
         EntityInputBean entityInput = getEntityInputBean(docType, fort, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
-        return new Entity(Long.toString(System.currentTimeMillis()), fortress, entityInput, doc);
+        return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc);
 
     }
 
