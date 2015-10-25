@@ -37,20 +37,20 @@ public interface EntityRepo extends GraphRepository<Entity> {
                     "return entity")
     Set<Entity> findEntitiesByTxRef(Long txRef);
 
-    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) " +
+    @Query( elementClass = Entity.class, value=" match (fortress:Fortress)-[:TRACKS]->(entity:Entity) " +
                     " where id(fortress)={0} and id(entity) > {1}" +
                     " return entity ORDER BY id(entity) ASC" +
                     " limit 100 ")
     Set<Entity> findEntities(Long fortressId, Long lastEntity);
 
-    @Query(  value=" match (fortress:Fortress)-[:DEFINES]-(FortressSegment)-[:TRACKS]->(track:Entity) " +
+    @Query(  value=" match (fortress:Fortress)-[:TRACKS]->(track:Entity) " +
             " where id(fortress)={0} " +
             " return track.metaKey " +
             " limit {1} ")
     Collection<String> findEntitiesWithLimit(Long id, int limit);
 
     @Query( elementClass = Entity.class, value =
-            " match (fortress:Fortress)-[:DEFINES]-(segment:FortressSegment)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
+            " match (fortress:Fortress)-[:TRACKS]->(entity:Entity) where id(fortress)={0} " +
                     " and entity.code ={1}" +
                     " return entity ")
     Collection<Entity> findByCode(Long fortressId, String code);
@@ -70,7 +70,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
     @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.metaKey in {0} delete otherRlx")
     void purgeEntityLinks(Collection<String> entities);
 
-    @Query(value = "match (f:FortressSegment)-[track:TRACKS]-(entity:Entity) where entity.metaKey in {0} delete track, entity")
+    @Query(value = "match (f:Fortress)-[track:TRACKS]->(entity:Entity) where entity.metaKey in {0} delete track, entity ")
     void purgeEntities(Collection<String> entities);
 
     @Query( elementClass = Entity.class,value = "match (entity:Entity) " +
