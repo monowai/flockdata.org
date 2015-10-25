@@ -43,6 +43,7 @@ public class TagCloudParams implements QueryInterface {
 
     private ArrayList<String> relationships;
     private String searchText;
+    private String segment;
 
     public TagCloudParams() {}
 
@@ -115,7 +116,7 @@ public class TagCloudParams implements QueryInterface {
     }
 
     public String[] getIndexes() {
-        return IndexHelper.getIndexesToQuery(company, fortress, getTypes());
+        return IndexHelper.getIndexesToQuery(company, fortress, segment, getTypes());
 
     }
 }

@@ -20,13 +20,10 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.Tag;
 import org.flockdata.track.bean.*;
-import org.flockdata.model.Entity;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -46,11 +43,13 @@ public interface MediationFacade {
 
     Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException;
 
+    Collection<TrackResultBean> trackEntities(FortressSegment segment, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
+
     Collection<TrackResultBean> trackEntities(Fortress fortress, List<EntityInputBean> inputBeans, int listSize) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
-    TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean trackEntity(FortressSegment segment, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
 
@@ -79,4 +78,6 @@ public interface MediationFacade {
     Map<String,Object> getLogContent(Entity entity, Long logId);
 
     String validateFromSearch(Company company, String fortressName, String docType) throws FlockException;
+
+    TrackResultBean trackEntity(Fortress fortress, EntityInputBean inputBean) throws InterruptedException, FlockException, ExecutionException, IOException;
 }

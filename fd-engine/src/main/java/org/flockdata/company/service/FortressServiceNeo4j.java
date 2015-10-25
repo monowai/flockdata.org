@@ -321,6 +321,24 @@ public class FortressServiceNeo4j implements FortressService {
         return documentType.getGeoQuery();
     }
 
+    public FortressSegment getDefaultSegment (Fortress fortress){
+        return fortressDao.getDefaultSegement(fortress);
+    }
+
+    @Override
+    public FortressSegment addSegment(FortressSegment segment) {
+        if ( segment.getFortress() == null)
+            throw new IllegalArgumentException("Could not associate a fortress with the segment");
+//        if ( segment.getCode().equals(FortressSegment.DEFAULT))
+//            throw new IllegalArgumentException("Can not use {} as the segment code", segment.getCode());
+        return fortressDao.saveSegment(segment);
+    }
+
+    @Override
+    public Collection<FortressSegment> getSegments(Fortress fortress) {
+        return fortressDao.getSegments(fortress);
+    }
+
     private Map<Long,EntityTagFinder>tagFinders= new HashMap<>();
 
     @Override

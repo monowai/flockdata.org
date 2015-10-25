@@ -21,7 +21,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -65,11 +65,11 @@ public class EntityRetryService {
             maxAttempts = 20,
             backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
-    public Iterable<TrackResultBean> track(Fortress fortress, List<EntityInputBean> entityInputs, Collection<Tag> tags)
+    public Iterable<TrackResultBean> track(FortressSegment segment, List<EntityInputBean> entityInputs, Collection<Tag> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
 
         Collection<TrackResultBean>
-                resultBeans = entityService.trackEntities(fortress, entityInputs, tags);
+                resultBeans = entityService.trackEntities(segment, entityInputs, tags);
         // ToDo: DAT-343 - write via a queue
         boolean processAsync;
 
@@ -86,13 +86,13 @@ public class EntityRetryService {
 
 
             if (!newEntities.isEmpty()) { // New can be processed async
-                logService.processLogs(fortress, newEntities);
+                logService.processLogs(segment.getFortress(), newEntities);
                 if (existingEntities.isEmpty())
                     return newEntities;
 
             }
             // Process updates synchronously
-            logService.processLogs(fortress, existingEntities).get();
+            logService.processLogs(segment.getFortress(), existingEntities).get();
             return resultBeans;
         }
         processAsync = false;
@@ -100,11 +100,11 @@ public class EntityRetryService {
             // DAT-342 - we already know what the content log will be so we can end
             //           this transaction and get on with writing the search results
             // Occurs async
-            logService.processLogs(fortress, resultBeans);
+            logService.processLogs(segment.getFortress(), resultBeans);
             return resultBeans;
 
         } else {
-            return logService.processLogsSync(fortress, resultBeans);
+            return logService.processLogsSync(segment.getFortress(), resultBeans);
         }
 
     }

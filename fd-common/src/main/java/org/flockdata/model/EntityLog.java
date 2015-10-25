@@ -66,12 +66,12 @@ public class EntityLog {
         setSysWhen(utcNow.getMillis());
     }
 
-    public EntityLog(Entity entity, org.flockdata.model.Log log, DateTime fortressWhen) {
+    public EntityLog(Entity entity, Log log, DateTime fortressWhen) {
         this();
         this.entity = entity;
         this.log = log;
-        this.timezone = entity.getFortress().getTimeZone();
-        if (entity.getFortress().isStoreDisabled()) {
+        this.timezone = entity.getSegment().getFortress().getTimeZone();
+        if (entity.getSegment().getFortress().isStoreDisabled()) {
             id = 0l;
             isMock = log.isMocked();
         }
@@ -79,7 +79,7 @@ public class EntityLog {
             setFortressWhen(fortressWhen);
         } else {
             // "now" in the fortress default timezone
-            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(entity.getFortress().getTimeZone()))));
+            setFortressWhen(new DateTime(sysWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(entity.getSegment().getFortress().getTimeZone()))));
         }
         log.setEntityLog(this);
     }

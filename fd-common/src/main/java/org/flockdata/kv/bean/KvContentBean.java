@@ -97,7 +97,7 @@ public class KvContentBean implements KvContent, Serializable{
         // ToDo: Figure this out - DAT-419
         if ( entity == null )
             return null;
-        return (entity.getFortress().getIndexName() + "/" + entity.getType()).toLowerCase();
+        return (entity.getSegment().getFortress().getRootIndex() + "/" + entity.getType()).toLowerCase();
     }
 
     public ContentInputBean getContent() {

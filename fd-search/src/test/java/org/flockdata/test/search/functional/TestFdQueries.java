@@ -22,12 +22,10 @@ package org.flockdata.test.search.functional;
 import org.flockdata.search.model.*;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.EntityBean;
 import org.flockdata.model.Entity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -70,7 +68,7 @@ public class TestFdQueries extends ESBase{
         assertNotNull(searchResult);
         assertNotNull(searchResult.getSearchKey());
 
-        QueryParams qp = new QueryParams(entity.getFortress());
+        QueryParams qp = new QueryParams(entity.getSegment());
         qp.setCompany(company);
         qp.setSearchText("*");
         // Sanity check - there is only one document in the index
@@ -82,7 +80,7 @@ public class TestFdQueries extends ESBase{
         assertEquals(entity.getMetaKey(), metaResults.getResults().iterator().next());
 
         // Find with just a fortress
-        qp = new QueryParams(entity.getFortress());
+        qp = new QueryParams(entity.getSegment());
         qp.setSearchText("description");
         queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(1, queryResult.getResults().size());
@@ -94,7 +92,7 @@ public class TestFdQueries extends ESBase{
         assertEquals(1, queryResult.getResults().size());
         assertEquals(entity.getMetaKey(), queryResult.getResults().iterator().next().getMetaKey());
 
-        qp = new QueryParams(entity.getFortress());
+        qp = new QueryParams(entity.getSegment());
         qp.setSearchText("-description"); // Ignore description
         queryResult = queryServiceEs.doFdViewSearch(qp);
         assertEquals(0, queryResult.getResults().size());

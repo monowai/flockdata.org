@@ -84,7 +84,7 @@ public class TestEntitySearch {
         DateTime now = new DateTime();
         EntityInputBean mib = getEntityInputBean(doc, user, now.toString(), now);
 
-        return new Entity(now.toString(), fortress, mib, doc, user);
+        return new Entity(now.toString(), fortress.getDefaultSegment(), mib, doc, user);
 
     }
 

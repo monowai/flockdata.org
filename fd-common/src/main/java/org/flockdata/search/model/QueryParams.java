@@ -19,6 +19,7 @@
 
 package org.flockdata.search.model;
 
+import org.flockdata.model.FortressSegment;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
@@ -33,8 +34,15 @@ import java.util.Map;
  * Time: 9:44 AM
  */
 public class QueryParams implements QueryInterface{
+    private String segment;
+
     public QueryParams(String searchText) {
         this.searchText = searchText;
+    }
+
+    public QueryParams(FortressSegment segment) {
+        this(segment.getFortress());
+        this.segment = segment.getCode();
     }
 
     public ArrayList<String> getTags() {
@@ -64,7 +72,8 @@ public class QueryParams implements QueryInterface{
 
     public QueryParams() {}
 
-    public QueryParams(Fortress fortress) {
+
+    private QueryParams(Fortress fortress) {
         this();
         setFortress(fortress.getCode());
         setCompany(fortress.getCompany().getCode());
@@ -207,5 +216,11 @@ public class QueryParams implements QueryInterface{
     }
 
 
+    public String getSegment() {
+        return segment;
+    }
 
+    public void setSegment(String segment) {
+        this.segment = segment;
+    }
 }

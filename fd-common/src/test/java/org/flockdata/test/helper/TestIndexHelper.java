@@ -16,25 +16,28 @@ public class TestIndexHelper {
     public void testA () throws Exception {
         String company = "abc";
         String fortress = "123";
+        String segment = "segment";
         String types[] = new String[2];
 
         types[0]="Type0";
         types[1]="Type1";
-        String[] indexes = IndexHelper.getIndexesToQuery(company, fortress, types);
-        validateIndexes(company, fortress, indexes);
+        String[] indexes = IndexHelper.getIndexesToQuery(company, fortress, segment, types);
+        validateIndexes(company, fortress, segment, indexes);
     }
 
     @Test
     public void testFromQueryParams () throws Exception {
         String company = "abc";
         String fortress = "123";
+        String segment = "segment";
         QueryParams qp = new QueryParams();
         qp.setCompany(company);
         qp.setFortress(fortress);
+        qp.setSegment(segment);
         qp.setTypes("Type0", "type1");
 
         String[] indexes = IndexHelper.getIndexesToQuery(qp);
-        validateIndexes(company, fortress, indexes);
+        validateIndexes(company, fortress, segment, indexes);
     }
 
     @Test
@@ -54,13 +57,13 @@ public class TestIndexHelper {
         //validateIndexes(company, fortress, indexes);
     }
 
-    private void validateIndexes(String company, String fortress, String[] indexes) throws Exception {
+    private void validateIndexes(String company, String fortress, String segment, String[] indexes) throws Exception {
         assertNotNull(indexes);
         assertEquals(1, indexes.length);
         int count = 0;
         int foundCount = 0;
         for (String index : indexes) {
-            if ( index.equals(IndexHelper.PREFIX+company.toLowerCase()+"."+fortress.toLowerCase())) {
+            if ( index.equals(IndexHelper.PREFIX+company.toLowerCase()+"."+fortress.toLowerCase() +segment.toLowerCase())) {
                 foundCount++;
                 count++;
             }

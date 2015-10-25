@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class EntityBean implements Serializable {
 
-    private Long id ;
+    private Long id;
     private String searchKey;
     private String metaKey;
     private String fortressCode;
@@ -52,20 +52,21 @@ public class EntityBean implements Serializable {
     private String event;
     private String lastUser;
     private String createdUser;
-    private Map<String,Object>props;
+    private Map<String, Object> props;
 
-    EntityBean (){
+    EntityBean() {
 
     }
-    public EntityBean(Fortress fortress, Entity entity){
-        this (entity);
-        if ( indexName == null && fortress !=null )
-            indexName = fortress.getIndexName();
+
+    public EntityBean(Fortress fortress, Entity entity) {
+        this(entity);
+        if (indexName == null && fortress != null)
+            indexName = fortress.getRootIndex();
     }
 
-    public EntityBean(Entity entity){
+    public EntityBean(Entity entity) {
         this();
-        if ( entity != null ) {
+        if (entity != null) {
             this.id = entity.getId();
             this.props = entity.getProperties();
             this.searchKey = entity.getSearchKey();
@@ -73,20 +74,21 @@ public class EntityBean implements Serializable {
             documentType = entity.getType();
             callerRef = entity.getCode();
             whenCreated = entity.getDateCreated();
-            if ( entity.getFortress()!=null )
-                indexName = entity.getFortress().getIndexName();
+            indexName = entity.getSegment().getFortress().getRootIndex();
 
             description = entity.getDescription();
             searchSuppressed = entity.isSearchSuppressed();
             name = entity.getName();
-            fortress = new FortressResultBean(entity.getFortress());
+
+            fortress = new FortressResultBean(entity.getSegment().getFortress());
+
             event = entity.getEvent();
             fortressDateCreated = entity.getFortressCreatedTz();
             fortressDateUpdated = entity.getFortressUpdatedTz();
-            if (entity.getLastUser()!=null )
+            if (entity.getLastUser() != null)
                 lastUser = entity.getLastUser().getCode();
-            if ( createdUser !=null )
-                createdUser= entity.getCreatedBy().getCode();
+            if (createdUser != null)
+                createdUser = entity.getCreatedBy().getCode();
         }
     }
 
@@ -105,6 +107,7 @@ public class EntityBean implements Serializable {
     void setWhenCreated(long whenCreated) {
         this.whenCreated = whenCreated;
     }
+
     public String getMetaKey() {
         return metaKey;
     }
