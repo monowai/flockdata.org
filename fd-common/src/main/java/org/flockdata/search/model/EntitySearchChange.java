@@ -26,6 +26,7 @@ import org.flockdata.model.EntityLog;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
@@ -73,6 +74,8 @@ public class EntitySearchChange implements SearchChange {
     private String contentType;
     private String fileName;
     private EntityService.TAG_STRUCTURE tagStructure;
+    private EntityKeyBean parent;
+    private String segment;
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
@@ -225,7 +228,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @JsonIgnore
-    public void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
+    public void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
         this.tagStructure = tagStructure;
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
@@ -353,8 +356,7 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public String toString() {
         return "EntitySearchChange{" +
-                "fortressName='" + fortressName + '\'' +
-                ", documentType='" + documentType + '\'' +
+                "indexName='" + indexName + '\'' +
                 ", code='" + code + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
@@ -407,8 +409,17 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setTags(ArrayList<EntityTag> tags) {
-        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    public void setStructuredTags(ArrayList<EntityTag> tags) {
+        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    }
+
+    @Override
+    public void setParent(EntityKeyBean parent) {
+        this.parent = parent;
+    }
+
+    public EntityKeyBean getParent() {
+        return parent;
     }
 
     public String getFileName() {
