@@ -76,14 +76,14 @@ public class TestTagCloud extends ESBase {
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
         tags.add(new EntityTagOut(entity, tag, "rlxname", null));
-        change.setTags(null, tags);
+        change.setStructuredTags(null, tags);
 
         deleteEsIndex(entity);
 
         trackRepo.handle(change);
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
-        tagCloudParams.setCompany(entity.getFortress().getCompany().getName());
+        tagCloudParams.setCompany(entity.getSegment().getCompany().getName());
         tagCloudParams.setFortress(entity.getFortress().getName());
         tagCloudParams.addType(entity.getType());
         ArrayList<String>rlxs = new ArrayList<>();

@@ -272,7 +272,7 @@ public class TestFdIntegration {
     }
 
     private static void deleteEsIndex(String indexName, String docType) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName, docType);
+        String deleteMe = IndexHelper.parseIndex(indexName);
         logger.info("%% Delete Index {}", deleteMe);
         esClient.execute(new DeleteIndex.Builder(deleteMe).build());
     }
@@ -372,7 +372,7 @@ public class TestFdIntegration {
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
 
-        assertEquals(IndexHelper.PREFIX + "testcompany.tracktest", entity.getFortress().getIndexName());
+        assertEquals(IndexHelper.PREFIX + "testcompany.tracktest", entity.getFortress().getRootIndex());
 
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
 
@@ -486,7 +486,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(summary);
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         String queryString = "{\"query_string\": {\n" +
                 "      \"query\": \"hello world\"\n" +
                 "  }}";
@@ -534,7 +534,7 @@ public class TestFdIntegration {
 
     @Test
     public void admin_rebuildSearchIndexFromEngine() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## admin_rebuildSearchIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
@@ -815,7 +815,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 2);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         String queryResult = runFdViewQuery(qp);
         assertNotNull(queryResult);
@@ -847,7 +847,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 2);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
@@ -881,7 +881,7 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
 
         Entity entity = result.getEntity();
-        assertEquals(IndexHelper.PREFIX + "monowai." + fo.getCode(), entity.getFortress().getIndexName());
+
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
@@ -891,7 +891,7 @@ public class TestFdIntegration {
         // We have one with a metaKey and one without
         doEsQuery(entity, "*", 1);
 
-        QueryParams qp = new QueryParams(fo);
+        QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
         runFdViewQuery(qp);
         EsSearchResult queryResults = runSearchQuery(su, qp);
@@ -1014,7 +1014,6 @@ public class TestFdIntegration {
         assertNotNull(resultBean);
 
         waitForFirstSearchResult(su.getCompany(), entity);
-        String indexName = entity.getFortress().getIndexName();
 
         doEsQuery(entity, "andy");
 
@@ -1130,7 +1129,7 @@ public class TestFdIntegration {
         entity = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), what)).getEntity();
         waitForFirstSearchResult(su.getCompany(), entity);
 
-        String indexName = entity.getFortress().getIndexName();
+        String indexName = entity.getFortress().getRootIndex();
         getMapping(indexName);
 
         // Completion only works as "Starts with"
@@ -1319,7 +1318,7 @@ public class TestFdIntegration {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
 
-        QueryParams q = new QueryParams(fortress)
+        QueryParams q = new QueryParams(fortress.getDefaultSegment())
                 .setSearchText(searchFor);
         doEsQuery(result.getEntity(), searchFor, 1);
 
@@ -1597,7 +1596,7 @@ public class TestFdIntegration {
     @Test
     public void validate_StringsContainingValidNumbers() throws Exception {
         try {
-            //assumeTrue(runMe);
+            assumeTrue(runMe);
             logger.info("## validate_MismatchSubsequentValue");
             SystemUser su = registerSystemUser("validate_MismatchSubsequentValue", "validate_MismatchSubsequentValue");
             assertNotNull(su);
@@ -1726,6 +1725,60 @@ public class TestFdIntegration {
         doEsNestedQuery(entity, "tag.viewed.term", "tag.viewed.term.parent.category.code", "cars", 1);
 
 
+    }
+
+    @Test
+    public void segments_ExistInElasticSearch() throws Exception {
+        //assumeTrue(runMe); // Assets that an entity is created in it's exact segement and can be found across segments
+
+        logger.info("## segments_ExistInElasticSearch");
+
+        setDefaultAuth();
+        SystemUser su = registerSystemUser("segments_ExistInElasticSearch", "segments_ExistInElasticSearch");
+        assertNotNull(su);
+        engineConfig.setStoreEnabled("false");
+
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("segmenttest"));
+        FortressSegment segment2014 = new FortressSegment(fortress, "2014");
+        FortressSegment segment2015 = new FortressSegment(fortress, "2015");
+        segment2014=fortressService.addSegment(segment2014);
+        segment2015=fortressService.addSegment(segment2015);
+
+        // Includes the default segment. Do we want this behaviour??
+        assertEquals(3, fortressService.getSegments(fortress).size());
+
+        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+
+        DocumentType docType = new DocumentType(fortress, "DAT-506");
+        EntityInputBean entityInputBean =
+                new EntityInputBean(docType, "abc")
+                        .setSegment(segment2014.getCode())
+                        .setContent(new ContentInputBean(getRandomMap()));
+
+        Entity entity2014 = mediationFacade
+                .trackEntity(segment2014, entityInputBean)
+                .getEntity();
+
+        waitForFirstSearchResult(su.getCompany(), entity2014);
+        assertEquals(segment2014.getCode(), entity2014.getSegment().getCode());
+
+        entityInputBean =
+                new EntityInputBean(docType, "cba")
+                        .setSegment(segment2015.getCode())
+                        .setContent(new ContentInputBean(getRandomMap()));
+
+        Entity entity2015 = mediationFacade
+                .trackEntity(segment2015, entityInputBean)
+                .getEntity();
+
+        assertEquals(segment2015.getCode(), entity2015.getSegment().getCode());
+        waitForFirstSearchResult(su.getCompany(), entity2015);
+
+        doEsQuery(entity2014, "*", 1);
+        doEsQuery(entity2015, "*", 1);
+
+        // Find both docs across segmented indexes
+        doEsQuery(IndexHelper.parseIndex(fortress.getRootIndex()) + ".*", entity2014.getType(), "*", 2);
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
@@ -1957,8 +2010,11 @@ public class TestFdIntegration {
     private String doEsQuery(Entity entity, String queryString) throws Exception {
         return doEsQuery(entity, queryString, 1);
     }
-
     private String doEsQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
+        return doEsQuery(IndexHelper.parseIndex(entity), entity.getType(), queryString, expectedHitCount);
+    }
+
+    private String doEsQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -1976,15 +2032,15 @@ public class TestFdIntegration {
                     "}";
 
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
+                    .addIndex(index)
+                    .addType(IndexHelper.parseType(type))
                     .build();
 
             jResult = esClient.execute(search);
             assertNotNull(jResult);
             if (expectedHitCount == -1) {
-                assertEquals("Expected the index [" + entity + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
-                logger.debug("Confirmed index {} was deleted and empty", entity);
+                assertEquals("Expected the index [" + index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
+                logger.debug("Confirmed index {} was deleted and empty", index);
                 return null;
             }
             if (jResult.getErrorMessage() == null) {
@@ -2002,7 +2058,7 @@ public class TestFdIntegration {
         assertNotNull(jResult);
         Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
 
-        assertEquals(entity + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
+        assertEquals(index + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
                 expectedHitCount, nbrResult);
         return jResult.getJsonString();
     }

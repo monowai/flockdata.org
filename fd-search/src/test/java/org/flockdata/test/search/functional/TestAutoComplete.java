@@ -75,7 +75,7 @@ public class TestAutoComplete extends ESBase{
 
         SearchChange change = new EntitySearchChange(entity);
         change.setWhat(what);
-        change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
@@ -116,7 +116,7 @@ public class TestAutoComplete extends ESBase{
 
         SearchChange change = new EntitySearchChange(entity);
         change.setWhat(what);
-        change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);
@@ -162,7 +162,7 @@ public class TestAutoComplete extends ESBase{
 
         SearchChange change = new EntitySearchChange(entity);
         change.setWhat(what);
-        change.setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);

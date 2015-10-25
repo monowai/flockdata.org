@@ -62,12 +62,12 @@ public class TestSupportFunctions extends ESBase {
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");
         Tag tag = new Tag(tagInput);
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
-        change.setTags(tags);
+        change.setStructuredTags(tags);
 
         SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(1000);
 
-        queryServiceEs.getTags(entity.getFortress().getIndexName());
+        queryServiceEs.getTags(entity.getFortress().getRootIndex());
 
     }
 }

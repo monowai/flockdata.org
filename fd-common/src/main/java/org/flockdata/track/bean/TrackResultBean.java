@@ -80,7 +80,7 @@ public class TrackResultBean implements Serializable {
         this.entity = entity;
         this.entityInputBean = entityInputBean;
         this.contentInput = entityInputBean.getContent();
-        this.index = fortress.getIndexName();
+        this.index = fortress.getRootIndex();
 
     }
 
@@ -95,7 +95,7 @@ public class TrackResultBean implements Serializable {
         //this.entity = new Entity(fortress, entity);
         this.entityInputBean = entityInputBean;
         this.contentInput = entityInputBean.getContent();
-        this.index = fortress.getIndexName();
+        this.index = fortress.getRootIndex();
 
     }
 

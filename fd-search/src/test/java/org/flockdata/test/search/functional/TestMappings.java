@@ -81,7 +81,7 @@ public class TestMappings extends ESBase {
         Tag tag = new Tag(tagInput);
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
 
-        change.setTags(tags);
+        change.setStructuredTags(tags);
 
         deleteEsIndex(entity);
         //searchRepo.ensureIndex(change.getIndexName(), change.getType());
@@ -126,7 +126,7 @@ public class TestMappings extends ESBase {
         Tag tag = new Tag(tagInput);
 
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
-        change.setTags( tags);
+        change.setStructuredTags(tags);
 
         deleteEsIndex(entity);
 
@@ -193,8 +193,8 @@ public class TestMappings extends ESBase {
         ArrayList<EntityTag> tagsB = new ArrayList<>();
         tagsB.add(new EntityTagOut(entityB, tag, "mytag", null));
 
-        changeA.setTags(tagsA);
-        changeB.setTags(tagsB);
+        changeA.setStructuredTags(tagsA);
+        changeB.setStructuredTags(tagsB);
 
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
@@ -211,7 +211,7 @@ public class TestMappings extends ESBase {
 
         doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        String index = IndexHelper.getIndexRoot(entityA.getFortress()) +"*";
+        String index = IndexHelper.getIndexRoot(entityA.getSegment()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 
@@ -229,7 +229,7 @@ public class TestMappings extends ESBase {
 
         ArrayList<EntityTag> tags = new ArrayList<>();
         tags.add(new EntityTagOut(entityA, tag, "mytag", null));
-        changeA.setTags(tags);
+        changeA.setStructuredTags(tags);
 
         deleteEsIndex(entityA);
 
@@ -286,7 +286,7 @@ public class TestMappings extends ESBase {
         EntitySearchChange change = new EntitySearchChange(entity);
 
         change.setWhat(what);
-        change.setTags(tags);
+        change.setStructuredTags(tags);
 
         indexMappingService.ensureIndexMapping(change);
         SearchChange searchResult = searchRepo.handle(change);

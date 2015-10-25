@@ -75,6 +75,7 @@ public class EntitySearchChange implements SearchChange {
     private String fileName;
     private EntityService.TAG_STRUCTURE tagStructure;
     private EntityKeyBean parent;
+    private String segment;
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
@@ -91,21 +92,26 @@ public class EntitySearchChange implements SearchChange {
         this.entityId = entity.getId();
         this.searchKey = entity.getSearchKey();
         setDocumentType(entity.getType().toLowerCase());
-        setFortress(entity.getFortress());
-        this.indexName = entity.getFortress().getIndexName();
+        setFortress(entity.getSegment().getFortress());
+        if (!entity.getSegment().isDefault())
+            setSegment(entity.getSegment().getCode());
+        this.indexName = entity.getSegment().getFortress().getRootIndex();
+        if ( !entity.getSegment().isDefault()){
+            this.indexName = this.indexName + "."+entity.getSegment().getCode().toLowerCase();
+        }
         this.searchKey = entity.getSearchKey();
         this.code = entity.getCode();
         if (entity.getLastUser() != null)
             this.who = entity.getLastUser().getCode();
         else
-            this.who = (entity.getCreatedBy()!=null ? entity.getCreatedBy().getCode():null);
+            this.who = (entity.getCreatedBy() != null ? entity.getCreatedBy().getCode() : null);
         this.sysWhen = entity.getDateCreated();
         this.description = entity.getDescription();
         this.props = entity.getProperties(); // Userdefined entity properties
         this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
-        if ( entity.getFortressUpdatedTz() != null )
+        if (entity.getFortressUpdatedTz() != null)
             this.updatedDate = entity.getFortressUpdatedTz().toDate();
-        this.event= entity.getEvent();
+        this.event = entity.getEvent();
         //setWhen(new DateTime(entity.getFortressDateUpdated()));
     }
 
@@ -222,7 +228,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @JsonIgnore
-    public void setTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
+    public void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
         this.tagStructure = tagStructure;
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
@@ -403,8 +409,8 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setTags(ArrayList<EntityTag> tags) {
-        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    public void setStructuredTags(ArrayList<EntityTag> tags) {
+        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
     }
 
     @Override
@@ -454,6 +460,14 @@ public class EntitySearchChange implements SearchChange {
     }
 
     public void setTags(Collection<EntityTag> tags) {
-        setTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    }
+
+    public void setSegment(String segment) {
+        this.segment = segment;
+    }
+
+    public String getSegment() {
+        return segment;
     }
 }

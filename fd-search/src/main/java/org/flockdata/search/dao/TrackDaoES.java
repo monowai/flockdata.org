@@ -224,13 +224,13 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     public Map<String, Object> findOne(Entity entity, String id) {
-        String indexName = entity.getFortress().getIndexName();
+        String indexName = entity.getFortress().getRootIndex();
         String documentType = entity.getType();
         if (id == null)
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName, documentType), documentType, id)
+        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName), documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();

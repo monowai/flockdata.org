@@ -22,19 +22,15 @@ package org.flockdata.track.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.kv.KvContent;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.Tag;
+import org.flockdata.model.*;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
-import org.flockdata.model.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -96,7 +92,7 @@ public interface EntityService {
 
     EntityLog getLogForEntity(Entity entity, Long logId);
 
-    Collection<TrackResultBean> trackEntities(Fortress fortress, Collection<EntityInputBean> inputBeans, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
+    Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> inputBeans, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException;
 

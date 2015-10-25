@@ -60,6 +60,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private boolean archiveTags = true;
     private String updateUser;
     private FortressUser user;
+    private String segment;
 
     public EntityInputBean() {
     }
@@ -202,12 +203,13 @@ public class EntityInputBean implements Serializable, UserProperties{
     public void setLog(ContentInputBean content){
         setContent(content);
     }
-    public void setContent(ContentInputBean content) {
+    public EntityInputBean setContent(ContentInputBean content) {
         this.content = content;
         if (content != null) {
             this.entityOnly = false;
             //this.when = content.getWhen();
         }
+        return this;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -476,5 +478,14 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public EntityInputBean setSegment(String segment) {
+        this.segment = segment;
+        return this;
+    }
+
+    public String getSegment() {
+        return segment;
     }
 }

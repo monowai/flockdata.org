@@ -48,7 +48,7 @@ public class Entity implements Serializable {
     //@Relationship(type = "TRACKS", direction = Relationship.INCOMING)
     @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
     @Fetch
-    private Fortress fortress;
+    private FortressSegment segment;
 
     @Labels
     private ArrayList<String> labels = new ArrayList<>();
@@ -113,6 +113,10 @@ public class Entity implements Serializable {
     //@Transient
     private Integer search = null;
 
+    public Entity(String metaKey, Fortress fortress, EntityInputBean eib, DocumentType doc) throws FlockException {
+        this(metaKey, fortress.getDefaultSegment(), eib, doc);
+    }
+
     /**
      * Flags the entity as having been affected by search. Used for Integration testing
      *
@@ -132,16 +136,16 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String metaKey, Fortress fortress, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public Entity(String metaKey, FortressSegment segment, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
-        assert fortress != null;
+        assert segment != null;
 
         labels.add(documentType.getName());
         this.metaKey = metaKey;
         this.noLogs = entityInput.isEntityOnly();
-        this.fortress = fortress;//(FortressNode)documentType.getFortress();
+        this.segment = segment;//(FortressNode)documentType.getFortress();
         // DAT-278
         String docType = documentType.getName();
         if (docType == null)
@@ -154,7 +158,7 @@ public class Entity implements Serializable {
 
         docType = docType.toLowerCase();
         code = entityInput.getCode();
-        key = EntityHelper.parseKey(this.fortress.getId(), documentType.getId(), (code != null ? code : this.metaKey));
+        key = EntityHelper.parseKey(this.segment.getFortress().getId(), documentType.getId(), (code != null ? code : this.metaKey));
         //key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
@@ -164,7 +168,7 @@ public class Entity implements Serializable {
 
         this.description = entityInput.getDescription();
 
-        indexName = IndexHelper.getIndexRoot(this.fortress);
+        indexName = IndexHelper.getIndexRoot(this.segment);
 
         if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(entityInput.getProperties());
@@ -173,7 +177,7 @@ public class Entity implements Serializable {
         Date when = entityInput.getWhen();
 
         if (when == null)
-            fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.fortress.getTimeZone()))).getMillis();
+            fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.segment.getFortress().getTimeZone()))).getMillis();
         else
             fortressCreate = new DateTime(when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
         if ( entityInput.getLastChange()!=null ){
@@ -194,8 +198,8 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String guid, Fortress fortress, EntityInputBean mib, DocumentType doc, org.flockdata.model.FortressUser user) throws FlockException {
-        this(guid, fortress, mib, doc);
+    public Entity(String guid, FortressSegment segment, EntityInputBean mib, DocumentType doc, org.flockdata.model.FortressUser user) throws FlockException {
+        this(guid, segment, mib, doc);
         setCreatedBy(user);
     }
 
@@ -207,8 +211,8 @@ public class Entity implements Serializable {
         return metaKey;
     }
 
-    public Fortress getFortress() {
-        return fortress;
+    public FortressSegment getSegment() {
+        return segment;
     }
 
     public String getKey() {
@@ -228,7 +232,7 @@ public class Entity implements Serializable {
         return EntityHelper.getLabel(labels);
     }
 
-    public org.flockdata.model.FortressUser getLastUser() {
+    public FortressUser getLastUser() {
         return lastWho;
     }
 
@@ -276,8 +280,7 @@ public class Entity implements Serializable {
         return "EntityNode{" +
                 "id=" + id +
                 ", metaKey='" + metaKey + '\'' +
-                ", name='" + name + '\'' +
-                ", fortress='" + fortress + '\'' +
+                ", name='" + name +
                 '}';
     }
 
@@ -326,14 +329,14 @@ public class Entity implements Serializable {
 
     @JsonIgnore
     public DateTime getFortressCreatedTz() {
-        return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
+        return new DateTime(fortressCreate, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
     }
 
     @JsonIgnore     // Don't persist ov
     public DateTime getFortressUpdatedTz() {
         if ( fortressLastWhen == null )
             return null;
-        return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(fortress.getTimeZone())));
+        return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
     }
 
     public String getDescription() {
@@ -412,4 +415,12 @@ public class Entity implements Serializable {
         return noLogs;
     }
 
+    @JsonIgnore
+    public Fortress getFortress() {
+        return segment.getFortress();
+    }
+
+    public void setSegment(FortressSegment segment) {
+        this.segment = segment;
+    }
 }

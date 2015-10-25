@@ -49,11 +49,11 @@ public class TestAttachments extends EngineBase {
         ContentInputBean content = new ContentInputBean("zippy", new DateTime());
         content.setAttachment(Helper.getPdfDoc(), "PdF", "testing.pdf");
         entity.setContent(content);
-        TrackResultBean trackResult = mediationFacade.trackEntity(fortress, entity);
+        TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
         assertFalse("This should have been the first entity logged", trackResult.entityExists());
 
         // Update without changing the content
-        trackResult = mediationFacade.trackEntity(fortress, entity);
+        trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
         assertTrue("Tracked the same file, so should have been ignored",trackResult.entityExists());
     }
 }

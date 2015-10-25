@@ -51,7 +51,7 @@ public class EntityTXResult {
         this.auditKey = entity.getMetaKey();
         this.documentType = entity.getType();
         this.callerRef = entity.getCode();
-        this.fortressName = entity.getFortress().getName();
+        this.fortressName = entity.getSegment().getFortress().getName();
         this.lastSystemChange = entity.getLastUpdate();
         this.entityLog = log;
     }

@@ -86,7 +86,12 @@
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-servlet-api</artifactId>
@@ -161,9 +166,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <junitArtifactName>junit:junit</junitArtifactName>
-                            <argLine>-Xmx768m</argLine>
+                            <argLine>-Xmx1g</argLine>
 
                         </configuration>
                         <executions>
@@ -213,7 +219,7 @@
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
                                     <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
                                     <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
-                                    <cargo.jvmargs>-Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
+                                    <cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                                 </properties>
                             </configuration>
                             <deployables>
