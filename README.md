@@ -1,23 +1,23 @@
-[FlockData](http://FlockData.com) - Aggregating Information from MicroServices
+[FlockData](http://FlockData.com) - Headless Content Management for MicroServices
 ===========
 
 ##The Idea
-* You have microservices/systems/services recording data
-** A single simple and functional service to track changes to data in your services
-** Headless content management
-** You want to be able to report across your services
-** Users demand a consolidated way to report on data across system boundaries
-** You want a light weight manner to integrate search capabilities for your organisation
+* Your enterprise/systems/services/microservices create and modify organisational data in to their database
+  * Have a standarised way of tracking changes to business data for users
+  * A Read/write service that simply tracks changes to data in your services
+* Headless content management to track state of data 
+* Enable users to report on data across data silos
 
 ##FlockData
-* Aggregating your data proivdes a platform for agile analytics
+* Aggregating data provides a platform for agile analytics
+  * Batch mode or as changes happen
 * Information recording api - turning the data in to user centric information for reporting
-* Data Lineage - Tracks which service data originates from
-* Free text searching of your business information
-* Keeping the audit data out of your transaction processing systems and provide users with full history tracking of their data
+* Data Lineage - Tracks which service data originates from which system
+* Free text searching of your business information - help users find data irrespective of the system that created it
+* Keeping audit data out of your transaction processing systems while providing users version history
 
 ## Project Status
-Full support for ElasticSearch 2.0 and Neo4j 2.2.x in place.
+Stable. Full support for ElasticSearch 2.0 and Neo4j 2.2.x in place. 
 
 ## Overview
 Collect, Connect Compare and Explore  - FlockData helps you find what you're looking for.
@@ -67,16 +67,17 @@ Drop us a line over at [flockdata.com](http://flockdata.com/) and we'd be happy 
 ## Contributing
 We encourage contributions to FlockData from the community. Here’s how to get started.
 
-Latest code is on the develop branch
+Latest code is on the develop branch. Master contains last stable release.
 
 * Fork the appropriate sub-projects that are affected by your change. Fork this repository if your changes are for release generation or packaging.
 * Create a branch
-* Make your changes and run the test suite.
-* Commit your changes and push them to your fork.
-* Open pull-requests for the appropriate projects.
-* We will review your pull-request, suggest changes, and merge it when it’s ready and/or offer feedback.
+* Make your changes and run the test suite
+* Commit your changes and push them to your fork
+* Open pull-requests for the appropriate projects
+* We will review your pull-request, suggest changes, and merge it when it’s ready and/or offer feedback
 
 To report a bug or issue, please open a new [issue](https://monowai.atlassian.net/) in our Jira issue tracking system.
 
 ### Licensing
+We want you and others to get the most out of FD. We use GPL to ensure that changes to FD code can be made shared with everyone. We lay no claim to any of your system or services that are talking to the FD API or databases. 
 FlockData is an open source project. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://flockdata.com/). Talk to us about clustering as there can be costs involved with the underlying stack.
