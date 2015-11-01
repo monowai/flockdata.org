@@ -85,8 +85,10 @@ public class KvConfig implements FdKvConfig {
     }
 
     @Override
-    public void setKvStore(KV_STORE kvStore) {
+    public KV_STORE setKvStore(KV_STORE kvStore) {
+        KV_STORE current = this.kvStore;
         this.kvStore = kvStore;
+        return current;
 
     }
 

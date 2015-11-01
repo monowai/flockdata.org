@@ -19,6 +19,8 @@
 
 package org.flockdata.test.engine.functional;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -90,6 +92,7 @@ public class TestCsvImportIntegration extends EngineBase {
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
+            TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
             EntityLog log = entityService.getLastEntityLog(entityA.getId());
             Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getMetaKey());

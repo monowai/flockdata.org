@@ -165,11 +165,11 @@ public class MediationFacadeNeo implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<Fortress, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesByFortress(c, inputBeans);
+        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
-        for (Fortress fortress : byFortress.keySet()) {
+        for (FortressSegment segment : byFortress.keySet()) {
             Collection<TrackResultBean>tr=
-                    trackEntities(fortress.getDefaultSegment(), byFortress.get(fortress), 2);
+                    trackEntities(segment, byFortress.get(segment), 2);
             for (TrackResultBean result : tr) {
                 results.add(new TrackRequestResult(result));
             }
