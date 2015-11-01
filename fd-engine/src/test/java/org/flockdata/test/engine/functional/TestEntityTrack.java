@@ -1240,8 +1240,8 @@ public class TestEntityTrack extends EngineBase {
     TrackBatchSplitter batchSplitter;
 
     @Test
-    public void split_BatchByFortress() throws Exception {
-        SystemUser su = registerSystemUser("split_BatchByFortress");
+    public void split_BatchByFortressNoSegment() throws Exception {
+        SystemUser su = registerSystemUser("split_BatchByFortressNoSegment");
 
         //Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("split_BatchByFortress", true));
         String name = "Space Fortress";
@@ -1257,10 +1257,40 @@ public class TestEntityTrack extends EngineBase {
         entity.setArchiveTags(false);
         entities.add(entity);
 
-        Map<Fortress, List<EntityInputBean>> results = batchSplitter.getEntitiesByFortress(su.getCompany(), entities);
-        Fortress resultFortress = results.keySet().iterator().next();
-        assertNotNull(resultFortress);
-        assertEquals(2, results.get(resultFortress).size());
+        Map<FortressSegment, List<EntityInputBean>> results = batchSplitter.getEntitiesBySegment(su.getCompany(), entities);
+        FortressSegment segment = results.keySet().iterator().next();
+        assertNotNull(segment);
+        assertEquals(2, results.get(segment).size());
+    }
+
+    @Test
+    public void split_BatchByFortressSegment() throws Exception {
+        SystemUser su = registerSystemUser("split_BatchByFortressSegment");
+
+        //Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("split_BatchByFortress", true));
+        String name = "Space Fortress";
+
+        Collection<EntityInputBean> entities = new ArrayList<>();
+
+        EntityInputBean entity = new EntityInputBean(name, "Census")
+                .setDescription("Mt. Albert 2013 Maori")
+                .setArchiveTags(false)
+                .setSegment("Segment One");
+
+        entities.add(entity);
+
+        entity = new EntityInputBean(name, "Census")
+                .setDescription("Mt. Albert 2013 Asian")
+                .setArchiveTags(false)
+                .setSegment("Segment Two");
+
+        entities.add(entity);
+
+        Map<FortressSegment, List<EntityInputBean>> results = batchSplitter.getEntitiesBySegment(su.getCompany(), entities);
+        assertEquals("Each entity should have been assigned to it's own segment", 2, results.size());
+        for (FortressSegment segment : results.keySet()) {
+            assertEquals(1, results.get(segment).size());
+        }
     }
 
     private void compareUser(String exceptionMessage, Entity entity, String userName) {

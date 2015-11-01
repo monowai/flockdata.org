@@ -20,6 +20,7 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
@@ -28,11 +29,11 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.tools.tree.ForStatement;
 
 import java.util.*;
 
 /**
- *
  * Created by mike on 21/03/15.
  */
 @Service
@@ -46,7 +47,7 @@ public class TrackBatchSplitter {
      * @param inputs all entities to consider - this collection is modified
      * @return Entities from inputs that are new
      */
-    public static Collection<TrackResultBean> getNewEntities(Collection<TrackResultBean> inputs){
+    public static Collection<TrackResultBean> getNewEntities(Collection<TrackResultBean> inputs) {
         Collection<TrackResultBean> newEntities = new ArrayList<>();
         for (TrackResultBean track : inputs) {
             if (track.getEntity().isNewEntity()) {
@@ -56,7 +57,7 @@ public class TrackBatchSplitter {
         return newEntities;
     }
 
-    public static Collection<TrackResultBean>  getExistingEntities(Collection<TrackResultBean> inputs) {
+    public static Collection<TrackResultBean> getExistingEntities(Collection<TrackResultBean> inputs) {
         Collection<TrackResultBean> newEntities = new ArrayList<>();
         for (TrackResultBean track : inputs) {
             if (!track.getEntity().isNewEntity()) {
@@ -67,37 +68,54 @@ public class TrackBatchSplitter {
 
     }
 
-    public  Map<Fortress, List<EntityInputBean>> getEntitiesByFortress(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
-        Map<Fortress, List<EntityInputBean>> results = new HashMap<>();
+    public Map<FortressSegment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
+        Map<FortressSegment, List<EntityInputBean>> results = new HashMap<>();
 
-        // Local cache of fortress by name - never very big, usually only 1
-        Map<String, Fortress> resolvedFortress = new HashMap<>();
+        // Local cache of segments by name - never very big, usually only 1
+        Map<String, FortressSegment> resolvedSegments = new HashMap<>();
+        Map<String, Fortress> resolvedFortresses = new HashMap<>();
+
         for (EntityInputBean entityInputBean : entityInputBeans) {
             String fortressName = entityInputBean.getFortress();
-            Fortress f = resolvedFortress.get(fortressName.toLowerCase());
-            if (f == null) {
-                f = fortressService.findByCode(company, fortressName);
-                if ( f== null)
-                    f = fortressService.findByName(company, fortressName);
+            String segmentName = entityInputBean.getSegment();
+
+            Fortress fortress = null;
+            String segmentKey = FortressSegment.key(Fortress.code(fortressName), segmentName);
+            FortressSegment segment ;
+            if (segmentKey != null) {
+                segment = resolvedSegments.get(segmentKey);
+                if ( segment !=null )
+                    fortress = segment.getFortress();
+            } else {
+                fortress = resolvedFortresses.get(Fortress.code(fortressName));
             }
 
-            if (f != null)
-                resolvedFortress.put(fortressName.toLowerCase(), f);
+            if (fortress == null) {
+                fortress = fortressService.findByCode(company, fortressName);
+                if (fortress == null)
+                    fortress = fortressService.findByName(company, fortressName);
+                if (fortress == null) {
+                    FortressInputBean fib = new FortressInputBean(fortressName);
+                    fib.setTimeZone(entityInputBean.getTimezone());
+                    fortress = fortressService.registerFortress(company, fib, true);
+                    resolvedFortresses.put(fortress.getCode(), fortress);
+                }
+            }
 
-            List<EntityInputBean> entities = null;
-            if (f != null)
-                entities = results.get(f);// are we caching this already?
+            if (segmentName != null) {
+                segment = fortressService.addSegment(new FortressSegment(fortress, segmentName));
+                resolvedSegments.put(segment.getKey(), segment);
+            } else {
+                segment = fortress.getDefaultSegment();
+            }
+
+            List<EntityInputBean> entities = results.get(segment);// are we caching this already?
 
             if (entities == null) {
                 entities = new ArrayList<>();
-                if ( f == null ) {
-                    FortressInputBean fib = new FortressInputBean(fortressName);
-                    fib.setTimeZone(entityInputBean.getTimezone());
-                    f = fortressService.registerFortress(company, fib, true);
-                }
-                resolvedFortress.put(fortressName.toLowerCase(), f);
-                results.put(f, entities);
+                results.put(segment, entities);
             }
+
             entities.add(entityInputBean);
         }
         return results;

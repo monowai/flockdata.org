@@ -82,6 +82,24 @@ public class TestCSVColumnParsing extends AbstractImport {
         }
     }
 
+    @Test
+    public void segment_SetInPayloadFromSource() throws Exception {
+        FileProcessor fileProcessor = new FileProcessor();
+        File file = new File("/profile/column-parsing.json");
+        ClientConfiguration configuration = Configure.readConfiguration(file);
+        assertNotNull(configuration);
+        configuration.setDefaultUser("test");
+
+        ImportProfile params = ClientConfiguration.getImportParams("/profile/column-parsing.json");
+        assertEquals(false, params.hasHeader());
+
+        long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
+        assertEquals(1l, rows);
+        for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
+            assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
+        }
+    }
+
 
 
 }

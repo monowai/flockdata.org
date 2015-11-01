@@ -39,7 +39,13 @@ public class FortressSegment {
         this.code = code;
         if ( fortress == null)
             throw new IllegalArgumentException("An invalid fortress was passed in");
-        this.key = fortress.getCode() +"/"+code.toLowerCase();
+        this.key = key(fortress.getCode(), code);
+    }
+
+    public static String key(String fortressCode, String segmentCode ){
+        if ( segmentCode == null )
+            return null;
+        return fortressCode +"/"+segmentCode.toLowerCase();
     }
 
     public String getCode() {
@@ -66,5 +72,35 @@ public class FortressSegment {
     @JsonIgnore
     public Company getCompany() {
         return fortress.getCompany();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FortressSegment)) return false;
+
+        FortressSegment segment = (FortressSegment) o;
+
+        if (id != null ? !id.equals(segment.id) : segment.id != null) return false;
+        if (code != null ? !code.equals(segment.code) : segment.code != null) return false;
+        if (key != null ? !key.equals(segment.key) : segment.key != null) return false;
+        return !(fortress != null ? !fortress.equals(segment.fortress) : segment.fortress != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "FortressSegment{" +
+                "key='" + key + '\'' +
+                '}';
     }
 }

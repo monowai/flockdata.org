@@ -32,8 +32,6 @@ import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Date;
@@ -46,8 +44,7 @@ import java.util.Map;
  */
 public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
 
-    private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
-    private DateTime lastUpdate;
+    //private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
 
     public CsvEntityMapper(ImportProfile importProfile) {
         setDocumentName(importProfile.getDocumentName());
@@ -60,22 +57,33 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
 
         setArchiveTags(importProfile.isArchiveTags());
         Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
-        if ( !TransformationHelper.processRow(row, importProfile))
+        if (!TransformationHelper.processRow(row, importProfile))
             return null;
         Map<String, ColumnDefinition> content = importProfile.getContent();
+        boolean firstColumn = true;
 
         for (String sourceColumn : content.keySet()) {
             sourceColumn = sourceColumn.trim();
             ColumnDefinition colDef = importProfile.getColumnDef(sourceColumn);
 
-            if (colDef != null) {
-                // Import Profile let's you alter the name of the column
-                String valueColumn = (colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
-                Object o = row.get(valueColumn);
-                String value = null;
-                if (o != null)
-                    value = o.toString().trim();
+            // Import Profile let's you alter the name of the column
+            String valueColumn = (colDef!=null && colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
+            String value = getString(row, valueColumn);
 
+            if ( firstColumn) {
+                // While the definition is in the profile, the value is in the data.
+                // Only do this once.
+                if (importProfile.getSegmentExpression() != null && getSegment() == null) {
+                    if (row.containsKey(importProfile.getSegmentExpression()))
+                        setSegment(getString(row, importProfile.getSegmentExpression()));
+                    else
+                        setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
+                }
+                firstColumn = false;
+            }
+            // Process the column definition by evaluating expression and handling
+            //  the boolean functional flags in the Contents ColumnDefinition
+            if (colDef != null) {
                 if (colDef.isDescription()) {
 
                     setDescription(ExpressionHelper.getValue(row, colDef.getValue(), colDef, value));
@@ -100,7 +108,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     if (millis != null) {
                         // Multiple date fields can be candidates for the last change
                         // Ths will set it to the most recent last change
-                        if (getLastChange() == null || millis > getLastChange().getTime() )
+                        if (getLastChange() == null || millis > getLastChange().getTime())
                             setLastChange(new Date(millis));
                     }
                 }
@@ -155,26 +163,21 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 }
 
-                if ( colDef.getGeoData() != null ){
+                if (colDef.getGeoData() != null) {
                     TransformationHelper.doGeoTransform(this, row, colDef);
                 }
-
-
             } // ignoreMe
-        }
-        Collection<String> strategyCols = importProfile.getStrategyCols();
-        for (String strategyCol : strategyCols) {
-            ColumnDefinition colDef = importProfile.getColumnDef(strategyCol);
-            logger.error("This routine has no test and has not been figured out");
-            // ToDo: Figure this out
-            //String callerRef = dataResolver.resolve(strategyCol, getColumnValues(colDef, row));
-
-            //if (callerRef != null) {
-//                addCrossReference(colDef.getStrategy(), new EntityKey(colDef.getFortress(), colDef.getDocumentType(), callerRef));
-//            }
         }
 
         return row;
+    }
+
+    public String getString(Map<String, Object> row, String valueColumn) {
+        Object o = row.get(valueColumn);
+        String value = null;
+        if (o != null)
+            value = o.toString().trim();
+        return value;
     }
 
     public static DelimitedMappable newInstance(ImportProfile importProfile) {

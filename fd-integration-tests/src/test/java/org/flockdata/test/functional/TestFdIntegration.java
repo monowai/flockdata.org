@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
+import org.flockdata.configure.EngineConfig;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.integration.FdChannels;
@@ -46,6 +47,7 @@ import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.kv.KvConfig;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
@@ -1737,48 +1739,58 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("segments_ExistInElasticSearch", "segments_ExistInElasticSearch");
         assertNotNull(su);
         engineConfig.setStoreEnabled("false");
+        KvService.KV_STORE previousKv = engineConfig.setKvStore(KvService.KV_STORE.NONE);
+        try {
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("segmenttest"));
-        FortressSegment segment2014 = new FortressSegment(fortress, "2014");
-        FortressSegment segment2015 = new FortressSegment(fortress, "2015");
-        segment2014=fortressService.addSegment(segment2014);
-        segment2015=fortressService.addSegment(segment2015);
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("segmenttest"));
+            FortressSegment segment2014 = new FortressSegment(fortress, "2014");
+            FortressSegment segment2015 = new FortressSegment(fortress, "2015");
+            segment2014 = fortressService.addSegment(segment2014);
+            segment2015 = fortressService.addSegment(segment2015);
 
-        // Includes the default segment. Do we want this behaviour??
-        assertEquals(3, fortressService.getSegments(fortress).size());
+            // Includes the default segment. Do we want this behaviour??
+            assertEquals(3, fortressService.getSegments(fortress).size());
 
-        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+            assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
 
-        DocumentType docType = new DocumentType(fortress, "DAT-506");
-        EntityInputBean entityInputBean =
-                new EntityInputBean(docType, "abc")
-                        .setSegment(segment2014.getCode())
-                        .setContent(new ContentInputBean(getRandomMap()));
+            DocumentType docType = new DocumentType(fortress, "DAT-506");
+            EntityInputBean entityInputBean =
+                    new EntityInputBean(docType, "abc")
+                            .setSegment(segment2014.getCode())
+                            .setContent(new ContentInputBean(getRandomMap()));
 
-        Entity entity2014 = mediationFacade
-                .trackEntity(segment2014, entityInputBean)
-                .getEntity();
+            Entity entity2014 = mediationFacade
+                    .trackEntity(segment2014, entityInputBean)
+                    .getEntity();
 
-        waitForFirstSearchResult(su.getCompany(), entity2014);
-        assertEquals(segment2014.getCode(), entity2014.getSegment().getCode());
+            waitForFirstSearchResult(su.getCompany(), entity2014);
+            assertEquals(segment2014.getCode(), entity2014.getSegment().getCode());
 
-        entityInputBean =
-                new EntityInputBean(docType, "cba")
-                        .setSegment(segment2015.getCode())
-                        .setContent(new ContentInputBean(getRandomMap()));
+            entityInputBean =
+                    new EntityInputBean(docType, "cba")
+                            .setSegment(segment2015.getCode())
+                            .setContent(new ContentInputBean(getRandomMap()));
 
-        Entity entity2015 = mediationFacade
-                .trackEntity(segment2015, entityInputBean)
-                .getEntity();
+            Entity entity2015 = mediationFacade
+                    .trackEntity(segment2015, entityInputBean)
+                    .getEntity();
 
-        assertEquals(segment2015.getCode(), entity2015.getSegment().getCode());
-        waitForFirstSearchResult(su.getCompany(), entity2015);
+            assertEquals(segment2015.getCode(), entity2015.getSegment().getCode());
+            waitForFirstSearchResult(su.getCompany(), entity2015);
 
-        doEsQuery(entity2014, "*", 1);
-        doEsQuery(entity2015, "*", 1);
+            doEsQuery(entity2014, "*", 1);
+            doEsQuery(entity2015, "*", 1);
 
-        // Find both docs across segmented indexes
-        doEsQuery(IndexHelper.parseIndex(fortress.getRootIndex()) + ".*", entity2014.getType(), "*", 2);
+            // Find both docs across segmented indexes
+            doEsQuery(IndexHelper.parseIndex(fortress.getRootIndex()) + ".*", entity2014.getType(), "*", 2);
+
+            // Ensure we can find the entity content when it is stored in a segmented ES index
+            EntityLog lastLog = entityService.getLastEntityLog(entity2014.getId());
+            KvContent contentFromEs = kvService.getContent(entity2014, lastLog.getLog());
+            assertNotNull("fd-store, unable to locate the content from ES",contentFromEs);
+        } finally {
+            engineConfig.setKvStore(previousKv);
+        }
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
