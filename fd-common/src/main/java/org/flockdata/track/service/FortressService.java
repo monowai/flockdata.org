@@ -88,4 +88,6 @@ public interface FortressService {
     FortressSegment addSegment(FortressSegment segment);
 
     Collection<FortressSegment> getSegments(Fortress fortress);
+
+    FortressSegment resolveSegment(Company company, EntityInputBean entityInputBean) throws NotFoundException;
 }
