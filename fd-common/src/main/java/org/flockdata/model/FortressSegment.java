@@ -84,7 +84,7 @@ public class FortressSegment {
         if (id != null ? !id.equals(segment.id) : segment.id != null) return false;
         if (code != null ? !code.equals(segment.code) : segment.code != null) return false;
         if (key != null ? !key.equals(segment.key) : segment.key != null) return false;
-        return !(fortress != null ? !fortress.equals(segment.fortress) : segment.fortress != null);
+        return !(fortress != null ? !fortress.getId().equals(segment.fortress.getId()) : segment.fortress.getId() != null);
 
     }
 
@@ -93,7 +93,7 @@ public class FortressSegment {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (key != null ? key.hashCode() : 0);
-        result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
+        result = 31 * result + (fortress != null ? fortress.getId().hashCode() : 0);
         return result;
     }
 

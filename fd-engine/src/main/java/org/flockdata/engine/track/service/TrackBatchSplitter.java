@@ -21,16 +21,22 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.FortressSegment;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import sun.tools.tree.ForStatement;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.HeuristicRollbackException;
 import java.util.*;
 
 /**
@@ -68,46 +74,24 @@ public class TrackBatchSplitter {
 
     }
 
+    @Transactional
+    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class},
+            maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Map<FortressSegment, List<EntityInputBean>> getEntitiesBySegment(Company company, Collection<EntityInputBean> entityInputBeans) throws NotFoundException {
         Map<FortressSegment, List<EntityInputBean>> results = new HashMap<>();
 
         // Local cache of segments by name - never very big, usually only 1
         Map<String, FortressSegment> resolvedSegments = new HashMap<>();
-        Map<String, Fortress> resolvedFortresses = new HashMap<>();
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
-            String fortressName = entityInputBean.getFortress();
-            String segmentName = entityInputBean.getSegment();
 
-            Fortress fortress = null;
-            String segmentKey = FortressSegment.key(Fortress.code(fortressName), segmentName);
-            FortressSegment segment ;
-            if (segmentKey != null) {
-                segment = resolvedSegments.get(segmentKey);
-                if ( segment !=null )
-                    fortress = segment.getFortress();
-            } else {
-                fortress = resolvedFortresses.get(Fortress.code(fortressName));
+            String segmentKey = FortressSegment.key(Fortress.code(entityInputBean.getFortress()), entityInputBean.getSegment());
+            FortressSegment segment = resolvedSegments.get(segmentKey);
+            if ( segment == null ) {
+                segment = fortressService.resolveSegment(company, entityInputBean);
+                resolvedSegments.put(segmentKey, segment);
             }
 
-            if (fortress == null) {
-                fortress = fortressService.findByCode(company, fortressName);
-                if (fortress == null)
-                    fortress = fortressService.findByName(company, fortressName);
-                if (fortress == null) {
-                    FortressInputBean fib = new FortressInputBean(fortressName);
-                    fib.setTimeZone(entityInputBean.getTimezone());
-                    fortress = fortressService.registerFortress(company, fib, true);
-                    resolvedFortresses.put(fortress.getCode(), fortress);
-                }
-            }
-
-            if (segmentName != null) {
-                segment = fortressService.addSegment(new FortressSegment(fortress, segmentName));
-                resolvedSegments.put(segment.getKey(), segment);
-            } else {
-                segment = fortress.getDefaultSegment();
-            }
 
             List<EntityInputBean> entities = results.get(segment);// are we caching this already?
 
