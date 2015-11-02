@@ -565,7 +565,7 @@ public class FileProcessor {
         if (skipCount > 0)
             logger.info("Completed [{}] rows in [{}] secs. rpm [{}]. Skipped first [{}] rows, ignored [{}] rows. Finished on row {}", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), skipCount, ignoreCount, rows);
         else
-            logger.info("Completed [{}] rows in [{}] secs. rpm [{}] Ignored [{}] rows rpm = [{}]", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), ignoreCount, rows);
+            logger.info("Completed [{}] rows in [{}] secs. rpm [{}] Ignored [{}] rows. Finished on row [{}]", rowsProcessed, formatter.format(watch.getTotalTimeSeconds()), formatter.format(rowsProcessed / mins), ignoreCount, rows);
         return rows;
     }
 

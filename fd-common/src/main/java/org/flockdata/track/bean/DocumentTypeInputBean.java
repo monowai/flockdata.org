@@ -32,15 +32,17 @@ public class DocumentTypeInputBean {
         return name;
     }
 
-    public void setName(String name) {
+    public DocumentTypeInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public DocumentTypeInputBean setCode(String code) {
         this.code = code;
+        return this;
     }
 }
