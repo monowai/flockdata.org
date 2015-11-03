@@ -26,10 +26,7 @@ import org.flockdata.model.*;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.*;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackRequestResult;
+import org.flockdata.track.bean.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -201,7 +198,7 @@ public class EngineEndPoints {
         MvcResult response = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post("/fortress/")
+                                .post("/fortress/{fortressCode}/docs")
                                 .header("api-key", su.getApiKey())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.getJSON(fortressInputBean))).andReturn();
@@ -278,5 +275,18 @@ public class EngineEndPoints {
                         .header("api-key", su.getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+    }
+
+    public Collection<DocumentResultBean> makeDocuments(SystemUser su, Fortress fortress, Collection<DocumentTypeInputBean> docTypes) throws Exception{
+        MvcResult response = getMockMvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post("/fortress/"+fortress.getCode() +"/docs")
+                                .header("api-key", su.getApiKey())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtils.getJSON(docTypes))).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+        return JsonUtils.getAsCollection(json, DocumentResultBean.class);
     }
 }

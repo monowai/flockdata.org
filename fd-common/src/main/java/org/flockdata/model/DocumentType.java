@@ -20,6 +20,7 @@
 package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.EntityService;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
@@ -68,6 +69,17 @@ public class DocumentType  implements Comparable<DocumentType> {
     private EntityService.TAG_STRUCTURE tagStructure;
 
     protected DocumentType() {
+    }
+
+    public DocumentType(Fortress fortress, DocumentTypeInputBean docType) {
+        this(fortress, docType.getName());
+        this.code = parse(fortress, docType.getCode());
+        if ( fortress !=null ){
+            this.companyKey = fortress.getCompany().getId() + "." + code;
+            setFortress(fortress);
+        }
+
+
     }
 
     public DocumentType(String documentName) {
