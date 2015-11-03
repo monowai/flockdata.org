@@ -404,6 +404,4 @@ public class ColumnDefinition implements GeoDefinition {
         return merge;
     }
 
-
-
 }

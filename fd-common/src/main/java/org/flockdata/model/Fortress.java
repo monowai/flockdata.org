@@ -113,9 +113,12 @@ public class Fortress implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-        this.code = name.toLowerCase().replaceAll("\\s+", "");
+        this.code = code(name);
     }
 
+    public static String code(String name){
+        return name.toLowerCase().replaceAll("\\s+", "");
+    }
     @JsonIgnore
     public Company getCompany() {
         return company;

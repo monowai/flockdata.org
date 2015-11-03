@@ -12,7 +12,7 @@ import java.util.Collection;
 
 /**
  * Provides centralized access to the way that FD parses data for ElasticSearch indexes
- *
+ * <p/>
  * Created by mike on 23/07/15.
  */
 public class IndexHelper {
@@ -32,6 +32,7 @@ public class IndexHelper {
 
     /**
      * All types for a fortress
+     *
      * @param fortress {indexRoot}
      * @return {indexRoot}.*
      */
@@ -49,12 +50,16 @@ public class IndexHelper {
     }
 
     public static String parseIndex(QueryParams queryParams) {
-        return getIndexRoot(queryParams.getCompany(), queryParams.getFortress(), queryParams.getSegment());
+        String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
+        if ( isDefaultSegment(queryParams.getSegment()))
+            return indexRoot;
+        return String.format("%s.%s", indexRoot, queryParams.getSegment());
+
     }
 
     public static String getIndexRoot(FortressSegment segment) {
 
-        return getIndexRoot(segment.getFortress().getCompany().getCode(), segment.getFortress().getCode(), segment.getCode());
+        return getIndexRoot(segment.getFortress().getCompany().getCode(), segment.getFortress().getCode());
     }
 
     public static String getIndexRoot(Fortress fortress) {
@@ -63,44 +68,54 @@ public class IndexHelper {
 
     // Returns the root level of the index with no doctype or consideration of a segment
     public static String getIndexRoot(String company, String fortress) {
-        return PREFIX + company.toLowerCase() + "." + (fortress == null ? "*": fortress.toLowerCase());
+        return PREFIX + company.toLowerCase() + (fortress == null || fortress.equals("*") ? "" : "."+fortress.toLowerCase());
     }
 
-    // Returns the root level of the index - no Doc Type
-    public static String getIndexRoot(String company, String fortress, String segment) {
-        return PREFIX + company.toLowerCase() + "." +
-                (fortress == null ? "*": fortress.toLowerCase())+
-                (segment == null || segment.equals(FortressSegment.DEFAULT) ? "": segment.toLowerCase())
-
-                ;
-    }
-
+    /**
+     * Computes ES indexes, including wildcards, from the supplied query parameters
+     *
+     * @param queryParams
+     * @return one index per doc type
+     * @throws FlockException
+     */
     public static String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
         return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getSegment(), queryParams.getTypes());
     }
 
     /**
-     *
-     * @param company   who owns the index  (used in calculating the root)
-     * @param fortress  system in the index (used in calculating the root)
-     * @param types     types to scan
-     *
+     * @param company  owns the index
+     * @param fortress owns the index data
+     * @param segment  optional segment to restrict by
+     * @param types    types to scan
      * @return One index line per Root+Type combination
      */
-    public static String[] getIndexesToQuery(String company, String fortress, String segment, String[] types){
+    public static String[] getIndexesToQuery(String company, String fortress, String segment, String[] types) {
         int length = 1;
-        if ( types !=null && types.length > 0 )
+        if (types != null && types.length > 0)
             length = 1;
-        String[] results = new String[ length];
+        String[] results = new String[length];
         Collection<String> found = new ArrayList<>();
 
-        String indexRoot = getIndexRoot(company, fortress, segment);
-        if ( types == null || types.length ==0) {
-            results[0] = indexRoot + ( indexRoot.endsWith(".*")?"":"*" );
+        String indexRoot = PREFIX + company.toLowerCase() ;
+        String segmentFilter ="";
+
+        if (!isDefaultSegment(segment))
+            segmentFilter = "."+segment.toLowerCase();
+
+        String fortressFilter ;
+        if ( fortress == null || fortress.equals("*"))
+            fortressFilter=".*";
+       else
+            fortressFilter = (segmentFilter.equals("")?"."+fortress.toLowerCase()+"*":"."+fortress.toLowerCase());
+
+        indexRoot = indexRoot+fortressFilter+ segmentFilter;
+
+        if (types == null || types.length == 0) {
+            results[0] = indexRoot ;
         } else {
             int count = 0;
             for (String type : types) {
-                if ( !found.contains(indexRoot)) {
+                if (!found.contains(indexRoot)) {
                     results[count] = indexRoot; //+ "."+type.toLowerCase();
                     found.add(indexRoot);
                     count++;
@@ -111,15 +126,6 @@ public class IndexHelper {
         return results;
     }
 
-    private static String getIndexRoot(String companyCode) {
-        // ToDo: Add multi tenant test. Company must always be present if MultiTenanted
-        if (companyCode == null || companyCode.equals(""))
-            companyCode = "*";
-
-        return PREFIX + companyCode.toLowerCase() + ".";
-    }
-
-
     public static String parseType(Entity entity) {
         return parseType(entity.getType());
     }
@@ -128,4 +134,8 @@ public class IndexHelper {
         return type.toLowerCase();
     }
 
+    // Determines if the segment is a regular default
+    private static boolean isDefaultSegment(String segment){
+        return segment == null || segment.equals(FortressSegment.DEFAULT);
+    }
 }

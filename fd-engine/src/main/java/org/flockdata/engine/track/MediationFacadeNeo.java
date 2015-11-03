@@ -41,18 +41,25 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
+import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
+import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -165,11 +172,11 @@ public class MediationFacadeNeo implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<Fortress, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesByFortress(c, inputBeans);
+        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
-        for (Fortress fortress : byFortress.keySet()) {
+        for (FortressSegment segment : byFortress.keySet()) {
             Collection<TrackResultBean>tr=
-                    trackEntities(fortress.getDefaultSegment(), byFortress.get(fortress), 2);
+                    trackEntities(segment, byFortress.get(segment), 2);
             for (TrackResultBean result : tr) {
                 results.add(new TrackRequestResult(result));
             }

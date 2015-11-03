@@ -113,6 +113,9 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if ( column != null && !column.isNull() )
             importProfile.setEvent(column.asText());
 
+        column = node.get("segment");
+        if ( column != null && !column.isNull() )
+            importProfile.setSegmentExpression(column.asText());
 
         if ( column!=null) {
             importProfile.setEntityKey(column.asText());

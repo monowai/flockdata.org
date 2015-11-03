@@ -30,7 +30,13 @@ import java.util.Map;
  */
 public interface FdKvConfig {
 
-    void setKvStore(KvService.KV_STORE kvStore);
+    /**
+     * Sets the KV store to use for ContentInputBeans
+     *
+     * @param kvStore kvStore to use
+     * @return the previous value of the kvStore
+     */
+    KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore);
 
     void setKvStore(String kvStore);
 

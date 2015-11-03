@@ -62,6 +62,7 @@ public class ImportProfile implements ProfileConfiguration {
     private String event = null;
     private String preParseRowExp;
     private Map<String, Object> properties;
+    private String segmentExpression;
 
     private String condition; // an expression that determines if the row will be processed
 
@@ -288,7 +289,16 @@ public class ImportProfile implements ProfileConfiguration {
         return condition;
     }
 
+    @Override
+    public String getSegmentExpression() {
+        return segmentExpression;
+    }
+
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public void setSegmentExpression(String segmentExpression) {
+        this.segmentExpression = segmentExpression;
     }
 }

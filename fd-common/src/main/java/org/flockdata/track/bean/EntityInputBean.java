@@ -21,6 +21,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.EntityTagIn;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -293,8 +294,9 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @param description User definable note describing the entity
      */
-    public void setDescription(String description) {
+    public EntityInputBean setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     /**
@@ -412,8 +414,9 @@ public class EntityInputBean implements Serializable, UserProperties{
      * @param archiveTags default False - tags not present in this request but are recorded
      *                    against the entity will be MOVED to the content
      */
-    public void setArchiveTags(boolean archiveTags) {
+    public EntityInputBean setArchiveTags(boolean archiveTags) {
         this.archiveTags = archiveTags;
+        return this;
     }
 
     /**

@@ -62,6 +62,16 @@ public class JsonUtils {
 
     }
 
+    /**
+     * deserialize the JSON string as a collection of clazz
+     *
+     * e.g. Collection<EntityInputBean> results = JsonUtils.getAsCollection(message.getBody(), EntityInputBean.class);
+     *
+     * @param bytes  JSON Bytes - usually String.getBytes()
+     * @param clazz  Concrete type
+     * @return   Collection<T>
+     * @throws IOException
+     */
     public static <T> Collection<T> getAsCollection(byte[] bytes, Class<T> clazz) throws IOException {
         if (bytes == null )
             return new ArrayList<>();

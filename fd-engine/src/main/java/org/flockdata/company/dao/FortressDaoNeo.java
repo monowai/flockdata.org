@@ -95,7 +95,10 @@ public class FortressDaoNeo  {
     }
 
     public FortressSegment saveSegment(FortressSegment segment){
-        return fortressSegmentRepo.save(segment);
+        FortressSegment result= findSegment(segment.getFortress(), segment.getKey());
+        if ( result == null )
+            result = fortressSegmentRepo.save(segment);
+        return result;
     }
 
     public FortressSegment getDefaultSegement(Fortress fortress){
@@ -106,5 +109,9 @@ public class FortressDaoNeo  {
 
     public Collection<FortressSegment> getSegments(Fortress fortress) {
         return fortressSegmentRepo.findFortressSegments(fortress.getId()) ;
+    }
+
+    FortressSegment findSegment(Fortress fortress, String segmentKey){
+        return fortressSegmentRepo.findSegment(fortress.getId(),segmentKey);
     }
 }
