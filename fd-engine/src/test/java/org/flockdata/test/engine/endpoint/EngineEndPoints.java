@@ -198,7 +198,7 @@ public class EngineEndPoints {
         MvcResult response = getMockMvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post("/fortress/{fortressCode}/docs")
+                                .post("/fortress/")
                                 .header("api-key", su.getApiKey())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.getJSON(fortressInputBean))).andReturn();
