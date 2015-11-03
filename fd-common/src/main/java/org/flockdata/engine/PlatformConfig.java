@@ -47,6 +47,8 @@ public interface PlatformConfig {
     @Value("${fd-engine.system.constraints:@null}")
     void setSystemConstraints(String constraints);
 
+    KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore);
+
     KvService.KV_STORE getKvStore();
 
     boolean isConceptsEnabled();

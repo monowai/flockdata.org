@@ -62,6 +62,8 @@ public class EsRepo extends AbstractKvRepo{
         queryParams.setTypes(IndexHelper.parseType(entity));
         queryParams.setFortress(entity.getSegment().getFortress().getName());
         queryParams.setCallerRef(entity.getSearchKey());
+        queryParams.setSegment(entity.getSegment().getCode());
+
         ContentInputBean contentInput = new ContentInputBean();
         // DAT-347
         if ( entity.getSearchKey() != null ){

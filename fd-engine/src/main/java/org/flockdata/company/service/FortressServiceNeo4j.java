@@ -119,7 +119,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p>
+     * <p/>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -138,7 +138,7 @@ public class FortressServiceNeo4j implements FortressService {
     /**
      * Returns an object representing the user in the supplied fortress. User is created
      * if it does not exist
-     * <p>
+     * <p/>
      * FortressUser Name is deemed to always be unique and is converted to a lowercase trimmed
      * string to enforce this
      *
@@ -321,13 +321,13 @@ public class FortressServiceNeo4j implements FortressService {
         return documentType.getGeoQuery();
     }
 
-    public FortressSegment getDefaultSegment (Fortress fortress){
+    public FortressSegment getDefaultSegment(Fortress fortress) {
         return fortressDao.getDefaultSegement(fortress);
     }
 
     @Override
     public FortressSegment addSegment(FortressSegment segment) {
-        if ( segment.getFortress() == null)
+        if (segment.getFortress() == null)
             throw new IllegalArgumentException("Could not associate a fortress with the segment");
 //        if ( segment.getCode().equals(FortressSegment.DEFAULT))
 //            throw new IllegalArgumentException("Can not use {} as the segment code", segment.getCode());
@@ -339,7 +339,34 @@ public class FortressServiceNeo4j implements FortressService {
         return fortressDao.getSegments(fortress);
     }
 
-    private Map<Long,EntityTagFinder>tagFinders= new HashMap<>();
+    @Override
+    public FortressSegment resolveSegment(Company company, EntityInputBean entityInputBean) throws NotFoundException {
+        String fortressName = entityInputBean.getFortress();
+        String segmentName = entityInputBean.getSegment();
+
+        Fortress fortress;
+        FortressSegment segment;
+
+        fortress = findByCode(company, fortressName);
+        if (fortress == null)
+            fortress = findByName(company, fortressName);
+        if (fortress == null) {
+            FortressInputBean fib = new FortressInputBean(fortressName);
+            fib.setTimeZone(entityInputBean.getTimezone());
+            fortress = registerFortress(company, fib, true);
+            //resolvedFortresses.put(fortress.getCode(), fortress);
+        }
+        if (segmentName != null) {
+            segment = addSegment(new FortressSegment(fortress, segmentName));
+            //resolvedSegments.put(segment.getKey(), segment);
+        } else {
+            segment = fortress.getDefaultSegment();
+        }
+        return segment;
+
+    }
+
+    private Map<Long, EntityTagFinder> tagFinders = new HashMap<>();
 
     @Override
     /**
@@ -348,11 +375,11 @@ public class FortressServiceNeo4j implements FortressService {
      */
     public EntityService.TAG_STRUCTURE getTagStructureFinder(Entity entity) {
         EntityTagFinder tagFinder = tagFinders.get(entity.getId());
-        if ( tagFinder == null ) {
+        if (tagFinder == null) {
             DocumentType documentType = findDocumentType(entity);
-            if ( documentType == null || documentType.getTagStructure() == null || documentType.getTagStructure()== EntityService.TAG_STRUCTURE.DEFAULT)
+            if (documentType == null || documentType.getTagStructure() == null || documentType.getTagStructure() == EntityService.TAG_STRUCTURE.DEFAULT)
                 return EntityService.TAG_STRUCTURE.DEFAULT; // The docType *should* exist
-            if ( documentType.getTagStructure() == EntityService.TAG_STRUCTURE.TAXONOMY){
+            if (documentType.getTagStructure() == EntityService.TAG_STRUCTURE.TAXONOMY) {
                 return EntityService.TAG_STRUCTURE.TAXONOMY;
             }
         }

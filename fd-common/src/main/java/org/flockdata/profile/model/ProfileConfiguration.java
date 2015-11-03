@@ -76,6 +76,8 @@ public interface ProfileConfiguration {
 
     String getCondition();
 
+    String getSegmentExpression();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

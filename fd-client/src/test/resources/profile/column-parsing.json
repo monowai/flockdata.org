@@ -6,6 +6,7 @@
   "fortressUser": "mike",
   "quoteCharacter": "|",
   "header": false,
+  "segment": "#row['0']",
   "content": {
     "1": {
       "callerRef": true
