@@ -24,7 +24,7 @@ Collect, Connect Compare and Explore  - FlockData helps you find what you're loo
 
 FlockData is a system of insight built as a [DataShore](http://martinfowler.com/bliki/DataLake.html) using the principals of Microservices and Domain Driven Design. We define the service boundary for writes as Audit (tracking data changes) and Search (indexing your data). An exciting off shoot of this idea is that by tracking your data as information you also gain an analytics platform for the powerful query analysis, offered by graph and search databases, indexed in a consistent manner.
 
-Turn your information in to an accessible resource. See if our data [Mission](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172853) aligns with your way of thinking.
+Turn your information in to an accessible resource. See if our data [Mission](http://wiki.flockdata.com/pages/viewpage.action?pageId=13172853) aligns with your way of thinking.
 
 ##Design
 FD follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
@@ -59,7 +59,7 @@ You need to gain a brief understanding of two of the key FlockData scalable micr
 * [fd-engine](fd-engine/README.md) - tracks changes to your data - think LogStash for business data
 * [fd-search](fd-search/README.md) - find entity information tracked by fd-engine into ElasticSearch
 
-Familiarise yourself with the general API on our [Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
+Familiarise yourself with the general API on our [Wiki](http://wiki.flockdata.com/pages/viewpage.action?pageId=13172790)
 
 ## Working with us
 Drop us a line over at [flockdata.com](http://flockdata.com/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .

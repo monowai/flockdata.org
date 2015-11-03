@@ -27,6 +27,7 @@ import org.flockdata.test.engine.functional.EngineBase;
 import org.flockdata.test.engine.functional.TestQueryResults;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
@@ -35,8 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
 /**
@@ -123,5 +126,38 @@ public class DocTestEP extends EngineBase {
         assertEquals(1, tags.size());
         assertEquals("Potatoes", tags.iterator().next().getCode());
     }
+
+    /**
+     * Create a collection of DocumentTypeInputBeans for a fortress over the endpoint
+     *
+     * @throws Exception
+     */
+    @Test
+    public void make_DocTypes() throws Exception {
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("make_DocTypes", "mike");
+
+        Fortress fortress = createFortress(su);
+
+        DocumentTypeInputBean docType = new DocumentTypeInputBean()
+                .setCode("docCode")
+                .setName("docName");
+
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        Collection<DocumentTypeInputBean>docTypes = new ArrayList<>();
+        docTypes.add(docType);
+
+        Collection<DocumentResultBean> docs = eip.makeDocuments(su, fortress, docTypes);
+        assertEquals(1, docs.size());
+
+        DocumentResultBean result = docs.iterator().next();
+        assertEquals(docType.getName(), result.getName());
+        assertEquals(1, eip.getDocuments(fortress.getName()).size());
+
+    }
+
 
 }
