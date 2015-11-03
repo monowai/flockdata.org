@@ -50,6 +50,9 @@ Thumbs.db
 target/
 report/
 
+fd-engine/data
+fd-engine/neo4j-home
+
 
 ab-engine/.shell_history
 dependency-reduced-pom.xml
