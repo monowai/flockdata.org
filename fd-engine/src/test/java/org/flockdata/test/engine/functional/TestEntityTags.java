@@ -1251,53 +1251,6 @@ public class TestEntityTags extends EngineBase {
         assertEquals("Unknown", byAlias.getCode());
     }
 
-    /**
-     * Checks that a custom query can be used to return a Geographic node path rather than
-     * having to use FlockData's internal default resolution strategy
-     *
-     * DAT-495 introduces this
-     *
-     * @throws Exception
-     */
-    @Test
-    public void geo_CustomPath() throws Exception {
-        SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
-        FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
-        fib.setStoreActive(false);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
-
-        DocumentType documentType = new DocumentType(fortress, "DAT-495");
-
-        documentType = conceptService.save(documentType);
-        assertNull(documentType.getGeoQuery());
-
-        // DocumentType specific query string to define how the geo chain is connected
-        String query = "match p=(located:Tag)-[*1..2]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes";
-        documentType.setGeoQuery(query);
-        conceptService.save(documentType);
-        documentType = conceptService.findDocumentType(fortress, documentType.getName());
-        assertNotNull(documentType);
-        assertEquals(query, documentType.getGeoQuery());
-
-        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT-495", "DAT-495", new DateTime(), "abc");
-
-        TagInputBean tagInput = new TagInputBean("123 Main Road", "Address", "geodata");
-        tagInput.setTargets("to-country", new TagInputBean("AT", "Country").setName("Atlantis"));
-
-        Collection<TagInputBean>tags = new ArrayList<>();
-        tags.add(tagInput);
-        entityInput.setTags(tags);
-        TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        Iterable<EntityTag> entityTags = entityTagService.getEntityTagsWithGeo(trackResultBean.getEntity());
-        int expected = 1;
-        int found = 0;
-        for (EntityTag entityTag : entityTags) {
-            assertNotNull ( "custom geo query string did not find the geo path", entityTag.getGeoData());
-            found ++;
-        }
-        assertEquals(expected, found);
-    }
-
     @Test
     public void custom_TagPath() throws Exception {
         SystemUser su = registerSystemUser("custom_TagPath", mike_admin);
