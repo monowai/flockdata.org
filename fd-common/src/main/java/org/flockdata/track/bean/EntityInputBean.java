@@ -355,11 +355,12 @@ public class EntityInputBean implements Serializable, UserProperties{
     @Override
     public String toString() {
         return "EntityInputBean{" +
-                "fortressName='" + getFortress() + '\'' +
-                ", documentName='" + getDocumentName() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", code='" + getCode() + '\'' +
-                ", metaKey='" + getMetaKey() + '\'' +
+                "for='" + getFortress() + '\'' +
+                ", doc='" + getDocumentName() + '\'' +
+                ", seg='" + getSegment() + '\'' +
+                ", mek='" + getMetaKey() + '\'' +
+                ", cod='" + getCode() + '\'' +
+                ", nam='" + getName() + '\'' +
                 '}';
     }
 
