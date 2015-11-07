@@ -28,6 +28,8 @@ public class DocumentTypeInputBean {
     private String name;
     private String code;
 
+    private String geoQuery;
+
     public String getName() {
         return name;
     }
@@ -45,4 +47,11 @@ public class DocumentTypeInputBean {
         this.code = code;
         return this;
     }
+
+    // MKH - Overrides the geo query path for this DocumentType. VULNERABLE!
+    // DAT-507
+    public String getGeoQuery() {
+        return geoQuery;
+    }
+
 }
