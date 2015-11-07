@@ -73,7 +73,11 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public DocumentType(Fortress fortress, DocumentTypeInputBean docType) {
         this(fortress, docType.getName());
-        this.code = parse(fortress, docType.getCode());
+        this.name = docType.getName();
+        // ToDo: Parse for injection vulnerabilities.
+        // Only admin users can create these and even then only under direction
+        this.geoQuery = docType.getGeoQuery(); // DAT-507
+
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
             setFortress(fortress);
