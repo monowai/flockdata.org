@@ -156,6 +156,13 @@ public class EntityServiceNeo4J implements EntityService {
 
                 }
             }
+            if ( entityInputBean.getSegment() != null ){
+                if ( !entity.getSegment().getId().equals(segment.getId())){
+                    entity.setSegment(segment);
+                    saveEntity = true;
+                    // ToDo - delete the search doc in the previous segment !!
+                }
+            }
             // We can update the entity name?
             if (entityInputBean.getName() != null && !entity.getName().equals(entityInputBean.getName())) {
                 saveEntity = true;
