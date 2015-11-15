@@ -4,9 +4,16 @@ import junit.framework.TestCase;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
@@ -38,7 +45,6 @@ public class TestFortressSegments extends EngineBase{
         TestCase.assertEquals(2, fortressService.getSegments(fortress).size());
     }
 
-
     @Test
     public void addDuplicateSegment() throws Exception{
         SystemUser su = registerSystemUser("addDuplicateSegment");
@@ -58,6 +64,33 @@ public class TestFortressSegments extends EngineBase{
     public void createSegmentForIllegalFortress() throws Exception{
         exception.expect(IllegalArgumentException.class);
         new FortressSegment(null, "SecondSegment");
+
+    }
+
+    @Test
+    public void moveEntityAcrossSegments() throws Exception{
+        logger.debug("### moveEntityAcrossSegments");
+        engineConfig.setTestMode(true); // Force sync processing of the content and log
+
+        String callerRef = "123";
+        SystemUser su = registerSystemUser("user");
+        String fortressName = "DAT-509";
+
+        FortressInputBean fib = new FortressInputBean(fortressName, true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+        EntityInputBean inputBean = new EntityInputBean(fortressName, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertTrue(resultBean.getEntity().getSegment().isDefault());
+
+        inputBean.setSegment("MoveMeHere");
+        resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertFalse(resultBean.getEntity().getSegment().isDefault());
+
+        inputBean.setSegment(fortress.getDefaultSegment().getCode());
+        resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertTrue(resultBean.getEntity().getSegment().isDefault());
 
     }
 
