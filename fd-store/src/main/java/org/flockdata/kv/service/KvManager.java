@@ -139,6 +139,8 @@ public class KvManager implements KvService {
         if ( kvBean.getStorage().equals(KV_STORE.NONE.name()))
             return;
 
+        kvBean.setBucket(entity.getSegment().getKey());
+
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
             logger.debug("Async write begins {}", kvBean);

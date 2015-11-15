@@ -209,13 +209,41 @@ public class EntityTagDaoNeo {
             boolean locatedOnEntity = entityTag.getRelationship().equals("geodata");
             if (entityTag.getTag().getLocated() != null || locatedOnEntity ) {
                 template.fetch(entityTag.getTag());
+                String query = getQuery(locatedOnEntity, entity);
+
                 entityTag.setGeoData(
-                        geoSupport.getGeoData( entity, (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
+                        geoSupport.getGeoData( query, (locatedOnEntity ?entityTag.getTag(): entityTag.getTag().getLocated()))
                 );
             }
         }
         return entityTags;
 
+    }
+
+    /**
+     * Enables the overloading of the cypher query used to identify the geo path from the entity.
+     *
+     * By default it will connect the shortestPath to a Country with up to 4 hops from the starting node.
+     * Locates a path to the country via an optional query that can be associated with the entities DocType
+     * Query MUST return a nodes(path)
+     *
+     * @param locatedOnEntity   Reading from a tag not directly connected to the entity
+     * @param entity the entity
+     * @return cypher query to execute
+     */
+    private String getQuery(boolean locatedOnEntity, Entity entity){
+        // DAT-495
+
+        String geoQuery= null;
+
+        if ( locatedOnEntity)
+            geoQuery=fortressService.getGeoQuery(entity) ;
+
+        if ( geoQuery == null )
+            // This is the default way we use if not otherwise defined against the doctype
+            geoQuery = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
+        //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
+        return geoQuery;
     }
 
     public Collection<EntityTag> getEntityTags(Entity entity) {
