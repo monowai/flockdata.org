@@ -497,7 +497,7 @@ public class MediationFacadeNeo implements MediationFacade {
         }
     }
 
-    public void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
+    void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
 
         logger.debug("Distributing changes to sub-services");
         searchService.makeChangesSearchable(fortress, resultBeans);
