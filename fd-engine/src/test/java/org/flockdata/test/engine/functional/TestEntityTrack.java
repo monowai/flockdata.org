@@ -188,7 +188,7 @@ public class TestEntityTrack extends EngineBase {
      * @throws Exception
      */
     @Test
-    public void track_WithSingleLog() throws Exception {
+    public void track_WithSingleContentLog() throws Exception {
         logger.debug("### fortress_CreateOnTrack");
         engineConfig.setTestMode(true); // Force sync processing of the content and log
 

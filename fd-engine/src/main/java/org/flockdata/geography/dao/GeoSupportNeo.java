@@ -47,12 +47,12 @@ public class GeoSupportNeo {
     private Logger logger = LoggerFactory.getLogger(GeoSupportNeo.class);
 
     @Cacheable(value = "geoData", key = "#loc.id")
-    public GeoDataBeans getGeoData(Entity e, Tag loc) {
-        logger.debug("Cache miss for {}", loc.getId());
+    public GeoDataBeans getGeoData(String query, Tag loc) {
+        //logger.info("Cache miss f {}, Tag {}", e.getId(), loc.getId());
         HashMap<String, Object> params = new HashMap<>();
         params.put("locNode", loc.getId());
 
-        String query = getQuery(e);
+//        String query = getQuery(e);
         Map<String, Object> rows = template.query(query, params).singleOrNull();
 
         if (rows== null || rows.isEmpty())
@@ -127,25 +127,6 @@ public class GeoSupportNeo {
 
     }
 
-    /**
-     * Enables the overloading of the cypher query used to identify the geo path from the entity.
-     *
-     * By default it will connect the shortestPath to a Country with up to 4 hops from the starting node.
-     *
-     * Query MUST return a nodes(path)
-     * @param entity the entity
-     * @return cypher query to execute
-     */
-    private String getQuery (Entity entity){
-        // DAT-495
 
-        String geoQuery= fortressService.getGeoQuery(entity) ;
-
-        if ( geoQuery == null )
-            // This is the default way we use if not otherwise defined against the doctype
-            geoQuery = "match (located:Tag)  , p= shortestPath((located:Tag)-[*1..4]->(c:Country)) where id(located)={locNode} return nodes(p) as nodes";
-        //String query = "match p=(located:Tag)-[r:state|address]->(o)-[*1..3]->(x:Country)  where id(located)={locNode} return nodes(p) as nodes" ;
-        return geoQuery;
-    }
 
 }

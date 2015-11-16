@@ -185,7 +185,7 @@ public class KvServiceTest {
 
         // Finally! the actual write occurs
         try {
-            kvService.doKvWrite(kvContentBean);
+            kvService.doWrite(entity, kvContentBean);
 
             // Retrieve the content we just created
             KvContent kvContent = kvService.getContent(entity, trackResultBean.getCurrentLog().getLog());
@@ -279,7 +279,7 @@ public class KvServiceTest {
         try {
             TrackResultBean tr = new TrackResultBean(null, entity, inputBean);
             KvContentBean kvContentBean = new KvContentBean(tr);
-            kvService.doKvWrite(kvContentBean);
+            kvService.doWrite(tr.getEntity(), kvContentBean);
             EntityLog entityLog = tr.getCurrentLog();
             KvContent entityContent = kvService.getContent(entity, entityLog.getLog());
 

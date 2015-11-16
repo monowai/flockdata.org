@@ -81,4 +81,12 @@ public class GeoDataBean {
     public Map<String, String> getPoints() {
         return points;
     }
+
+    @Override
+    public String toString() {
+        return "GeoDataBean{" +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
