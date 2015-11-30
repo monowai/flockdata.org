@@ -152,7 +152,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (tagInputs.isEmpty())
             return null;
         indexRetryService.ensureUniqueIndexes(tagInputs);
-        return tagRetryService.createTagsFuture(company, tagInputs).get();
+        return tagRetryService.createTags(company, tagInputs, false);
     }
 
     /**
