@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.endpoint;
 
+import com.jayway.jsonpath.JsonModel;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.JsonUtils;
@@ -219,6 +220,17 @@ public class EngineEndPoints {
 
     }
 
+    public TagResultBean getTag(String label, String code) throws Exception{
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label + "/"+code)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+
+        return JsonUtils.getBytesAsObject(json, TagResultBean.class);
+    }
+
     public Collection<DocumentResultBean> getDocuments(String fortress) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + fortress)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -288,5 +300,15 @@ public class EngineEndPoints {
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.getAsCollection(json, DocumentResultBean.class);
+    }
+
+    public Collection<FortressSegment> getSegments(String fortressCode) throws Exception{
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/fortress/" + fortressCode +"/segments")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.getAsCollection(json, FortressSegment.class);
+
     }
 }

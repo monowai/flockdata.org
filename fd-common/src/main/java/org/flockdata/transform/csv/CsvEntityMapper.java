@@ -32,7 +32,11 @@ import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.expression.spel.SpelEvaluationException;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -44,7 +48,7 @@ import java.util.Map;
  */
 public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
 
-    //private Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
 
     public CsvEntityMapper(ImportProfile importProfile) {
         setDocumentName(importProfile.getDocumentName());
@@ -76,8 +80,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                 if (importProfile.getSegmentExpression() != null && getSegment() == null) {
                     if (row.containsKey(importProfile.getSegmentExpression()))
                         setSegment(getString(row, importProfile.getSegmentExpression()));
-                    else
-                        setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
+                    else {
+                        try {
+                            setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
+                        } catch ( SpelEvaluationException e){
+
+                            throw new FlockException( "Unable to evaluate the segment expression for " + Arrays.toString(line) +".\r\n "+e.getMessage());
+                        }
+                    }
                 }
                 firstColumn = false;
             }
@@ -153,7 +163,8 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                         if (columnDefinition.isPersistent()) {
 
                             value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
-                            Object oValue = ExpressionHelper.getValue(value, columnDefinition);
+                            Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
+                                    //Object oValue = ExpressionHelper.getValue(value, columnDefinition);
                             if (columnDefinition.getTarget() != null)
                                 valueColumn = columnDefinition.getTarget();
                             if (oValue != null)

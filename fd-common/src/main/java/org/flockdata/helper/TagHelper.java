@@ -25,7 +25,12 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.neo4j.graphdb.Label;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
+ * Tag parsing support
+ * <p/>
  * Created by mike on 20/06/15.
  */
 public class TagHelper {
@@ -39,8 +44,19 @@ public class TagHelper {
         return label + tagSuffix;
     }
 
+    /**
+     * Converts an incoming search string in to a format for storage as the Tag's key property.
+     * <p/>
+     * /'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
+     * There is an assumption that the incoming key could be a URL string that requires decoding.
+     *
+     * @param key raw incoming text
+     * @return lowercase, url decoded string with /'s converted to -'s
+     */
     public static String parseKey(String key) {
-        return key.toLowerCase();
+        String result = key.toLowerCase();
+        return result.replace('/', '-');
+
     }
 
     public static boolean isDefault(String name) {
@@ -50,13 +66,13 @@ public class TagHelper {
 
     public static String parseKey(TagInputBean tagInput) {
         String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + ".");
-        return prefix + tagInput.getCode().toLowerCase();
+        return prefix + parseKey(tagInput.getCode());
     }
 
     public static String parseKey(String keyPrefix, String tagCode) {
         if (keyPrefix == null)
-            return tagCode.toLowerCase();
-        return keyPrefix.toLowerCase() + "." + tagCode.toLowerCase();
+            return parseKey(tagCode);
+        return keyPrefix.toLowerCase() + "." + parseKey(tagCode);
     }
 
     public static boolean isSystemKey(String key) {
@@ -81,7 +97,7 @@ public class TagHelper {
 
     public static String getLabel(Iterable<Label> labels) {
         for (Label label : labels) {
-            if ( !isInternalLabel(label.name()))
+            if (!isInternalLabel(label.name()))
                 return label.name();
         }
         return "Tag";

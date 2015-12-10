@@ -34,6 +34,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -77,9 +79,9 @@ public class TagEP {
 
     @RequestMapping(value = "/{label}/{code}", produces = "application/json", method = RequestMethod.GET)
     public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
-                                HttpServletRequest request) throws FlockException {
+                                HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
         Company company = CompanyResolver.resolveCompany(request);
-        return new TagResultBean(tagService.findTag(company, label,null , code, true));
+        return new TagResultBean(tagService.findTag(company, label,null , URLDecoder.decode(code, "UTF-8"), true));
     }
 
     @RequestMapping(value = "/{label}/{keyPrefix}/{code}", produces = "application/json", method = RequestMethod.GET)
