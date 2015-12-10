@@ -24,6 +24,7 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.model.Company;
@@ -126,6 +127,13 @@ public class FortressEP {
     public Collection<DocumentResultBean> getDocumentTypes(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         return  fortressService.getFortressDocumentsInUse(company, code);
+    }
+
+    @RequestMapping(value = "/{code}/segments", method = RequestMethod.GET)
+    public Collection<FortressSegment> getFortressSegments(@PathVariable("code") String code, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress f = fortressService.findByCode(company, code);
+        return  fortressService.getSegments(f);
     }
 
     @RequestMapping(value = "/timezones", method = RequestMethod.GET)

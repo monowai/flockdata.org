@@ -20,6 +20,7 @@
 package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.model.SystemUser;
@@ -70,6 +71,60 @@ public class TestTagEP extends EngineBase {
         Collection<Map>tagResults = (Collection<Map>) targetTags.get("located");
         TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().get("code"));
 
+
+    }
+
+    @Test
+    public void get_escapedTags() throws Exception {
+
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("esc_tags", "mike");
+        engineConfig.setConceptsEnabled("true");
+
+        TagInputBean thingTag = new TagInputBean("This/That", "Thing");
+
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        TestCase.assertEquals(1, tags.size());
+
+        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        TestCase.assertEquals(1, targetTags.size());
+
+        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TestCase.assertNotNull(tagResultBean);
+        TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
+
+        tagResultBean = eip.getTag(thingTag.getLabel(), "This%2FThat");
+        TestCase.assertNotNull ( tagResultBean);
+        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
+
+    }
+
+    @Test
+    public void get_percentageScenario() throws Exception {
+
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("esc_tags", "mike");
+        engineConfig.setConceptsEnabled("true");
+
+        TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
+
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        TestCase.assertEquals(1, tags.size());
+
+        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        TestCase.assertEquals(1, targetTags.size());
+
+        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), "1%25 Increase");
+        TestCase.assertNotNull ( tagResultBean);
+        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
     }
 

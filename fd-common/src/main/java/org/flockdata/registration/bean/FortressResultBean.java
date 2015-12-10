@@ -88,4 +88,8 @@ public class FortressResultBean implements Serializable{
     public void setCode(String code) {
         this.code = code;
     }
+
+    public String getIndexName() {
+        return indexName;
+    }
 }

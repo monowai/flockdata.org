@@ -29,13 +29,15 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 
 /**
  * Helper functions for interpreting ColumnDefinitions and setting values
- * <p>
+ * <p/>
  * User: mike
  * Date: 27/08/14
  * Time: 7:53 AM
@@ -55,7 +57,16 @@ public class TransformationHelper {
                     colDef = profileConfig.getColumnDef(Integer.toString(col));
 
                 Object value = line[col];
-                transformValue(row, value, column, colDef, profileConfig);
+                value = transformValue(value, column, colDef);
+                boolean addValue = true;
+                if (profileConfig.isEmptyIgnored()) {
+                    if (value == null || value.toString().trim().equals(""))
+                        addValue = false;
+                }
+                if (addValue) {
+                    row.put(column, (value instanceof String ? ((String) value).trim() : value));
+                }
+
                 col++;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -82,7 +93,7 @@ public class TransformationHelper {
             tag.setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, column));
             tag.setCode(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, column));
             tag.setNotFoundCode(colDef.getNotFound());
-            if ( colDef.isMerge())
+            if (colDef.isMerge())
                 tag.setMerge(true);
 
             if (column != null && value != null) {
@@ -109,7 +120,7 @@ public class TransformationHelper {
                     .setLabel(colDef.isCountry() ? "Country" : label)
                     .setNotFoundCode(colDef.getNotFound());
 
-            if ( colDef.isMerge())
+            if (colDef.isMerge())
                 tag.setMerge(true);
 
             String codeValue = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, colDef, value);
@@ -148,11 +159,11 @@ public class TransformationHelper {
                     if (colDef.isPersistent()) {
                         String sourceCol = propertyColumn.getSource();
 
-                        if ( sourceCol != null )
+                        if (sourceCol != null)
                             value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
                         else {
                             Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
-                            if ( val !=null )
+                            if (val != null)
                                 value = val.toString();
                         }
 
@@ -166,7 +177,7 @@ public class TransformationHelper {
         if (tag.getCode() == null)
             return false;
 
-        setNestedTags(tag, colDef.getTargets(), row );
+        setNestedTags(tag, colDef.getTargets(), row);
 
         return true;
     }
@@ -282,7 +293,7 @@ public class TransformationHelper {
                     if (name != null)
                         newTag.setName(name.toString());
 
-                    if ( tagProfile.isMerge())
+                    if (tagProfile.isMerge())
                         newTag.setMerge(true);
 
                     newTag.setReverse(tagProfile.getReverse());
@@ -304,11 +315,11 @@ public class TransformationHelper {
                             // Code Smell - this code is duplicated from getTagInputBean
 
                             String sourceCol = propertyColumn.getSource();
-                            if ( sourceCol != null )
+                            if (sourceCol != null)
                                 value = ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.CODE, propertyColumn, row.get(sourceCol));
                             else {
                                 Object val = ExpressionHelper.getValue(row, propertyColumn.getValue());
-                                if ( val !=null )
+                                if (val != null)
                                     value = val.toString();
                             }
 
@@ -318,7 +329,7 @@ public class TransformationHelper {
                         }
                     }
                 }
-                if ( tagProfile.getGeoData() != null ){
+                if (tagProfile.getGeoData() != null) {
                     doGeoTransform(newTag, row, tagProfile);
                 }
 
@@ -350,24 +361,28 @@ public class TransformationHelper {
         return results;
     }
 
-    public static void transformValue(Map<String, Object> row, Object value, String column, ColumnDefinition colDef, ProfileConfiguration importProfile) {
+    public static Object transformValue(Object value, String column, ColumnDefinition colDef) {
 
         Boolean tryAsNumber = true;
         String dataType = null;
         if (colDef != null) {
             dataType = colDef.getDataType();
 
-            if (dataType == null && colDef.isTag())
+            if (dataType == null && colDef.isTag()) {
                 dataType = "string";
+                tryAsNumber = false;
+            }
 
         }
 
         // Code values are always strings
-        if (column.equals("code") || column.equals("name"))
+        if (column.equals("code") || column.equals("name")) {
             dataType = "string";
+            tryAsNumber = false;
+        }
 
         if (dataType != null)
-            if (dataType.equalsIgnoreCase("string"))
+            if (dataType.equalsIgnoreCase("string") || dataType.equalsIgnoreCase("date"))
                 tryAsNumber = false;
             else if (dataType.equalsIgnoreCase("number")) {
                 tryAsNumber = true;
@@ -382,8 +397,8 @@ public class TransformationHelper {
         if (tryAsNumber) {
 
             if (value != null && NumberUtils.isNumber(value.toString())) {
-                if ( dataType !=null && dataType.equals("double"))
-                    value = value +"d";
+                if (dataType != null && dataType.equals("double"))
+                    value = value + "d";
                 value = NumberUtils.createNumber(value.toString());
             } else if (dataType != null && dataType.equalsIgnoreCase("number")) {
                 // Force to a number as it was not detected
@@ -391,14 +406,7 @@ public class TransformationHelper {
             }
         }
 
-        boolean addValue = true;
-        if (importProfile.isEmptyIgnored()) {
-            if (value == null || value.toString().trim().equals(""))
-                addValue = false;
-        }
-        if (addValue) {
-            row.put(column, (value instanceof String ? ((String) value).trim() : value));
-        }
+        return value;
 
 
     }
@@ -454,13 +462,13 @@ public class TransformationHelper {
     public static void doGeoTransform(UserProperties propertyTarget, Map<String, Object> row, GeoDefinition geoDef) throws FlockException {
         Double x = null, y = null;
         Object o = ExpressionHelper.getValue(row, geoDef.getGeoData().getX());
-        if ( o !=null )
+        if (o != null)
             x = Double.parseDouble(o.toString());
         o = ExpressionHelper.getValue(row, geoDef.getGeoData().getY());
-        if ( o !=null )
+        if (o != null)
             y = Double.parseDouble(o.toString());
 
-        if ( x !=null && y!=null ) {
+        if (x != null && y != null) {
             geoDef.getGeoData().setxValue(x);
             geoDef.getGeoData().setyValue(y);
             double[] points = GeoSupport.convert(geoDef.getGeoData());
@@ -473,10 +481,12 @@ public class TransformationHelper {
 
     public static boolean processRow(Map<String, Object> row, ProfileConfiguration importProfile) {
         String condition = importProfile.getCondition();
-        if ( condition != null ) {
+        if (condition != null) {
             Object evaluate = ExpressionHelper.getValue(row, condition);
-            if (evaluate !=null )
+            if (evaluate != null)
                 return Boolean.parseBoolean(evaluate.toString()); // Don't evaluate this row
+            else
+                return false; // An expression evaluation resulted in null so data is likely to be missing
         }
         return true;
 

@@ -19,6 +19,7 @@
 
 package org.flockdata.test.importer;
 
+import junit.framework.TestCase;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.client.AbstractImport;
@@ -57,6 +58,23 @@ public class TestDataTypeConversion extends AbstractImport {
         assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getWhat().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getWhat().get("blank-num"));
+    }
+
+    @Test
+    public void double_EntityProperty() throws Exception {
+        // Tests that numeric values are converted to explicit data-type
+        FileProcessor fileProcessor = new FileProcessor();
+        String fileName = "/profile/entity-data-types.json";
+        ClientConfiguration configuration = getClientConfiguration(fileName);
+
+        ImportProfile profile = ClientConfiguration.getImportParams(fileName);
+        fileProcessor.processFile(profile, "/data/entity-data-types.csv", getFdWriter(), null, configuration);
+        List<EntityInputBean> entityInputBeans = getFdWriter().getEntities();
+        assertEquals(2, entityInputBeans.size());
+        for (EntityInputBean entityInputBean : entityInputBeans) {
+            Object o = entityInputBean.getProperties().get("value");
+            TestCase.assertTrue("Should have been cast to a Double but was " + o.getClass().getName(), o instanceof Double);
+        }
     }
 
     @Test

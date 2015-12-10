@@ -25,6 +25,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.ContentInputBean;
@@ -123,7 +124,7 @@ public class TestEndPoints extends EngineBase{
     }
 
     @Test
-    public void fortress_CreationUpdate() throws Exception{
+    public void fortress_ResultProperties() throws Exception{
         cleanUpGraph();
         setSecurity();
         SystemUser su = registerSystemUser("fortress_CreationUpdate", "userA");
@@ -138,7 +139,11 @@ public class TestEndPoints extends EngineBase{
         result = engineEndPoints.postFortress(su, fortressInputBean);
         assertEquals("Twitter", result.getName());
         assertEquals("twitter", result.getCode());
+        assertNotNull("Index Name not found", result.getIndexName());
+        Fortress fortress = fortressService.findByCode(su.getCompany(), result.getCode());
+        assertEquals(IndexHelper.parseIndex(fortress), result.getIndexName());
         assertEquals("Creation of a fortress should be case insensitive", 1, fortressService.findFortresses(su.getCompany()).size());
 
     }
+
 }

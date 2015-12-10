@@ -1,0 +1,21 @@
+{
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "fortressName": "GovTrack",
+  "documentName": "test",
+  "fortressUser": "mike",
+  "header": true,
+  "content": {
+    "Amount": {
+      "dataType": "double",
+      "properties": [
+        {
+          "source": "Amount",
+          "target": "value",
+          "valueOnError": 0
+        }
+      ]
+    }
+
+  }
+}
