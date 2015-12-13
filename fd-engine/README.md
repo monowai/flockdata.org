@@ -8,7 +8,7 @@ When fd-engine runs embedded Neo4J the REST api is exposed on port 7474 so explo
 
 The concepts and calls are explained in the [Flock Service Call Wiki](http://www.monowai.com/wiki/pages/viewpage.action?pageId=13172790)
 
-Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and convenient way of making REST calls to AuditBucket.
+Please see our [PostMan API gist](https://gist.github.com/monowai/8077021)  for a quick and convenient way of making REST calls to FlockData.
 
 ## Dependencies
 Only mandatory dependency at this time is REDIS as a KV store and RabbitMQ for integration - all defaults work out of the box; This should be installed separately according to your OS instructions. It is recommended that you install RabbitMQ in order to use reliable AMQP cooms between fd-engine an fd-search, however if you are just experimenting, then http integration is fine.

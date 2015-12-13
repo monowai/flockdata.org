@@ -249,16 +249,13 @@
         }
       },
       "timestamp": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "whenCreated": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "whenUpdated": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "who": {
         "type": "string",

@@ -21,11 +21,12 @@
     <util:map id="esProps">
         <entry key="cluster.name" value="${es.clustername}"/>
         <entry key="path.data" value="${es.path.data}"/>
+        <entry key="path.home" value="${es.path.home}"/>
         <entry key="http.port" value="${es.http.port}"/>
         <entry key="transport.tcp.port" value="${es.transport.tcp.port}"/>
-        <entry key="plugin.mandatory" value="mapper-attachments"/>
+        <!--<entry key="plugin.mandatory" value="mapper-attachments"/>-->
         <!--https://github.com/elasticsearch/kibana/issues/2436-->
-        <entry key="script.disable_dynamic" value="${es.script.disable_dynamic}"/>
+        <!--<entry key="script.disable_dynamic" value="${es.script.disable_dynamic}"/>-->
         <entry key="path.plugins" value="${es.path.plugins}"/>
 
     </util:map>

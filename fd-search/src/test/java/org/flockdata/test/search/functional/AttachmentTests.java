@@ -37,14 +37,14 @@ import static org.junit.Assert.assertNotNull;
  * Date: 15/09/14
  * Time: 3:26 PM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration({"classpath:root-context.xml"})
 public class AttachmentTests extends ESBase {
 
     @Autowired
     ElasticSearchEP searchEP;
 
-    @Test
+//    @Test  DAT-521
     public void attachment_PdfIndexedAndFound() throws Exception {
         // ToDo: FixMe Not working since ES 1.6
         // https://github.com/elastic/elasticsearch-mapper-attachments/issues/131
