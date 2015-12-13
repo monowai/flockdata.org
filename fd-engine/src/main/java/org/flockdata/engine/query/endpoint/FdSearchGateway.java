@@ -25,7 +25,7 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 
 /**
- * Facades the call to the underlying auditbucket-search implementation.
+ * Facades the call to the underlying fd-search implementation.
  * User: Mike Holdsworth
  * Date: 6/07/13
  * Time: 2:31 PM

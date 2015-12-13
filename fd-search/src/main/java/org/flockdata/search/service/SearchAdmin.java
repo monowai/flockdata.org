@@ -47,8 +47,8 @@ public class SearchAdmin {
     @Autowired
     TrackSearchDao engineDao;
 
-    @Value("${abengine.result}")
-    String abEngine;
+    @Value("${fdengine.result}")
+    String fdEngine;
 
     @Value("${rabbit.host}")
     String rabbitHost;
@@ -59,29 +59,35 @@ public class SearchAdmin {
     @Value("${es.mappings}")
     String esMappingPath;
 
+    @Value("${es.settings}")
+    String esSettings;
+
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
-    String esDefaultMapping= "fd-default-mapping.json";
+    String esDefaultMapping = "fd-default-mapping.json";
     String esTaxonomyMapping = "fd-taxonomy-mapping.json";
 
 
-    public String getEsMappingPath(){
-        if ( esMappingPath.equals("${es.mappings}"))
-            return ""; // Internal
+    public String getEsMappingPath() {
+
+        if (esMappingPath.equals("${es.mappings}"))
+            esMappingPath= "/"; // Internal
         return esMappingPath;
     }
 
     public String getEsDefaultSettings() {
-        return getEsMappingPath()+ "/fd-default-settings.json";
+        if (esSettings.equals("${es.settings}"))
+            esSettings = "/fd-default-settings.json";
+        return esSettings;
     }
 
-    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStructure){
-        if ( tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
-            return getEsMappingPath()+"/"+ esTaxonomyMapping;
+    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStructure) {
+        if (tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
+            return getEsMappingPath() + "/" + esTaxonomyMapping;
         else
-            return getEsMappingPath()+"/"+esDefaultMapping;
+            return getEsMappingPath() + "/" + esDefaultMapping;
     }
 
-//    @Secured({"ROLE_FD_ADMIN"})
+    //    @Secured({"ROLE_FD_ADMIN"})
     // DAT-382
     public Map<String, Object> getHealth() {
         String version = VersionHelper.getFdVersion();
@@ -93,29 +99,19 @@ public class SearchAdmin {
         if (config == null || config.equals(""))
             config = "system-default";
         else {
-            try {
-                // Test for that the supplied path exists
-                new FileInputStream(config);
-                File file = new File(config);
-                // Default to the config path for mappings
-                this.esMappingPath = file.getParent();
-                logger.info(file.toString());
-            } catch (FileNotFoundException e) {
-                logger.error("Unexpected error looking for the config file [" + config +"]", e);
-            }
+            // Test for that the supplied path exists
+            // Default to the config path for mappings
+            logger.info(getEsMappingPath());
         }
         healthResults.put("fd.config", config);
         healthResults.put("es.default settings", getEsDefaultSettings());
+        healthResults.put("es.mapping settings", getEsMappingPath());
         healthResults.put("es.default mapping", getEsDefaultMapping(EntityService.TAG_STRUCTURE.DEFAULT));
 
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        if ("http".equalsIgnoreCase(integration)) {
-            healthResults.put("fdengine.result", abEngine);
-        } else {
-            healthResults.put("rabbitmq.host", rabbitHost);
-            healthResults.put("rabbitmq.port", rabbitPort);
-        }
+        healthResults.put("rabbitmq.host", rabbitHost);
+        healthResults.put("rabbitmq.port", rabbitPort);
         return healthResults;
 
     }

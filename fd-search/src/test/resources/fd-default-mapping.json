@@ -1,23 +1,7 @@
 {
   "mapping": {
-    "_source": {
-      "excludes": [
-        "attachment"
-      ]
-    },
     "numeric_detection": false,
     "properties": {
-      "attachment": {
-        "type": "attachment",
-        "path": "full",
-        "fields": {
-          "attachment": {
-            "type": "string",
-            "store": true,
-            "term_vector": "with_positions_offsets"
-          }
-        }
-      },
       "metaKey": {
         "type": "string",
         "doc_values": true,
@@ -46,16 +30,13 @@
         "index": "not_analyzed"
       },
       "timestamp": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "whenCreated": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "whenUpdated": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss||yyyy/MM/dd||YYYY-mm-dd"
+        "type": "date"
       },
       "description": {
         "type": "string",

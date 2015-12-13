@@ -205,8 +205,8 @@
                                 <systemProperties>
                                     <fd.integration>amqp</fd.integration>
                                     <fd.config>${project.basedir}/src/test/resources/config.properties</fd.config>
-                                    <log4j.configuration>file://${project.basedir}/src/test/resources/log4j-search.xml
-                                    </log4j.configuration>
+                                    <es.settings>src/test/resources/fd-search/fd-int-settings.json</es.settings>
+                                    <log4j.configuration>file://${project.basedir}/src/test/resources/fd-search/log4j-search.xml</log4j.configuration>
                                     <java.awt.headless>true</java.awt.headless>
                                     <fd.logLevel>${fd.logLevel}</fd.logLevel>
                                 </systemProperties>
@@ -221,6 +221,15 @@
                                     <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
                                     <cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                                 </properties>
+                                <files>
+                                    <copy>
+                                        <!-- Not currently working. TC should be able to read this but it doesn't I'm not doing it right-->
+                                        <file>${project.basedir}/src/test/resources/fd-search/fd-int-settings.json</file>
+                                        <todir>conf/Catalina/localhost/</todir>
+                                        <configfile>true</configfile>
+                                        <overwrite>true</overwrite>
+                                    </copy>
+                                </files>
                             </configuration>
                             <deployables>
                                 <deployable>

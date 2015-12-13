@@ -353,6 +353,7 @@ public class TestFdIntegration {
 
         doEsQuery(entity, entity.getMetaKey());
         doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".int", "123", 1);
+        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
@@ -379,9 +380,10 @@ public class TestFdIntegration {
         waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
 
         doEsQuery(entity, entity.getMetaKey());
+        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
-    @Test
+//    @Test       DAT-521
     public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
@@ -418,6 +420,7 @@ public class TestFdIntegration {
         doEsFieldQuery(entity, EntitySearchSchema.META_KEY, entity.getMetaKey(), 1);
         doEsFieldQuery(entity, EntitySearchSchema.FILENAME, "test.pdf", 1);
         doEsFieldQuery(entity, EntitySearchSchema.ATTACHMENT, "pdf", 1);
+        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
 
@@ -442,7 +445,7 @@ public class TestFdIntegration {
         doEsQuery(summary.getEntity(), inputBean.getEvent(), 1);
         // Can we find the Tag
         doEsQuery(summary.getEntity(), "testTagNameZZ", 1);
-
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -466,7 +469,7 @@ public class TestFdIntegration {
         assertNotNull(summary);
         doEsQuery(summary.getEntity(), "hello world", 1);
         doEsQuery(summary.getEntity(), "123.45", 1);
-
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -500,6 +503,7 @@ public class TestFdIntegration {
         assertEquals(1, searchResult.getTotalHits());
         Map<String, Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
         assertFalse(mapResult.isEmpty());
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -532,6 +536,7 @@ public class TestFdIntegration {
         assertEquals(null, summary.getEntity().getSearch());
         // Check we can't find the Event in ElasticSearch
         doEsQuery(summary.getEntity(), "ZZZ999", 0);
+        deleteEsIndex(IndexHelper.parseIndex(summary.getEntity()));
     }
 
     @Test
@@ -558,6 +563,7 @@ public class TestFdIntegration {
         assertEquals(1l, lResult.longValue());
 
         doEsQuery(entity, "*");
+        deleteEsIndex(IndexHelper.parseIndex(entity));
 
     }
 
@@ -597,6 +603,7 @@ public class TestFdIntegration {
 
         watch.stop();
         doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".blah", "*", 1);
+        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
@@ -646,6 +653,7 @@ public class TestFdIntegration {
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(result.getEntity(), "*", 3);
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
 
     }
 
@@ -739,7 +747,7 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 0);
 
-
+        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
@@ -764,7 +772,7 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code", "days", 1);
-
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -791,6 +799,7 @@ public class TestFdIntegration {
         EsSearchResult results = queryService.search(su.getCompany(), queryParams);
         assertNotNull(results);
         assertEquals(1, results.getResults().size());
+        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
 
     }
 
@@ -861,7 +870,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);

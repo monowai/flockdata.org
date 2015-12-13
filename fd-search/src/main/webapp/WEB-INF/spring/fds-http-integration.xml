@@ -28,7 +28,7 @@
                                request-channel="searchDocSyncResult"
                                reply-channel="nullChannel"
                                http-method="POST"
-                               url="${abengine.result}"/>
+                               url="${fdengine.result}"/>
 
     <!--reply-channel="searchReply"-->
 
