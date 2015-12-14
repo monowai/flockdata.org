@@ -360,12 +360,19 @@ public class ColumnDefinition implements GeoDefinition {
         return dataType;
     }
 
+    @JsonIgnore
+    public boolean isDate() {
+        // DAT-523
+        return dataType != null && dataType.equals("date");
+    }
+
+
     public String getValueOnError() {
         return valueOnError;
     }
 
     @JsonIgnore
-    public boolean hasEntityProperies() {
+    public boolean hasEntityProperties() {
         return !tag && properties!=null && !properties.isEmpty();
     }
 
