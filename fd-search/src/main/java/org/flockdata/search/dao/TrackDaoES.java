@@ -206,8 +206,6 @@ public class TrackDaoES implements TrackSearchDao {
             purgeCache();
             return save(searchChange, source);
         } catch (NoShardAvailableActionException e) {
-            logger.error("Shard problem updating " + searchChange);
-            //throw new AmqpRejectAndDontRequeueException("Shard problem updating " + searchChange);
             return save(searchChange, source);
         }
         return searchChange;

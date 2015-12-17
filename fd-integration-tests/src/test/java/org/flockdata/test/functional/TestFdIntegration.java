@@ -1651,7 +1651,7 @@ public class TestFdIntegration {
 
     @Test
     public void tags_TaxonomyStructure() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
 
         logger.info("## tags_TaxonomyStructure");
 
