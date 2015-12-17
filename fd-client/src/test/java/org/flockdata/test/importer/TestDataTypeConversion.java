@@ -27,6 +27,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.TransformationHelper;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -170,6 +171,13 @@ public class TestDataTypeConversion extends AbstractImport {
         assertEquals(2015, calInstance.get(Calendar.YEAR));
         assertEquals(Calendar.JANUARY, calInstance.get(Calendar.MONTH));
         assertEquals(14, calInstance.get(Calendar.DATE));
+
+        // DAT-523
+        Object randomDate = entityInputBean.getContent().getWhat().get("randomDate");
+        assertNotNull(randomDate);
+        TestCase.assertTrue("", randomDate instanceof String);
+        new DateTime(randomDate);
+
 
     }
 

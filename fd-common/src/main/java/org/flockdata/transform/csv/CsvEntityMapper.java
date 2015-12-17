@@ -123,10 +123,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 }
 
+                if ( colDef.isDate())  // DAT-523
+                    row.put(sourceColumn,  new DateTime(ExpressionHelper.parseDate(colDef, value)).toString());
+
                 if (colDef.isCallerRef()) {
                     String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                     setCode(callerRef);
                 }
+
                 if (colDef.getDelimiter() != null) {
                     // Implies a tag because it is a comma delimited list of values
                     // Only simple mapping is achieved here
@@ -157,7 +161,14 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                     }
                 }
 
-                if (colDef.hasEntityProperies()) {
+                // Dynamic column DAT-527
+                if ( colDef.getTarget()!=null ){
+                    Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
+                    Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
+                    if (oValue != null)
+                        row.put(colDef.getTarget(), oValue);
+                }
+                if (colDef.hasEntityProperties()) {
                     for (ColumnDefinition columnDefinition : colDef.getProperties()) {
                         //String sourceCol = columnDefinition.getSource();
                         if (columnDefinition.isPersistent()) {
