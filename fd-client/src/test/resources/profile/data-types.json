@@ -44,6 +44,10 @@
     "lastChange2": {
       "updateDate": true ,
       "dateFormat": "timestamp"
+    },
+    "randomDate": {
+      "dataType": "date",
+      "dateFormat": "timestamp"
     }
 
 
