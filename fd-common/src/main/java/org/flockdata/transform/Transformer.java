@@ -9,7 +9,6 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.csv.CsvEntityMapper;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.tags.TagMapper;
