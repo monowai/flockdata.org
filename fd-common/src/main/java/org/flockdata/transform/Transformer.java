@@ -1,16 +1,24 @@
 package org.flockdata.transform;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.csv.CsvEntityMapper;
+import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.tags.TagMapper;
+import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamReader;
 import java.util.Map;
 
 /**
@@ -66,5 +74,41 @@ public class Transformer {
         mappable.setData(row, importProfile);
         return (TagInputBean) mappable;
 
+    }
+
+    public static EntityInputBean transformToEntity(JsonNode node, ProfileConfiguration importProfile) throws FlockException {
+        JsonEntityMapper entityInputBean = new JsonEntityMapper();
+        entityInputBean.setData(node, importProfile);
+        if (entityInputBean.getFortress() == null)
+            entityInputBean.setFortress(importProfile.getFortressName());
+        ContentInputBean contentInputBean = new ContentInputBean();
+        if (contentInputBean.getFortressUser() == null)
+            contentInputBean.setFortressUser(importProfile.getFortressUser());
+        entityInputBean.setContent(contentInputBean);
+        contentInputBean.setWhat(FlockDataJsonFactory.getObjectMapper().convertValue(node, Map.class));
+
+        return entityInputBean;
+
+    }
+
+    public static EntityInputBean transformToEntity(XmlMappable mappable, XMLStreamReader xsr, ProfileConfiguration importProfile) throws FlockException, JAXBException, JsonProcessingException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+
+        XmlMappable row = mappable.newInstance(importProfile);
+        ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
+        EntityInputBean entityInputBean = (EntityInputBean) row;
+
+        if (entityInputBean.getFortress() == null)
+            entityInputBean.setFortress(importProfile.getFortressName());
+
+        if (entityInputBean.getFortressUser() == null)
+            entityInputBean.setFortressUser(importProfile.getFortressUser());
+
+
+        if (contentInputBean != null) {
+            if (contentInputBean.getFortressUser() == null)
+                contentInputBean.setFortressUser(importProfile.getFortressUser());
+            entityInputBean.setContent(contentInputBean);
+        }
+        return entityInputBean;
     }
 }
