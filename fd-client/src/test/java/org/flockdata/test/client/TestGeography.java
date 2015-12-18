@@ -24,10 +24,7 @@ import org.flockdata.client.Configure;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.GeoPayload;
-import org.flockdata.transform.GeoSupport;
+import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -60,7 +57,7 @@ public class TestGeography extends AbstractImport{
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params);
+        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("NZ", tag.getCode() );
@@ -92,14 +89,14 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params);
+        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
         tag = new CsvTagMapper(); // Clear down the object
-        tag.setData(headers, data, params);
+        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
         TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
 
@@ -113,7 +110,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(headers, data, params);
+        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -134,7 +131,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
 
-        tag.setData(headers, data, params);
+        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());

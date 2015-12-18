@@ -48,8 +48,6 @@ public interface ProfileConfiguration {
 
     boolean hasHeader();
 
-    Mappable getMappable() throws ClassNotFoundException, IllegalAccessException, InstantiationException;
-
     String getFortressUser();
 
     boolean isEntityOnly();

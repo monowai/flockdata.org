@@ -109,11 +109,11 @@ public class TestDataTypeConversion extends AbstractImport {
         ImportProfile profile = ClientConfiguration.getImportParams(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"0045"};
-        Map<String, Object> converted = TransformationHelper.convertToMap(profile, header, row);
+        Map<String, Object> converted = TransformationHelper.convertToMap(header, row, profile);
         assertEquals("45", converted.get("num").toString());
 
         row = new String[]{null};
-        converted = TransformationHelper.convertToMap(profile, header, row);
+        converted = TransformationHelper.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
     }
@@ -126,16 +126,16 @@ public class TestDataTypeConversion extends AbstractImport {
         ImportProfile profile = ClientConfiguration.getImportParams(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"50,000.99"};
-        Map<String, Object> converted = TransformationHelper.convertToMap(profile, header, row);
+        Map<String, Object> converted = TransformationHelper.convertToMap(header, row, profile);
         assertEquals("50000.99", converted.get("num").toString());
 
 
         row = new String[]{""};
-        converted = TransformationHelper.convertToMap(profile, header, row);
+        converted = TransformationHelper.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
         row = new String[]{null};
-        converted = TransformationHelper.convertToMap(profile, header, row);
+        converted = TransformationHelper.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
     }

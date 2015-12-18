@@ -52,5 +52,5 @@ public interface FdWriter {
      */
     boolean isSimulateOnly();
 
-    void close(TrackBatcher trackBatcher) throws FlockException;
+    void close(FdLoader fdLoader) throws FlockException;
 }

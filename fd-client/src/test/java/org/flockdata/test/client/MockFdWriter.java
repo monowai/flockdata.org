@@ -27,7 +27,7 @@ import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.TrackBatcher;
+import org.flockdata.transform.FdLoader;
 
 import java.util.List;
 
@@ -77,9 +77,9 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public void close(TrackBatcher trackBatcher) throws FlockException {
-        this.entities = trackBatcher.getEntities();
-        this.tags = trackBatcher.getTags();
+    public void close(FdLoader fdLoader) throws FlockException {
+        this.entities = fdLoader.getEntities();
+        this.tags = fdLoader.getTags();
 //        simulateOnly = true;
 //        trackBatcher.flush();
     }
