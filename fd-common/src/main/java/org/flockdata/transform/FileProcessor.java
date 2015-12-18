@@ -33,11 +33,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
@@ -151,7 +149,7 @@ public class FileProcessor {
                     if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
                         result = processJsonEntities(file, importProfile, writer);
                     else
-                        result = processJsonTags(file, importProfile, writer);
+                        result = processJsonTags(file);
                 }
 
             }
@@ -165,7 +163,7 @@ public class FileProcessor {
         return result;
     }
 
-    private long processJsonTags(String fileName, ProfileConfiguration importProfile, FdWriter restClient) throws FlockException {
+    private long processJsonTags(String fileName) throws FlockException {
         Collection<TagInputBean> tags;
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         long processed = 0;
@@ -226,7 +224,7 @@ public class FileProcessor {
 
             //String docType = mappable.getDataType();
             watch.start();
-            ObjectMapper om = new ObjectMapper();
+            ObjectMapper om =FlockDataJsonFactory.getObjectMapper();
             try {
 
                 if (stream != null)
@@ -244,7 +242,7 @@ public class FileProcessor {
                         while (currentToken != null && jParser.nextToken() != JsonToken.END_ARRAY) {
                             node = om.readTree(jParser);
                             if (node != null) {
-                                processJsonNode(node, importProfile, writer, referenceInputBeans);
+                                processJsonNode(node, importProfile, referenceInputBeans);
                                 if (stopProcessing(rows++, then)) {
                                     break;
                                 }
@@ -258,7 +256,7 @@ public class FileProcessor {
 
                     //om.readTree(jParser);
                     node = om.readTree(jParser);
-                    processJsonNode(node, importProfile, writer, referenceInputBeans);
+                    processJsonNode(node, importProfile, referenceInputBeans);
                 }
 
             } catch (IOException e1) {
@@ -277,22 +275,12 @@ public class FileProcessor {
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        JsonEntityMapper entityInputBean = new JsonEntityMapper();
-        entityInputBean.setData(node, importProfile);
-        if (entityInputBean.getFortress() == null)
-            entityInputBean.setFortress(importProfile.getFortressName());
-
+    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+        EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
             referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
             entityInputBean.getEntityLinks().size();
         }
-
-        ContentInputBean contentInputBean = new ContentInputBean();
-        if (contentInputBean.getFortressUser() == null)
-            contentInputBean.setFortressUser(importProfile.getFortressUser());
-        entityInputBean.setContent(contentInputBean);
-        contentInputBean.setWhat(FlockDataJsonFactory.getObjectMapper().convertValue(node, Map.class));
 
         fdLoader.batchEntity(entityInputBean);
 
@@ -301,38 +289,23 @@ public class FileProcessor {
     private long processXMLFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
-            XmlMappable mappable = (XmlMappable) Transformer.getMappable(importProfile);
             StopWatch watch = new StopWatch();
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
-            mappable.positionReader(xsr);
             List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
+            XmlMappable mappable = (XmlMappable) Transformer.getMappable(importProfile);
+            mappable.positionReader(xsr);
 
             String dataType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
-
-                    XmlMappable row = mappable.newInstance(importProfile);
-                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
-                    EntityInputBean entityInputBean = (EntityInputBean) row;
-
-                    if (entityInputBean.getFortress() == null)
-                        entityInputBean.setFortress(importProfile.getFortressName());
-
-                    if (entityInputBean.getFortressUser() == null)
-                        entityInputBean.setFortressUser(importProfile.getFortressUser());
-
-                    if (!entityInputBean.getEntityLinks().isEmpty()) {
+                    EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
+                    if (entityInputBean!=null && !entityInputBean.getEntityLinks().isEmpty()) {
                         referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
                         entityInputBean.getEntityLinks().size();
-                    }
-                    if (contentInputBean != null) {
-                        if (contentInputBean.getFortressUser() == null)
-                            contentInputBean.setFortressUser(importProfile.getFortressUser());
-                        entityInputBean.setContent(contentInputBean);
                     }
                     rows++;
                     xsr.nextTag();
