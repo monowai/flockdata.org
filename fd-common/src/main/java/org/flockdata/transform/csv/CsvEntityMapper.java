@@ -22,6 +22,7 @@ package org.flockdata.transform.csv;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -46,29 +47,28 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class CsvEntityMapper extends EntityInputBean implements DelimitedMappable {
+public class CsvEntityMapper extends EntityInputBean implements Mappable {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
 
-    public CsvEntityMapper(ImportProfile importProfile) {
+    public CsvEntityMapper(ProfileConfiguration importProfile) {
         setDocumentName(importProfile.getDocumentName());
         setFortress(importProfile.getFortressName());
         setFortressUser(importProfile.getFortressUser());
     }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
-
-        setArchiveTags(importProfile.isArchiveTags());
-        Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
+    public Map<String, Object> setData(Map<String,Object>row, ProfileConfiguration importProfile) throws  FlockException {
         if (!TransformationHelper.processRow(row, importProfile))
             return null;
+
+        setArchiveTags(importProfile.isArchiveTags());
         Map<String, ColumnDefinition> content = importProfile.getContent();
         boolean firstColumn = true;
 
         for (String sourceColumn : content.keySet()) {
             sourceColumn = sourceColumn.trim();
-            ColumnDefinition colDef = importProfile.getColumnDef(sourceColumn);
+            ColumnDefinition colDef = content.get(sourceColumn);
 
             // Import Profile let's you alter the name of the column
             String valueColumn = (colDef!=null && colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
@@ -85,7 +85,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
                             setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
                         } catch ( SpelEvaluationException e){
 
-                            throw new FlockException( "Unable to evaluate the segment expression for " + Arrays.toString(line) +".\r\n "+e.getMessage());
+                            throw new FlockException( "Unable to evaluate the segment expression for " + Arrays.toString(row.values().toArray()) +".\r\n "+e.getMessage());
                         }
                     }
                 }
@@ -202,7 +202,7 @@ public class CsvEntityMapper extends EntityInputBean implements DelimitedMappabl
         return value;
     }
 
-    public static DelimitedMappable newInstance(ImportProfile importProfile) {
+    public static CsvEntityMapper newInstance(ProfileConfiguration importProfile) {
         return new CsvEntityMapper(importProfile);
     }
 

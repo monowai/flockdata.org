@@ -21,6 +21,7 @@ package org.flockdata.test.client;
 
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class TestExpressions extends AbstractImport {
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"last_name", "first_name", "birthday", "gender", "type", "state", "district", "party", "url", "address", "phone", "contact_form", "rss_url", "twitter", "facebook", "facebook_id", "youtube", "youtube_id", "bioguide_id", "thomas_id", "opensecrets_id", "lis_id", "cspan_id", "govtrack_id", "votesmart_id", "ballotpedia_id", "washington_post_id", "icpsr_id", "wikipedia_id"};
         String[] data = new String[]{"Whitehouse", "Sheldon", "1955-10-20", "M", "sen", "RI", "", "Democrat", "http://www.whitehouse.senate.gov", "530 Hart Senate Office Building Washington DC 20510", "202-224-2921", "http://www.whitehouse.senate.gov/contact", "http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1", "SenWhitehouse", "SenatorWhitehouse", "194172833926853", "SenatorWhitehouse", "UCnG0N70SNBkNqvIMLodPTIA", "W000802", "01823", "N00027533", "S316", "92235", "412247", "2572", "Sheldon Whitehouse", "gIQA7KHw9O", "40704", "Sheldon Whitehouse"};
-        Map<String, Object> json = mapper.setData(headers, data, params);
+        Map<String, Object> json = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(json);
         assertNotNull(mapper);
         assertEquals("Politician", mapper.getLabel());
@@ -56,7 +57,7 @@ public class TestExpressions extends AbstractImport {
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"last_name", "first_name", "birthday", "gender", "type", "state", "district", "party", "url", "address", "phone", "contact_form", "rss_url", "twitter", "facebook", "facebook_id", "youtube", "youtube_id", "bioguide_id", "thomas_id", "opensecrets_id", "lis_id", "cspan_id", "govtrack_id", "votesmart_id", "ballotpedia_id", "washington_post_id", "icpsr_id", "wikipedia_id"};
         String[] data = new String[]{"Whitehouse", "Sheldon", "1955-10-20", "M", "sen", "RI", "", "Democrat", "http://www.whitehouse.senate.gov", "530 Hart Senate Office Building Washington DC 20510", "202-224-2921", "http://www.whitehouse.senate.gov/contact", "http://www.whitehouse.senate.gov/rss/feeds/?type=all&amp;cachebuster=1", "SenWhitehouse", "SenatorWhitehouse", "194172833926853", "SenatorWhitehouse", "UCnG0N70SNBkNqvIMLodPTIA", "W000802", "01823", "N00027533", "S316", "92235", "412247", "2572", "Sheldon Whitehouse", "gIQA7KHw9O", "40704", "Sheldon Whitehouse"};
-        Map<String, Object> json = mapper.setData(headers, data, params);
+        Map<String, Object> json = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
         assertNotNull(json);
         assertNotNull(mapper);
 

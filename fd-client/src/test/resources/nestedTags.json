@@ -1,7 +1,7 @@
 {
     "documentName": "Sales",
     "contentType": "csv",
-    "tagOrTrack": "track",
+    "tagOrEntity": "entity",
     "entityOnly": false,
     "fortress": "Sales",
     "fortressUser": "batch",
