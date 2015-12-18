@@ -38,20 +38,20 @@ import java.util.concurrent.locks.ReentrantLock;
  * Date: 7/10/14
  * Time: 2:33 PM
  */
-public class TrackBatcher {
+public class FdLoader {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
     private final Lock entityLock = new ReentrantLock();
     private final String tagSync = "TagSync";
     private Company company = null;
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TrackBatcher.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdLoader.class);
 
     private ProfileConfiguration importProfile;
     private ClientConfiguration  clientConfiguration;
     FdWriter fdWriter;
     private List<EntityInputBean> entities;
 
-    public TrackBatcher(ProfileConfiguration importProfile, FdWriter writer, ClientConfiguration configuration, Company company) {
+    public FdLoader(ProfileConfiguration importProfile, FdWriter writer, ClientConfiguration configuration, Company company) {
         this.importProfile = importProfile;
         this.clientConfiguration = configuration;
         this.fdWriter = writer;

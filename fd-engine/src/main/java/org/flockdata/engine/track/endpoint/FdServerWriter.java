@@ -30,7 +30,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.TrackBatcher;
+import org.flockdata.transform.FdLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,7 +92,7 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public void close(TrackBatcher trackBatcher) throws FlockException {
-        trackBatcher.flush();
+    public void close(FdLoader fdLoader) throws FlockException {
+        fdLoader.flush();
     }
 }

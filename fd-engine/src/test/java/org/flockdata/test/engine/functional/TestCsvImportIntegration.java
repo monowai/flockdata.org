@@ -19,7 +19,6 @@
 
 package org.flockdata.test.engine.functional;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
@@ -38,7 +37,7 @@ import org.flockdata.model.EntityLog;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.TrackBatcher;
+import org.flockdata.transform.FdLoader;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -158,8 +157,8 @@ public class TestCsvImportIntegration extends EngineBase {
         }
 
         @Override
-        public void close(TrackBatcher trackBatcher) throws FlockException {
-            trackBatcher.flush();
+        public void close(FdLoader fdLoader) throws FlockException {
+            fdLoader.flush();
         }
     }
 

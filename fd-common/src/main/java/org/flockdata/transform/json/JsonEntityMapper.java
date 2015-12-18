@@ -20,6 +20,7 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
@@ -35,7 +36,7 @@ import java.util.*;
  * Date: 9/12/14
  * Time: 6:15 PM
  */
-public class JsonEntityMapper extends EntityInputBean implements Mappable {
+public class JsonEntityMapper extends EntityInputBean  {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(JsonEntityMapper.class);
 
@@ -132,4 +133,5 @@ public class JsonEntityMapper extends EntityInputBean implements Mappable {
         }
 
     }
+
 }

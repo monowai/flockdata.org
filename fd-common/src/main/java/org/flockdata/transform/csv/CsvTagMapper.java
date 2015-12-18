@@ -21,6 +21,7 @@ package org.flockdata.transform.csv;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -35,12 +36,15 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
+public class CsvTagMapper extends TagInputBean implements Mappable {
 
+//    @Override
+//    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
+//        return setData(TransformationHelper.convertToMap(importProfile, headerRow, line), importProfile);
+//    }
 
     @Override
-    public Map<String, Object> setData(final String[] headerRow, final String[] line, ProfileConfiguration importProfile) throws JsonProcessingException, FlockException {
-        Map<String, Object> row = TransformationHelper.convertToMap(importProfile, headerRow, line);
+    public Map<String, Object> setData(Map<String,Object> row, ProfileConfiguration importProfile) throws FlockException {
 
         if ( !TransformationHelper.processRow(row, importProfile))
             return null;
@@ -48,7 +52,7 @@ public class CsvTagMapper extends TagInputBean implements DelimitedMappable {
         Map<String, ColumnDefinition> content = importProfile.getContent();
 
         for (String column : content.keySet()) {
-            ColumnDefinition colDef = importProfile.getColumnDef(column);
+            ColumnDefinition colDef = content.get(column);
             String value;
             Object colValue = row.get(column);
             // colValue may yet be an expression

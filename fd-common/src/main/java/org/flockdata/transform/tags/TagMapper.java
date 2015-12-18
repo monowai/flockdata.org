@@ -19,12 +19,11 @@
 
 package org.flockdata.transform.tags;
 
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.csv.CsvTagMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Map;
 
@@ -33,22 +32,21 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:36 PM
  */
-public class TagMapper extends TagInputBean implements DelimitedMappable {
+public class TagMapper extends TagInputBean implements Mappable{
 
-    public TagMapper(ImportProfile importProfile) {
-        setLabel(importProfile.getDocumentName());
+    public TagMapper(String documentName) {
+        setLabel(documentName);
     }
 
-    @Override
-    public Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException {
+    public Map<String, Object> setData(Map<String,Object>row, ProfileConfiguration profileConfiguration) throws FlockException {
         return null;
     }
 
-    public static DelimitedMappable newInstance(ImportProfile importProfile) {
-        if (importProfile.getContentType()== ProfileConfiguration.ContentType.CSV)
+    public static Mappable newInstance(ProfileConfiguration profileConfiguration) {
+        if (profileConfiguration.getContentType()== ProfileConfiguration.ContentType.CSV)
             return new CsvTagMapper();
 
-        return new TagMapper(importProfile);
+        return new TagMapper(profileConfiguration.getDocumentName());
     }
 
 }

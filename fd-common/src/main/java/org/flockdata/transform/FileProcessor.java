@@ -33,11 +33,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
@@ -72,7 +70,7 @@ public class FileProcessor {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FileProcessor.class);
 
     private static final DecimalFormat formatter = new DecimalFormat();
-    private TrackBatcher trackBatcher;
+    private FdLoader fdLoader;
     private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
@@ -134,8 +132,7 @@ public class FileProcessor {
 
     public Long processFile(ProfileConfiguration importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
-        trackBatcher = new TrackBatcher(importProfile, writer, defaults, company);
-        //Mappable mappable = importProfile.getMappable();
+        fdLoader = new FdLoader(importProfile, writer, defaults, company);
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -152,13 +149,13 @@ public class FileProcessor {
                     if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
                         result = processJsonEntities(file, importProfile, writer);
                     else
-                        result = processJsonTags(file, importProfile, writer);
+                        result = processJsonTags(file);
                 }
 
             }
         } finally {
             if (result > 0) {
-                writer.close(trackBatcher);
+                writer.close(fdLoader);
             }
         }
 
@@ -166,7 +163,7 @@ public class FileProcessor {
         return result;
     }
 
-    private long processJsonTags(String fileName, ProfileConfiguration importProfile, FdWriter restClient) throws FlockException {
+    private long processJsonTags(String fileName) throws FlockException {
         Collection<TagInputBean> tags;
         ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
         long processed = 0;
@@ -189,7 +186,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                trackBatcher.batchTag(tag, "JSON Tag Importer");
+                fdLoader.batchTag(tag, "JSON Tag Importer");
                 processed++;
             }
 
@@ -198,7 +195,7 @@ public class FileProcessor {
             throw new RuntimeException("IO Exception ", e);
         } finally {
             if (processed > 0l)
-                trackBatcher.flush();
+                fdLoader.flush();
 
         }
         return tags.size();
@@ -227,7 +224,7 @@ public class FileProcessor {
 
             //String docType = mappable.getDataType();
             watch.start();
-            ObjectMapper om = new ObjectMapper();
+            ObjectMapper om =FlockDataJsonFactory.getObjectMapper();
             try {
 
                 if (stream != null)
@@ -245,7 +242,7 @@ public class FileProcessor {
                         while (currentToken != null && jParser.nextToken() != JsonToken.END_ARRAY) {
                             node = om.readTree(jParser);
                             if (node != null) {
-                                processJsonNode(node, importProfile, writer, referenceInputBeans);
+                                processJsonNode(node, importProfile, referenceInputBeans);
                                 if (stopProcessing(rows++, then)) {
                                     break;
                                 }
@@ -259,7 +256,7 @@ public class FileProcessor {
 
                     //om.readTree(jParser);
                     node = om.readTree(jParser);
-                    processJsonNode(node, importProfile, writer, referenceInputBeans);
+                    processJsonNode(node, importProfile, referenceInputBeans);
                 }
 
             } catch (IOException e1) {
@@ -268,7 +265,7 @@ public class FileProcessor {
 
 
         } finally {
-            writer.close(trackBatcher);
+            writer.close(fdLoader);
         }
         if (!referenceInputBeans.isEmpty()) {
             logger.debug("Wrote [{}] cross references",
@@ -278,66 +275,41 @@ public class FileProcessor {
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, FdWriter writer, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        JsonEntityMapper entityInputBean = new JsonEntityMapper();
-        entityInputBean.setData(node, importProfile);
-        if (entityInputBean.getFortress() == null)
-            entityInputBean.setFortress(importProfile.getFortressName());
-
+    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+        EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
             referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
             entityInputBean.getEntityLinks().size();
         }
 
-        ContentInputBean contentInputBean = new ContentInputBean();
-        if (contentInputBean.getFortressUser() == null)
-            contentInputBean.setFortressUser(importProfile.getFortressUser());
-        entityInputBean.setContent(contentInputBean);
-        contentInputBean.setWhat(FlockDataJsonFactory.getObjectMapper().convertValue(node, Map.class));
-
-        trackBatcher.batchEntity(entityInputBean);
+        fdLoader.batchEntity(entityInputBean);
 
     }
 
     private long processXMLFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
-            XmlMappable mappable = (XmlMappable) importProfile.getMappable();
             StopWatch watch = new StopWatch();
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
-            mappable.positionReader(xsr);
             List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
+            XmlMappable mappable = (XmlMappable) Transformer.getMappable(importProfile);
+            mappable.positionReader(xsr);
 
             String dataType = mappable.getDataType();
             watch.start();
             try {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
-
-                    XmlMappable row = mappable.newInstance(importProfile);
-                    ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
-                    EntityInputBean entityInputBean = (EntityInputBean) row;
-
-                    if (entityInputBean.getFortress() == null)
-                        entityInputBean.setFortress(importProfile.getFortressName());
-
-                    if (entityInputBean.getFortressUser() == null)
-                        entityInputBean.setFortressUser(importProfile.getFortressUser());
-
-                    if (!entityInputBean.getEntityLinks().isEmpty()) {
+                    EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
+                    if (entityInputBean!=null && !entityInputBean.getEntityLinks().isEmpty()) {
                         referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
                         entityInputBean.getEntityLinks().size();
                     }
-                    if (contentInputBean != null) {
-                        if (contentInputBean.getFortressUser() == null)
-                            contentInputBean.setFortressUser(importProfile.getFortressUser());
-                        entityInputBean.setContent(contentInputBean);
-                    }
                     rows++;
                     xsr.nextTag();
-                    trackBatcher.batchEntity(entityInputBean);
+                    fdLoader.batchEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -345,7 +317,7 @@ public class FileProcessor {
 
                 }
             } finally {
-                writer.close(trackBatcher);
+                writer.close(fdLoader);
             }
             if (!referenceInputBeans.isEmpty()) {
                 logger.debug("Wrote [{}] cross references", writeEntityLinks(writer, referenceInputBeans));
@@ -365,14 +337,10 @@ public class FileProcessor {
     private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
-        DelimitedMappable row;
-        DelimitedMappable mappable = (DelimitedMappable) importProfile.getMappable();
+
 
         long ignoreCount = 0;
         long currentRow = 0;
-        Collection<TagInputBean> tags = new ArrayList<>();
-        boolean writeToFile = false; // Haven't figured out how to integrate this yet
-        // purpose is to write all the tags to an import structure
 
         BufferedReader br;
         Reader fileObject = getReader(file);
@@ -400,7 +368,7 @@ public class FileProcessor {
                 }
             }
             watch.start();
-            ProfileConfiguration.DataType DataType = importProfile.getTagOrEntity();
+
             if (skipCount > 0)
                 logger.info("Skipping first {} rows", skipCount);
 
@@ -416,40 +384,24 @@ public class FileProcessor {
                         if (currentRow == skipCount)
                             logger.info("Processing now begins at row {}", skipCount);
 
-                        row = (DelimitedMappable) importProfile.getMappable();
                         nextLine = preProcess(nextLine, importProfile);
-                        // ToDo: turn this in to a LogInputBean to reduce impact of interface changes
-                        Map<String, Object> jsonData = row.setData(headerRow, nextLine, importProfile);
-                        if (jsonData != null) {
-                            if (DataType == ProfileConfiguration.DataType.ENTITY) {
-                                EntityInputBean entityInputBean = (EntityInputBean) row;
 
-                                if (importProfile.isEntityOnly() || jsonData.isEmpty()) {
-                                    entityInputBean.setEntityOnly(true);
-                                    // It's all Meta baby - no log information
-                                } else {
-                                    String updatingUser = entityInputBean.getUpdateUser();
-                                    if (updatingUser == null)
-                                        updatingUser = (entityInputBean.getFortressUser() == null ? importProfile.getFortressUser() : entityInputBean.getFortressUser());
+                        Map<String, Object> map = TransformationHelper.convertToMap(headerRow, nextLine, importProfile);
 
-                                    ContentInputBean contentInputBean = new ContentInputBean(updatingUser, (entityInputBean.getWhen() != null ? new DateTime(entityInputBean.getWhen()) : null), jsonData);
-                                    contentInputBean.setEvent(importProfile.getEvent());
-                                    entityInputBean.setContent(contentInputBean);
-                                }
-                                if (!entityInputBean.getEntityLinks().isEmpty()) {
+                        if (map != null) {
+                            if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY) {
+                                EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
+                                if (entityInputBean != null && !entityInputBean.getEntityLinks().isEmpty()) {
                                     referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
                                     currentRow = currentRow + entityInputBean.getEntityLinks().size();
                                 }
-
-                                trackBatcher.batchEntity(entityInputBean);
+                                // Dispatch/load mechanism
+                                if ( entityInputBean!=null )
+                                    fdLoader.batchEntity(entityInputBean);
                             } else {// Tag
-                                if (!jsonData.isEmpty()) {
-                                    TagInputBean tagInputBean = (TagInputBean) row;
-
-                                    if (writeToFile)
-                                        tags.add(tagInputBean);
-                                    else
-                                        trackBatcher.batchTag(tagInputBean, mappable.getClass().getCanonicalName());
+                                TagInputBean tagInputBean = Transformer.transformToTag(map, importProfile);
+                                if (tagInputBean != null) {
+                                    fdLoader.batchTag(tagInputBean, "TagInputBean");
                                 }
                             }
                             if (stopProcessing(currentRow, then)) {
@@ -463,22 +415,13 @@ public class FileProcessor {
             }
         } finally {
 
-            writer.close(trackBatcher);
+            writer.close(fdLoader);
 
             if (!referenceInputBeans.isEmpty()) {
                 // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
                 logger.debug("Wrote [{}] x entity links", writeEntityLinks(writer, referenceInputBeans));
             }
             br.close();
-        }
-        if (writeToFile) {
-            // ToDo: Unsure how to handle this. CSV -> JSON
-            ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
-            try {
-                om.writerWithDefaultPrettyPrinter().writeValue(new File(file + ".json"), tags);
-            } catch (IOException e) {
-                logger.error("Error writing exceptions", e);
-            }
         }
 
         return endProcess(watch, currentRow, ignoreCount);
