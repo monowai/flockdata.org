@@ -53,7 +53,6 @@ public class ImportProfile implements ProfileConfiguration {
     private String quoteCharacter = null;
     private boolean header = true;
     private String fortressUser;
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(ImportProfile.class);
     private boolean entityOnly;
     private boolean archiveTags = true;
 
@@ -169,24 +168,6 @@ public class ImportProfile implements ProfileConfiguration {
     @Override
     public boolean hasHeader() {
         return header;
-    }
-
-    @Override
-    public Mappable getMappable() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Mappable mappable = null;
-
-        if (!(handler == null || handler.equals("")))
-            mappable = (Mappable) Class.forName(getHandler()).newInstance();
-        else if (getTagOrEntity()== DataType.ENTITY) {
-            mappable = CsvEntityMapper.newInstance(this);
-        } else if (getTagOrEntity()== DataType.TAG) {
-            mappable = TagMapper.newInstance(this);
-        } else
-            logger.error("Unable to determine the implementing handler");
-
-
-        return mappable;
-
     }
 
     @Override

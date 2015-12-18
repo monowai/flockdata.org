@@ -33,7 +33,7 @@ import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.TrackBatcher;
+import org.flockdata.transform.FdLoader;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -285,8 +285,8 @@ public class FdRestWriter implements FdWriter {
     }
 
     @Override
-    public void close(TrackBatcher trackBatcher) throws FlockException {
-        trackBatcher.flush();
+    public void close(FdLoader fdLoader) throws FlockException {
+        fdLoader.flush();
         if (amqpHelper != null) {
             amqpHelper.close();
             amqpHelper = null;

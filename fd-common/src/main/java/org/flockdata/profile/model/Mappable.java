@@ -19,6 +19,10 @@
 
 package org.flockdata.profile.model;
 
+import org.flockdata.helper.FlockException;
+
+import java.util.Map;
+
 /**
  * User: Mike Holdsworth
  * Since: 20/11/13
@@ -26,4 +30,5 @@ package org.flockdata.profile.model;
 public interface Mappable {
 
 
+    Map<String,Object> setData(Map<String, Object> map, ProfileConfiguration importProfile) throws FlockException;
 }

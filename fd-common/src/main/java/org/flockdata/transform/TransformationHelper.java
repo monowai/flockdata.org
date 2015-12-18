@@ -45,7 +45,7 @@ import java.util.*;
 public class TransformationHelper {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
 
-    public static Map<String, Object> convertToMap(ProfileConfiguration profileConfig, String[] headerRow, String[] line) {
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ProfileConfiguration profileConfig) {
         int col = 0;
         Map<String, Object> row = new HashMap<>();
         try {
