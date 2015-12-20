@@ -76,6 +76,7 @@ public class EntitySearchChange implements SearchChange {
     private EntityService.TAG_STRUCTURE tagStructure;
     private EntityKeyBean parent;
     private String segment;
+    private Collection<EntityKeyBean> entityLinks;
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
@@ -469,5 +470,15 @@ public class EntitySearchChange implements SearchChange {
 
     public String getSegment() {
         return segment;
+    }
+
+    @Override
+    public void addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
+        this.entityLinks = inboundEntities;
+    }
+
+    @Override
+    public Collection<EntityKeyBean> getEntityLinks() {
+        return this.entityLinks;
     }
 }

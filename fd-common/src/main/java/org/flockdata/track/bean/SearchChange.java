@@ -24,10 +24,7 @@ import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -147,4 +144,8 @@ public interface SearchChange {
     void setParent(EntityKeyBean parent);
 
     String getSegment();
+
+    void addEntityLinks(Collection<EntityKeyBean> inboundEntities);
+
+    Collection<EntityKeyBean> getEntityLinks();
 }

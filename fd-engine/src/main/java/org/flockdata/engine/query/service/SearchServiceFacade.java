@@ -29,6 +29,7 @@ import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.search.model.*;
+import org.flockdata.search.service.TrackService;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -70,9 +71,6 @@ public class SearchServiceFacade {
     private Logger logger = LoggerFactory.getLogger(SearchServiceFacade.class);
 
     @Autowired
-    EntityDaoNeo trackDao;
-
-    @Autowired
     EntityService entityService;
 
     @Qualifier("fdSearchGateway")
@@ -105,7 +103,7 @@ public class SearchServiceFacade {
     /**
      * Callback handler that is invoked from fd-search. This routine ties the generated search document ID
      * to the Entity
-     * <p>
+     * <p/>
      * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
      *
      * @param searchResults contains keys to tie the search to the entity
@@ -175,18 +173,17 @@ public class SearchServiceFacade {
     /**
      * Here we construct a SearchChange for the supplied parameters. The input represents the state of data to index so
      * this should always be called with a transaction.
-     *
+     * <p/>
      * The function will additionally find the appropriate TagStructure to index as well as set any Parent, entity
-     *  with a [p:parent] relationship to another entity, that may be associated.
-     *
+     * with a [p:parent] relationship to another entity, that may be associated.
+     * <p/>
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
-     *
      * @param docType
-     * @param entity        Entity to index
-     * @param entityLog     Log to work with (usually the "current" log)
-     * @param contentInput  Content data
-     * @return              object ready to index
+     * @param entity       Entity to index
+     * @param entityLog    Log to work with (usually the "current" log)
+     * @param contentInput Content data
+     * @return object ready to index
      */
     public SearchChange getSearchDocument(DocumentType docType, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
 
@@ -210,12 +207,17 @@ public class SearchServiceFacade {
         searchDocument.setSearchKey(entity.getSearchKey());
 
 
-        if ( docType !=null && docType.hasParent() ) {
+        if (docType != null && docType.hasParent()) {
             EntityKeyBean parent = entityService.findParent(entity);
 
             if (parent != null)
                 searchDocument.setParent(parent);
         }
+        boolean withEntityTags = true;
+
+        Collection<EntityKeyBean> inboundEntities = entityService.getInboundEntities(entity, withEntityTags);
+
+        searchDocument.addEntityLinks(inboundEntities);
 
 
         try {
@@ -291,8 +293,9 @@ public class SearchServiceFacade {
         }
         return null;
     }
+
     private EntityTagFinder getTagFinder(EntityService.TAG_STRUCTURE tagStructureFinder) {
-        if ( tagStructureFinder== EntityService.TAG_STRUCTURE.TAXONOMY)
+        if (tagStructureFinder == EntityService.TAG_STRUCTURE.TAXONOMY)
             return taxonomyTags;
         else
             return defaultTagFinder;

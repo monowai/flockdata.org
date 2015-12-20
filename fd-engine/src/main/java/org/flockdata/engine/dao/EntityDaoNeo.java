@@ -25,9 +25,11 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.model.*;
+import org.flockdata.track.service.EntityTagService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
@@ -73,6 +75,9 @@ public class EntityDaoNeo {
 
     @Autowired
     SystemUserService systemUserService;
+
+    @Autowired
+    EntityTagService entityTagService;
 
     @Autowired
     Neo4jTemplate template;
@@ -494,5 +499,15 @@ public class EntityDaoNeo {
 
     public Entity findParent(Entity childEntity) {
         return entityRepo.findParent(childEntity.getId());
+    }
+
+    public Collection<EntityKeyBean> getInboundEntities(Entity childEntity, boolean withEntityTags) {
+        Collection<EntityKeyBean> results = new ArrayList<>();
+        Collection<Entity> entities = entityRepo.findInbountEntities(childEntity.getId());
+        entities.stream().filter(entity -> withEntityTags).forEach(entity -> {
+            Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
+            results.add(new EntityKeyBean(entity, entityTags).addRelationship(""));
+        });
+        return results;
     }
 }
