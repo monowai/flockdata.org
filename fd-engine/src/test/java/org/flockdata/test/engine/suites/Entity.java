@@ -26,6 +26,7 @@ package org.flockdata.test.engine.suites;
 
 import org.flockdata.test.engine.functional.TestCallerRef;
 import org.flockdata.test.engine.functional.TestEntityCrossLink;
+import org.flockdata.test.engine.functional.TestEntityLinks;
 import org.flockdata.test.engine.functional.TestEntityUsers;
 import org.flockdata.test.engine.unit.EntityKeyTests;
 import org.flockdata.test.engine.unit.TestEntitySearch;
@@ -40,7 +41,8 @@ import org.junit.runners.Suite;
         TestEntitySearch.class,
         TestCallerRef.class,
         TestEntityUsers.class,
-        TestEntityCrossLink.class
+        TestEntityCrossLink.class,
+        TestEntityLinks.class
 })
 public class Entity {
     Entity(){}

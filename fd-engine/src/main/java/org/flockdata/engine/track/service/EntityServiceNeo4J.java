@@ -95,21 +95,17 @@ public class EntityServiceNeo4J implements EntityService {
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
-    //    @Override
-//    @Async
-//    public Future<EntityKeyBean> findParent(Entity childEntity) {
-//        Entity parent = entityDao.findParent (childEntity);
-//        if ( parent != null )
-//            return new AsyncResult<>(new EntityKeyBean(parent));
-//        return new AsyncResult<>(null);
-//    }
     @Override
-//    @Async
     public EntityKeyBean findParent(Entity childEntity) {
         Entity parent = entityDao.findParent (childEntity);
         if ( parent != null )
             return new EntityKeyBean(parent);
         return null;
+    }
+
+    @Override
+    public Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags) {
+        return entityDao.getInboundEntities(entity, withEntityTags);
     }
 
 

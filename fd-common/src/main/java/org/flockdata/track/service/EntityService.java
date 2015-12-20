@@ -41,6 +41,8 @@ public interface EntityService {
 
     EntityKeyBean findParent(Entity entity);
 
+    Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags);
+
     public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
     KvContent getWhat(Entity entity, Log change);

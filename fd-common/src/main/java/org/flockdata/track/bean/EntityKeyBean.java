@@ -21,6 +21,14 @@ package org.flockdata.track.bean;
 
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
+import org.flockdata.search.IndexHelper;
+import org.flockdata.search.model.SearchTag;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -34,8 +42,14 @@ public class EntityKeyBean {
     private String metaKey;
     private String code;
 
+    private String index;
 
-    public EntityKeyBean(){}
+    private Map<String, Collection<SearchTag>> searchTags = new HashMap<>();
+
+    private String relationship;
+
+
+    private EntityKeyBean(){}
 
     public EntityKeyBean (DocumentType documentType, String code){
         this.fortressName = documentType.getFortress().getName();
@@ -62,10 +76,28 @@ public class EntityKeyBean {
     }
 
     public EntityKeyBean(Entity entity) {
+        this();
         this.fortressName = entity.getSegment().getFortress().getName();
         this.code = entity.getCode();
         this.documentType = entity.getType();
         this.metaKey = entity.getMetaKey();
+        this.index = IndexHelper.parseIndex(entity);
+    }
+
+    public EntityKeyBean(Entity entity, Collection<EntityTag> entityTags) {
+        this.fortressName = entity.getSegment().getFortress().getName();
+        this.code = entity.getCode();
+        this.documentType = entity.getType();
+        this.metaKey = entity.getMetaKey();
+        this.index = IndexHelper.parseIndex(entity);
+        for (EntityTag entityTag : entityTags) {
+            Collection<SearchTag> tags = this.searchTags.get(entityTag.getTag().getLabel());
+            if ( tags == null ){
+                tags = new ArrayList<>();
+                searchTags.put(entityTag.getTag().getLabel(), tags);
+            }
+            tags.add(new SearchTag(entityTag)) ;
+        }
     }
 
     public String getFortressName() {
@@ -84,6 +116,14 @@ public class EntityKeyBean {
 
     public String getCompany() {
         return company;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public Map<String, Collection<SearchTag>> getSearchTags() {
+        return searchTags;
     }
 
     @Override
@@ -119,5 +159,14 @@ public class EntityKeyBean {
                 ", documentType='" + documentType + '\'' +
                 ", code='" + code + '\'' +
                 '}';
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public EntityKeyBean addRelationship(String relationship) {
+        this.relationship = relationship;
+        return this;
     }
 }
