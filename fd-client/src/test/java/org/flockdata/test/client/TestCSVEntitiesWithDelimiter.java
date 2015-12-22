@@ -34,6 +34,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -62,6 +63,9 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
         List<EntityInputBean>entities = getFdWriter().getEntities();
         for (EntityInputBean entity : entities) {
             assertNotNull ( "Remapping column name to target", entity.getContent().getWhat().get("institution"));
+            // DAT-528
+            assertNull("Column 11 is flagged as false for persistence", entity.getContent().getWhat().get("11"));
+
             assertEquals(3, entity.getTags().size());
             List<TagInputBean> tagInputBeans = entity.getTags();
             for (TagInputBean tagInputBean : tagInputBeans) {

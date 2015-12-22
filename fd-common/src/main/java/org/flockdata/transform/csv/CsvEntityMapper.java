@@ -58,7 +58,7 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
     }
 
     @Override
-    public Map<String, Object> setData(Map<String,Object>row, ProfileConfiguration importProfile) throws  FlockException {
+    public Map<String, Object> setData(Map<String, Object> row, ProfileConfiguration importProfile) throws FlockException {
         if (!TransformationHelper.processRow(row, importProfile))
             return null;
 
@@ -71,10 +71,10 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
             ColumnDefinition colDef = content.get(sourceColumn);
 
             // Import Profile let's you alter the name of the column
-            String valueColumn = (colDef!=null && colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
+            String valueColumn = (colDef != null && colDef.getTarget() == null ? sourceColumn : colDef.getTarget());
             String value = getString(row, valueColumn);
 
-            if ( firstColumn) {
+            if (firstColumn) {
                 // While the definition is in the profile, the value is in the data.
                 // Only do this once.
                 if (importProfile.getSegmentExpression() != null && getSegment() == null) {
@@ -83,9 +83,9 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                     else {
                         try {
                             setSegment(ExpressionHelper.getValue(row, importProfile.getSegmentExpression(), colDef, null));
-                        } catch ( SpelEvaluationException e){
+                        } catch (SpelEvaluationException e) {
 
-                            throw new FlockException( "Unable to evaluate the segment expression for " + Arrays.toString(row.values().toArray()) +".\r\n "+e.getMessage());
+                            throw new FlockException("Unable to evaluate the segment expression for " + Arrays.toString(row.values().toArray()) + ".\r\n " + e.getMessage());
                         }
                     }
                 }
@@ -123,8 +123,8 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                     }
                 }
 
-                if ( colDef.isDate())  // DAT-523
-                    row.put(sourceColumn,  new DateTime(ExpressionHelper.parseDate(colDef, value)).toString());
+                if (colDef.isDate())  // DAT-523
+                    row.put(sourceColumn, new DateTime(ExpressionHelper.parseDate(colDef, value)).toString());
 
                 if (colDef.isCallerRef()) {
                     String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
@@ -161,34 +161,34 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                     }
                 }
 
+                if (colDef.getGeoData() != null) {
+                    TransformationHelper.doGeoTransform(this, row, colDef);
+                }
+
                 // Dynamic column DAT-527
-                if ( colDef.getTarget()!=null ){
+                if (colDef.getTarget() != null) {
                     Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
                     Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
                     if (oValue != null)
                         row.put(colDef.getTarget(), oValue);
                 }
-                if (colDef.hasEntityProperties()) {
+                if (!colDef.isPersistent()) {
+                    // DAT-528
+                    row.remove(sourceColumn);
+                } else if (colDef.hasEntityProperties()) {
                     for (ColumnDefinition columnDefinition : colDef.getProperties()) {
-                        //String sourceCol = columnDefinition.getSource();
-                        if (columnDefinition.isPersistent()) {
 
-                            value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
-                            Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
-                                    //Object oValue = ExpressionHelper.getValue(value, columnDefinition);
-                            if (columnDefinition.getTarget() != null)
-                                valueColumn = columnDefinition.getTarget();
-                            if (oValue != null)
-                                setProperty(valueColumn, oValue);
-                        }
+                        value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
+                        Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
+                        if (columnDefinition.getTarget() != null)
+                            valueColumn = columnDefinition.getTarget();
+                        if (oValue != null)
+                            setProperty(valueColumn, oValue);
 
                     }
                 }
 
-                if (colDef.getGeoData() != null) {
-                    TransformationHelper.doGeoTransform(this, row, colDef);
-                }
-            } // ignoreMe
+            } // I have no special processing to do
         }
 
         return row;
