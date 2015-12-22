@@ -34,6 +34,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -73,11 +74,6 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
             }
         }
 
-        List<EntityInputBean>entities = getFdWriter().getEntities();
-        for (EntityInputBean entity : entities) {
-            assertNotNull ( "Remapping column name to target", entity.getContent().getWhat().get("name"));
-
-        }
         // Check that the payload will serialize
         ObjectMapper om = new ObjectMapper();
         try {

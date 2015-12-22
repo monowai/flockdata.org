@@ -29,6 +29,9 @@
         }
       ]
     },
+    "11": {
+      "persistent": false
+    },
     "12": {
       "tag": true,
       "relationship": "lives",

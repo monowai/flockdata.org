@@ -20,7 +20,10 @@
         }
       ]
     },
-    "0":{"target": "year", "dataType": "string", "persistent":false}
-
+    "0": {
+      "target": "year",
+      "dataType": "string",
+      "persistent": false
+    }
   }
 }
