@@ -47,6 +47,7 @@ public class EntitySearchSchema {
     public static final String FILENAME = "filename";
     public static final String CONTENT_TYPE = "contentType";
     public static final String PROPS = "udp";
+    public static final String INDEX = "index";
 
     /**
      *

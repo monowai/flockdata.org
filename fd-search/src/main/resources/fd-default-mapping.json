@@ -171,6 +171,74 @@
             }
           }
         }
+      },
+      {
+        "inline_entity_code_template": {
+          "path_match": "e.*.code",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_index_template": {
+          "path_match": "e.*.index",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_tag_code_template": {
+          "path_match": "e.*.tag.*.code",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
+      },
+      {
+        "inline_entity_tag_name_template": {
+          "path_match": "e.*.tag.*.name",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
       }
     ]
   }

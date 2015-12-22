@@ -92,7 +92,7 @@ public class TestEntityLinks extends EngineBase {
         assertNotNull(staffDetails);
         assertNotNull(staffDetails.getSearchTags());
         assertFalse(staffDetails.getSearchTags().isEmpty());
-        SearchTag position = staffDetails.getSearchTags().get("Position").iterator().next();
+        SearchTag position = staffDetails.getSearchTags().get("role").get("Position").iterator().next();
         assertTrue(position.getCode().equals("Cleaner"));
 
     }

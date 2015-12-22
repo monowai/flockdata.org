@@ -76,7 +76,7 @@ public class EntitySearchChange implements SearchChange {
     private EntityService.TAG_STRUCTURE tagStructure;
     private EntityKeyBean parent;
     private String segment;
-    private Collection<EntityKeyBean> entityLinks;
+    private Collection<EntityKeyBean> entityLinks = new ArrayList<>();
 
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
