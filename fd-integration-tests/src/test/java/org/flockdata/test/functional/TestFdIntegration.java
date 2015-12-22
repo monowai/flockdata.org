@@ -619,7 +619,7 @@ public class TestFdIntegration {
         // Track is suppressed but search is enabled, so the enity will not exist.
         exception.expect(NotFoundException.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-
+        waitAWhile("track_IgnoreGraphAndCheckSearch");
         //assertEquals(IndexHelper.PREFIX + "monowai.trackgraph.", indexName);
 
         // Putting asserts On elasticsearch
