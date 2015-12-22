@@ -505,7 +505,7 @@ public class EntityDaoNeo {
         Collection<EntityKeyBean> results = new ArrayList<>();
         Collection<Entity> entities = entityRepo.findInbountEntities(childEntity.getId());
         entities.stream().filter(entity -> withEntityTags).forEach(entity -> {
-            Collection<EntityTag> entityTags = entityTagService.findEntityTags(entity);
+            Collection<EntityTag> entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
             // ToDo: Requires the entity to entity relationship name
             results.add(new EntityKeyBean(entity, entityTags).addRelationship(""));
         });

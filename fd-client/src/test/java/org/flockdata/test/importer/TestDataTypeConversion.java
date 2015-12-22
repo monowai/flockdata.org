@@ -177,6 +177,7 @@ public class TestDataTypeConversion extends AbstractImport {
         assertNotNull(randomDate);
         TestCase.assertTrue("", randomDate instanceof String);
         new DateTime(randomDate);
+        TestCase.assertNull(entityInputBean.getContent().getWhat().get("nullDate"));
 
 
     }
