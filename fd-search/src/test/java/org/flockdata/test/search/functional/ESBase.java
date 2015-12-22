@@ -191,7 +191,7 @@ public class ESBase {
             String query = "{\n" +
                     "    query: {\n" +
                     "          query_string : {\n" +
-                    "            default_field:   \"" + field + "\", query: \"" + queryString.toLowerCase() + "\"\n" +
+                    "            default_field:   \"" + field + "\", query: \"" + queryString + "\"\n" +
                     "           }\n" +
                     "      }\n" +
                     "}";

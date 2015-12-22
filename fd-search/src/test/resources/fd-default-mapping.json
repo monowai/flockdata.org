@@ -173,30 +173,6 @@
         }
       },
       {
-        "inline_entity_code_template": {
-          "path_match": "e.*.code",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "string",
-            "doc_values": true,
-            "boost": "2.0",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      {
-        "inline_entity_index_template": {
-          "path_match": "e.*.index",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "string",
-            "doc_values": true,
-            "boost": "2.0",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      {
         "inline_entity_tag_code_template": {
           "path_match": "e.*.tag.*.code",
           "match_mapping_type": "string",
@@ -239,7 +215,53 @@
             }
           }
         }
+      },
+      {
+        "inline_entity_code_template": {
+          "match_mapping_type": "string",
+          "path_match": "e.*.code",
+          "path_unmatch": "e.*.tag.*.code",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_index_template": {
+          "path_match": "e.*.index",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_name_template": {
+          "path_match": "e.*.name",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
       }
+
     ]
   }
 }
