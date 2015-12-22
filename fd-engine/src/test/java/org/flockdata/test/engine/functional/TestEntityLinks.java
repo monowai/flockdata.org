@@ -97,4 +97,27 @@ public class TestEntityLinks extends EngineBase {
 
     }
 
+    @Test
+    public void testEntityLinks () throws Exception {
+        // Initial setup
+        cleanUpGraph();
+        SystemUser su = registerSystemUser("testEntityLinks", mike_admin);
+        Fortress timesheet = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+
+        EntityInputBean staff = new EntityInputBean(timesheet.getName(), "wally", "Staff", new DateTime(), "ABC123");
+        staff.addTag(new TagInputBean("Cleaner", "Position", "role"));
+
+        mediationFacade.trackEntity(su.getCompany(), staff);
+
+        DocumentType docTypeWork = new DocumentType(timesheet, "Work");
+        docTypeWork = conceptService.findOrCreate(timesheet, docTypeWork);
+
+        EntityInputBean workRecord = new EntityInputBean(timesheet.getName(), "wally", docTypeWork.getName(), new DateTime(), "ABC321");
+        // Checking that the entity is linked when part of the track request
+        workRecord.addEntityLink("worked", new EntityKeyBean("timesheet", "Staff", "ABC123"));
+        TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
+        SearchChange searchDocument = searchService.getSearchChange(workResult);
+        validateSearchStaff( searchDocument);
+    }
+
 }
