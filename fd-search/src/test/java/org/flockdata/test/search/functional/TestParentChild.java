@@ -2,6 +2,7 @@ package org.flockdata.test.search.functional;
 
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
@@ -23,6 +24,71 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestParentChild extends ESBase {
+
+    @Test
+    public void linkedEntities () throws Exception {
+        // Comes from TestEntityLinks.testLinkedToSearch
+        String json = "{\n" +
+                "  \"documentType\": \"work\",\n" +
+                "  \"description\": null,\n" +
+                "  \"what\": null,\n" +
+                "  \"props\": {},\n" +
+                "  \"attachment\": null,\n" +
+                "  \"fortressName\": \"timesheet\",\n" +
+                "  \"who\": null,\n" +
+                "  \"event\": null,\n" +
+                "  \"metaKey\": \"81Rpuh8WQw6xD4pDwijZPQ\",\n" +
+                "  \"code\": \"ABC321\",\n" +
+                "  \"logId\": null,\n" +
+                "  \"tagValues\": {},\n" +
+                "  \"entityId\": 10,\n" +
+                "  \"indexName\": \"fd.xref_frominputbeans.timesheet\",\n" +
+                "  \"sysWhen\": 1450644354230,\n" +
+                "  \"replyRequired\": true,\n" +
+                "  \"forceReindex\": false,\n" +
+                "  \"delete\": false,\n" +
+                "  \"createdDate\": 1450644354202,\n" +
+                "  \"updatedDate\": null,\n" +
+                "  \"contentType\": null,\n" +
+                "  \"fileName\": null,\n" +
+                "  \"tagStructure\": \"DEFAULT\",\n" +
+                "  \"parent\": null,\n" +
+                "  \"segment\": null,\n" +
+                "  \"entityLinks\": [\n" +
+                "    {\n" +
+                "      \"fortressName\": \"timesheet\",\n" +
+                "      \"documentType\": \"Staff\",\n" +
+                "      \"company\": null,\n" +
+                "      \"metaKey\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
+                "      \"code\": \"ABC123\",\n" +
+                "      \"index\": \"fd.xref_frominputbeans.timesheet\",\n" +
+                "      \"searchTags\": {\n" +
+                "        \"role\": {\n" +
+                "          \"position\": [\n" +
+                "            {\n" +
+                "              \"code\": \"Cleaner\"\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"relationship\": \"\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"searchKey\": \"ABC321\"\n" +
+                "}";
+        EntitySearchChange change = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChange.class);
+        trackService.createSearchableChange(new EntitySearchChanges(change));
+        Thread.sleep(2000);
+
+        String company = "xRef_FromInputBeans";
+        String fortress = "timesheet";
+        Entity entity = Helper.getEntity(company, fortress, "mike", "work");
+
+        //ToDo: Needs the relationship
+        doFieldQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
+        doFieldQuery(entity, "e.staff.tag.role.position.code", "cleaner", 1, "Unable to locate by staff tag code");
+    }
+
     @Test
     public void testParentChildStructure() throws Exception {
 

@@ -41,12 +41,15 @@ public class EntityKeyBean {
     private String company;
     private String metaKey;
     private String code;
+    private String name;
+
+    private String description;
 
     private String index;
 
-    private Map<String, Collection<SearchTag>> searchTags = new HashMap<>();
+    private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
 
-    private String relationship;
+    private String relationship; // Entity to entity relationship
 
 
     private EntityKeyBean(){}
@@ -82,19 +85,27 @@ public class EntityKeyBean {
         this.documentType = entity.getType();
         this.metaKey = entity.getMetaKey();
         this.index = IndexHelper.parseIndex(entity);
+        this.description = entity.getDescription();
+        this.name = entity.getName();
     }
 
     public EntityKeyBean(Entity entity, Collection<EntityTag> entityTags) {
-        this.fortressName = entity.getSegment().getFortress().getName();
-        this.code = entity.getCode();
-        this.documentType = entity.getType();
-        this.metaKey = entity.getMetaKey();
-        this.index = IndexHelper.parseIndex(entity);
+        this(entity);
         for (EntityTag entityTag : entityTags) {
-            Collection<SearchTag> tags = this.searchTags.get(entityTag.getTag().getLabel());
+            Map<String, ArrayList<SearchTag>> byRelationship = searchTags.get(entityTag.getRelationship());
+            if ( byRelationship == null){
+                byRelationship = new HashMap<>();
+                String rlx = entityTag.getRelationship();
+
+                if (rlx == null ){
+                    rlx = "default";
+                }
+                searchTags.put(rlx.toLowerCase(), byRelationship);
+            }
+            ArrayList<SearchTag> tags = byRelationship.get(entityTag.getTag().getLabel());
             if ( tags == null ){
                 tags = new ArrayList<>();
-                searchTags.put(entityTag.getTag().getLabel(), tags);
+                byRelationship.put(entityTag.getTag().getLabel(), tags);
             }
             tags.add(new SearchTag(entityTag)) ;
         }
@@ -122,7 +133,7 @@ public class EntityKeyBean {
         return index;
     }
 
-    public Map<String, Collection<SearchTag>> getSearchTags() {
+    public HashMap<String, Map<String, ArrayList<SearchTag>>> getSearchTags() {
         return searchTags;
     }
 
@@ -168,5 +179,13 @@ public class EntityKeyBean {
     public EntityKeyBean addRelationship(String relationship) {
         this.relationship = relationship;
         return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
     }
 }
