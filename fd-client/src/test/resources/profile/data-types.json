@@ -48,6 +48,10 @@
     "randomDate": {
       "dataType": "date",
       "dateFormat": "timestamp"
+    },
+    "nullDate": {
+      "dataType": "date",
+      "dateFormat": "timestamp"
     }
 
 

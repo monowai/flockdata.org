@@ -123,8 +123,15 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                     }
                 }
 
-                if (colDef.isDate())  // DAT-523
-                    row.put(sourceColumn, new DateTime(ExpressionHelper.parseDate(colDef, value)).toString());
+                if (colDef.isDate()) {
+                    // DAT-523
+                    if ( value == null || value.equals("") ) {
+                        row.put(sourceColumn, null);
+                    }else {
+                        Long dValue = ExpressionHelper.parseDate(colDef, value);
+                        row.put(sourceColumn, new DateTime(dValue).toString());
+                    }
+                }
 
                 if (colDef.isCallerRef()) {
                     String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
