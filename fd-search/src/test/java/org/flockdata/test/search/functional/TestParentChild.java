@@ -85,8 +85,9 @@ public class TestParentChild extends ESBase {
         Entity entity = Helper.getEntity(company, fortress, "mike", "work");
 
         //ToDo: Needs the relationship
+        System.out.println(doQuery(entity, "*",1));
         doFieldQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
-        doFieldQuery(entity, "e.staff.tag.role.position.code", "cleaner", 1, "Unable to locate by staff tag code");
+        doFieldQuery(entity, "e.staff.tag.role.position.code", "Cleaner", 1, "Unable to locate by staff tag code");
     }
 
     @Test
