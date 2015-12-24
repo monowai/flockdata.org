@@ -21,7 +21,6 @@ package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
@@ -29,7 +28,6 @@ import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.search.model.*;
-import org.flockdata.search.service.TrackService;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -213,11 +211,11 @@ public class SearchServiceFacade {
             if (parent != null)
                 searchDocument.setParent(parent);
         }
-        boolean withEntityTags = true;
 
-        Collection<EntityKeyBean> inboundEntities = entityService.getInboundEntities(entity, withEntityTags);
-
-        searchDocument.addEntityLinks(inboundEntities);
+        if ( entity.getId()!=null) {
+            Collection<EntityKeyBean> inboundEntities = entityService.getInboundEntities(entity, true);
+            searchDocument.addEntityLinks(inboundEntities);
+        }
 
 
         try {
@@ -363,15 +361,12 @@ public class SearchServiceFacade {
     }
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
-        //EntityLog entityLog = trackResultBean.getCurrentLog();
-
         if (!trackResultBean.processLog()) {
-            logger.debug("Tracking this entity through to search has been suppressed by the caller");
+            logger.debug("Tracking Entity Content to fd-search is suppressed. Content present {}, LogStatus {}", trackResultBean.getContentInput()!=null, trackResultBean.getLogStatus());
             return null;
         }
         if (trackResultBean.getLogStatus() != ContentInputBean.LogStatus.OK || trackResultBean.getCurrentLog() == null) {
-
-            logger.debug("No entity log to index against");
+            logger.debug("No Entity Content to index against, LogStatus {}", trackResultBean.getLogStatus());
             return null;
         }
         return trackResultBean.getCurrentLog();

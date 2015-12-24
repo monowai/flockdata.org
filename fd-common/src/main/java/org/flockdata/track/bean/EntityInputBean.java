@@ -21,7 +21,6 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
-import org.flockdata.model.EntityTagIn;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -328,8 +327,9 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @param trackSuppressed true/false
      */
-    public void setTrackSuppressed(boolean trackSuppressed) {
+    public EntityInputBean setTrackSuppressed(boolean trackSuppressed) {
         this.trackSuppressed = trackSuppressed;
+        return this;
     }
 
     public void addEntityLink(String relationshipName, EntityKeyBean entityKey){
@@ -368,8 +368,9 @@ public class EntityInputBean implements Serializable, UserProperties{
         return name;
     }
 
-    public void setName(String name) {
-        this.name = (name!=null? name.trim():name);
+    public EntityInputBean setName(String name) {
+        this.name = (name!=null? name.trim():null);
+        return this;
     }
 
     /**
@@ -378,8 +379,9 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @param entityOnly if false then the entity will not be indexed in search until a content is added
      */
-    public void setEntityOnly(boolean entityOnly) {
+    public EntityInputBean setEntityOnly(boolean entityOnly) {
         this.entityOnly = entityOnly;
+        return this;
     }
 
     public boolean isEntityOnly() {
