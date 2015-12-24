@@ -100,7 +100,7 @@ public class TrackDaoES implements TrackSearchDao {
                 .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
-        if ( searchChange.getParent()!=null )
+        if (searchChange.getParent() != null)
             irb.setParent(searchChange.getParent().getCode());
         else
             irb.setRouting(searchChange.getCode());
@@ -109,14 +109,13 @@ public class TrackDaoES implements TrackSearchDao {
             IndexResponse ir = irb.execute().actionGet();
             //searchChange.setSearchKey(ir.getId());
 
-            if (logger.isDebugEnabled())
-                logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
-                        searchChange.getEntityId(),
-                        searchChange.getMetaKey(),
-                        searchChange.getLogId(),
-                        ir.getId(),
-                        indexName,
-                        documentType);
+            logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
+                    searchChange.getEntityId(),
+                    searchChange.getMetaKey(),
+                    searchChange.getLogId(),
+                    ir.getId(),
+                    indexName,
+                    documentType);
 
             return searchChange;
         } catch (MapperParsingException e) {
@@ -149,7 +148,7 @@ public class TrackDaoES implements TrackSearchDao {
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
-            if ( searchChange.getParent() !=null ) {
+            if (searchChange.getParent() != null) {
                 request.setParent(searchChange.getParent().getCode());
             }
 
@@ -318,7 +317,7 @@ public class TrackDaoES implements TrackSearchDao {
         if (!searchChange.getTagValues().isEmpty())
             setTags("", indexMe, searchChange.getTagValues());
 
-        if ( !searchChange.getEntityLinks().isEmpty())
+        if (!searchChange.getEntityLinks().isEmpty())
             setEntityLinks(indexMe, searchChange.getEntityLinks());
 
         return indexMe;
@@ -328,10 +327,10 @@ public class TrackDaoES implements TrackSearchDao {
 
         for (EntityKeyBean linkedEntity : entityLinks) {
             String prefix;
-            if ( linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())){
-                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() +".";
+            if (linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())) {
+                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() + ".";
             } else {
-                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() + "."+ linkedEntity.getRelationship()+".";
+                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() + "." + linkedEntity.getRelationship() + ".";
             }
             setNonEmptyValue(prefix + EntitySearchSchema.CODE, linkedEntity.getCode(), indexMe);
             setNonEmptyValue(prefix + EntitySearchSchema.INDEX, linkedEntity.getIndex(), indexMe);
@@ -342,8 +341,8 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private void setNonEmptyValue(String key, Object value, Map<String, Object> values) {
-        if ( value != null && ! value.toString().equals("") ){
-            values.put(key,value);
+        if (value != null && !value.toString().equals("")) {
+            values.put(key, value);
         }
     }
 

@@ -34,7 +34,6 @@ import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpHelper;
-import org.flockdata.configure.EngineConfig;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.integration.FdChannels;
@@ -541,7 +540,7 @@ public class TestFdIntegration {
 
     @Test
     public void admin_rebuildSearchIndexFromEngine() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## admin_rebuildSearchIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
@@ -563,14 +562,14 @@ public class TestFdIntegration {
         assertEquals(1l, lResult.longValue());
 
         doEsQuery(entity, "*");
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+//        deleteEsIndex(IndexHelper.parseIndex(entity));
 
     }
 
     @Test
     public void
     load_createEntityAndTimeLogsWithSearchActivated() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## load_createEntityAndTimeLogsWithSearchActivated");
         int max = 3;
         String metaKey;
@@ -603,31 +602,33 @@ public class TestFdIntegration {
 
         watch.stop();
         doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".blah", "*", 1);
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+//        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
+        pingFdSearch();
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TrackGraph"));
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "wally", "ignoreGraph", new DateTime(), "ABC123");
         entityInput.setTrackSuppressed(true);
-        entityInput.setEntityOnly(true); // If true, the entity will be indexed
-        // Track is suppressed but search is enabled, so the enity will not exist.
+        entityInput.setEntityOnly(true); // If true, the entity will be sent to fd-search (but with no content)
+        // Entity is suppressed in the graph.
         exception.expect(NotFoundException.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitAWhile("track_IgnoreGraphAndCheckSearch");
-        //assertEquals(IndexHelper.PREFIX + "monowai.trackgraph.", indexName);
+        waitAWhile("track_IgnoreGraphAndCheckSearch", 6000);
 
-        // Putting asserts On elasticsearch
+        // Entity IS indexed in fd-search
         doEsQuery(result.getEntity(), "*", 1);
-        entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
-        entityInput.setTrackSuppressed(true);
-        entityInput.setEntityOnly(true);
+
+        entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124")
+                .setTrackSuppressed(true)
+                .setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
+        waitAWhile("2nd Entity sent to fd-search");
         waitForFirstSearchResult(su.getCompany(), result.getEntity());
         doEsQuery(result.getEntity(), "*", 2);
 
@@ -653,13 +654,13 @@ public class TestFdIntegration {
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
         doEsQuery(result.getEntity(), "*", 3);
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+//        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
 
     }
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -747,7 +748,7 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 0);
 
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+//        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
@@ -772,7 +773,7 @@ public class TestFdIntegration {
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code", "days", 1);
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+//        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -799,26 +800,26 @@ public class TestFdIntegration {
         EsSearchResult results = queryService.search(su.getCompany(), queryParams);
         assertNotNull(results);
         assertEquals(1, results.getResults().size());
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+//        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
 
     }
 
     @Test
     public void search_withNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-        assumeTrue(runMe);
+//        assumeTrue(runMe);
         logger.info("## search_withNoMetaKeysDoesNotError");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
 
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
-        inputBean.setTrackSuppressed(true); // Write a search doc only
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123")
+                .setTrackSuppressed(true)
+                .setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         // First entity and log, but not stored in graph
         mediationFacade.trackEntity(su.getCompany(), inputBean); // Expect a mock result as we're not tracking
 
-        inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124");
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124")
+                .setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
 
@@ -1196,7 +1197,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntity() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
