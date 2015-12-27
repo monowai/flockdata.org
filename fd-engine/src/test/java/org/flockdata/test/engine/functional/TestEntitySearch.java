@@ -65,7 +65,7 @@ public class TestEntitySearch extends EngineBase {
         ArrayList<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
         beans.add(beanB);
-        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
+        Collection<TrackRequestResult> results = trackRequests.trackEntities(beans, su.getApiKey());
         assertEquals(2, results.size());
 
     }
@@ -91,10 +91,10 @@ public class TestEntitySearch extends EngineBase {
         ArrayList<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
         beans.add(beanB);
-        Collection<TrackRequestResult> results = mediationFacade.trackEntities(beans, su.getApiKey());
+        Collection<TrackRequestResult> results = trackRequests.trackEntities(beans, su.getApiKey());
         assertEquals(2, results.size());
 
-        results = mediationFacade.trackEntities(beans, su.getApiKey());
+        results = trackRequests.trackEntities(beans, su.getApiKey());
         assertEquals("Should be one new and one existing TrackResult returned", 2, results.size());
 
 

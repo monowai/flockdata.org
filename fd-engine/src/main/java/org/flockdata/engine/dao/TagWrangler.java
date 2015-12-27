@@ -181,7 +181,7 @@ public class TagWrangler {
     }
 
     public Map<String, Collection<TagResultBean>> findAllTags(Tag sourceTag, String relationship, String targetLabel) {
-        String query = "match (t) -[" + (!relationship.equals("") ? "r:" + relationship : "r") + "*..4]-(targetTag:" + targetLabel + ") where id(t)={id}  return r, targetTag";
+        String query = "match (t) -[" + (!relationship.equals("") ? "r:" + relationship : "r") + "]-(targetTag:" + targetLabel + ") where id(t)={id}  return r, targetTag";
         Map<String, Object> params = new HashMap<>();
         params.put("id", sourceTag.getId());
         Iterable<Map<String, Object>> result = template.query(query, params);

@@ -167,23 +167,6 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws IOException           json processing exception
      */
 
-    @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
-    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Company c = securityHelper.getCompany(apiKey);
-        if (c == null)
-            throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
-        Collection<TrackRequestResult> results = new ArrayList<>();
-        for (FortressSegment segment : byFortress.keySet()) {
-            Collection<TrackResultBean>tr=
-                    trackEntities(segment, byFortress.get(segment), 2);
-            for (TrackResultBean result : tr) {
-                results.add(new TrackRequestResult(result));
-            }
-
-        }
-        return results;
-    }
 
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
