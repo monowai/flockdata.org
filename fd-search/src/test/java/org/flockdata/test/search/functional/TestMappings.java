@@ -203,7 +203,7 @@ public class TestMappings extends ESBase {
         indexMappingService.ensureIndexMapping(changeB);
         changeA = searchRepo.handle(changeA);
         changeB = searchRepo.handle(changeB);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         assertNotNull(changeA);
         assertNotNull(changeB);
         assertNotNull(changeA.getSearchKey());

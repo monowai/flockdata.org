@@ -20,6 +20,7 @@
 package org.flockdata.engine.track.endpoint;
 
 import org.flockdata.engine.concept.service.TxService;
+import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -61,6 +62,9 @@ public class TrackEP {
     CompanyService companyService;
 
     @Autowired
+    TrackRequests trackRequests;
+
+    @Autowired
     TxService txService;
 
     //private static Logger logger = LoggerFactory.getLogger(TrackEP.class);
@@ -72,7 +76,7 @@ public class TrackEP {
                               HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         //Company company = CompanyResolver.resolveCompany(request);
 
-        mediationFacade.trackEntities(inputBeans, CompanyResolver.resolveCallerApiKey(request));
+        trackRequests.trackEntities(inputBeans, CompanyResolver.resolveCallerApiKey(request));
     }
 
     /**

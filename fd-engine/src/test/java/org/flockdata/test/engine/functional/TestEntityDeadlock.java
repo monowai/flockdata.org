@@ -200,7 +200,7 @@ public class TestEntityDeadlock extends EngineBase {
             logger.debug("Running "+myThread);
             try {
                 startSignal.await();
-                Collection<TrackRequestResult> results = mediationFacade.trackEntities(inputBeans, apiKey);
+                Collection<TrackRequestResult> results = trackRequests.trackEntities(inputBeans, apiKey);
                 assertEquals("Error creating entity", 1, results.size());
                 if ( entityKey == null )
                     entityKey = results.iterator().next().getMetaKey();
