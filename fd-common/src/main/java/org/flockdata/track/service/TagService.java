@@ -49,7 +49,7 @@ public interface TagService {
 
     Tag findTag(Company company, String label, String keyPrefix, String tagCode);
 
-    Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate);
+    Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
 
     void createAlias(Company company, Tag tag, String forLabel, String aliasKeyValue);
 

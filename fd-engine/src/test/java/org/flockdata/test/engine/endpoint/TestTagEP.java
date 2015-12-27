@@ -128,4 +128,17 @@ public class TestTagEP extends EngineBase {
 
     }
 
+    @Test
+    public void notFound_Tag() throws Exception {
+
+        setSecurity(mike_admin);
+        registerSystemUser("nf_tags", "mike");
+        engineConfig.setConceptsEnabled("true");
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+        // DAT-526
+        eip.getTagNotFound("zz","123jja");
+
+    }
 }
