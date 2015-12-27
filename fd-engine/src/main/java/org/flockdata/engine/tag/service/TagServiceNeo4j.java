@@ -122,17 +122,23 @@ public class TagServiceNeo4j implements TagService {
 
     @Override
     public Tag findTag(Company company, String label, String keyPrefix, String tagCode) {
-       return findTag(company, label, keyPrefix, tagCode, false);
+        try {
+            return findTag(company, label, keyPrefix, tagCode, false);
+        } catch (NotFoundException e){
+            logger.debug("findTag notFound {}, {}", tagCode, label);
+        }
+        return null;
     }
 
     @Override
-    public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) {
+    public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
         String suffix = engineAdmin.getTagSuffix(company);
 
         Tag tag = tagDao.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
 
         if (tag == null) {
-            logger.debug("findTag notFound {}, {}", tagCode, label);
+            throw new NotFoundException("Tag "+label +"/"+tagCode +" not found");
+
         }
         return tag;
     }

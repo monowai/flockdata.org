@@ -231,6 +231,15 @@ public class EngineEndPoints {
         return JsonUtils.getBytesAsObject(json, TagResultBean.class);
     }
 
+    public void getTagNotFound(String label, String code) throws Exception{
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label + "/"+code)
+                        .contentType(MediaType.APPLICATION_JSON)
+
+        ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+
+
+    }
+
     public Collection<DocumentResultBean> getDocuments(String fortress) throws Exception {
         MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/doc/" + fortress)
                         .contentType(MediaType.APPLICATION_JSON)
