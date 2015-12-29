@@ -29,8 +29,10 @@ public class TagPath {
 
     private Logger logger = LoggerFactory.getLogger(TagPath.class);
 
-    public Collection<Map<String, Object>> getPaths(Company company, String label, String code, String targetLabel) throws NotFoundException {
+    public Collection<Map<String, Object>> getPaths(Company company, String label, String code, int length, String targetLabel) throws NotFoundException {
         Tag tag = tagService.findTag(company, label, null, code, false);
-        return tagPathDao.getPaths(tag, targetLabel);
+        if ( length <1 )
+            length = 4;
+        return tagPathDao.getPaths(tag, length, targetLabel);
     }
 }

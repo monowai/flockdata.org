@@ -26,8 +26,8 @@ public class TagPathDao {
 
     private Logger logger = LoggerFactory.getLogger(TagPathDao.class);
 
-    public Collection<Map<String, Object>> getPaths(Tag tag, String label) {
-        String query = "match p=(t) -[*..4]->(targetTag:`"+label+"`) where id(t)= {0}   return p";
+    public Collection<Map<String, Object>> getPaths(Tag tag, int length, String label) {
+        String query = "match p=(t) -[*.."+length+"]->(targetTag:`"+label+"`) where id(t)= {0}   return p";
         Map<String, Object> params = new HashMap<>();
         params.put("0", tag.getId());
         Collection<Map<String, Object>> results = new ArrayList<>();
