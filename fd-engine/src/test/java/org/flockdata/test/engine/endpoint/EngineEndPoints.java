@@ -325,7 +325,7 @@ public class EngineEndPoints {
     }
 
     public Collection<Map<String, TagResultBean>> getTagPaths(String label, String code, String targetLabel) throws Exception {
-        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/path/" + label + "/" + code + "/path/" + targetLabel)
+        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/path/" + label + "/" + code + "/4/" + targetLabel)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();

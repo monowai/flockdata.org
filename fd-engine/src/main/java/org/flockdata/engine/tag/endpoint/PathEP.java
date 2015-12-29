@@ -25,11 +25,11 @@ public class PathEP {
     @Autowired
     TagPath tagPath;
 
-    @RequestMapping(value = "/{label}/{code}/path//{targetLabel}", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{label}/{code}/{length}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
     public Collection<Map<String, Object>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                            HttpServletRequest request, @PathVariable("targetLabel") String targetLabel) throws FlockException {
+                                                            HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return tagPath.getPaths(company, label, code, targetLabel);
+        return tagPath.getPaths(company, label, code, length, targetLabel);
 //        return tagService.findTags(company, label, code, relationship, targetLabel);
     }
 
