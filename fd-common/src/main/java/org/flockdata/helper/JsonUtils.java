@@ -88,7 +88,7 @@ public class JsonUtils {
     }
 
     public static Map<String,Object> getAsMap(byte[] json) throws IOException {
-        Map<String,Object> result = mapper.readValue(json, Map.class);
+        Map result = mapper.readValue(json, Map.class);
         return result;
     }
 

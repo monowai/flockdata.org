@@ -21,9 +21,11 @@ package org.flockdata.registration.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.AliasResultBean;
 import org.flockdata.model.Alias;
+import org.neo4j.graphdb.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,14 +38,24 @@ import java.util.Map;
  */
 public class TagResultBean {
     String code;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     String name;
     String key;
+    String label;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     String message;
-    Boolean newTag = false;
-    ArrayList<AliasResultBean> aliases = new ArrayList<>();
-    Map<String,Object> properties = new HashMap<>();
 
+    Boolean newTag = false;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    ArrayList<AliasResultBean> aliases = new ArrayList<>();
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    Map<String,Object> properties = new HashMap<>();
+    @JsonIgnore
     private Tag tag =null;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String relationship;
+
     public TagResultBean(){}
 
     public TagResultBean(TagInputBean tagInput, Tag startTag, boolean isNew) {
@@ -87,6 +99,13 @@ public class TagResultBean {
         this(tagInput, null);
     }
 
+    public TagResultBean(Node pc) {
+        this.code= pc.getProperty("code").toString();
+        if ( pc.hasProperty("name"))
+            this.name = pc.getProperty("name").toString();
+        this.label = TagHelper.getLabel(pc.getLabels());
+    }
+
     public String getKey() {
         return key;
     }
@@ -95,22 +114,22 @@ public class TagResultBean {
         return code;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getName() {
         return name;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getMessage() {
         return message;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<AliasResultBean> getAliases() {
         return aliases;
     }
 
-    @JsonIgnore
+    public String getLabel() {
+        return label;
+    }
+
     public Tag getTag() {
         return tag;
     }
@@ -119,18 +138,34 @@ public class TagResultBean {
         this.tag = tag;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, Object> getProperties() {
         return properties;
     }
 
-    @JsonIgnore
     // Used as a hint to see if we should attempt to create a TagLabel for this tag
+    @JsonIgnore
     public boolean isNew() {
         return newTag;
     }
 
     void setNew(){
         this.newTag = true;
+    }
+
+    @Override
+    public String toString() {
+        return "TagResultBean{" +
+                "label='" + label + '\'' +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public String getRelationship() {
+        return relationship;
     }
 }

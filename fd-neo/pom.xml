@@ -11,9 +11,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-neo</artifactId>
 
-    <properties>
-        <neo4j.version>2.2.2</neo4j.version>
-    </properties>
+    <!--<properties>-->
+        <!--<neo4j.version>2.2.2</neo4j.version>-->
+    <!--</properties>-->
     <dependencies>
         <dependency>
             <groupId>org.flockdata</groupId>
@@ -36,9 +36,9 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-            <version>4.11</version>
+            <!--<scope>provided</scope>-->
+            <!--<optional>true</optional>-->
+            <!--<version>4.11</version>-->
         </dependency>
 
         <dependency>
