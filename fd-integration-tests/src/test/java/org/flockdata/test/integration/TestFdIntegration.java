@@ -75,6 +75,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
@@ -83,7 +84,6 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
-import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Allows the fd-engine services to be tested against fd-search with actual integration.
@@ -471,7 +471,7 @@ public class TestFdIntegration {
 
     @Test
     public void admin_rebuildSearchIndexFromEngine() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## admin_rebuildSearchIndexFromEngine");
         SystemUser su = registerSystemUser("David");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
@@ -500,7 +500,7 @@ public class TestFdIntegration {
     @Test
     public void
     load_createEntityAndTimeLogsWithSearchActivated() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## load_createEntityAndTimeLogsWithSearchActivated");
         int max = 3;
         String metaKey;
@@ -538,7 +538,7 @@ public class TestFdIntegration {
 
     @Test
     public void track_IgnoreGraphAndCheckSearch() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         pingFdSearch();
         logger.info("## track_IgnoreGraphAndCheckSearch started");
         SystemUser su = registerSystemUser("Isabella");
@@ -591,7 +591,7 @@ public class TestFdIntegration {
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -738,7 +738,7 @@ public class TestFdIntegration {
     @Test
     public void search_withNoMetaKeysDoesNotError() throws Exception {
         // DAT-83
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## search_withNoMetaKeysDoesNotError");
         SystemUser su = registerSystemUser("HarryIndex");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searchIndexWithNoMetaKeysDoesNotError"));
@@ -1134,14 +1134,7 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("amqp_TrackEntity", false));
 
-        Properties properties = new Properties();
-        properties.put("apiKey", su.getApiKey());
-        ClientConfiguration configuration = new ClientConfiguration(properties);
-        configuration.setAmqp(true, false);
-
-        AmqpServices amqpServices = new AmqpServices(configuration);
-
-        int required = 10;
+        int required = 5;
         int count = 0;
         Collection<EntityInputBean> entityBatch = new ArrayList<>();
 
@@ -1154,7 +1147,13 @@ public class TestFdIntegration {
             count ++;
         }
 
-        //Properties configProperties = PropertiesLoaderUtils.loadProperties(new ClassPathResource("/config.properties"));
+        Properties properties = getProperties(su);
+
+        ClientConfiguration configuration = new ClientConfiguration(properties);
+        configuration.setAmqp(true, false);
+
+        AmqpServices amqpServices = new AmqpServices(configuration);
+
         // ToDo: We're not checking the response codes
         amqpServices.publish(entityBatch);
         Helper.waitAWhile("AMQP", 8000);
@@ -1164,6 +1163,20 @@ public class TestFdIntegration {
                     ,entityService.findByCode(fortress, entityInputBean.getDocumentName(), entityInputBean.getCode()));
         }
 
+    }
+
+    static Properties getProperties(SystemUser su) throws Exception{
+        Properties properties = new Properties();
+        FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
+        properties.load(f);
+
+        if ( su!=null)
+            properties.put("apiKey", su.getApiKey());
+
+        String fdDebug = System.getProperty("fd.debug");
+        if (fdDebug != null)
+            runMe = !Boolean.parseBoolean(fdDebug);
+        return properties;
     }
 
     @Test

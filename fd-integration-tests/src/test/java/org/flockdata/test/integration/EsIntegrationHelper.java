@@ -21,7 +21,6 @@ import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,6 +29,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
+ * ElasticSearch plumbing stuff to support running and validating integration tests
+ *
  * Created by mike on 1/01/16.
  */
 public class EsIntegrationHelper {
@@ -40,12 +41,8 @@ public class EsIntegrationHelper {
 
 
     public static void cleanupElasticSearch() throws Exception {
-        Properties properties = new Properties();
-        FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
-        properties.load(f);
+        Properties properties = TestFdIntegration.getProperties(null);
         String abDebug = System.getProperty("fd.debug");
-        if (abDebug != null)
-            TestFdIntegration.runMe = !Boolean.parseBoolean(abDebug);
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
