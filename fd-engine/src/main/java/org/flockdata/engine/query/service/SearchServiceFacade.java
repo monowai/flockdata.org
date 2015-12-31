@@ -22,7 +22,7 @@ package org.flockdata.engine.query.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
@@ -90,7 +90,7 @@ public class SearchServiceFacade {
     @Autowired
     EntityTagFinder defaultTagFinder;
 
-    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
+    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     //
     @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
@@ -220,7 +220,7 @@ public class SearchServiceFacade {
 
         try {
             if (logger.isTraceEnabled())
-                logger.trace("JSON {}", FlockDataJsonFactory.getObjectMapper().writeValueAsString(searchDocument));
+                logger.trace("JSON {}", FdJsonObjectMapper.getObjectMapper().writeValueAsString(searchDocument));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             return null;

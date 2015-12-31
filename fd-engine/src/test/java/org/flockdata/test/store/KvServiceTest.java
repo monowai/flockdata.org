@@ -21,7 +21,7 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
@@ -77,7 +77,7 @@ public class KvServiceTest {
     private KvService kvService;
 
     @Before
-    public void resetKvStore(){
+    public void resetKvStore() {
         kvConfig.setStoreEnabled("true");
         kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
     }
@@ -100,7 +100,7 @@ public class KvServiceTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if ( redisServer!=null && redisServer.isActive())
+        if (redisServer != null && redisServer.isActive())
             redisServer.stop();
     }
 
@@ -161,7 +161,11 @@ public class KvServiceTest {
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
-        TrackResultBean trackResultBean = new TrackResultBean(new Fortress(new FortressInputBean("test", true), new Company("MyName")), entity, entityInputBean);
+        TrackResultBean trackResultBean = new TrackResultBean(
+                new Fortress(
+                        new FortressInputBean("test", true),
+                        new Company("MyName")),
+                entity, entityInputBean);
 
         // Create a log with a random primary key
         Log graphLog = new Log(entity);
@@ -169,11 +173,8 @@ public class KvServiceTest {
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
         graphLog = kvService.prepareLog(trackResultBean, graphLog);
+        // Graph tracks which KVService is storing this content
         EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
-        // Emulate the creation of the log
-        //LogResultBean logResult = new LogResultBean(entityInputBean.getContent());
-        //logResult.setLogToIndex(eLog);
-        //logResult.setLog(graphLog);
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setCurrentLog(eLog);
@@ -190,23 +191,17 @@ public class KvServiceTest {
             // Retrieve the content we just created
             KvContent kvContent = kvService.getContent(entity, trackResultBean.getCurrentLog().getLog());
             assertNotNull(kvContent);
-            assertNotNull ( kvContent.getContent().getMetaKey());
-            assertNotNull ( kvContent.getContent().getCallerRef());
+            assertNotNull(kvContent.getContent().getMetaKey());
+            assertNotNull(kvContent.getContent().getCallerRef());
 
-            // Redis should always be available. RIAK is trickier to install
-            if (!kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
-                validateWhat(what, kvContent);
-                // Testing that cancel works
-                kvService.delete(entity, trackResultBean.getCurrentLog().getLog());
-            } else {
-                // ToDo: Mock RIAK
-                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
-            }
+            validateWhat(what, kvContent);
+            // Testing that cancel works
+            kvService.delete(entity, trackResultBean.getCurrentLog().getLog());
 
-        } catch ( AmqpRejectAndDontRequeueException e){
+        } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
-            if ( kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
-                logger.error("Silently passing. No what data to process for {}. Possibly KV store is not running", kvConfig.getKvStore());
+            if (kvConfig.getKvStore().equals(KvService.KV_STORE.RIAK)) {
+                logger.error("Silently passing. No what data to process for {}. KV store is not running", kvConfig.getKvStore());
             } else {
                 logger.error("KV Error", e);
                 fail("Unexpected KV error");
@@ -245,7 +240,7 @@ public class KvServiceTest {
     }
 
     public static String getJsonFromObject(Map<String, Object> what) throws JsonProcessingException {
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         return mapper.writeValueAsString(what);
     }
 

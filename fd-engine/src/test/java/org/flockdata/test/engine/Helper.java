@@ -20,7 +20,7 @@
 package org.flockdata.test.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -53,7 +53,7 @@ public class Helper {
 
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {

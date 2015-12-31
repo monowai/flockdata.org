@@ -71,7 +71,7 @@ public class ObjectHelper {
     }
 
     public static CompressionResult compress(EntityContent content) {
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         JsonNode node = om.valueToTree(content);
         String text = node.toString();
         return compress(text);

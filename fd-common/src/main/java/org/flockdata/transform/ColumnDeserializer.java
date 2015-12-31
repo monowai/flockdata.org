@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class ColumnDeserializer extends JsonDeserializer<ArrayList<ColumnDefinit
     public ArrayList<ColumnDefinition> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ArrayList<ColumnDefinition> values = new ArrayList<>();
         JsonNode node = jp.getCodec().readTree(jp);
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         for (JsonNode jsonNode : node) {
             values.add(om.readValue(jsonNode.toString(), ColumnDefinition.class));
 

@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Date: 28/10/14
  * Time: 9:30 AM
  */
-public class FlockDataJsonFactory extends JsonFactory {
+public class FdJsonObjectMapper extends JsonFactory {
     private static ObjectMapper objectMapper = null;
     private static Lock l = new ReentrantLock();
 
@@ -48,7 +48,7 @@ public class FlockDataJsonFactory extends JsonFactory {
             try {
                 l.lock();
                 if ( objectMapper == null ){
-                    objectMapper = new ObjectMapper( new FlockDataJsonFactory());
+                    objectMapper = new ObjectMapper( new FdJsonObjectMapper());
                     //objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
                 }
 

@@ -2,7 +2,7 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
@@ -84,7 +84,7 @@ public class Transformer {
         if (contentInputBean.getFortressUser() == null)
             contentInputBean.setFortressUser(importProfile.getFortressUser());
         entityInputBean.setContent(contentInputBean);
-        contentInputBean.setWhat(FlockDataJsonFactory.getObjectMapper().convertValue(node, Map.class));
+        contentInputBean.setWhat(FdJsonObjectMapper.getObjectMapper().convertValue(node, Map.class));
 
         return entityInputBean;
 

@@ -25,7 +25,7 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.helper.CompressionResult;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.joda.time.DateTime;
@@ -71,7 +71,7 @@ public class TestCompression {
         //json = TestHelper.getBigJsonText(99);
         String uncompressed = ObjectHelper.decompress(result);
 
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         JsonNode compareTo = mapper.valueToTree(content);
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertTrue(compareTo.equals(other));
@@ -89,7 +89,7 @@ public class TestCompression {
 
         String uncompressed = ObjectHelper.decompress(result);
 
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         JsonNode compareTo = mapper.readTree(json);
         JsonNode other = mapper.readTree(uncompressed);
         Assert.assertTrue(compareTo.equals(other));
@@ -100,7 +100,7 @@ public class TestCompression {
         String jsonA = "{\"house\": \"red\", \"bedrooms\": 2, \"list\": [3,2,1]}";
         String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
         Map mapA, mapB;
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
         mapA = mapper.readValue(jsonA, HashMap.class);
         mapB = mapper.readValue(jsonB, HashMap.class);

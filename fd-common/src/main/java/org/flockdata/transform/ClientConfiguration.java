@@ -19,7 +19,7 @@
 
 package org.flockdata.transform;
 
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.ImportProfile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -169,7 +169,7 @@ public class ClientConfiguration {
 
     public static ImportProfile getImportParams(String profile) throws IOException, ClassNotFoundException {
         ImportProfile importProfile;
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {

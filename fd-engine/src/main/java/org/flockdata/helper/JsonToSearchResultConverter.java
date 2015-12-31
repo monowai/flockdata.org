@@ -40,7 +40,7 @@ public class JsonToSearchResultConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
-                ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+                ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
                 return mapper.readValue(((String) content).getBytes(ObjectHelper.charSet), SearchResults.class);
             }
         } catch (IOException e1) {

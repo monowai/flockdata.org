@@ -22,7 +22,7 @@ package org.flockdata.search.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
@@ -32,9 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,7 +115,7 @@ public class SearchAdmin {
 
     @PostConstruct
     private void doHealth() {
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         try {
             ObjectWriter or = om.writerWithDefaultPrettyPrinter();
             logger.info("\r\n" + or.writeValueAsString(getHealth()));

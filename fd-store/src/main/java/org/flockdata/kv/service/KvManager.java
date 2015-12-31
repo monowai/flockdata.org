@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.KvGateway;
@@ -65,7 +65,7 @@ public class KvManager implements KvService {
     @Autowired
     KvGateway kvGateway;  // Used for async loose coupling between this service and the db
 
-    private static final ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+    private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
     @Autowired
     RedisRepo redisRepo;
@@ -228,7 +228,6 @@ public class KvManager implements KvService {
         getKvRepo(change).delete(entity, change);
     }
 
-
     /**
      * Determine if the Log Content has changed
      *
@@ -260,7 +259,6 @@ public class KvManager implements KvService {
     private boolean sameCheckSum(Log compareFrom, Log compareTo) {
         return compareFrom.getChecksum().equals(compareTo.getChecksum());
     }
-
 
     @Override
     public boolean sameJson(KvContent compareFrom, KvContent compareTo) {
