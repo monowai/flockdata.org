@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.dao.ProfileDaoNeo;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.ImportProfile;
@@ -62,7 +62,7 @@ public class ProfileServiceNeo implements ImportProfileService {
     @Autowired
     FdServerWriter fdServerWriter;
 
-    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
+    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     public ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException {
         Profile profile = profileDao.find(fortress, documentType);

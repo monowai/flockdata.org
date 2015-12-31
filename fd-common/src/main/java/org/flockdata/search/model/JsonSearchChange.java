@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -42,7 +42,7 @@ public class JsonSearchChange extends JsonDeserializer<EntitySearchChanges> {
         JsonNode n = jp.getCodec().readTree(jp);
         Collection<JsonNode> columns = n.findValues("changes");
         if ( columns !=null ){
-            ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+            ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
 
             for (JsonNode node : columns) {
                 Iterator<JsonNode>nodes = node.elements();

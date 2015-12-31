@@ -17,23 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestClientFactory;
-import io.searchbox.client.JestResult;
-import io.searchbox.client.config.HttpClientConfig;
-import io.searchbox.core.Search;
-import io.searchbox.core.Suggest;
-import io.searchbox.core.SuggestResult;
-import io.searchbox.indices.DeleteIndex;
-import io.searchbox.indices.mapping.GetMapping;
-import junit.framework.TestCase;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.time.StopWatch;
-import org.flockdata.client.amqp.AmqpHelper;
+import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.integration.FdChannels;
@@ -42,11 +29,9 @@ import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.helper.FlockDataJsonFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.kv.KvConfig;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
@@ -75,8 +60,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -92,8 +75,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.FileInputStream;
-import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
@@ -136,9 +117,9 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:root-context.xml", "classpath:apiDispatcher-servlet.xml"})
 public class TestFdIntegration {
-    private static boolean runMe = true; // pass -Dfd.debug=true to disable all tests
-    private static int fortressMax = 1;
-    private static JestClient esClient;
+
+    protected static boolean runMe = true; // pass -Dfd.debug=true to disable all tests
+    protected static int fortressMax = 1;
 
     @Rule
     // Use this to assert exception conditions
@@ -206,11 +187,9 @@ public class TestFdIntegration {
     FdChannels fdChannels;
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
-    private static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
     static MockMvc mockMvc;
     String company = "Monowai";
-    static Properties properties = new Properties();
-    int esTimeout = 10; // Max attempts to find the result in ES
+
 
     @AfterClass
     public static void logEndOfClassTests() throws Exception {
@@ -228,60 +207,12 @@ public class TestFdIntegration {
         return Long.decode(ss) * 1000;
     }
 
-    public static void waitAWhile(String message) throws Exception {
-        if (message == null)
-            message = "Slept for {} seconds";
-        waitAWhile(message, getSleepSeconds());
-    }
-
-    public static void cleanupElasticSearch() throws Exception {
-        FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
-        properties.load(f);
-        String abDebug = System.getProperty("fd.debug");
-        if (abDebug != null)
-            runMe = !Boolean.parseBoolean(abDebug);
-
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
-        // Construct a new Jest client according to configuration via factory
-        JestClientFactory factory = new JestClientFactory();
-        factory.setHttpClientConfig(clientConfig);
-        //factory.setClientConfig(clientConfig);
-        esClient = factory.getObject();
-
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111"));
-
-        for (int i = 1; i < fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i);
-        }
-
-    }
-
     public void setDefaultAuth() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
 
         if (mockMvc == null)
             mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
         engineConfig.setStoreEnabled("true"); // Rest to default state for each test
-    }
-
-    private static void deleteEsIndex(String indexName) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName);
-        logger.info("%% Delete Index {}", deleteMe);
-        esClient.execute(new DeleteIndex.Builder(deleteMe).build());
-    }
-
-    @AfterClass
-    public static void shutDownElasticSearch() throws Exception {
-        if (esClient != null)
-            esClient.shutdownClient();
     }
 
     @BeforeClass
@@ -289,7 +220,7 @@ public class TestFdIntegration {
     public static void pingFdSearch() throws Exception {
         // Always run
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHttpHeaders(null, null, null);
+        HttpHeaders httpHeaders = Helper.getHttpHeaders(null, null, null);
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         logger.info("**** Checking to see if we can ping fd-search @ {}", FD_SEARCH);
         try {
@@ -300,7 +231,7 @@ public class TestFdIntegration {
             runMe = false; // Everything will fail
             throw new FlockException("Can't connect to FD-Search. No point in continuing");
         }
-        cleanupElasticSearch();
+        EsIntegrationHelper.cleanupElasticSearch();
 
 
     }
@@ -339,7 +270,7 @@ public class TestFdIntegration {
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
 
-        Map<String, Object> json = getRandomMap();
+        Map<String, Object> json = Helper.getRandomMap();
         json.put("int", 123);
         json.put("long", 456l);
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), json);
@@ -348,11 +279,11 @@ public class TestFdIntegration {
         Entity entity = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
-        doEsQuery(entity, entity.getMetaKey());
-        doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".int", "123", 1);
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+        EsIntegrationHelper.doEsQuery(entity, entity.getMetaKey());
+        EsIntegrationHelper.doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".int", "123", 1);
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
     @Test
@@ -367,7 +298,7 @@ public class TestFdIntegration {
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortressA.getName(), "wally", docType, new DateTime(), callerRef);
 
-        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime(), Helper.getRandomMap());
         entityInputBean.setContent(contentInputBean);
 
         Entity entity = mediationFacade
@@ -376,10 +307,10 @@ public class TestFdIntegration {
 
         assertEquals(IndexHelper.PREFIX + "testcompany.tracktest", entity.getFortress().getRootIndex());
 
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
-        doEsQuery(entity, entity.getMetaKey());
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+        EsIntegrationHelper.doEsQuery(entity, entity.getMetaKey());
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
 //    @Test       DAT-521
@@ -406,20 +337,20 @@ public class TestFdIntegration {
 
         Entity entity = trackResultBean.getEntity();
 
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         EntityLog lastLog = logService.getLastLog(entity);
         assertNotNull(lastLog);
         assertNotNull(lastLog.getLog().getFileName());
 
-        waitAWhile("Attachment Mapper can take some time to process the PDF");
-        doEsQuery(entity, "*", 1);
-        doEsQuery(entity, "brown fox", 1);
-        doEsQuery(entity, contentInputBean.getFileName(), 1);
-        doEsFieldQuery(entity, EntitySearchSchema.META_KEY, entity.getMetaKey(), 1);
-        doEsFieldQuery(entity, EntitySearchSchema.FILENAME, "test.pdf", 1);
-        doEsFieldQuery(entity, EntitySearchSchema.ATTACHMENT, "pdf", 1);
-        deleteEsIndex(IndexHelper.parseIndex(entity));
+        Helper.waitAWhile("Attachment Mapper can take some time to process the PDF");
+        EsIntegrationHelper.doEsQuery(entity, "*", 1);
+        EsIntegrationHelper.doEsQuery(entity, "brown fox", 1);
+        EsIntegrationHelper.doEsQuery(entity, contentInputBean.getFileName(), 1);
+        EsIntegrationHelper.doEsFieldQuery(entity, EntitySearchSchema.META_KEY, entity.getMetaKey(), 1);
+        EsIntegrationHelper.doEsFieldQuery(entity, EntitySearchSchema.FILENAME, "test.pdf", 1);
+        EsIntegrationHelper.doEsFieldQuery(entity, EntitySearchSchema.ATTACHMENT, "pdf", 1);
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
 
@@ -427,7 +358,7 @@ public class TestFdIntegration {
     public void track_WithOnlyTagsTracksToSearch() throws Exception {
         assumeTrue(runMe);
         logger.info("## track_WithOnlyTagsTracksToSearch");
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
         SystemUser su = registerSystemUser("Mark");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entityWithTagsProcess"));
         DateTime now = new DateTime();
@@ -437,21 +368,21 @@ public class TestFdIntegration {
         inputBean.setEvent("TagTest");
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         logger.debug("Created Request ");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(summary);
         // Check we can find the Event in ElasticSearch
-        doEsQuery(summary.getEntity(), inputBean.getEvent(), 1);
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), inputBean.getEvent(), 1);
         // Can we find the Tag
-        doEsQuery(summary.getEntity(), "testTagNameZZ", 1);
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), "testTagNameZZ", 1);
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
     public void track_UserDefinedProperties() throws Exception {
         assumeTrue(runMe);
         logger.info("## track_UserDefinedProperties");
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
         SystemUser su = registerSystemUser("Mittens");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_UserDefinedProperties"));
         DateTime now = new DateTime();
@@ -463,19 +394,19 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         logger.debug("Created Request ");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(summary);
-        doEsQuery(summary.getEntity(), "hello world", 1);
-        doEsQuery(summary.getEntity(), "123.45", 1);
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), "hello world", 1);
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), "123.45", 1);
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
     public void search_passThroughQuery() throws Exception {
         assumeTrue(runMe);
         logger.info("## searc_passThroughQuery");
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
         SystemUser su = registerSystemUser("searc_passThroughQuery");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("searc_passThroughQuery"));
         DateTime now = new DateTime();
@@ -487,7 +418,7 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         logger.debug("Created Request ");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), result.getEntity().getMetaKey());
         assertNotNull(summary);
         QueryParams qp = new QueryParams(fo.getDefaultSegment());
@@ -502,7 +433,7 @@ public class TestFdIntegration {
         assertEquals(1, searchResult.getTotalHits());
         Map<String, Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
         assertFalse(mapResult.isEmpty());
-        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
     @Test
@@ -517,14 +448,14 @@ public class TestFdIntegration {
         inputBean.setEntityOnly(true); // Must be true to make over to search
         TrackResultBean trackResult;
         trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        waitForFirstSearchResult(su.getCompany(), trackResult.getEntity().getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), trackResult.getEntity(), entityService);
         EntitySummaryBean summary = mediationFacade.getEntitySummary(su.getCompany(), trackResult.getEntity().getMetaKey());
-        waitForFirstSearchResult(su.getCompany(), trackResult.getEntity().getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), trackResult.getEntity(), entityService);
         assertNotNull(summary);
         assertSame("change logs were not expected", 0, summary.getChanges().size());
         assertNotNull("Search record not received", summary.getEntity().getSearchKey());
         // Check we can find the Event in ElasticSearch
-        doEsQuery(summary.getEntity(), inputBean.getEvent(), 1);
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), inputBean.getEvent(), 1);
 
         // Not flagged as meta only so will not appear in the search index until a log is created
         inputBean = new EntityInputBean(fo.getName(), "wally", inputBean.getDocumentName(), now, "ZZZ999");
@@ -534,8 +465,8 @@ public class TestFdIntegration {
         assertSame("No change logs were expected", 0, summary.getChanges().size());
         assertEquals(null, summary.getEntity().getSearch());
         // Check we can't find the Event in ElasticSearch
-        doEsQuery(summary.getEntity(), "ZZZ999", 0);
-        deleteEsIndex(IndexHelper.parseIndex(summary.getEntity()));
+        EsIntegrationHelper.doEsQuery(summary.getEntity(), "ZZZ999", 0);
+        EsIntegrationHelper.deleteEsIndex(IndexHelper.parseIndex(summary.getEntity()));
     }
 
     @Test
@@ -546,22 +477,22 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("rebuildTest"));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "RBSearch", new DateTime(), "ABC123");
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
         TrackResultBean auditResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = entityService.getEntity(su.getCompany(), auditResult.getEntity().getMetaKey());
-        waitForFirstSearchResult(su.getCompany(), entity);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
-        doEsQuery(entity, "*");
+        EsIntegrationHelper.doEsQuery(entity, "*");
 
         // Rebuild....
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
         Long lResult = adminService.doReindex(fo).get();
-        waitForFirstSearchResult(su.getCompany(), entity);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
         assertNotNull(lResult);
         assertEquals(1l, lResult.longValue());
 
-        doEsQuery(entity, "*");
+        EsIntegrationHelper.doEsQuery(entity, "*");
 //        deleteEsIndex(IndexHelper.parseIndex(entity));
 
     }
@@ -593,15 +524,15 @@ public class TestFdIntegration {
         logger.info("Start-");
         watch.start();
         while (i < max) {
-            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), getSimpleMap("blah", i))).getEntity();
+            mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getSimpleMap("blah", i))).getEntity();
 
             i++;
         }
-        waitForLogCount(su.getCompany(), entity, max);
-        waitForFirstSearchResult(su.getCompany(), metaKey);
+        Helper.waitForLogCount(su.getCompany(), entity, max, entityService);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         watch.stop();
-        doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".blah", "*", 1);
+        EsIntegrationHelper.doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".blah", "*", 1);
 //        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
 
@@ -619,41 +550,41 @@ public class TestFdIntegration {
         // Entity is suppressed in the graph.
         exception.expect(NotFoundException.class);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitAWhile("track_IgnoreGraphAndCheckSearch", 6000);
+        Helper.waitAWhile("track_IgnoreGraphAndCheckSearch", 6000);
 
         // Entity IS indexed in fd-search
-        doEsQuery(result.getEntity(), "*", 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 1);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124")
                 .setTrackSuppressed(true)
                 .setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
-        waitAWhile("2nd Entity sent to fd-search");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
-        doEsQuery(result.getEntity(), "*", 2);
+        Helper.waitAWhile("2nd Entity sent to fd-search");
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 2);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
         entityInput.setTrackSuppressed(true);
         entityInput.setEntityOnly(true);
         Entity entity = mediationFacade.trackEntity(su.getCompany(), entityInput).getEntity();
         assertNull(entity.getMetaKey());
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         // Updating the same caller ref should not create a 3rd record
-        doEsQuery(result.getEntity(), "*", 2);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 2);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC124");
         entityInput.setTrackSuppressed(true);
         entityInput.setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
-        doEsQuery(result.getEntity(), "*", 2);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 2);
 
         entityInput = new EntityInputBean(fortress.getName(), "wally", entityInput.getDocumentName(), new DateTime(), "ABC125");
         entityInput.setTrackSuppressed(true);
         entityInput.setEntityOnly(true);
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
-        doEsQuery(result.getEntity(), "*", 3);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 3);
 //        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
 
     }
@@ -673,7 +604,7 @@ public class TestFdIntegration {
         DateTime fUpdateDate2 = new DateTime(Timestamp.valueOf(fUpdate2));
 
         EntityInputBean entityInput = new EntityInputBean(fo.getName(), "wally", "CancelDoc", createdDate, "ABC123");
-        ContentInputBean content = new ContentInputBean("wally", createdDate, getRandomMap());
+        ContentInputBean content = new ContentInputBean("wally", createdDate, Helper.getRandomMap());
         entityInput.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         entityInput.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         entityInput.setContent(content);
@@ -682,17 +613,17 @@ public class TestFdIntegration {
         assertEquals("Fortress Create date did not match", createdDate.getMillis(), result.getEntity().getFortressCreatedTz().getMillis());
         DateTime fdWhen = new DateTime(result.getEntity().getDateCreated());
         assertNotEquals("FlockData's when date should be the current year", createdDate.getYear(), fdWhen.getYear());
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
         // ensure non-analysed tags work
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         // Analyzed tags require exact match...
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
-        doEsQuery(result.getEntity(), "happy days", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), "happy days", 1);
         // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        content = new ContentInputBean("wally", fUpdateDate2, getRandomMap());
+        content = new ContentInputBean("wally", fUpdateDate2, Helper.getRandomMap());
         entityInput.getTags().clear();
         entityInput.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         entityInput.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
@@ -706,7 +637,7 @@ public class TestFdIntegration {
         EntityLog lastLog = logService.getLastLog(entity);
         assertEquals("Second Update not recorded", Long.valueOf(fUpdateDate2.getMillis()), lastLog.getFortressWhen());
 
-        waitAWhile("Waiting for search to affect");
+        Helper.waitAWhile("Waiting for search to affect");
 
         Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         assertEquals(2, tags.size());
@@ -722,31 +653,31 @@ public class TestFdIntegration {
         assertTrue("Did not find the sad tag", sadFound);
         // We now have 2 logs, sad tags and no happy tags
 
-        String json = doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
+        String json = EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
         Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
         Long searchCreated = Long.parseLong(searchDoc.get(EntitySearchSchema.CREATED).toString());
         Long searchUpdated = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
         assertTrue("Fortress update was not set in to searchDoc", searchUpdated > 0);
         assertEquals("Created date mismatch", createdDate.getMillis(), searchCreated.longValue());
         assertEquals("Last Change date mismatch: expected " + fUpdate2 + " was " + new DateTime(searchUpdated), fUpdateDate2.getMillis(), searchUpdated.longValue());
-        doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
-        doEsTermQuery(entity, EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
-        doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingb.tag.code.facet", "happy days", 0);
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingb.tag.code.facet", "happy days", 0);
 
         // Cancel Log - this will remove the sad tags and leave us with happy tags
         mediationFacade.cancelLastLog(su.getCompany(), result.getEntity());
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         Collection<EntityTag> entityTags = entityTagService.getEntityTags(result.getEntity());
         assertEquals(2, entityTags.size());
 
         // These should have been added back in due to the cancel operation
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
 
         // These were removed in the cancel
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 0);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.code", "Sad Days", 0);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.code", "Days Bay", 0);
 
 //        deleteEsIndex(IndexHelper.parseIndex(entity));
     }
@@ -759,20 +690,20 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("Cameron");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tag_UniqueKeySearch"));
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "UniqueKeySearch", new DateTime(), "tag_UniqueKeySearch");
-        ContentInputBean log = new ContentInputBean("wally", new DateTime(), getRandomMap());
+        ContentInputBean log = new ContentInputBean("wally", new DateTime(), Helper.getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
         inputBean.setContent(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code", "days", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Happy Days", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingc.tag.code", "days", 1);
 //        deleteEsIndex(IndexHelper.parseIndex(result.getEntity()));
     }
 
@@ -786,13 +717,13 @@ public class TestFdIntegration {
 
         // FortressUser cannot be resolved from the entity or the log
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), null, "UniqueKey", new DateTime(), "ABC123");
-        ContentInputBean log = new ContentInputBean(null, new DateTime(), getRandomMap());
+        ContentInputBean log = new ContentInputBean(null, new DateTime(), Helper.getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.setContent(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         // ensure that non-analysed tags work
-        doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
+        EsIntegrationHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 1);
         QueryParams queryParams = new QueryParams();
         queryParams.setCompany(su.getCompany().getName());
         queryParams.setFortress(fo.getName());
@@ -814,18 +745,18 @@ public class TestFdIntegration {
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC123")
                 .setTrackSuppressed(true)
-                .setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+                .setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
         // First entity and log, but not stored in graph
         mediationFacade.trackEntity(su.getCompany(), inputBean); // Expect a mock result as we're not tracking
 
         inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", new DateTime(), "ABC124")
-                .setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+                .setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
 
-        waitForFirstSearchResult(su.getCompany(), entity); // 2nd document in the index
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery(entity, "*", 2);
+        EsIntegrationHelper.doEsQuery(entity, "*", 2);
 
         QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
@@ -843,21 +774,21 @@ public class TestFdIntegration {
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("QueryTest"));
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestQuery", new DateTime(), "ABC123");
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity()); // 2nd document in the index
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService); // 2nd document in the index
 
         inputBean = new EntityInputBean(fo.getName(), "wally", inputBean.getDocumentName(), new DateTime(), "ABC124");
-        inputBean.setContent(new ContentInputBean("wally", new DateTime(), getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", new DateTime(), Helper.getRandomMap()));
         result = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
 
-        waitForFirstSearchResult(su.getCompany(), entity); // 2nd document in the index
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService); // 2nd document in the index
         // We have one with a metaKey and one without
-        doEsQuery(entity, "*", 2);
+        EsIntegrationHelper.doEsQuery(entity, "*", 2);
 
         QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
@@ -887,10 +818,10 @@ public class TestFdIntegration {
 
         EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "TestTrack", fortressDateCreated, "ABC123");
         inputBean.setLastChange(lastUpdated.toDate());
-        inputBean.setContent(new ContentInputBean("wally", lastUpdated, getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", lastUpdated, Helper.getRandomMap()));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
         Entity entity = result.getEntity();
 
@@ -901,7 +832,7 @@ public class TestFdIntegration {
         assertEquals("LogDate not in Fortress TZ", 0, lastUpdated.compareTo(log.getFortressWhen(ftz)));
 
         // We have one with a metaKey and one without
-        doEsQuery(entity, "*", 1);
+        EsIntegrationHelper.doEsQuery(entity, "*", 1);
 
         QueryParams qp = new QueryParams(fo.getDefaultSegment());
         qp.setSearchText("*");
@@ -949,7 +880,7 @@ public class TestFdIntegration {
         Entity entity = mediationFacade
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         // Second Document
         entityInputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime());
@@ -962,7 +893,7 @@ public class TestFdIntegration {
                 .trackEntity(su.getCompany(), entityInputBean)
                 .getEntity();
 
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         MatrixInputBean matrixInputBean = new MatrixInputBean();
         matrixInputBean.setQueryString("*");
@@ -1022,22 +953,22 @@ public class TestFdIntegration {
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntity().getMetaKey());
 
-        EntityLog resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), getSimpleMap("who", "andy"))).getCurrentLog();
+        EntityLog resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), Helper.getSimpleMap("who", "andy"))).getCurrentLog();
         assertNotNull(resultBean);
 
-        waitForFirstSearchResult(su.getCompany(), entity);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
-        doEsQuery(entity, "andy");
+        EsIntegrationHelper.doEsQuery(entity, "andy");
 
         inputBean = new EntityInputBean(iFortress.getName(), "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setSearchSuppressed(true);
         TrackResultBean noIndex = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity noIndexEntity = entityService.getEntity(su.getCompany(), noIndex.getEntity().getMetaKey());
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", noIndexEntity.getMetaKey(), new DateTime(), getSimpleMap("who", "bob")));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", noIndexEntity.getMetaKey(), new DateTime(), Helper.getSimpleMap("who", "bob")));
         // Bob's not there because we said we didn't want to index that entity
-        doEsQuery(entity, "bob", 0);
-        doEsQuery(entity, "andy");
+        EsIntegrationHelper.doEsQuery(entity, "bob", 0);
+        EsIntegrationHelper.doEsQuery(entity, "andy");
     }
 
     @Test
@@ -1059,12 +990,12 @@ public class TestFdIntegration {
         assertNotNull(tags);
         assertEquals(1, tags.size());
 
-        EntityLog resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), getRandomMap())).getCurrentLog();
+        EntityLog resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), Helper.getRandomMap())).getCurrentLog();
         assertNotNull(resultBean);
 
-        waitForFirstSearchResult(su.getCompany(), entity);
-        doEsTermQuery(entity, "tag." + relationshipName + ".tag.code.facet", "Code Test Works", 1);
-        doEsQuery(entity, "code test works", 1);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
+        EsIntegrationHelper.doEsTermQuery(entity, "tag." + relationshipName + ".tag.code.facet", "Code Test Works", 1);
+        EsIntegrationHelper.doEsQuery(entity, "code test works", 1);
 
     }
 
@@ -1079,45 +1010,45 @@ public class TestFdIntegration {
         DateTime dt = new DateTime().toDateTime();
         DateTime firstDate = dt.minusDays(2);
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", firstDate, "clb1");
-        inputBean.setContent(new ContentInputBean("olivia@sunnybell.com", firstDate, getSimpleMap("house", "house1")));
+        inputBean.setContent(new ContentInputBean("olivia@sunnybell.com", firstDate, Helper.getSimpleMap("house", "house1")));
         String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
 
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
-        waitForFirstSearchResult(su.getCompany(), entity.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         // Initial create
-        doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
 
         // Now make an amendment
         EntityLog secondLog =
-                mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), getSimpleMap("house", "house2"))).getCurrentLog();
+                mediationFacade.trackLog(su.getCompany(), new ContentInputBean("isabella@sunnybell.com", entity.getMetaKey(), firstDate.plusDays(1), Helper.getSimpleMap("house", "house2"))).getCurrentLog();
         assertNotSame(0l, secondLog.getFortressWhen());
 
         Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(2, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey);
 
-        waitAWhile("cancel function step 1");
+        Helper.waitAWhile("cancel function step 1");
         Assert.assertEquals("Last Updated dates don't match", secondLog.getFortressWhen().longValue(), entity.getFortressUpdatedTz().getMillis());
-        doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
 
         // Now cancel the last log
         mediationFacade.cancelLastLog(su.getCompany(), entity);
-        waitAWhile("Cancel function step 2");
+        Helper.waitAWhile("Cancel function step 2");
         logs = entityService.getEntityLogs(fortress.getCompany(), entity.getMetaKey());
         assertEquals(1, logs.size());
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
-        waitAWhile("Cancel 2");
+        Helper.waitAWhile("Cancel 2");
         // Should have restored the content back to house1
-        doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
+        EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
         // DAT-96
         mediationFacade.cancelLastLog(su.getCompany(), entity);
         logs = entityService.getEntityLogs(entity);
         assertEquals(true, logs.isEmpty());
-        waitAWhile("Cancel function step 3");
-        doEsQuery(entity, "*", 0);
+        Helper.waitAWhile("Cancel function step 3");
+        EsIntegrationHelper.doEsQuery(entity, "*", 0);
 
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
         assertEquals("Search Key set to callerRef", entity.getCode(), entity.getSearchKey());
@@ -1136,17 +1067,17 @@ public class TestFdIntegration {
         TrackResultBean indexedResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
         Entity entity = entityService.getEntity(su.getCompany(), indexedResult.getEntity().getMetaKey());
 
-        Map<String, Object> what = getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
+        Map<String, Object> what = Helper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         entity = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), what)).getEntity();
-        waitForFirstSearchResult(su.getCompany(), entity);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         String indexName = entity.getFortress().getRootIndex();
-        getMapping(indexName);
+        EsIntegrationHelper.getMapping(indexName);
 
         // Completion only works as "Starts with"
-        doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(), "des", 1, "didn't find the tag");
-        doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(),"descr", 1, "didn't find the tag");
+        EsIntegrationHelper.doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(), "des", 1, "didn't find the tag");
+        EsIntegrationHelper.doCompletionQuery(IndexHelper.parseIndex(entity), entity.getType(), "descr", 1, "didn't find the tag");
         // This is a description
         // 123456789012345678901
 
@@ -1164,65 +1095,74 @@ public class TestFdIntegration {
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
         EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
         inputBean.addTag(tagInputA);
-        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+        inputBean.setContent(new ContentInputBean("blah", Helper.getRandomMap()));
         Entity entityA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        waitForFirstSearchResult(su.getCompany(), entityA.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entityA, entityService);
 
         TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
         inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
         // Without content, a search doc will not be created
-        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
+        inputBean.setContent(new ContentInputBean("blah", Helper.getRandomMap()));
 
         Entity entityB = mediationFacade.trackEntity(fortress, inputBean).getEntity();
-        waitForFirstSearchResult(su.getCompany(), entityB.getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entityB, entityService);
         Tag tagA = tagService.findTag(su.getCompany(), null, tagInputA.getCode());
         assertNotNull(tagA);
         Tag tagB = tagService.findTag(su.getCompany(), null, tagInputB.getCode());
         assertNotNull(tagB);
 
-        doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "taga", 1);
-        doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "tagb", 1);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "taga", 1);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "tagb", 1);
 
         mediationFacade.mergeTags(su.getCompany(), tagA.getId(), tagB.getId());
-        waitAWhile("Merge Tags", 4000);
+        Helper.waitAWhile("Merge Tags", 4000);
         // We should not find anything against tagA",
-        doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "taga", 0);
-        doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "taga", 0);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "taga", 0);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "taga", 0);
         // Both docs will be against TagB
-        doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "tagb", 1);
-        doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "tagb", 1);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "tagb", 1);
+        EsIntegrationHelper.doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "tagb", 1);
 
     }
 
     @Test
-    public void amqp_TrackEntity() throws Exception {
+    public void amqp_TrackEntityBatch() throws Exception {
         //assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("amqp_TrackEntity", false));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
-
-        inputBean.setContent(new ContentInputBean("blah", getRandomMap()));
-        //Properties configProperties = PropertiesLoaderUtils.loadProperties(new ClassPathResource("/config.properties"));
+        Properties properties = new Properties();
         properties.put("apiKey", su.getApiKey());
-
         ClientConfiguration configuration = new ClientConfiguration(properties);
         configuration.setAmqp(true, false);
 
-        AmqpHelper helper = new AmqpHelper(configuration);
+        AmqpServices amqpServices = new AmqpServices(configuration);
 
-        // ToDo: We're not tracking the response code
-        Collection<EntityInputBean> batchBeans = new ArrayList<>();
-        batchBeans.add(inputBean);
-        helper.publish(batchBeans);
-        waitAWhile("AMQP", 8000);
-        helper.close();
-        Entity entityA = entityService.findByCode(fortress, inputBean.getDocumentName(), inputBean.getCode());
-        assertNotNull(entityA);
+        int required = 10;
+        int count = 0;
+        Collection<EntityInputBean> entityBatch = new ArrayList<>();
 
+        while (count < required){
+            EntityInputBean beanA = Helper
+                    .getEntity(fortress, "olivia@sunnybell.com", "DocType", "AAA"+count,
+                            new ContentInputBean("blah", Helper.getRandomMap()));
+            entityBatch.add(beanA);
+
+            count ++;
+        }
+
+        //Properties configProperties = PropertiesLoaderUtils.loadProperties(new ClassPathResource("/config.properties"));
+        // ToDo: We're not checking the response codes
+        amqpServices.publish(entityBatch);
+        Helper.waitAWhile("AMQP", 8000);
+        amqpServices.close();
+        for (EntityInputBean entityInputBean : entityBatch) {
+            assertNotNull(""+entityInputBean.toString()
+                    ,entityService.findByCode(fortress, entityInputBean.getDocumentName(), entityInputBean.getCode()));
+        }
 
     }
 
@@ -1237,7 +1177,7 @@ public class TestFdIntegration {
             //doEsQuery(IndexHelper.PREFIX + "monowai.bulkloada" + i+".companynode", "*", -1);
         //}
 
-        waitAWhile("Wait {} secs for index to delete ");
+        Helper.waitAWhile("Wait {} secs for index to delete ");
 
         SystemUser su = registerSystemUser("Gina");
 
@@ -1280,7 +1220,7 @@ public class TestFdIntegration {
                         requests++;
                         watch.suspend();
                         fortressWatch.suspend();
-                        waitForFirstSearchResult(su.getCompany(), metaKey);
+                        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), arb.getEntity(), entityService);
                         watch.resume();
                         fortressWatch.resume();
                     } // searchCheck done
@@ -1323,16 +1263,16 @@ public class TestFdIntegration {
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("TestFortress"));
 
-        ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), getSimpleMap("who", searchFor));
+        ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), Helper.getSimpleMap("who", searchFor));
         EntityInputBean input = new EntityInputBean("TestFortress", "mikeTest", "Query", new DateTime(), "abzz");
         input.setContent(log);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        waitForFirstSearchResult(su.getCompany(), result.getEntity().getMetaKey());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
         QueryParams q = new QueryParams(fortress.getDefaultSegment())
                 .setSearchText(searchFor);
-        doEsQuery(result.getEntity(), searchFor, 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), searchFor, 1);
 
         String qResult = runQuery(q);
         assertNotNull(qResult);
@@ -1343,7 +1283,7 @@ public class TestFdIntegration {
     @Test
     public void utfText() throws Exception {
         assumeTrue(runMe);
-        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("Utf8");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test"));
@@ -1354,8 +1294,8 @@ public class TestFdIntegration {
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         logger.info("Track request made. About to wait for first search result");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
-        doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
     }
 
     @Test
@@ -1369,7 +1309,7 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("GeoFortress"));
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime(), "abc");
-        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
+        ContentInputBean content = new ContentInputBean(Helper.getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
         String country = "USA";
         String city = "Los Angeles";
@@ -1388,16 +1328,16 @@ public class TestFdIntegration {
         // Institution<-city<-state<-country
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityInput);
         assertNotNull(resultBean);
-        waitForFirstSearchResult(su.getCompany(), resultBean.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), resultBean.getEntity(), entityService);
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateCode", "ca", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateName", "california", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateCode", "ca", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.stateName", "california", 1);
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryCode", "usa", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryName", "united states", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryCode", "usa", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.countryName", "united states", 1);
 
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityCode", "la", 1);
-        doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityName", "los angeles", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityCode", "la", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBean.getEntity(), "tag.owns.institution.geo.cityName", "los angeles", 1);
 
     }
 
@@ -1411,7 +1351,7 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("geo_CachingMultiLocations"));
 
         EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime());
-        ContentInputBean content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
+        ContentInputBean content = new ContentInputBean(Helper.getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
 
         String la = "Los Angeles";
@@ -1433,7 +1373,7 @@ public class TestFdIntegration {
 
         // Create second one with different geo data
         entityInput = new EntityInputBean(fortress.getName(), "geoTest", "geoTest", new DateTime());
-        content = new ContentInputBean(getSimpleMap("Athlete", "Katerina Neumannová"));
+        content = new ContentInputBean(Helper.getSimpleMap("Athlete", "Katerina Neumannová"));
         entityInput.setContent(content);
         institutionTag = new TagInputBean("mikecorpb", "Institution", "owns");
         // Institution is in a city
@@ -1447,14 +1387,14 @@ public class TestFdIntegration {
 
         TrackResultBean resultBeanB = mediationFacade.trackEntity(su.getCompany(), entityInput);
 
-        waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity());
-        waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), resultBeanA.getEntity(), entityService);
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), resultBeanB.getEntity(), entityService);
 
-        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", california.getCode().toLowerCase(), 1);
-        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityName", losAngeles.getName().toLowerCase(), 1);
-        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", "tx", 1);
-        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityCode", "dallas", 1);
-        doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.countryCode", unitedStates.getCode().toLowerCase(), 2);
+        EsIntegrationHelper.doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", california.getCode().toLowerCase(), 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityName", losAngeles.getName().toLowerCase(), 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.stateCode", "tx", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.cityCode", "dallas", 1);
+        EsIntegrationHelper.doEsFieldQuery(resultBeanA.getEntity(), "tag.owns.institution.geo.countryCode", unitedStates.getCode().toLowerCase(), 2);
     }
 
     @Test
@@ -1462,7 +1402,7 @@ public class TestFdIntegration {
         // DAT-347 Check content retrieved from KV Store when storage is disabled
         assumeTrue(runMe);
         logger.debug("## store_DisabledByCallerRef");
-        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_DisabledByCallerRef");
 
         FortressInputBean fib = new FortressInputBean("store_DisabledByCallerRef");
@@ -1475,19 +1415,19 @@ public class TestFdIntegration {
         input.setContent(content);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        waitAWhile("Async log is still processing");
+        Helper.waitAWhile("Async log is still processing");
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
         assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
         // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
         logger.info("Track request made. About to wait for first search result");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(input.getCode(), entity.getSearchKey());
-        doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
@@ -1510,7 +1450,7 @@ public class TestFdIntegration {
         // DAT-347 Check content retrieved from KV Store when storage is disabled
         assumeTrue(runMe);
         logger.debug("## store_DisabledByWithNoCallerRef");
-        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_DisabledByWithNoCallerRef");
 
         FortressInputBean fib = new FortressInputBean("store_DisabledByWithNoCallerRef");
@@ -1523,17 +1463,17 @@ public class TestFdIntegration {
         input.setContent(content);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        waitAWhile("Async log is still processing");
+        Helper.waitAWhile("Async log is still processing");
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
         assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(entity.getMetaKey(), entity.getSearchKey());
-        doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
@@ -1556,7 +1496,7 @@ public class TestFdIntegration {
         // DAT-353 Track in an entity. Validate the content. Update the content. Validate the
         //         update is found.
         assumeTrue(runMe);
-        Map<String, Object> json = getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("## store_DisabledReprocessContent");
 
         FortressInputBean fib = new FortressInputBean("store_DisabledReprocessContent");
@@ -1568,31 +1508,31 @@ public class TestFdIntegration {
         input.setContent(content);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        waitAWhile("Async log is still processing");
+        Helper.waitAWhile("Async log is still processing");
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
         logger.info("Track request made. About to wait for first search result");
-        waitForFirstSearchResult(su.getCompany(), result.getEntity());
+        EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         // Can we find the changed data in ES?
-        doEsQuery(result.getEntity(), content.getWhat().get("Athlete").toString(), 1);
+        EsIntegrationHelper.doEsQuery(result.getEntity(), content.getWhat().get("Athlete").toString(), 1);
         // And are we returning the same data from the KV Service?
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
         assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
-        content.setWhat(getSimpleMap("Athlete", "Michael Phelps"));
+        content.setWhat(Helper.getSimpleMap("Athlete", "Michael Phelps"));
         input.setContent(content);
         // Update existing entity
         result = mediationFacade.trackEntity(su.getCompany(), input);
         entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         entityLog = entityService.getLastEntityLog(result.getEntity().getId());
         assertEquals(entity.getFortressCreatedTz().getMillis(), entityLog.getFortressWhen().longValue());
-        waitAWhile("Async log is still processing");
-        waitAWhile("Waiting for second update to occur");
+        Helper.waitAWhile("Async log is still processing");
+        Helper.waitAWhile("Waiting for second update to occur");
 
         kvContent = kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
@@ -1615,7 +1555,7 @@ public class TestFdIntegration {
             engineConfig.setStoreEnabled("false");
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("validate_MismatchSubsequentValue"));
-            Map<String, Object> json = getSimpleMap("NumAsString", "1234");
+            Map<String, Object> json = Helper.getSimpleMap("NumAsString", "1234");
 
             // Passing in a string "number", we want this to be preserved
             ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
@@ -1623,23 +1563,23 @@ public class TestFdIntegration {
             input.setContent(content);
 
             TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-            waitForFirstSearchResult(su.getCompany(), result.getEntity());
+            EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
             Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
             assertNotNull(entity.getSearchKey());
             KvContent kvc = kvService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "1234");
 
-            json = getSimpleMap("NumAsString", "NA");
+            json = Helper.getSimpleMap("NumAsString", "NA");
             content = new ContentInputBean("store_Disabled", new DateTime(), json);
             // Create a second entity
             EntityInputBean inputB = new EntityInputBean(fortress.getName(), "mikeTest", "mismatch", new DateTime(), "store_Disabledxx");
             inputB.setContent(content);
 
             result = mediationFacade.trackEntity(su.getCompany(), inputB);
-            entity = waitForFirstSearchResult(su.getCompany(), result.getEntity());
+            entity = EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
 
-            doEsQuery(result.getEntity(), "*", 2);
+            EsIntegrationHelper.doEsQuery(result.getEntity(), "*", 2);
 
             kvc = kvService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
@@ -1730,19 +1670,19 @@ public class TestFdIntegration {
         // division, interest and category
         assertEquals(3, termSearchTag.getParent().size());
 
-        waitAWhile("letting search catchup");
+        Helper.waitAWhile("letting search catchup");
 
-        doEsFieldQuery(entity, "metaKey", result.getMetaKey(), 1);
+        EsIntegrationHelper.doEsFieldQuery(entity, "metaKey", result.getMetaKey(), 1);
 
         // Assert that we can find the category as a nested tag in ES
-        doEsNestedQuery(entity, "tag.viewed.term", "tag.viewed.term.parent.category.code", "cars", 1);
+        EsIntegrationHelper.doEsNestedQuery(entity, "tag.viewed.term", "tag.viewed.term.parent.category.code", "cars", 1);
 
 
     }
 
     @Test
     public void segments_ExistInElasticSearch() throws Exception {
-        //assumeTrue(runMe); // Assets that an entity is created in it's exact segement and can be found across segments
+        assumeTrue(runMe); // Assets that an entity is created in it's exact segement and can be found across segments
 
         logger.info("## segments_ExistInElasticSearch");
 
@@ -1768,32 +1708,32 @@ public class TestFdIntegration {
             EntityInputBean entityInputBean =
                     new EntityInputBean(docType, "abc")
                             .setSegment(segment2014.getCode())
-                            .setContent(new ContentInputBean(getRandomMap()));
+                            .setContent(new ContentInputBean(Helper.getRandomMap()));
 
             Entity entity2014 = mediationFacade
                     .trackEntity(segment2014, entityInputBean)
                     .getEntity();
 
-            waitForFirstSearchResult(su.getCompany(), entity2014);
+            EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity2014, entityService);
             assertEquals(segment2014.getCode(), entity2014.getSegment().getCode());
 
             entityInputBean =
                     new EntityInputBean(docType, "cba")
                             .setSegment(segment2015.getCode())
-                            .setContent(new ContentInputBean(getRandomMap()));
+                            .setContent(new ContentInputBean(Helper.getRandomMap()));
 
             Entity entity2015 = mediationFacade
                     .trackEntity(segment2015, entityInputBean)
                     .getEntity();
 
             assertEquals(segment2015.getCode(), entity2015.getSegment().getCode());
-            waitForFirstSearchResult(su.getCompany(), entity2015);
+            EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), entity2015, entityService);
 
-            doEsQuery(entity2014, "*", 1);
-            doEsQuery(entity2015, "*", 1);
+            EsIntegrationHelper.doEsQuery(entity2014, "*", 1);
+            EsIntegrationHelper.doEsQuery(entity2015, "*", 1);
 
             // Find both docs across segmented indexes
-            doEsQuery(IndexHelper.parseIndex(fortress.getRootIndex()) + ".*", entity2014.getType(), "*", 2);
+            EsIntegrationHelper.doEsQuery(IndexHelper.parseIndex(fortress.getRootIndex()) + ".*", entity2014.getType(), "*", 2);
 
             // Ensure we can find the entity content when it is stored in a segmented ES index
             EntityLog lastLog = entityService.getLastEntityLog(entity2014.getId());
@@ -1805,7 +1745,7 @@ public class TestFdIntegration {
     }
 
     private SystemUser registerSystemUser(String companyName, String userName) throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AUTH_MIKE);
+        SecurityContextHolder.getContext().setAuthentication(Helper.AUTH_MIKE);
         Company c = companyService.create(companyName);
         SystemUser su = regService.registerSystemUser(c, new RegistrationBean(companyName, userName));
         // creating company alters the schema that sometimes throws a heuristic exception.
@@ -1820,13 +1760,13 @@ public class TestFdIntegration {
         return registerSystemUser(company, loginToCreate);
     }
 
-    private static String FD_SEARCH = "http://localhost:9081";
+    static String FD_SEARCH = "http://localhost:9081";
 
     private String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHttpHeaders(null, "mike", "123");
+        HttpHeaders httpHeaders = Helper.getHttpHeaders(null, "mike", "123");
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
@@ -1841,7 +1781,7 @@ public class TestFdIntegration {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        HttpHeaders httpHeaders = getHttpHeaders(null, "mike", "123");
+        HttpHeaders httpHeaders = Helper.getHttpHeaders(null, "mike", "123");
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
@@ -1853,7 +1793,7 @@ public class TestFdIntegration {
     }
 
     private TrackResultBean createLog(Company company, String metaKey, int log) throws Exception {
-        return mediationFacade.trackLog(company, new ContentInputBean("olivia@sunnybell.com", metaKey, new DateTime(), getSimpleMap("who", log)));
+        return mediationFacade.trackLog(company, new ContentInputBean("olivia@sunnybell.com", metaKey, new DateTime(), Helper.getSimpleMap("who", log)));
     }
 
     private void validateLogsIndexed(ArrayList<Long> list, int countMax, int expectedLogCount) throws Exception {
@@ -1876,40 +1816,6 @@ public class TestFdIntegration {
             fortress++;
         }
 
-    }
-
-    private Entity waitForFirstSearchResult(Company company, Entity entity) throws Exception {
-        return waitForFirstSearchResult(company, entity.getMetaKey());
-    }
-
-    private Entity waitForFirstSearchResult(Company company, String metaKey) throws Exception {
-        // Looking for the first searchKey to be logged against the entity
-        int i = 1;
-
-        Thread.yield();
-        Entity entity = entityService.getEntity(company, metaKey);
-        if (entity == null)
-            return null;
-
-        int timeout = 10;
-
-        while (entity.getSearch() == null && i <= timeout) {
-
-            entity = entityService.getEntity(company, metaKey);
-            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
-            if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
-                waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
-            else if (entity.getSearch() == null)
-                Thread.yield(); // Small pause to let things happen
-
-            i++;
-        }
-
-        if (entity.getSearch() == null) {
-            logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
-            fail("Search reply not received from fd-search");
-        }
-        return entity;
     }
 
     private void doSearchTests(int auditCount, ArrayList<Long> list) throws Exception {
@@ -1937,9 +1843,9 @@ public class TestFdIntegration {
                     assertNotNull(entityLog);
 
                     assertTrue("fortress " + fortress + " run " + x + " entity " + entity.getMetaKey() + " - " + entityLog.getId(), entityLog.isIndexed());
-                    String result = doEsTermQuery(entity, EntitySearchSchema.META_KEY, entity.getMetaKey(), 1, true);
+                    String result = EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.META_KEY, entity.getMetaKey(), 1, true);
                     totalSearchRequests++;
-                    validateResultFieds(result);
+                    EsIntegrationHelper.validateResultFieds(result);
 
                     x++;
                 } while (x < auditCount);
@@ -1953,386 +1859,6 @@ public class TestFdIntegration {
         logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
     }
 
-    private ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
+    //private ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
-    private void validateResultFieds(String result) throws Exception {
-        JsonNode node = objectMapper.readTree(result);
-
-        assertNotNull(node.get(EntitySearchSchema.CREATED));
-        assertNotNull(node.get(EntitySearchSchema.WHO));
-        assertNotNull(node.get(EntitySearchSchema.UPDATED));
-        assertNotNull(node.get(EntitySearchSchema.META_KEY));
-        assertNotNull(node.get(EntitySearchSchema.DOC_TYPE));
-        assertNotNull(node.get(EntitySearchSchema.FORTRESS));
-
-    }
-
-    private String doEsNestedQuery(Entity entity, String path, String field, String term, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
-        // Let's assert that
-        int runCount = 0, nbrResult;
-        logger.debug("doEsQuery {}", term);
-        JestResult jResult;
-        do {
-            if (runCount > 0)
-                waitAWhile("Sleep {} for fd-search to catch up");
-            String query = "{\n" +
-                    "  \"query\": {\n" +
-                    "    \"match_all\": {}\n" +
-                    "  },\n" +
-                    "  \"filter\": {\n" +
-                    "    \"nested\": {\n" +
-                    "      \"path\": \"" + path + "\",\n" +
-                    "      \"filter\": {\n" +
-                    "        \"bool\": {\n" +
-                    "          \"must\": [\n" +
-                    "            {\n" +
-                    "              \"term\": {\n" +
-                    "                \"" + field + "\": \"" + term + "\"\n" +
-                    "              }\n" +
-                    "            }\n" +
-                    "          ]\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
-
-            Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
-                    .build();
-
-            jResult = esClient.execute(search);
-            assertNotNull(jResult);
-            if (expectedHitCount == -1) {
-                assertEquals("Expected the index [" + entity + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
-                logger.debug("Confirmed index {} was deleted and empty", entity);
-                return null;
-            }
-            if (jResult.getErrorMessage() == null) {
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else {
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
-            }
-            runCount++;
-        } while (nbrResult != expectedHitCount && runCount < esTimeout);
-        logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
-
-        assertNotNull(jResult);
-        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
-
-        assertEquals(entity + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
-                expectedHitCount, nbrResult);
-        return jResult.getJsonString();
-    }
-
-    private String doEsQuery(Entity entity, String queryString) throws Exception {
-        return doEsQuery(entity, queryString, 1);
-    }
-    private String doEsQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doEsQuery(IndexHelper.parseIndex(entity), entity.getType(), queryString, expectedHitCount);
-    }
-
-    private String doEsQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
-        // Let's assert that
-        int runCount = 0, nbrResult;
-        logger.debug("doEsQuery {}", queryString);
-        JestResult jResult;
-        do {
-            if (runCount > 0)
-                waitAWhile("Sleep {} for fd-search to catch up");
-            String query = "{\n" +
-                    "    query: {\n" +
-                    "          query_string : {\n" +
-                    "              \"query\" : \"" + queryString + "\"" +
-                    "           }\n" +
-                    "      }\n" +
-                    "}";
-
-            Search search = new Search.Builder(query)
-                    .addIndex(index)
-                    .addType(IndexHelper.parseType(type))
-                    .build();
-
-            jResult = esClient.execute(search);
-            assertNotNull(jResult);
-            if (expectedHitCount == -1) {
-                assertEquals("Expected the index [" + index + "] to be deleted but message was [" + jResult.getErrorMessage() + "]", true, jResult.getErrorMessage().contains("IndexMissingException"));
-                logger.debug("Confirmed index {} was deleted and empty", index);
-                return null;
-            }
-            if (jResult.getErrorMessage() == null) {
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else {
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
-            }
-            runCount++;
-        } while (nbrResult != expectedHitCount && runCount < esTimeout);
-        logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
-
-        assertNotNull(jResult);
-        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
-
-        assertEquals(index + "\r\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
-                expectedHitCount, nbrResult);
-        return jResult.getJsonString();
-    }
-
-    private String getMapping(String indexName) throws Exception {
-        GetMapping mapping = new GetMapping.Builder()
-                .addIndex(indexName)
-                .build();
-
-        JestResult jResult = esClient.execute(mapping);
-        return jResult.getJsonString();
-    }
-
-    private String doEsTermQuery(Entity entity, String metaKey, String metaKey1, int i) throws Exception {
-        return doEsTermQuery(entity, metaKey, metaKey1, i, false);
-    }
-
-    private String doEsTermQuery(Entity entity, String field, String queryString, int expectedHitCount, boolean suppressLog) throws Exception {
-        // There should only ever be one document for a given metaKey.
-        // Let's assert that
-        int runCount = 0, nbrResult;
-        JestResult jResult;
-
-        do {
-            if (runCount > 0)
-                waitAWhile("Sleep {} for ES Query to work");
-            runCount++;
-            String query = "{\n" +
-                    "    query: {\n" +
-                    "          term : {\n" +
-                    "              \"" + field + "\" : \"" + queryString + "\"\n" +
-                    "           }\n" +
-                    "      }\n" +
-                    "}";
-            Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .addType(entity.getType().toLowerCase())
-                    .build();
-
-            jResult = esClient.execute(search);
-            String message = entity + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
-            assertNotNull(message, jResult);
-            if (jResult.getErrorMessage() == null) {
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
-
-        } while (nbrResult != expectedHitCount && runCount < esTimeout);
-
-        if (!suppressLog) {
-            logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-            logger.trace("searching index [{}] field [{}] for [{}]", entity, field, queryString);
-        }
-
-        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
-        assertEquals(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json), expectedHitCount, nbrResult);
-
-        if (nbrResult != 0) {
-            return jResult.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
-        } else {
-
-            return null;
-        }
-    }
-
-    private String doEsFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount);
-    }
-
-    /**
-     * Use this carefully. Due to ranked search results, you can get more results than you expect. If
-     * you are looking for an exact match then consider doEsTermQuery
-     *
-     * @param index            to search
-     * @param field            field containing queryString
-     * @param queryString      text to search for
-     * @param expectedHitCount result count
-     * @return query _source
-     * @throws Exception if expectedHitCount != actual hit count
-     */
-    private String doEsFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
-        // Let's assert that
-        int runCount = 0, nbrResult;
-
-        JestResult jResult;
-        do {
-            if (runCount > 0)
-                waitAWhile("Sleep {} for ES Query to work");
-
-            runCount++;
-            String query = "{\n" +
-                    "    query: {\n" +
-                    "          query_string : {\n" +
-                    "            default_field:   \"" + field + "\", query: \"" + queryString + "\"\n" +
-                    "           }\n" +
-                    "      }\n" +
-                    "}";
-            Search search = new Search.Builder(query)
-                    .addIndex(index)
-                    .addType(IndexHelper.parseType(type))
-                    .build();
-
-            jResult = esClient.execute(search);
-            String message = index + " - " + field + " - " + queryString + (jResult == null ? "[noresult]" : "\r\n" + jResult.getJsonString());
-            assertNotNull(message, jResult);
-            assertNotNull(message, jResult.getJsonObject());
-            assertNotNull(message, jResult.getJsonObject().getAsJsonObject("hits"));
-            assertNotNull(message, jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-            nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-        } while (nbrResult != expectedHitCount && runCount < esTimeout);
-
-        Object json = objectMapper.readValue(jResult.getJsonString(), Object.class);
-
-        logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        assertEquals("Unexpected hit count searching '" + index + "' for {" + queryString + "} in field {" + field + "}\n\r" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json),
-                expectedHitCount, nbrResult);
-        if (nbrResult == 0)
-            return "";
-        else
-            return jResult.getJsonObject()
-                    .getAsJsonObject("hits")
-                    .getAsJsonArray("hits")
-                    .getAsJsonArray()
-                    .iterator()
-                    .next()
-                    .getAsJsonObject().get("_source").toString();
-    }
-
-    public static HttpHeaders getHttpHeaders(final String apiKey, final String username, final String password) {
-
-        return new HttpHeaders() {
-            {
-                if (username != null && password != null) {
-                    String auth = username + ":" + password;
-                    byte[] encodedAuth = Base64.encodeBase64(
-                            auth.getBytes(Charset.forName("US-ASCII")));
-                    String authHeader = "Basic " + new String(encodedAuth);
-                    set("Authorization", authHeader);
-                } else if (apiKey != null)
-                    set("api-key", apiKey);
-                setContentType(MediaType.APPLICATION_JSON);
-                set("charset", "UTF-8");
-            }
-        };
-
-    }
-
-    /**
-     * Processing delay for threads and integration to complete. If you start getting sporadic
-     * Heuristic exceptions, chances are you need to call this routine to give other threads
-     * time to commit their work.
-     * Likewise, waiting for results from fd-search can take a while. We can't know how long this
-     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
-     *
-     * @param milliseconds to pause for
-     * @throws Exception
-     */
-    public static void waitAWhile(String message, long milliseconds) throws Exception {
-        logger.debug(message, milliseconds / 1000d);
-        Thread.yield();
-        Thread.sleep(milliseconds);
-
-    }
-
-    public static Map<String, Object> getSimpleMap(String key, Object value) {
-        Map<String, Object> result = new HashMap<>();
-        result.put(key, value);
-        return result;
-    }
-
-    public static Map<String, Object> getRandomMap() {
-        return getSimpleMap("Key", "Test" + System.currentTimeMillis());
-    }
-
-    public static Map<String, Object> getBigJsonText(int i) {
-        Map<String, Object> map = getSimpleMap("Key", "Random");
-        int count = 0;
-        do {
-            map.put("Key" + count, "Now is the time for all good men to come to the aid of the party");
-            count++;
-        } while (count < i);
-        return map;
-    }
-
-    EntityLog waitForLogCount(Company company, Entity entity, int expectedCount) throws Exception {
-        // Looking for the first searchKey to be logged against the entity
-        int i = 0;
-        int timeout = 100;
-        int count = 0;
-
-        while (i <= timeout) {
-            Entity updatedEntity = entityService.getEntity(company, entity.getMetaKey());
-            count = entityService.getLogCount(company, updatedEntity.getMetaKey());
-
-            EntityLog log = entityService.getLastEntityLog(company, updatedEntity.getMetaKey());
-            // We have at least one log?
-            if (count == expectedCount)
-                return log;
-            Thread.yield();
-            if (i > 20)
-                waitAWhile("Waiting {} seconds for the log to update");
-            i++;
-        }
-        if (i > 22)
-            logger.info("Wait for log got to [{}] for entityId [{}]", i,
-                    entity.getId());
-        throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
-    }
-
-    String doCompletionQuery(String index, String type, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
-        // There should only ever be one document for a given Entity.
-        // Let's assert that
-        int runCount = 0, nbrResult;
-        SuggestResult result;
-        int esTimeout = 5;
-
-        runCount++;
-        String query = "{" +
-                "    \"result\" : {\n" +
-                "        \"text\" : \"" + queryString + "\",\n" +
-                "        \"completion\" : {\n" +
-                "            \"field\" : \"" + EntitySearchSchema.ALL_TAGS + "\"\n" +
-                "        }\n" +
-                "    }" +
-                "}";
-
-
-        Suggest search = new Suggest.Builder(query)
-                .addIndex(index)
-                .addType(IndexHelper.parseType(type))
-                .build();
-        result = esClient.execute(search);
-        TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
-
-        List<SuggestResult.Suggestion> suggestions = result.getSuggestions("result");
-
-        for (SuggestResult.Suggestion suggestion : suggestions) {
-            assertEquals(expectedHitCount, suggestion.options.size());
-        }
-
-
-        return result.getJsonString();
-    }
 }

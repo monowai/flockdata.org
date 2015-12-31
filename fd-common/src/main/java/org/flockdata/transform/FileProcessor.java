@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ProfileConfiguration;
@@ -165,7 +165,7 @@ public class FileProcessor {
 
     private long processJsonTags(String fileName) throws FlockException {
         Collection<TagInputBean> tags;
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         long processed = 0;
         try {
             File file = new File(fileName);
@@ -224,7 +224,7 @@ public class FileProcessor {
 
             //String docType = mappable.getDataType();
             watch.start();
-            ObjectMapper om =FlockDataJsonFactory.getObjectMapper();
+            ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
             try {
 
                 if (stream != null)

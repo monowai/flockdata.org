@@ -38,7 +38,7 @@ import java.util.HashMap;
  * Date: 27/11/14
  * Time: 8:17 AM
  */
-public class AmqpHelper {
+public class AmqpServices {
     ConnectionFactory factory = new ConnectionFactory();
     Connection connection =null ;
     Channel channel  = null;
@@ -46,9 +46,9 @@ public class AmqpHelper {
     String queue;
     String routingKey;
     AMQP.BasicProperties.Builder builder;
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpHelper.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpServices.class);
 
-    public AmqpHelper (ClientConfiguration configuration) throws FlockException {
+    public AmqpServices(ClientConfiguration configuration) throws FlockException {
         factory.setHost(configuration.getAmqpHostAddr());
         factory.setUsername(configuration.getRabbitUser());
         factory.setPassword(configuration.getRabbitPass());
@@ -87,7 +87,7 @@ public class AmqpHelper {
                     connection.close();
 
             } catch (IOException e) {
-                logger.error("Unexpected", e);
+                logger.error("Unexpected. Don't care", e);
             }
     }
 

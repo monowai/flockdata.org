@@ -17,7 +17,27 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.test.functional;
+package org.flockdata.test.integration;
+
+import org.apache.commons.codec.binary.Base64;
+import org.flockdata.model.Company;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
+import org.flockdata.model.Fortress;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.service.EntityService;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: mike
@@ -25,6 +45,19 @@ package org.flockdata.test.functional;
  * Time: 4:18 PM
  */
 public class Helper {
+    static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
+    private static final Logger logger = LoggerFactory.getLogger(Helper.class);
+
+
+    //EntityInputBean beanA = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
+    public static EntityInputBean getEntity(Fortress fortress, String user, String docType, String code, ContentInputBean blah) {
+        return new EntityInputBean(fortress.getName()
+                , user
+                , docType
+                , DateTime.now()
+                , code)
+                .setContent(blah);
+    }
     public static String getPdfDoc() {
         // Romeo is a keyword
         // The quick brown fox jumps over the lazy dog
@@ -477,5 +510,92 @@ public class Helper {
                 "MTUgMCBSIC9JbmZvIDEgMCBSIC9JRCBbIDxmMGU3NjU1NjYyNmJiYTNhODZiY2I3\n" +
                 "NjBiNjMyZjFiYj4KPGYwZTc2NTU2NjI2YmJhM2E4NmJjYjc2MGI2MzJmMWJiPiBd\n" +
                 "ID4+CnN0YXJ0eHJlZgoyMDczMgolJUVPRgo=\n";
+    }
+
+    public static HttpHeaders getHttpHeaders(final String apiKey, final String username, final String password) {
+
+        return new HttpHeaders() {
+            {
+                if (username != null && password != null) {
+                    String auth = username + ":" + password;
+                    byte[] encodedAuth = Base64.encodeBase64(
+                            auth.getBytes(Charset.forName("US-ASCII")));
+                    String authHeader = "Basic " + new String(encodedAuth);
+                    set("Authorization", authHeader);
+                } else if (apiKey != null)
+                    set("api-key", apiKey);
+                setContentType(MediaType.APPLICATION_JSON);
+                set("charset", "UTF-8");
+            }
+        };
+
+    }
+
+    public static Map<String, Object> getSimpleMap(String key, Object value) {
+        Map<String, Object> result = new HashMap<>();
+        result.put(key, value);
+        return result;
+    }
+
+    public static Map<String, Object> getRandomMap() {
+        return getSimpleMap("Key", "Test" + System.currentTimeMillis());
+    }
+
+    public static Map<String, Object> getBigJsonText(int i) {
+        Map<String, Object> map = getSimpleMap("Key", "Random");
+        int count = 0;
+        do {
+            map.put("Key" + count, "Now is the time for all good men to come to the aid of the party");
+            count++;
+        } while (count < i);
+        return map;
+    }
+
+    public static void waitAWhile(String message) throws Exception {
+        if (message == null)
+            message = "Slept for {} seconds";
+        waitAWhile(message, TestFdIntegration.getSleepSeconds());
+    }
+
+    /**
+     * Processing delay for threads and integration to complete. If you start getting sporadic
+     * Heuristic exceptions, chances are you need to call this routine to give other threads
+     * time to commit their work.
+     * Likewise, waiting for results from fd-search can take a while. We can't know how long this
+     * is so you can experiment on your own environment by passing in -DsleepSeconds=1
+     *
+     * @param milliseconds to pause for
+     * @throws Exception
+     */
+    public static void waitAWhile(String message, long milliseconds) throws Exception {
+        logger.debug(message, milliseconds / 1000d);
+        Thread.yield();
+        Thread.sleep(milliseconds);
+
+    }
+
+    static EntityLog waitForLogCount(Company company, Entity entity, int expectedCount, EntityService entityService) throws Exception {
+        // Looking for the first searchKey to be logged against the entity
+        int i = 0;
+        int timeout = 100;
+        int count = 0;
+
+        while (i <= timeout) {
+            Entity updatedEntity = entityService.getEntity(company, entity.getMetaKey());
+            count = entityService.getLogCount(company, updatedEntity.getMetaKey());
+
+            EntityLog log = entityService.getLastEntityLog(company, updatedEntity.getMetaKey());
+            // We have at least one log?
+            if (count == expectedCount)
+                return log;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting {} seconds for the log to update");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for entityId [{}]", i,
+                    entity.getId());
+        throw new Exception(String.format("Timeout waiting for the requested log count of %s. Got to %s", expectedCount, count));
     }
 }

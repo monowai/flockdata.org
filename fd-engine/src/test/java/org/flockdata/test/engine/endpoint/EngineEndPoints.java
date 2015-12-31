@@ -20,10 +20,9 @@
 package org.flockdata.test.engine.endpoint;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.jayway.jsonpath.JsonModel;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.helper.ApiKeyInterceptor;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.query.MatrixInputBean;
@@ -41,7 +40,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -330,7 +328,7 @@ public class EngineEndPoints {
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return FlockDataJsonFactory.getObjectMapper().readValue(json, new TypeReference<Collection<Map<String, TagResultBean>>>() {
+        return FdJsonObjectMapper.getObjectMapper().readValue(json, new TypeReference<Collection<Map<String, TagResultBean>>>() {
         });
 //        return JsonUtils.getAsType(json, type )
 

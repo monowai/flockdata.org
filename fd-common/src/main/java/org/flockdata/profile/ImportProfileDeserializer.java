@@ -19,7 +19,7 @@
 
 package org.flockdata.profile;
 
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.transform.ColumnDefinition;
 import com.fasterxml.jackson.core.JsonParser;
@@ -138,7 +138,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         }
         column = node.get("content");
         if ( column !=null ){
-            ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+            ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
             Iterator<Map.Entry<String,JsonNode>> columns = column.fields();
             Map<String,ColumnDefinition>content = new HashMap<>();
             while (columns.hasNext()) {
@@ -155,7 +155,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
     }
     public static ImportProfile getImportParams(String profile) throws IOException {
         ImportProfile importProfile;
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {

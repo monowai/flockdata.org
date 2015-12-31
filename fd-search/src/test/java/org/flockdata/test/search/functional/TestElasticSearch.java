@@ -19,7 +19,7 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.service.TrackSearchDao;
@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestElasticSearch {
 
     private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
-    ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+    ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
     @Autowired
     TrackSearchDao alRepo;
@@ -61,7 +61,7 @@ public class TestElasticSearch {
     @Test
     public void testMappingJson() throws Exception {
         String escWhat = "{\"house\": \"house\"}";
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         Map<String, Object> indexMe = new HashMap<>(40);
         indexMe.put("auditKey", "abc");

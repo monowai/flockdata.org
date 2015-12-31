@@ -20,7 +20,7 @@
 package org.flockdata.search.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
@@ -65,7 +65,7 @@ public class TrackServiceEs implements TrackService {
     @Autowired(required = false)
     private EngineGateway engineGateway;
 
-    static final ObjectMapper objectMapper = FlockDataJsonFactory.getObjectMapper();
+    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     @Override
     @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber

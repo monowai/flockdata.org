@@ -33,7 +33,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.indices.IndexMissingException;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
@@ -260,7 +260,7 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     private String getJsonToIndex(SearchChange searchChange) {
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
         try {
             return mapper.writeValueAsString(index);

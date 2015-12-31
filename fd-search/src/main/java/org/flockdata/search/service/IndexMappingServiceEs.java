@@ -9,7 +9,7 @@ import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
@@ -161,7 +161,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
     private Map<String, Object> getMapFromStream(InputStream file) throws IOException {
-        ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         TypeFactory typeFactory = mapper.getTypeFactory();
         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
         return mapper.readValue(file, mapType);

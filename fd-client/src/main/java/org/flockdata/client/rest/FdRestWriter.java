@@ -22,8 +22,8 @@ package org.flockdata.client.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
-import org.flockdata.client.amqp.AmqpHelper;
-import org.flockdata.helper.FlockDataJsonFactory;
+import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.registration.bean.*;
@@ -72,8 +72,8 @@ public class FdRestWriter implements FdWriter {
     private String defaultFortress;
     ClientConfiguration configuration;
 
-    private ObjectMapper mapper = FlockDataJsonFactory.getObjectMapper();
-    private AmqpHelper amqpHelper = null;
+    private ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+    private AmqpServices amqpServices = null;
 
     /**
      * Use this version for administrative access where the username and password must exist
@@ -143,7 +143,7 @@ public class FdRestWriter implements FdWriter {
      * @return Map<String,Object>
      */
     public static Map<String, Object> convertToMap(Object o) {
-        ObjectMapper om = FlockDataJsonFactory.getObjectMapper();
+        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         return om.convertValue(o, Map.class);
     }
 
@@ -287,9 +287,9 @@ public class FdRestWriter implements FdWriter {
     @Override
     public void close(FdLoader fdLoader) throws FlockException {
         fdLoader.flush();
-        if (amqpHelper != null) {
-            amqpHelper.close();
-            amqpHelper = null;
+        if (amqpServices != null) {
+            amqpServices.close();
+            amqpServices = null;
         }
     }
 
@@ -305,10 +305,10 @@ public class FdRestWriter implements FdWriter {
 
     }
 
-    private AmqpHelper getAmqpHelper(ClientConfiguration configuration) throws FlockException {
-        if (amqpHelper == null)
-            amqpHelper = new AmqpHelper(configuration);
-        return amqpHelper;
+    private AmqpServices getAmqpHelper(ClientConfiguration configuration) throws FlockException {
+        if (amqpServices == null)
+            amqpServices = new AmqpServices(configuration);
+        return amqpServices;
     }
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
