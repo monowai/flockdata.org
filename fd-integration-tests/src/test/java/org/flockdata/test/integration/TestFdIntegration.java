@@ -78,7 +78,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -595,13 +594,10 @@ public class TestFdIntegration {
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         String created = "2010-11-20 11:30:00"; // Create
-        String fUpdate = "2010-11-20 11:45:00"; // First Update
         String fUpdate2 = "2010-11-21 11:45:00"; // First Update
         DateTime createdDate = new DateTime(Timestamp.valueOf(created));
-        DateTime fUpdateDate = new DateTime(Timestamp.valueOf(fUpdate));
-        DateTime fUpdateDate2 = new DateTime(Timestamp.valueOf(fUpdate2));
+        DateTime updatedDate = new DateTime(Timestamp.valueOf(fUpdate2));
 
         EntityInputBean entityInput = new EntityInputBean(fo.getName(), "wally", "CancelDoc", createdDate, "ABC123");
         ContentInputBean content = new ContentInputBean("wally", createdDate, Helper.getRandomMap());
@@ -623,7 +619,7 @@ public class TestFdIntegration {
         // We now have 1 content doc with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        content = new ContentInputBean("wally", fUpdateDate2, Helper.getRandomMap());
+        content = new ContentInputBean("wally", updatedDate, Helper.getRandomMap());
         entityInput.getTags().clear();
         entityInput.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         entityInput.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
@@ -633,9 +629,9 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), result.getMetaKey());
 
         assertEquals("Created date changed after an update - wrong", createdDate, entity.getFortressCreatedTz());
-        assertEquals("Update dates did not reconcile", fUpdateDate2, entity.getFortressUpdatedTz());
+        assertEquals("Update dates did not reconcile", updatedDate, entity.getFortressUpdatedTz());
         EntityLog lastLog = logService.getLastLog(entity);
-        assertEquals("Second Update not recorded", Long.valueOf(fUpdateDate2.getMillis()), lastLog.getFortressWhen());
+        assertEquals("Second Update not recorded", Long.valueOf(updatedDate.getMillis()), lastLog.getFortressWhen());
 
         Helper.waitAWhile("Waiting for search to affect");
 
@@ -659,7 +655,7 @@ public class TestFdIntegration {
         Long searchUpdated = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
         assertTrue("Fortress update was not set in to searchDoc", searchUpdated > 0);
         assertEquals("Created date mismatch", createdDate.getMillis(), searchCreated.longValue());
-        assertEquals("Last Change date mismatch: expected " + fUpdate2 + " was " + new DateTime(searchUpdated), fUpdateDate2.getMillis(), searchUpdated.longValue());
+        assertEquals("Last Change date mismatch: expected " + fUpdate2 + " was " + new DateTime(searchUpdated), updatedDate.getMillis(), searchUpdated.longValue());
         EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.TAG + ".testingc.tag.code.facet", "Days Bay", 1);
         // These were removed in the update
         EsIntegrationHelper.doEsTermQuery(entity, EntitySearchSchema.TAG + ".testinga.tag.code", "happy", 0);
@@ -1128,7 +1124,7 @@ public class TestFdIntegration {
 
     @Test
     public void amqp_TrackEntityBatch() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
@@ -1160,16 +1156,17 @@ public class TestFdIntegration {
 
             amqpServices = new AmqpServices(configuration);
 
-            // ToDo: We're not checking the response codes
-            boolean asSingleBatch = true;
+            // ToDo: Figure out response codes
 
-            if (asSingleBatch) {
+            if (true) {
+                // each entity as a separate batch
                 for (EntityInputBean entityInputBean : entityBatch) {
                     Collection<EntityInputBean> singleEntity = new ArrayList<>();
                     singleEntity.add(entityInputBean);
                     amqpServices.publish(singleEntity);
                 }
             } else {
+                // Altogether
                 amqpServices.publish(entityBatch);
                 // Improving the chance of a deadlock :)
                 //        amqpServices.publish(entityBatch);
@@ -1215,11 +1212,6 @@ public class TestFdIntegration {
         assumeTrue(false);// Suppressing this for the time being
         logger.info("## stressWithHighVolume");
         int runMax = 10, logMax = 10, fortress = 1;
-
-        //for (int i = 1; i < fortressMax + 1; i++) {
-            //deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i + ".companynode");
-            //doEsQuery(IndexHelper.PREFIX + "monowai.bulkloada" + i+".companynode", "*", -1);
-        //}
 
         Helper.waitAWhile("Wait {} secs for index to delete ");
 
@@ -1318,7 +1310,7 @@ public class TestFdIntegration {
                 .setSearchText(searchFor);
         EsIntegrationHelper.doEsQuery(result.getEntity(), searchFor, 1);
 
-        String qResult = runQuery(q);
+        String qResult = EsIntegrationHelper.runQuery(q);
         assertNotNull(qResult);
         assertTrue("Couldn't find a hit in the result [" + result + "]", qResult.contains("total\" : 1"));
 
@@ -1326,20 +1318,35 @@ public class TestFdIntegration {
 
     @Test
     public void utfText() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("Utf8");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("UTF8-Test"));
+        //KvService.KV_STORE previousStore = engineConfig.getKvStore();
+        //engineConfig.setKvStore(KvService.KV_STORE.NONE);
+        Fortress fortress = fortressService
+                .registerFortress(su.getCompany(),
+                        new FortressInputBean("UTF8-Test")
+                                .setSearchActive(true));
 
         ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
-        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "UtfTextCode", new DateTime(), "abzz");
+        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "UtfTextCode", new DateTime(), "abzz")
+                .setDescription("This text, Neumannová, might look great in a search result");
         input.setContent(log);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         logger.info("Track request made. About to wait for first search result");
+
+        // Test directly against ElasticSearch
         EsIntegrationHelper.waitForFirstSearchResult(su.getCompany(), result.getEntity(), entityService);
         EsIntegrationHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+
+        // And via FD query
+        QueryParams queryParams = new QueryParams("*");
+        queryParams.setFortress(fortress.getName().toLowerCase());
+
+        EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
+        assertTrue("Incorrect result count found via queryService ",esSearchResult.getResults().size() ==1);
     }
 
     @Test
@@ -1634,7 +1641,7 @@ public class TestFdIntegration {
 
     }
 
-//    @Test
+    @Test
     public void tags_TaxonomyStructure() throws Exception {
         // TODo: Fix Me. Failing on Bamboo but not locally :\
         assumeTrue(runMe);
@@ -1805,21 +1812,6 @@ public class TestFdIntegration {
     }
 
     static String FD_SEARCH = "http://localhost:9081";
-
-    private String runQuery(QueryParams queryParams) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-
-        HttpHeaders httpHeaders = Helper.getHttpHeaders(null, "mike", "123");
-        HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
-
-        try {
-            return restTemplate.exchange(FD_SEARCH + "/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            logger.error("Client tracking error {}", e.getMessage());
-        }
-        return null;
-    }
 
     private String runFdViewQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
