@@ -32,7 +32,6 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
-import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
@@ -201,10 +200,10 @@ public class TrackDaoES implements TrackSearchDao {
                 IndexResponse indexResponse = ur.actionGet();
                 logger.debug("Updated [{}] logId=[{}] for [{}] to version [{}]", searchChange.getSearchKey(), searchChange.getLogId(), searchChange, indexResponse.getVersion());
             }
-        } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
-            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getIndexName());
-            purgeCache();
-            return save(searchChange, source);
+//        } catch (IndexMissingException e) { // administrator must have deleted it, but we think it still exists
+//            logger.info("Attempt to update non-existent index [{}]. Creating it..", searchChange.getIndexName());
+//            purgeCache();
+//            return save(searchChange, source);
         } catch (NoShardAvailableActionException e) {
             return save(searchChange, source);
         }

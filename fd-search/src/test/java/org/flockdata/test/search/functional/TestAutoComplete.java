@@ -140,7 +140,7 @@ public class TestAutoComplete extends ESBase{
         Map<String, Object> what = Helper.getRandomMap();
 
         Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
-        deleteEsIndex(entity);
+//        deleteEsIndex(entity);
 
         TagInputBean tagInputA = new TagInputBean("tagCode", "AutoComplete", "blah");
 
