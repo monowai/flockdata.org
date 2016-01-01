@@ -16,10 +16,18 @@ import org.flockdata.model.Company;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.service.EntityService;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Properties;
@@ -409,4 +417,19 @@ public class EsIntegrationHelper {
        }
        return entity;
    }
+
+    static String runQuery(QueryParams queryParams) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        HttpHeaders httpHeaders = Helper.getHttpHeaders(null, "mike", "123");
+        HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
+
+        try {
+            return restTemplate.exchange(TestFdIntegration.FD_SEARCH + "/fd-search/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Client tracking error {}", e.getMessage());
+        }
+        return null;
+    }
 }
