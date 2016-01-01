@@ -381,13 +381,13 @@
 
         </dependencies>
     </dependencyManagement>
-    <repositories>
-        <repository>
-            <id>clojars.org</id>
-            <url>http://clojars.org/repo</url>
-        </repository>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>clojars.org</id>-->
+            <!--<url>http://clojars.org/repo</url>-->
+        <!--</repository>-->
 
-    </repositories>
+    <!--</repositories>-->
     <!--
     Useful links on maven distribution to sonatype
         http://ruleoftech.com/2014/distribute-projects-artifacts-in-maven-central-with-ossrh
