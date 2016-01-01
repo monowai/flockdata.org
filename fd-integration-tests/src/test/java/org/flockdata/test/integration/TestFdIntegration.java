@@ -802,7 +802,7 @@ public class TestFdIntegration {
     @Test
     public void date_utcDatesThruToSearch() throws Exception {
         // DAT-196
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## date_utcDatesThruToSearch");
         SystemUser su = registerSystemUser("Kiwi-UTC");
         FortressInputBean fib = new FortressInputBean("utcDateFieldsThruToSearch", false);
@@ -1132,7 +1132,11 @@ public class TestFdIntegration {
         logger.info("## amqp_TrackEntity");
         SystemUser su = registerSystemUser("amqp_TrackEntity");
         Fortress fortress = fortressService.registerFortress(su.getCompany(),
-                new FortressInputBean("amqp_TrackEntity", false));
+                new FortressInputBean("amqp_TrackEntity")
+                        .setSearchActive(false)
+                        .setStoreActive(true));
+
+        //KvService.KV_STORE previousStore = engineConfig.setKvStore(KvService.KV_STORE.RIAK);
 
         int required = 5;
         int count = 0;
@@ -1148,19 +1152,46 @@ public class TestFdIntegration {
         }
 
         Properties properties = getProperties(su);
+        AmqpServices amqpServices =null;
 
-        ClientConfiguration configuration = new ClientConfiguration(properties);
-        configuration.setAmqp(true, false);
+        try {
+            ClientConfiguration configuration = new ClientConfiguration(properties);
+            configuration.setAmqp(true, false);
 
-        AmqpServices amqpServices = new AmqpServices(configuration);
+            amqpServices = new AmqpServices(configuration);
 
-        // ToDo: We're not checking the response codes
-        amqpServices.publish(entityBatch);
-        Helper.waitAWhile("AMQP", 8000);
-        amqpServices.close();
-        for (EntityInputBean entityInputBean : entityBatch) {
-            assertNotNull(""+entityInputBean.toString()
-                    ,entityService.findByCode(fortress, entityInputBean.getDocumentName(), entityInputBean.getCode()));
+            // ToDo: We're not checking the response codes
+            boolean asSingleBatch = true;
+
+            if (asSingleBatch) {
+                for (EntityInputBean entityInputBean : entityBatch) {
+                    Collection<EntityInputBean> singleEntity = new ArrayList<>();
+                    singleEntity.add(entityInputBean);
+                    amqpServices.publish(singleEntity);
+                }
+            } else {
+                amqpServices.publish(entityBatch);
+                // Improving the chance of a deadlock :)
+                //        amqpServices.publish(entityBatch);
+            }
+
+            Helper.waitAWhile("AMQP", required * 1500);
+
+            // Rerun the same batch
+            amqpServices.publish(entityBatch);
+
+            // Changes were not made so checking should be quick
+            Helper.waitAWhile("AMQP", required * 1000);
+
+            for (EntityInputBean entityInputBean : entityBatch) {
+                assertNotNull("" + entityInputBean.toString()
+                        , entityService.findByCode(fortress, entityInputBean.getDocumentName(), entityInputBean.getCode()));
+            }
+
+        } finally {
+            //engineConfig.setKvStore(previousStore);
+            if (amqpServices !=null )
+                amqpServices.close();
         }
 
     }
