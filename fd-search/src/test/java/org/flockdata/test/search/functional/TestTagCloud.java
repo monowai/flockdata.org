@@ -24,6 +24,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.TrackSearchDao;
@@ -61,14 +62,14 @@ public class TestTagCloud extends ESBase {
     public void defaultTagQueryWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
 
-        String fort = "fort1";
+        String fort = "defaultTagQueryWorks";
         String comp = "comp";
         String user = "user";
         String doc = fort;
 
         Entity entity = Helper.getEntity(comp, fort, user, doc);
 
-        SearchChange change = new EntitySearchChange(entity);
+        EntitySearchChange change = new EntitySearchChange(entity);
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -78,9 +79,9 @@ public class TestTagCloud extends ESBase {
         tags.add(new EntityTagOut(entity, tag, "rlxname", null));
         change.setStructuredTags(null, tags);
 
-        deleteEsIndex(entity);
+        //deleteEsIndex(entity);
 
-        trackRepo.handle(change);
+        trackService.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getSegment().getCompany().getName());
