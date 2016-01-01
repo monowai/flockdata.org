@@ -1181,7 +1181,7 @@ public class TestFdIntegration {
             amqpServices.publish(entityBatch);
 
             // Changes were not made so checking should be quick
-            Helper.waitAWhile("AMQP", required * 1000);
+            Helper.waitAWhile("AMQP", required * 750);
 
             for (EntityInputBean entityInputBean : entityBatch) {
                 assertNotNull("" + entityInputBean.toString()

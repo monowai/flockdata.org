@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-
+    <!--FDEngine test logger-->
     <!-- Appenders -->
     <appender name="fds-console" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
@@ -11,17 +12,36 @@
         </layout>
     </appender>
 
+    <logger name="org.springframework">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.springframework.context">
+        <level value="error"/>
+    </logger>
+
+    <logger name="org.springframework.beans">
+        <level value="error"/>
+    </logger>
+
     <logger name="org.springframework.transaction">
         <level value="error"/>
     </logger>
 
+    <logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.springframework.data.neo4j">
+        <level value="error"/>
+    </logger>
     <logger name="org.springframework.amqp">
         <level value="error"/>
     </logger>
-
-    <logger name="org.elasticsearch">
-        <level value="info"/>
+    <logger name="org.springframework.integration">
+        <level value="error"/>
     </logger>
+
     <logger name="org.hibernate">
         <level value="error"/>
     </logger>
@@ -37,10 +57,6 @@
     <logger name="io.searchbox">
         <level value="info"/>
     </logger>
-    <logger name="org.springframework">
-        <level value="${fd.logLevel}"/>
-    </logger>
-
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>
