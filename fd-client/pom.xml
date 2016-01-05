@@ -116,8 +116,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>shade</shadedClassifierName>
                             <minimizeJar>false</minimizeJar>
-                            <finalName>fd-client-shade-${version}</finalName>
+                            <!--<finalName>fd-client-shade-${version}</finalName>-->
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
