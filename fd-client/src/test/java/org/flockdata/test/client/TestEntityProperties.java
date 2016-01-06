@@ -48,11 +48,11 @@ public class TestEntityProperties extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/entity-properties.json";
         File file = new File(fileName);
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportParams(fileName);
+        ImportProfile params = ClientConfiguration.getImportProfile(fileName);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         fileProcessor.processFile(params, "/data/entity-properties.txt", getFdWriter(), null, configuration);

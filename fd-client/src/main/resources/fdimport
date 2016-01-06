@@ -27,7 +27,7 @@ fi
 if [ $# -gt 2 ]; then
 	FD_CONFIG_FILE=$FD_CONFIG/$2
 else
-	FD_CONFIG_FILE=$FD_CONFIG
+	FD_CONFIG_FILE=$FD_CONFIG/client.config
 fi
 
 for fileParam in "$@"

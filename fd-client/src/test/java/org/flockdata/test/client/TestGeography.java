@@ -48,7 +48,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_Countries() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/test-countries.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -81,7 +81,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTag() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/test-countries.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -102,7 +102,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/test-countries.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -123,7 +123,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/test-countries.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -169,10 +169,10 @@ public class TestGeography extends AbstractImport{
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/import-geo.json";
         File file = new File(fileName);
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         TestCase.assertNotNull(configuration);
 
-        ImportProfile params = ClientConfiguration.getImportParams(fileName);
+        ImportProfile params = ClientConfiguration.getImportProfile(fileName);
         TestCase.assertEquals('|', params.getDelimiter());
         TestCase.assertEquals(true, params.hasHeader());
         TestCase.assertNotNull(params.getCondition());

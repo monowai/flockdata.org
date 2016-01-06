@@ -19,8 +19,6 @@
 
 package org.flockdata.client;
 
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.flockdata.client.rest.FdRestWriter;
@@ -30,7 +28,6 @@ import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
 
 import java.io.File;
@@ -67,106 +64,43 @@ import java.util.List;
  */
 public class Importer {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Importer.class);
+    private static  org.slf4j.Logger logger = null;
 
-    public static Namespace getCommandLineArgs(String args[]) {
-        ArgumentParser parser = ArgumentParsers.newArgumentParser("importer")
-                .defaultHelp(true)
-                .description("Client side batch importer to FlockData");
 
-        parser.addArgument("-b", "--batch")
-                .required(false)
-                .help("Default batch size");
+    public static void main(String args[]) throws ArgumentParserException {
 
-        parser.addArgument("-s", "--skip")
-                .required(false)
-                .help("Start processing from this record");
+        ClientConfiguration configuration = getConfiguration(args);
 
-        parser.addArgument("-x", "--stop")
-                .required(false)
-                .help("Stop after this many have been processed");
+        if (configuration.getApiKey() == null) {
+            logger.error("No API key is set in the config file. Have you run the config process?");
+            System.exit(-1);
+        }
 
-        parser.addArgument("-v", "--validate")
-                .required(false)
-                .help("Runs a batch and verifies that the entities exist");
-
-        parser.addArgument("-amqp", "--amqp")
-                .required(false)
-                .setDefault(false)
-                .help("Use AMQP instead of HTTP (only works for track requests)");
-
-        parser.addArgument("-c", "--path")
-                .setDefault("./conf")
-                .required(false)
-                .help("Configuration file path");
-
-        parser.addArgument("files").nargs("*")
-                .help("Path and filename of file to import and the import profile in the format \"[/filepath/filename.ext],[/importProfile/profile.json\"");
-
-        Namespace ns = null;
-        try {
-            ns = parser.parseArgs(args);
-        } catch (ArgumentParserException e) {
-            parser.handleError(e);
+        List<String> files = getNameSpace().getList("files");
+        if (files.isEmpty()) {
+            logger.error("No files to parse!");
             System.exit(1);
         }
-        return ns;
 
+        importFiles(configuration, files);
+        System.exit(0);
     }
 
-    public static void main(String args[]) {
+    public static void importFiles(ClientConfiguration configuration, List<String> files){
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
         FileProcessor fileProcessor = null;
         try {
-            Namespace ns = getCommandLineArgs(args);
-            File file = Configure.getFile(Configure.configFile, ns);
-            logger.info( "Reading configuration from " + file.getAbsoluteFile());
-            ClientConfiguration configuration = Configure.readConfiguration(file);
-            if (configuration.getApiKey() == null) {
-                logger.error("No API key is set in the config file. Have you run the config process?");
-                System.exit(-1);
-            }
-
-            List<String> files = ns.getList("files");
-            if (files.isEmpty()) {
-                logger.error("No files to parse!");
-                System.exit(1);
-            }
-            String batch = ns.getString("batch");
 
             int batchSize = configuration.getBatchSize();
-            if (batch != null && !batch.equals(""))
-                configuration.setBatchSize(Integer.parseInt(batch));
 
-            Object o = ns.get("async");
-            if (o != null)
-                configuration.setAsync(Boolean.parseBoolean(o.toString()));
+            int skipCount = configuration.getSkipCount();
 
-            o = ns.get("validate");
-            if (o != null)
-                configuration.setValidateOnly(Boolean.parseBoolean(o.toString()));
-
-            o = ns.get("amqp");
-            if (o != null)
-                configuration.setAmqp(Boolean.parseBoolean(o.toString()), true);
-
-            int skipCount = 0;
-            o = ns.get("skip");
-            if (o !=null)
-                skipCount = Integer.parseInt(o.toString());
-
-            int rowsToProcess = 0;
-            o = ns.get("stop");
-            if (o !=null)
-                rowsToProcess = Integer.parseInt(o.toString());
+            int rowsToProcess = configuration.getStopRowProcessCount();
 
             watch.start();
-            //logger.info("*** Starting {}", DateFormat.getDateTimeInstance().format(new Date()));
 
             for (String thisFile : files) {
-
-
                 List<String> items = Arrays.asList(thisFile.split("\\s*,\\s*"));
 
                 int item = 0;
@@ -184,7 +118,7 @@ public class Importer {
                 ImportProfile importProfile;
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
-                    importProfile = ClientConfiguration.getImportParams(clazz);
+                    importProfile = ClientConfiguration.getImportProfile(clazz);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -198,11 +132,7 @@ public class Importer {
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
-                // DAT-317 making the fortressUser optional
-                //importProfile.setFortressUser(su.getLogin());
-
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importProfile, batchSize, skipCount);
-
 
                 if (fileProcessor == null)
                     fileProcessor = new FileProcessor(skipCount, rowsToProcess);
@@ -218,10 +148,7 @@ public class Importer {
         } finally {
             if (fileProcessor != null)
                 fileProcessor.endProcess(watch, totalRows, 0);
-
-
         }
-        System.exit(0);
     }
 
     private static FdWriter getRestClient(ClientConfiguration configuration) {
@@ -237,5 +164,50 @@ public class Importer {
         return fdClient;
 
     }
+
+    public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
+        ClientConfiguration importConfig = new ClientConfiguration();
+        nameSpace = InitializationSupport.getImportNamespace(args);
+        logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
+
+        File file = Configure.getFile(nameSpace);
+
+        ClientConfiguration clientConfiguration = Configure.getConfiguration(file);
+
+        // Set the
+        importConfig.append(clientConfiguration);
+        Object o = nameSpace.get("async");
+        if (o != null)
+            importConfig.setAsync(Boolean.parseBoolean(o.toString()));
+
+        o = nameSpace.get("batch");
+        if (o != null)
+            importConfig.setBatchSize(Integer.parseInt(o.toString().trim()));
+
+        o = nameSpace.get("validate");
+        if (o != null)
+            importConfig.setValidateOnly(Boolean.parseBoolean(o.toString()));
+
+        o = nameSpace.get("amqp");
+        if (o != null)
+            importConfig.setAmqp(Boolean.parseBoolean(o.toString()), true);
+
+        o = nameSpace.get("skip");
+        if (o !=null)
+            importConfig.setSkipCount(Integer.parseInt(o.toString()));
+
+        o = nameSpace.get("stop");
+        if (o !=null)
+            importConfig.setStopRowProcessCount(Integer.parseInt(o.toString()));
+
+        return importConfig;
+    }
+
+    private static Namespace getNameSpace() {
+        return nameSpace;
+    }
+
+    private static Namespace nameSpace = null;
+
 
 }

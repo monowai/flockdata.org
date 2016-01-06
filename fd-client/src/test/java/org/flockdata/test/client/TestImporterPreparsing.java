@@ -47,7 +47,7 @@ public class TestImporterPreparsing extends AbstractImport {
         ClientConfiguration configuration = getClientConfiguration("/pre-parse.json");
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportParams("/pre-parse.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/pre-parse.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);

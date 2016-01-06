@@ -42,7 +42,7 @@ public class TestTagAliases extends AbstractImport {
         String paramFile = "/profile/csv-tag-alias.json";
         ClientConfiguration configuration = getClientConfiguration(paramFile);
 
-        ImportProfile params = ClientConfiguration.getImportParams(paramFile);
+        ImportProfile params = ClientConfiguration.getImportProfile(paramFile);
         fileProcessor.processFile(params, "/data/csv-tag-alias.txt", getFdWriter(), null, configuration);
 
         Collection<TagInputBean> tagInputBeans = getFdWriter().getTags();

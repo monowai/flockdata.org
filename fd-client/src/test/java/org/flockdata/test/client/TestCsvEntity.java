@@ -53,7 +53,7 @@ public class TestCsvEntity {
 
     @Test
     public void entityRow() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
         CsvEntityMapper entity = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
@@ -360,7 +360,7 @@ public class TestCsvEntity {
 
     @Test
     public void null_EntityRow() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
@@ -379,7 +379,7 @@ public class TestCsvEntity {
 
     @Test
     public void empty_ColumnWithASpace() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/csvtest.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
@@ -397,7 +397,7 @@ public class TestCsvEntity {
     }
     @Test
     public void empty_ColumnWithASpaceIsIgnored() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/csvtest-emptyisignored.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest-emptyisignored.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag

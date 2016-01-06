@@ -50,7 +50,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/profile/gov.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/profile/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
@@ -90,7 +90,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void object_ImportJsonEntity() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportParams("/profile/gov.json");
+        ImportProfile profile = ClientConfiguration.getImportProfile("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
         profile.setFortressName("testing");
@@ -105,7 +105,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void array_ImportJsonEntities() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportParams("/profile/gov.json");
+        ImportProfile profile = ClientConfiguration.getImportProfile("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setFortressName("testing");
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);

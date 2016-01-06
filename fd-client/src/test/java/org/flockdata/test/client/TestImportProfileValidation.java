@@ -41,11 +41,11 @@ public class TestImportProfileValidation extends AbstractImport{
     public void valid_Properties() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         File file = new File("/properties-rlx.json");
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportParams("/properties-rlx.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);
