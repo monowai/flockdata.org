@@ -16,7 +16,7 @@ function findBaseDirAndCdThere {
     done
 
   FD_HOME=`cd $( dirname "$SCRIPT" )/.. && dirs -l +0`
-  FD_CONFIG=$FD_HOME/conf
+  FD_CONFIG=$FD_HOME/conf/client.config
   FD_APP=$FD_HOME/app
   FD_LOG=$FD_HOME/log
 

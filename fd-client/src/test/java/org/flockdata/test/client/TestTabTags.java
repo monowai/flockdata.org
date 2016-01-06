@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestTabTags {
     @Test
     public void string_NestedTags() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportParams("/sectors.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/sectors.json");
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};

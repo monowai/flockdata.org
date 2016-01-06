@@ -19,20 +19,11 @@
 
 package org.flockdata.client;
 
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.impl.Arguments;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Map;
@@ -45,24 +36,19 @@ import java.util.Properties;
  */
 public class Configure {
     private static org.slf4j.Logger logger;
-    public static String configFile = "client.config";
-    public static String internalUser = null;
-    public static String internalPass = null;
+    protected static String configFile = "client.config";
+    private static String internalUser = null;
+    private static String internalPass = null;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws ArgumentParserException {
 
-        Namespace ns = getCommandLineArgs(args);
-        internalUser = ns.getString("user");
+        ClientConfiguration defaults = readConfigProfile(args);
 
-        File file = getFile(configFile, ns);
-        ClientConfiguration defaults = readConfiguration(file);
-        configureLogger(ns.getBoolean("debug"));
+        internalUser = defaults.getDefaultUser();
 
-        boolean reconfigure = ns.getBoolean("reconfig");
+        if (!defaults.getFile().exists() || defaults.isReconfigure()) {
 
-        if (!file.exists() || reconfigure) {
-
-            logger.info("** {}configuration process", (reconfigure ? "re" : "initial "));
+            logger.info("** {}configuration process", (defaults.isReconfigure() ? "re" : "initial "));
             String engineURL = defaults.getEngineURL();
             logger.info("** Looking for FlockData on [{}]", engineURL);
             pingServer(defaults, engineURL);
@@ -72,21 +58,21 @@ public class Configure {
 
             if (version != null) {
                 logger.info("** Success!! All configured default settings are working! Talking to FlockData version {}", version);
-                if (reconfigure) {
+                if (defaults.isReconfigure()) {
                     Boolean yes = getBooleanValue("Reconfigure? ", "Do you still wish to reconfigure your settings? (n)", "n");
                     if (yes) {
-                        configure(file, defaults);
+                        configure(defaults.getFile(), defaults);
                     }
                 } else {
-                    writeConfiguration(file, defaults);
+                    writeConfiguration(defaults.getFile(), defaults);
                 }
 
             } else {
-                configure(file, defaults);
+                configure(defaults.getFile(), defaults);
             }
         }
         // Test the configuration with the defaults provided
-        if (ns.getBoolean("test")) {
+        if (getNameSpace().getBoolean("test")) {
             testConfig(defaults);
         } else
             logger.info("** Success! Login name [{}], apiKey [{}]", defaults.getDefaultUser(), defaults.getApiKey());
@@ -94,72 +80,40 @@ public class Configure {
 
     }
 
-    private static void configureLogger(Boolean debug) {
-        Logger.getRootLogger().getLoggerRepository().resetConfiguration();
-        ConsoleAppender console = new ConsoleAppender();
-        String PATTERN = "%m%n";
-        console.setLayout(new PatternLayout(PATTERN));
-        console.setThreshold((debug ? Level.TRACE : Level.INFO));
-        console.activateOptions();
+    public static ClientConfiguration readConfigProfile(String[] args) throws ArgumentParserException {
+        nameSpace = InitializationSupport.getConfigureNamespace(args);
+        logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
+        internalUser = getNameSpace().getString("user");
 
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(console);
+        File file = getFile(getNameSpace());
+        ClientConfiguration clientConfig = getConfiguration(file);
+        clientConfig.setFile(file);
 
-        logger = LoggerFactory.getLogger(Configure.class);
+        Object o = getNameSpace().getBoolean("reconfig");
+        if ( o!=null )
+            clientConfig.setReconfigure(Boolean.parseBoolean(o.toString()));
+
+        return clientConfig;
     }
 
-    public static File getFile(String configFile, Namespace ns) {
-        File file = new File(ns.getString("path") + "/" + configFile);
-        File path = new File(ns.getString("path"));
-        if (!path.exists() && !path.mkdir()) {
-            logger.error("Error making path {}", ns.getString("path"));
+    static File getFile(Namespace ns) {
+        String fullPath = ns.getString("config");
+        if ( fullPath != null) {
+            fullPath = fullPath.trim();
+            return getFileFromPath(fullPath);
+        }
+        String path = ns.getString("cpath").trim();
+        return getFileFromPath(path+"/"+configFile);
+    }
+
+    private static File getFileFromPath(String path) {
+        File fullPath = new File(path);
+        File fPath = new File (fullPath.getParent()) ;
+        if (!fPath.exists() && !fPath.mkdir()) {
+            System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") +"]");
             System.exit(-1);
         }
-        return file;
-    }
-
-    static Namespace getCommandLineArgs(String[] args) {
-        ArgumentParser parser = ArgumentParsers.newArgumentParser("configure")
-                .defaultHelp(true)
-                .description("Configures the client for connectivity to FlockData");
-
-        MutuallyExclusiveGroup group = parser.addMutuallyExclusiveGroup();
-
-        group.addArgument("-r", "--reconfig")
-                .action(Arguments.storeTrue())
-                .required(false)
-                .setDefault(false)
-                .help("Perform the reconfiguration process");
-
-        group.addArgument("-t", "--test")
-                .required(false)
-                .setDefault(true)
-                .help("Test the stored configuration")
-                .action(Arguments.storeTrue());
-
-        parser.addArgument("-x", "--debug")
-                .required(false)
-                .setDefault(false)
-                .help("Debug level logging")
-                .action(Arguments.storeTrue());
-
-        parser.addArgument("-c", "--path")
-                .setDefault("./conf")
-                .required(false)
-                .help("Configuration file path");
-
-        parser.addArgument("-u", "--user")
-                .required(false)
-                .help("User authorised to create registrations");
-
-        Namespace ns = null;
-        try {
-            ns = parser.parseArgs(args);
-        } catch (ArgumentParserException e) {
-            parser.handleError(e);
-            System.exit(1);
-        }
-        return ns;
+        return fullPath;
     }
 
     private static boolean configure(File file, ClientConfiguration defaults) {
@@ -285,7 +239,8 @@ public class Configure {
         }
     }
 
-    public static ClientConfiguration readConfiguration(File file) {
+    public static ClientConfiguration getConfiguration(File file) {
+        System.out.println("Reading client configuration from " + file.getAbsoluteFile());
         if (file.exists()) {
             // Load the defaults
             try {
@@ -293,7 +248,7 @@ public class Configure {
                 prop.load(new FileInputStream(file));
                 return new ClientConfiguration(prop);
             } catch (IOException e) {
-                logger.error("Unexpected", e);
+                System.out.println(e.getMessage());
             }
             return new ClientConfiguration();
         }
@@ -366,7 +321,8 @@ public class Configure {
                 logger.info(prompt);
                 result = new BufferedReader(new InputStreamReader(System.in)).readLine();
             } catch (IOException e) {
-                logger.error("Unexpected", e);
+                //logger.error("Unexpected", e);
+                System.exit(1);
             }
         }
         if (result == null || result.equals(""))
@@ -375,4 +331,14 @@ public class Configure {
         return result;
 
     }
+
+    @Deprecated // Get your own namespace
+    public static Namespace getNameSpace() {
+        return nameSpace;
+    }
+
+    private static Namespace nameSpace = null;
+
+
+
 }

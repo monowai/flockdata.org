@@ -41,7 +41,7 @@ public class TestStates extends AbstractImport {
         String profile = "/states.json";
         ClientConfiguration configuration = getClientConfiguration(profile);
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile params = ClientConfiguration.getImportParams(profile);
+        ImportProfile params = ClientConfiguration.getImportProfile(profile);
         fileProcessor.processFile(params, "/states.csv", getFdWriter(), null, configuration);
         assertEquals(72, getFdWriter().getTags().size());
 
