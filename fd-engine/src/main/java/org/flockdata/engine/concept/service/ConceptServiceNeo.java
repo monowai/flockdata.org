@@ -104,7 +104,6 @@ public class ConceptServiceNeo implements ConceptService {
      * @param documentCode name of the doc type
      * @return resolved document. Created if missing
      */
-//    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     @Override
     @Deprecated // use resolveDocumentType(Fortress fortress, DocumentType documentType)
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
@@ -135,17 +134,36 @@ public class ConceptServiceNeo implements ConceptService {
 
     }
 
+    /**
+     * Tracks the fact that the sourceType is connected to the targetType with relationship name.
+     *
+     * This represents a fact that there is at least one (e:Entity)-[r:relationship]->(oe:Entity) existing
+     * @param sourceType    node from
+     * @param relationship  name
+     * @param targetType    node to
+     */
     @Override
     public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
         conceptDao.linkEntities(sourceType, relationship, targetType);
     }
 
+    /**
+     * Analyses the TrackResults and builds up a meta analysis of the entities and tags
+     * to track the structure of graph data
+     *
+     * Extracts DocTypes, Tags and relationship names. These can be found in the graph with a query
+     * such as
+     *
+     * match ( c:DocType)-[r]-(x:Concept) return c,r,x;
+     *
+     * @param resultBeans payload to analyse
+     */
     @Override
-    public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
-        assert fortress != null;
-        logger.debug("Processing concepts for {}", fortress.getCompany());
+    public void registerConcepts(Iterable<TrackResultBean> resultBeans) {
+        // ToDo: This could be established the first time a DocType is encountered. Option to suppress subsequent
+        //       registration analysis once the docType exists. This would need to be configurable as
+        //       evolving models of connected concepts also exist
         Map<DocumentType, ArrayList<ConceptInputBean>> payload = new HashMap<>();
-//        Map<String,ConceptInputBean>uniqueConcepts = new HashMap<>();
 
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {

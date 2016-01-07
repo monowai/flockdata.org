@@ -87,9 +87,7 @@ public class ConceptDaoNeo {
             Collection<Concept> concepts = docType.getConcepts();
             logger.trace("[{}] - Found {} existing concepts", docType.getName(), concepts.size());
             for (ConceptInputBean conceptInput : documentConcepts.get(docType)) {
-                //logger.debug("Looking to create [{}]", toDoc.getName());
                 Concept concept = conceptTypeRepo.findBySchemaPropertyValue("key", Concept.toKey(conceptInput));
-
                 for (String relationship : conceptInput.getRelationships()) {
                     if (concept == null) {
                         logger.debug("No existing conceptInput found for [{}]. Creating it", relationship);

@@ -44,7 +44,7 @@ public interface ConceptService {
 
     DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
 
-    void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
+    void registerConcepts(Iterable<TrackResultBean> resultBeans);
 
     void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType);
 
