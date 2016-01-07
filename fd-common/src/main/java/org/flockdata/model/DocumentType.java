@@ -32,6 +32,7 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * FD has a document oriented view of information.
@@ -65,7 +66,7 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
     @RelatedTo(elementClass = Concept.class,  type = "HAS_CONCEPT", direction = Direction.OUTGOING)
-    Collection<Concept> concepts;
+    Set<Concept> concepts;
 
     @RelatedTo(elementClass = DocumentType.class,  type = "PARENT", direction = Direction.INCOMING)
     DocumentType parent;

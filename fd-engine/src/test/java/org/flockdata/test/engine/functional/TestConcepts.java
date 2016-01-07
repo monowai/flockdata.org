@@ -129,11 +129,13 @@ public class TestConcepts extends EngineBase {
             Collection<String>documents = new ArrayList<>();
             documents.add("DocA");
             Set<DocumentResultBean> results = conceptService.findConcepts(su.getCompany(), documents, false);
-//            assertFalse(results.isEmpty());
+
             assertEquals(1, results.size());
 
-            input = new EntityInputBean(fortressB.getName(), "jinks", "DocB", new DateTime());
-            input.addTag(new TagInputBean("cust123", "Customer",  "purchased").setLabel("Customer"));
+            input = new EntityInputBean(fortressB.getName(), "jinks", "DocB", new DateTime())
+                    .addTag( new TagInputBean("cust123", "Customer",  "purchased")
+                        .setLabel("Customer"));
+
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             documents.add("DocB");
             results = conceptService.findConcepts(su.getCompany(), documents, false);
@@ -250,6 +252,12 @@ public class TestConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust123",  "Customer", "purchased").setLabel("Customer"));
             input.addTag(new TagInputBean("harry",  "Customer", "soldto").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
+            Set<DocumentResultBean> docResults = conceptService.findConcepts(su.getCompany(), "DocA", true);
+            assertEquals(1, docResults.size());
+            assertEquals( 1, docResults.iterator().next().getConcepts().size());
+            assertEquals( "should have been two relationships", 2, docResults.iterator().next().getConcepts().iterator().next().getRelationships().size());
+
+
             input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
             input.addTag(new TagInputBean("cust121", "Customer",  "purchased").setLabel("Customer"));
             input.addTag(new TagInputBean("harry", "Customer",  "soldto").setLabel("Customer"));

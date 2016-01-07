@@ -28,6 +28,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 /**
@@ -54,7 +55,7 @@ public class Relationship implements Comparable<Relationship> {
 
     public void addDocumentType(DocumentType documentType) {
         if (documentTypes == null ){
-            documentTypes = new TreeSet<>();
+            documentTypes = new HashSet<>();
         }
         documentTypes.add(documentType);
     }

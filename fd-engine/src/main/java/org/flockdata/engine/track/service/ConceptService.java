@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
+import com.google.protobuf.ByteString;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -34,6 +35,8 @@ import java.util.Set;
 public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company company);
+
+    Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships);
 
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
@@ -52,5 +55,6 @@ public interface ConceptService {
     DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
     DocumentType findOrCreate(Fortress fortress, DocumentType documentType);
+
 
 }

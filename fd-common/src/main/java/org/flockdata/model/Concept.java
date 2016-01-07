@@ -27,7 +27,9 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Collection;
-import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * User: mike
@@ -48,11 +50,11 @@ public class Concept {
 
     @RelatedTo(elementClass = Relationship.class, type = "KNOWN_TAG", direction = Direction.OUTGOING)
     @Fetch
-    Collection<Relationship> knownTags;
+    Set<Relationship> knownTags;
 
     @RelatedTo(elementClass = Relationship.class, type = "KNOWN_ENTITY", direction = Direction.OUTGOING)
     @Fetch
-    Collection<Relationship> knownEntities;
+    Set<Relationship> knownEntities;
 
     private String type = "T";
 
@@ -85,7 +87,7 @@ public class Concept {
 
     public void addTagRelationship(String relationship, DocumentType docType) {
         if (knownTags == null)
-            knownTags = new TreeSet<>();
+            knownTags = new HashSet<>();
 
         Relationship node = new Relationship(relationship, docType);
         knownTags.add(node);
@@ -101,7 +103,7 @@ public class Concept {
      */
     public void addEntityRelationship(String relationship, DocumentType docType) {
         if (knownEntities == null)
-            knownEntities = new TreeSet<>();
+            knownEntities = new HashSet<>();
 
         Relationship node = new Relationship(relationship, docType);
         knownEntities.add(node);
