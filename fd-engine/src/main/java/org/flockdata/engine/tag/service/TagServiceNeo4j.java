@@ -20,8 +20,8 @@
 package org.flockdata.engine.tag.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.dao.ConceptDaoNeo;
-import org.flockdata.engine.dao.TagDaoNeo4j;
+import org.flockdata.meta.dao.ConceptDaoNeo;
+import org.flockdata.engine.tag.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;

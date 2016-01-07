@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.schema;
 
-import org.flockdata.engine.dao.SchemaDaoNeo4j;
+import org.flockdata.meta.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;

@@ -17,9 +17,9 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.concept.service;
+package org.flockdata.meta.service;
 
-import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;

@@ -56,13 +56,13 @@ public class RelationshipResultBean  {
 
         RelationshipResultBean that = (RelationshipResultBean) o;
 
-        return (name != null ? !name.equals(that.name) : that.name != null);
+        return name.equals(that.name);
 
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return name.hashCode();
     }
 }
 

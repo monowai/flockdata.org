@@ -17,8 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.dao;
+package org.flockdata.engine.tag.dao;
 
+import org.flockdata.engine.dao.AliasDaoNeo;
+import org.flockdata.engine.dao.TagWrangler;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;

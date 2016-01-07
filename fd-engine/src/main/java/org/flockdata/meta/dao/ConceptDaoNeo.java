@@ -17,11 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.dao;
+package org.flockdata.meta.dao;
 
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
-import org.flockdata.model.Relationship;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
