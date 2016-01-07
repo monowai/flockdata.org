@@ -19,16 +19,13 @@
 
 package org.flockdata.transform.csv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 import org.flockdata.transform.tags.TagProfile;
@@ -164,7 +161,7 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                 }
                 if (!colDef.getEntityLinks().isEmpty()) {
                     for (Map<String, String> key : colDef.getEntityLinks()) {
-                        addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("fortress"), key.get("documentName"), value));
+                        addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
                     }
                 }
 

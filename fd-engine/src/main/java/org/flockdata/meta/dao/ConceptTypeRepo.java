@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.dao;
+package org.flockdata.meta.dao;
 
 import org.flockdata.model.Concept;
 import org.springframework.data.neo4j.repository.GraphRepository;

@@ -17,18 +17,18 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.concept.service;
+package org.flockdata.meta.service;
 
-import org.flockdata.engine.dao.ConceptDaoNeo;
+import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +41,14 @@ import java.util.*;
  * Reporting/Schema monitoring service
  * Whenever an entity is tracked, it's TrackResultBean is sent to this service so that the top
  * down meta data can be logged.
- *
+ * <p/>
  * Concepts represent the Tags and Entities that are being tracked in this service
  * An Entity is represented as a DocumentType. It exists in both it's DocumentType.name index
  * and a generic Entity index
- *
+ * <p/>
  * Tags are also called Concepts. These are also indexed uniquely withing a Label that identifies
  * their type and a generic"Tags" Label.
- *
+ * <p/>
  * Created by mike on 19/06/15.
  */
 
@@ -65,7 +65,6 @@ public class ConceptServiceNeo implements ConceptService {
      *
      * @param company who owns the docs
      * @return Docs in use
-     *
      */
     @Override
     @Transactional
@@ -73,9 +72,18 @@ public class ConceptServiceNeo implements ConceptService {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
         for (DocumentType rawDoc : rawDocs) {
-            results.add(new DocumentResultBean(rawDoc));
+            DocumentResultBean newDoc = new DocumentResultBean(rawDoc);
+            if (!results.contains(newDoc))
+                results.add(newDoc);
         }
         return results;
+    }
+
+    @Override
+    public Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships) {
+        Collection<String> documentNames = new ArrayList<>();
+        documentNames.add(documentName);
+        return conceptDao.findConcepts(company, documentNames, withRelationships);
     }
 
     /**
@@ -88,9 +96,7 @@ public class ConceptServiceNeo implements ConceptService {
      */
     @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
-
         return conceptDao.findConcepts(company, documentNames, withRelationships);
-
     }
 
     /**
@@ -98,7 +104,6 @@ public class ConceptServiceNeo implements ConceptService {
      * @param documentCode name of the doc type
      * @return resolved document. Created if missing
      */
-//    @Cacheable(value = "fortressDocType", key = "#fortress.id+#documentCode ", unless = "#result==null")
     @Override
     @Deprecated // use resolveDocumentType(Fortress fortress, DocumentType documentType)
     public DocumentType resolveByDocCode(Fortress fortress, String documentCode) {
@@ -106,7 +111,7 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType){
+    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType) {
         return conceptDao.findDocumentType(fortress, documentType, true);
     }
 
@@ -129,15 +134,41 @@ public class ConceptServiceNeo implements ConceptService {
 
     }
 
+    /**
+     * Tracks the fact that the sourceType is connected to the targetType with relationship name.
+     *
+     * This represents a fact that there is at least one (e:Entity)-[r:relationship]->(oe:Entity) existing
+     * @param sourceType    node from
+     * @param relationship  name
+     * @param targetType    node to
+     */
     @Override
-    public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
-        assert fortress != null;
-        logger.debug("Processing concepts for {}", fortress.getCompany());
-        Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
+    public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
+        conceptDao.linkEntities(sourceType, relationship, targetType);
+    }
+
+    /**
+     * Analyses the TrackResults and builds up a meta analysis of the entities and tags
+     * to track the structure of graph data
+     *
+     * Extracts DocTypes, Tags and relationship names. These can be found in the graph with a query
+     * such as
+     *
+     * match ( c:DocType)-[r]-(x:Concept) return c,r,x;
+     *
+     * @param resultBeans payload to analyse
+     */
+    @Override
+    public void registerConcepts(Iterable<TrackResultBean> resultBeans) {
+        // ToDo: This could be established the first time a DocType is encountered. Option to suppress subsequent
+        //       registration analysis once the docType exists. This would need to be configurable as
+        //       evolving models of connected concepts also exist
+        Map<DocumentType, ArrayList<ConceptInputBean>> payload = new HashMap<>();
+
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
                 DocumentType docType = resultBean.getDocumentType();
-                Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
+                ArrayList<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
                     payload.put(docType, conceptInputBeans);
@@ -147,11 +178,13 @@ public class ConceptServiceNeo implements ConceptService {
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
                         if (!inputTag.getEntityLinks().isEmpty()) {
-                            ConceptInputBean cib = new ConceptInputBean();
-                            cib.setRelationships(inputTag.getEntityLinks().keySet());
-                            cib.setName(inputTag.getLabel());
-                            if (!conceptInputBeans.contains(cib))
+                            ConceptInputBean cib = new ConceptInputBean(inputTag.getLabel());
+
+                            if (!conceptInputBeans.contains(cib)) {
+                                cib.setRelationships(inputTag.getEntityLinks().keySet());
                                 conceptInputBeans.add(cib);
+                            }else
+                                conceptInputBeans.get(conceptInputBeans.indexOf(cib)).setRelationships(inputTag.getEntityLinks().keySet());
                         }
                     }
                 }

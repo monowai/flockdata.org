@@ -22,7 +22,7 @@ package org.flockdata.engine.track;
 import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.concept.service.DocTypeRetryService;
+import org.flockdata.meta.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
@@ -30,7 +30,10 @@ import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.engine.track.service.ConceptRetryService;
 import org.flockdata.engine.track.service.EntityRetryService;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
-import org.flockdata.helper.*;
+import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
+import org.flockdata.helper.SecurityHelper;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -38,28 +41,21 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
-import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
-import javax.transaction.HeuristicRollbackException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -155,18 +151,21 @@ public class MediationFacadeNeo implements MediationFacade {
         return tagRetryService.createTags(company, tagInputs, false);
     }
 
-    /**
-     * Writes the payload to the service. Distributes changes to KV stores and search engine.
-     * <p>
-     * This is synchronous and blocks until completed. Usually called via integration mechanisms
-     *
-     * @param inputBeans - input to track
-     * @param apiKey     - SystemUser API key
-     * @throws FlockException        illegal input
-     * @throws FlockServiceException api key is invalid or mandatory tags do not exist
-     * @throws IOException           json processing exception
-     */
-
+    @Override
+    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
+        Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
+        if (fortress == null)
+            fortress = fortressService.registerFortress(company,
+                    new FortressInputBean(inputBean.getFortress(), IGNORE_SEARCH_ENGINE)
+                            .setTimeZone(inputBean.getTimezone()));
+        fortress.setCompany(company);
+        FortressSegment segment;
+        if ( inputBean.getSegment() != null )
+            segment = fortressService.addSegment(new FortressSegment(fortress, inputBean.getSegment()));
+        else
+            segment = fortress.getDefaultSegment();
+        return trackEntity(segment, inputBean);
+    }
 
     /**
      * tracks an entity and creates logs. Distributes changes to KV stores and search engine.
@@ -212,7 +211,7 @@ public class MediationFacadeNeo implements MediationFacade {
         createTags(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
-        Future<DocumentType> docType = docTypeRetryService.createDocTypes(segment.getFortress(), first);
+        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
 
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.
@@ -220,8 +219,8 @@ public class MediationFacadeNeo implements MediationFacade {
         // We have to wait for the docType before proceeding to create entities
         try {
             // A long time, but this is to avoid test issues on the low spec build box
-            DocumentType theDoc = docType.get(10, TimeUnit.SECONDS);
-            assert theDoc.getCode()!=null;
+            Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
+            assert docs.size()!=0;
         } catch (TimeoutException e) {
             logger.error("Time out looking/creating docType " + first.getDocumentName());
             throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
@@ -261,22 +260,6 @@ public class MediationFacadeNeo implements MediationFacade {
 
         }
         return tags;
-    }
-
-    @Override
-    public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
-        if (fortress == null)
-            fortress = fortressService.registerFortress(company,
-                    new FortressInputBean(inputBean.getFortress(), IGNORE_SEARCH_ENGINE)
-                            .setTimeZone(inputBean.getTimezone()));
-        fortress.setCompany(company);
-        FortressSegment segment;
-        if ( inputBean.getSegment() != null )
-            segment = fortressService.addSegment(new FortressSegment(fortress, inputBean.getSegment()));
-        else
-            segment = fortress.getDefaultSegment();
-        return trackEntity(segment, inputBean);
     }
 
     @Override

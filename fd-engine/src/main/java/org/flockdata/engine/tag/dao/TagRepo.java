@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.dao;
+package org.flockdata.engine.tag.dao;
 
 import org.flockdata.model.Tag;
 import org.springframework.data.neo4j.annotation.Query;

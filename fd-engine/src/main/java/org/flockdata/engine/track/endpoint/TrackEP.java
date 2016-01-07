@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.endpoint;
 
-import org.flockdata.engine.concept.service.TxService;
+import org.flockdata.meta.service.TxService;
 import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
@@ -169,7 +169,7 @@ public class TrackEP {
                                                                    @PathVariable("xRefName") String xRefName,
                                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.linkEntities(company, new EntityKeyBean(fortressName, "*", callerRef), entities, xRefName);
+        return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, callerRef), entities, xRefName);
     }
 
 

@@ -19,12 +19,10 @@
 
 package org.flockdata.track.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.model.Relationship;
 
 /**
  *
- * Encapsulates a relationship instance
+ * Encapsulates a relationship name that is the connection between a DocType and a Concept
  *
  * Created by mike on 20/05/15.
  */
@@ -33,26 +31,20 @@ public class RelationshipResultBean  {
     RelationshipResultBean () {}
 
     private String name ;
-    private Long id;
 
-    public RelationshipResultBean (Relationship relationship){
+    public RelationshipResultBean(String relationship) {
         this();
-        this.name = relationship.getName();
-        this.id = relationship.getId();
+        this.name = relationship;
     }
+
     public String getName() {
         return name;
     }
 
-    @JsonIgnore
-    public Long getId() {
-        return id;
-    }
 
     @Override
     public String toString() {
         return "RelationshipResultBean{" +
-                "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -64,17 +56,13 @@ public class RelationshipResultBean  {
 
         RelationshipResultBean that = (RelationshipResultBean) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return !(id != null ? !id.equals(that.id) : that.id != null);
+        return name.equals(that.name);
 
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        return result;
+        return name.hashCode();
     }
-
-
 }
+

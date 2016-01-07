@@ -19,8 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.Relationship;
-import org.flockdata.model.Concept;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,13 +31,9 @@ import java.util.Collection;
 public class ConceptResultBean {
     private String name;
     private Collection<RelationshipResultBean> relationships = new ArrayList<>();
+    public static final String TAG = "T";
 
     ConceptResultBean(){}
-
-    public ConceptResultBean(Concept concept){
-        this(concept.getName());
-        addRelationships(concept.getRelationships());
-    }
 
     public ConceptResultBean(String name) {
         this();
@@ -52,6 +46,12 @@ public class ConceptResultBean {
 
     public Collection<RelationshipResultBean> getRelationships() {
         return relationships;
+    }
+
+    public ConceptResultBean addRelationship(RelationshipResultBean relationship) {
+        if ( !relationships.contains(relationship))
+            relationships.add( relationship);
+        return this;
     }
 
     @Override
@@ -77,14 +77,4 @@ public class ConceptResultBean {
         return name != null ? name.hashCode() : 0;
     }
 
-    public void addRelationships(Collection<Relationship> fauxRlxs) {
-        if ( fauxRlxs !=null&& !fauxRlxs.isEmpty() ){
-
-            for (Relationship relationship : fauxRlxs) {
-                relationships.add(new RelationshipResultBean(relationship));
-            }
-        }
-
-
-    }
 }

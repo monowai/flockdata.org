@@ -20,76 +20,41 @@
 package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.neo4j.graphdb.Direction;
+import org.flockdata.track.bean.ConceptInputBean;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
-import java.util.Collection;
-import java.util.TreeSet;
 
 /**
+ * A simple node that represents a Tag that exists in the Graph.
+ *
  * User: mike
  * Date: 16/06/14
  * Time: 10:16 AM
  */
 @NodeEntity
 @TypeAlias("Concept")
-public class Concept  {
+public class Concept {
 
     @GraphId
     Long id;
 
-    @Indexed(unique = true)
     private String name;
 
-    //@Relationship(type="KNOWN_RELATIONSHIP", direction = org.neo4j.ogm.annotation.Relationship.OUTGOING)
-    @RelatedTo(elementClass = Relationship.class, type="KNOWN_RELATIONSHIP", direction = Direction.OUTGOING)
-    Collection<Relationship> relationships;
+    @Indexed(unique = true)
+    private String key;
 
     protected Concept() {
     }
 
-    public Concept(String name) {
+    public Concept(ConceptInputBean inputBean) {
         this();
-        this.name = name;
-
+        this.name = inputBean.getName();
+        this.key = toKey(inputBean);
     }
 
-    public Concept(String indexName, String relationship, DocumentType docType) {
-        this(indexName);
-        addRelationship(relationship, docType);
-
-    }
-
-
-    public void addRelationship(String relationship, DocumentType docType) {
-        if ( relationships == null )
-            relationships = new TreeSet<>();
-
-        Relationship node = new Relationship(relationship, docType);
-        relationships.add(node);
-
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<Relationship> getRelationships() {
-        return relationships;
-    }
-
-    public void addRelationships(Collection<Relationship> tempRlx) {
-        this.relationships = tempRlx;
-    }
-
-    public boolean hasRelationship(String relationship) {
-        for (Relationship rlx: relationships) {
-            if ( rlx.getName().equalsIgnoreCase(relationship))
-                return true;
-        }
-        return false;
+    public static String toKey(ConceptInputBean concept) {
+        return "T." + concept.getName().toLowerCase();
     }
 
     public String getName() {
@@ -128,20 +93,4 @@ public class Concept  {
         return result;
     }
 
-    public Relationship hasRelationship(String relationshipName, DocumentType docType) {
-        if ( relationships == null )
-            return null;
-        for (Relationship relationship : relationships) {
-            if (relationship.getName().equalsIgnoreCase(relationshipName)){
-                for ( DocumentType documentType: relationship.getDocumentTypes()) {
-                    if ( documentType.getId().equals(docType.getId()))
-                        return relationship;
-
-                }
-
-            }
-
-        }
-        return null;
-    }
 }

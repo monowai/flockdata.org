@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.concept.service;
+package org.flockdata.meta.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.dao.ProfileDaoNeo;

@@ -24,6 +24,7 @@ import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.meta.dao.SchemaDaoNeo4j;
 import org.flockdata.query.*;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;

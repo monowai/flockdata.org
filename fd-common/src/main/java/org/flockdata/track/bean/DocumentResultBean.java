@@ -33,8 +33,11 @@ import java.util.ArrayList;
 public class DocumentResultBean {
 
     private Long id;
-
     private String name;
+    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
+
+    DocumentResultBean() {
+    }
 
     public String getName() {
         return name;
@@ -43,11 +46,6 @@ public class DocumentResultBean {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public ArrayList<ConceptResultBean> getConcepts() {
         return concepts;
-    }
-
-    ArrayList<ConceptResultBean> concepts = new ArrayList<>();
-
-    DocumentResultBean() {
     }
 
     public DocumentResultBean(DocumentType documentType) {
@@ -67,7 +65,6 @@ public class DocumentResultBean {
     }
 
     public void add(ConceptResultBean concept) {
-
         if (concepts == null)
             concepts = new ArrayList<>();
         concepts.add(concept);
@@ -88,13 +85,15 @@ public class DocumentResultBean {
 
         DocumentResultBean that = (DocumentResultBean) o;
 
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         return !(name != null ? !name.equals(that.name) : that.name != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 }
