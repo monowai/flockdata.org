@@ -43,11 +43,11 @@ public class TestCSVColumnParsing extends AbstractImport {
     public void string_NoHeaderWithDelimiter() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         File file = new File("/profile/column-parsing.json");
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportParams("/profile/column-parsing.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/profile/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
         long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
@@ -86,11 +86,11 @@ public class TestCSVColumnParsing extends AbstractImport {
     public void segment_SetInPayloadFromSource() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         File file = new File("/profile/column-parsing.json");
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportParams("/profile/column-parsing.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/profile/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
         long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);

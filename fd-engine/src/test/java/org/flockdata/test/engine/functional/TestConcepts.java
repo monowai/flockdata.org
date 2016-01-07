@@ -24,10 +24,7 @@ import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.RelationshipResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
@@ -41,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
@@ -51,8 +49,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * Date: 19/06/14
  * Time: 8:47 AM
  */
-public class TestTagConcepts extends EngineBase {
-    private Logger logger = LoggerFactory.getLogger(TestTagConcepts.class);
+public class TestConcepts extends EngineBase {
+    private Logger logger = LoggerFactory.getLogger(TestConcepts.class);
 
     @Override
     public void cleanUpGraph() {
@@ -131,11 +129,13 @@ public class TestTagConcepts extends EngineBase {
             Collection<String>documents = new ArrayList<>();
             documents.add("DocA");
             Set<DocumentResultBean> results = conceptService.findConcepts(su.getCompany(), documents, false);
-//            assertFalse(results.isEmpty());
+
             assertEquals(1, results.size());
 
-            input = new EntityInputBean(fortressB.getName(), "jinks", "DocB", new DateTime());
-            input.addTag(new TagInputBean("cust123", "Customer",  "purchased").setLabel("Customer"));
+            input = new EntityInputBean(fortressB.getName(), "jinks", "DocB", new DateTime())
+                    .addTag( new TagInputBean("cust123", "Customer",  "purchased")
+                        .setLabel("Customer"));
+
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             documents.add("DocB");
             results = conceptService.findConcepts(su.getCompany(), documents, false);
@@ -252,6 +252,12 @@ public class TestTagConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust123",  "Customer", "purchased").setLabel("Customer"));
             input.addTag(new TagInputBean("harry",  "Customer", "soldto").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
+            Set<DocumentResultBean> docResults = conceptService.findConcepts(su.getCompany(), "DocA", true);
+            assertEquals(1, docResults.size());
+            assertEquals( 1, docResults.iterator().next().getConcepts().size());
+            assertEquals( "should have been two relationships", 2, docResults.iterator().next().getConcepts().iterator().next().getRelationships().size());
+
+
             input = new EntityInputBean(fortress.getName(), "jinks", "DocA", new DateTime());
             input.addTag(new TagInputBean("cust121", "Customer",  "purchased").setLabel("Customer"));
             input.addTag(new TagInputBean("harry", "Customer",  "soldto").setLabel("Customer"));
@@ -317,8 +323,7 @@ public class TestTagConcepts extends EngineBase {
             Collection<String> docs = new ArrayList<>();
             docs.add(docA.getName());
             docs.add(docB.getName());
-            boolean docAFound = false;
-            boolean docBFound = false;
+
             Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
             for (DocumentResultBean docType : docTypes) {
                 Collection<ConceptResultBean> concepts = docType.getConcepts();
@@ -472,6 +477,54 @@ public class TestTagConcepts extends EngineBase {
         }
 
     }
+
+    @Test
+    public void testEntityConceptsLink () throws Exception {
+        // Initial setup
+        cleanUpGraph();
+
+        engineConfig.setConceptsEnabled("true");
+        engineConfig.setTestMode(true);
+
+        SystemUser su = registerSystemUser("testEntityConceptsLink", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testEntityConceptsLink", true));
+
+        EntityInputBean staff = new EntityInputBean(fortress.getName(), "wally", "Staff", new DateTime(), "ABC123");
+
+        mediationFacade.trackEntity(su.getCompany(), staff);
+        assertEquals(1, conceptService.getDocumentsInUse(su.getCompany()).size());
+
+        // Checking that the entity is linked when part of the track request
+        EntityInputBean workRecord = new EntityInputBean(fortress.getName(), "wally", "Work", new DateTime(), "ABC321")
+                .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
+                .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123"));
+
+        mediationFacade.trackEntity(su.getCompany(), workRecord);
+        assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
+
+        Collection<String>docs = new ArrayList<>();
+        docs.add("Staff");
+        docs.add("Work");
+        Set<DocumentResultBean> documentResults = conceptService.findConcepts(su.getCompany(), docs, true);
+        assertEquals(2, documentResults.size());
+        for (DocumentResultBean documentResultBean : documentResults) {
+            switch (documentResultBean.getName()) {
+                case "Staff":
+                    break;
+                case "Work":
+                    // nothing to assert yet
+                    assertEquals(1, documentResultBean.getConcepts().size());
+                    assertEquals("SomeLabel", documentResultBean.getConcepts().iterator().next().getName());
+                    break;
+                default:
+                    fail("Unexpected Document Type " + documentResultBean);
+                    break;
+            }
+        }
+
+        // We should be able to find that a Staff entity has a worked link to a Timesheet
+    }
+
 
     private Set<DocumentResultBean> validateConcepts(String document, SystemUser su, int expected) throws Exception {
         Collection<String> docs = new ArrayList<>();

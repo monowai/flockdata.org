@@ -37,7 +37,7 @@ public class AbstractImport {
 
     protected static ClientConfiguration getClientConfiguration(String jsonConfig) {
         File file = new File(jsonConfig);
-        ClientConfiguration configuration = Configure.readConfiguration(file);
+        ClientConfiguration configuration = Configure.getConfiguration(file);
         TestCase.assertNotNull(configuration);
         if ( configuration.getDefaultUser() == null )
             configuration.setDefaultUser("test");

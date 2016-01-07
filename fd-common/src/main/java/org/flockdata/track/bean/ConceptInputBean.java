@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -29,23 +30,50 @@ import java.util.Set;
  */
 public class ConceptInputBean {
     private String name;
+    private boolean tag = true;
 
-    Collection<String> relationships;
+    Collection<String> relationships = new HashSet<>();
+
+    private ConceptInputBean() {}
+
+    public ConceptInputBean(String name) {
+        this();
+        this.name = name;
+    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public ConceptInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Collection<String> getRelationships(){
         return relationships;
     }
 
-    public void setRelationships(Set<String> relationships) {
-        this.relationships = relationships;
+    public ConceptInputBean setRelationships(Set<String> relationships) {
+        for (String relationship : relationships) {
+            if ( !this.relationships.contains(relationship))
+                this.relationships.add(relationship);
+        }
+        return this;
+    }
+
+    /**
+     * If not a Tag then it is an Entity
+     *
+     * @return
+     */
+    public boolean isTag() {
+        return tag;
+    }
+
+    public ConceptInputBean setTag(boolean tag) {
+        this.tag = tag;
+        return this;
     }
 
     @Override
@@ -55,15 +83,15 @@ public class ConceptInputBean {
 
         ConceptInputBean that = (ConceptInputBean) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return !(relationships != null ? !relationships.equals(that.relationships) : that.relationships != null);
+        if (tag != that.tag) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (relationships != null ? relationships.hashCode() : 0);
+        result = 31 * result + (tag ? 1 : 0);
         return result;
     }
 

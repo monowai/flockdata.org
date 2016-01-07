@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNotNull;
 public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
-        ImportProfile params = ClientConfiguration.getImportParams("/csv-tag-import.json");
+        ImportProfile params = ClientConfiguration.getImportProfile("/csv-tag-import.json");
         CsvTagMapper mappedTag = new CsvTagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};

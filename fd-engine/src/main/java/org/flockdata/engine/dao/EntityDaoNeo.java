@@ -22,6 +22,7 @@ package org.flockdata.engine.dao;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.meta.dao.DocumentTypeRepo;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.EntityInputBean;

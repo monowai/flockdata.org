@@ -3,7 +3,6 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.DocumentType;
-import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
@@ -62,8 +61,8 @@ public class TestEntityLinks extends EngineBase {
 
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
 
-        EntityKeyBean staffKey = new EntityKeyBean(staff.getFortress(), staff.getDocumentName(), staff.getCode());
-        EntityKeyBean workKey = new EntityKeyBean(workRecord.getFortress(), workRecord.getDocumentName(), workRecord.getCode());
+        EntityKeyBean staffKey = new EntityKeyBean(staff.getDocumentName(), staff.getFortress(), staff.getCode());
+        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortress(), workRecord.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(staffKey);
@@ -114,7 +113,7 @@ public class TestEntityLinks extends EngineBase {
 
         EntityInputBean workRecord = new EntityInputBean(timesheet.getName(), "wally", docTypeWork.getName(), new DateTime(), "ABC321");
         // Checking that the entity is linked when part of the track request
-        workRecord.addEntityLink("worked", new EntityKeyBean("timesheet", "Staff", "ABC123"));
+        workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123"));
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
         SearchChange searchDocument = searchService.getSearchChange(workResult);
         validateSearchStaff( searchDocument);

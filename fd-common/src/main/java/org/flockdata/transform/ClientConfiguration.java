@@ -37,7 +37,7 @@ public class ClientConfiguration {
     private String company;
     private boolean async;
     private boolean validateOnly;
-    private boolean amqp;
+    private boolean amqp=true;
     private String trackQueue = "fd.track.queue";
     private String trackExchange = "fd.track.exchange";
     private String trackRoutingKey = "fd.track.binding";
@@ -45,6 +45,20 @@ public class ClientConfiguration {
     private String rabbitPass="guest";
     private String rabbitUser="guest";
     private Boolean persistentDelivery= true;
+    private int stopRowProcessCount =0;
+    private int skipCount=0;
+    private File file;
+    private boolean reconfigure;
+    String engineURL = "http://localhost:8080/fd-engine";
+    String defaultUser = null;
+    String apiKey = null;
+    int batchSize = 100;
+
+
+
+    public ClientConfiguration() {
+
+    }
 
     public ClientConfiguration(Properties prop) {
         Object o = prop.get("engineURL");
@@ -53,8 +67,9 @@ public class ClientConfiguration {
         o = prop.get("defaultUser");
         if (o != null)
             setDefaultUser(o.toString());
+
         o = prop.get("apiKey");
-        if (o != null)
+        if (o != null && !o.toString().equals(""))
             setApiKey(o.toString());
         o = prop.get("batchSize");
         if (o != null)
@@ -87,9 +102,6 @@ public class ClientConfiguration {
         if (o != null)
             setRabbitPass(o.toString());
 
-    }
-
-    public ClientConfiguration() {
     }
 
     public String getEngineURL() {
@@ -125,11 +137,6 @@ public class ClientConfiguration {
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
     }
-
-    String engineURL = "http://localhost:8080/fd-engine";
-    String defaultUser = null;
-    String apiKey = "";
-    int batchSize = 100;
 
     @Override
     public String toString() {
@@ -167,7 +174,14 @@ public class ClientConfiguration {
         return properties;
     }
 
-    public static ImportProfile getImportParams(String profile) throws IOException, ClassNotFoundException {
+    /**
+     * 
+     * @param profile Fully file name
+     * @return initialized ImportProfile
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static ImportProfile getImportProfile(String profile) throws IOException, ClassNotFoundException {
         ImportProfile importProfile;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
@@ -209,7 +223,7 @@ public class ClientConfiguration {
     }
 
     public void setAmqp(boolean amqp) {
-        setAmqp( amqp, true);
+        setAmqp(amqp, true);
     }
 
     public void setAmqp(boolean amqp, boolean persistentDelivery) {
@@ -275,5 +289,48 @@ public class ClientConfiguration {
 
     public void setPersistentDelivery(boolean persistentDelivery) {
         this.persistentDelivery = persistentDelivery;
+    }
+
+    public void setStopRowProcessCount(int stopRowProcessCount) {
+        this.stopRowProcessCount = stopRowProcessCount;
+    }
+
+    /**
+     * stop count
+     * @return stop processing after this row is reached
+     */
+    public int getStopRowProcessCount() {
+        return stopRowProcessCount;
+    }
+
+    public void setSkipCount(int skipCount) {
+        this.skipCount = skipCount;
+    }
+
+    public int getSkipCount() {
+        return skipCount;
+    }
+
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setReconfigure(boolean reconfigure) {
+        this.reconfigure = reconfigure;
+    }
+
+    public boolean isReconfigure() {
+        return reconfigure;
+    }
+
+    public void append(ClientConfiguration clientConfiguration) {
+        setAmqp(clientConfiguration.isAmqp());
+        setApiKey(clientConfiguration.getApiKey());
+        setReconfigure(clientConfiguration.isReconfigure());
     }
 }

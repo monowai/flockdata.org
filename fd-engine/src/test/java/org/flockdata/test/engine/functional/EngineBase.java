@@ -21,7 +21,7 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.concept.service.TxService;
+import org.flockdata.meta.service.TxService;
 import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;

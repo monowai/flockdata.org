@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
+import com.google.protobuf.ByteString;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -35,13 +36,17 @@ public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company company);
 
+    Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships);
+
     Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships);
 
     DocumentType resolveByDocCode(Fortress fortress, String documentCode);
 
     DocumentType resolveByDocCode(Fortress fortress, String documentCode, Boolean createIfMissing);
 
-    void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
+    void registerConcepts(Iterable<TrackResultBean> resultBeans);
+
+    void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType);
 
     DocumentType save(DocumentType documentType);
 
@@ -50,4 +55,6 @@ public interface ConceptService {
     DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
     DocumentType findOrCreate(Fortress fortress, DocumentType documentType);
+
+
 }

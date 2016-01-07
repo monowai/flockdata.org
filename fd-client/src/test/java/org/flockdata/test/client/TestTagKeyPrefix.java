@@ -22,7 +22,7 @@ public class TestTagKeyPrefix extends AbstractImport {
     public void prefix_TagKeyWorks() throws Exception {
         ClientConfiguration configuration= getClientConfiguration("/profile/tag-key-prefix.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ClientConfiguration.getImportParams("/profile/tag-key-prefix.json"),
+        fileProcessor.processFile(ClientConfiguration.getImportProfile("/profile/tag-key-prefix.json"),
                 "/data/tag-key-prefix.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
