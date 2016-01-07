@@ -84,7 +84,7 @@ public class ConceptRetryService {
             return;
 
         logger.debug("Register concepts");
-        conceptService.registerConcepts(fortress, resultBeans);
+        conceptService.registerConcepts(resultBeans);
         logger.debug("Completed concept registrations");
 
     }
