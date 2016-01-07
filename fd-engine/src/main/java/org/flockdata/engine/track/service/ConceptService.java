@@ -43,6 +43,8 @@ public interface ConceptService {
 
     void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans);
 
+    void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType);
+
     DocumentType save(DocumentType documentType);
 
     DocumentType findDocumentType(Fortress fortress, String documentName);
@@ -50,4 +52,5 @@ public interface ConceptService {
     DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
     DocumentType findOrCreate(Fortress fortress, DocumentType documentType);
+
 }

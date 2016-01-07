@@ -34,11 +34,13 @@ public class RelationshipResultBean  {
 
     private String name ;
     private Long id;
+    private String type;
 
-    public RelationshipResultBean (Relationship relationship){
+    public RelationshipResultBean (String type, Relationship relationship){
         this();
         this.name = relationship.getName();
         this.id = relationship.getId();
+        this.type = type;
     }
     public String getName() {
         return name;
@@ -49,11 +51,17 @@ public class RelationshipResultBean  {
         return id;
     }
 
+    public String getType() {
+        return type;
+    }
+
+
     @Override
     public String toString() {
         return "RelationshipResultBean{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
                 '}';
     }
 
@@ -65,7 +73,8 @@ public class RelationshipResultBean  {
         RelationshipResultBean that = (RelationshipResultBean) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return !(id != null ? !id.equals(that.id) : that.id != null);
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return !(type != null ? !type.equals(that.type) : that.type != null);
 
     }
 
@@ -73,8 +82,8 @@ public class RelationshipResultBean  {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
-
-
 }
+

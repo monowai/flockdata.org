@@ -47,6 +47,8 @@ public class EntityInputBean implements Serializable, UserProperties{
     private Date lastChange = null;
     private ContentInputBean content;
     private transient List<TagInputBean> tags = new ArrayList<>();
+
+    // String is the relationship name
     private transient Map<String,List<EntityKeyBean>> entityLinks = new HashMap<>();
     Map<String, Object> properties = new HashMap<>();
 
@@ -332,13 +334,14 @@ public class EntityInputBean implements Serializable, UserProperties{
         return this;
     }
 
-    public void addEntityLink(String relationshipName, EntityKeyBean entityKey){
+    public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey){
         List<EntityKeyBean>refs = entityLinks.get(relationshipName);
         if ( refs == null ){
             refs = new ArrayList<>();
             entityLinks.put(relationshipName, refs);
         }
         refs.add(entityKey);
+        return this;
     }
 
     /**

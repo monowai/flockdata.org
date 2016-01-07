@@ -24,7 +24,7 @@ package org.flockdata.test.engine.suites;
  */
 
 import org.flockdata.test.engine.functional.TestEntityTags;
-import org.flockdata.test.engine.functional.TestTagConcepts;
+import org.flockdata.test.engine.functional.TestConcepts;
 import org.flockdata.test.engine.functional.TestTagMerge;
 import org.flockdata.test.engine.functional.TestTags;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        TestTagConcepts.class,
+        TestConcepts.class,
         TestTagMerge.class,
         TestTags.class,
         TestEntityTags.class

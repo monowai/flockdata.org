@@ -62,7 +62,7 @@ public class EntityKeyBean {
 
     }
 
-    public EntityKeyBean(String fortressName, String documentType, String code){
+    public EntityKeyBean(String documentType, String fortressName, String code){
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.code = code;

@@ -21,12 +21,10 @@ package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.track.bean.ConceptInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.Collection;
 import java.util.TreeSet;
@@ -38,17 +36,25 @@ import java.util.TreeSet;
  */
 @NodeEntity
 @TypeAlias("Concept")
-public class Concept  {
+public class Concept {
 
     @GraphId
     Long id;
 
-    @Indexed(unique = true)
     private String name;
 
-    //@Relationship(type="KNOWN_RELATIONSHIP", direction = org.neo4j.ogm.annotation.Relationship.OUTGOING)
-    @RelatedTo(elementClass = Relationship.class, type="KNOWN_RELATIONSHIP", direction = Direction.OUTGOING)
-    Collection<Relationship> relationships;
+    @Indexed(unique = true)
+    private String key;
+
+    @RelatedTo(elementClass = Relationship.class, type = "KNOWN_TAG", direction = Direction.OUTGOING)
+    @Fetch
+    Collection<Relationship> knownTags;
+
+    @RelatedTo(elementClass = Relationship.class, type = "KNOWN_ENTITY", direction = Direction.OUTGOING)
+    @Fetch
+    Collection<Relationship> knownEntities;
+
+    private String type = "T";
 
     protected Concept() {
     }
@@ -59,37 +65,57 @@ public class Concept  {
 
     }
 
-    public Concept(String indexName, String relationship, DocumentType docType) {
-        this(indexName);
-        addRelationship(relationship, docType);
-
+    public Concept(ConceptInputBean concept, String relationship, DocumentType connectedTo) {
+        this(concept.getName());
+        if (concept.isTag()) {
+            addTagRelationship(relationship, connectedTo);
+        } else {
+            this.type = "E";
+            addEntityRelationship(relationship, connectedTo);
+        }
+        this.key = toKey(concept);
     }
 
+    public static String toKey(ConceptInputBean concept) {
+        String type = "T";
+        if (!concept.isTag())
+            type = "E";
+        return type + "." + concept.getName().toLowerCase();
+    }
 
-    public void addRelationship(String relationship, DocumentType docType) {
-        if ( relationships == null )
-            relationships = new TreeSet<>();
+    public void addTagRelationship(String relationship, DocumentType docType) {
+        if (knownTags == null)
+            knownTags = new TreeSet<>();
 
         Relationship node = new Relationship(relationship, docType);
-        relationships.add(node);
+        knownTags.add(node);
+    }
+
+    /**
+     * Entity to Entity relationship meta map.
+     * <p/>
+     * Creates a relationship between this concept and another connectedTo.
+     *
+     * @param relationship named rlx
+     * @param docType
+     */
+    public void addEntityRelationship(String relationship, DocumentType docType) {
+        if (knownEntities == null)
+            knownEntities = new TreeSet<>();
+
+        Relationship node = new Relationship(relationship, docType);
+        knownEntities.add(node);
 
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<Relationship> getRelationships() {
-        return relationships;
+    public Collection<Relationship> getKnownTags() {
+        return knownTags;
     }
 
-    public void addRelationships(Collection<Relationship> tempRlx) {
-        this.relationships = tempRlx;
-    }
-
-    public boolean hasRelationship(String relationship) {
-        for (Relationship rlx: relationships) {
-            if ( rlx.getName().equalsIgnoreCase(relationship))
-                return true;
-        }
-        return false;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Collection<Relationship> getKnownEntities() {
+        return knownEntities;
     }
 
     public String getName() {
@@ -128,20 +154,38 @@ public class Concept  {
         return result;
     }
 
-    public Relationship hasRelationship(String relationshipName, DocumentType docType) {
-        if ( relationships == null )
+    public Relationship hasTagRelationship(String relationshipName, DocumentType docType) {
+        return hasRelationship(knownTags, relationshipName, docType);
+    }
+
+    public Relationship hasEntityRelationship(String relationshipName, DocumentType docType) {
+        return hasRelationship(knownEntities, relationshipName, docType);
+    }
+
+    private Relationship hasRelationship(Collection<Relationship> analyze, String relationshipName, DocumentType docType) {
+        if (analyze == null)
             return null;
-        for (Relationship relationship : relationships) {
-            if (relationship.getName().equalsIgnoreCase(relationshipName)){
-                for ( DocumentType documentType: relationship.getDocumentTypes()) {
-                    if ( documentType.getId().equals(docType.getId()))
+        for (Relationship relationship : analyze) {
+            if (relationship.getName().equalsIgnoreCase(relationshipName)) {
+                for (DocumentType documentType : relationship.getDocumentTypes()) {
+                    if (documentType.getId().equals(docType.getId()))
                         return relationship;
-
                 }
-
             }
-
         }
         return null;
     }
+
+
+    /**
+     * @return E for Entity, T for Tag
+     */
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }
