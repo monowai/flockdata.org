@@ -267,10 +267,10 @@ public class FileProcessor {
         } finally {
             writer.close(fdLoader);
         }
-        if (!referenceInputBeans.isEmpty()) {
-            logger.debug("Wrote [{}] cross references",
-                    writeEntityLinks(writer, referenceInputBeans));
-        }
+//        if (!referenceInputBeans.isEmpty()) {
+//            logger.debug("Wrote [{}] cross references",
+//                    writeEntityLinks(writer, referenceInputBeans));
+//        }
 
         return endProcess(watch, rows, 0);
     }
@@ -293,7 +293,7 @@ public class FileProcessor {
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
             XMLStreamReader xsr = xif.createXMLStreamReader(source);
-            List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
+            //List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
             XmlMappable mappable = (XmlMappable) Transformer.getMappable(importProfile);
             mappable.positionReader(xsr);
 
@@ -303,10 +303,10 @@ public class FileProcessor {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
                     EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
-                    if (entityInputBean!=null && !entityInputBean.getEntityLinks().isEmpty()) {
-                        referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
-                        entityInputBean.getEntityLinks().size();
-                    }
+//                    if (entityInputBean!=null && !entityInputBean.getEntityLinks().isEmpty()) {
+//                        referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+//                        entityInputBean.getEntityLinks().size();
+//                    }
                     rows++;
                     xsr.nextTag();
                     fdLoader.batchEntity(entityInputBean);
@@ -319,9 +319,9 @@ public class FileProcessor {
             } finally {
                 writer.close(fdLoader);
             }
-            if (!referenceInputBeans.isEmpty()) {
-                logger.debug("Wrote [{}] cross references", writeEntityLinks(writer, referenceInputBeans));
-            }
+//            if (!referenceInputBeans.isEmpty()) {
+//                logger.debug("Wrote [{}] cross references", writeEntityLinks(writer, referenceInputBeans));
+//            }
             return endProcess(watch, rows, 0);
 
 
@@ -330,15 +330,13 @@ public class FileProcessor {
         }
     }
 
-    private int writeEntityLinks(FdWriter fdWriter, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        return fdWriter.flushEntityLinks(referenceInputBeans);
-    }
+//    private int writeEntityLinks(FdWriter fdWriter, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+//        return fdWriter.flushEntityLinks(referenceInputBeans);
+//    }
 
     private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
-
-
         long ignoreCount = 0;
         long currentRow = 0;
 
@@ -346,7 +344,7 @@ public class FileProcessor {
         Reader fileObject = getReader(file);
 
         br = new BufferedReader(fileObject);
-        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
+//        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
             CSVReader csvReader;
@@ -391,10 +389,10 @@ public class FileProcessor {
                         if (map != null) {
                             if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY) {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
-                                if (entityInputBean != null && !entityInputBean.getEntityLinks().isEmpty()) {
-                                    referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
-                                    currentRow = currentRow + entityInputBean.getEntityLinks().size();
-                                }
+//                                if (entityInputBean != null && !entityInputBean.getEntityLinks().isEmpty()) {
+//                                    referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
+//                                    currentRow = currentRow + entityInputBean.getEntityLinks().size();
+//                                }
                                 // Dispatch/load mechanism
                                 if ( entityInputBean!=null )
                                     fdLoader.batchEntity(entityInputBean);
@@ -417,10 +415,10 @@ public class FileProcessor {
 
             writer.close(fdLoader);
 
-            if (!referenceInputBeans.isEmpty()) {
-                // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
-                logger.debug("Wrote [{}] x entity links", writeEntityLinks(writer, referenceInputBeans));
-            }
+//            if (!referenceInputBeans.isEmpty()) {
+//                // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
+//                logger.debug("Wrote [{}] x entity links", writeEntityLinks(writer, referenceInputBeans));
+//            }
             br.close();
         }
 
