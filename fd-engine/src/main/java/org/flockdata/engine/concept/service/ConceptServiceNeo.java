@@ -21,14 +21,14 @@ package org.flockdata.engine.concept.service;
 
 import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.DocumentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +41,14 @@ import java.util.*;
  * Reporting/Schema monitoring service
  * Whenever an entity is tracked, it's TrackResultBean is sent to this service so that the top
  * down meta data can be logged.
- *
+ * <p/>
  * Concepts represent the Tags and Entities that are being tracked in this service
  * An Entity is represented as a DocumentType. It exists in both it's DocumentType.name index
  * and a generic Entity index
- *
+ * <p/>
  * Tags are also called Concepts. These are also indexed uniquely withing a Label that identifies
  * their type and a generic"Tags" Label.
- *
+ * <p/>
  * Created by mike on 19/06/15.
  */
 
@@ -65,7 +65,6 @@ public class ConceptServiceNeo implements ConceptService {
      *
      * @param company who owns the docs
      * @return Docs in use
-     *
      */
     @Override
     @Transactional
@@ -74,10 +73,17 @@ public class ConceptServiceNeo implements ConceptService {
         Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
         for (DocumentType rawDoc : rawDocs) {
             DocumentResultBean newDoc = new DocumentResultBean(rawDoc);
-            if ( !results.contains(newDoc))
+            if (!results.contains(newDoc))
                 results.add(newDoc);
         }
         return results;
+    }
+
+    @Override
+    public Set<DocumentResultBean> findConcepts(Company company, String documentName, boolean withRelationships) {
+        Collection<String> documentNames = new ArrayList<>();
+        documentNames.add(documentName);
+        return conceptDao.findConcepts(company, documentNames, withRelationships);
     }
 
     /**
@@ -90,9 +96,7 @@ public class ConceptServiceNeo implements ConceptService {
      */
     @Override
     public Set<DocumentResultBean> findConcepts(Company company, Collection<String> documentNames, boolean withRelationships) {
-
         return conceptDao.findConcepts(company, documentNames, withRelationships);
-
     }
 
     /**
@@ -108,7 +112,7 @@ public class ConceptServiceNeo implements ConceptService {
     }
 
     @Override
-    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType){
+    public DocumentType findOrCreate(Fortress fortress, DocumentType documentType) {
         return conceptDao.findDocumentType(fortress, documentType, true);
     }
 
@@ -133,18 +137,20 @@ public class ConceptServiceNeo implements ConceptService {
 
     @Override
     public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
-        conceptDao.linkEntities (sourceType, relationship, targetType);
+        conceptDao.linkEntities(sourceType, relationship, targetType);
     }
 
     @Override
     public void registerConcepts(Fortress fortress, Iterable<TrackResultBean> resultBeans) {
         assert fortress != null;
         logger.debug("Processing concepts for {}", fortress.getCompany());
-        Map<DocumentType, Collection<ConceptInputBean>> payload = new HashMap<>();
+        Map<DocumentType, ArrayList<ConceptInputBean>> payload = new HashMap<>();
+//        Map<String,ConceptInputBean>uniqueConcepts = new HashMap<>();
+
         for (TrackResultBean resultBean : resultBeans) {
             if (resultBean.getEntity() != null && resultBean.getEntity().getId() != null) {
                 DocumentType docType = resultBean.getDocumentType();
-                Collection<ConceptInputBean> conceptInputBeans = payload.get(docType);
+                ArrayList<ConceptInputBean> conceptInputBeans = payload.get(docType);
                 if (conceptInputBeans == null) {
                     conceptInputBeans = new ArrayList<>();
                     payload.put(docType, conceptInputBeans);
@@ -154,11 +160,13 @@ public class ConceptServiceNeo implements ConceptService {
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
                         if (!inputTag.getEntityLinks().isEmpty()) {
-                            ConceptInputBean cib = new ConceptInputBean();
-                            cib.setRelationships(inputTag.getEntityLinks().keySet());
-                            cib.setName(inputTag.getLabel());
-                            if (!conceptInputBeans.contains(cib))
+                            ConceptInputBean cib = new ConceptInputBean(inputTag.getLabel());
+
+                            if (!conceptInputBeans.contains(cib)) {
+                                cib.setRelationships(inputTag.getEntityLinks().keySet());
                                 conceptInputBeans.add(cib);
+                            }else
+                                conceptInputBeans.get(conceptInputBeans.indexOf(cib)).setRelationships(inputTag.getEntityLinks().keySet());
                         }
                     }
                 }

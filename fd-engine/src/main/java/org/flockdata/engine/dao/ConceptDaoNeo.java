@@ -55,9 +55,8 @@ public class ConceptDaoNeo {
         template.fetch(toDoc.getFortress());
         template.fetch(toDoc.getConcepts());
 
-        ConceptInputBean conceptInputBean = new ConceptInputBean()
-                .setTag(false)
-                .setName(fromDoc.getName());
+        ConceptInputBean conceptInputBean = new ConceptInputBean(fromDoc.getName())
+                .setTag(false);
         Concept foundConcept = conceptTypeRepo.findBySchemaPropertyValue("key", Concept.toKey(conceptInputBean));
         if (foundConcept == null) {
             logger.debug("No existing concept found for [{}]. Creating it", relationship);
@@ -79,7 +78,7 @@ public class ConceptDaoNeo {
         documentTypeRepo.save(toDoc);
     }
 
-    public void registerConcepts(Map<DocumentType, Collection<ConceptInputBean>> documentConcepts) {
+    public void registerConcepts(Map<DocumentType, ArrayList<ConceptInputBean>> documentConcepts) {
         logger.trace("Registering concepts");
 
         for (DocumentType docType : documentConcepts.keySet()) {
@@ -113,6 +112,10 @@ public class ConceptDaoNeo {
             if (save) {
                 logger.trace("About to register {} concepts", concepts.size());
                 documentTypeRepo.save(docType);
+                for (Concept concept : docType.getConcepts()) {
+                    conceptTypeRepo.save(concept);
+                }
+
                 logger.trace("{} Concepts registered", concepts.size());
             }
         }
@@ -215,7 +218,7 @@ public class ConceptDaoNeo {
 
             if (withRelationships) {
                 for (Concept concept : document.getConcepts()) {
-                    Collection<Relationship> relationshipResults = new ArrayList<>();
+                    Collection<Relationship> relationshipResults = new HashSet<>();
 
                     template.fetch(concept);
                     template.fetch(concept.getKnownTags());
