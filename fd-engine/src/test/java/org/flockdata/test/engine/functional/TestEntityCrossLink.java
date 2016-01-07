@@ -76,8 +76,8 @@ public class TestEntityCrossLink extends EngineBase {
 
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
-        EntityKeyBean parentKey = new EntityKeyBean(parent.getFortress(), parent.getDocumentName(), parent.getCode());
-        EntityKeyBean childKey = new EntityKeyBean(child.getFortress(), child.getDocumentName(), child.getCode());
+        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentName(), parent.getFortress(), parent.getCode());
+        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentName(), child.getFortress(), child.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey);
@@ -159,7 +159,7 @@ public class TestEntityCrossLink extends EngineBase {
         List<EntityKeyBean> callerRefs = new ArrayList<>();
         // DAT-443 - Request to xreference with an entity that does not yet exists.
         // Only will work if the fortress and doctype are known
-        callerRefs.add(new EntityKeyBean(fortress.getName(), trackResultBean.getDocumentType().getName(), "ABC321"));
+        callerRefs.add(new EntityKeyBean(trackResultBean.getDocumentType().getName(), fortress.getName(), "ABC321"));
         EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
         List<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
         TestCase.assertTrue(results.isEmpty());
@@ -210,7 +210,7 @@ public class TestEntityCrossLink extends EngineBase {
         xRef.add(new EntityKeyBean("ABC321"));
         xRef.add(new EntityKeyBean("Doesn't matter"));
         try {
-            EntityKeyBean entityKey = new EntityKeyBean(fortress.getName(), "*", callerRef);
+            EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), callerRef);
             entityService.linkEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
         } catch (FlockException e) {
@@ -237,7 +237,7 @@ public class TestEntityCrossLink extends EngineBase {
         callerRefs.add(new EntityKeyBean("ABC321"));
         callerRefs.add(new EntityKeyBean("ABC333"));
 
-        EntityKeyBean entityKey = new EntityKeyBean(fortress.getName(), "*", "ABC123");
+        EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), "ABC123");
         Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, callerRefs, "cites");
         assertEquals(0, notFound.size());
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
@@ -303,8 +303,8 @@ public class TestEntityCrossLink extends EngineBase {
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
         List<EntityKeyBean> entityKeys = new ArrayList<>();
 
-        entityKeys.add(new EntityKeyBean(fortressA.getName(), "DocTypeZ", "ABC321"));
-        entityKeys.add(new EntityKeyBean(fortressB.getName(), "DocTypeS", "ABC333"));
+        entityKeys.add(new EntityKeyBean("DocTypeZ", fortressA.getName(), "ABC321"));
+        entityKeys.add(new EntityKeyBean("DocTypeS", fortressB.getName(), "ABC333"));
 
         refs.put("cites", entityKeys);
         inputBean.setEntityLinks(refs);

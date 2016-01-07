@@ -169,7 +169,7 @@ public class TrackEP {
                                                                    @PathVariable("xRefName") String xRefName,
                                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.linkEntities(company, new EntityKeyBean(fortressName, "*", callerRef), entities, xRefName);
+        return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, callerRef), entities, xRefName);
     }
 
 

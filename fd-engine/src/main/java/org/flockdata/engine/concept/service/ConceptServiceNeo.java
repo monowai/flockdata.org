@@ -73,7 +73,9 @@ public class ConceptServiceNeo implements ConceptService {
         Collection<DocumentResultBean> results = new ArrayList<>();
         Collection<DocumentType> rawDocs = conceptDao.getCompanyDocumentsInUse(company);
         for (DocumentType rawDoc : rawDocs) {
-            results.add(new DocumentResultBean(rawDoc));
+            DocumentResultBean newDoc = new DocumentResultBean(rawDoc);
+            if ( !results.contains(newDoc))
+                results.add(newDoc);
         }
         return results;
     }
@@ -127,6 +129,11 @@ public class ConceptServiceNeo implements ConceptService {
 
         return conceptDao.findDocumentType(fortress, documentCode, createIfMissing);
 
+    }
+
+    @Override
+    public void linkEntities(DocumentType sourceType, String relationship, DocumentType targetType) {
+        conceptDao.linkEntities (sourceType, relationship, targetType);
     }
 
     @Override

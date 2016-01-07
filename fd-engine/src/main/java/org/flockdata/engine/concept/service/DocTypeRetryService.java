@@ -23,6 +23,8 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.service.FortressService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,9 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.HeuristicRollbackException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -50,20 +55,69 @@ public class DocTypeRetryService {
     @Autowired
     ConceptService conceptService;
 
+    @Autowired
+    FortressService fortressService;
+
     private Logger logger = LoggerFactory.getLogger(DocTypeRetryService.class);
 
+    /**
+     * Creates document types for the input beans if they do not exist
+     * Handles linked entities which may be part of the EntityInputBean.
+     * Ensures the fortress also exists for the linked Entities
+     *
+     * @param fortress      all InputBeans are deemed to belong to this fortress
+     * @param inputBeans    collection of Entities from which to find DocumentTypes and linked Entities
+     *
+     * @return Collection of DocumentType objects that were created
+     */
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<DocumentType> createDocTypes(Fortress fortress,  EntityInputBean inputBean) {
-        DocumentType result;
-        if (inputBean.getDocumentType() == null)
-            // OldWay
-            result = new DocumentType(fortress, inputBean.getDocumentName());
-        else
-        //  new way DAT-498 - a way to pass the DocType properties
-            result =  new DocumentType(fortress, inputBean.getDocumentType());
+    public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans)  {
+        Collection<DocumentType> docTypes = new ArrayList<>();
+        DocumentType master ;
+        for (EntityInputBean entityInputBean : inputBeans) {
+            master = getDocumentType(fortress, entityInputBean);
+            if (!docTypes.contains(master)) {
+                master = conceptService.findOrCreate(fortress, master);
+                docTypes.add(master);
+                if (!entityInputBean.getEntityLinks().isEmpty()) {
 
-        result = conceptService.findOrCreate(fortress, result);
-        logger.debug("Finished result = {}"+ result);
-        return new AsyncResult<>(result);
+                    // The entity being processed is linked to other entities.
+                    // need to ensure that both the Fortress and DocumentType are also created
+                    for (String relationship : entityInputBean.getEntityLinks().keySet()) {
+                        for (EntityKeyBean entityKeyBean : entityInputBean.getEntityLinks().get(relationship)) {
+                            Fortress subFortress;
+
+                            if (!fortress.getName().equals(entityKeyBean.getFortressName()))
+                                subFortress = fortressService.registerFortress(fortress.getCompany(), entityKeyBean.getFortressName());
+                            else
+                                subFortress = fortress;
+
+                            DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
+                            if (!docTypes.contains(linkedDocument)) {
+                                linkedDocument= conceptService.findOrCreate(subFortress, linkedDocument);
+                                docTypes.add(linkedDocument);
+
+                                conceptService.linkEntities (master, relationship, linkedDocument);
+
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        logger.debug("Finished result = {}" + docTypes.size());
+        return new AsyncResult<>(docTypes);
+    }
+
+    public DocumentType getDocumentType(Fortress fortress, EntityInputBean entityInputBean) {
+        DocumentType result;
+        if (entityInputBean.getDocumentType() == null)
+            // OldWay
+            result = new DocumentType(fortress, entityInputBean.getDocumentName());
+        else
+            //  new way DAT-498 - a way to pass the DocType properties
+            result = new DocumentType(fortress, entityInputBean.getDocumentType());
+        return result;
     }
 }

@@ -31,8 +31,15 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
+ * FD has a document oriented view of information.
+ *
+ * Classifies a type of Entity as being of a "DocumentType"
+ *
+ * For example, Invoice, Customer, Person etc.
+ *
  * User: Mike Holdsworth
  * Date: 30/06/13
  * Time: 10:06 AM
@@ -152,7 +159,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         return companyKey;
     }
 
-    public Collection<org.flockdata.model.Concept> getConcepts() {
+    public Collection<Concept> getConcepts() {
         return concepts;
     }
 
@@ -162,7 +169,7 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     public void add(Concept concept) {
         if ( concepts == null )
-            concepts = new ArrayList<>();
+            concepts = new HashSet<>();
         concepts.add( concept);
     }
 
@@ -170,9 +177,9 @@ public class DocumentType  implements Comparable<DocumentType> {
     public String toString() {
         return "DocumentType{" +
                 "id=" + id +
-                ", fortress=" + fortress +
                 ", name='" + name + '\'' +
                 ", code='" + code + '\'' +
+                ", fortress=" + fortress +
                 '}';
     }
 
@@ -238,4 +245,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         return parent!=null;
     }
 
+    public static String toKey(Fortress fortress, String docType) {
+        return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docType);
+    }
 }

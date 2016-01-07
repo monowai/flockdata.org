@@ -34,6 +34,8 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
+ * IO routines to handle registration of concepts in Neo4j
+ * <p/>
  * Created by mike on 19/06/15.
  */
 @Repository
@@ -49,40 +51,55 @@ public class ConceptDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(ConceptDaoNeo.class);
 
-    public void registerConcepts(Map<DocumentType, Collection<ConceptInputBean>> conceptInput) {
-        logger.trace("Registering concepts");
-        Set<DocumentType> documentTypes = conceptInput.keySet();
-        Collection<String> docs = new ArrayList<>(documentTypes.size());
-        for (String doc : docs) {
-            docs.add(doc);
+    public void linkEntities(DocumentType fromDoc, String relationship, DocumentType toDoc) {
+        template.fetch(toDoc.getFortress());
+        template.fetch(toDoc.getConcepts());
+
+        ConceptInputBean conceptInputBean = new ConceptInputBean()
+                .setTag(false)
+                .setName(fromDoc.getName());
+        Concept foundConcept = conceptTypeRepo.findBySchemaPropertyValue("key", Concept.toKey(conceptInputBean));
+        if (foundConcept == null) {
+            logger.debug("No existing concept found for [{}]. Creating it", relationship);
+            foundConcept = new Concept(conceptInputBean, relationship, fromDoc);
+            //foundConcept.setType("E");
+
+        } else {
+            // Entity->Entity registration
+            // DocType is the DocumentType to connect
+            // Relationship name is the Entity to Entity relationship being recorded
+            // Save knownEntityRelationship
+            setEntityRelationship(fromDoc, foundConcept, relationship);
         }
 
-        for (DocumentType docType : conceptInput.keySet()) {
+        if (foundConcept.getId()== null || !toDoc.getConcepts().contains(foundConcept)) {
+            toDoc.add(foundConcept);
+            logger.debug("Creating concept {}", foundConcept);
+        }
+        documentTypeRepo.save(toDoc);
+    }
+
+    public void registerConcepts(Map<DocumentType, Collection<ConceptInputBean>> documentConcepts) {
+        logger.trace("Registering concepts");
+
+        for (DocumentType docType : documentConcepts.keySet()) {
             logger.trace("Looking for existing concepts {}", docType.getName());
 
             template.fetch(docType.getConcepts());
 
             Collection<Concept> concepts = docType.getConcepts();
             logger.trace("[{}] - Found {} existing concepts", docType.getName(), concepts.size());
-            boolean save = false;
-            for (ConceptInputBean concept : conceptInput.get(docType)) {
-                //logger.debug("Looking to create [{}]", concept.getName());
-                Concept existingConcept = conceptTypeRepo.findBySchemaPropertyValue("name", concept.getName());
+            boolean save = true;
+            for (ConceptInputBean concept : documentConcepts.get(docType)) {
+                //logger.debug("Looking to create [{}]", toDoc.getName());
+                Concept existingConcept = conceptTypeRepo.findBySchemaPropertyValue("key", Concept.toKey(concept));
 
                 for (String relationship : concept.getRelationships()) {
                     if (existingConcept == null) {
                         logger.debug("No existing concept found for [{}]. Creating it", relationship);
-                        existingConcept = new Concept(concept.getName(), relationship, docType);
-                        save = true;
+                        existingConcept = new Concept(concept, relationship, docType);
                     } else {
-                        logger.trace("Found an existing concept {}", existingConcept);
-                        template.fetch(existingConcept.getRelationships());
-                        Relationship existingR = existingConcept.hasRelationship(relationship, docType);
-                        if (existingR == null) {
-                            existingConcept.addRelationship(relationship, docType);
-                            save = true;
-                            logger.debug("Creating {} concept for{}", relationship, existingConcept);
-                        }
+                        save = setTagRelationship(docType, existingConcept, relationship);
                     }
                     // DAT-112 removed save check. ToDo: Room for optimization?
                     if (!docType.getConcepts().contains(existingConcept)) {
@@ -99,6 +116,32 @@ public class ConceptDaoNeo {
                 logger.trace("{} Concepts registered", concepts.size());
             }
         }
+    }
+
+    public boolean setTagRelationship(DocumentType docType, Concept existingConcept, String relationship) {
+        boolean save = false;
+        logger.trace("Found an existing concept {}", existingConcept);
+        template.fetch(existingConcept.getKnownTags());
+        Relationship existingR = existingConcept.hasTagRelationship(relationship, docType);
+        if (existingR == null) {
+            existingConcept.addTagRelationship(relationship, docType);
+            save = true;
+            logger.debug("Creating {} tag concept for{}", relationship, existingConcept);
+        }
+        return save;
+    }
+
+    public boolean setEntityRelationship(DocumentType docType, Concept existingConcept, String relationship) {
+        boolean save = false;
+        logger.trace("Found an existing concept {}", existingConcept);
+        template.fetch(existingConcept.getKnownTags());
+        Relationship existingR = existingConcept.hasEntityRelationship(relationship, docType);
+        if (existingR == null) {
+            existingConcept.addEntityRelationship(relationship, docType);
+            save = true;
+            logger.debug("Creating {} entity concept for{}", relationship, existingConcept);
+        }
+        return save;
     }
 
     /**
@@ -140,8 +183,9 @@ public class ConceptDaoNeo {
     }
 
     DocumentType documentExists(Fortress fortress, String docType) {
+        logger.debug("looking for document {}, fortress {}", docType, fortress);
         assert fortress != null;
-        String docKey = String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docType);
+        String docKey = DocumentType.toKey(fortress, docType );
         return documentTypeRepo.findFortressDocCode(docKey);
     }
 
@@ -153,7 +197,7 @@ public class ConceptDaoNeo {
         // Query should have the Concepts that the user is interested in as well.
 
         // Query should look something link this:
-        // match (a:_DocType)-[:HAS_CONCEPT]-(c:_Concept)-[:KNOWN_RELATIONSHIP]-(kr:_Relationship)
+        // match (a:DocType)-[:HAS_CONCEPT]-(c:Concept)-[:KNOWN_TAG]-(kr:Relationship)
         // where a.name="Sales" and c.name="Device"
         // with a, c, kr match (a)-[:DOC_RELATIONSHIP]-(t:Relationship) return a,t
         Set<DocumentResultBean> documentResults = new HashSet<>();
@@ -163,7 +207,6 @@ public class ConceptDaoNeo {
         else
             documents = documentTypeRepo.findDocuments(company, docNames);
 
-//        ConceptNode userConcept = new ConceptNode("User");
         for (DocumentType document : documents) {
             template.fetch(document.getFortress());
             template.fetch(document.getConcepts());
@@ -172,26 +215,36 @@ public class ConceptDaoNeo {
 
             if (withRelationships) {
                 for (Concept concept : document.getConcepts()) {
+                    Collection<Relationship> relationshipResults = new ArrayList<>();
 
                     template.fetch(concept);
-                    template.fetch(concept.getRelationships());
-                    ConceptResultBean conceptResult = new ConceptResultBean(concept.getName());
+                    template.fetch(concept.getKnownTags());
+                    template.fetch(concept.getKnownEntities());
 
+                    ConceptResultBean conceptResult = new ConceptResultBean(concept.getName());
                     documentResult.add(conceptResult);
-                    Collection<Relationship> relationshipResults = new ArrayList<>();
-                    for (Relationship existingRelationship : concept.getRelationships()) {
-                        if (existingRelationship.hasDocumentType(document)) {
-                            relationshipResults.add(existingRelationship);
+
+                    for (Relationship r : concept.getKnownTags()) {
+                        if (r.hasDocumentType(document)) {
+                            relationshipResults.add(r);
                         }
                     }
-                    conceptResult.addRelationships(relationshipResults);
+                    conceptResult.addRelationships(ConceptResultBean.TAG, relationshipResults);
+
+                    relationshipResults.clear();
+                    for (Relationship r : concept.getKnownEntities()) {
+                        if (!r.hasDocumentType(document)) {
+                            relationshipResults.add(r);
+                        }
+                    }
+                    conceptResult.addRelationships(ConceptResultBean.ENTITY, relationshipResults);
+
                 }
                 // Disabled until we figure out a need for this
 //                userConcept.addRelationship("CREATED_BY", document);
 //                if (!fauxDocument.getConcepts().isEmpty())
 //                    fauxDocument.getConcepts().add(new ConceptResultBean(userConcept));
-            } else {
-                // Just return the concepts
+            } else { // No relationship
                 for (Concept concept : document.getConcepts()) {
                     template.fetch(concept);
                     documentResult.add(new ConceptResultBean(concept));
@@ -240,4 +293,5 @@ public class ConceptDaoNeo {
     public DocumentType save(DocumentType documentType) {
         return template.save(documentType);
     }
+
 }

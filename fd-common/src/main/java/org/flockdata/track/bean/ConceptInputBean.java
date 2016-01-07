@@ -29,6 +29,7 @@ import java.util.Set;
  */
 public class ConceptInputBean {
     private String name;
+    private boolean tag = true;
 
     Collection<String> relationships;
 
@@ -36,16 +37,32 @@ public class ConceptInputBean {
         return name;
     }
 
-    public void setName(String name) {
+    public ConceptInputBean setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Collection<String> getRelationships(){
         return relationships;
     }
 
-    public void setRelationships(Set<String> relationships) {
+    public ConceptInputBean setRelationships(Set<String> relationships) {
         this.relationships = relationships;
+        return this;
+    }
+
+    /**
+     * If not a Tag then it is an Entity
+     *
+     * @return
+     */
+    public boolean isTag() {
+        return tag;
+    }
+
+    public ConceptInputBean setTag(boolean tag) {
+        this.tag = tag;
+        return this;
     }
 
     @Override

@@ -33,12 +33,15 @@ import java.util.Collection;
 public class ConceptResultBean {
     private String name;
     private Collection<RelationshipResultBean> relationships = new ArrayList<>();
+    public static final String TAG = "T";
+    public static final String ENTITY = "E";
 
     ConceptResultBean(){}
 
     public ConceptResultBean(Concept concept){
         this(concept.getName());
-        addRelationships(concept.getRelationships());
+        addRelationships(TAG, concept.getKnownTags());
+        addRelationships(ENTITY, concept.getKnownEntities());
     }
 
     public ConceptResultBean(String name) {
@@ -77,11 +80,11 @@ public class ConceptResultBean {
         return name != null ? name.hashCode() : 0;
     }
 
-    public void addRelationships(Collection<Relationship> fauxRlxs) {
+    public void addRelationships(String type, Collection<Relationship> fauxRlxs) {
         if ( fauxRlxs !=null&& !fauxRlxs.isEmpty() ){
 
             for (Relationship relationship : fauxRlxs) {
-                relationships.add(new RelationshipResultBean(relationship));
+                relationships.add(new RelationshipResultBean(type, relationship));
             }
         }
 
