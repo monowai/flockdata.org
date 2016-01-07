@@ -496,7 +496,8 @@ public class TestConcepts extends EngineBase {
 
         // Checking that the entity is linked when part of the track request
         EntityInputBean workRecord = new EntityInputBean(fortress.getName(), "wally", "Work", new DateTime(), "ABC321")
-            .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123"));
+                .addTag(new TagInputBean("someTag", "SomeLabel", "somerlx"))
+                .addEntityLink("worked", new EntityKeyBean("Staff", fortress.getName(), "ABC123"));
 
         mediationFacade.trackEntity(su.getCompany(), workRecord);
         assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
@@ -504,17 +505,16 @@ public class TestConcepts extends EngineBase {
         Collection<String>docs = new ArrayList<>();
         docs.add("Staff");
         docs.add("Work");
-        Set<DocumentResultBean> documents = conceptService.findConcepts(su.getCompany(), docs, true);
-        assertEquals(2, documents.size());
-        for (DocumentResultBean documentResultBean : documents) {
+        Set<DocumentResultBean> documentResults = conceptService.findConcepts(su.getCompany(), docs, true);
+        assertEquals(2, documentResults.size());
+        for (DocumentResultBean documentResultBean : documentResults) {
             switch (documentResultBean.getName()) {
                 case "Staff":
-                    assertEquals(1, documentResultBean.getConcepts().size());
-                    assertEquals("Work", documentResultBean.getConcepts().iterator().next().getName());
                     break;
                 case "Work":
                     // nothing to assert yet
-                    //assertEquals("worked", documentResultBean.getConcepts().iterator().next().getRelationships());
+                    assertEquals(1, documentResultBean.getConcepts().size());
+                    assertEquals("SomeLabel", documentResultBean.getConcepts().iterator().next().getName());
                     break;
                 default:
                     fail("Unexpected Document Type " + documentResultBean);

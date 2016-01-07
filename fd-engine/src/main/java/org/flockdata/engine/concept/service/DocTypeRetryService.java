@@ -96,9 +96,7 @@ public class DocTypeRetryService {
                             if (!docTypes.contains(linkedDocument)) {
                                 linkedDocument= conceptService.findOrCreate(subFortress, linkedDocument);
                                 docTypes.add(linkedDocument);
-
                                 conceptService.linkEntities (master, relationship, linkedDocument);
-
                             }
                         }
                     }

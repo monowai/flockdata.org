@@ -61,7 +61,6 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     //@Relationship( type = "FORTRESS_DOC", direction = Relationship.OUTGOING)
     @RelatedTo( type = "FORTRESS_DOC", direction = Direction.OUTGOING)
-    //@Fetch
     private Fortress fortress;
 
     //@Relationship(type = "HAS_CONCEPT", direction = Relationship.OUTGOING)
@@ -90,8 +89,6 @@ public class DocumentType  implements Comparable<DocumentType> {
             this.companyKey = fortress.getCompany().getId() + "." + code;
             setFortress(fortress);
         }
-
-
     }
 
     public DocumentType(String documentName) {
@@ -151,7 +148,6 @@ public class DocumentType  implements Comparable<DocumentType> {
     public String getCode() {
         return code;
     }
-
 
     /**
      * used to create a unique key index for a company+docType combo

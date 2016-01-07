@@ -38,12 +38,6 @@ public class ConceptResultBean {
 
     ConceptResultBean(){}
 
-    public ConceptResultBean(Concept concept){
-        this(concept.getName());
-        addRelationships(TAG, concept.getKnownTags());
-        addRelationships(ENTITY, concept.getKnownEntities());
-    }
-
     public ConceptResultBean(String name) {
         this();
         this.name = name;
@@ -80,14 +74,16 @@ public class ConceptResultBean {
         return name != null ? name.hashCode() : 0;
     }
 
-    public void addRelationships(String type, Collection<Relationship> fauxRlxs) {
-        if ( fauxRlxs !=null&& !fauxRlxs.isEmpty() ){
+//    public void addRelationships(String type, Collection<Relationship> fauxRlxs) {
+//        if ( fauxRlxs !=null&& !fauxRlxs.isEmpty() ){
+//
+//            for (Relationship relationship : fauxRlxs) {
+//                relationships.add(new RelationshipResultBean(type, relationship));
+//            }
+//        }
+//    }
 
-            for (Relationship relationship : fauxRlxs) {
-                relationships.add(new RelationshipResultBean(type, relationship));
-            }
-        }
-
-
+    public void addRelationship(RelationshipResultBean relationship) {
+        relationships.add( relationship);
     }
 }
