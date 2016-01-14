@@ -25,11 +25,13 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -78,6 +80,9 @@ public class EntitySearchChange implements SearchChange {
     private String segment;
     private Collection<EntityKeyBean> entityLinks = new ArrayList<>();
 
+    @Autowired
+    IndexHelper indexHelper;
+
     public EntitySearchChange() {
         this.sysWhen = System.currentTimeMillis();
     }
@@ -87,7 +92,7 @@ public class EntitySearchChange implements SearchChange {
      *
      * @param entity details
      */
-    public EntitySearchChange(Entity entity) {
+    public EntitySearchChange(Entity entity, String indexName) {
         this();
         this.metaKey = entity.getMetaKey();
         this.entityId = entity.getId();
@@ -96,10 +101,8 @@ public class EntitySearchChange implements SearchChange {
         setFortress(entity.getSegment().getFortress());
         if (!entity.getSegment().isDefault())
             setSegment(entity.getSegment().getCode());
-        this.indexName = entity.getSegment().getFortress().getRootIndex();
-        if ( !entity.getSegment().isDefault()){
-            this.indexName = this.indexName + "."+entity.getSegment().getCode().toLowerCase();
-        }
+        this.indexName = indexName;
+
         this.searchKey = entity.getSearchKey();
         this.code = entity.getCode();
         if (entity.getLastUser() != null)
@@ -116,8 +119,8 @@ public class EntitySearchChange implements SearchChange {
         //setWhen(new DateTime(entity.getFortressDateUpdated()));
     }
 
-    public EntitySearchChange(Entity entity, ContentInputBean content) {
-        this(entity);
+    public EntitySearchChange(Entity entity, ContentInputBean content, String indexName) {
+        this(entity,indexName);
         if ( content != null ) {
             //ToDo: this attachment might be compressed
             this.attachment = content.getAttachment();
@@ -126,8 +129,8 @@ public class EntitySearchChange implements SearchChange {
 
     }
 
-    public EntitySearchChange(Entity entity, EntityLog entityLog, ContentInputBean content) {
-        this(entity, content);
+    public EntitySearchChange(Entity entity, EntityLog entityLog, ContentInputBean content, String indexName) {
+        this(entity, content, indexName);
         if ( entityLog !=null ) {
             this.event= entityLog.getLog().getEvent().getCode();
             this.fileName = entityLog.getLog().getFileName();
@@ -149,8 +152,9 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setWhat(Map<String, Object> what) {
+    public EntitySearchChange setWhat(Map<String, Object> what) {
         this.what = what;
+        return this;
     }
 
     private String searchKey;
@@ -194,6 +198,9 @@ public class EntitySearchChange implements SearchChange {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getIndexName() {
+        if ( parent!=null )
+            return parent.getIndex();
+
         if ( indexName== null )
             return indexName;
         return indexName.toLowerCase();
@@ -229,7 +236,7 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @JsonIgnore
-    public void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
+    public EntitySearchChange setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> entityTags) {
         this.tagStructure = tagStructure;
         tagValues = new HashMap<>();
         for (EntityTag entityTag : entityTags) {
@@ -245,6 +252,7 @@ public class EntitySearchChange implements SearchChange {
             }
             mapTag(entityTag, tagValues);
         }
+        return this;
     }
 
     private void mapTag(EntityTag entityTag, Map<String, ArrayList<SearchTag>> masterValues) {
@@ -313,8 +321,9 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setDescription(String description) {
+    public SearchChange setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public void setName(String name) {
@@ -410,13 +419,15 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void setStructuredTags(ArrayList<EntityTag> tags) {
-        setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+    public SearchChange setStructuredTags(ArrayList<EntityTag> tags) {
+        return setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+
     }
 
     @Override
-    public void setParent(EntityKeyBean parent) {
+    public EntitySearchChange setParent(EntityKeyBean parent) {
         this.parent = parent;
+        return this;
     }
 
     public EntityKeyBean getParent() {
@@ -460,12 +471,14 @@ public class EntitySearchChange implements SearchChange {
         return result;
     }
 
-    public void setTags(Collection<EntityTag> tags) {
+    public SearchChange setTags(Collection<EntityTag> tags) {
         setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
+        return this;
     }
 
-    public void setSegment(String segment) {
+    public SearchChange setSegment(String segment) {
         this.segment = segment;
+        return this;
     }
 
     public String getSegment() {
@@ -473,8 +486,9 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public void addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
+    public SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities) {
         this.entityLinks = inboundEntities;
+        return this;
     }
 
     @Override

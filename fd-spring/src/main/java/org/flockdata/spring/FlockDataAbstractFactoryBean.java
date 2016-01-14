@@ -28,9 +28,5 @@ abstract class FlockDataAbstractFactoryBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    Properties properties;
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
 }

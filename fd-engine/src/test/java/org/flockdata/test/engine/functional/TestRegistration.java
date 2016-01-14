@@ -37,13 +37,6 @@ import static org.junit.Assert.*;
 
 public class TestRegistration extends EngineBase {
 
-//    @Override
-//    @org.junit.Before
-//    public void cleanUpGraph() {
-//        // DAT-348
-//        super.cleanUpGraph();
-//    }
-
     @Test
     public void createPersonsTest() throws Exception {
         setSecurity();
@@ -73,16 +66,6 @@ public class TestRegistration extends EngineBase {
             assertNotNull(fCode);
             assertEquals("Fortress Space Name", fCode.getName());
         }
-    }
-
-    @Test
-    public void search_IndexNameParses() throws Exception {
-        setSecurity();
-        SystemUser su = registerSystemUser("searchIndexTest", mike_admin);
-
-        Fortress f = new Fortress(new FortressInputBean("TESTING", true), su.getCompany());
-        assertNotNull ( f.getRootIndex());
-        assertEquals(IndexHelper.getIndexRoot(f), f.getRootIndex());
     }
 
     @Test

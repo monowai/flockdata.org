@@ -24,6 +24,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.search.IndexHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +52,16 @@ public class FortressDaoNeo  {
     private FortressUserRepository fortressUserRepo;
 
     @Autowired
+    private IndexHelper indexHelper;
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public Fortress save(Company company, FortressInputBean fortressInput) {
         Fortress fortress = new Fortress(fortressInput, company);
+        fortress.setRootIndex(indexHelper.getIndexRoot(fortress));
         return fortressRepo.save(fortress);
     }
 

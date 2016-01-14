@@ -20,8 +20,8 @@
 package org.flockdata.test.client;
 
 import org.flockdata.profile.ImportProfile;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.Transformer;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 
@@ -36,12 +36,12 @@ import static org.junit.Assert.assertNotNull;
 public class TestTabTags {
     @Test
     public void string_NestedTags() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/sectors.json");
+        ImportProfile params = ProfileReader.getImportProfile("/sectors.json");
         CsvTagMapper mapper = new CsvTagMapper();
         String[] headers = new String[]{"Catcode","Catname","Catorder","Industry","Sector","Sector Long"};
         String[] data = new String[]{"F2600","Private Equity & Investment Firms","F07","Securities & Investment","Finance/Insur/RealEst","Finance","Insurance & Real Estate"};
 
-        Map<String, Object> json = mapper.setData(TransformationHelper.convertToMap(headers, data, params),params);
+        Map<String, Object> json = mapper.setData(Transformer.convertToMap(headers, data, params),params);
         assertNotNull(json);
         assertNotNull(mapper);
         assertEquals("Code does not match", "F2600", mapper.getCode());

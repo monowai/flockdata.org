@@ -27,6 +27,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.*;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
@@ -74,6 +75,9 @@ public class SearchServiceFacade {
     @Qualifier("fdSearchGateway")
     @Autowired
     FdSearchGateway searchGateway;
+
+    @Autowired
+    IndexHelper indexHelper;
 
     @Autowired
     EntityTagService entityTagService;
@@ -185,7 +189,7 @@ public class SearchServiceFacade {
      */
     public SearchChange getSearchDocument(DocumentType docType, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
 
-        SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput);
+        SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexHelper.parseIndex(entity));
 
         if (entityLog != null) {
             // Used to reconcile that the change was actually indexed
@@ -208,8 +212,11 @@ public class SearchServiceFacade {
         if (docType != null && docType.hasParent()) {
             EntityKeyBean parent = entityService.findParent(entity);
 
-            if (parent != null)
+            if (parent != null) {
                 searchDocument.setParent(parent);
+
+            }
+
         }
 
         if ( entity.getId()!=null) {
@@ -268,14 +275,14 @@ public class SearchServiceFacade {
                         logger.error("Unable to locate content for {} ", entity);
                         return null;
                     }
-                    searchDocument = new EntitySearchChange(entity, lastLog, content.getContent());
+                    searchDocument = new EntitySearchChange(entity, lastLog, content.getContent(), indexHelper.parseIndex(entity));
                 } else
-                    searchDocument = new EntitySearchChange(entity);
+                    searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
 
                 if (lastChange.getMadeBy() != null)
                     searchDocument.setWho(lastChange.getMadeBy().getCode());
             } else {
-                searchDocument = new EntitySearchChange(entity);
+                searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
                 if (entity.getCreatedBy() != null)
                     searchDocument.setWho(entity.getCreatedBy().getCode());
             }

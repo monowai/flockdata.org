@@ -26,10 +26,7 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.TransformationHelper;
-import org.flockdata.transform.Transformer;
+import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvEntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,13 +50,13 @@ public class TestCsvEntity {
 
     @Test
     public void entityRow() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
+        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
         CsvEntityMapper entity = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
         // Category column is intentionally null
         String[] data = new String[]{"TitleTests", "TagName", "Gold", "8", "New Zealand", "2008", "12", null, "qwerty" };
-        Map<String, Object> json = entity.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String, Object> json = entity.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(json);
 
         assertTrue("Title Missing", json.containsKey("Title"));
@@ -193,7 +190,7 @@ public class TestCsvEntity {
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
         String[] values = {"Michael Phelps", "23", "United States", "2008", "Swimming", "8", "0", "0", "8"};
-        EntityInputBean header = Transformer.transformToEntity(TransformationHelper.convertToMap(headers, values, params), params);
+        EntityInputBean header = Transformer.transformToEntity(Transformer.convertToMap(headers, values, params), params);
 
         assertEquals(values[0] + "." + values[3], header.getCode());
         boolean goldTag = false, athleteTag = false, sportTag = false, countryTag = false;
@@ -252,7 +249,7 @@ public class TestCsvEntity {
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
-        EntityInputBean entity = Transformer.transformToEntity(TransformationHelper.convertToMap(headers, data, params), params);
+        EntityInputBean entity = Transformer.transformToEntity(Transformer.convertToMap(headers, data, params), params);
 
         List<TagInputBean> tags = entity.getTags();
         assertEquals(1, tags.size());
@@ -290,7 +287,7 @@ public class TestCsvEntity {
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
         ImportProfile params = getImportParams("/csv-entity-tags.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
-        mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        mapper.setData(Transformer.convertToMap(headers, data, params), params);
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -317,7 +314,7 @@ public class TestCsvEntity {
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
-        Map<String,Object> json = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, params), params);
 
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
@@ -360,12 +357,12 @@ public class TestCsvEntity {
 
     @Test
     public void null_EntityRow() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
+        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
         String[] data = new String[]{"TitleTests", null, "2009" };
-        Map<String, Object> jsonMap = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(jsonMap);
 
         assertEquals(null, jsonMap.get("Field"));
@@ -379,12 +376,12 @@ public class TestCsvEntity {
 
     @Test
     public void empty_ColumnWithASpace() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest.json");
+        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(jsonMap);
 
         assertEquals("", jsonMap.get("Title"));
@@ -397,13 +394,13 @@ public class TestCsvEntity {
     }
     @Test
     public void empty_ColumnWithASpaceIsIgnored() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/csvtest-emptyisignored.json");
+        ImportProfile params = ProfileReader.getImportProfile("/csvtest-emptyisignored.json");
         CsvEntityMapper mapper = new CsvEntityMapper(params);
         assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
         String[] data = new String[]{" ",  "2009" };
-        Map<String, Object> jsonMap = mapper.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String, Object> jsonMap = mapper.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(jsonMap);
 
         assertNull(jsonMap.get("Title"));

@@ -125,16 +125,15 @@ public class ProfileServiceNeo implements ImportProfileService {
         process(company, fortress, documentType, file, async);
     }
 
-    public void process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    public Long process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         ProfileConfiguration profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
         FileProcessor fileProcessor = new FileProcessor();
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
-        defaults.setAsync(async);
-        defaults.setBatchSize(5);
-        fileProcessor.processFile(profile, file, fdServerWriter, company, defaults);
+        defaults.setBatchSize(1);
+        return fileProcessor.processFile(profile, file, fdServerWriter, company, defaults);
     }
 
     @Override

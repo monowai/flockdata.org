@@ -132,7 +132,7 @@ public class FileProcessor {
 
     public Long processFile(ProfileConfiguration importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
-        fdLoader = new FdLoader(importProfile, writer, defaults, company);
+        fdLoader = new FdLoader(writer, defaults, company);
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -330,10 +330,6 @@ public class FileProcessor {
         }
     }
 
-//    private int writeEntityLinks(FdWriter fdWriter, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-//        return fdWriter.flushEntityLinks(referenceInputBeans);
-//    }
-
     private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
@@ -344,7 +340,6 @@ public class FileProcessor {
         Reader fileObject = getReader(file);
 
         br = new BufferedReader(fileObject);
-//        List<EntityLinkInputBean> referenceInputBeans = new ArrayList<>();
 
         try {
             CSVReader csvReader;
@@ -357,11 +352,9 @@ public class FileProcessor {
             String[] nextLine;
             if (importProfile.hasHeader()) {
                 while ((nextLine = csvReader.readNext()) != null) {
-                    if (!nextLine[0].equals("")) {
-                        if (!(((nextLine[0].charAt(0) == '#') || nextLine[0].charAt(1) == '#'))) {
-                            headerRow = nextLine;
-                            break;
-                        }
+                    if (isHeaderRow(nextLine)) {
+                        headerRow = nextLine;
+                        break;
                     }
                 }
             }
@@ -384,17 +377,13 @@ public class FileProcessor {
 
                         nextLine = preProcess(nextLine, importProfile);
 
-                        Map<String, Object> map = TransformationHelper.convertToMap(headerRow, nextLine, importProfile);
+                        Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, importProfile);
 
                         if (map != null) {
                             if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY) {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
-//                                if (entityInputBean != null && !entityInputBean.getEntityLinks().isEmpty()) {
-//                                    referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
-//                                    currentRow = currentRow + entityInputBean.getEntityLinks().size();
-//                                }
                                 // Dispatch/load mechanism
-                                if ( entityInputBean!=null )
+                                if (entityInputBean != null)
                                     fdLoader.batchEntity(entityInputBean);
                             } else {// Tag
                                 TagInputBean tagInputBean = Transformer.transformToTag(map, importProfile);
@@ -414,15 +403,18 @@ public class FileProcessor {
         } finally {
 
             writer.close(fdLoader);
-
-//            if (!referenceInputBeans.isEmpty()) {
-//                // ToDo: This approach is un-scalable - routine works but the ArrayList is kept in memory. It's ok for now...
-//                logger.debug("Wrote [{}] x entity links", writeEntityLinks(writer, referenceInputBeans));
-//            }
             br.close();
         }
 
         return endProcess(watch, currentRow, ignoreCount);
+    }
+
+    private boolean isHeaderRow(String[] nextLine) {
+        if (nextLine.length > 0) { // do we have data?
+            if (nextLine[0].length() > 0) // is there a value in the first char?
+                return !(nextLine[0].startsWith("#") || nextLine[0].charAt(1) == '#'); // is it a comment?
+        }
+        return true;
     }
 
     public boolean stopProcessing(long currentRow) {
@@ -457,7 +449,7 @@ public class FileProcessor {
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
-    private String[] preProcess(String[] row, ProfileConfiguration importProfile) {
+    public static String[] preProcess(String[] row, ProfileConfiguration importProfile) {
         String[] result = new String[row.length];
         String exp = importProfile.getPreParseRowExp();
         if ((exp == null || exp.equals("")))

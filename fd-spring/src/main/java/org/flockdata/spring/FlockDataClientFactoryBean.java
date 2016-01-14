@@ -22,32 +22,40 @@ package org.flockdata.spring;
 import org.flockdata.client.rest.FdRestWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class FlockDataClientFactoryBean extends FlockDataAbstractClientFactoryBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
+    @Value("${fd.fortress}")
+    private String fortress;
+
+    @Value("${fd.batch:1}")
+    private int batch;
+
+    @Value("${fd.server.url}")
+    private String serverName;
+
+    @Value("${fd.server.username}")
+    private String userName;
+
+    @Value("${fd.server.password}")
+    private String password;
+
     @Override
     protected FdRestWriter buildClient() throws Exception {
-        Object f = properties.get("fd.fortress");
-        String fortressName = null;
-        if (f != null)
-            fortressName = f.toString();
-        Object b = properties.get("fd.batch");
-        Integer batchSize = null;
-        if (b != null)
-            batchSize = Integer.parseInt(b.toString());
-        else
-            batchSize = Integer.parseInt("1");
-        FdRestWriter exporter = new FdRestWriter(properties.get("server.name").toString(),
+        FdRestWriter exporter = new FdRestWriter(serverName,
                 null,
-                properties.get("fd.username").toString(),
-                properties.get("fd.password").toString(),
-                batchSize,
-                fortressName
+                userName,
+                password,
+                batch,
+                fortress
         );
-        exporter.setSimulateOnly((batchSize.intValue() <= 0));
-        exporter.ensureFortress(fortressName);
+        exporter.setSimulateOnly((batch <= 0));
+//        exporter.ensureFortress(fortress);
         return exporter;
 
     }

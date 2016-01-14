@@ -48,7 +48,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_Countries() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
+        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -57,7 +57,7 @@ public class TestGeography extends AbstractImport{
         // CsvImporter will convert Lon/Lat to doubles - ToDo: write CSV Import tests
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("NZ", tag.getCode() );
@@ -81,7 +81,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTag() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
+        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -89,20 +89,20 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
         tag = new CsvTagMapper(); // Clear down the object
-        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, params), params);
         TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
+        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -110,7 +110,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand","-41.27","174.71","1", "Wellington" };
 
-        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -123,7 +123,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/test-countries.json");
+        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -131,7 +131,7 @@ public class TestGeography extends AbstractImport{
 
         String[] data = new String[]{"NZ","New Zealand",null,null,"1", "Wellington" };
 
-        tag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        tag.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull(tag);
 
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
@@ -172,7 +172,7 @@ public class TestGeography extends AbstractImport{
         ClientConfiguration configuration = Configure.getConfiguration(file);
         TestCase.assertNotNull(configuration);
 
-        ImportProfile params = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile params = ProfileReader.getImportProfile(fileName);
         TestCase.assertEquals('|', params.getDelimiter());
         TestCase.assertEquals(true, params.hasHeader());
         TestCase.assertNotNull(params.getCondition());

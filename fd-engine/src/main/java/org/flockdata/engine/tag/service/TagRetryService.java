@@ -28,6 +28,7 @@ import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.api.exceptions.EntityNotFoundException;
+import org.neo4j.kernel.api.exceptions.TransactionFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,11 +64,11 @@ public class TagRetryService {
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class},
+    @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class, TransactionFailureException.class},
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
 
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans, boolean suppressRelationships) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if ( tagInputBeans == null ||tagInputBeans.isEmpty())
             return new ArrayList<>();
@@ -89,6 +90,6 @@ public class TagRetryService {
 
     @Async("fd-tag")
     public Future<Collection<TagResultBean>> createTagsFuture(Company company, List<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
-        return new AsyncResult<>(createTags(company, tags, false));
+        return new AsyncResult<>(createTags(company, tags));
     }
 }

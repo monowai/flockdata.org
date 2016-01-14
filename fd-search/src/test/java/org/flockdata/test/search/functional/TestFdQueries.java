@@ -53,9 +53,9 @@ public class TestFdQueries extends ESBase{
         String doc = "epDocType";
         String user = "mike";
 
-        Entity entity = Helper.getEntity(company, fortress, user, doc);
-
-        EntitySearchChange change = new EntitySearchChange(entity);
+        Entity entity = getEntity(company, fortress, user, doc);
+        deleteEsIndex(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
 

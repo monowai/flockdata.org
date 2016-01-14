@@ -39,10 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -68,9 +65,9 @@ public class TestMappings extends ESBase {
         String doc = "doc";
         String user = "mike";
 
-        Entity entity = Helper.getEntity(company, fortress, user, doc);
+        Entity entity = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -93,7 +90,7 @@ public class TestMappings extends ESBase {
         entity.setSearchKey(searchResult.getSearchKey());
         json = searchRepo.findOne(entity);
 
-        doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFacetQuery(indexHelper.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
@@ -111,11 +108,11 @@ public class TestMappings extends ESBase {
         String doc = "doc";
         String user = "mike";
 
-        Entity entity = Helper.getEntity(company, fortress, user, doc);
-        Entity entityB = Helper.getEntity(company, fortress, user, doc);
+        Entity entity = getEntity(company, fortress, user, doc);
+        Entity entityB = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity);
-        EntitySearchChange changeB = new EntitySearchChange(entityB);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setWhat(json);
         changeB.setWhat(json);
@@ -138,23 +135,21 @@ public class TestMappings extends ESBase {
         assertEquals("2 in 2 out", 2, searchResults.getSearchResults().size());
     }
 
-
-
     @Test
     public void testCustomMappingWorks() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fort");
-        Entity entityB = Helper.getEntity("cust", "fortb", "anyuser", "fortb");
+        Entity entityA = getEntity("cust", "fort", "anyuser", "fort");
+        Entity entityB = getEntity("cust", "fortb", "anyuser", "fortb");
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        deleteEsIndex(entityA);
+        deleteEsIndex(entityB);
+
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexHelper.parseIndex(entityA));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexHelper.parseIndex(entityB));
 
         // FortB will have
         changeA.setDescription("Test Description");
         changeB.setDescription("Test Description");
-
-        deleteEsIndex(entityA);
-        deleteEsIndex(entityB);
 
         indexMappingService.ensureIndexMapping(changeA);
         indexMappingService.ensureIndexMapping(changeB);
@@ -170,6 +165,7 @@ public class TestMappings extends ESBase {
         doDefaultFieldQuery(entityA, "description", changeA.getDescription(), 1);
 
         // In fortb.json we don't analyze the description (overriding the default) so it shouldn't be found
+        // This will fail if the prefix is not fd. - see the README in fd.cust.fortb
         doDefaultFieldQuery(entityB, "description", changeB.getDescription(), 0);
 
     }
@@ -177,12 +173,14 @@ public class TestMappings extends ESBase {
     @Test
     public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity entityA = Helper.getEntity("cust", "fort", "anyuser", "fortdoc");
-        Entity entityB = Helper.getEntity("cust", "fort", "anyuser", "doctype");
+        String fortress = new Date().toString();
+//        String fortress = "fort";
+        Entity entityA = getEntity("cust", fortress, "anyuser", "fortdoc");
+        Entity entityB = getEntity("cust", fortress, "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json));
+        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexHelper.parseIndex(entityA));
+        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexHelper.parseIndex(entityB));
 
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
@@ -211,7 +209,7 @@ public class TestMappings extends ESBase {
 
         doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        String index = IndexHelper.getIndexRoot(entityA.getSegment()) +"*";
+        String index = indexHelper.getIndexRoot(entityA.getFortress()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 
@@ -220,18 +218,18 @@ public class TestMappings extends ESBase {
     @Test
     public void tagWithRelationshipNamesMatchingNodeNames() throws Exception {
         Map<String, Object> json = Helper.getBigJsonText(20);
-        Entity entityA = Helper.getEntity("cust", "fort-tag-rlx", "anyuser", "fortdoc");
-
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json));
+        Entity entity = getEntity("cust", "tagWithRelationshipNamesMatchingNodeNames", "anyuser", "fortdoc");
+        deleteEsIndex(entity);
+        SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexHelper.parseIndex(entity));
 
         Tag tag = new Tag(new TagInputBean("aValue", "myTag", "myTag"));
         tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
 
         ArrayList<EntityTag> tags = new ArrayList<>();
-        tags.add(new EntityTagOut(entityA, tag, "mytag", null));
+        tags.add(new EntityTagOut(entity, tag, "mytag", null));
         changeA.setStructuredTags(tags);
 
-        deleteEsIndex(entityA);
+        deleteEsIndex(entity);
 
         indexMappingService.ensureIndexMapping(changeA);
 
@@ -242,7 +240,7 @@ public class TestMappings extends ESBase {
 
         // DAT-328
         Thread.sleep(5000);
-        doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entity, IndexHelper.parseType(entity), "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
@@ -252,8 +250,8 @@ public class TestMappings extends ESBase {
         String fort = "geo_Points";
         String user = "mikey";
 
-        Entity entity = Helper.getEntity(comp, fort, user, fort);
-        deleteEsIndex(entity);
+        Entity entity = getEntity(comp, fort, user, fort);
+        deleteEsIndex(indexHelper.parseIndex(entity));
 
         Map<String, Object> what = Helper.getSimpleMap(
                 EntitySearchSchema.WHAT_CODE, "GEO");
@@ -283,7 +281,7 @@ public class TestMappings extends ESBase {
         entityTag.setGeoData(geoPayLoad);
         tags.add(entityTag);
 
-        EntitySearchChange change = new EntitySearchChange(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
 
         change.setWhat(what);
         change.setStructuredTags(tags);

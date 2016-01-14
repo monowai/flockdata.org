@@ -27,6 +27,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.io.File;
@@ -52,7 +53,7 @@ public class TestEntityProperties extends AbstractImport {
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile params = ProfileReader.getImportProfile(fileName);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         fileProcessor.processFile(params, "/data/entity-properties.txt", getFdWriter(), null, configuration);

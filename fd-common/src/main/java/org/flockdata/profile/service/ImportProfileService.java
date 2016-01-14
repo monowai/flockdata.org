@@ -47,7 +47,7 @@ public interface ImportProfileService {
 
     void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
 
-    void process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
+    Long process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
 
     void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 

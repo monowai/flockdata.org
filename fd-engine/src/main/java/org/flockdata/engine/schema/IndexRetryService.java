@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.schema;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
@@ -47,7 +48,7 @@ public class IndexRetryService {
 
     private Logger logger = LoggerFactory.getLogger(IndexRetryService.class);
 
-    @Retryable(include =  {DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class},
+    @Retryable(include =  {FlockException.class, DeadlockDetectedException.class, InvalidDataAccessResourceUsageException.class},
             maxAttempts = 12, backoff = @Backoff(maxDelay = 300, delay = 20, random = true))
     public Boolean ensureUniqueIndexes(Collection<TagInputBean> tagInputs){
             return schemaService.ensureUniqueIndexes(tagInputs);

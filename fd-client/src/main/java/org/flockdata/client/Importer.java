@@ -28,6 +28,7 @@ import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.springframework.util.StopWatch;
 
 import java.io.File;
@@ -118,7 +119,7 @@ public class Importer {
                 ImportProfile importProfile;
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
-                    importProfile = ClientConfiguration.getImportProfile(clazz);
+                    importProfile = ProfileReader.getImportProfile(clazz);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -151,13 +152,20 @@ public class Importer {
         }
     }
 
-    private static FdWriter getRestClient(ClientConfiguration configuration) {
-        FdRestWriter fdClient = new FdRestWriter(configuration);
-        String ping = fdClient.ping().toLowerCase();
-        if (!ping.startsWith("pong")) {
-            logger.warn("Error communicating over http with fd-engine {} ", configuration.getEngineURL());
-            if ( configuration.isAmqp()){
-                logger.info( "Data can still be sent over AMQP");
+    private static FdRestWriter fdClient = null;
+
+    public static FdWriter getRestClient(ClientConfiguration configuration) {
+        if ( fdClient !=null)
+            return fdClient;
+
+        fdClient = new FdRestWriter(configuration);
+        if (!configuration.isAmqp()) {
+            String ping = fdClient.ping().toLowerCase();
+            if (!ping.startsWith("pong")) {
+                logger.warn("Error communicating over http with fd-engine {} ", configuration.getEngineURL());
+                if (configuration.isAmqp()) {
+                    logger.info("Data can still be sent over AMQP");
+                }
             }
         }
         fdClient.setSimulateOnly(configuration.getBatchSize() <= 0);
@@ -166,16 +174,14 @@ public class Importer {
     }
 
     public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
-        ClientConfiguration importConfig = new ClientConfiguration();
+
         nameSpace = InitializationSupport.getImportNamespace(args);
         logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
 
         File file = Configure.getFile(nameSpace);
 
-        ClientConfiguration clientConfiguration = Configure.getConfiguration(file);
+        ClientConfiguration importConfig = Configure.getConfiguration(file);
 
-        // Set the
-        importConfig.append(clientConfiguration);
         Object o = nameSpace.get("async");
         if (o != null)
             importConfig.setAsync(Boolean.parseBoolean(o.toString()));

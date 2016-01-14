@@ -19,6 +19,7 @@
 
 package org.flockdata.track.bean;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class EntityLinkInputBean {
     private String documentType;
     private String callerRef;
     private String serviceMessage;
-    Map<String,List<EntityKeyBean>>ignored;
+    Map<String,Collection<EntityKeyBean>>ignored;
 
     protected EntityLinkInputBean(){}
 
@@ -111,13 +112,13 @@ public class EntityLinkInputBean {
         return documentType;
     }
 
-    public void setIgnored(String xRefName, List<EntityKeyBean> ignored) {
+    public void setIgnored(String xRefName, Collection<EntityKeyBean> ignored) {
         if (this.ignored == null )
            this.ignored = new HashMap<>();
         this.ignored.put(xRefName, ignored);
     }
 
-    public Map<String,List<EntityKeyBean>> getIgnored() {
+    public Map<String, Collection<EntityKeyBean>> getIgnored() {
         return ignored;
     }
 }

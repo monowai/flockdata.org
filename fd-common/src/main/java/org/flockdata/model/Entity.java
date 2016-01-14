@@ -22,7 +22,6 @@ package org.flockdata.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.track.EntityHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -36,7 +35,10 @@ import org.springframework.data.neo4j.fieldaccess.DynamicProperties;
 import org.springframework.data.neo4j.fieldaccess.DynamicPropertiesContainer;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
 
 @NodeEntity(useShortNames = true)
 @TypeAlias("Entity")
@@ -168,7 +170,7 @@ public class Entity implements Serializable {
 
         this.description = entityInput.getDescription();
 
-        indexName = IndexHelper.getIndexRoot(this.segment);
+//        indexName = indexHelper.getIndexRoot(this.segment);
 
         if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(entityInput.getProperties());
@@ -423,4 +425,10 @@ public class Entity implements Serializable {
     public void setSegment(FortressSegment segment) {
         this.segment = segment;
     }
+
+    public Entity setIndexName(String indexName) {
+        this.indexName = indexName;
+        return this;
+    }
+
 }

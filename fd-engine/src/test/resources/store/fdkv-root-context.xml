@@ -12,30 +12,30 @@
 		http://www.springframework.org/schema/aop
 		http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-	<context:spring-configured />
-	<context:annotation-config />
+    <context:spring-configured/>
+    <context:annotation-config/>
 
 
-	<!-- Root Context: defines shared resources visible to all other web components -->
-	<context:component-scan base-package=
-									"org.flockdata.kv,org.flockdata.configure">
-		<context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
-		<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>
-		<context:exclude-filter type="assignable" expression="org.flockdata.configure.EngineConfig"/>
-		<!-- SDN4 -->
-		<!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <context:component-scan base-package=
+                                    "org.flockdata.kv,org.flockdata.configure,org.flockdata.search">
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.EngineConfig"/>
+        <!-- SDN4 -->
+        <!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
 
-	</context:component-scan>
+    </context:component-scan>
 
-	<context:property-placeholder
-		ignore-resource-not-found="true" ignore-unresolvable="true"
-		location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}" />
-		
-	<import resource="fdkv-integration.xml" />
-	<import resource="fdkv-amqp-integration.xml" />
-	<import resource="fdkv-test-redis-context.xml" />
+    <context:property-placeholder
+            ignore-resource-not-found="true" ignore-unresolvable="true"
+            location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}"/>
 
-	<aop:aspectj-autoproxy />
+    <import resource="fdkv-integration.xml"/>
+    <import resource="fdkv-amqp-integration.xml"/>
+    <import resource="fdkv-test-redis-context.xml"/>
+
+    <aop:aspectj-autoproxy/>
 
 
 </beans>

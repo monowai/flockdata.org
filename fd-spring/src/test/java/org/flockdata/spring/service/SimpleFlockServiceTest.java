@@ -19,6 +19,7 @@
 
 package org.flockdata.spring.service;
 
+import org.flockdata.search.IndexHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class SimpleFlockServiceTest {
     @Autowired
     private SimpleTrackedService simpleTrackedService;
+    @Autowired
+    IndexHelper indexHelper;
 
     @Test
     public void testCreateEntityAnnotation() {

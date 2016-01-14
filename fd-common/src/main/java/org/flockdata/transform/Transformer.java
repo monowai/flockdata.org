@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamReader;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -109,5 +110,37 @@ public class Transformer {
             entityInputBean.setContent(contentInputBean);
         }
         return entityInputBean;
+    }
+
+    public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ProfileConfiguration profileConfig) {
+        int col = 0;
+        Map<String, Object> row = new HashMap<>();
+        try {
+            for (String column : headerRow) {
+                // Find first by the name (if we're using a raw header
+                ColumnDefinition colDef = profileConfig.getColumnDef(column);
+                if (colDef == null)
+                    // Might be indexed by column number if there was no csv
+                    colDef = profileConfig.getColumnDef(Integer.toString(col));
+
+                Object value = line[col];
+                value = TransformationHelper.transformValue(value, column, colDef);
+                boolean addValue = true;
+                if (profileConfig.isEmptyIgnored()) {
+                    if (value == null || value.toString().trim().equals(""))
+                        addValue = false;
+                }
+                if (addValue) {
+                    row.put(column, (value instanceof String ? ((String) value).trim() : value));
+                }
+
+                col++;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Column does not exist for this row
+
+        }
+
+        return row;
     }
 }

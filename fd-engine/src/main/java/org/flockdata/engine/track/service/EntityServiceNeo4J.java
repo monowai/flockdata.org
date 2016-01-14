@@ -29,6 +29,7 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
@@ -53,7 +54,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Transactional services to support record and working with entities and logs
- * <p>
+ * <p/>
  * User: Mike Holdsworth
  * Date: 8/04/13
  */
@@ -82,6 +83,9 @@ public class EntityServiceNeo4J implements EntityService {
     ConceptService conceptService;
 
     @Autowired
+    IndexHelper indexHelper;
+
+    @Autowired
     TxService txService;
 
     @Autowired
@@ -97,9 +101,9 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public EntityKeyBean findParent(Entity childEntity) {
-        Entity parent = entityDao.findParent (childEntity);
-        if ( parent != null )
-            return new EntityKeyBean(parent);
+        Entity parent = entityDao.findParent(childEntity);
+        if (parent != null)
+            return new EntityKeyBean(parent, indexHelper.parseIndex(parent));
         return null;
     }
 
@@ -152,8 +156,8 @@ public class EntityServiceNeo4J implements EntityService {
 
                 }
             }
-            if ( entityInputBean.getSegment() != null ){
-                if ( !entity.getSegment().getId().equals(segment.getId())){
+            if (entityInputBean.getSegment() != null) {
+                if (!entity.getSegment().getId().equals(segment.getId())) {
                     entity.setSegment(segment);
                     saveEntity = true;
                     // ToDo - delete the search doc in the previous segment !!
@@ -242,11 +246,11 @@ public class EntityServiceNeo4J implements EntityService {
         Entity entity = entityDao.create(entityInput, segment, entityUser, documentType);
         if (entity.getId() == null)
             entityInput.setMetaKey("NT " + segment.getFortress().getId()); // We ain't tracking this
-        else if ( !entityInput.getEntityLinks().isEmpty()){
+        else if (!entityInput.getEntityLinks().isEmpty()) {
             // DAT-525
-            EntityKeyBean thisEntity = new EntityKeyBean(entity);
+            EntityKeyBean thisEntity = new EntityKeyBean(entity, indexHelper.parseIndex(entity));
             for (String relationship : entityInput.getEntityLinks().keySet()) {
-                linkEntities(segment.getCompany(),thisEntity, entityInput.getEntityLinks().get(relationship), relationship );
+                linkEntities(segment.getCompany(), thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
             }
 
         }
@@ -397,7 +401,7 @@ public class EntityServiceNeo4J implements EntityService {
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
-            searchDocument = new EntitySearchChange(entity);
+            searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
             searchDocument.setDelete(true);
             searchDocument.setSearchKey(searchKey);
             return searchDocument;
@@ -408,7 +412,7 @@ public class EntityServiceNeo4J implements EntityService {
             // Update against the Entity only by re-indexing the search document
             KvContent priorContent = kvService.getContent(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent());
+            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexHelper.parseIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
 
 
@@ -554,7 +558,8 @@ public class EntityServiceNeo4J implements EntityService {
             assert (documentType != null);
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
-            logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentName());
+            if ( result.getEntity()!=null)
+                logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentName());
             arb.add(result);
         }
 
@@ -592,13 +597,13 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String xRefName) throws FlockException {
+    public Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String relationship) throws FlockException {
         Entity entity = getEntity(company, metaKey);
         if (entity == null) {
             throw new FlockException("Unable to find the Entity [" + metaKey + "]. Perhaps it has not been processed yet?");
         }
 
-        return entityDao.getCrossReference(entity, xRefName);
+        return entityDao.getCrossReference(entity, relationship);
     }
 
     @Override
@@ -614,18 +619,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String linkName) throws FlockException {
+    public Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> entityKeys, String linkName) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, sourceKey.getFortressName());
         if (fortress == null)
             throw new FlockException("Unable to locate the fortress " + sourceKey.getFortressName());
-        Entity fromEntity;
+        Entity sourceEntity;
         if (sourceKey.getDocumentType() == null || sourceKey.getDocumentType().equals("*"))
-            fromEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
+            sourceEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
         else {
             DocumentType document = conceptService.resolveByDocCode(fortress, sourceKey.getDocumentType(), false);
-            fromEntity = entityDao.findByCode(fortress.getId(), document.getId(), sourceKey.getCode());
+            sourceEntity = entityDao.findByCode(fortress.getId(), document.getId(), sourceKey.getCode());
         }
-        if (fromEntity == null)
+        if (sourceEntity == null)
             // ToDo: Should we create it??
             throw new FlockException("Unable to locate the source Entity [" + sourceKey + "]");
 
@@ -633,35 +638,37 @@ public class EntityServiceNeo4J implements EntityService {
         Collection<Entity> targets = new ArrayList<>();
         List<EntityKeyBean> ignored = new ArrayList<>();
 
-        for (EntityKeyBean entityKey : entityKeys) {
+        for (EntityKeyBean targetKey : entityKeys) {
             int count = 1;
 
             Collection<Entity> entities = new ArrayList<>();
-            if (entityKey.getDocumentType().equals("*"))
-                entities = findByCode(fortress, entityKey.getCode());
+            if (targetKey.getDocumentType().equals("*"))
+                entities = findByCode(fortress, targetKey.getCode());
             else {
-                Entity entity = findByCode(fortressService.findByCode(company, entityKey.getFortressName()), entityKey.getDocumentType(), entityKey.getCode());
+                Entity entity = findByCode(fortressService.findByCode(company, targetKey.getFortressName()), targetKey.getDocumentType(), targetKey.getCode());
                 if (entity == null) {
-                    // DAT-443
-                    // Create a place holding entity if the requested one does not exist
-                    DocumentType documentType = conceptService.resolveByDocCode(fortress, entityKey.getDocumentType(), false);
-                    if (documentType != null) {
-                        EntityInputBean eib = new EntityInputBean(fortress.getCode(), entityKey.getDocumentType()).setCode(entityKey.getCode());
-                        TrackResultBean trackResult = createEntity(fortress.getDefaultSegment(), documentType, eib, null);
-                        entity = trackResult.getEntity();
+                    if (targetKey.getMissingAction() == EntityKeyBean.ACTION.CREATE) {
+                        // DAT-443 - Create a place holding entity if the requested one does not exist
+                        DocumentType documentType = conceptService.resolveByDocCode(fortress, targetKey.getDocumentType(), false);
+                        if (documentType != null) {
+                            EntityInputBean eib = new EntityInputBean(fortress.getCode(), targetKey.getDocumentType()).setCode(targetKey.getCode());
+                            TrackResultBean trackResult = createEntity(fortress.getDefaultSegment(), documentType, eib, null);
+                            entity = trackResult.getEntity();
+                        }
+                    } else if (targetKey.getMissingAction() == EntityKeyBean.ACTION.IGNORE){
+                        ignored.add(targetKey);
                     } else {
-                        ignored.add(entityKey);
+                        throw new FlockException("Unable to resolve the target entity " +targetKey.toString());
                     }
                 }
                 if (entity != null) {
                     entities.add(entity);
-                    //entities = array;
                 }
             }
             if (entities != null) {
                 for (Entity entity : entities) {
                     if (count > 1 || count == 0)
-                        ignored.add(entityKey);
+                        ignored.add(targetKey);
                     else
                         targets.add(entity);
                     count++;
@@ -670,7 +677,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         }
         if (!targets.isEmpty())
-            entityDao.linkEntities(fromEntity, targets, linkName);
+            entityDao.linkEntities(sourceEntity, targets, linkName);
         return ignored;
     }
 
@@ -791,16 +798,17 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<EntityLinkInputBean> linkEntities(Company company, Collection<EntityLinkInputBean> entityLinks) {
+    public Collection<EntityLinkInputBean> linkEntities(Company
+                                                                company, Collection<EntityLinkInputBean> entityLinks) {
         for (EntityLinkInputBean entityLink : entityLinks) {
             Map<String, List<EntityKeyBean>> references = entityLink.getReferences();
             for (String xRefName : references.keySet()) {
                 try {
-                    List<EntityKeyBean> notFound = linkEntities(company,
+                    Collection<EntityKeyBean> notFound = linkEntities(company,
                             new EntityKeyBean(entityLink),
                             references.get(xRefName), xRefName);
                     entityLink.setIgnored(xRefName, notFound);
-//                    references.put(xRefName, notFound);
+//                    references.put(relationship, notFound);
                 } catch (FlockException de) {
                     logger.error("Exception while cross-referencing Entities. This message is being returned to the caller - [{}]", de.getMessage());
                     entityLink.setServiceMessage(de.getMessage());

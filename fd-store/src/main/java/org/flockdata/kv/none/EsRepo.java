@@ -50,6 +50,9 @@ public class EsRepo extends AbstractKvRepo{
     @Autowired
     EsGateway esGateway;
 
+    @Autowired
+    IndexHelper indexHelper;
+
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
     public void add(KvContent contentBean) {
@@ -57,12 +60,9 @@ public class EsRepo extends AbstractKvRepo{
     }
 
     public KvContent getValue(Entity entity, Log forLog)  {
-        QueryParams queryParams = new QueryParams();
-        queryParams.setCompany(entity.getSegment().getFortress().getCompany().getName());
-        queryParams.setTypes(IndexHelper.parseType(entity));
-        queryParams.setFortress(entity.getSegment().getFortress().getName());
-        queryParams.setCallerRef(entity.getSearchKey());
-        queryParams.setSegment(entity.getSegment().getCode());
+        QueryParams queryParams = new QueryParams(indexHelper.parseIndex(entity)
+                ,IndexHelper.parseType(entity)
+                ,entity.getSearchKey() );
 
         ContentInputBean contentInput = new ContentInputBean();
         // DAT-347

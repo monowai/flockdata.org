@@ -1,4 +1,4 @@
-package org.flockdata.test.helper;
+package org.flockdata.test.search;
 
 import junit.framework.TestCase;
 import org.flockdata.search.IndexHelper;
@@ -6,7 +6,8 @@ import org.flockdata.search.model.QueryParams;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Indexes to query are computed at runtime. This validates the generic functionality that
@@ -14,35 +15,40 @@ import static junit.framework.TestCase.*;
  * <p/>
  * Created by mike on 23/07/15.
  */
+
 public class TestIndexHelper {
+
     @Test
     public void compute_segmentIndex() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "FlockData";
         String fortress = "fdm";
         String segment = "2013";
         String types[] = new String[1];
 
         types[0] = "lar";
-        String[] indexes = IndexHelper.getIndexesToQuery(company, fortress, segment, types);
+        String[] indexes = indexHelper.getIndexesToQuery(company, fortress, segment, types);
         TestCase.assertEquals(1, indexes.length);
         TestCase.assertEquals("fd.flockdata.fdm.2013", indexes[0]);
     }
 
     @Test
     public void compute_segmentWildCard() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "FlockData";
         String fortress = "fdm";
         String segment = null;
         String types[] = new String[1];
 
         types[0] = "lar";
-        String[] indexes = IndexHelper.getIndexesToQuery(company, fortress, segment, types);
+        String[] indexes = indexHelper.getIndexesToQuery(company, fortress, segment, types);
         TestCase.assertEquals(1, indexes.length);
         TestCase.assertEquals("fd.flockdata.fdm*", indexes[0]);
     }
 
     @Test
     public void testA() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -50,7 +56,7 @@ public class TestIndexHelper {
 
         types[0] = "Type0";
         types[1] = "Type1";
-        String[] indexes = IndexHelper.getIndexesToQuery(company, fortress, segment, types);
+        String[] indexes = indexHelper.getIndexesToQuery(company, fortress, segment, types);
         validateIndexesForQuery(company, fortress, segment, indexes);
 
     }
@@ -58,6 +64,7 @@ public class TestIndexHelper {
     //
     @Test
     public void kvStoreRetrievalIndex() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -66,7 +73,7 @@ public class TestIndexHelper {
         qp.setFortress(fortress);
         qp.setSegment(segment);
         qp.setTypes("Type0");
-        String parsedIndex = IndexHelper.parseIndex(qp);
+        String parsedIndex = indexHelper.parseIndex(qp);
         TestCase.assertEquals("If this fails then locating the content when KV_NONE will fail","fd."+company.toLowerCase()+"."+fortress.toLowerCase()+"."+segment.toLowerCase(), parsedIndex);
         //String[] indexes = IndexHelper.getIndexesToQuery(qp);
         //validateIndexesForQuery(company, fortress, segment, indexes);
@@ -74,6 +81,7 @@ public class TestIndexHelper {
 
     @Test
     public void testFromQueryParams() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -83,12 +91,13 @@ public class TestIndexHelper {
         qp.setSegment(segment);
         qp.setTypes("Type0", "type1");
 
-        String[] indexes = IndexHelper.getIndexesToQuery(qp);
+        String[] indexes = indexHelper.getIndexesToQuery(qp);
         validateIndexesForQuery(company, fortress, segment, indexes);
     }
 
     @Test
     public void wildCardFortress() throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         String company = "abc";
         //String fortress = "123";
         QueryParams qp = new QueryParams();
@@ -96,10 +105,10 @@ public class TestIndexHelper {
         //qp.setFortress(fortress);
         qp.setTypes("Type0", "type1");
 
-        String[] indexes = IndexHelper.getIndexesToQuery(qp);
+        String[] indexes = indexHelper.getIndexesToQuery(qp);
         TestCase.assertEquals(1, indexes.length);
         for (String index : indexes) {
-            assertTrue(index.startsWith(IndexHelper.PREFIX + company.toLowerCase() + ".*"));
+            assertTrue(index.startsWith(indexHelper.getPrefix() + company.toLowerCase() + ".*"));
         }
         //validateIndexes(company, fortress, indexes);
     }
@@ -114,13 +123,14 @@ public class TestIndexHelper {
      * @throws Exception
      */
     private void validateIndexesForQuery(String company, String fortress, String segment, String[] indexes) throws Exception {
+        IndexHelper indexHelper = new IndexHelper("fd.", false);
         assertNotNull(indexes);
         assertEquals(1, indexes.length);
         int foundCount = 0;
         for (String index : indexes) {
 
             // Prefix.company.fortress.segment
-            if (index.equals(IndexHelper.PREFIX + company.toLowerCase() + "." + fortress.toLowerCase() + (segment == null ? "*" : "." + segment.toLowerCase()))) {
+            if (index.equals(indexHelper.getPrefix() + company.toLowerCase() + "." + fortress.toLowerCase() + (segment == null ? "*" : "." + segment.toLowerCase()))) {
                 foundCount++;
             }
         }

@@ -141,7 +141,7 @@ public class TestEndPoints extends EngineBase{
         assertEquals("twitter", result.getCode());
         assertNotNull("Index Name not found", result.getIndexName());
         Fortress fortress = fortressService.findByCode(su.getCompany(), result.getCode());
-        assertEquals(IndexHelper.parseIndex(fortress), result.getIndexName());
+        assertEquals(fortress.getRootIndex(), result.getIndexName());
         assertEquals("Creation of a fortress should be case insensitive", 1, fortressService.findFortresses(su.getCompany()).size());
 
     }

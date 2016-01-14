@@ -19,21 +19,22 @@
 
 package org.flockdata.transform;
 
-import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.ImportProfile;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * Configures fd-client from properties source from a configuration file
+ *
  * User: mike
  * Date: 30/04/14
  * Time: 12:38 PM
  */
 public class ClientConfiguration {
+
+    private Boolean defConfig = true;
     private String company;
     private boolean async;
     private boolean validateOnly;
@@ -54,13 +55,12 @@ public class ClientConfiguration {
     String apiKey = null;
     int batchSize = 100;
 
-
-
     public ClientConfiguration() {
-
+        defConfig = true;
     }
 
     public ClientConfiguration(Properties prop) {
+        defConfig = false;
         Object o = prop.get("engineURL");
         if (o != null)
             setEngineURL(o.toString());
@@ -175,31 +175,15 @@ public class ClientConfiguration {
     }
 
     /**
-     * 
+     *
      * @param profile Fully file name
      * @return initialized ImportProfile
      * @throws IOException
      * @throws ClassNotFoundException
+     * @deprecated - use org.flockdata.transform.ProfileConfiguration
      */
     public static ImportProfile getImportProfile(String profile) throws IOException, ClassNotFoundException {
-        ImportProfile importProfile;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-        File fileIO = new File(profile);
-        if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
-
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
-            if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
-            } else {
-                // Defaults??
-                throw new IllegalArgumentException("Unable to locate the profile " + profile);
-            }
-        }
-        //importParams.setWriter(restClient);
-        return importProfile;
+        return ProfileReader.getImportProfile(profile);
     }
 
     public void setAsync(boolean async) {
@@ -311,7 +295,6 @@ public class ClientConfiguration {
         return skipCount;
     }
 
-
     public void setFile(File file) {
         this.file = file;
     }
@@ -328,9 +311,12 @@ public class ClientConfiguration {
         return reconfigure;
     }
 
-    public void append(ClientConfiguration clientConfiguration) {
-        setAmqp(clientConfiguration.isAmqp());
-        setApiKey(clientConfiguration.getApiKey());
-        setReconfigure(clientConfiguration.isReconfigure());
+    /**
+     * Supports unit testing
+     * @return true if this is intialised simply as a default configuration
+     */
+    public Boolean isDefConfig() {
+        return defConfig;
     }
+
 }

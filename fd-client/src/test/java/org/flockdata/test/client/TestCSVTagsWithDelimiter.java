@@ -27,6 +27,7 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.io.File;
@@ -52,7 +53,7 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ClientConfiguration.getImportProfile("/no-header.json");
+        ImportProfile params = ProfileReader.getImportProfile("/no-header.json");
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/no-header.txt", getFdWriter(), null, configuration);

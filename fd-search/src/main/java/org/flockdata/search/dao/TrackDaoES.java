@@ -57,9 +57,11 @@ import java.util.*;
 @Repository
 public class TrackDaoES implements TrackSearchDao {
 
-
     @Autowired
     private Client esClient;
+
+    @Autowired
+    IndexHelper indexHelper;
 
     private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
 
@@ -70,7 +72,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         String existingIndexKey = searchChange.getSearchKey();
 
-        DeleteResponse dr = esClient.prepareDelete(IndexHelper.parseIndex(searchChange), recordType, existingIndexKey)
+        DeleteResponse dr = esClient.prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
                 .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
@@ -94,7 +96,7 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb = esClient.prepareIndex(IndexHelper.parseIndex(searchChange), documentType)
+        IndexRequestBuilder irb = esClient.prepareIndex(searchChange.getIndexName(), documentType)
 
                 .setSource(source);
 
@@ -141,9 +143,10 @@ public class TrackDaoES implements TrackSearchDao {
 
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
+            String index ;
 
             GetRequestBuilder request =
-                    esClient.prepareGet(IndexHelper.parseIndex(searchChange),
+                    esClient.prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
@@ -190,7 +193,7 @@ public class TrackDaoES implements TrackSearchDao {
 
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = esClient
-                    .prepareIndex(IndexHelper.parseIndex(searchChange), searchChange.getDocumentType(), searchChange.getSearchKey());
+                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
             //.setRouting(searchChange.getMetaKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
@@ -221,13 +224,13 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     public Map<String, Object> findOne(Entity entity, String id) {
-        String indexName = entity.getFortress().getRootIndex();
+        String indexName = indexHelper.parseIndex(entity);//entity.getFortress().getRootIndex();
         String documentType = entity.getType();
         if (id == null)
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esClient.prepareGet(IndexHelper.parseIndex(indexName), documentType, id)
+        GetResponse response = esClient.prepareGet(indexName, documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();

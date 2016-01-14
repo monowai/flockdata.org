@@ -3,6 +3,7 @@ package org.flockdata.test.client;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class TestTagKeyPrefix extends AbstractImport {
     public void prefix_TagKeyWorks() throws Exception {
         ClientConfiguration configuration= getClientConfiguration("/profile/tag-key-prefix.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ClientConfiguration.getImportProfile("/profile/tag-key-prefix.json"),
+        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-key-prefix.json"),
                 "/data/tag-key-prefix.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();

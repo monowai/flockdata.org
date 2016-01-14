@@ -35,6 +35,7 @@ import java.util.Map;
  */
 public class QueryParams implements QueryInterface{
     private String segment;
+    private String index;
 
     public QueryParams(String searchText) {
         this.searchText = searchText;
@@ -43,6 +44,12 @@ public class QueryParams implements QueryInterface{
     public QueryParams(FortressSegment segment) {
         this(segment.getFortress());
         this.segment = segment.getCode();
+    }
+
+    public QueryParams(String index, String docType, String code) {
+        this.index = index;
+        setTypes(docType);
+        setCode(code);
     }
 
     public ArrayList<String> getTags() {
@@ -68,7 +75,7 @@ public class QueryParams implements QueryInterface{
     private Integer from = null;
 
     private boolean entityOnly;
-    private String callerRef;
+    private String code;
 
     public QueryParams() {}
 
@@ -121,8 +128,9 @@ public class QueryParams implements QueryInterface{
         return fortress;
     }
 
-    public void setFortress(String fortress) {
+    public QueryParams setFortress(String fortress) {
         this.fortress = fortress;
+        return this;
     }
 
     public String[] getTypes() {
@@ -133,8 +141,9 @@ public class QueryParams implements QueryInterface{
         return data;
     }
 
-    public void setTypes(String... types) {
+    public QueryParams setTypes(String... types) {
         this.types = types;
+        return this;
     }
 
     public Integer getSize() {
@@ -179,12 +188,13 @@ public class QueryParams implements QueryInterface{
     }
 
 
-    public void setCallerRef(String callerRef) {
-        this.callerRef = callerRef;
+    public QueryParams setCode(String code) {
+        this.code = code;
+        return this;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     public ArrayList<String> getRelationships() {
@@ -199,16 +209,18 @@ public class QueryParams implements QueryInterface{
         return query;
     }
 
-    public void setQuery(Map<String, Object> query) {
+    public QueryParams setQuery(Map<String, Object> query) {
         this.query = query;
+        return this;
     }
 
     public Map<String, Object> getAggs() {
         return aggs;
     }
 
-    public void setFields(ArrayList<String> fields) {
+    public QueryParams setFields(ArrayList<String> fields) {
         this.fields = fields;
+        return this;
     }
 
     public ArrayList<String> getFields() {
@@ -220,7 +232,12 @@ public class QueryParams implements QueryInterface{
         return segment;
     }
 
-    public void setSegment(String segment) {
+    public QueryParams setSegment(String segment) {
         this.segment = segment;
+        return this;
+    }
+
+    public String getIndex() {
+        return index;
     }
 }

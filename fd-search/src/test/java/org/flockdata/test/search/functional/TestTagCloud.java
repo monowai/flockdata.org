@@ -29,7 +29,6 @@ import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.SearchChange;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +66,9 @@ public class TestTagCloud extends ESBase {
         String user = "user";
         String doc = fort;
 
-        Entity entity = Helper.getEntity(comp, fort, user, doc);
+        Entity entity = getEntity(comp, fort, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();

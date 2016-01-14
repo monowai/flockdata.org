@@ -10,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 
+@Component
 public class SimpleUser implements UserProfileService {
 	@Autowired
 	private SystemUserService systemUserService;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(SimpleUser.class);
+    private static Logger logger = LoggerFactory.getLogger("configuration");
 
-    static  {
-        logger.info("Using SimpleUser-Security service");
+    @PostConstruct
+    void dumpConfig() {
+        logger.info("**** Using SimpleUser-Security service");
     }
 
     @Override

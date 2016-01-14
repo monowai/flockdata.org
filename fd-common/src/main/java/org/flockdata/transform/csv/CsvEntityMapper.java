@@ -105,30 +105,24 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                 if (colDef.isUpdateUser()) {
                     setUpdateUser(value);
                 }
-                if (colDef.isCreateDate()) {
-                    Long millis = ExpressionHelper.parseDate(colDef, value);
-                    if (millis != null)
-                        setWhen(new DateTime(millis));
-                }
-                if (colDef.isUpdateDate()) {
-                    Long millis = ExpressionHelper.parseDate(colDef, value);
-                    if (millis != null) {
-                        // Multiple date fields can be candidates for the last change
-                        // Ths will set it to the most recent last change
-                        if (getLastChange() == null || millis > getLastChange().getTime())
-                            setLastChange(new Date(millis));
+                if (colDef.isDate()) {
+                    // DAT-523
+                    if (value == null || value.equals("")) {
+                        row.put(sourceColumn, null);
+                    } else {
+                        Long dValue = ExpressionHelper.parseDate(colDef, value);
+                        row.put(sourceColumn, new DateTime(dValue).toString());
+
+                        if (colDef.isCreateDate()) {
+                            setWhen(new DateTime(dValue));
+                        }
+                        if (colDef.isUpdateDate()) {
+                            if (getLastChange() == null || dValue > getLastChange().getTime())
+                                setLastChange(new Date(dValue));
+                        }
                     }
                 }
 
-                if (colDef.isDate()) {
-                    // DAT-523
-                    if ( value == null || value.equals("") ) {
-                        row.put(sourceColumn, null);
-                    }else {
-                        Long dValue = ExpressionHelper.parseDate(colDef, value);
-                        row.put(sourceColumn, new DateTime(dValue).toString());
-                    }
-                }
 
                 if (colDef.isCallerRef()) {
                     String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);

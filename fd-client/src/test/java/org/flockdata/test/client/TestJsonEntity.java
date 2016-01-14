@@ -27,6 +27,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -50,7 +51,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ImportProfile params = ClientConfiguration.getImportProfile("/profile/gov.json");
+        ImportProfile params = ProfileReader.getImportProfile("/profile/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
@@ -90,7 +91,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void object_ImportJsonEntity() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportProfile("/profile/gov.json");
+        ImportProfile profile = ProfileReader.getImportProfile("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
         profile.setFortressName("testing");
@@ -105,7 +106,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void array_ImportJsonEntities() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ClientConfiguration.getImportProfile("/profile/gov.json");
+        ImportProfile profile = ProfileReader.getImportProfile("/profile/gov.json");
         profile.setContentType(ProfileConfiguration.ContentType.JSON);
         profile.setFortressName("testing");
         profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);

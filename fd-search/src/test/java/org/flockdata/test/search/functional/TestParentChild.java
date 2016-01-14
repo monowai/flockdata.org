@@ -19,6 +19,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * ES Parent/Child structures
  * Created by mike on 10/09/15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,6 +28,13 @@ public class TestParentChild extends ESBase {
 
     @Test
     public void linkedEntities () throws Exception {
+
+        String company = "xRef_FromInputBeans";
+        String fortress = "timesheet";
+        Entity entity = getEntity(company, fortress, "mike", "work");
+
+        deleteEsIndex(entity);
+
         // Comes from TestEntityLinks.testLinkedToSearch
         String json = "{\n" +
                 "  \"documentType\": \"work\",\n" +
@@ -42,7 +50,7 @@ public class TestParentChild extends ESBase {
                 "  \"logId\": null,\n" +
                 "  \"tagValues\": {},\n" +
                 "  \"entityId\": 10,\n" +
-                "  \"indexName\": \"fd.xref_frominputbeans.timesheet\",\n" +
+                "  \"indexName\": \""+indexHelper.parseIndex(entity)+"\",\n" +
                 "  \"sysWhen\": 1450644354230,\n" +
                 "  \"replyRequired\": true,\n" +
                 "  \"forceReindex\": false,\n" +
@@ -61,7 +69,7 @@ public class TestParentChild extends ESBase {
                 "      \"company\": null,\n" +
                 "      \"metaKey\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
                 "      \"code\": \"ABC123\",\n" +
-                "      \"index\": \"fd.xref_frominputbeans.timesheet\",\n" +
+                "      \"index\": \""+indexHelper.getPrefix()+"xref_frominputbeans.timesheet\",\n" +
                 "      \"searchTags\": {\n" +
                 "        \"role\": {\n" +
                 "          \"position\": [\n" +
@@ -80,10 +88,6 @@ public class TestParentChild extends ESBase {
         trackService.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(2000);
 
-        String company = "xRef_FromInputBeans";
-        String fortress = "timesheet";
-        Entity entity = Helper.getEntity(company, fortress, "mike", "work");
-
         //ToDo: Needs the relationship
         System.out.println(doQuery(entity, "*",1));
         doFieldQuery(entity, "e.staff.code", "ABC123", 1, "Unable to locate by staff field");
@@ -94,51 +98,49 @@ public class TestParentChild extends ESBase {
     public void testParentChildStructure() throws Exception {
 
 
-        String fortress = "Common";
+        String fortress = "ParentChild";
         String company = "Anyco";
-        String parent = "Parent";
+        String type = "Parent";
         String child = "Child";
         String user = "mike";
 
-        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase(), "parent");
-        deleteEsIndex("fd." + company.toLowerCase() + "." + fortress.toLowerCase(), "child");
+        Entity parentEntity = getEntity(company, fortress, user, type, "123");
+        Entity childEntity = getEntity(company, fortress, user, child);
 
-        Entity parentEntity = Helper.getEntity(company, fortress, user, parent, "123");
-        EntityKeyBean parentKey = new EntityKeyBean(parentEntity);
+        deleteEsIndex(indexHelper.parseIndex(parentEntity));
+        deleteEsIndex(indexHelper.parseIndex(childEntity));
 
-        EntitySearchChange change = new EntitySearchChange(parentEntity);
-
+        EntitySearchChange change = new EntitySearchChange(parentEntity, indexHelper.parseIndex(parentEntity));
 
         trackService.createSearchableChange(new EntitySearchChanges(change));
 
         // Children have to be in the same company/fortress.
         // ES connects the Child to a Parent. Parents don't need to know about children
-        Entity childEntity = Helper.getEntity(company, fortress, user, child);
-        EntitySearchChange childChange = new EntitySearchChange(childEntity);
-        childChange.setParent(parentKey);
-        childChange.setWhat(Helper.getSimpleMap("childKey", "childValue"));
+        EntitySearchChange childChange =
+                new EntitySearchChange(childEntity, indexHelper.parseIndex(parentEntity))
+                    .setParent(new EntityKeyBean(parentEntity, indexHelper.parseIndex(parentEntity)))
+                    .setWhat(Helper.getSimpleMap("childKey", "childValue"));
 
         trackService.createSearchableChange(new EntitySearchChanges(childChange));
         Thread.sleep(2000);
         // One document of parent type
         doQuery(parentEntity, "*", 1);
-        // One document of child type
-        doQuery(childEntity, "*", 1);
+
+        if ( !indexHelper.isSuffixed())
+            doQuery(childEntity, "*", 1);
 
         // Should find both the parent and the child when searching just the index
-        doQuery(IndexHelper.parseIndex(parentEntity), "*", "*", 2);
+        doQuery(indexHelper.getIndexRoot(parentEntity.getFortress())+"*", "*", "*", 2);
         // Both entities are in the same index but are of different types
-        doQuery(IndexHelper.parseIndex(childEntity), "*", "*", 2);
+        doQuery(indexHelper.getIndexRoot(childEntity.getFortress())+"*"+"*", "*", "*", 2);
 
-        String result = doHasChild(parentEntity, childEntity.getType().toLowerCase(), "childValue");
+        String result = doHasChild(parentEntity, IndexHelper.parseType(childEntity), "childValue");
         assertTrue ( result.contains("123"))   ;
 
     }
 
     String doHasChild(Entity entity, String childType, String queryString) throws Exception {
-        // There should only ever be one document for a given AuditKey.
-        // Let's assert that
-        //waitAWhile();
+
         int runCount = 0, nbrResult;
         JestResult jResult;
 
@@ -160,8 +162,8 @@ public class TestParentChild extends ESBase {
 
             //
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
+                    .addType(indexHelper.parseType(entity))
                     .build();
 
             jResult = esClient.execute(search);
@@ -179,7 +181,7 @@ public class TestParentChild extends ESBase {
         } while (nbrResult != expectedHitCount && runCount < 6);
 
         assertNotNull(jResult);
-        Assert.assertEquals(IndexHelper.parseIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
+        Assert.assertEquals(indexHelper.parseIndex(entity) + "\r\n" + queryString + "\r\n" + jResult.getJsonString(), expectedHitCount, nbrResult);
 
         return jResult.getJsonString();
 
