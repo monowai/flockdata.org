@@ -50,9 +50,9 @@ public class AttachmentTests extends ESBase {
         // https://github.com/elastic/elasticsearch-mapper-attachments/issues/131
 //        if ( true==true )
 //            return ;
-        Entity entity = Helper.getEntity("cust", "fort", "anyuser", "fort");
+        Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(entity);
+        SearchChange changeA = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         changeA.setAttachment(Helper.getPdfDoc());
 
         deleteEsIndex(entity);

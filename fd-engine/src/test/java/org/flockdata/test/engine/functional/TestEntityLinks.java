@@ -2,9 +2,9 @@ package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
+import org.flockdata.model.*;
+import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
@@ -13,14 +13,18 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.transform.ProfileReader;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
-import static junit.framework.TestCase.assertFalse;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -84,9 +88,10 @@ public class TestEntityLinks extends EngineBase {
         validateSearchStaff( deserialized);
 
     }
+
     private void validateSearchStaff(SearchChange searchDocument){
         assertNotNull(searchDocument.getEntityLinks());
-        TestCase.assertEquals(1, searchDocument.getEntityLinks().size());
+        assertEquals(1, searchDocument.getEntityLinks().size());
         EntityKeyBean staffDetails = searchDocument.getEntityLinks().iterator().next();
         assertNotNull(staffDetails);
         assertNotNull(staffDetails.getSearchTags());
@@ -119,4 +124,74 @@ public class TestEntityLinks extends EngineBase {
         validateSearchStaff( searchDocument);
     }
 
+    @Autowired
+    ImportProfileService importProfileService;
+
+    @Test
+    public void error_whenEntityDoesNotExist() throws Exception {
+        cleanUpGraph();
+
+        // Track works where there is
+        //  an existing entity to link to
+        //  a non-existing entity link requested
+        SystemUser su = registerSystemUser("linkedBehaviour", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
+
+        // One timesheet entry will be assigned to this staff member
+        EntityInputBean eStaff = new EntityInputBean(fortress.getName(), "wally", "Staff", new DateTime(), "30250");
+        eStaff.addTag( new TagInputBean("Cleaner", "Position", "role"));
+        mediationFacade.trackEntity(su.getCompany(), eStaff);
+
+        DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
+
+        ImportProfile params = ProfileReader.getImportProfile("/testentitylinks.json");
+        Profile p = importProfileService.save(fortress, timesheet, params );
+        importProfileService.process(su.getCompany(), fortress, timesheet, "/testentitylinks.csv", false);
+        // recorded is the relationship type in the content profile definition
+        String rlxName = "recorded";
+        Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
+        assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
+        linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
+        // Default behaviour is to ignore
+        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
+
+    }
+//    @Test
+//    public void work_whenEntityDoesNotExist() throws Exception {
+//        cleanUpGraph();
+//
+//        // Track works where there is
+//        //  an existing entity to link to
+//        //  a non-existing entity link requested
+//        SystemUser su = registerSystemUser("work_whenEntityDoesNotExist", mike_admin);
+//        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
+//
+//        // One timesheet entry will be assigned to this staff member
+//        EntityInputBean eStaff = new EntityInputBean(fortress.getName(), "wally", "Staff", new DateTime(), "30250");
+//        eStaff.addTag( new TagInputBean("Cleaner", "Position", "role"));
+//        mediationFacade.trackEntity(su.getCompany(), eStaff);
+//
+//        DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
+//        String rlxName = "recorded";
+//
+//        ImportProfile params = ClientConfiguration.getImportProfile("/testentitylinks.json");
+//        ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
+//        colDef.getEntityLinks().iterator().next().get(rlxName);
+//        Profile p = importProfileService.save(fortress, timesheet, params );
+//        importProfileService.process(su.getCompany(), fortress, timesheet, "/testentitylinks.csv", false);
+//        // recorded is the relationship type in the content profile definition
+//        Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
+//        assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
+//        linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "2", rlxName);
+//        // Default behaviour is to ignore
+//        TestCase.assertEquals("This timesheet should not have an associated staff member as it did not exist", 0, linkedEntities.get(rlxName).size()); ;
+//
+//    }
+
+    public Map<String,Collection<Entity>>getLinkedEntities(Company company, String fortressName, String docType, String code, String rlxName) throws Exception{
+        Entity entity = entityService.findByCode(company, fortressName, docType, code);
+        assertNotNull (entity);
+        return entityService.getCrossReference(company, entity.getMetaKey(), rlxName);
+
+    }
 }

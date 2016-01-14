@@ -21,6 +21,7 @@ package org.flockdata.search.model;
 
 import org.flockdata.model.Fortress;
 import org.flockdata.search.IndexHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
@@ -35,7 +36,7 @@ public class TagCloudParams implements QueryInterface {
     private String company;
 
     // ToDo: Can this be an Array[] ?
-    private String fortress="*";
+    private String fortress = "*";
     // ToDo: This should be an Array[]
     private ArrayList<String> types = new ArrayList<>();
 
@@ -45,7 +46,8 @@ public class TagCloudParams implements QueryInterface {
     private String searchText;
     private String segment;
 
-    public TagCloudParams() {}
+    public TagCloudParams() {
+    }
 
     public TagCloudParams(Fortress fortress) {
         this();
@@ -72,9 +74,9 @@ public class TagCloudParams implements QueryInterface {
     @Override
     public String[] getTypes() {
         String[] results = new String[types.size()];
-        int i =0;
+        int i = 0;
         for (String s : types) {
-            results[i]= s.toLowerCase();
+            results[i] = s.toLowerCase();
             i++;
         }
         return results;
@@ -84,7 +86,7 @@ public class TagCloudParams implements QueryInterface {
         this.types.add(type);
     }
 
-    public void setTypes(ArrayList<String> types){
+    public void setTypes(ArrayList<String> types) {
         this.types = types;
     }
 
@@ -115,8 +117,4 @@ public class TagCloudParams implements QueryInterface {
         this.searchText = query;
     }
 
-    public String[] getIndexes() {
-        return IndexHelper.getIndexesToQuery(company, fortress, segment, getTypes());
-
-    }
 }

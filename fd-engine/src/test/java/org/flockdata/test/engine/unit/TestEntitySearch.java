@@ -54,7 +54,7 @@ public class TestEntitySearch {
         tags.add( new EntityTagOut(e, getTag("NameB", "Dupe"), "Dupe", null ));
         tags.add(new EntityTagOut(e, getTag("NameC", relationship), relationship, null));
 
-        EntitySearchChange entitySearchChange = new EntitySearchChange(e);
+        EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 
         entitySearchChange.setTags( tags);
         assertEquals(1,entitySearchChange.getTagValues().size());

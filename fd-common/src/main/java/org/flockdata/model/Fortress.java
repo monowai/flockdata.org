@@ -21,7 +21,6 @@ package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.search.IndexHelper;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;
@@ -78,8 +77,6 @@ public class Fortress implements Serializable {
     }
 
     public String getRootIndex() {
-        if ( rootIndex == null )
-            rootIndex = IndexHelper.getIndexRoot(this);
         return rootIndex;
     }
 
@@ -124,9 +121,8 @@ public class Fortress implements Serializable {
         return company;
     }
 
-    public void setCompany(org.flockdata.model.Company ownedBy) {
-        this.rootIndex = IndexHelper.getIndexRoot(ownedBy.getCode(), getCode());
-        this.company = ownedBy;
+    public void setCompany(org.flockdata.model.Company company) {
+        this.company = company;
 
     }
 
@@ -232,5 +228,9 @@ public class Fortress implements Serializable {
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);
         return result;
+    }
+
+    public void setRootIndex(String rootIndex) {
+        this.rootIndex = rootIndex;
     }
 }

@@ -74,6 +74,9 @@ public class QueryDaoES implements QueryDao {
     @Autowired
     private Client client;
 
+    @Autowired
+    IndexHelper indexHelper;
+
     @Value("${highlight.enabled:true}")
     Boolean highlightEnabled;
 
@@ -117,6 +120,10 @@ public class QueryDaoES implements QueryDao {
 //        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".name.facet";
     }
 
+    public String[] getIndexes(TagCloudParams tagCloudParams) {
+        return indexHelper.getIndexesToQuery(tagCloudParams.getCompany(), tagCloudParams.getFortress(), null, tagCloudParams.getTypes());
+
+    }
 
     @Override
     public TagCloud getCloudTag(TagCloudParams tagCloudParams) throws NotFoundException {
@@ -126,7 +133,7 @@ public class QueryDaoES implements QueryDao {
         Collection<String> whatAndTagFields = getTagArray(tagCloudParams);
 
         SearchRequestBuilder query = client.prepareSearch(
-                tagCloudParams.getIndexes())
+                getIndexes(tagCloudParams))
                 ;
 
         if (tagCloudParams.getRelationships() != null)
@@ -223,7 +230,7 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        SearchRequestBuilder query = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
+        SearchRequestBuilder query = client.prepareSearch(indexHelper.getIndexesToQuery(queryParams))
                 .setTypes(types)
                 .addField(EntitySearchSchema.META_KEY)
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
@@ -254,7 +261,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
-        SearchResponse result = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
+        SearchResponse result = client.prepareSearch(indexHelper.getIndexesToQuery(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
                 .execute()
                 .actionGet();
@@ -281,7 +288,7 @@ public class QueryDaoES implements QueryDao {
 
         watch.start(queryParams.toString());
 
-        SearchRequestBuilder query = client.prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
+        SearchRequestBuilder query = client.prepareSearch(indexHelper.getIndexesToQuery(queryParams))
                 .addField(EntitySearchSchema.META_KEY)
                 .addField(EntitySearchSchema.FORTRESS)
                 .addField(EntitySearchSchema.LAST_EVENT)
@@ -402,7 +409,7 @@ public class QueryDaoES implements QueryDao {
                 query = query + "}";
 
             SearchRequestBuilder esQuery = client
-                    .prepareSearch(IndexHelper.getIndexesToQuery(queryParams))
+                    .prepareSearch(indexHelper.getIndexesToQuery(queryParams))
                     .setTypes(queryParams.getTypes());
 
             if ( queryParams.getSize()!=null )
@@ -433,10 +440,14 @@ public class QueryDaoES implements QueryDao {
 
 
         } else {
+            String index = queryParams.getIndex();
+            if ( index == null )
+                index = indexHelper.parseIndex(queryParams);
+
             GetResponse response =
-                    client.prepareGet(IndexHelper.parseIndex(queryParams),
+                    client.prepareGet(index,
                             queryParams.getTypes()[0],
-                            queryParams.getCallerRef())
+                            queryParams.getCode())
                             .execute()
                             .actionGet();
             result = new EsSearchResult(response.getSourceAsBytes());

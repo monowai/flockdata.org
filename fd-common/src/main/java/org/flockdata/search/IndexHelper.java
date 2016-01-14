@@ -5,8 +5,12 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.track.bean.SearchChange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -15,60 +19,76 @@ import java.util.Collection;
  * <p/>
  * Created by mike on 23/07/15.
  */
+@Configuration
 public class IndexHelper {
 
-    public static final String PREFIX = "fd.";
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
-    public static String parseIndex(Entity entity) {
+    @Value("${fd.search.index.prefix:fd.}")
+    private String prefix ;
+
+    @Value("${fd.search.index.typeSuffix:false}")
+    private Boolean typeSuffix ;   // use docType as an index suffix?
+
+    IndexHelper (){}
+
+    public IndexHelper(String prefix, boolean typeSuffix){
+        this.prefix = prefix;
+        this.typeSuffix = typeSuffix;
+    }
+
+    @PostConstruct
+    void dumpConfig(){
+        logger.info("**** FlockData index variables prefix [{}], suffixing with type [{}]",prefix, typeSuffix);
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public Boolean isSuffixed() {
+        return typeSuffix;
+    }
+
+    public String parseIndex(Entity entity) {
         if (entity.getSegment().isDefault())
-            return entity.getSegment().getFortress().getRootIndex();
+            return entity.getSegment().getFortress().getRootIndex() + getSuffix(entity);
         else {
-            String index = parseIndex(entity.getSegment().getFortress().getRootIndex());
+            String index = entity.getSegment().getFortress().getRootIndex() + getSuffix(entity);
             index = index + "." + entity.getSegment().getCode().toLowerCase();
             return index;
         }
-
     }
 
     /**
-     * All types for a fortress
-     *
-     * @param fortress {indexRoot}
-     * @return {indexRoot}.*
+     * The suffix, if any, to use for the index. Depends on fd.search.index.typeSuffix==true
+     * @param entity to analyse
+     * @return coded DocumentType
      */
-    public static String parseIndex(Fortress fortress) {
-        return parseIndex(fortress.getRootIndex());
+    private String getSuffix(Entity entity) {
+        if (isSuffixed())
+            return "."+parseType(entity.getType());
+        else
+            return "";
     }
 
-    public static String parseIndex(SearchChange searchChange) {
-        return parseIndex(searchChange.getIndexName());
+    public String getIndexRoot(Fortress fortress) {
+        return getIndexRoot(fortress.getCompany().getCode(), fortress.getCode());
     }
 
-    public static String parseIndex(String indexRoot) {
-        //return (indexRoot +"."+documentType).toLowerCase();
-        return indexRoot;
+    // Returns the root level of the index with no doctype or consideration of a segment
+    public String getIndexRoot(String company, String fortress) {
+        String fort = (fortress == null || fortress.equals("*") ? "" : "."+fortress.toLowerCase());
+        return getPrefix() + company.toLowerCase() + fort ;
     }
 
-    public static String parseIndex(QueryParams queryParams) {
+    @Deprecated // Parse from the Entity
+    public String parseIndex(QueryParams queryParams) {
         String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
         if ( isDefaultSegment(queryParams.getSegment()))
             return indexRoot;
         return String.format("%s.%s", indexRoot, queryParams.getSegment());
 
-    }
-
-    public static String getIndexRoot(FortressSegment segment) {
-
-        return getIndexRoot(segment.getFortress().getCompany().getCode(), segment.getFortress().getCode());
-    }
-
-    public static String getIndexRoot(Fortress fortress) {
-        return getIndexRoot(fortress.getCompany().getCode(), fortress.getCode());
-    }
-
-    // Returns the root level of the index with no doctype or consideration of a segment
-    public static String getIndexRoot(String company, String fortress) {
-        return PREFIX + company.toLowerCase() + (fortress == null || fortress.equals("*") ? "" : "."+fortress.toLowerCase());
     }
 
     /**
@@ -78,7 +98,7 @@ public class IndexHelper {
      * @return one index per doc type
      * @throws FlockException
      */
-    public static String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
+    public String[] getIndexesToQuery(QueryParams queryParams) throws FlockException {
         return getIndexesToQuery(queryParams.getCompany(), queryParams.getFortress(), queryParams.getSegment(), queryParams.getTypes());
     }
 
@@ -89,14 +109,14 @@ public class IndexHelper {
      * @param types    types to scan
      * @return One index line per Root+Type combination
      */
-    public static String[] getIndexesToQuery(String company, String fortress, String segment, String[] types) {
+    public String[] getIndexesToQuery(String company, String fortress, String segment, String[] types) {
         int length = 1;
         if (types != null && types.length > 0)
             length = 1;
         String[] results = new String[length];
         Collection<String> found = new ArrayList<>();
 
-        String indexRoot = PREFIX + company.toLowerCase() ;
+        String indexRoot = getPrefix() + company.toLowerCase() ;
         String segmentFilter ="";
 
         if (!isDefaultSegment(segment))
@@ -138,4 +158,6 @@ public class IndexHelper {
     private static boolean isDefaultSegment(String segment){
         return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
+
 }
+

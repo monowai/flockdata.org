@@ -21,8 +21,8 @@ package org.flockdata.test.client;
 
 import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.Transformer;
 import org.flockdata.transform.csv.CsvTagMapper;
 
 import java.util.Collection;
@@ -39,12 +39,12 @@ import static org.junit.Assert.assertNotNull;
 public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
-        ImportProfile params = ClientConfiguration.getImportProfile("/csv-tag-import.json");
+        ImportProfile params = ProfileReader.getImportProfile("/csv-tag-import.json");
         CsvTagMapper mappedTag = new CsvTagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 
-        Map<String,Object> json = mappedTag.setData(TransformationHelper.convertToMap(headers, data, params), params);
+        Map<String,Object> json = mappedTag.setData(Transformer.convertToMap(headers, data, params), params);
         assertNotNull (json);
         Map<String, Collection<TagInputBean>> allTargets = mappedTag.getTargets();
         assertNotNull(allTargets);

@@ -110,7 +110,7 @@ public class Configure {
         File fullPath = new File(path);
         File fPath = new File (fullPath.getParent()) ;
         if (!fPath.exists() && !fPath.mkdir()) {
-            System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") +"]");
+            System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") + "]");
             System.exit(-1);
         }
         return fullPath;
@@ -249,8 +249,8 @@ public class Configure {
                 return new ClientConfiguration(prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
+                System.out.println("Returning a default client configuration");
             }
-            return new ClientConfiguration();
         }
 
         return new ClientConfiguration();

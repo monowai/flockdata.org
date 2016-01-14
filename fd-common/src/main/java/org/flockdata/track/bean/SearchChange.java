@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.model.EntityTag;
+import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
@@ -48,13 +49,13 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    void setWhat(Map<String, Object> what);
+    SearchChange setWhat(Map<String, Object> what);
 
     Map<String, Object> getWhat();
 
     HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
-    void setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
+    SearchChange setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
 
     /**
      * @return who made this change
@@ -96,7 +97,7 @@ public interface SearchChange {
 
     Long getEntityId();
 
-    void setDescription(String description);
+    SearchChange setDescription(String description);
 
     String getDescription();
 
@@ -139,13 +140,13 @@ public interface SearchChange {
 
     EntityService.TAG_STRUCTURE getTagStructure();
 
-    void setStructuredTags(ArrayList<EntityTag> tagsB);
+    SearchChange setStructuredTags(ArrayList<EntityTag> tagsB);
 
-    void setParent(EntityKeyBean parent);
+    SearchChange setParent(EntityKeyBean parent);
 
     String getSegment();
 
-    void addEntityLinks(Collection<EntityKeyBean> inboundEntities);
+    SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities);
 
     Collection<EntityKeyBean> getEntityLinks();
 }

@@ -28,13 +28,21 @@ import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import junit.framework.TestCase;
+import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
+import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.endpoint.TrackServiceEs;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.search.service.TrackSearchDao;
+import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.EntityInputBean;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -68,6 +76,9 @@ public class ESBase {
     TrackSearchDao searchRepo;
 
     @Autowired
+    IndexHelper indexHelper;
+
+    @Autowired
     IndexMappingService indexMappingService;
 
 
@@ -78,14 +89,13 @@ public class ESBase {
     @Autowired
     QueryServiceEs queryServiceEs;
 
-    static void deleteEsIndex(Entity entity) throws Exception{
-        deleteEsIndex(entity.getFortress().getRootIndex(), entity.getType());
+    void deleteEsIndex(Entity entity) throws Exception{
+        deleteEsIndex(indexHelper.parseIndex(entity));
     }
 
-    static void deleteEsIndex(String indexName, String documentType) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName);
-        logger.info("%% Delete Index {}", deleteMe);
-        esClient.execute(new DeleteIndex.Builder(deleteMe).build());
+    void deleteEsIndex(String indexName) throws Exception {
+        logger.info("%% Delete Index {}", indexName);
+        esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
     @BeforeClass
@@ -196,7 +206,7 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -213,7 +223,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-        logger.trace("searching index [{}] field [{}] for [{}]", IndexHelper.parseIndex(entity), field, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", indexHelper.parseIndex(entity), field, queryString);
         if (exceptionMessage == null)
             exceptionMessage = result.getJsonString();
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
@@ -246,7 +256,7 @@ public class ESBase {
 
 
         Suggest search = new Suggest.Builder(query).
-                addIndex(IndexHelper.parseIndex(entity)).
+                addIndex(indexHelper.parseIndex(entity)).
                 build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -262,7 +272,7 @@ public class ESBase {
     }
 
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doQuery(IndexHelper.parseIndex(entity), IndexHelper.parseType(entity), queryString, expectedHitCount);
+        return doQuery(indexHelper.parseIndex(entity), IndexHelper.parseType(entity), queryString, expectedHitCount);
     }
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
@@ -335,12 +345,12 @@ public class ESBase {
                     "    }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
                     .addType(type)
                     .build();
 
             result = esClient.execute(search);
-            String message = IndexHelper.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            String message = indexHelper.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
             assertNotNull(message, result);
             assertNotNull(message, result.getJsonObject());
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
@@ -349,7 +359,7 @@ public class ESBase {
         } while (nbrResult != expectedHitCount && runCount < 5);
 
         logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
-        Assert.assertEquals("Unexpected hit count searching '" + IndexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + indexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -384,7 +394,7 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
                     .addType(type)
                     .build();
 
@@ -414,5 +424,27 @@ public class ESBase {
                     .getAsJsonArray().toString();
     }
 
+    public Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
+        String callerRef = new DateTime().toString();
+        return getEntity(comp, fort, userName, docType, callerRef);
+    }
 
+    public Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {
+        // These are the minimum objects necessary to create Entity data
+
+        Company mockCompany = new Company(comp);
+        mockCompany.setName(comp);
+
+        FortressInputBean fib = new FortressInputBean(fort, false);
+        Fortress fortress = new Fortress(fib, mockCompany);
+        String index = indexHelper.getIndexRoot(fortress);
+        fortress.setRootIndex(index);
+        DateTime now = new DateTime();
+        EntityInputBean entityInput = Helper.getEntityInputBean(docType, fort, userName, code, now);
+
+        DocumentType doc = new DocumentType(fortress, docType);
+        return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc)
+                .setIndexName(index);
+
+    }
 }

@@ -27,7 +27,6 @@ import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
@@ -1051,7 +1050,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         Entity entity = result.getEntity();
-        assertEquals(IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
+        assertEquals(indexHelper.getPrefix() + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());
@@ -1086,7 +1085,7 @@ public class TestEntityTrack extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         logger.debug("***  problem {}", entity.toString());
         logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getSegment(), entity.getSegment().getCompany(), result.getEntity().getSegment());
-        assertEquals("Why is this failing", IndexHelper.PREFIX + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
+        assertEquals("Why is this failing", indexHelper.getPrefix() + su.getCompany().getCode() + "." + fo.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getMetaKey());

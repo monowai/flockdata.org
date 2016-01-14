@@ -163,7 +163,7 @@ public class TrackEP {
      * @throws org.flockdata.helper.FlockException if not exactly one Entity for the callerRef in the fortress
      */
     @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody  List<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
+    public @ResponseBody  Collection<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
                                                                    @PathVariable("callerRef") String callerRef,
                                                                    @RequestBody Collection<EntityKeyBean> entities,
                                                                    @PathVariable("xRefName") String xRefName,

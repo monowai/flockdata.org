@@ -59,28 +59,27 @@ public class TestDataTypes extends ESBase {
     @Test (expected =AmqpRejectAndDontRequeueException.class )
     public void validate_MismatchSubsequentValue() throws Exception{
         String fortress = "mismatch";
-        String company = "test";
         String doc = "doc";
         String user = "mike";
 
-        Entity entityA = Helper.getEntity(company, fortress, user, doc);
+        Entity entity = getEntity(fortress, fortress, user, doc);
+        deleteEsIndex(entity);
 
-        SearchChange change = new EntitySearchChange(entityA);
-        change.setDescription("Test Description");
+        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity))
+                .setDescription("Test Description");
+
         Map<String,Object> numMap = Helper.getSimpleMap("num", 100);
         change.setWhat(numMap );
 
-
-        deleteEsIndex(entityA);
         indexMappingService.ensureIndexMapping(change);
         searchRepo.handle(change);
         Thread.sleep(1000);
 
-        doQuery(entityA, "*", 1);
+        doQuery(entity, "*", 1);
 
-        Entity entityB = Helper.getEntity(company, fortress, user, doc);
+        Entity entityB = getEntity(fortress, fortress, user, doc);
         Map<String,Object> strMap = Helper.getSimpleMap("num", "NA");
-        change = new EntitySearchChange(entityB);
+        change = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setWhat(strMap);
 
@@ -94,11 +93,11 @@ public class TestDataTypes extends ESBase {
         Company mockCompany = new Company("company");
         mockCompany.setName("company");
 
-        FortressInputBean fib = new FortressInputBean("fortress", false);
+        FortressInputBean fib = new FortressInputBean("serialize_SearchChanges", false);
         Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean eib = new EntityInputBean("fortress",
+        EntityInputBean eib = new EntityInputBean(fib.getName(),
                 "harry",
                 "docType",
                 now,
@@ -106,9 +105,9 @@ public class TestDataTypes extends ESBase {
 
         DocumentType doc = new DocumentType(fortress, "docType");
         Entity entity = new Entity("abc", fortress, eib, doc);
+        deleteEsIndex(entity);
 
-
-        EntitySearchChange searchChange = new EntitySearchChange(entity);
+        EntitySearchChange searchChange = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         EntitySearchChanges changes = new EntitySearchChanges(searchChange);
         String json = JsonUtils.getJSON(changes);
 

@@ -22,7 +22,6 @@ package org.flockdata.test.search.functional;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.SearchChange;
@@ -60,7 +59,7 @@ public class TestAutoComplete extends ESBase{
         String user = "mikey";
         Map<String, Object> what = Helper.getRandomMap();
 
-        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
+        Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
 
         // 2 char code as this is the minimum we will index from
@@ -73,7 +72,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, numCodeWithName, "rlxname"));
         tags.add(Helper.getEntityTag(entity, zipCode, "zip"));
 
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setWhat(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -89,7 +88,7 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
         doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(IndexHelper.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doFacetQuery(indexHelper.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
 
 
 
@@ -103,7 +102,7 @@ public class TestAutoComplete extends ESBase{
         String user = "mikey";
         Map<String, Object> what = Helper.getRandomMap();
 
-        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
+        Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
 
         TagInputBean tagInputA = new TagInputBean("A", "AutoComplete").setName("Finding name should not be found as the code is too short");
@@ -114,7 +113,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
         tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
 
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setWhat(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
@@ -139,7 +138,7 @@ public class TestAutoComplete extends ESBase{
         String user = "mikey";
         Map<String, Object> what = Helper.getRandomMap();
 
-        Entity entity = Helper.getEntity(comp, fort, user, fort, "AZERTY");
+        Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
 //        deleteEsIndex(entity);
 
         TagInputBean tagInputA = new TagInputBean("tagCode", "AutoComplete", "blah");
@@ -160,7 +159,7 @@ public class TestAutoComplete extends ESBase{
         tags.add(Helper.getEntityTag(entity, procedure, "proc"));
         tags.add(Helper.getEntityTag(entity, procedureB, "proc"));
 
-        SearchChange change = new EntitySearchChange(entity);
+        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setWhat(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 

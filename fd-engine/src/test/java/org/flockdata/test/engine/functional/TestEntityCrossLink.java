@@ -157,18 +157,22 @@ public class TestEntityCrossLink extends EngineBase {
         assertNotNull(trackResultBean);
 
         List<EntityKeyBean> callerRefs = new ArrayList<>();
-        // DAT-443 - Request to xreference with an entity that does not yet exists.
-        // Only will work if the fortress and doctype are known
-        callerRefs.add(new EntityKeyBean(trackResultBean.getDocumentType().getName(), fortress.getName(), "ABC321"));
+        // DAT-443 - Request to xreference with an entity that does not yet exist.
+        // Will only work when both the fortress and doctype are known i.e. not a DocType of "*"
+        callerRefs.add(
+                new EntityKeyBean(trackResultBean.getDocumentType().getName(), fortress.getName(), "ABC321")
+                        .setMissingAction(EntityKeyBean.ACTION.CREATE));
+
         EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
-        List<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
-        TestCase.assertTrue(results.isEmpty());
+
+        Collection<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
+        TestCase.assertTrue("",results.isEmpty());
 
         inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC321");
         ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
         inputBean.setContent(cib);
 
-        // The Entity that previously did not exist, can have a log added and be treated like any other entity
+        // The Entity, that previously did not exist, can have a log added and be treated like any other entity
         trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         TestCase.assertTrue(trackResultBean.entityExists());
         TestCase.assertEquals(ContentInputBean.LogStatus.OK, trackResultBean.getLogStatus());
@@ -211,6 +215,7 @@ public class TestEntityCrossLink extends EngineBase {
         xRef.add(new EntityKeyBean("Doesn't matter"));
         try {
             EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), callerRef);
+            entityKey.setMissingAction(EntityKeyBean.ACTION.ERROR);
             entityService.linkEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
         } catch (FlockException e) {

@@ -52,9 +52,9 @@ public class TestSupportFunctions extends ESBase {
         String doc = "doc";
         String user = "mike";
 
-        Entity entity = Helper.getEntity(company, fortress, user, doc);
+        Entity entity = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity);
+        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
         change.setWhat(json);
         ArrayList<EntityTag> tags = new ArrayList<>();

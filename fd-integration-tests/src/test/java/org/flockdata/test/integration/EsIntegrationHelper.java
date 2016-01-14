@@ -21,14 +21,17 @@ import org.flockdata.track.service.EntityService;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,16 +44,18 @@ import static org.springframework.test.util.AssertionErrors.fail;
  *
  * Created by mike on 1/01/16.
  */
+@Component
 public class EsIntegrationHelper {
     static int esTimeout = 10; // Max attempts to find the result in ES
     private static JestClient esClient;
     private static final Logger logger = LoggerFactory.getLogger(EsIntegrationHelper.class);
 
+    @Autowired
+    IndexHelper indexHelper;
 
-
-    public static void cleanupElasticSearch() throws Exception {
+    @PostConstruct
+    void setupEsClient () throws Exception{
         Properties properties = TestFdIntegration.getProperties(null);
-        String abDebug = System.getProperty("fd.debug");
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
@@ -59,35 +64,38 @@ public class EsIntegrationHelper {
         //factory.setClientConfig(clientConfig);
         esClient = factory.getObject();
 
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "testfortress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "ngram"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "rebuildtest"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "audittest"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "suppress"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "entitywithtagsprocess"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "trackgraph"));
-        deleteEsIndex(IndexHelper.getIndexRoot("monowai", "111"));
+    }
+    public void cleanupElasticSearch() throws Exception {
 
-        for (int i = 1; i < TestFdIntegration.fortressMax + 1; i++) {
-            deleteEsIndex(IndexHelper.PREFIX + "monowai.bulkloada" + i);
-        }
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "suppress"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "testfortress"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "ngram"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "rebuildtest"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "audittest"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "suppress"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "entitywithtagsprocess"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "trackgraph"));
+//        deleteEsIndex(indexHelper.getIndexRoot("monowai", "111"));
+//
+//        for (int i = 1; i < TestFdIntegration.fortressMax + 1; i++) {
+//            deleteEsIndex(indexHelper.getPrefix() + "monowai.bulkloada" + i);
+//        }
 
     }
 
-    static void deleteEsIndex(String indexName) throws Exception {
-        String deleteMe = IndexHelper.parseIndex(indexName);
-        logger.info("%% Delete Index {}", deleteMe);
-        esClient.execute(new DeleteIndex.Builder(deleteMe).build());
+    void deleteEsIndex(String indexName) throws Exception {
+        //String deleteMe = indexHelper.parseIndex(indexName);
+        logger.info("%% Delete Index {}", indexName);
+        esClient.execute(new DeleteIndex.Builder(indexName).build());
     }
 
     @AfterClass
-    public static void shutDownElasticSearch() throws Exception {
+    public void shutDownElasticSearch() throws Exception {
         if (esClient != null)
             esClient.shutdownClient();
     }
 
-    static String doEsNestedQuery(Entity entity, String path, String field, String term, int expectedHitCount) throws Exception {
+    String doEsNestedQuery(Entity entity, String path, String field, String term, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -119,8 +127,8 @@ public class EsIntegrationHelper {
                     "}";
 
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
+                    .addType(indexHelper.parseType(entity))
                     .build();
 
             jResult = esClient.execute(search);
@@ -150,7 +158,7 @@ public class EsIntegrationHelper {
         return jResult.getJsonString();
     }
 
-    static String doEsQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
+    String doEsQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -169,7 +177,7 @@ public class EsIntegrationHelper {
 
             Search search = new Search.Builder(query)
                     .addIndex(index)
-                    .addType(IndexHelper.parseType(type))
+                    .addType(indexHelper.parseType(type))
                     .build();
 
             jResult = esClient.execute(search);
@@ -199,7 +207,7 @@ public class EsIntegrationHelper {
         return jResult.getJsonString();
     }
 
-    static String getMapping(String indexName) throws Exception {
+    String getMapping(String indexName) throws Exception {
         GetMapping mapping = new GetMapping.Builder()
                 .addIndex(indexName)
                 .build();
@@ -208,11 +216,11 @@ public class EsIntegrationHelper {
         return jResult.getJsonString();
     }
 
-    static String doEsTermQuery(Entity entity, String metaKey, String metaKey1, int i) throws Exception {
+    String doEsTermQuery(Entity entity, String metaKey, String metaKey1, int i) throws Exception {
         return doEsTermQuery(entity, metaKey, metaKey1, i, false);
     }
 
-    static String doEsTermQuery(Entity entity, String field, String queryString, int expectedHitCount, boolean suppressLog) throws Exception {
+    String doEsTermQuery(Entity entity, String field, String queryString, int expectedHitCount, boolean suppressLog) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -230,7 +238,7 @@ public class EsIntegrationHelper {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(IndexHelper.parseIndex(entity))
+                    .addIndex(indexHelper.parseIndex(entity))
                     .addType(entity.getType().toLowerCase())
                     .build();
 
@@ -269,8 +277,8 @@ public class EsIntegrationHelper {
         }
     }
 
-    static String doEsFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        return doEsFieldQuery(IndexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount);
+    String doEsFieldQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
+        return doEsFieldQuery(indexHelper.parseIndex(entity), entity.getType(), field, queryString, expectedHitCount);
     }
 
     /**
@@ -284,7 +292,7 @@ public class EsIntegrationHelper {
      * @return query _source
      * @throws Exception if expectedHitCount != actual hit count
      */
-    private static String doEsFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    private String doEsFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given metaKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -304,7 +312,7 @@ public class EsIntegrationHelper {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(index)
-                    .addType(IndexHelper.parseType(type))
+                    .addType(indexHelper.parseType(type))
                     .build();
 
             jResult = esClient.execute(search);
@@ -333,7 +341,7 @@ public class EsIntegrationHelper {
                     .getAsJsonObject().get("_source").toString();
     }
 
-    static String doCompletionQuery(String index, String type, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
+    String doCompletionQuery(String index, String type, String queryString, int expectedHitCount, String exceptionMessage) throws Exception {
         // There should only ever be one document for a given Entity.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -353,7 +361,7 @@ public class EsIntegrationHelper {
 
         Suggest search = new Suggest.Builder(query)
                 .addIndex(index)
-                .addType(IndexHelper.parseType(type))
+                .addType(indexHelper.parseType(type))
                 .build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -368,15 +376,15 @@ public class EsIntegrationHelper {
         return result.getJsonString();
     }
 
-    static String doEsQuery(Entity entity, String queryString) throws Exception {
+    String doEsQuery(Entity entity, String queryString) throws Exception {
         return doEsQuery(entity, queryString, 1);
     }
 
-    static String doEsQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doEsQuery(IndexHelper.parseIndex(entity), entity.getType(), queryString, expectedHitCount);
+    String doEsQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
+        return doEsQuery(indexHelper.parseIndex(entity), entity.getType(), queryString, expectedHitCount);
     }
 
-    static void validateResultFieds(String result) throws Exception {
+    void validateResultFieds(String result) throws Exception {
         JsonNode node = FdJsonObjectMapper.getObjectMapper().readTree(result);
 
         assertNotNull(node.get(EntitySearchSchema.CREATED));
@@ -388,7 +396,7 @@ public class EsIntegrationHelper {
 
     }
 
-    static Entity waitForFirstSearchResult(Company company, Entity entity, EntityService entityService) throws Exception {
+    Entity waitForFirstSearchResult(Company company, Entity entity, EntityService entityService) throws Exception {
        // Looking for the first searchKey to be logged against the entity
        int i = 1;
 
@@ -418,7 +426,7 @@ public class EsIntegrationHelper {
        return entity;
    }
 
-    static String runQuery(QueryParams queryParams) throws Exception {
+    String runQuery(QueryParams queryParams) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 

@@ -27,6 +27,9 @@ import java.util.Map;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
+ *
+ * Maintenance routines for FD
+ *
  * Created by mike on 10/09/15.
  */
 @Service
@@ -38,13 +41,16 @@ public class IndexMappingServiceEs implements IndexMappingService {
     @Autowired
     private SearchAdmin searchAdmin;
 
+    @Autowired
+    IndexHelper indexHelper;
+
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
 
     @Override
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = IndexHelper.parseType(change.getDocumentType());
+        String documentType = indexHelper.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -64,7 +70,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 if (esSettings != null) {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName))
+                            .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
                             .setSettings(esSettings)
                             .execute()
@@ -72,7 +78,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 } else {
                     esClient.admin()
                             .indices()
-                            .prepareCreate(IndexHelper.parseIndex(indexName))
+                            .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
                             .execute()
                             .actionGet();

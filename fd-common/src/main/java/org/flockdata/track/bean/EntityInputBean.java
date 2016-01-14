@@ -67,6 +67,12 @@ public class EntityInputBean implements Serializable, UserProperties{
     public EntityInputBean() {
     }
 
+    public EntityInputBean(EntityKeyBean entityKeyBean) {
+        setFortress(entityKeyBean.getFortressName());
+        setDocumentName(entityKeyBean.getDocumentType());
+        setCode(entityKeyBean.getCode());
+    }
+
     /**
      *
      * @param fortressName      Application/Division or System that owns this information

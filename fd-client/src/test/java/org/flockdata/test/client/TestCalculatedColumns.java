@@ -8,6 +8,7 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class TestCalculatedColumns extends AbstractImport {
         assertNotNull(configuration);
 
 
-        ImportProfile params = ClientConfiguration.getImportProfile("/profile/calculatedcolumns.json");
+        ImportProfile params = ProfileReader.getImportProfile("/profile/calculatedcolumns.json");
 
         long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv", getFdWriter(), null, configuration);
         int expectedRows = 1;

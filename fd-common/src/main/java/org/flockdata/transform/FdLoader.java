@@ -20,7 +20,6 @@
 package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
@@ -46,13 +45,15 @@ public class FdLoader {
     private Company company = null;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdLoader.class);
 
-    private ProfileConfiguration importProfile;
     private ClientConfiguration  clientConfiguration;
     FdWriter fdWriter;
-    private List<EntityInputBean> entities;
 
-    public FdLoader(ProfileConfiguration importProfile, FdWriter writer, ClientConfiguration configuration, Company company) {
-        this.importProfile = importProfile;
+    public FdLoader(FdWriter writer, ClientConfiguration configuration) {
+        this(writer, configuration, null);
+
+    }
+
+    public FdLoader(FdWriter writer, ClientConfiguration configuration, Company company) {
         this.clientConfiguration = configuration;
         this.fdWriter = writer;
         this.company = company;
@@ -73,8 +74,8 @@ public class FdLoader {
         try {
             entityLock.lock();
             if (entityInputBean != null) {
-                if (entityInputBean.getFortress() == null)
-                    entityInputBean.setFortress(importProfile.getFortressName());
+//                if (entityInputBean.getFortress() == null && importProfile!= null)
+//                    entityInputBean.setFortress(importProfile.getFortressName());
                 if ( entityInputBean.getFortress() == null || entityInputBean.getFortress().equals(""))
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
 

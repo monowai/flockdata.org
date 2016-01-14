@@ -1,0 +1,4 @@
+The folder name must match the fully qualified index root.
+
+if you change the search prefix to anything other than fd. (the default) then you would have to
+also rename this folder

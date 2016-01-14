@@ -25,6 +25,7 @@ import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.dao.DocumentTypeRepo;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
@@ -81,6 +82,9 @@ public class EntityDaoNeo {
     EntityTagService entityTagService;
 
     @Autowired
+    IndexHelper indexHelper;
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
@@ -88,8 +92,11 @@ public class EntityDaoNeo {
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
         Entity entity = new Entity(metaKey, segment, inputBean, documentType);
+
+        entity.setIndexName(indexHelper.parseIndex(entity));
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
+
         if (!inputBean.isTrackSuppressed()) {
             logger.debug("Creating {}", entity);
             entity = save(entity);
@@ -508,7 +515,7 @@ public class EntityDaoNeo {
         entities.stream().filter(entity -> withEntityTags).forEach(entity -> {
             Collection<EntityTag> entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
             // ToDo: Requires the entity to entity relationship name
-            results.add(new EntityKeyBean(entity, entityTags).addRelationship(""));
+            results.add(new EntityKeyBean(entity, entityTags, indexHelper.parseIndex(entity)).addRelationship(""));
         });
         return results;
     }

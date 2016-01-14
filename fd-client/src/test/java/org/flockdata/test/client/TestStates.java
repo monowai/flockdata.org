@@ -24,6 +24,7 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
@@ -41,7 +42,7 @@ public class TestStates extends AbstractImport {
         String profile = "/states.json";
         ClientConfiguration configuration = getClientConfiguration(profile);
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile params = ClientConfiguration.getImportProfile(profile);
+        ImportProfile params = ProfileReader.getImportProfile(profile);
         fileProcessor.processFile(params, "/states.csv", getFdWriter(), null, configuration);
         assertEquals(72, getFdWriter().getTags().size());
 

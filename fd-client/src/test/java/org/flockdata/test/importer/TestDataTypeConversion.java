@@ -24,9 +24,7 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -47,7 +45,7 @@ public class TestDataTypeConversion extends AbstractImport {
         String fileName = "/profile/data-types.json";
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -68,7 +66,7 @@ public class TestDataTypeConversion extends AbstractImport {
         String fileName = "/profile/entity-data-types.json";
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/entity-data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entityInputBeans = getFdWriter().getEntities();
         assertEquals(2, entityInputBeans.size());
@@ -86,7 +84,7 @@ public class TestDataTypeConversion extends AbstractImport {
         String fileName = "/profile/data-types.json";
         ClientConfiguration configuration = getClientConfiguration(fileName);
 
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -106,36 +104,35 @@ public class TestDataTypeConversion extends AbstractImport {
     public void number_Converts() throws Exception {
         // DAT-454
         String fileName = "/profile/data-types.json";
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"0045"};
-        Map<String, Object> converted = TransformationHelper.convertToMap(header, row, profile);
+        Map<String, Object> converted = Transformer.convertToMap(header, row, profile);
         assertEquals("45", converted.get("num").toString());
 
         row = new String[]{null};
-        converted = TransformationHelper.convertToMap(header, row, profile);
+        converted = Transformer.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
     }
-
 
     @Test
     public void number_ConvertsWithThousandSeparator() throws Exception {
         // DAT-454
         String fileName = "/profile/data-types.json";
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         String header[] = new String[]{"num"};
         String row[] = new String[]{"50,000.99"};
-        Map<String, Object> converted = TransformationHelper.convertToMap(header, row, profile);
+        Map<String, Object> converted = Transformer.convertToMap(header, row, profile);
         assertEquals("50000.99", converted.get("num").toString());
 
 
         row = new String[]{""};
-        converted = TransformationHelper.convertToMap(header, row, profile);
+        converted = Transformer.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
         row = new String[]{null};
-        converted = TransformationHelper.convertToMap(header, row, profile);
+        converted = Transformer.convertToMap(header, row, profile);
         assertEquals(null, converted.get("num"));
 
     }
@@ -145,7 +142,7 @@ public class TestDataTypeConversion extends AbstractImport {
         // DAT-457
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         ClientConfiguration configuration = getClientConfiguration(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();
@@ -159,7 +156,7 @@ public class TestDataTypeConversion extends AbstractImport {
         // DAT-457
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         ClientConfiguration configuration = getClientConfiguration(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();
@@ -187,7 +184,7 @@ public class TestDataTypeConversion extends AbstractImport {
         // Given 2 dates that could be the last change, check the most recent
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ImportProfile profile = ClientConfiguration.getImportProfile(fileName);
+        ImportProfile profile = ProfileReader.getImportProfile(fileName);
         ClientConfiguration configuration = getClientConfiguration(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();

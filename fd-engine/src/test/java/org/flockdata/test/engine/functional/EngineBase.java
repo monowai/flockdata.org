@@ -38,6 +38,7 @@ import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.search.IndexHelper;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,44 +64,47 @@ import static org.junit.Assert.*;
  * User: mike Date: 16/06/14 Time: 7:54 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:root-context.xml",
-		"classpath:apiDispatcher-servlet.xml" })
+@ContextConfiguration(locations = {"classpath:root-context.xml",
+        "classpath:apiDispatcher-servlet.xml"})
 public abstract class EngineBase {
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
-	@Autowired
-	protected RegistrationService regService;
+    @Autowired
+    protected RegistrationService regService;
 
-	@Autowired
+    @Autowired
     SchemaService schemaService;
 
-	@Autowired
-	ConceptService conceptService;
+    @Autowired
+    ConceptService conceptService;
 
-	@Autowired
+    @Autowired
     protected
     FortressService fortressService;
 
-	@Autowired
+    @Autowired
     protected
     EntityService entityService;
 
-	@Autowired
-	protected
-	EntityTagService entityTagService;
+    @Autowired
+    protected
+    EntityTagService entityTagService;
 
     @Autowired
     GeographyService geoService;
+
+    @Autowired
+    IndexHelper indexHelper;
 
     @Qualifier("mediationFacadeNeo")
     @Autowired
     protected
     MediationFacade mediationFacade;
 
-	@Autowired
-	TrackRequests trackRequests;
+    @Autowired
+    TrackRequests trackRequests;
 
     @Autowired
     TxService txService;
@@ -109,118 +113,121 @@ public abstract class EngineBase {
     protected
     LogService logService;
 
-	@Autowired
+    @Autowired
     TrackEventService trackEventService;
 
-	@Autowired
+    @Autowired
     SystemUserService systemUserService;
 
-	@Autowired
+    @Autowired
     TagService tagService;
 
-	@Autowired
+    @Autowired
     public
     PlatformConfig engineConfig;
 
-	@Autowired
+    @Autowired
     QueryService queryService;
 
-	@Autowired
+    @Autowired
     KvService kvService;
 
-	@Autowired
-	FdKvConfig kvConfig;
+    @Autowired
+    FdKvConfig kvConfig;
 
-	@Autowired
-	public CompanyService companyService;
+    @Autowired
+    public CompanyService companyService;
 
-	@Autowired
+    @Autowired
     @Deprecated // Use companyService instead
             CompanyEP companyEP;
 
-	@Autowired
+    @Autowired
     SearchServiceFacade searchService;
 
-	@Autowired
-	Neo4jTemplate template;
+    @Autowired
+    Neo4jTemplate template;
 
-	@Autowired
-	SecurityHelper securityHelper;
+    @Autowired
+    SecurityHelper securityHelper;
 
-	static Logger logger = LoggerFactory.getLogger(EngineBase.class);
+    static Logger logger = LoggerFactory.getLogger(EngineBase.class);
 
-	// These have to be in test-security.xml in order to create SysUserRegistrations
+    // These have to be in test-security.xml in order to create SysUserRegistrations
     protected static final String sally_admin = "sally";
-	protected static final String mike_admin = "mike"; // Admin role
+    protected static final String mike_admin = "mike"; // Admin role
     protected static final String harry = "harry";
 
-	Authentication authDefault = new UsernamePasswordAuthenticationToken(
-			mike_admin, "123");
+    Authentication authDefault = new UsernamePasswordAuthenticationToken(
+            mike_admin, "123");
 
-	public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
-		return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
-	}
+    public org.flockdata.model.Fortress createFortress(SystemUser su) throws Exception {
+        return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
+    }
 
 
     @Rollback(false)
-	@BeforeTransaction
-	public void cleanUpGraph() {
+    @BeforeTransaction
+    public void cleanUpGraph() {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
         //           might be started giving you sporadic failures.
         // DAT-493 Function removed
         // https://github.com/spring-projects/spring-data-neo4j/issues/308
-		//Neo4jHelper.cleanDb(template);
+        //Neo4jHelper.cleanDb(template);
         template.query("match (n)-[r]-() delete r,n", null);
         template.query("match (n) delete n", null);
-		engineConfig.setDuplicateRegistration(true);
-		engineConfig.setTestMode(true);
-	}
+        engineConfig.setDuplicateRegistration(true);
+        engineConfig.setTestMode(true);
+    }
 
-	@Before
-	public void setSecurity() {
-		engineConfig.setMultiTenanted(false);
-		engineConfig.setTestMode(true); // prevents Async log processing from occurring
+    @Before
+    public void setSecurity() {
+        engineConfig.setMultiTenanted(false);
+        engineConfig.setTestMode(true); // prevents Async log processing from occurring
         engineConfig.setStoreEnabled("true");
         engineConfig.setConceptsEnabled("false");
-		SecurityContextHolder.getContext().setAuthentication(authDefault);
-	}
+        SecurityContextHolder.getContext().setAuthentication(authDefault);
+    }
 
-	public static void setSecurity(Authentication auth) {
-		SecurityContextHolder.getContext().setAuthentication(auth);
-	}
+    public static void setSecurity(Authentication auth) {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
-	public static Authentication setSecurity(String userName) {
-		Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
-		setSecurity(auth);
-		return auth;
-	}
+    public static Authentication setSecurity(String userName) {
+        Authentication auth = new UsernamePasswordAuthenticationToken(userName, "123");
+        setSecurity(auth);
+        return auth;
+    }
 
-	public static void setSecurityEmpty() {
-		SecurityContextHolder.getContext().setAuthentication(null);
-	}
+    public static void setSecurityEmpty() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
 
-	Transaction beginManualTransaction() {
-		return template.getGraphDatabase().beginTx();
-	}
+    Transaction beginManualTransaction() {
+        return template.getGraphDatabase().beginTx();
+    }
 
-	void commitManualTransaction(Transaction t) {
-		t.success();
-		t.close();
-	}
-    public SystemUser registerSystemUser() throws Exception{
+    void commitManualTransaction(Transaction t) {
+        t.success();
+        t.close();
+    }
+
+    public SystemUser registerSystemUser() throws Exception {
         return registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
 
     }
-    public SystemUser registerSystemUser(String companyName) throws Exception{
-        return  registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
+
+    public SystemUser registerSystemUser(String companyName) throws Exception {
+        return registerSystemUser(companyName, Long.toHexString(System.currentTimeMillis()));
     }
-    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception{
+
+    public SystemUser registerSystemUser(String companyName, String accessUser) throws Exception {
         //org.flockdata.model.Company company = companyService.findByName(companyName);
         //if ( company == null ) {
-            logger.debug("Creating company {}", companyName);
-            Company company = companyService.create(companyName);
+        logger.debug("Creating company {}", companyName);
+        Company company = companyService.create(companyName);
         //}
-        SystemUser su = regService.registerSystemUser(company, new RegistrationBean( accessUser).setIsUnique(false));
+        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(accessUser).setIsUnique(false));
 //        SystemUser su = regService.registerSystemUser(company, new RegistrationBean(companyName, accessUser).setIsUnique(false));
         logger.debug("Returning SU {}", su);
         return su;
@@ -228,66 +235,66 @@ public abstract class EngineBase {
 
 
     public static void waitAWhile() throws Exception {
-		waitAWhile(null, 1500);
-	}
+        waitAWhile(null, 1500);
+    }
 
-	public static void waitAWhile(int millis) throws Exception {
-		waitAWhile(null, millis);
-	}
+    public static void waitAWhile(int millis) throws Exception {
+        waitAWhile(null, millis);
+    }
 
-	public static void waitAWhile(String message) throws Exception {
-		String ss = System.getProperty("sleepSeconds");
-		if (ss == null || ss.equals(""))
-			ss = "1";
-		if (message == null)
-			message = "Slept for {} seconds";
-		waitAWhile(message, Long.decode(ss) * 1000);
-	}
+    public static void waitAWhile(String message) throws Exception {
+        String ss = System.getProperty("sleepSeconds");
+        if (ss == null || ss.equals(""))
+            ss = "1";
+        if (message == null)
+            message = "Slept for {} seconds";
+        waitAWhile(message, Long.decode(ss) * 1000);
+    }
 
-	/**
-	 * Processing delay for threads and integration to complete. If you start
-	 * getting sporadic Heuristic exceptions, chances are you need to call this
-	 * routine to give other threads time to commit their work. Likewise,
-	 * waiting for results from fd-search can take a while. We can't know how
-	 * long this is so you can experiment on your own environment by passing in
-	 * -DsleepSeconds=1
-	 *
-	 * @param milliseconds
-	 *            to pause for
-	 * @throws Exception
-	 */
-	public static void waitAWhile(String message, long milliseconds)
-			throws Exception {
-		Thread.sleep(milliseconds);
-		logger.trace(message, milliseconds / 1000d);
-	}
+    /**
+     * Processing delay for threads and integration to complete. If you start
+     * getting sporadic Heuristic exceptions, chances are you need to call this
+     * routine to give other threads time to commit their work. Likewise,
+     * waiting for results from fd-search can take a while. We can't know how
+     * long this is so you can experiment on your own environment by passing in
+     * -DsleepSeconds=1
+     *
+     * @param milliseconds to pause for
+     * @throws Exception
+     */
+    public static void waitAWhile(String message, long milliseconds)
+            throws Exception {
+        Thread.sleep(milliseconds);
+        logger.trace(message, milliseconds / 1000d);
+    }
 
-	EntityLog waitForLogCount(org.flockdata.model.Company company, Entity entity, int expectedCount) throws Exception {
-		// Looking for the first searchKey to be logged against the entity
-		int i = 0;
-		int timeout = 100;
-        int count = 0 ;
+    EntityLog waitForLogCount(org.flockdata.model.Company company, Entity entity, int expectedCount) throws Exception {
+        // Looking for the first searchKey to be logged against the entity
+        int i = 0;
+        int timeout = 100;
+        int count = 0;
         //int sleepCount = 90;
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
-		while ( i <= timeout) {
+        while (i <= timeout) {
             Entity updateEntity = entityService.getEntity(company, entity.getMetaKey());
             count = entityService.getLogCount(company, updateEntity.getMetaKey());
 
             EntityLog log = entityService.getLastEntityLog(company, updateEntity.getMetaKey());
             // We have at least one log?
-			if ( count == expectedCount )
-				return log;
-			Thread.yield();
-			if (i > 20)
-				waitAWhile("Waiting for the log to update {}");
-			i++;
-		}
-		if (i > 22)
-			logger.info("Wait for log got to [{}] for metaId [{}]", i,
+            if (count == expectedCount)
+                return log;
+            Thread.yield();
+            if (i > 20)
+                waitAWhile("Waiting for the log to update {}");
+            i++;
+        }
+        if (i > 22)
+            logger.info("Wait for log got to [{}] for metaId [{}]", i,
                     entity.getId());
         throw new Exception(String.format("Timeout waiting for the defined log count of %s. We found %s", expectedCount, count));
-	}
+    }
+
     long waitForFirstLog(org.flockdata.model.Company company, Entity source) throws Exception {
         // Looking for the first searchKey to be logged against the entity
         long thenTime = System.currentTimeMillis();
@@ -296,9 +303,9 @@ public abstract class EngineBase {
         Entity entity = entityService.getEntity(company, source.getMetaKey());
 
         int timeout = 100;
-        while ( i <= timeout) {
+        while (i <= timeout) {
             EntityLog log = entityService.getLastEntityLog(company, entity.getMetaKey());
-            if (log != null )
+            if (log != null)
                 return i;
             Thread.yield();
             if (i > 20)
@@ -312,17 +319,15 @@ public abstract class EngineBase {
     }
 
 
-	public void testJson() throws Exception {
-		Fortress fortressNode = new Fortress(new FortressInputBean(
-				"testing"), new Company("testCompany"));
-		byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
-		org.flockdata.model.Fortress f = JsonUtils.getBytesAsObject(bytes, Fortress.class);
-		assertNotNull(f);
-		assertNull(f.getCompany());// JsonIgnored - Discuss!
-		assertEquals("testing", f.getName());
-	}
-	
-
+    public void testJson() throws Exception {
+        Fortress fortressNode = new Fortress(new FortressInputBean(
+                "testing"), new Company("testCompany"));
+        byte[] bytes = JsonUtils.getObjectAsJsonBytes(fortressNode);
+        org.flockdata.model.Fortress f = JsonUtils.getBytesAsObject(bytes, Fortress.class);
+        assertNotNull(f);
+        assertNull(f.getCompany());// JsonIgnored - Discuss!
+        assertEquals("testing", f.getName());
+    }
 
 
 }

@@ -363,7 +363,7 @@ public class ColumnDefinition implements GeoDefinition {
     @JsonIgnore
     public boolean isDate() {
         // DAT-523
-        return dataType != null && dataType.equals("date");
+        return (dataType != null && dataType.equals("date")) || dateFormat!=null;
     }
 
 
@@ -381,8 +381,8 @@ public class ColumnDefinition implements GeoDefinition {
     }
 
     public String getDateFormat() {
-        if ( dateFormat == null )
-            return ((SimpleDateFormat)DateFormat.getDateInstance(DateFormat.SHORT)).toPattern();
+//        if ( dateFormat == null )
+//            return ((SimpleDateFormat)DateFormat.getDateInstance(DateFormat.SHORT)).toPattern();
         return dateFormat;
     }
 

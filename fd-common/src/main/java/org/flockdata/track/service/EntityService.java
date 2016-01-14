@@ -98,11 +98,30 @@ public interface EntityService {
 
     Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException;
 
-    Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String xRefName) throws FlockException;
+    /**
+     * Locates cross linked entities with the given relationship type
+     * @param company      Owner
+     * @param metaKey      FD UID
+     * @param relationship relationship
+     * @return all entities connected
+     * @throws FlockException
+     */
+    Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String relationship) throws FlockException;
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
 
-    List<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
+    /**
+     *
+     * Source Entity MUST exist otherwise an exception will be thrown
+     *
+     * @param company       who owns the data
+     * @param sourceKey     what we will link from
+     * @param targetKeys    collection of entities we will link to
+     * @param xRefName      the name to give the relationship
+     * @return all targetkeys that were ignored
+     * @throws FlockException
+     */
+    Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
     Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
 
@@ -125,7 +144,6 @@ public interface EntityService {
      * @param entityLog Log for which tags might exist
      * @return All entity Tags archived to the log
      */
-
     Collection<EntityTag> getLogTags(Company company, EntityLog entityLog);
 
     Collection<EntityLinkInputBean> linkEntities(Company company, Collection<EntityLinkInputBean> entityLinks);

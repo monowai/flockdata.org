@@ -22,6 +22,7 @@ package org.flockdata.test.client;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class TestNestedTags extends AbstractImport {
     public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
         ClientConfiguration configuration= getClientConfiguration("/profile/interest-groups.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ClientConfiguration.getImportProfile("/profile/interest-groups.json"),
+        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/interest-groups.json"),
                 "/data/tags-inputs.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();

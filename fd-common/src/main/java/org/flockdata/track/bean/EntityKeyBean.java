@@ -24,6 +24,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.SearchTag;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,20 +38,19 @@ import java.util.Map;
  */
 public class EntityKeyBean {
     private String fortressName;
+    private String index;
     private String documentType;
     private String company;
     private String metaKey;
     private String code;
     private String name;
-
     private String description;
-
-    private String index;
 
     private  HashMap<String, Map<String, ArrayList<SearchTag>>>  searchTags = new HashMap<>();
 
     private String relationship; // Entity to entity relationship
 
+    private ACTION missingAction =ACTION.IGNORE; // default action to take when source entity to link to is missing
 
     private EntityKeyBean(){}
 
@@ -78,19 +78,19 @@ public class EntityKeyBean {
         this.code = crossReferenceInputBean.getCallerRef();
     }
 
-    public EntityKeyBean(Entity entity) {
+    public EntityKeyBean(Entity entity, String index) {
         this();
         this.fortressName = entity.getSegment().getFortress().getName();
         this.code = entity.getCode();
         this.documentType = entity.getType();
         this.metaKey = entity.getMetaKey();
-        this.index = IndexHelper.parseIndex(entity);
+        this.index = index;
         this.description = entity.getDescription();
         this.name = entity.getName();
     }
 
-    public EntityKeyBean(Entity entity, Collection<EntityTag> entityTags) {
-        this(entity);
+    public EntityKeyBean(Entity entity, Collection<EntityTag> entityTags, String index) {
+        this(entity, index);
         for (EntityTag entityTag : entityTags) {
             Map<String, ArrayList<SearchTag>> byRelationship = searchTags.get(entityTag.getRelationship());
             if ( byRelationship == null){
@@ -125,6 +125,12 @@ public class EntityKeyBean {
         return code;
     }
 
+    public String getMetaKey() {
+        return metaKey;
+    }
+
+
+
     public String getCompany() {
         return company;
     }
@@ -135,6 +141,34 @@ public class EntityKeyBean {
 
     public HashMap<String, Map<String, ArrayList<SearchTag>>> getSearchTags() {
         return searchTags;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public EntityKeyBean addRelationship(String relationship) {
+        this.relationship = relationship;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public enum ACTION {ERROR, IGNORE, CREATE}
+
+    public ACTION getMissingAction() {
+        return missingAction;
+    }
+
+    public EntityKeyBean setMissingAction(ACTION missingAction) {
+        this.missingAction = missingAction;
+        return this;
     }
 
     @Override
@@ -149,10 +183,6 @@ public class EntityKeyBean {
             return false;
         return !(fortressName != null ? !fortressName.equals(entityKey.fortressName) : entityKey.fortressName != null);
 
-    }
-
-    public String getMetaKey() {
-        return metaKey;
     }
 
     @Override
@@ -172,20 +202,4 @@ public class EntityKeyBean {
                 '}';
     }
 
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public EntityKeyBean addRelationship(String relationship) {
-        this.relationship = relationship;
-        return this;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

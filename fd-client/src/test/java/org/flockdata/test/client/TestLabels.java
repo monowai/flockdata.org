@@ -26,6 +26,7 @@ import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -43,7 +44,7 @@ public class TestLabels extends AbstractImport {
         ClientConfiguration configuration= getClientConfiguration("/tag-labels.json");
         FileProcessor fileProcessor = new FileProcessor();
 
-        fileProcessor.processFile(ClientConfiguration.getImportProfile("/tag-labels.json"),
+        fileProcessor.processFile(ProfileReader.getImportProfile("/tag-labels.json"),
                 "/tag-labels.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
@@ -70,7 +71,7 @@ public class TestLabels extends AbstractImport {
     public void label_expressionsAndConstants() throws Exception {
         ClientConfiguration configuration= getClientConfiguration("/tag-label-expressions.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ClientConfiguration.getImportProfile("/tag-label-expressions.json"),
+        fileProcessor.processFile(ProfileReader.getImportProfile("/tag-label-expressions.json"),
                 "/tag-label-expressions.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
@@ -96,7 +97,7 @@ public class TestLabels extends AbstractImport {
     public void alias_DescriptionEvaluates() throws Exception {
         ClientConfiguration configuration= getClientConfiguration("/profile/labels.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ClientConfiguration.getImportProfile("/profile/labels.json"),
+        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/labels.json"),
                 "/data/assets.txt", getFdWriter(), null, configuration);
         List<EntityInputBean>entities = getFdWriter().getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
