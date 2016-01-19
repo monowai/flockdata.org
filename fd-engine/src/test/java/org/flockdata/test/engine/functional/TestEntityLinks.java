@@ -51,7 +51,7 @@ public class TestEntityLinks extends EngineBase {
     public void testLinkedToSearch () throws Exception{
         // Initial setup
         cleanUpGraph();
-        SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
+        SystemUser su = registerSystemUser("testLinkedToSearch", mike_admin);
         Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
         EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
@@ -96,7 +96,8 @@ public class TestEntityLinks extends EngineBase {
         assertNotNull(staffDetails);
         assertNotNull(staffDetails.getSearchTags());
         assertFalse(staffDetails.getSearchTags().isEmpty());
-        SearchTag position = staffDetails.getSearchTags().get("role").get("Position").iterator().next();
+        assertNotNull("The Position label name should have been converted to lowercase", staffDetails.getSearchTags().get("role").get("position"));
+        SearchTag position = staffDetails.getSearchTags().get("role").get("position").iterator().next();
         assertTrue(position.getCode().equals("Cleaner"));
 
     }
