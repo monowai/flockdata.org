@@ -145,7 +145,7 @@ public class TestEntityLinks extends EngineBase {
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
-        ImportProfile params = ProfileReader.getImportProfile("/profiles/testentitylinks.json");
+        ImportProfile params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
         Profile p = importProfileService.save(fortress, timesheet, params );
         importProfileService.process(su.getCompany(), fortress, timesheet, "/data/testentitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
@@ -175,7 +175,7 @@ public class TestEntityLinks extends EngineBase {
 //        DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 //        String rlxName = "recorded";
 //
-//        ImportProfile params = ClientConfiguration.getImportProfile("/testentitylinks.json");
+//        ImportProfile params = ClientConfiguration.getImportProfile("/test-entitylinks.json");
 //        ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
 //        colDef.getEntityLinks().iterator().next().get(rlxName);
 //        Profile p = importProfileService.save(fortress, timesheet, params );
