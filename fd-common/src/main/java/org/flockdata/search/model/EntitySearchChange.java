@@ -50,7 +50,7 @@ public class EntitySearchChange implements SearchChange {
     private String documentType;
     private String description;
     private String name;
-    private Map<String, Object> what;
+    private Map<String, Object> data;
     private Map<String, Object> props;
     private String attachment;
     private Date when;
@@ -124,7 +124,7 @@ public class EntitySearchChange implements SearchChange {
         if ( content != null ) {
             //ToDo: this attachment might be compressed
             this.attachment = content.getAttachment();
-            this.what = content.getWhat();
+            this.data = content.getData();
         }
 
     }
@@ -147,13 +147,13 @@ public class EntitySearchChange implements SearchChange {
     }
 
     @Override
-    public Map<String, Object> getWhat() {
-        return what;
+    public Map<String, Object> getData() {
+        return data;
     }
 
     @Override
-    public EntitySearchChange setWhat(Map<String, Object> what) {
-        this.what = what;
+    public EntitySearchChange setData(Map<String, Object> data) {
+        this.data = data;
         return this;
     }
 

@@ -63,9 +63,9 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
 
         List<EntityInputBean>entities = getFdWriter().getEntities();
         for (EntityInputBean entity : entities) {
-            assertNotNull ( "Remapping column name to target", entity.getContent().getWhat().get("institution"));
+            assertNotNull ( "Remapping column name to target", entity.getContent().getData().get("institution"));
             // DAT-528
-            assertNull("Column 11 is flagged as false for persistence", entity.getContent().getWhat().get("11"));
+            assertNull("Column 11 is flagged as false for persistence", entity.getContent().getData().get("11"));
 
             assertEquals(3, entity.getTags().size());
             List<TagInputBean> tagInputBeans = entity.getTags();

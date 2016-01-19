@@ -7,6 +7,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Assert;
@@ -39,7 +40,7 @@ public class TestParentChild extends ESBase {
         String json = "{\n" +
                 "  \"documentType\": \"work\",\n" +
                 "  \"description\": null,\n" +
-                "  \"what\": null,\n" +
+                "  \""+ EntitySearchSchema.DATA+"\": null,\n" +
                 "  \"props\": {},\n" +
                 "  \"attachment\": null,\n" +
                 "  \"fortressName\": \"timesheet\",\n" +
@@ -119,7 +120,7 @@ public class TestParentChild extends ESBase {
         EntitySearchChange childChange =
                 new EntitySearchChange(childEntity, indexHelper.parseIndex(parentEntity))
                     .setParent(new EntityKeyBean(parentEntity, indexHelper.parseIndex(parentEntity)))
-                    .setWhat(Helper.getSimpleMap("childKey", "childValue"));
+                    .setData(Helper.getSimpleMap("childKey", "childValue"));
 
         trackService.createSearchableChange(new EntitySearchChanges(childChange));
         Thread.sleep(2000);

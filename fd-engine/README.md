@@ -110,7 +110,7 @@ curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:80
   "fortressUser":""Batch",
   "code":"myRef",
   "log": {   "fortressUser": "ak0919",
-           		 "what": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
+           		 "data": {"BusinessData": "Your Text", "nestedObject": {"serviceMessage": "kool for kats"}}
   }
 }'
 ```

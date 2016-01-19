@@ -399,7 +399,7 @@ public class TestEntityTrack extends EngineBase {
     }
 
     /**
-     * Idempotent "what" data
+     * Idempotent data
      * Ensure duplicate logs are not created when content data has not changed
      */
     @Test
@@ -941,7 +941,7 @@ public class TestEntityTrack extends EngineBase {
         // Validate that the bytes serialize via plain old Json mapper
         byte[] bytes = JsonUtils.getMapper().writeValueAsBytes(inputBean);
         EntityInputBean temp = JsonUtils.getMapper().readValue(bytes, EntityInputBean.class);
-        assertEquals(inputBean.getContent().getWhat().get("Athlete").toString(), temp.getContent().getWhat().get("Athlete").toString());
+        assertEquals(inputBean.getContent().getData().get("Athlete").toString(), temp.getContent().getData().get("Athlete").toString());
 
 
         ObjectToJsonTransformer transformer = new ObjectToJsonTransformer(

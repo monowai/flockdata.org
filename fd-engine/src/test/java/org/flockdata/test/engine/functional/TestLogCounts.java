@@ -120,7 +120,7 @@ public class TestLogCounts extends EngineBase {
 //        TrackResultBean result = mediationFacade.trackEntity(inputBean, su.getApiKey());
 //        Entity entity = result.getEntity();
 //        waitForFirstLog(su.getCompany(), entity);
-//        contentInputBean.setWhat(Helper.getSimpleMap("col", 124));
+//        contentInputBean.setData(Helper.getSimpleMap("col", 124));
 //        mediationFacade.trackEntity(inputBean, su.getApiKey());
 //        // See LogNode.logKey (setCurrentLog)
 //        assertEquals("All content dates the same except What - got wrong count", 2, trackService.getEntityLogs(entity.getId()).size());

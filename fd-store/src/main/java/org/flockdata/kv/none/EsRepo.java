@@ -76,9 +76,9 @@ public class EsRepo extends AbstractKvRepo{
                     //           complaining that it's not valid UTF-8 text. This approach we're now using works.
                     if ( result.getJson() !=null ) {
                         HashMap map = JsonUtils.getBytesAsObject(result.getJson(), HashMap.class);
-                        contentInput.setWhat((Map<String, Object>) map.get(EntitySearchSchema.WHAT));
+                        contentInput.setData((Map<String, Object>) map.get(EntitySearchSchema.DATA));
                     }
-                    //contentInput.setWhat(JsonUtils.getAsMap(result.getJson()));
+                    //contentInput.setData(JsonUtils.getAsMap(result.getJson()));
                 } catch (FlockException |IOException e) {
                     logger.error("Json issue", e);
                 }

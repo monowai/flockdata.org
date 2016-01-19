@@ -287,8 +287,8 @@ public class TrackDaoES implements TrackSearchDao {
             // This occurs if the search doc is not being tracked in fd-engine's graph
             indexMe.put(EntitySearchSchema.META_KEY, searchChange.getMetaKey());
 
-        if (searchChange.getWhat() != null)
-            indexMe.put(EntitySearchSchema.WHAT, searchChange.getWhat());
+        if (searchChange.getData() != null)
+            indexMe.put(EntitySearchSchema.DATA, searchChange.getData());
         if (searchChange.getProps() != null && !searchChange.getProps().isEmpty())
             indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
         if (searchChange.getWho() != null)

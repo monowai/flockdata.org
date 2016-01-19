@@ -138,7 +138,7 @@
     <int:channel id="doMetaKeyQuery"/>
     <int:channel id="doFdViewQuery"/>
     <int:channel id="doFdViewReply"/>
-    <!--DAT-347 Requests the "what" content from the search doc-->
+    <!--DAT-347 Requests the "data" content from the search doc-->
     <int:channel id="doContentQuery"/>
     <int:channel id="receiveContentReply"/>
     <int:channel id="doContentReply"/>

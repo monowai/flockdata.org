@@ -57,7 +57,7 @@ public class TestFdQueries extends ESBase{
         deleteEsIndex(entity);
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
-        change.setWhat(json);
+        change.setData(json);
 
         deleteEsIndex(entity);
         Thread.sleep(1000);

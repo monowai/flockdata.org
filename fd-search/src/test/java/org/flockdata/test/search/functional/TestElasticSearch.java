@@ -22,6 +22,7 @@ package org.flockdata.test.search.functional;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.endpoint.ElasticSearchEP;
+import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.TrackSearchDao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,8 +67,8 @@ public class TestElasticSearch {
         Map<String, Object> indexMe = new HashMap<>(40);
         indexMe.put("auditKey", "abc");
         Map what = om.readValue(escWhat, Map.class);
-        indexMe.put("what", what);
-        logger.info(indexMe.get("what").toString());
+        indexMe.put(EntitySearchSchema.DATA, what);
+        logger.info(indexMe.get(EntitySearchSchema.DATA).toString());
     }
 
     @Test
@@ -83,7 +84,7 @@ public class TestElasticSearch {
         HashMap<String, Object> name = new HashMap<>();
         name.put("first", "Joe");
         name.put("last", "Sixpack");
-        change.setWhat(name);
+        change.setData(name);
 
         GetResponse response = writeSimple(change);
         assertNotNull(response);

@@ -56,7 +56,7 @@ public class TestSupportFunctions extends ESBase {
 
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
-        change.setWhat(json);
+        change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").setCode("my TAG");

@@ -116,7 +116,7 @@ public class TrackEP {
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
             throw new NotFoundException("Unable to locate the requested metaKey");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
-            input.setFdMessage("Ignoring request to change as the 'what' has not changed");
+            input.setFdMessage("Ignoring request to change as the 'data' has not changed");
             return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NOT_MODIFIED);
         } else if (ls.equals(ContentInputBean.LogStatus.ILLEGAL_ARGUMENT)) {
             return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NO_CONTENT);

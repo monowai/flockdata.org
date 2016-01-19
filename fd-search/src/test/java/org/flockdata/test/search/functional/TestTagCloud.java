@@ -70,7 +70,7 @@ public class TestTagCloud extends ESBase {
 
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
-        change.setWhat(json);
+        change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
