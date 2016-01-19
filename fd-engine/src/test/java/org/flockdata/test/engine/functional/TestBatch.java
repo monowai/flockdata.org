@@ -54,7 +54,7 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ImportProfile params = Helper.getImportParams("/profiles/batch-csv-profile.json");
+        ImportProfile params = Helper.getImportParams("/profiles/test-csv-batch.json");
 
         Profile p = importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/data/batch-test.csv", false);
