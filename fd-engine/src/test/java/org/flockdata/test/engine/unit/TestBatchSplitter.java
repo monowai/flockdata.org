@@ -20,9 +20,10 @@
 package org.flockdata.test.engine.unit;
 
 import org.flockdata.engine.track.service.TrackBatchSplitter;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class TestBatchSplitter {
     public void entitites() throws Exception{
         Collection<TrackResultBean> inputs = new ArrayList<>();
         Entity entityNewA = Helper.getEntity("blah", "abc", "123", "abc");
+        DocumentType documentType = new DocumentType( entityNewA.getFortress(), "abc");
         assertTrue("Entity did not default to a new state", entityNewA.isNewEntity());
         Entity entityNewB = Helper.getEntity("blah", "abc", "123", "abcd");
         Entity entityOldA = Helper.getEntity("blah", "abc", "123", "abcde");
@@ -48,11 +50,11 @@ public class TestBatchSplitter {
         entityOldB.setNewEntity(false);
         assertFalse(entityOldA.isNewEntity());
 
-        inputs.add(new TrackResultBean(entityNewA));
+        inputs.add(new TrackResultBean(entityNewA,documentType));
         assertTrue(inputs.iterator().next().isNewEntity());
-        inputs.add(new TrackResultBean(entityNewB));
-        inputs.add(new TrackResultBean(entityOldA));
-        inputs.add(new TrackResultBean(entityOldB));
+        inputs.add(new TrackResultBean(entityNewB,documentType));
+        inputs.add(new TrackResultBean(entityOldA,documentType));
+        inputs.add(new TrackResultBean(entityOldB,documentType));
         assertEquals(4, inputs.size());
         Collection<TrackResultBean>newEntities = TrackBatchSplitter.getNewEntities(inputs);
         assertEquals(2, newEntities.size());

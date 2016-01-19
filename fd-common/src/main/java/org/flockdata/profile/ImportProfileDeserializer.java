@@ -45,86 +45,86 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
     public ImportProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ImportProfile importProfile = new ImportProfile();
         JsonNode node = jp.getCodec().readTree(jp);
-        JsonNode column = node.get("documentName");
-        if ( column == null )
-            column = node.get("documentType");
-        if (column != null)
-            importProfile.setDocumentName(column.asText());
+        JsonNode nodeValue = node.get("documentName");
+        if ( nodeValue == null )
+            nodeValue = node.get("documentType");
+        if (nodeValue != null)
+            importProfile.setDocumentName(nodeValue.asText());
 
-        column = node.get("handler");
-        if (column != null && !column.isNull())
-            importProfile.setHandler(column.asText());
+        nodeValue = node.get("handler");
+        if (nodeValue != null && !nodeValue.isNull())
+            importProfile.setHandler(nodeValue.asText());
 
-        column = node.get("fortressName");
-        if (column != null&& !column.isNull())
-            importProfile.setFortressName(column.asText());
+        nodeValue = node.get("fortressName");
+        if (nodeValue != null&& !nodeValue.isNull())
+            importProfile.setFortressName(nodeValue.asText());
 
-        column = node.get("tagOrEntity");
-        if ( column == null  )
-            column = node.get("tagOrTrack");
+        nodeValue = node.get("tagOrEntity");
+        if ( nodeValue == null  )
+            nodeValue = node.get("tagOrTrack");
 
-        if (column != null)
-            importProfile.setTagOrEntity(column.asText().equalsIgnoreCase("entity")? ProfileConfiguration.DataType.ENTITY : ProfileConfiguration.DataType.TAG);
+        if (nodeValue != null)
+            importProfile.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ProfileConfiguration.DataType.ENTITY : ProfileConfiguration.DataType.TAG);
 
-        column = node.get("condition");
-        if ( column!=null && ! column.isNull())
-            importProfile.setCondition(column.asText());
+        nodeValue = node.get("condition");
+        if ( nodeValue!=null && ! nodeValue.isNull())
+            importProfile.setCondition(nodeValue.asText());
 
-        column = node.get("fortressUser");
-        if (column != null&& !column.isNull())
-            importProfile.setFortressUser(column.asText());
+        nodeValue = node.get("fortressUser");
+        if (nodeValue != null&& !nodeValue.isNull())
+            importProfile.setFortressUser(nodeValue.asText());
 
-        column = node.get("entityOnly");
-        if ( column != null&& !column.isNull() )
-            column = node.get("metaOnly"); // legacy value
-        if (column != null&& !column.isNull())
-            importProfile.setEntityOnly(Boolean.parseBoolean(column.asText()));
+        nodeValue = node.get("entityOnly");
+        if ( nodeValue != null&& !nodeValue.isNull() )
+            nodeValue = node.get("metaOnly"); // legacy value
+        if (nodeValue != null&& !nodeValue.isNull())
+            importProfile.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
 
-        column = node.get("header");
-        if (column != null)
-            importProfile.setHeader(Boolean.parseBoolean(column.asText()));
+        nodeValue = node.get("header");
+        if (nodeValue != null)
+            importProfile.setHeader(Boolean.parseBoolean(nodeValue.asText()));
 
-        column = node.get("emptyIgnored");
-        if (column != null)
-            importProfile.setEmptyIgnored(Boolean.parseBoolean(column.asText()));
-
-
-        column = node.get("preParseRowExp");
-        if (column != null)
-            importProfile.setPreParseRowExp(column.asText());
+        nodeValue = node.get("emptyIgnored");
+        if (nodeValue != null)
+            importProfile.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
 
-        column = node.get("archiveTags");
-        if (column != null)
-            importProfile.setArchiveTags(Boolean.parseBoolean(column.asText()));
+        nodeValue = node.get("preParseRowExp");
+        if (nodeValue != null)
+            importProfile.setPreParseRowExp(nodeValue.asText());
 
-        column = node.get("delimiter");
-        if (column != null&& !column.isNull())
-            importProfile.setDelimiter(column.asText());
 
-        column = node.get("quoteCharacter");
-        if (column != null&& !column.isNull())
-            importProfile.setQuoteCharacter(column.asText());
+        nodeValue = node.get("archiveTags");
+        if (nodeValue != null)
+            importProfile.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
 
-        if ( column !=null && !column.isNull() )
-            importProfile.setEntityKey(column.asText());
+        nodeValue = node.get("delimiter");
+        if (nodeValue != null&& !nodeValue.isNull())
+            importProfile.setDelimiter(nodeValue.asText());
 
-        column = node.get("event");
-        if ( column != null && !column.isNull() )
-            importProfile.setEvent(column.asText());
+        nodeValue = node.get("quoteCharacter");
+        if (nodeValue != null&& !nodeValue.isNull())
+            importProfile.setQuoteCharacter(nodeValue.asText());
 
-        column = node.get("segment");
-        if ( column != null && !column.isNull() )
-            importProfile.setSegmentExpression(column.asText());
+        if ( nodeValue !=null && !nodeValue.isNull() )
+            importProfile.setEntityKey(nodeValue.asText());
 
-        if ( column!=null) {
-            importProfile.setEntityKey(column.asText());
+        nodeValue = node.get("event");
+        if ( nodeValue != null && !nodeValue.isNull() )
+            importProfile.setEvent(nodeValue.asText());
+
+        nodeValue = node.get("segment");
+        if ( nodeValue != null && !nodeValue.isNull() )
+            importProfile.setSegmentExpression(nodeValue.asText());
+
+        if ( nodeValue!=null) {
+            importProfile.setEntityKey(nodeValue.asText());
         }
 
 
-        column = node.get("contentType");
-        if (column != null) {
-            switch (column.textValue().toLowerCase()) {
+        nodeValue = node.get("contentType");
+        if (nodeValue != null) {
+            switch (nodeValue.textValue().toLowerCase()) {
                 case "csv":
                     importProfile.setContentType(ProfileConfiguration.ContentType.CSV);
                     break;
@@ -136,13 +136,13 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
                     break;
             }
         }
-        column = node.get("content");
-        if ( column !=null ){
+        nodeValue = node.get("content");
+        if ( nodeValue !=null ){
             ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-            Iterator<Map.Entry<String,JsonNode>> columns = column.fields();
+            Iterator<Map.Entry<String,JsonNode>> columnNodes = nodeValue.fields();
             Map<String,ColumnDefinition>content = new HashMap<>();
-            while (columns.hasNext()) {
-                Map.Entry<String, JsonNode> next = columns.next();
+            while (columnNodes.hasNext()) {
+                Map.Entry<String, JsonNode> next = columnNodes.next();
                 String colName = next.getKey();
                 ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
 //                if ( columnDefinition.getTarget()!=null )

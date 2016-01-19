@@ -51,7 +51,7 @@ public class Helper {
 
     //EntityInputBean beanA = new EntityInputBean(fortress.getName(), "olivia@sunnybell.com", "DocType", DateTime.now(), "AAA");
     public static EntityInputBean getEntity(Fortress fortress, String user, String docType, String code, ContentInputBean blah) {
-        return new EntityInputBean(fortress.getName()
+        return new EntityInputBean(fortress
                 , user
                 , docType
                 , DateTime.now()

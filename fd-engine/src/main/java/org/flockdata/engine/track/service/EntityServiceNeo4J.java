@@ -139,7 +139,7 @@ public class EntityServiceNeo4J implements EntityService {
             //entityInputBean.setMetaKey(entity.getMetaKey());
 
             logger.trace("Existing entity [{}]", entity);
-            TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, entityInputBean);
+            TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, documentType, entityInputBean);
             trackResult.entityExisted();
             trackResult.setContentInput(entityInputBean.getContent());
             trackResult.setDocumentType(documentType);
@@ -188,7 +188,7 @@ public class EntityServiceNeo4J implements EntityService {
             return new TrackResultBean("Error processing entityInput [{}]" + entityInputBean + ". Error " + e.getMessage());
         }
 
-        TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, entityInputBean);
+        TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, documentType, entityInputBean);
         trackResult.setDocumentType(documentType);
 
         // Flag the entity as having been newly created. The flag is transient and

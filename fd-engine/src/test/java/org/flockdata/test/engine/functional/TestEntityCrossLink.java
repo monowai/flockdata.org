@@ -63,7 +63,7 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
 
-        EntityInputBean parent = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean parent = new EntityInputBean(fortressA, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean parentResult = mediationFacade.trackEntity(su.getCompany(), parent);
 
         DocumentType childDoc = new DocumentType(fortressA, "DocTypeZ");
@@ -72,7 +72,7 @@ public class TestEntityCrossLink extends EngineBase {
         assertTrue(childDoc.hasParent());
         assertEquals(childDoc.getParent().getId(), parentResult.getDocumentType().getId());
 
-        EntityInputBean child = new EntityInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        EntityInputBean child = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
 
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
@@ -113,14 +113,14 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_MetaKeysForSameCompany", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(trackResultBean);
         String sourceKey = trackResultBean.getEntity().getMetaKey();
 
         Collection<String> xRef = new ArrayList<>();
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         TrackResultBean destBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(destBean);
         String destKey = destBean.getEntity().getMetaKey();
@@ -150,7 +150,7 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_targetDoesNotExist", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_targetDoesNotExist", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String abc123 = trackResultBean.getEntity().getMetaKey();
 
@@ -168,7 +168,7 @@ public class TestEntityCrossLink extends EngineBase {
         Collection<EntityKeyBean> results = entityService.linkEntities(su.getCompany(), sourceKey, callerRefs, "anyrlx");
         TestCase.assertTrue("",results.isEmpty());
 
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC321");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC321");
         ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
         inputBean.setContent(cib);
 
@@ -199,14 +199,14 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_duplicateCallerRefForFortressFails", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         String callerRef = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
 
         assertNotNull(callerRef);
 
         // Check that exception is thrown if the callerRef is not unique for the fortress
         Collection<EntityKeyBean> xRef = new ArrayList<>();
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         String destKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
         assertNotNull(destKey);
         assertFalse(destKey.equals(callerRef));
@@ -229,14 +229,14 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_ByCallerRefsForFortress", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Collection<EntityKeyBean> callerRefs = new ArrayList<>();
         // These are the two records that will cite the previously created entity
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeS", new DateTime(), "ABC333");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         callerRefs.add(new EntityKeyBean("ABC321"));
@@ -262,15 +262,15 @@ public class TestEntityCrossLink extends EngineBase {
     public void link_FromInputBeans() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         // These are the two records that will cite the previously created entity
-        EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        EntityInputBean inputBeanB = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
-        EntityInputBean inputBeanC = new EntityInputBean(fortressA.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
+        EntityInputBean inputBeanC = new EntityInputBean(fortress, "wally", "DocTypeS", new DateTime(), "ABC333");
         mediationFacade.trackEntity(su.getCompany(), inputBeanC);
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
         List<EntityKeyBean> callerRefs = new ArrayList<>();
@@ -290,7 +290,7 @@ public class TestEntityCrossLink extends EngineBase {
             assertTrue(crossReferenceInputBean.getIgnored().get("cites").isEmpty());
         }
 
-        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortressA.getName(), "ABC123", "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals(2, results.get("cites").size());
@@ -302,7 +302,7 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTestB", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortressA, "wally", "DocTypeA", new DateTime(), "ABC123");
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
@@ -322,9 +322,9 @@ public class TestEntityCrossLink extends EngineBase {
         assertEquals(2, notFound.iterator().next().getIgnored().get("cites").size());
 
         // These are the two records that will cite the previously created entity
-        EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        EntityInputBean inputBeanB = new EntityInputBean(fortressA, "wally", "DocTypeZ", new DateTime(), "ABC321");
         mediationFacade.trackEntity(su.getCompany(), inputBeanB);
-        EntityInputBean inputBeanC = new EntityInputBean(fortressB.getName(), "wally", "DocTypeS", new DateTime(), "ABC333");
+        EntityInputBean inputBeanC = new EntityInputBean(fortressB, "wally", "DocTypeS", new DateTime(), "ABC333");
         mediationFacade.trackEntity(su.getCompany(), inputBeanC);
         notFound = entityService.linkEntities(su.getCompany(), inputs);
         assertEquals(0, notFound.iterator().next().getIgnored().get("cites").size());
@@ -347,13 +347,13 @@ public class TestEntityCrossLink extends EngineBase {
         SystemUser su = registerSystemUser("xRef_CreatesUniqueRelationships", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_CreatesUniqueRelationships", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         String sourceMetaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
 
         assertNotNull(sourceMetaKey);
 
         Collection<String> xRef = new ArrayList<>();
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC321");
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         String destKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
         assertNotNull(destKey);
         assertFalse(destKey.equals(sourceMetaKey));

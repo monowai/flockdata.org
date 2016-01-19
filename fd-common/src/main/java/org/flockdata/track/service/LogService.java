@@ -20,13 +20,11 @@
 package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressUser;
+import org.flockdata.model.*;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
 
+import javax.swing.text.Document;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -43,9 +41,7 @@ public interface LogService {
 
     Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException, IOException;
 
-    TrackResultBean writeLog(Entity entity, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException;
-
-    TrackResultBean writeLog(Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException;
+    TrackResultBean writeLog(DocumentType documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException;
 
     EntityLog getLastLog(Entity entity) throws FlockException;
 

@@ -59,7 +59,7 @@ public class DocTestEP extends EngineBase {
         engineConfig.setConceptsEnabled("true");
         Fortress fortress = createFortress(su);
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "StudyDoc", new DateTime());
+        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "StudyDoc", new DateTime());
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
@@ -109,7 +109,7 @@ public class DocTestEP extends EngineBase {
 
         Fortress fortress = createFortress(su);
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes"));
@@ -139,9 +139,8 @@ public class DocTestEP extends EngineBase {
 
         Fortress fortress = createFortress(su);
 
-        DocumentTypeInputBean docType = new DocumentTypeInputBean()
-                .setCode("docCode")
-                .setName("docName");
+        DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
+                .setCode("docCode");
 
 
         EngineEndPoints eip = new EngineEndPoints(wac);

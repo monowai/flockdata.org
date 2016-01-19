@@ -41,7 +41,7 @@ import java.util.Map;
  * Time: 7:56 PM
  */
 public class Helper {
-    public static EntityInputBean getEntityInputBean(String docType, String fortress, String fortressUser, String callerRef, DateTime now) {
+    public static EntityInputBean getEntityInputBean(String docType, Fortress fortress, String fortressUser, String callerRef, DateTime now) {
 
         return new EntityInputBean(fortress,
                 fortressUser,
@@ -85,7 +85,7 @@ public class Helper {
         Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean entityInput = getEntityInputBean(docType, fort, userName, code, now);
+        EntityInputBean entityInput = getEntityInputBean(docType, fortress, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
         return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc);

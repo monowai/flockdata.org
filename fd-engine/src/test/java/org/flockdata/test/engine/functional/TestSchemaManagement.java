@@ -55,10 +55,10 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortressA = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestA", true));
         Fortress fortressB = fortressService.registerFortress(suA.getCompany(), new FortressInputBean("auditTestB", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortressA, "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getMetaKey();
 
-        inputBean = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        inputBean = new EntityInputBean(fortressB, "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyB = mediationFacade.trackEntity(suA.getCompany(), inputBean).getEntity().getMetaKey();
 
         assertFalse(metaKeyA.equals(metaKeyB));
@@ -78,8 +78,8 @@ public class TestSchemaManagement extends EngineBase {
         cleanUpGraph();
         String sharedName = "entityTestB";
         SystemUser suA = registerSystemUser("OtherCo", harry);
-        fortressService.registerFortress(suA.getCompany(), new FortressInputBean(sharedName, true));
-        EntityInputBean entityInput = new EntityInputBean(sharedName, "wally", "DocTypeA", new DateTime(), "ABC123");
+        Fortress fortress = fortressService.registerFortress(suA.getCompany(), new FortressInputBean(sharedName, true));
+        EntityInputBean entityInput = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         String metaKeyA = mediationFacade.trackEntity(suA.getCompany(), entityInput).getEntity().getMetaKey();
 
 
@@ -91,7 +91,7 @@ public class TestSchemaManagement extends EngineBase {
         Fortress fortressB = fortressService.registerFortress(suB.getCompany(), new FortressInputBean(sharedName, true));
 
         setSecurity(suB.getName());
-        entityInput = new EntityInputBean(fortressB.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        entityInput = new EntityInputBean(fortressB, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResult = mediationFacade.trackEntity(suB.getCompany(), entityInput);
         assertFalse(trackResult.entityExists());
         String metaKeyC = trackResult.getEntity().getMetaKey();
@@ -99,7 +99,7 @@ public class TestSchemaManagement extends EngineBase {
         assertFalse("KeyC should belong to company B", metaKeyC.equals(metaKeyA));
 
         // Secondary document type for company B
-        entityInput = new EntityInputBean(fortressB.getName(), "wally", "DocTypeB", new DateTime(), "ABC123X");
+        entityInput = new EntityInputBean(fortressB, "wally", "DocTypeB", new DateTime(), "ABC123X");
         mediationFacade.trackEntity(suB.getCompany(), entityInput);
 
 

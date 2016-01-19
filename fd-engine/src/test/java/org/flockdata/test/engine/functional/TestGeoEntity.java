@@ -64,7 +64,7 @@ public class TestGeoEntity extends EngineBase {
         assertNotNull(documentType);
         assertEquals(query, documentType.getGeoQuery());
 
-        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT-495", "DAT-495", new DateTime(), "abc");
+        EntityInputBean entityInput = new EntityInputBean(fortress, "DAT-495", "DAT-495", new DateTime(), "abc");
 
         TagInputBean tagInput = new TagInputBean("123 Main Road", "Address", "geodata");
         tagInput.setTargets("to-country", new TagInputBean("AT", "Country").setName("Atlantis"));
@@ -139,7 +139,7 @@ public class TestGeoEntity extends EngineBase {
         assertTrue(subTags.containsKey("state"));
         assertEquals("The zip code should be connected to two states", 2, subTags.get("state").size());
 
-        EntityInputBean entityInput = new EntityInputBean(fortress.getName(), "DAT-508", documentType.getName(), new DateTime(), "abc");
+        EntityInputBean entityInput = new EntityInputBean(fortress, "DAT-508", documentType.getName(), new DateTime(), "abc");
         entityInput.addTag(new TagInputBean(THE_LENDER, "Lender").setEntityLink("created"));
         entityInput.addTag(countyTag);  // This is the geopath to find
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);

@@ -141,31 +141,29 @@ public class KvServiceTest {
 
     private void kvMapTest() throws Exception {
         logger.debug("Registering system user!");
-        //SystemUser su = registerSystemUser("Company", EngineBase.mike_admin);
-        //Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Entity Test", true));
+
         String fortress = "Entity Test";
         String docType = "TestAuditX";
         String callerRef = "ABC123R";
         String company = "company";
 
         Map<String, Object> what = getWhatMap();
-
+        Fortress fort = new Fortress(
+                new FortressInputBean("test", true),
+                new Company("MyName"));
         // Represents identifiable entity information
-        EntityInputBean entityInputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
+        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), callerRef)
+                .setContent(new ContentInputBean(what));
 
+        DocumentType documentType = new DocumentType(fort, docType);
         // The "What" content
-        entityInputBean.setContent(new ContentInputBean(what));
 
         // Emulate the creation of the entity
-        Entity entity = Helper.getEntity(company, fortress, "wally", docType);
+        Entity entity = Helper.getEntity(company, fortress, "wally", documentType.getName());
 
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
-        TrackResultBean trackResultBean = new TrackResultBean(
-                new Fortress(
-                        new FortressInputBean("test", true),
-                        new Company("MyName")),
-                entity, entityInputBean);
+        TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
 
         // Create a log with a random primary key
         Log graphLog = new Log(entity);
@@ -186,13 +184,13 @@ public class KvServiceTest {
 
         // Finally! the actual write occurs
         try {
-            kvService.doWrite(entity, kvContentBean);
+            kvService.doWrite(trackResultBean, kvContentBean);
 
             // Retrieve the content we just created
             KvContent kvContent = kvService.getContent(entity, trackResultBean.getCurrentLog().getLog());
             assertNotNull(kvContent);
             assertNotNull(kvContent.getContent().getMetaKey());
-            assertNotNull(kvContent.getContent().getCallerRef());
+            assertNotNull(kvContent.getContent().getCode());
 
             validateWhat(what, kvContent);
             // Testing that cancel works
@@ -265,16 +263,17 @@ public class KvServiceTest {
         String docType = "KvTest";
         String callerRef = "ABC123R";
         Entity entity = Helper.getEntity("myco", "myfort", "myuser", docType);
+        DocumentType documentType = new DocumentType(null, entity.getType());
 
-        EntityInputBean inputBean = Helper.getEntityInputBean(docType, "myfort", "myuser", callerRef, DateTime.now());
+        EntityInputBean inputBean = Helper.getEntityInputBean(docType, entity.getFortress(), "myuser", callerRef, DateTime.now());
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
         contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
         //inputBean.setContent(contentInputBean);
 
         try {
-            TrackResultBean tr = new TrackResultBean(null, entity, inputBean);
+            TrackResultBean tr = new TrackResultBean(null, entity, documentType, inputBean);
             KvContentBean kvContentBean = new KvContentBean(tr);
-            kvService.doWrite(tr.getEntity(), kvContentBean);
+            kvService.doWrite(tr, kvContentBean);
             EntityLog entityLog = tr.getCurrentLog();
             KvContent entityContent = kvService.getContent(entity, entityLog.getLog());
 

@@ -61,14 +61,14 @@ public class TestEntityUsers extends EngineBase {
         String callerRef = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
-        EntityInputBean entityBean = new EntityInputBean(fortWP.getName(), "poppy", "CompanyNode", DateTime.now(), callerRef);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
+        EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
 
 
         entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        Entity entity = entityService.findByCode(fortWP, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
@@ -80,7 +80,7 @@ public class TestEntityUsers extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
-        entity = entityService.findByCode(fortWP, "CompanyNode", callerRef);
+        entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
@@ -105,7 +105,7 @@ public class TestEntityUsers extends EngineBase {
         SystemUser su = registerSystemUser("created_EntityWithNoUser");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_EntityWithNoUser", true));
-        EntityInputBean entityBean = new EntityInputBean(fortress.getName(), null, "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean entityBean = new EntityInputBean(fortress, null, "CompanyNode", DateTime.now(), callerRef);
 
         // No fortress user
         ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer");

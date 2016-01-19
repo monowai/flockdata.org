@@ -15,8 +15,8 @@
     <properties>
         <es.version>1.7.3</es.version>
         <!-- When upgrading ES, make sure attachment mapper and tika are in alignment-->
-        <es.attachment-mapper.version>2.7.1</es.attachment-mapper.version>
-        <tika.version>1.10</tika.version>
+        <!--<es.attachment-mapper.version>2.7.1</es.attachment-mapper.version>-->
+        <!--<tika.version>1.10</tika.version>-->
         <spring.elasticsearch-version>1.4.0</spring.elasticsearch-version>
         <start-class>org.flockdata.search.FdSearch</start-class>
         <httpclient.version>4.4.1</httpclient.version>
@@ -104,27 +104,26 @@
             <version>${es.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-mapper-attachments</artifactId>
-            <version>${es.attachment-mapper.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.3.2</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>${tika.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.elasticsearch</groupId>-->
+        <!--<artifactId>elasticsearch-mapper-attachments</artifactId>-->
+        <!--<version>${es.attachment-mapper.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tika</groupId>-->
+            <!--<artifactId>tika-parsers</artifactId>-->
+            <!--<version>${tika.version}</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.httpcomponents</groupId>-->
+                    <!--<artifactId>httpcore</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>

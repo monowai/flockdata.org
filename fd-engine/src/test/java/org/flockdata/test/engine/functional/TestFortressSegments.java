@@ -78,7 +78,7 @@ public class TestFortressSegments extends EngineBase{
 
         FortressInputBean fib = new FortressInputBean(fortressName, true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
-        EntityInputBean inputBean = new EntityInputBean(fortressName, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);

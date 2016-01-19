@@ -48,9 +48,9 @@ public class ContentInputBean implements EntityContent, Serializable {
     // Required if not updating via a Entity
     private String metaKey;
 
-    // For tracking by Caller Ref
+    // For tracking by the Callers Reference
     private String documentType;
-    private String callerRef;
+    private String code;
     private String fortress;
     private String txRef;
     private String comment;
@@ -170,22 +170,22 @@ public class ContentInputBean implements EntityContent, Serializable {
         return comment;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     /**
      * The caller ref must be unique for the Document Type in the Fortress
      * If you do not have a unique ref, then you must pass the AuditKey instead.
      *
-     * @param callerRef fortress primary key
+     * @param code fortress primary key
      */
-    public void setCallerRef(String callerRef) {
-        this.callerRef = callerRef;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void setCallerRef(String fortress, String documentType, String callerRef) {
-        this.callerRef = callerRef;
+        this.code = callerRef;
         this.documentType = documentType;
         this.fortress = fortress;
     }
@@ -323,7 +323,7 @@ public class ContentInputBean implements EntityContent, Serializable {
         return "LogInputBean{" +
                 "event='" + event + '\'' +
                 ", documentType='" + documentType + '\'' +
-                ", callerRef='" + callerRef + '\'' +
+                ", code='" + code + '\'' +
                 ", metaKey='" + metaKey + '\'' +
                 '}';
     }
@@ -335,7 +335,7 @@ public class ContentInputBean implements EntityContent, Serializable {
 
         ContentInputBean that = (ContentInputBean) o;
 
-        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
@@ -349,7 +349,7 @@ public class ContentInputBean implements EntityContent, Serializable {
     public int hashCode() {
         int result = metaKey != null ? metaKey.hashCode() : 0;
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
-        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (fortress != null ? fortress.hashCode() : 0);
         result = 31 * result + (txRef != null ? txRef.hashCode() : 0);
         result = 31 * result + (when != null ? when.hashCode() : 0);

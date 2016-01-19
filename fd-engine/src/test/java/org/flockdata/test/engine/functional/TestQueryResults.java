@@ -58,7 +58,7 @@ public class TestQueryResults extends EngineBase {
         SystemUser su = registerSystemUser("matrixQuery", mike_admin);
         Fortress fortress = createFortress(su);
 
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyA");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes").setLabel(TestQueryResults.FRUIT));
         inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "dislikes").setLabel(TestQueryResults.FRUIT));
@@ -67,7 +67,7 @@ public class TestQueryResults extends EngineBase {
         Entity entity = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity() ;
         assertEquals(5, entityTagService.getEntityTags(entity).size());
 
-        inputBean = new EntityInputBean(fortress.getName(), "mike", "Study", new DateTime(), "StudyB");
+        inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyB");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "dislikes"));
         inputBean.addTag(new TagInputBean("Pears", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Oranges", TestQueryResults.FRUIT, "allergic"));

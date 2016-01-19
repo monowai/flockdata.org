@@ -65,7 +65,7 @@ public class TestDelta extends EngineBase {
         values.add(3);
         jsonB.put("list", values);
 
-        EntityInputBean entity = new EntityInputBean("DELTAForce", "auditTestz", "Delta", new DateTime(), "abdelta");
+        EntityInputBean entity = new EntityInputBean(fortress, "auditTestz", "Delta", new DateTime(), "abdelta");
         ContentInputBean log = new ContentInputBean("Mike", new DateTime(), jsonA);
         entity.setContent(log);
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
