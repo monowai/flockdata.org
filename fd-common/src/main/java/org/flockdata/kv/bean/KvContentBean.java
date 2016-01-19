@@ -21,6 +21,7 @@ package org.flockdata.kv.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.kv.KvContent;
 import org.flockdata.model.Log;
@@ -45,6 +46,8 @@ public class KvContentBean implements KvContent, Serializable{
     private ContentInputBean content = null;
     private String bucket = null;
     private String storage;
+
+    private DocumentType documentType = null;
 
     KvContentBean() {
     }
@@ -75,23 +78,21 @@ public class KvContentBean implements KvContent, Serializable{
     public KvContentBean(TrackResultBean trackResultBean) {
         this();
         // ToDo: Code Smell - seems like we should have already got this from the KvManager already prepared
+        this.documentType = trackResultBean.getDocumentType();
         this.bucket = parseBucket(trackResultBean.getEntity());
+
         if (trackResultBean.getCurrentLog() != null) {
             if ( trackResultBean.getCurrentLog().getLog()!=null) {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();
                 this.storage= trackResultBean.getCurrentLog().getLog().getStorage();
             }
             this.content = trackResultBean.getContentInput();
-            content.setCallerRef(trackResultBean.getEntity().getCode());
-            content.setMetaKey(trackResultBean.getMetaKey());
+            if ( this.content !=null ) {
+                content.setCode(trackResultBean.getEntity().getCode());
+                content.setMetaKey(trackResultBean.getMetaKey());
+            }
         }
     }
-
-//    public static String parseBucket(EntityBean entity) {
-//        if ( entity == null )
-//            return null;
-//        return (entity.getIndexName() + "/" + entity.getType()).toLowerCase();
-//    }
 
     public static String parseBucket(Entity entity) {
         // ToDo: Figure this out - DAT-419
@@ -163,5 +164,9 @@ public class KvContentBean implements KvContent, Serializable{
 
     public void setStorage(String storage) {
         this.storage = storage;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
     }
 }

@@ -97,7 +97,7 @@ public class TestDataTypes extends ESBase {
         Fortress fortress = new Fortress(fib, mockCompany);
 
         DateTime now = new DateTime();
-        EntityInputBean eib = new EntityInputBean(fib.getName(),
+        EntityInputBean eib = new EntityInputBean(fortress,
                 "harry",
                 "docType",
                 now,

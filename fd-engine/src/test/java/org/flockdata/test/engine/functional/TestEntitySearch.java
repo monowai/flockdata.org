@@ -54,12 +54,12 @@ public class TestEntitySearch extends EngineBase {
         String callerRef = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
 
-        EntityInputBean beanA = getContentBean(fortWP.getName(), "poppy", "CompanyNode", "2012",
+        EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
                 new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
 
-        EntityInputBean beanB = getContentBean(fortWP.getName(), "poppy", "CompanyNode", "2013",
+        EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
                 new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
 
         ArrayList<EntityInputBean> beans = new ArrayList<>();
@@ -77,14 +77,14 @@ public class TestEntitySearch extends EngineBase {
 
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
 
-        EntityInputBean beanA = getContentBean(fortWP.getName(), "poppy", "CompanyNode", "2012",
+        EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
                 new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
 
         mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
         // Now add a new one
-        EntityInputBean beanB = getContentBean(fortWP.getName(), "poppy", "CompanyNode", "2013",
+        EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
                 new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
 
 
@@ -101,8 +101,8 @@ public class TestEntitySearch extends EngineBase {
     }
 
 
-    private EntityInputBean getContentBean(String fortressName, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
-        EntityInputBean entityBean = new EntityInputBean(fortressName, fortUserName, companyName, DateTime.now(), callerRef);
+    private EntityInputBean getContentBean(Fortress fortress, String fortUserName, String companyName, String callerRef, ContentInputBean contentInputBean) {
+        EntityInputBean entityBean = new EntityInputBean(fortress, fortUserName, companyName, DateTime.now(), callerRef);
         entityBean.setContent(contentInputBean);
         return entityBean;
     }

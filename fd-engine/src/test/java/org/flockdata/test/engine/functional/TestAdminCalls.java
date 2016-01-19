@@ -67,7 +67,7 @@ public class TestAdminCalls extends EngineBase {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
@@ -79,7 +79,7 @@ public class TestAdminCalls extends EngineBase {
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
 
-        inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(tagInputBean);
 
         mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -106,7 +106,7 @@ public class TestAdminCalls extends EngineBase {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String metaKey = resultBean.getEntity().getMetaKey();
@@ -136,7 +136,7 @@ public class TestAdminCalls extends EngineBase {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesDataWithTags", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
@@ -175,7 +175,7 @@ public class TestAdminCalls extends EngineBase {
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
-        EntityInputBean trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc2");
+        EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
@@ -184,7 +184,7 @@ public class TestAdminCalls extends EngineBase {
 
         assertNotNull(resultA);
 
-        trackBean = new EntityInputBean(fortress.getName(), "olivia@ast.com", "CompanyNode", null, "abc3");
+        trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
         logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());

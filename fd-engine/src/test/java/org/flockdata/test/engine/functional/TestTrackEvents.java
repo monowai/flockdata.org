@@ -67,9 +67,9 @@ public class TestTrackEvents extends EngineBase {
     public void defaultEventTypesAreHandled() throws Exception {
 
         SystemUser su = registerSystemUser("defaultEventTypesAreHandled", mike_admin);
-        Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("defaultEventTypes", true));
 
-        EntityInputBean inputBean = new EntityInputBean(fo.getName(), "wally", "testDupe", new DateTime(), "YYY");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String metaKey = resultBean.getEntity().getMetaKey();
@@ -78,8 +78,8 @@ public class TestTrackEvents extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), metaKey);
         assertNotNull(entity.getType());
 
-        assertNotNull(fortressService.getFortressUser(fo, "wally", true));
-        assertNull(fortressService.getFortressUser(fo, "wallyz", false));
+        assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
+        assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
         mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
 

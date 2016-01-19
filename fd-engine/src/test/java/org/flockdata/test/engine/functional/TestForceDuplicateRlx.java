@@ -53,7 +53,7 @@ public class TestForceDuplicateRlx extends EngineBase {
 
         int auditMax = 10;
         int logMax = 10;
-        int fortress = 1;
+        int fName = 1;
         ArrayList<Long> list = new ArrayList<>();
 
         int fortressMax = 1;
@@ -67,16 +67,16 @@ public class TestForceDuplicateRlx extends EngineBase {
 
         DecimalFormat f = new DecimalFormat("##.000");
 
-        while (fortress <= fortressMax) {
-            String fortressName = "bulkloada" + fortress;
+        while (fName <= fortressMax) {
+            String fortressName = "bulkloada" + fName;
             int count = 1;
             long requests = 0;
 
-            Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
+            Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean(fortressName, true));
             requests++;
             logger.info("Starting run for " + fortressName);
             while (count <= auditMax) {
-                EntityInputBean entityInputBean = new EntityInputBean(iFortress.getName(), fortress + "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
+                EntityInputBean entityInputBean = new EntityInputBean(fortress, fortress.getName()+ "olivia@sunnybell.com", "CompanyNode", new DateTime(), "ABC" + count);
                 TrackResultBean arb = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
                 requests++;
                 int log = 1;
@@ -88,8 +88,8 @@ public class TestForceDuplicateRlx extends EngineBase {
                 count++;
             } // finished with Entities
             totalRows = totalRows + requests;
-            list.add(iFortress.getId());
-            fortress++;
+            list.add(fortress.getId());
+            fName++;
         }
 
         logger.debug("*** Created data set in " + f.format(splitTotals) + " fortress avg = " + f.format(splitTotals / fortressMax) + " avg processing time per request " + f.format(splitTotals / totalRows) + ". Requests per second " + f.format(totalRows / splitTotals));

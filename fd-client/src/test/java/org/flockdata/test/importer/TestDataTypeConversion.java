@@ -119,10 +119,11 @@ public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void number_ConvertsWithThousandSeparator() throws Exception {
         // DAT-454
+
         String fileName = "/profile/data-types.json";
         ImportProfile profile = ProfileReader.getImportProfile(fileName);
         String header[] = new String[]{"num"};
-        String row[] = new String[]{"50,000.99"};
+        String row[] = new String[]{"50,000.99"}; // Not internatioalised
         Map<String, Object> converted = Transformer.convertToMap(header, row, profile);
         assertEquals("50000.99", converted.get("num").toString());
 

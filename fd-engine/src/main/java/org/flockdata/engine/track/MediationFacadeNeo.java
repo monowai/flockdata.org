@@ -22,6 +22,7 @@ package org.flockdata.engine.track;
 import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.meta.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
@@ -262,6 +263,9 @@ public class MediationFacadeNeo implements MediationFacade {
         return tags;
     }
 
+    @Autowired
+    ConceptService conceptService;
+
     @Override
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Create the basic data within a transaction
@@ -269,29 +273,20 @@ public class MediationFacadeNeo implements MediationFacade {
         if (input.getMetaKey() != null)
             entity = entityService.getEntity(company, input.getMetaKey());
         else
-            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
+            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCode());
         if (entity == null)
             throw new FlockException("Unable to resolve the Entity");
 
         FortressUser fu = fortressService.createFortressUser(entity.getSegment().getFortress(), input);
-        TrackResultBean result = logService.writeLog(entity, input, fu);
+
+        DocumentType documentType = conceptService.findDocumentType(entity.getFortress(), entity.getType()) ;
+        TrackResultBean result = logService.writeLog(documentType, entity, input, fu);
 
         Collection<TrackResultBean> results = new ArrayList<>();
         results.add(result);
         // Finally distribute the changes
         distributeChanges(result.getEntity().getSegment().getFortress(), results);
         return result;
-    }
-    @Transactional
-    public TrackResultBean doTrackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Entity entity;
-        if (input.getMetaKey() != null)
-            entity = entityService.getEntity(company, input.getMetaKey());
-        else
-            entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCallerRef());
-        if (entity == null)
-            throw new FlockException("Unable to resolve the Entity");
-        return logService.writeLog(entity, input);
     }
 
     /**

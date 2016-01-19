@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
+import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.engine.Helper;
@@ -83,7 +84,8 @@ public class TestInputBeans {
     @Test
     public void testEntityInputBean() throws Exception {
         DateTime now = DateTime.now();
-        EntityInputBean entityBean = new EntityInputBean("fortress", "user", "booking", now, "myRef");
+        Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("blah"));
+        EntityInputBean entityBean = new EntityInputBean(fortress, "user", "booking", now, "myRef");
         assertNull(entityBean.getMetaKey());
         entityBean.setMetaKey("AbC");
         assertNotNull(entityBean.getMetaKey());

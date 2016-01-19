@@ -184,7 +184,7 @@ public class TestEntityDeadlock extends EngineBase {
             inputBeans = new ArrayList<>();
             int count = 0;
             while (count < maxRun) {
-                EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef + count);
+                EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef + count);
                 inputBean.setTags(tags);
                 inputBeans.add(inputBean);
                 count++;

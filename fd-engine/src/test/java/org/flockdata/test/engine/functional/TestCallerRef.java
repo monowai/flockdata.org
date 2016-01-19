@@ -68,9 +68,9 @@ public class TestCallerRef extends EngineBase {
             FortressInputBean fib = new FortressInputBean("trackTest" + System.currentTimeMillis(), true);
             Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
-            EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "harry", "TestTrack", new DateTime(), null);
+            EntityInputBean inputBean = new EntityInputBean(fortress, "harry", "TestTrack", new DateTime(), null);
             assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey());
-            inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), null);
+            inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), null);
             String metaKey = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean).getEntity().getMetaKey();
 
             assertNotNull(metaKey);
@@ -92,7 +92,7 @@ public class TestCallerRef extends EngineBase {
             SystemUser su = registerSystemUser(monowai, mike_admin);
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
-            EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+            EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
 
             // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
             String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
@@ -101,7 +101,7 @@ public class TestCallerRef extends EngineBase {
             assertEquals(metaKey, results.iterator().next().getMetaKey());
 
             // Same caller ref but different document - this scenario is the callers to resolve
-            inputBean = new EntityInputBean(fortress.getName(), "wally", "DocTypeZ", new DateTime(), "ABC123");
+            inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC123");
             mediationFacade.trackEntity(su.getCompany(), inputBean);
 
             results = entityService.findByCode(su.getCompany(), fortress.getName(), "ABC123");
@@ -204,7 +204,7 @@ public class TestCallerRef extends EngineBase {
                 startLatch.await();
                 logger.debug("Running... ");
                 while (count < maxRun) {
-                    EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", docType, new DateTime(), callerRef);
+                    EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
                     assert (docType != null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
                     assertNotNull(trackResult);

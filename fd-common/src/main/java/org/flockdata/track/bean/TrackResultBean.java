@@ -49,7 +49,7 @@ public class TrackResultBean implements Serializable {
     private EntityInputBean entityInputBean;// User payload
     private ContentInputBean contentInput;  // User content payload
 
-    private transient DocumentType documentType;
+    private DocumentType documentType;
     private String index;       // Which index is this indexed in
     private Boolean newEntity = false; // Flags that the Entity was created for the first time
     private ContentInputBean.LogStatus logStatus; // What status
@@ -76,18 +76,22 @@ public class TrackResultBean implements Serializable {
      * @param entity          internal node
      * @param entityInputBean user supplied content to create entity
      */
-    public TrackResultBean(Fortress fortress, Entity entity, EntityInputBean entityInputBean) {
-        this.entity = entity;
+    public TrackResultBean(Fortress fortress, Entity entity, DocumentType documentType, EntityInputBean entityInputBean) {
+        this(entity);
         this.entityInputBean = entityInputBean;
         this.contentInput = entityInputBean.getContent();
+        this.documentType = documentType;
         this.index = fortress.getRootIndex();
-
     }
 
     public TrackResultBean(Entity entity) {
         this.entity = entity;
         this.newEntity = entity.isNewEntity();
+    }
 
+    public TrackResultBean(Entity entity, DocumentType documentType) {
+        this(entity);
+        this.documentType = documentType;
     }
 
     public TrackResultBean(Fortress fortress, Node entity, EntityInputBean entityInputBean) {
@@ -192,8 +196,9 @@ public class TrackResultBean implements Serializable {
         return (getContentInput() != null && logStatus != ContentInputBean.LogStatus.IGNORE);
     }
 
-    public void setDocumentType(DocumentType documentType) {
+    public TrackResultBean setDocumentType(DocumentType documentType) {
         this.documentType = documentType;
+        return this;
     }
 
     @JsonIgnore
@@ -205,8 +210,9 @@ public class TrackResultBean implements Serializable {
         return index;
     }
 
-    public void setNewEntity() {
+    public TrackResultBean setNewEntity() {
         newEntity = true;
+        return this;
     }
 
     /**
@@ -226,8 +232,9 @@ public class TrackResultBean implements Serializable {
         return logStatus;
     }
 
-    public void setLogStatus(ContentInputBean.LogStatus logStatus) {
+    public TrackResultBean setLogStatus(ContentInputBean.LogStatus logStatus) {
         this.logStatus = logStatus;
+        return this;
     }
 
     boolean logIgnored = false;
