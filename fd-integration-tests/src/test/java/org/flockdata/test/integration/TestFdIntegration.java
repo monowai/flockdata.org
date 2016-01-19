@@ -80,6 +80,8 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
@@ -585,13 +587,12 @@ public class TestFdIntegration {
         mediationFacade.trackEntity(su.getCompany(), entityInput);
         // Updating the same caller ref should not create a 3rd record
         esHelper.doEsQuery(result.getEntity(), "*", 3);
-//        deleteEsIndex(indexHelper.parseIndex(result.getEntity()));
 
     }
 
     @Test
     public void cancel_searchDocIsRewrittenAfterCancellingLogs() throws Exception {
-//        assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("## cancel_searchDocIsRewrittenAfterCancellingLogs");
         SystemUser su = registerSystemUser("Felicity");
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag"));
@@ -974,8 +975,8 @@ public class TestFdIntegration {
         logger.info("## tag_ReturnsSingleSearchResult");
 
         SystemUser su = registerSystemUser("Peter");
-        Fortress iFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("suppress"));
-        EntityInputBean metaInput = new EntityInputBean(iFortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("suppress"));
+        EntityInputBean metaInput = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
         String relationshipName = "example"; // Relationship names is indexed are @tag.relationshipName.code in ES
         TagInputBean tag = new TagInputBean("Code Test Works", null, relationshipName);
         metaInput.addTag(tag);
@@ -1120,6 +1121,46 @@ public class TestFdIntegration {
         // Both docs will be against TagB
         esHelper.doEsFieldQuery(entityA, "tag.rlxa.movetag.code", "tagb", 1);
         esHelper.doEsFieldQuery(entityA, "tag.rlxb.movetag.code", "tagb", 1);
+
+    }
+
+    @Test
+    public void linkedEntity_KeyValues() throws Exception {
+        //assumeTrue(runMe);
+        SystemUser su = registerSystemUser("linkedEntity_KeyValues");
+        Fortress timesheetFortress = fortressService.registerFortress(
+                su.getCompany(), new FortressInputBean("timesheet", false));
+
+        EntityInputBean cleaner = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
+        cleaner.addTag(new TagInputBean("Cleaner", "Position", "role"));
+        mediationFacade.trackEntity(su.getCompany(), cleaner);
+
+        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
+
+        assertEquals(DocumentType.VERSION.FORTRESS, docTypeWork.getVersionStrategy());
+
+        EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
+        // Without content, there will not be a search document
+        workRecord.setContent(new ContentInputBean(Helper.getRandomMap()));
+
+        TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
+
+        EntityKeyBean staffKey = new EntityKeyBean(cleaner.getDocumentName(), cleaner.getFortress(), cleaner.getCode());
+        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortress(), workRecord.getCode());
+
+        Collection<EntityKeyBean> parents = new ArrayList<>();
+        parents.add(staffKey);
+        entityService.linkEntities(su.getCompany(), workKey, parents, "worked");
+
+        Collection<EntityKeyBean> entities = entityService.getInboundEntities(workResult.getEntity(), true);
+        Assert.assertTrue(entities != null);
+        assertFalse(entities.isEmpty());
+
+        esHelper.waitForFirstSearchResult(su.getCompany(), workResult.getEntity(), entityService);
+
+        // We are looking for the Position label to be lower case in the key
+        esHelper.doEsFieldQuery(workResult.getEntity(), "e.staff.tag.role.position.code", "cleaner",1 ); // DAT-538
 
     }
 
