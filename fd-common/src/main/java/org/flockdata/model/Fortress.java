@@ -114,6 +114,8 @@ public class Fortress implements Serializable {
     }
 
     public static String code(String name){
+        if ( name == null )
+            return null;
         return name.toLowerCase().replaceAll("\\s+", "");
     }
     @JsonIgnore

@@ -45,16 +45,16 @@ public class TestTagMerge extends EngineBase {
     public void merge_Simple() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("merge_Simple");
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(),
+        Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("merge_Simple", true));
 
         TagInputBean tagInputA = new TagInputBean("TagA", "MoveTag", "rlxA");
         TagInputBean tagInputB = new TagInputBean("TagB", "MoveTag", "rlxB");
 
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
         inputBean.addTag(tagInputA);
         Entity entityA =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
-        inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
+        inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInputB);
         Entity entityB =  mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
@@ -94,12 +94,12 @@ public class TestTagMerge extends EngineBase {
     public void alias_TagsByAlias() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("alias_Simple");
-        Fortress fortWP = fortressService.registerFortress(su.getCompany(),
+        Fortress fortress = fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("alias_Simple", true));
 
         TagInputBean tagInput = new TagInputBean("TagA", "AliasTest", "rlxA");
 
-        EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "AAA");
         inputBean.addTag(tagInput);
         // Creating the tag for an entity
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
@@ -121,7 +121,7 @@ public class TestTagMerge extends EngineBase {
 
         // An alias exists for this tag that points to TagA.
         tagInput = new TagInputBean("zzz", "AliasTest", "rlxA");
-        inputBean = new EntityInputBean(fortWP.getName(), "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
+        inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "BBB");
         inputBean.addTag(tagInput);
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
         Tag aliasTag = tagService.findTag(su.getCompany(), "AliasTest",null , "zzz");

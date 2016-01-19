@@ -183,7 +183,7 @@ public class PojoToAbTransformer {
                                 contentInputBean.setMetaKey(field.get(pojo).toString());
                             }
                             if (fieldAnnotation instanceof DatagioCallerRef) {
-                                contentInputBean.setCallerRef(field.get(pojo).toString());
+                                contentInputBean.setCode(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof NoTrack) {

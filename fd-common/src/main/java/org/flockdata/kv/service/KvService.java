@@ -51,9 +51,12 @@ public interface KvService {
 
     DeltaBean getDelta(Entity entity, Log from, Log to);
 
-    void doWrite(Entity entity, KvContentBean kvBean) throws FlockException;
+    void doWrite(TrackResultBean trackResultBean, KvContentBean kvBean) throws FlockException;
 
     void doKvWrite(KvContentBean kvBean) throws FlockException;
+
+    // Resolves the kv store to use for a given trackResult
+    KV_STORE getKvStore(TrackResultBean trackResult);
 
     enum KV_STORE {REDIS, RIAK, MEMORY, NONE}
 }

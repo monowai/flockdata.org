@@ -59,19 +59,19 @@ public class TestNonTransactional extends EngineBase {
     public void crossReferenceTags() throws Exception {
         SystemUser su = registerSystemUser("crossReferenceTags", mike_admin);
         Thread.sleep(500);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         TagInputBean tag = new TagInputBean("ABC", "Device", "sold");
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
         mediationFacade.createTags(su.getCompany(), tags);
         Thread.sleep(300); // Let the schema changes occur
 
-        EntityInputBean inputBean = new EntityInputBean(fortressA.getName(), "wally", "DocTypeA", new DateTime(), "ABC123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         inputBean.addTag( new TagInputBean("ABC", "Device", "sold"));
         TrackResultBean docA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         // These are the two records that will cite the previously created entity
-        EntityInputBean inputBeanB = new EntityInputBean(fortressA.getName(), "wally", "DocTypeB", new DateTime(), "ABC321");
+        EntityInputBean inputBeanB = new EntityInputBean(fortress, "wally", "DocTypeB", new DateTime(), "ABC321");
         inputBeanB.addTag( new TagInputBean("ABC", "Device", "applies"));
         TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);
 

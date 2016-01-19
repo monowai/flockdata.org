@@ -29,7 +29,6 @@ import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,7 +71,22 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     private String geoQuery;
 
-    // DAT-498
+    private VERSION vstrat = VERSION.FORTRESS;
+
+    /**
+     *
+     * Set the version strategy on a per DocumentType basis
+     *
+     * Enable version control when fortress.storeEnabled== false
+     * Suppress when your fortress.storeEnabled== true and you don't want to version
+     * Fortress (default) means use whatever the fortress default is
+     *
+     */
+    public enum VERSION {
+        FORTRESS, ENABLE, DISABLE
+    }
+
+        // DAT-498
     private EntityService.TAG_STRUCTURE tagStructure;
 
     protected DocumentType() {
@@ -89,6 +103,8 @@ public class DocumentType  implements Comparable<DocumentType> {
             this.companyKey = fortress.getCompany().getId() + "." + code;
             setFortress(fortress);
         }
+        if ( docType.getVersionStrategy()!=null )
+            setVersionStrategy(docType.getVersionStrategy());
     }
 
     public DocumentType(String documentName) {
@@ -102,7 +118,7 @@ public class DocumentType  implements Comparable<DocumentType> {
      */
     public DocumentType(Fortress fortress, DocumentType documentType) {
         this.name = documentType.getName();
-        this.code = parse(fortress, documentType.getName());
+        this.code = parseCode(fortress, documentType.getName());
         this.tagStructure = documentType.getTagStructure();
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
@@ -111,10 +127,15 @@ public class DocumentType  implements Comparable<DocumentType> {
 
     }
 
+    /**
+     * Only used for testing purposes!
+     * @param fortress      could be null - testing only
+     * @param documentName  usually entity.getType()
+     */
     public DocumentType(Fortress fortress, String documentName) {
         this();
         this.name = documentName;
-        this.code = parse(fortress, documentName);
+        this.code = parseCode(fortress, documentName);
 
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
@@ -180,8 +201,14 @@ public class DocumentType  implements Comparable<DocumentType> {
                 '}';
     }
 
-    public static String parse(Fortress fortress, String documentType) {
-        return fortress.getId() + "."+ documentType.toLowerCase().replaceAll("\\s", ".");
+    public static String parseCode(Fortress fortress, String documentType) {
+        // Only in testing would the fortress be null
+        Long fid ;
+        if ( fortress == null || fortress.getId() == null )
+            fid = -1l;
+        else
+            fid = fortress.getId();
+        return fid+ "."+ documentType.toLowerCase().replaceAll("\\s", ".");
     }
 
     public int compareTo(DocumentType o) {
@@ -243,6 +270,17 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public static String toKey(Fortress fortress, String docType) {
-        return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parse(fortress, docType);
+        return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parseCode(fortress, docType);
+    }
+
+    public VERSION getVersionStrategy() {
+        if ( vstrat == null )
+            vstrat = VERSION.FORTRESS;
+        return vstrat;
+    }
+
+    public DocumentType setVersionStrategy(VERSION strategy) {
+        this.vstrat = strategy;
+        return this;
     }
 }

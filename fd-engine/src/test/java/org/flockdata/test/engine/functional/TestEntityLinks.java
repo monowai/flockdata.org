@@ -51,17 +51,17 @@ public class TestEntityLinks extends EngineBase {
     public void testLinkedToSearch () throws Exception{
         // Initial setup
         cleanUpGraph();
-        SystemUser su = registerSystemUser("xRef_FromInputBeans", mike_admin);
-        Fortress timesheet = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        SystemUser su = registerSystemUser("testLinkedToSearch", mike_admin);
+        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
-        EntityInputBean staff = new EntityInputBean(timesheet.getName(), "wally", "Staff", new DateTime(), "ABC123");
+        EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
         staff.addTag( new TagInputBean("Cleaner", "Position", "role"));
         mediationFacade.trackEntity(su.getCompany(), staff);
 
-        DocumentType docTypeWork = new DocumentType(timesheet, "Work");
-        docTypeWork = conceptService.findOrCreate(timesheet, docTypeWork);
+        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
 
-        EntityInputBean workRecord = new EntityInputBean(timesheet.getName(), "wally", docTypeWork.getName(), new DateTime(), "ABC321");
+        EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
 
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
 
@@ -96,7 +96,8 @@ public class TestEntityLinks extends EngineBase {
         assertNotNull(staffDetails);
         assertNotNull(staffDetails.getSearchTags());
         assertFalse(staffDetails.getSearchTags().isEmpty());
-        SearchTag position = staffDetails.getSearchTags().get("role").get("Position").iterator().next();
+        assertNotNull("The Position label name should have been converted to lowercase", staffDetails.getSearchTags().get("role").get("position"));
+        SearchTag position = staffDetails.getSearchTags().get("role").get("position").iterator().next();
         assertTrue(position.getCode().equals("Cleaner"));
 
     }
@@ -106,17 +107,17 @@ public class TestEntityLinks extends EngineBase {
         // Initial setup
         cleanUpGraph();
         SystemUser su = registerSystemUser("testEntityLinks", mike_admin);
-        Fortress timesheet = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
+        Fortress timesheetFortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("timesheet", true));
 
-        EntityInputBean staff = new EntityInputBean(timesheet.getName(), "wally", "Staff", new DateTime(), "ABC123");
+        EntityInputBean staff = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
         staff.addTag(new TagInputBean("Cleaner", "Position", "role"));
 
         mediationFacade.trackEntity(su.getCompany(), staff);
 
-        DocumentType docTypeWork = new DocumentType(timesheet, "Work");
-        docTypeWork = conceptService.findOrCreate(timesheet, docTypeWork);
+        DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
+        docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
 
-        EntityInputBean workRecord = new EntityInputBean(timesheet.getName(), "wally", docTypeWork.getName(), new DateTime(), "ABC321");
+        EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
         // Checking that the entity is linked when part of the track request
         workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123"));
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
@@ -138,7 +139,7 @@ public class TestEntityLinks extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("Staff", true));
 
         // One timesheet entry will be assigned to this staff member
-        EntityInputBean eStaff = new EntityInputBean(fortress.getName(), "wally", "Staff", new DateTime(), "30250");
+        EntityInputBean eStaff = new EntityInputBean(fortress, "wally", "Staff", new DateTime(), "30250");
         eStaff.addTag( new TagInputBean("Cleaner", "Position", "role"));
         mediationFacade.trackEntity(su.getCompany(), eStaff);
 

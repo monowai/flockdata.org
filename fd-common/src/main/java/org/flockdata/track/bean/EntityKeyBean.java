@@ -22,9 +22,7 @@ package org.flockdata.track.bean;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.SearchTag;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -102,10 +100,10 @@ public class EntityKeyBean {
                 }
                 searchTags.put(rlx.toLowerCase(), byRelationship);
             }
-            ArrayList<SearchTag> tags = byRelationship.get(entityTag.getTag().getLabel());
+            ArrayList<SearchTag> tags = byRelationship.get(entityTag.getTag().getLabel().toLowerCase());
             if ( tags == null ){
                 tags = new ArrayList<>();
-                byRelationship.put(entityTag.getTag().getLabel(), tags);
+                byRelationship.put(entityTag.getTag().getLabel().toLowerCase(), tags);
             }
             tags.add(new SearchTag(entityTag)) ;
         }

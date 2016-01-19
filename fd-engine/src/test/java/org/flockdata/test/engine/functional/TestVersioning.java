@@ -87,7 +87,7 @@ public class TestVersioning extends EngineBase {
         engineConfig.setStoreEnabled("false");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
         assertFalse(engineConfig.isStoreEnabled());
-        EntityInputBean eib = new EntityInputBean(fortress.getName(), "kv_Ignored", "kv_Ignored", new DateTime());
+        EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
         ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
@@ -138,7 +138,7 @@ public class TestVersioning extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean log = new ContentInputBean("store_Disabled", new DateTime(), json);
-        EntityInputBean input = new EntityInputBean(fortress.getName(), "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
+        EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "store_Disabled", new DateTime(), "store_Disabled");
         input.setContent(log);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
@@ -163,7 +163,7 @@ public class TestVersioning extends EngineBase {
 
         // set a default for the fortress
         entity.getFortress().setStoreEnabled(false);
-        TrackResultBean trackResult = new TrackResultBean(entity);
+        TrackResultBean trackResult = new TrackResultBean(entity, new DocumentType("abc"));
         trackResult.setContentInput(content);
 
         Log log = new Log(entity);

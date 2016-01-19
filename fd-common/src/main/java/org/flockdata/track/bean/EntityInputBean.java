@@ -21,6 +21,7 @@ package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.UserProperties;
@@ -74,6 +75,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     /**
+     * Constructor is for testing purposes
      *
      * @param fortressName      Application/Division or System that owns this information
      * @param fortressUser  who in the fortressName created it
@@ -81,20 +83,26 @@ public class EntityInputBean implements Serializable, UserProperties{
      * @param fortressWhen  when did this occur in the fortressName
      * @param code     case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(String fortressName, String fortressUser, String documentName, DateTime fortressWhen, String code) {
+    public EntityInputBean(Fortress fortressName, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
         if (fortressWhen != null) {
             setWhen(fortressWhen);
         }
-        setFortress(fortressName);
+        setFortress(fortressName.getName());
         setFortressUser( fortressUser);
         setDocumentName(documentName);
+        this.documentType = new DocumentType(fortressName, documentName);
         setCode(code);
     }
 
-    public EntityInputBean(String description, String fortressUser, String documentName, DateTime fortressWhen) {
-        this(description, fortressUser, documentName, fortressWhen, null);
+    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
+        this(fortress, fortressUser, documentName, fortressWhen, null);
 
+    }
+
+    public EntityInputBean(Fortress fortress, DocumentType documentType) {
+        this ( fortress.getName(), documentType.getName());
+        this.documentType = documentType;
     }
 
     public EntityInputBean(String fortressName, String documentName) {

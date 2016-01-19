@@ -33,6 +33,7 @@ import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.kv.none.EsRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -127,19 +128,18 @@ public class KvManager implements KvService {
      * if fd-engine.kv.async== true, then this will be handed off to an integration gateway
      * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
      * will have to deal with any errors
-     *
-     * @param entity
+     *  @param trackResultBean
      * @param kvBean payload for the KvStore
      */
-    public void doWrite(Entity entity, KvContentBean kvBean) throws FlockServiceException {
+    public void doWrite(TrackResultBean trackResultBean, KvContentBean kvBean) throws FlockServiceException {
         // Code smell - we're resolving the storage twice
         if (kvBean.getStorage() == null ){
-            kvBean.setStorage(getKvStore(entity.getSegment()).name());
+            kvBean.setStorage(getKvStore(trackResultBean).name());
         }
         if ( kvBean.getStorage().equals(KV_STORE.NONE.name()))
             return;
 
-        kvBean.setBucket(entity.getSegment().getKey());
+        kvBean.setBucket(trackResultBean.getEntity().getSegment().getKey());
 
         if (kvConfig.isAsyncWrite()) {
             // Via the Gateway
@@ -165,7 +165,7 @@ public class KvManager implements KvService {
     @Override
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
-        KV_STORE storage = getKvStore(trackResult.getEntity().getSegment());
+        KV_STORE storage = getKvStore(trackResult);
 
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
         kvContent.setStorage(storage.name());
@@ -174,7 +174,17 @@ public class KvManager implements KvService {
         return getKvRepo(storage).prepareLog(log, kvContent);
     }
 
-    private KV_STORE getKvStore(FortressSegment segment) {
+    public KV_STORE getKvStore(TrackResultBean trackResult) {
+        if ( trackResult.getDocumentType().getVersionStrategy()== DocumentType.VERSION.ENABLE)
+            return kvConfig.getKvStore();
+
+        if ( trackResult.getDocumentType().getVersionStrategy()== DocumentType.VERSION.DISABLE)
+            return KV_STORE.NONE;
+
+        Entity entity = trackResult.getEntity();
+        FortressSegment segment = entity.getSegment();
+
+        // Check against the fortress default
         KV_STORE storage;
         if ( segment.getFortress().isStoreEnabled())
             storage = kvConfig.getKvStore();

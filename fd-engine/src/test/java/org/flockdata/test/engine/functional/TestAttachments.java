@@ -45,7 +45,7 @@ public class TestAttachments extends EngineBase {
         FortressInputBean f = new FortressInputBean("attachmentFun", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), f);
 
-        EntityInputBean entity = new EntityInputBean(fortress.getName(), "zippy", "blag", new DateTime(), "ABC");
+        EntityInputBean entity = new EntityInputBean(fortress, "zippy", "blag", new DateTime(), "ABC");
         ContentInputBean content = new ContentInputBean("zippy", new DateTime());
         content.setAttachment(Helper.getPdfDoc(), "PdF", "testing.pdf");
         entity.setContent(content);

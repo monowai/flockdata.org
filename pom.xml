@@ -22,10 +22,10 @@
     </modules>
 
     <properties>
-        <license-text.header>GPL-3-header.txt</license-text.header>
-        <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <license-text.header>GPL-3-header.txt</license-text.header>
+        <docs.url>http://wiki.flockdata.com</docs.url>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>4.1.7.RELEASE</org.springframework.version>
         <org.springintegration.version>4.1.6.RELEASE</org.springintegration.version>
         <org.springsecurity.version>3.2.7.RELEASE</org.springsecurity.version>
@@ -382,10 +382,10 @@
         </dependencies>
     </dependencyManagement>
     <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>clojars.org</id>-->
-            <!--<url>http://clojars.org/repo</url>-->
-        <!--</repository>-->
+    <!--<repository>-->
+    <!--<id>clojars.org</id>-->
+    <!--<url>http://clojars.org/repo</url>-->
+    <!--</repository>-->
 
     <!--</repositories>-->
     <!--

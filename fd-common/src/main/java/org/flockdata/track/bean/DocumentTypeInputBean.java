@@ -19,6 +19,8 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.model.DocumentType;
+
 /**
  * User: mike
  * Date: 10/10/14
@@ -29,6 +31,15 @@ public class DocumentTypeInputBean {
     private String code;
 
     private String geoQuery;
+    private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
+
+    DocumentTypeInputBean(){}
+
+    public DocumentTypeInputBean(String docName) {
+        this();
+        this.name = docName;
+        this.code = docName;
+    }
 
     public String getName() {
         return name;
@@ -54,4 +65,12 @@ public class DocumentTypeInputBean {
         return geoQuery;
     }
 
+    public DocumentTypeInputBean setVersionStrategy(DocumentType.VERSION versionStrategy) {
+        this.versionStrategy = versionStrategy;
+        return this;
+    }
+
+    public DocumentType.VERSION getVersionStrategy() {
+        return versionStrategy;
+    }
 }
