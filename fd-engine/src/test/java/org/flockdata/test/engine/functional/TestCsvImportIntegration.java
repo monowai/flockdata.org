@@ -87,7 +87,7 @@ public class TestCsvImportIntegration extends EngineBase {
 
             ClientConfiguration defaults = new ClientConfiguration();
 
-            myProcessor.processFile(Helper.getImportParams("/sflow.json"), "/sflow.csv", testWriter, su.getCompany(), defaults);
+            myProcessor.processFile(Helper.getImportParams("/profiles/sflow.json"), "/data/sflow.csv", testWriter, su.getCompany(), defaults);
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
