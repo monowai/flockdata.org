@@ -70,20 +70,20 @@ public class TestQuery extends EngineBase {
         setSecurity();
         //
         //
-        EntityInputBean inputBean = new EntityInputBean(coAfA.getName(), "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+        EntityInputBean inputBean = new EntityInputBean(coAfA, "poppy", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
         inputBean.addTag(new TagInputBean("c123", "Customer", "purchased")); // This tag tracks over two fortresses
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
-        inputBean = new EntityInputBean(coAfB.getName(), "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+        inputBean = new EntityInputBean(coAfB, "poppy", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
         inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
         inputBean.addTag(new TagInputBean("p111","Product","about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suA.getCompany(), inputBean);
 
 
-        inputBean = new EntityInputBean(coBfA.getName(), "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
+        inputBean = new EntityInputBean(coBfA, "petal", "SalesDocket", DateTime.now(), "ABC1"); // Sales fortress
         inputBean.addTag(new TagInputBean("c123","Customer","purchased")); // This tag tracks over two fortresses
         inputBean.addTag(new TagInputBean("ricky", "SalesRep", "from").setLabel("SalesRep")); // This tag is unique to this company
         mediationFacade.trackEntity(suB.getCompany(), inputBean);
-        inputBean = new EntityInputBean(coBfB.getName(), "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
+        inputBean = new EntityInputBean(coBfB, "petal", "SupportSystem", DateTime.now(), "ABC2"); // Support system fortress
         inputBean.addTag(new TagInputBean("c123","Customer","called")); // Customer number - this will be the same tag as for the sales fortress
         inputBean.addTag(new TagInputBean("p111", "Product", "about"));   // Product code - unique to this fortress
         mediationFacade.trackEntity(suB.getCompany(), inputBean);

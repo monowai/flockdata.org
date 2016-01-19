@@ -71,7 +71,7 @@ public class TestTxReference extends EngineBase {
 
 // ABC Data
         Fortress fortressABC = fortressService.registerFortress(suABC.getCompany(), new FortressInputBean("abcTest", true));
-        EntityInputBean abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean abcEntity = new EntityInputBean(fortressABC, "wally", "TestTrack", new DateTime(), "ABC123");
         abcEntity.setContent(new ContentInputBean("charlie", null, DateTime.now(), escJsonA, true));
 
         TrackResultBean resultBean = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
@@ -84,7 +84,7 @@ public class TestTxReference extends EngineBase {
 // CBA data
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
-        EntityInputBean cbaEntity = new EntityInputBean(fortressCBA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean cbaEntity = new EntityInputBean(fortressCBA, "wally", "TestTrack", new DateTime(), "ABC123");
         String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getMetaKey();
 
         ContentInputBean cbaContent = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
@@ -102,7 +102,7 @@ public class TestTxReference extends EngineBase {
         assertNull(txService.findTx(cbaTxRef));
 
         // WHat happens if ABC tries to use CBA's TX Ref.
-        abcEntity = new EntityInputBean(fortressABC.getName(), "wally", "TestTrack", new DateTime(), "ZZZAAA");
+        abcEntity = new EntityInputBean(fortressABC, "wally", "TestTrack", new DateTime(), "ZZZAAA");
         abcEntity.setContent(new ContentInputBean("wally", null, DateTime.now(), escJsonA, null, cbaTxRef));
         TrackResultBean result = mediationFacade.trackEntity(suABC.getCompany(), abcEntity);
         assertNotNull(result);
@@ -117,9 +117,9 @@ public class TestTxReference extends EngineBase {
     public void testTxCommits() throws Exception {
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testTxCommits", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("testTxCommits", true));
         String tagRef = "MyTXTag";
-        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrack", new DateTime(), "ABC123");
+        EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), "ABC123");
 
         String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
         assertNotNull(metaKey);
@@ -177,9 +177,9 @@ public class TestTxReference extends EngineBase {
 
         String company = "Monowai";
         SystemUser su = registerSystemUser(company, mike_admin);
-        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tx_TrackEntities", true));
         String tagRef = "MyTXTag";
-        EntityInputBean aBean = new EntityInputBean(fortressA.getName(), "wally", "TestTrackDoc", new DateTime(), "tx_TrackEntities");
+        EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrackDoc", new DateTime(), "tx_TrackEntities");
 
         String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
         assertNotNull(key);

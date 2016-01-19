@@ -440,7 +440,7 @@ public class ESBase {
         String index = indexHelper.getIndexRoot(fortress);
         fortress.setRootIndex(index);
         DateTime now = new DateTime();
-        EntityInputBean entityInput = Helper.getEntityInputBean(docType, fort, userName, code, now);
+        EntityInputBean entityInput = Helper.getEntityInputBean(docType, fortress, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
         return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc)

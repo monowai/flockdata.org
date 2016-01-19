@@ -56,7 +56,7 @@ public class TestContentDuplicate  extends  EngineBase{
         SystemUser su = registerSystemUser("reprocess_HistoricContentsNotCreated");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("reprocess_HistoricContentsNotCreated", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "poppy", "TestDoc", DateTime.now(), "123");
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "TestDoc", DateTime.now(), "123");
 
         int max = 5;
         List<ContentInputBean> contentBeans = new ArrayList<>();
