@@ -39,15 +39,15 @@ public class TestCalculatedColumns extends AbstractImport {
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
             //BulkHours,ScheduledHours,Hours
-            TestCase.assertEquals(1d, entityInputBean.getContent().getWhat().get("BulkHours"));
-            TestCase.assertEquals(8.5d, entityInputBean.getContent().getWhat().get("ScheduledHours"));
-            TestCase.assertEquals(9d, entityInputBean.getContent().getWhat().get("Hours"));
+            TestCase.assertEquals(1d, entityInputBean.getContent().getData().get("BulkHours"));
+            TestCase.assertEquals(8.5d, entityInputBean.getContent().getData().get("ScheduledHours"));
+            TestCase.assertEquals(9d, entityInputBean.getContent().getData().get("Hours"));
             // VarianceHours is a dynamic column
-            TestCase.assertNotNull("Calculated column should have been created", entityInputBean.getContent().getWhat().get("VarianceHours"));
-            TestCase.assertEquals(.5d, entityInputBean.getContent().getWhat().get("VarianceHours"));
+            TestCase.assertNotNull("Calculated column should have been created", entityInputBean.getContent().getData().get("VarianceHours"));
+            TestCase.assertEquals(.5d, entityInputBean.getContent().getData().get("VarianceHours"));
 
-            TestCase.assertNotNull("Calculated column should have been created", entityInputBean.getContent().getWhat().get("WorkHours"));
-            TestCase.assertEquals(10d, entityInputBean.getContent().getWhat().get("WorkHours"));
+            TestCase.assertNotNull("Calculated column should have been created", entityInputBean.getContent().getData().get("WorkHours"));
+            TestCase.assertEquals(10d, entityInputBean.getContent().getData().get("WorkHours"));
             TestCase.assertEquals("Value should have come from the calculated column", 10d, entityInputBean.getProperties().get("value"));
         }
 

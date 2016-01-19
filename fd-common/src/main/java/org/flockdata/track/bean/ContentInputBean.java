@@ -57,7 +57,7 @@ public class ContentInputBean implements EntityContent, Serializable {
     private String fortressUser;
     private String event;
     private Date when;
-    private Map<String, Object> what = null;
+    private Map<String, Object> data = null;
     private String attachment = null;
     private boolean forceReindex;
     private boolean status;
@@ -79,47 +79,47 @@ public class ContentInputBean implements EntityContent, Serializable {
      * @param fortressUser -user name recognisable in the fortress
      * @param metaKey      -guid
      * @param fortressWhen -fortress view of DateTime
-     * @param what         -escaped JSON
+     * @param data         -escaped JSON
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, Boolean isTransactional) throws FlockException {
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, Boolean isTransactional) throws FlockException {
         this(fortressUser, fortressWhen);
         this.metaKey = metaKey;
         setTransactional(isTransactional);
-        setWhat(what);
+        setData(data);
     }
 
     /**
      * @param fortressUser -user name recognisable in the fortress
      * @param metaKey      -guid
      * @param fortressWhen -fortress view of DateTime
-     * @param what         - Map
+     * @param data         - Map
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event) throws FlockException {
-        this(fortressUser, metaKey, fortressWhen, what);
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, String event) throws FlockException {
+        this(fortressUser, metaKey, fortressWhen, data);
         this.event = event;
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> what, String event, String txName) throws FlockException {
-        this(fortressUser, metaKey, fortressWhen, what, event);
+    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, String event, String txName) throws FlockException {
+        this(fortressUser, metaKey, fortressWhen, data, event);
         this.setTxRef(txName);
     }
 
     public ContentInputBean(Map<String, Object> result) {
-        this.what = result;
+        this.data = result;
     }
 
-    public ContentInputBean(String fortressUser, DateTime when, Map<String, Object> what) throws FlockException {
-        this(fortressUser, null, when, what);
+    public ContentInputBean(String fortressUser, DateTime when, Map<String, Object> data) throws FlockException {
+        this(fortressUser, null, when, data);
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> what) throws FlockException {
-        this(fortressUser, metaKey, when, what, false);
+    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> data) throws FlockException {
+        this(fortressUser, metaKey, when, data, false);
     }
 
-    public ContentInputBean(String user, Map<String, Object> what) {
+    public ContentInputBean(String user, Map<String, Object> data) {
         this.fortressUser = user;
-        this.what = what;
+        this.data = data;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -155,13 +155,13 @@ public class ContentInputBean implements EntityContent, Serializable {
         this.when = when;
     }
 
-    public Map<String, Object> getWhat() {
-        return what;
+    public Map<String, Object> getData() {
+        return data;
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public void setWhat(Map<String, Object> what) throws FlockException {
-        this.what = what;
+    public void setData(Map<String, Object> data) throws FlockException {
+        this.data = data;
 
     }
 
@@ -282,7 +282,7 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     @JsonIgnore
     public boolean hasData() {
-        boolean json = getWhat() != null && !getWhat().isEmpty();
+        boolean json = getData() != null && !getData().isEmpty();
         boolean attachment = getAttachment() != null;
         return json || attachment;
     }

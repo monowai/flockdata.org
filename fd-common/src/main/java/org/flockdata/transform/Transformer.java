@@ -85,7 +85,7 @@ public class Transformer {
         if (contentInputBean.getFortressUser() == null)
             contentInputBean.setFortressUser(importProfile.getFortressUser());
         entityInputBean.setContent(contentInputBean);
-        contentInputBean.setWhat(FdJsonObjectMapper.getObjectMapper().convertValue(node, Map.class));
+        contentInputBean.setData(FdJsonObjectMapper.getObjectMapper().convertValue(node, Map.class));
 
         return entityInputBean;
 

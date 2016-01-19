@@ -69,7 +69,7 @@ public class TestDataTypes extends ESBase {
                 .setDescription("Test Description");
 
         Map<String,Object> numMap = Helper.getSimpleMap("num", 100);
-        change.setWhat(numMap );
+        change.setData(numMap);
 
         indexMappingService.ensureIndexMapping(change);
         searchRepo.handle(change);
@@ -81,7 +81,7 @@ public class TestDataTypes extends ESBase {
         Map<String,Object> strMap = Helper.getSimpleMap("num", "NA");
         change = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
         change.setDescription("Test Description");
-        change.setWhat(strMap);
+        change.setData(strMap);
 
         searchRepo.handle(change);
         fail("A mapping exception was not thrown");

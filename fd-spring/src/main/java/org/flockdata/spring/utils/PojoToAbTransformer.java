@@ -50,7 +50,7 @@ public class PojoToAbTransformer {
      * "auditLog": {
      * "when": "2012-11-12",
      * "transactional": false,
-     * "what": "{\"999\": \"99\", \"thingy\": {\"status\": \"tweedle\"}}"
+     * "data": "{\"999\": \"99\", \"thingy\": {\"status\": \"tweedle\"}}"
      * }
      * <p/>
      * }
@@ -137,7 +137,7 @@ public class PojoToAbTransformer {
         }
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
-        contentInputBean.setWhat(mapWhat);
+        contentInputBean.setData(mapWhat);
         entityInputBean.setContent(contentInputBean);
         //ToDo: Figure out tag structure
         //metaInputBean.setTagValues(tagValues);
@@ -158,7 +158,7 @@ public class PojoToAbTransformer {
      * @throws IllegalAccessException
      * @throws IOException
      * @What is EVERY other attribute and object that is not @track* annotated
-     * "what": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
+     * "data": "{\"name\": \"99\", \"thing\": {\"status\": \"android\"}}"
      * }
      */
     public static ContentInputBean transformToAbLogFormat(Object pojo) throws IllegalAccessException, IOException, FlockException {
@@ -203,7 +203,7 @@ public class PojoToAbTransformer {
         }
         //ObjectMapper mapper = new ObjectMapper(); // create once, reuse
         //String what = mapper.writeValueAsString(mapWhat);
-        contentInputBean.setWhat(mapWhat);
+        contentInputBean.setData(mapWhat);
         return contentInputBean;
     }
 }

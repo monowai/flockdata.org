@@ -271,7 +271,7 @@ public class EntityEP {
         throw new NotFoundException("Unable to locate the requested log");
     }
 
-    @RequestMapping(value = "/{metaKey}/log/{logId}/what", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{metaKey}/log/{logId}/data", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
     Map<String, Object> getLogContent(@PathVariable("metaKey") String metaKey,
@@ -301,7 +301,7 @@ public class EntityEP {
         return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/{metaKey}/log/last/what", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{metaKey}/log/last/data", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
     Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,

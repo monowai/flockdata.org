@@ -78,7 +78,7 @@ public class TestEntityTags extends EngineBase {
         ContentInputBean contentBean = new ContentInputBean();
         contentBean.setEvent("Test");
         Map<String, Object> jsonMap = Helper.getRandomMap();
-        contentBean.setWhat(jsonMap);
+        contentBean.setData(jsonMap);
         entityBean.setContent(contentBean);
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);

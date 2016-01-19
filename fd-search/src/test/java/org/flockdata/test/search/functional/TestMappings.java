@@ -69,7 +69,7 @@ public class TestMappings extends ESBase {
 
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
-        change.setWhat(json);
+        change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname").
@@ -114,8 +114,8 @@ public class TestMappings extends ESBase {
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         EntitySearchChange changeB = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
         change.setDescription("Test Description");
-        change.setWhat(json);
-        changeB.setWhat(json);
+        change.setData(json);
+        changeB.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
         TagInputBean tagInput = new TagInputBean("myTag", "TheLabel", "rlxname");
@@ -283,7 +283,7 @@ public class TestMappings extends ESBase {
 
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
 
-        change.setWhat(what);
+        change.setData(what);
         change.setStructuredTags(tags);
 
         indexMappingService.ensureIndexMapping(change);

@@ -117,7 +117,7 @@ public class KvContentBean implements KvContent, Serializable{
         if ( content == null )
             return null;
 
-        return content.getWhat();
+        return content.getData();
     }
 
     @JsonIgnore

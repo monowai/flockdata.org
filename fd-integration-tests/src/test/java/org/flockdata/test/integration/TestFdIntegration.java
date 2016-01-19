@@ -286,7 +286,7 @@ public class TestFdIntegration {
         esHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         esHelper.doEsQuery(entity, entity.getMetaKey());
-        esHelper.doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".int", "123", 1);
+        esHelper.doEsFieldQuery(entity, EntitySearchSchema.DATA + ".int", "123", 1);
         esHelper.deleteEsIndex(indexHelper.parseIndex(entity));
     }
 
@@ -534,7 +534,7 @@ public class TestFdIntegration {
         esHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         watch.stop();
-        esHelper.doEsFieldQuery(entity, EntitySearchSchema.WHAT + ".blah", "*", 1);
+        esHelper.doEsFieldQuery(entity, EntitySearchSchema.DATA + ".blah", "*", 1);
 //        deleteEsIndex(indexHelper.parseIndex(entity));
     }
 
@@ -1015,7 +1015,7 @@ public class TestFdIntegration {
         esHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         // Initial create
-        esHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // First log
+        esHelper.doEsTermQuery(entity, EntitySearchSchema.DATA + ".house", "house1", 1); // First log
 
         // Now make an amendment
         EntityLog secondLog =
@@ -1028,7 +1028,7 @@ public class TestFdIntegration {
 
         Helper.waitAWhile("cancel function step 1");
         Assert.assertEquals("Last Updated dates don't match", secondLog.getFortressWhen().longValue(), entity.getFortressUpdatedTz().getMillis());
-        esHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house2", 1); // replaced first with second
+        esHelper.doEsTermQuery(entity, EntitySearchSchema.DATA + ".house", "house2", 1); // replaced first with second
 
         // Now cancel the last log
         mediationFacade.cancelLastLog(su.getCompany(), entity);
@@ -1038,7 +1038,7 @@ public class TestFdIntegration {
         entity = entityService.getEntity(su.getCompany(), metaKey); // Refresh the entity
         Helper.waitAWhile("Cancel 2");
         // Should have restored the content back to house1
-        esHelper.doEsTermQuery(entity, EntitySearchSchema.WHAT + ".house", "house1", 1); // Cancelled, so Back to house1
+        esHelper.doEsTermQuery(entity, EntitySearchSchema.DATA + ".house", "house1", 1); // Cancelled, so Back to house1
 
         // Last change cancelled
         // DAT-96
@@ -1524,7 +1524,7 @@ public class TestFdIntegration {
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1534,7 +1534,7 @@ public class TestFdIntegration {
         kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
     }
 
@@ -1570,7 +1570,7 @@ public class TestFdIntegration {
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1580,7 +1580,7 @@ public class TestFdIntegration {
         kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
     }
 
@@ -1610,14 +1610,14 @@ public class TestFdIntegration {
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         // Can we find the changed data in ES?
-        esHelper.doEsQuery(result.getEntity(), content.getWhat().get("Athlete").toString(), 1);
+        esHelper.doEsQuery(result.getEntity(), content.getData().get("Athlete").toString(), 1);
         // And are we returning the same data from the KV Service?
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
-        content.setWhat(Helper.getSimpleMap("Athlete", "Michael Phelps"));
+        content.setData(Helper.getSimpleMap("Athlete", "Michael Phelps"));
         input.setContent(content);
         // Update existing entity
         result = mediationFacade.trackEntity(su.getCompany(), input);
@@ -1630,7 +1630,7 @@ public class TestFdIntegration {
         kvContent = kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getWhat());
-        assertEquals(content.getWhat().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
 
 
     }

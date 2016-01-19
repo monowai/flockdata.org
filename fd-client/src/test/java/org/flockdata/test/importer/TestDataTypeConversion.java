@@ -55,8 +55,8 @@ public class TestDataTypeConversion extends AbstractImport {
         }
         EntityInputBean entity = getFdWriter().getEntities().iterator().next();
         assertNotNull ( entity.getContent());
-        assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getWhat().get("illegal-num"));
-        assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getWhat().get("blank-num"));
+        assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
+        assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TestDataTypeConversion extends AbstractImport {
         }
         List<EntityInputBean> entities = getFdWriter().getEntities();
         for (EntityInputBean entity : entities) {
-            Object whatString = entity.getContent().getWhat().get("tag-code");
+            Object whatString = entity.getContent().getData().get("tag-code");
             assertEquals(""+whatString.getClass(), true, whatString instanceof String);
         }
 
@@ -171,11 +171,11 @@ public class TestDataTypeConversion extends AbstractImport {
         assertEquals(14, calInstance.get(Calendar.DATE));
 
         // DAT-523
-        Object randomDate = entityInputBean.getContent().getWhat().get("randomDate");
+        Object randomDate = entityInputBean.getContent().getData().get("randomDate");
         assertNotNull(randomDate);
         TestCase.assertTrue("", randomDate instanceof String);
         new DateTime(randomDate);
-        TestCase.assertNull(entityInputBean.getContent().getWhat().get("nullDate"));
+        TestCase.assertNull(entityInputBean.getContent().getData().get("nullDate"));
 
 
     }

@@ -49,9 +49,9 @@ public interface SearchChange {
      */
     String getMetaKey();
 
-    SearchChange setWhat(Map<String, Object> what);
+    SearchChange setData(Map<String, Object> what);
 
-    Map<String, Object> getWhat();
+    Map<String, Object> getData();
 
     HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
 
