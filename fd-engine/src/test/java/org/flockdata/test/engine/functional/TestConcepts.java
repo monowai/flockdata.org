@@ -20,13 +20,12 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.*;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
+import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,6 +58,24 @@ public class TestConcepts extends EngineBase {
     }
 
     @Test
+    public void documentType_InputThroughToDb() throws Exception {
+        // DAT-540
+        DocumentTypeInputBean documentTypeInputBean = new DocumentTypeInputBean("DTIB")
+                .versionStrategy(DocumentType.VERSION.DISABLE)
+                .tagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
+                .geoQuery("Testing GeoQuery");
+
+        String json = JsonUtils.getJSON(documentTypeInputBean);
+        documentTypeInputBean = JsonUtils.getBytesAsObject(json.getBytes(), DocumentTypeInputBean.class);
+
+        Fortress fortress = new Fortress(new FortressInputBean("DocTypes"), new Company("Testing"));
+        DocumentType documentType = new DocumentType(fortress, documentTypeInputBean);
+        TestCase.assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, documentType.getTagStructure());
+        TestCase.assertEquals(DocumentType.VERSION.DISABLE, documentType.getVersionStrategy());
+        TestCase.assertEquals("Testing GeoQuery", documentType.getGeoQuery());
+    }
+
+    @Test
     public void multipleDocsSameFortress() throws Exception {
         try {
             logger.debug("### multipleDocsSameFortress");
@@ -80,13 +97,13 @@ public class TestConcepts extends EngineBase {
             assertEquals(id, dType.getId());
 
             EntityInputBean input = new EntityInputBean(fortress, "jinks", "DocA", new DateTime());
-            input.addTag(new TagInputBean("cust123",  "Customer", "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust123", "Customer", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             validateConcepts("DocA", su, 1);
 
             // Different docs, same concepts
             input = new EntityInputBean(fortress, "jinks", "DocB", new DateTime());
-            input.addTag(new TagInputBean("cust123", "Customer",  "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust123", "Customer", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
             validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
@@ -99,7 +116,7 @@ public class TestConcepts extends EngineBase {
             found = validateConcepts("DocB", su, 1);
             assertEquals(1, found.size());
             // Removed the mock user
-            assertEquals("Didn't find the Document ",1, found.iterator().next().getConcepts().size());
+            assertEquals("Didn't find the Document ", 1, found.iterator().next().getConcepts().size());
         } finally {
             cleanUpGraph();
         }
@@ -124,17 +141,17 @@ public class TestConcepts extends EngineBase {
             commitManualTransaction(t);
 
             EntityInputBean input = new EntityInputBean(fortressA, "jinks", "DocA", new DateTime());
-            input.addTag(new TagInputBean("cust123", "Customer",  "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust123", "Customer", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
-            Collection<String>documents = new ArrayList<>();
+            Collection<String> documents = new ArrayList<>();
             documents.add("DocA");
             Set<DocumentResultBean> results = conceptService.findConcepts(su.getCompany(), documents, false);
 
             assertEquals(1, results.size());
 
             input = new EntityInputBean(fortressB, "jinks", "DocB", new DateTime())
-                    .addTag( new TagInputBean("cust123", "Customer",  "purchased")
-                        .setLabel("Customer"));
+                    .addTag(new TagInputBean("cust123", "Customer", "purchased")
+                            .setLabel("Customer"));
 
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             documents.add("DocB");
@@ -249,18 +266,18 @@ public class TestConcepts extends EngineBase {
             assertEquals(id, dType.getId());
 
             EntityInputBean input = new EntityInputBean(fortress, "jinks", "DocA", new DateTime());
-            input.addTag(new TagInputBean("cust123",  "Customer", "purchased").setLabel("Customer"));
-            input.addTag(new TagInputBean("harry",  "Customer", "soldto").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust123", "Customer", "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("harry", "Customer", "soldto").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             Set<DocumentResultBean> docResults = conceptService.findConcepts(su.getCompany(), "DocA", true);
             assertEquals(1, docResults.size());
-            assertEquals( 1, docResults.iterator().next().getConcepts().size());
-            assertEquals( "should have been two relationships", 2, docResults.iterator().next().getConcepts().iterator().next().getRelationships().size());
+            assertEquals(1, docResults.iterator().next().getConcepts().size());
+            assertEquals("should have been two relationships", 2, docResults.iterator().next().getConcepts().iterator().next().getRelationships().size());
 
 
             input = new EntityInputBean(fortress, "jinks", "DocA", new DateTime());
-            input.addTag(new TagInputBean("cust121", "Customer",  "purchased").setLabel("Customer"));
-            input.addTag(new TagInputBean("harry", "Customer",  "soldto").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust121", "Customer", "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("harry", "Customer", "soldto").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             validateConcepts("DocA", su, 1);
 
@@ -274,7 +291,7 @@ public class TestConcepts extends EngineBase {
                     for (RelationshipResultBean relationship : relationships) {
                         logger.debug(relationship.getName());
                     }
-                    if ( concept.getName().equals("User")){
+                    if (concept.getName().equals("User")) {
                         // Currently only tracking the created. Should be 2 when tracking the updated
                         assertEquals(1, relationships.size());
                     } else
@@ -314,10 +331,10 @@ public class TestConcepts extends EngineBase {
             assertEquals(idA, docA.getId());
 
             EntityInputBean input = new EntityInputBean(fortress, "jinks", "DocA", new DateTime());
-            input.addTag(new TagInputBean("cust123",  "Customer", "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust123", "Customer", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
             input = new EntityInputBean(fortress, "jinks", docB.getName(), new DateTime());
-            input.addTag(new TagInputBean("cust121",  "Customer", "purchased").setLabel("Customer"));
+            input.addTag(new TagInputBean("cust121", "Customer", "purchased").setLabel("Customer"));
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
             Collection<String> docs = new ArrayList<>();
@@ -408,7 +425,7 @@ public class TestConcepts extends EngineBase {
                     }
 
                 }
-                assertEquals(true, deviceFound );
+                assertEquals(true, deviceFound);
             }
         } finally {
             cleanUpGraph();
@@ -466,10 +483,10 @@ public class TestConcepts extends EngineBase {
 
                 }
 
-                assertEquals(true, claimFound );
+                assertEquals(true, claimFound);
                 logger.info(foundDoc.toString());
             }
-            mediationFacade.purge( fortress);
+            mediationFacade.purge(fortress);
             waitAWhile("Waiting for Async processing to complete");
             assertEquals(0, conceptService.getDocumentsInUse(fortress.getCompany()).size());
         } finally {
@@ -479,7 +496,7 @@ public class TestConcepts extends EngineBase {
     }
 
     @Test
-    public void testEntityConceptsLink () throws Exception {
+    public void testEntityConceptsLink() throws Exception {
         // Initial setup
         cleanUpGraph();
 
@@ -502,7 +519,7 @@ public class TestConcepts extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), workRecord);
         assertEquals(2, conceptService.getDocumentsInUse(su.getCompany()).size());
 
-        Collection<String>docs = new ArrayList<>();
+        Collection<String> docs = new ArrayList<>();
         docs.add("Staff");
         docs.add("Work");
         Set<DocumentResultBean> documentResults = conceptService.findConcepts(su.getCompany(), docs, true);
