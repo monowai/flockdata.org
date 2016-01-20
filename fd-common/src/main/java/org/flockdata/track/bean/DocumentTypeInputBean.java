@@ -20,6 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.model.DocumentType;
+import org.flockdata.track.service.EntityService;
 
 /**
  * User: mike
@@ -32,6 +33,7 @@ public class DocumentTypeInputBean {
 
     private String geoQuery;
     private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
+    EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
 
     DocumentTypeInputBean(){}
 
@@ -73,4 +75,35 @@ public class DocumentTypeInputBean {
     public DocumentType.VERSION getVersionStrategy() {
         return versionStrategy;
     }
+
+    public EntityService.TAG_STRUCTURE getTagStructure() {
+        return tagStructure;
+    }
+
+    public DocumentTypeInputBean name(final String name) {
+        this.name = name;
+        return this;
+    }
+
+    public DocumentTypeInputBean code(final String code) {
+        this.code = code;
+        return this;
+    }
+
+    public DocumentTypeInputBean geoQuery(final String geoQuery) {
+        this.geoQuery = geoQuery;
+        return this;
+    }
+
+    public DocumentTypeInputBean versionStrategy(final DocumentType.VERSION versionStrategy) {
+        this.versionStrategy = versionStrategy;
+        return this;
+    }
+
+    public DocumentTypeInputBean tagStructure(final EntityService.TAG_STRUCTURE tagStructure) {
+        this.tagStructure = tagStructure;
+        return this;
+    }
+
+
 }

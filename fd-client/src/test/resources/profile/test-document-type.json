@@ -1,0 +1,24 @@
+{
+  "documentType": {"name": "TestDocType", "versionStrategy": "ENABLE", "tagStructure":"TAXONOMY"},
+  "contentType": "csv",
+  "tagOrEntity": "entity",
+  "entityOnly": "true",
+  "fortressName": "TestDocType",
+  "delimiter": ",",
+  "header": true,
+  "content": {
+    "Id":{
+      "callerRef":true
+    },
+    "EmployeeNumber": {
+      "dataType": "string",
+      "entityLinks": [
+        {
+          "fortress": "Staff",
+          "documentName": "Staff",
+          "relationshipName": "recorded"
+        }
+      ]
+    }
+  }
+}

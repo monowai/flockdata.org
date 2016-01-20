@@ -98,6 +98,8 @@ public class DocumentType  implements Comparable<DocumentType> {
         // ToDo: Parse for injection vulnerabilities.
         // Only admin users can create these and even then only under direction
         this.geoQuery = docType.getGeoQuery(); // DAT-507
+        if ( docType.getTagStructure()!= null)
+            this.tagStructure = docType.getTagStructure();
 
         if ( fortress !=null ){
             this.companyKey = fortress.getCompany().getId() + "." + code;
