@@ -22,22 +22,17 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
-import org.flockdata.transform.FdLoader;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -87,7 +82,7 @@ public class TestCsvImportIntegration extends EngineBase {
 
             ClientConfiguration defaults = new ClientConfiguration();
 
-            myProcessor.processFile(Helper.getImportParams("/profiles/test-sflow.json"), "/data/sflow.csv", testWriter, su.getCompany(), defaults);
+            myProcessor.processFile(Helper.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv", testWriter, su.getCompany(), defaults);
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
