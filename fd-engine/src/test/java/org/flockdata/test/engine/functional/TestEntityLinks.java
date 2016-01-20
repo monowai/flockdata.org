@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -181,7 +181,7 @@ public class TestEntityLinks extends EngineBase {
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
         Profile p = importProfileService.save(fortress, timesheet, params );
-        importProfileService.process(su.getCompany(), fortress, timesheet, "/testentitylinks.csv", false);
+        importProfileService.process(su.getCompany(), fortress, timesheet, "profiles/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
         Map<String, Collection<Entity>> linkedEntities =  getLinkedEntities(su.getCompany(), fortress.getName(), "timesheet", "1", rlxName);
         assertEquals("This timesheet should have a reference to an existing staff", 1, linkedEntities.get(rlxName).size());
