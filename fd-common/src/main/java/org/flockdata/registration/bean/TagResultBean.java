@@ -22,9 +22,9 @@ package org.flockdata.registration.bean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.TagHelper;
+import org.flockdata.model.Alias;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.AliasResultBean;
-import org.flockdata.model.Alias;
 import org.neo4j.graphdb.Node;
 
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ public class TagResultBean {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String name;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     String key;
     String label;
     @JsonInclude(JsonInclude.Include.NON_NULL)
