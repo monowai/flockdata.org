@@ -126,6 +126,7 @@ public class TestTagEP extends EngineBase {
 
         TagResultBean tagResultBean = eip.getTagWithPrefix(prefixedTag.getLabel(), prefixedTag.getKeyPrefix(), prefixedTag.getCode());
         TestCase.assertEquals(prefixedTag.getCode(), tagResultBean.getCode());
+        TestCase.assertNotNull(tagResultBean.getLabel());
 
 
     }
