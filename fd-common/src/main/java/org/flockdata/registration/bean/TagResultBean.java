@@ -86,6 +86,7 @@ public class TagResultBean {
             this.code = tag.getCode();
             this.key = tag.getKey();
             this.name = tag.getName();
+            this.label = tag.getLabel();
             if (code.equals(name))
                 name = null;
             this.properties = tag.getProperties();
