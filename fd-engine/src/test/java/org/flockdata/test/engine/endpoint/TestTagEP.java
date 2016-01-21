@@ -104,6 +104,33 @@ public class TestTagEP extends EngineBase {
     }
 
     @Test
+    public void get_prefixedTag() throws Exception {
+
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("get_prefixedTag", "mike");
+        engineConfig.setConceptsEnabled("true");
+
+        TagInputBean ignoredTag = new TagInputBean("TheTag", "Things")
+                .setKeyPrefix("Ignore");
+
+        TagInputBean prefixedTag = new TagInputBean("TheTag", "Things")
+                .setKeyPrefix("Include");
+
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        eip.createTag(ignoredTag);// Same tag code, different prefix
+        Collection<TagResultBean> tags = eip.createTag(prefixedTag);
+        TestCase.assertEquals(1, tags.size());
+
+        TagResultBean tagResultBean = eip.getTagWithPrefix(prefixedTag.getLabel(), prefixedTag.getKeyPrefix(), prefixedTag.getCode());
+        TestCase.assertEquals(prefixedTag.getCode(), tagResultBean.getCode());
+
+
+    }
+
+    @Test
     public void get_tagWithSpace() throws Exception {
 
         setSecurity(mike_admin);
