@@ -224,11 +224,28 @@ public class EngineEndPoints {
 
     }
 
+    public TagResultBean getTagWithPrefix(String label, String keyPrefix, String code) throws Exception{
+        label = URLEncoder.encode(label, "UTF-8");
+        code = URLEncoder.encode(code, "UTF-8");
+
+        MvcResult response = getMockMvc()
+                .perform(MockMvcRequestBuilders.get("/tag/{label}/{prefix}/{code}", label, keyPrefix, code)
+                                .contentType(MediaType.APPLICATION_JSON)
+
+                ).andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+        byte[] json = response.getResponse().getContentAsByteArray();
+
+        return JsonUtils.getBytesAsObject(json, TagResultBean.class);
+
+    }
+
     public TagResultBean getTag(String label, String code) throws Exception {
         label = URLEncoder.encode(label, "UTF-8");
         code = URLEncoder.encode(code, "UTF-8");
         MvcResult response = getMockMvc()
-                .perform(MockMvcRequestBuilders.get("/tag/{label}/{code:.+}", label, code)
+                .perform(MockMvcRequestBuilders.get("/tag/{label}/{code}", label, code)
                         .contentType(MediaType.APPLICATION_JSON)
 
                 ).andDo(print())
@@ -349,4 +366,5 @@ public class EngineEndPoints {
 
 
     }
+
 }
