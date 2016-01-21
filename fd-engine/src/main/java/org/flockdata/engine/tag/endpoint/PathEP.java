@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Map;
 
@@ -27,9 +29,9 @@ public class PathEP {
 
     @RequestMapping(value = "/{label}/{code}/{length}/{targetLabel}", produces = "application/json", method = RequestMethod.GET)
     public Collection<Map<String, Object>> getConnectedTags(@PathVariable("label") String label, @PathVariable("code") String code,
-                                                            HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException {
+                                                            HttpServletRequest request, @PathVariable("targetLabel") String targetLabel, @PathVariable("length") Integer length) throws FlockException, UnsupportedEncodingException {
         Company company = CompanyResolver.resolveCompany(request);
-        return tagPath.getPaths(company, label, code, length, targetLabel);
+        return tagPath.getPaths(company, URLDecoder.decode(label,"UTF-8"), URLDecoder.decode(code,"UTF-8"), length, URLDecoder.decode(targetLabel,"UTF-8"));
 //        return tagService.findTags(company, label, code, relationship, targetLabel);
     }
 
