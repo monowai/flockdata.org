@@ -110,10 +110,10 @@ public class TestTagEP extends EngineBase {
         SystemUser su = registerSystemUser("get_prefixedTag", "mike");
         engineConfig.setConceptsEnabled("true");
 
-        TagInputBean ignoredTag = new TagInputBean("TheTag", "Things")
+        TagInputBean ignoredTag = new TagInputBean("TheTag", "PrefixTest")
                 .setKeyPrefix("Ignore");
 
-        TagInputBean prefixedTag = new TagInputBean("TheTag", "Things")
+        TagInputBean prefixedTag = new TagInputBean("TheTag", "PrefixTest")
                 .setKeyPrefix("Include");
 
 
