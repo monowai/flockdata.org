@@ -21,9 +21,9 @@ package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.TagHelper;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +81,7 @@ public class TestTagEP extends EngineBase {
         SystemUser su = registerSystemUser("esc_tags", "mike");
         engineConfig.setConceptsEnabled("true");
 
-        TagInputBean thingTag = new TagInputBean("This/That", "Thing");
+        TagInputBean thingTag = new TagInputBean("This/That", "Things");
 
 
         EngineEndPoints eip = new EngineEndPoints(wac);
@@ -97,17 +97,47 @@ public class TestTagEP extends EngineBase {
         TestCase.assertNotNull(tagResultBean);
         TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
-        tagResultBean = eip.getTag(thingTag.getLabel(), "This%2FThat");
+        tagResultBean = eip.getTag(thingTag.getLabel(), "This/That");
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
     }
 
     @Test
+    public void get_tagWithSpace() throws Exception {
+
+        setSecurity(mike_admin);
+        SystemUser su = registerSystemUser("get_tagWithSpace", "mike");
+        engineConfig.setConceptsEnabled("true");
+
+        TagInputBean thingTag = new TagInputBean("This That", "Thing");
+
+
+        EngineEndPoints eip = new EngineEndPoints(wac);
+        eip.login(mike_admin, "123");
+
+        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        TestCase.assertEquals(1, tags.size());
+
+        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        TestCase.assertEquals(1, targetTags.size());
+
+        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TestCase.assertNotNull(tagResultBean);
+        TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
+
+        tagResultBean = eip.getTag(thingTag.getLabel(), "This That");
+        TestCase.assertNotNull ( tagResultBean);
+        TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
+
+    }
+
+
+    @Test
     public void get_percentageScenario() throws Exception {
 
         setSecurity(mike_admin);
-        SystemUser su = registerSystemUser("esc_tags", "mike");
+        SystemUser su = registerSystemUser("get_percentageScenario", "mike");
         engineConfig.setConceptsEnabled("true");
 
         TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
@@ -122,7 +152,7 @@ public class TestTagEP extends EngineBase {
         Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), "1%25 Increase");
+        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), "1% Increase");
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 

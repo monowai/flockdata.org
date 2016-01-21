@@ -20,9 +20,9 @@
 package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Company;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -148,7 +148,7 @@ public class FdLoader {
     }
 
     private String getTagKey(TagInputBean tag) {
-        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+".":"")+tag.getCode() + "." +tag.getLabel();
+        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+"-":"")+tag.getCode() + "-" +tag.getLabel();
     }
 
     public void flush() throws FlockException {

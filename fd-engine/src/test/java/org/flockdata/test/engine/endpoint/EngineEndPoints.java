@@ -38,9 +38,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Any test using this class will have to be annotated with @WebAppConfiguration
@@ -222,10 +225,14 @@ public class EngineEndPoints {
     }
 
     public TagResultBean getTag(String label, String code) throws Exception {
-        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/tag/" + label + "/" + code)
+        label = URLEncoder.encode(label, "UTF-8");
+        code = URLEncoder.encode(code, "UTF-8");
+        MvcResult response = getMockMvc()
+                .perform(MockMvcRequestBuilders.get("/tag/{label}/{code:.+}", label, code)
                         .contentType(MediaType.APPLICATION_JSON)
 
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+                ).andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
 
@@ -323,9 +330,17 @@ public class EngineEndPoints {
     }
 
     public Collection<Map<String, TagResultBean>> getTagPaths(String label, String code, String targetLabel) throws Exception {
-        MvcResult response = getMockMvc().perform(MockMvcRequestBuilders.get("/path/" + label + "/" + code + "/4/" + targetLabel)
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        label = URLEncoder.encode(label, "UTF-8");
+        code = URLEncoder.encode(code, "UTF-8");
+        targetLabel = URLEncoder.encode(targetLabel, "UTF-8");
+
+        MvcResult response = getMockMvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .get("/path/{label}/{code}/{depth}/{lastLabel}", label, code, "4", targetLabel)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
         return FdJsonObjectMapper.getObjectMapper().readValue(json, new TypeReference<Collection<Map<String, TagResultBean>>>() {

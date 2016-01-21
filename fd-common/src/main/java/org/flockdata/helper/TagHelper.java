@@ -25,9 +25,6 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.neo4j.graphdb.Label;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 /**
  * Tag parsing support
  * <p/>
@@ -47,7 +44,7 @@ public class TagHelper {
     /**
      * Converts an incoming search string in to a format for storage as the Tag's key property.
      * <p/>
-     * /'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
+     * /'s and .'s are converted to a - to avoid ambiguity with URI paths so can be found as /, - or %2F.
      * There is an assumption that the incoming key could be a URL string that requires decoding.
      *
      * @param key raw incoming text
@@ -65,14 +62,14 @@ public class TagHelper {
 
 
     public static String parseKey(TagInputBean tagInput) {
-        String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + ".");
-        return prefix + parseKey(tagInput.getCode());
+        //String prefix = (tagInput.getKeyPrefix() == null ? "" : tagInput.getKeyPrefix().toLowerCase() + "-");
+        return  parseKey(tagInput.getKeyPrefix(), tagInput.getCode());
     }
 
     public static String parseKey(String keyPrefix, String tagCode) {
         if (keyPrefix == null)
             return parseKey(tagCode);
-        return keyPrefix.toLowerCase() + "." + parseKey(tagCode);
+        return keyPrefix.toLowerCase() + "-" + parseKey(tagCode);
     }
 
     public static boolean isSystemKey(String key) {

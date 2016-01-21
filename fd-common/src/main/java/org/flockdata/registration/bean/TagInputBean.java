@@ -445,7 +445,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     /**
      * determines if the targets Map contains a TagInputBean with requested properties
-     * Tags are uniquely identified by either Code or keyPrefix+"."+code within a Label
+     * Tags are uniquely identified by either Code or keyPrefix+"-"+code within a Label
      *
      * @since DAT-491
      * @param code      case-insensitive - mandatory
