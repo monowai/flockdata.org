@@ -26,17 +26,18 @@ import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.registration.bean.*;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.registration.bean.*;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FdLoader;
+import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.util.*;
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
+@Component
 public class FdRestWriter implements FdWriter {
 
     private String TRACK;
@@ -74,6 +76,8 @@ public class FdRestWriter implements FdWriter {
 
     private ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
     private AmqpServices amqpServices = null;
+
+    FdRestWriter () {}
 
     /**
      * Use this version for administrative access where the username and password must exist
