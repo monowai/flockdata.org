@@ -26,7 +26,9 @@ import org.flockdata.profile.ImportProfile;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.transform.*;
+import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.Transformer;
 import org.flockdata.transform.csv.CsvEntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -312,6 +314,7 @@ public class TestCsvEntity {
         String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
         ImportProfile params = getImportParams("/csv-entity-data-types.json");
+        assertTrue(params.isEntityOnly());
         CsvEntityMapper mapper = new CsvEntityMapper(params);
 
         Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, params), params);

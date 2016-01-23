@@ -38,7 +38,7 @@ public class Transformer {
         } else if (profile.getTagOrEntity() == ProfileConfiguration.DataType.TAG) {
             mappable = TagMapper.newInstance(profile);
         } else
-            logger.error("Unable to determine the implementing handler");
+            throw new RuntimeException("Unable to determine the implementing handler for " + profile.toString());
 
 
         return mappable;
@@ -117,6 +117,7 @@ public class Transformer {
         Map<String, Object> row = new HashMap<>();
         try {
             for (String column : headerRow) {
+                column = column.trim();
                 // Find first by the name (if we're using a raw header
                 ColumnDefinition colDef = profileConfig.getColumnDef(column);
                 if (colDef == null)

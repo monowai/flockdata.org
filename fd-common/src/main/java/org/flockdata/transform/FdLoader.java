@@ -20,9 +20,9 @@
 package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Company;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -82,7 +82,14 @@ public class FdLoader {
                 if ( entityInputBean.getDocumentName() == null ||  entityInputBean.getDocumentName().equals("") )
                     throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via your import profile with the documentName attribute.");
 
-                entityBatch.add(entityInputBean);
+                int existingIndex = getExistingIndex(entityInputBean);
+
+                if ( existingIndex>-1){
+                    EntityInputBean masterEntity = entityBatch.get(existingIndex);
+                    masterEntity.merge(entityInputBean);
+                } else {
+                    entityBatch.add(entityInputBean);
+                }
                 batchTags(entityInputBean);
             }
 
@@ -103,6 +110,18 @@ public class FdLoader {
             entityLock.unlock();
         }
 
+    }
+
+    /**
+     * determines if an entity already being tracked can be considered to be merged with
+     * @param entityInputBean incoming entity
+     * @return index of an existing EIB or -1 if it should be ignored
+     */
+    private int getExistingIndex(EntityInputBean entityInputBean) {
+        int existingIndex =-1;
+        if ( (entityInputBean.getCode()!= null || entityInputBean.getMetaKey()!=null ) && entityInputBean.getContent() == null )
+            existingIndex = entityBatch.indexOf(entityInputBean);
+        return existingIndex;
     }
 
     public int getEntityCount(){
@@ -148,7 +167,7 @@ public class FdLoader {
     }
 
     private String getTagKey(TagInputBean tag) {
-        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+".":"")+tag.getCode() + "." +tag.getLabel();
+        return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+"-":"")+tag.getCode() + "-" +tag.getLabel();
     }
 
     public void flush() throws FlockException {

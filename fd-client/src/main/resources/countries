@@ -16,9 +16,9 @@ function findBaseDirAndCdThere {
     done
 
   FD_HOME=`cd $( dirname "$SCRIPT" )/.. && dirs -l +0`
-  FD_CONFIG=$FD_HOME/conf/client.config
+  FD_CONFIG=$FD_HOME/conf/
   FD_APP=$FD_HOME/app
-   FD_LOG=FD_HOME/log
+  FD_LOG=$FD_HOME/log
 
       if [ ! -d "$FD_LOG" ]; then
           mkdir "$FD_LOG"
@@ -42,5 +42,5 @@ findBaseDirAndCdThere
 ## match (c:Country) return c;
 echo "Creating known Countries and States"
 
-$JAVA -classpath $FD_APP/fd-client-0.98-BUILD-SNAPSHOT.jar org.flockdata.client.Importer -c ${FD_CONFIG} "/fd-cow.txt, /countries.json" "/states.csv, /states.json"
+$JAVA -classpath $FD_APP/fd-*.jar org.flockdata.client.Importer "/fd-cow.txt, /countries.json" "/states.csv, /states.json"
 

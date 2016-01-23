@@ -23,19 +23,12 @@ import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.dao.EntityRepo;
 import org.flockdata.engine.dao.EntityTagDaoNeo;
 import org.flockdata.engine.dao.EntityTagRepo;
-import org.flockdata.model.EntityTagIn;
-import org.flockdata.model.EntityTagOut;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.model.*;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.EntityTag;
-import org.flockdata.model.Log;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;
@@ -224,7 +217,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @return EntityTags that were added to the entity.
      */
     private Collection<EntityTag> setRelationships(Entity entity, Tag tag, TagInputBean tagInputBean) {
-        Map<String, Object> entityLinks = tagInputBean.getEntityLinks();
+        Map<String, Map<String,Object>> entityLinks = tagInputBean.getEntityLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
         long when = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
@@ -235,10 +228,10 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             return new ArrayList<>();
         }
         for (String key : entityLinks.keySet()) {
-            Object properties = entityLinks.get(key);
+            Map<String,Object> properties = entityLinks.get(key);
             Map<String, Object> propMap;
-            if (properties != null && properties instanceof Map) {
-                propMap = (Map<String, Object>) properties;
+            if (properties != null) {
+                propMap = properties;
             } else {
                 propMap = new HashMap<>();
             }
