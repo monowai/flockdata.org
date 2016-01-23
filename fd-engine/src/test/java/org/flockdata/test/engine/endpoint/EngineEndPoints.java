@@ -155,7 +155,9 @@ public class EngineEndPoints {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
                         .content(JsonUtils.getObjectAsJsonBytes(eib))
-        ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+            )   .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn();
         byte[] json = response.getResponse().getContentAsByteArray();
 
         return JsonUtils.getBytesAsObject(json, TrackRequestResult.class);
