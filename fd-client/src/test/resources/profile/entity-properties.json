@@ -97,6 +97,7 @@
       "target": "valueNull",
       "properties": [
         {
+          "storeNull":false, // We don't want to store null values
           "dataType": "long"
         }
       ]

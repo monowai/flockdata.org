@@ -19,14 +19,14 @@
 
 package org.flockdata.profile;
 
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.transform.ColumnDefinition;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.transform.ColumnDefinition;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,7 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
             importProfile.setFortressUser(nodeValue.asText());
 
         nodeValue = node.get("entityOnly");
-        if ( nodeValue != null&& !nodeValue.isNull() )
+        if ( nodeValue == null || nodeValue.isNull() )
             nodeValue = node.get("metaOnly"); // legacy value
         if (nodeValue != null&& !nodeValue.isNull())
             importProfile.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));

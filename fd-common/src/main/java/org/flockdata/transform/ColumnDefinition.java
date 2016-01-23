@@ -26,8 +26,6 @@ import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.flockdata.transform.tags.TagProfileDeserializer;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TimeZone;
@@ -49,6 +47,8 @@ public class ColumnDefinition implements GeoDefinition {
     private String dataType;
 
     private Boolean persistent = true;
+    private Boolean storeNull = true;
+
 
     public enum ExpressionType {CODE, NAME, RELATIONSHIP, KEY_PREFIX, PROP_EXP, LABEL, CALLER_REF}
 
@@ -409,6 +409,10 @@ public class ColumnDefinition implements GeoDefinition {
      */
     public boolean isMerge() {
         return merge;
+    }
+
+    public boolean getStoreNull() {
+        return storeNull;
     }
 
 }
