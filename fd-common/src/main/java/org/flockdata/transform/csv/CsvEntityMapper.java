@@ -180,8 +180,9 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                         Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
                         if (columnDefinition.getTarget() != null)
                             valueColumn = columnDefinition.getTarget();
-                        if (oValue != null)
+                        if (oValue != null || columnDefinition.getStoreNull()){
                             setProperty(valueColumn, oValue);
+                        }
 
                     }
                 }
