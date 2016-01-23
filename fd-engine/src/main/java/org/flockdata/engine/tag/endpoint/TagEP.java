@@ -22,11 +22,11 @@ package org.flockdata.engine.tag.endpoint;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.model.Company;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +81,7 @@ public class TagEP {
     public TagResultBean getTag(@PathVariable("label") String label, @PathVariable("code") String code,
                                 HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
         Company company = CompanyResolver.resolveCompany(request);
-        return new TagResultBean(tagService.findTag(company, label,null , URLDecoder.decode(code, "UTF-8"), true));
+        return new TagResultBean(tagService.findTag(company, label, null, URLDecoder.decode(code, "UTF-8"), true));
     }
 
     @RequestMapping(value = "/{label}/{keyPrefix}/{code}", produces = "application/json", method = RequestMethod.GET)
@@ -89,19 +89,19 @@ public class TagEP {
                                           @PathVariable("keyPrefix") String keyPrefix,
                                           @PathVariable("code") String code,
 
-                                HttpServletRequest request) throws FlockException {
+                                HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
         Company company = CompanyResolver.resolveCompany(request);
-        return new TagResultBean(tagService.findTag(company, label,keyPrefix, code, true));
+        return new TagResultBean(tagService.findTag(company, label,keyPrefix, URLDecoder.decode(code, "UTF-8"), true));
     }
 
 
     @RequestMapping(value = "/{label}/{sourceTag}/merge/{targetTag}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void mergeTags(@PathVariable("sourceTag") String sourceTag, @PathVariable("targetTag") String targetTag, @PathVariable("label") String label,
-                          HttpServletRequest request) throws FlockException {
+                          HttpServletRequest request) throws FlockException, UnsupportedEncodingException {
         Company company = CompanyResolver.resolveCompany(request);
-        Tag source = tagService.findTag(company, label, null, sourceTag);
-        Tag target = tagService.findTag(company, label, null, targetTag);
+        Tag source = tagService.findTag(company, label, null, URLDecoder.decode(sourceTag, "UTF-8"));
+        Tag target = tagService.findTag(company, label, null, URLDecoder.decode(targetTag, "UTF-8"));
         mediationFacade.mergeTags(company, source.getId(), target.getId());
 
     }

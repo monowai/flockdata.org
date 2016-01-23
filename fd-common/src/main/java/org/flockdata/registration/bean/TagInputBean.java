@@ -50,7 +50,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     Map<String, Object> properties ;
     private String label = Tag.DEFAULT_TAG;
 
-    Map<String, Object> entityLinks ;
+    Map<String, Map<String,Object>> entityLinks ;
 
     private String entityLink = null;
     private boolean mustExist = false;
@@ -262,7 +262,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         return addEntityLink(relationshipName, null);
     }
 
-    public Map<String, Object> getEntityLinks() {
+    public Map<String, Map<String,Object>> getEntityLinks() {
         if ( (entityLinks== null ||entityLinks.isEmpty()) && entityLink !=null )
             addEntityLink(entityLink);
         return entityLinks;
@@ -445,7 +445,7 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     /**
      * determines if the targets Map contains a TagInputBean with requested properties
-     * Tags are uniquely identified by either Code or keyPrefix+"."+code within a Label
+     * Tags are uniquely identified by either Code or keyPrefix+"-"+code within a Label
      *
      * @since DAT-491
      * @param code      case-insensitive - mandatory

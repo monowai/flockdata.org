@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.ContentInputBean;
@@ -116,6 +116,10 @@ public class TestEndPoints extends EngineBase{
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         engineEndPoints.login("mike", "123");
+        // Test Serialization
+        byte[] bytes =JsonUtils.getObjectAsJsonBytes(eib);
+        eib = JsonUtils.getBytesAsObject(bytes,EntityInputBean.class);
+
         TrackRequestResult trackResult = engineEndPoints.track(eib, su);
         assertNotNull(trackResult);
         engineEndPoints.login("mike", "123");

@@ -1,9 +1,9 @@
 package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
-import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -31,7 +30,7 @@ public class TestPathEP extends EngineBase {
         engineConfig.setConceptsEnabled("true");
 
         // Creating a structure
-        TagInputBean term = new TagInputBean("vw", "Term");
+        TagInputBean term = new TagInputBean("volvo 244", "Term");
         TagInputBean division = new TagInputBean("luxury cars", "Division")
                 .setKeyPrefix("motor");
         TagInputBean category = new TagInputBean("cars", "Category")
@@ -60,6 +59,10 @@ public class TestPathEP extends EngineBase {
         Collection paths = eip.getTagPaths(term.getLabel(), term.getCode(), interest.getLabel());
         assertEquals(2, paths.size());
 
+        String code = TagHelper.parseKey(division.getKeyPrefix(), division.getCode());
+        TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", eip.getTag("Division", code));
+        paths = eip.getTagPaths(division.getLabel(), code, interest.getLabel());
+        assertEquals (1, paths.size());
     }
 
 }

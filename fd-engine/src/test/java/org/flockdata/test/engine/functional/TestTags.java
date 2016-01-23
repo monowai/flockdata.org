@@ -20,6 +20,7 @@
 package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.AliasInputBean;
@@ -867,9 +868,9 @@ public class TestTags extends EngineBase {
         Tag nzTag = tagService.findTag(su.getCompany(), "City", "nz", "cambridge");
 
         assertNotNull("Located by prefix/code failed", gbTag);
-        assertEquals("gb.cambridge", gbTag.getKey());
+        assertEquals(TagHelper.parseKey("gb", "cambridge"), gbTag.getKey());
         assertNotNull("Located by prefix/code failed", nzTag);
-        assertEquals("nz.cambridge", nzTag.getKey());
+        assertEquals(TagHelper.parseKey("nz", "cambridge"), nzTag.getKey());
         // Ensure we can't create a duplicate City
         Tag tagC = tagService.createTag(su.getCompany(), nzCity);
         assertEquals("Shouldn't have created a new Tag for an existing City", nzTag.getId(), tagC.getId());

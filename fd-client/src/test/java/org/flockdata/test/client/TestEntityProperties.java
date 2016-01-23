@@ -38,7 +38,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by mike on 6/05/15.
@@ -71,7 +72,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("j10013521891", tagInputBean.getCode());
                         assertNotNull(tagInputBean.getName());
                         assertNotSame(tagInputBean.getName(), tagInputBean.getCode());
-                        Map<String,Object> igRlx = tagInputBean.getEntityLinks();
+                        Map<String,Map<String,Object>> igRlx = tagInputBean.getEntityLinks();
                         assertFalse(igRlx.isEmpty());
                         Map valueMap = (Map) igRlx.get("contributed");
                         assertTrue(valueMap.containsKey("value"));
@@ -82,7 +83,7 @@ public class TestEntityProperties extends AbstractImport {
                         assertEquals("G6400", tagInputBean.getCode());
                         break;
                     case "Politician":
-                        Map<String,Object> rlx = tagInputBean.getEntityLinks();
+                        Map<String,Map<String,Object>> rlx = tagInputBean.getEntityLinks();
                         assertFalse(rlx.isEmpty());
                         Map valMap = (Map) rlx.get("received");
                         assertTrue(valMap.containsKey("value"));
