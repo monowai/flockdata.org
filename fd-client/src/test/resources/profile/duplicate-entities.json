@@ -1,0 +1,49 @@
+{
+  // We would like the movie search document to be indexed in ElasticSearch
+  "documentType": {
+    "name": "Movie",
+    "searchEnabled": true
+  },
+  "fortressName": "kodi",
+  // source system that provided the data
+  "content": {
+    "movieId": {
+      "callerRef": true
+      // primary key of the docuemntType being tracked
+    },
+    "title": {
+      "title": true,
+      // writes the title property in to the name field of a node
+      "description": true
+      // writes the title in to a description field in a search document.
+    },
+    "genre": {
+      "tag": true,
+      "delimiter": " / ",
+      "label": "Genre",
+      "relationship": "OF_TYPE"
+    },
+    "director": {
+      "tag": true,
+      "delimiter": " / ",
+      "label": "Person",
+      "relationship": "directed"
+    },
+    "actor": {
+      "tag": true,
+      "label": "Person",
+      "relationship": "acted"
+    },
+    "rating": {
+      // Properties to set against the entity
+      "properties": [
+        {
+          "source": "rating",
+          "target": "value",
+          "dataType": "numeric",
+          "valueOnError": 0 // If it's not a valid value, then what should we set it to?
+        }
+      ]
+    }
+  }
+}

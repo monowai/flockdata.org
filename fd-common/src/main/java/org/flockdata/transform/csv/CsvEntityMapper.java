@@ -114,7 +114,7 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
                         row.put(sourceColumn, new DateTime(dValue).toString());
 
                         if (colDef.isCreateDate()) {
-                            setWhen(new DateTime(dValue));
+                            setWhen(new Date(dValue));
                         }
                         if (colDef.isUpdateDate()) {
                             if (getLastChange() == null || dValue > getLastChange().getTime())
