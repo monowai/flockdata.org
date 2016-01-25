@@ -1157,7 +1157,9 @@ public class TestEntityTrack extends EngineBase {
         FortressInputBean fortressBean = new FortressInputBean("event_NotNullWhenMetaOnlyIsTrue", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime());
+        EntityInputBean inputBean =
+                new EntityInputBean(fortress, "wally", "TestTrack", new DateTime())
+                .setEvent("Create");
 
         inputBean.setEntityOnly(true);
         TrackResultBean result = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean); // Mock result as we're not tracking

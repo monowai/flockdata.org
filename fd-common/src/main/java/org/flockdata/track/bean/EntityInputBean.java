@@ -53,7 +53,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private transient Map<String,List<EntityKeyBean>> entityLinks = new HashMap<>();
     Map<String, Object> properties = new HashMap<>();
 
-    private String event = "Create";
+    private String event = null;
     private String description;
     private String name;
     private boolean searchSuppressed;

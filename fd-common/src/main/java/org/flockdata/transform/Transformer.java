@@ -9,7 +9,7 @@ import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.csv.CsvEntityMapper;
+import org.flockdata.transform.csv.EntityMapper;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.flockdata.transform.tags.TagMapper;
 import org.flockdata.transform.xml.XmlMappable;
@@ -34,7 +34,7 @@ public class Transformer {
         if (!(profile.getHandler() == null || profile.getHandler().equals("")))
             mappable = (Mappable) Class.forName(profile.getHandler()).newInstance();
         else if (profile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY) {
-            mappable = CsvEntityMapper.newInstance(profile);
+            mappable = EntityMapper.newInstance(profile);
         } else if (profile.getTagOrEntity() == ProfileConfiguration.DataType.TAG) {
             mappable = TagMapper.newInstance(profile);
         } else

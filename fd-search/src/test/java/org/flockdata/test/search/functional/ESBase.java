@@ -324,7 +324,7 @@ public class ESBase {
 
     }
 
-    String doFacetQuery(Entity entity, String type, String field, String queryString, int expectedHitCount) throws Exception {
+    String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that
         int runCount = 0, nbrResult;
@@ -346,7 +346,7 @@ public class ESBase {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexHelper.parseIndex(entity))
-                    .addType(type)
+                    .addType(IndexHelper.parseType(entity))
                     .build();
 
             result = esClient.execute(search);

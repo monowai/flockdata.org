@@ -20,12 +20,8 @@
 package org.flockdata.profile;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.profile.model.Mappable;
 import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.csv.CsvEntityMapper;
-import org.flockdata.transform.tags.TagMapper;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;

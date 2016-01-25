@@ -25,7 +25,6 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -69,6 +68,7 @@ public class TestMappings extends ESBase {
 
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setDescription("Test Description");
+        change.setName("Test Name");
         change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
 
@@ -92,6 +92,8 @@ public class TestMappings extends ESBase {
 
         doFacetQuery(indexHelper.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
+        // Assert that the description facet exists
+        doFacetQuery(entity, "name.facet", change.getName(),1);
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
         //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
 //        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
@@ -207,8 +209,8 @@ public class TestMappings extends ESBase {
         assertNotNull(changeA.getSearchKey());
         assertNotNull(changeB.getSearchKey());
 
-        doFacetQuery(entityA, entityA.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        doFacetQuery(entityB, entityB.getType().toLowerCase(), "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityA,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
+        doFacetQuery(entityB,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         String index = indexHelper.getIndexRoot(entityA.getFortress()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
@@ -240,7 +242,7 @@ public class TestMappings extends ESBase {
 
         // DAT-328
         Thread.sleep(5000);
-        doFacetQuery(entity, IndexHelper.parseType(entity), "tag.mytag.code.facet", tag.getCode(), 1);
+        doFacetQuery(entity, "tag.mytag.code.facet", tag.getCode(), 1);
 
     }
 
