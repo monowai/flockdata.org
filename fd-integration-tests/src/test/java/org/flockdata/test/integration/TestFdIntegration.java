@@ -263,16 +263,18 @@ public class TestFdIntegration {
 
 
     @Test
-    public void search_WhatFieldsIndexed() throws Exception {
-        assumeTrue(runMe);
-        logger.info("## dataTypes_WhatFieldsIndexed");
+    public void search_dataFieldsIndexed() throws Exception {
+//        assumeTrue(runMe);
+        logger.info("## dataTypes_dataFieldsIndexed");
 
-        SystemUser su = registerSystemUser("dataTypes_WhatFieldsIndexed", "dataTypes_WhatFieldsIndexed");
+        SystemUser su = registerSystemUser("dataTypes_dataFieldsIndexed", "dataTypes_dataFieldsIndexed");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("FIB"));
         String docType = "DT";
         String callerRef = "ABC123X";
         EntityInputBean entityInputBean =
-                new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
+                new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef)
+                .setName("find by name")
+                .setDescription("describe me to be found");
 
         Map<String, Object> json = Helper.getRandomMap();
         json.put("int", 123);
@@ -286,7 +288,13 @@ public class TestFdIntegration {
         esHelper.waitForFirstSearchResult(su.getCompany(), entity, entityService);
 
         esHelper.doEsQuery(entity, entity.getMetaKey());
+
         esHelper.doEsFieldQuery(entity, EntitySearchSchema.DATA + ".int", "123", 1);
+        // scan by name facet?
+        esHelper.doFacetQuery(entity, EntitySearchSchema.NAME+".facet", entityInputBean.getName(), 1);
+        // Can we find by description?
+        esHelper.doEsQuery(entity, entityInputBean.getDescription());
+        assertNull("EntityInput.description is not stored in the entity", entity.getDescription());
         esHelper.deleteEsIndex(indexHelper.parseIndex(entity));
     }
 
@@ -1748,7 +1756,8 @@ public class TestFdIntegration {
         assertEquals("Term", termTag.getTag().getLabel());
         // Validate the structure
 
-        SearchChange searchDoc = searchService.getSearchDocument(foundDoc, entity, null, null);
+        TrackResultBean trackResultBean = new TrackResultBean(entity, foundDoc);
+        SearchChange searchDoc = searchService.getSearchDocument(trackResultBean, null);
         assertNotNull(searchDoc);
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchDoc.getTagStructure());
         //EntityTag termTag = searchDoc.getTagValues().;
@@ -1936,7 +1945,5 @@ public class TestFdIntegration {
         double end = watch.getTime() / 1000d;
         logger.info("Total Search Requests = " + totalSearchRequests + ". Total time for searches " + end + " avg requests per second = " + totalSearchRequests / end);
     }
-
-    //private ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
 }

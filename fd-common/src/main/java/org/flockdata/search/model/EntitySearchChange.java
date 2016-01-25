@@ -48,8 +48,9 @@ import java.util.*;
 public class EntitySearchChange implements SearchChange {
 
     private String documentType;
-    private String description;
+    private String code;
     private String name;
+    private String description;
     private Map<String, Object> data;
     private Map<String, Object> props;
     private String attachment;
@@ -59,7 +60,6 @@ public class EntitySearchChange implements SearchChange {
     private String who;
     private String event;
     private String metaKey;
-    private String code;
     private Long logId;
     private HashMap<String, Map<String,ArrayList<SearchTag>>> tagValues = new HashMap<>();
     private Long entityId;
@@ -494,5 +494,9 @@ public class EntitySearchChange implements SearchChange {
     @Override
     public Collection<EntityKeyBean> getEntityLinks() {
         return this.entityLinks;
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -169,7 +169,7 @@ public class SearchServiceFacade {
 
         EntityLog entityLog = getLog(trackResultBean);
 
-        return getSearchDocument(trackResultBean.getDocumentType(), entity, entityLog, trackResultBean.getContentInput());
+        return getSearchDocument(trackResultBean, entityLog);
     }
 
     /**
@@ -181,13 +181,14 @@ public class SearchServiceFacade {
      * <p/>
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
-     * @param docType
-     * @param entity       Entity to index
+     * @param trackResultBean       Payload to index
      * @param entityLog    Log to work with (usually the "current" log)
-     * @param contentInput Content data
      * @return object ready to index
      */
-    public SearchChange getSearchDocument(DocumentType docType, Entity entity, EntityLog entityLog, ContentInputBean contentInput) {
+    public SearchChange getSearchDocument(TrackResultBean trackResultBean,  EntityLog entityLog) {
+        DocumentType docType =trackResultBean.getDocumentType();
+        ContentInputBean contentInput =trackResultBean.getContentInput();
+        Entity entity = trackResultBean.getEntity();
 
         SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexHelper.parseIndex(entity));
 
@@ -204,7 +205,11 @@ public class SearchServiceFacade {
         // ToDo: Can we optimize by using tags already tracked in the result bean?
         EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
         searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
-        searchDocument.setDescription(entity.getDescription());
+
+        // Description is not carried against the entity - todo: configurable?
+        if (trackResultBean.getEntityInputBean()!=null)
+            searchDocument.setDescription(trackResultBean.getEntityInputBean().getDescription());
+//        searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
 

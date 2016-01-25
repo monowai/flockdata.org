@@ -44,11 +44,11 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class CsvEntityMapper extends EntityInputBean implements Mappable {
+public class EntityMapper extends EntityInputBean implements Mappable {
 
-    private static final Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
 
-    public CsvEntityMapper(ProfileConfiguration importProfile) {
+    public EntityMapper(ProfileConfiguration importProfile) {
         setDocumentName(importProfile.getDocumentName());
         setFortress(importProfile.getFortressName());
         setFortressUser(importProfile.getFortressUser());
@@ -201,8 +201,8 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
         return value;
     }
 
-    public static CsvEntityMapper newInstance(ProfileConfiguration importProfile) {
-        return new CsvEntityMapper(importProfile);
+    public static EntityMapper newInstance(ProfileConfiguration importProfile) {
+        return new EntityMapper(importProfile);
     }
 
 }
