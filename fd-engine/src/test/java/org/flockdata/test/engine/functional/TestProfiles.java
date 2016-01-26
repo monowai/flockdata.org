@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.profile.ImportProfileDeserializer;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.model.DocumentType;
+import org.flockdata.profile.ContentProfileDeserializer;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,11 +52,11 @@ public class TestProfiles extends EngineBase {
     public void create_Profile() throws Exception{
         SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
-        ProfileConfiguration profile = ImportProfileDeserializer.getImportParams("/profiles/test-profile.json");
+        ContentProfile profile = ContentProfileDeserializer.getImportParams("/profiles/test-profile.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
         profileService.save(fortress, docType, profile);
-        ProfileConfiguration savedProfile = profileService.get(fortress, docType);
+        ContentProfile savedProfile = profileService.get(fortress, docType);
         assertNotNull ( savedProfile);
         assertEquals(profile.getFortressUser(), savedProfile.getFortressUser());
         assertEquals(profile.isEntityOnly(), savedProfile.isEntityOnly());

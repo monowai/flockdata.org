@@ -1154,8 +1154,8 @@ public class TestFdIntegration {
 
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
 
-        EntityKeyBean staffKey = new EntityKeyBean(cleaner.getDocumentName(), cleaner.getFortress(), cleaner.getCode());
-        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortress(), workRecord.getCode());
+        EntityKeyBean staffKey = new EntityKeyBean(cleaner.getDocumentName(), cleaner.getFortressName(), cleaner.getCode());
+        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortressName(), workRecord.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(staffKey);
@@ -1706,8 +1706,9 @@ public class TestFdIntegration {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
         assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
 
-        DocumentType docType = new DocumentType(fortress, "DAT-498", EntityService.TAG_STRUCTURE.TAXONOMY);
-        EntityInputBean eib = new EntityInputBean(docType, "abc");
+        DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-498")
+                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
+        EntityInputBean eib = new EntityInputBean(fortress, docType, "abc");
 
         // Establish a multi path hierarchy
         TagInputBean interest = new TagInputBean("Motor", "Interest");
@@ -1806,9 +1807,9 @@ public class TestFdIntegration {
 
             assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
 
-            DocumentType docType = new DocumentType(fortress, "DAT-506");
+            DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-506");
             EntityInputBean entityInputBean =
-                    new EntityInputBean(docType, "abc")
+                    new EntityInputBean(fortress, docType, "abc")
                             .setSegment(segment2014.getCode())
                             .setContent(new ContentInputBean(Helper.getRandomMap()));
 
@@ -1820,7 +1821,7 @@ public class TestFdIntegration {
             assertEquals(segment2014.getCode(), entity2014.getSegment().getCode());
 
             entityInputBean =
-                    new EntityInputBean(docType, "cba")
+                    new EntityInputBean(fortress, docType, "cba")
                             .setSegment(segment2015.getCode())
                             .setContent(new ContentInputBean(Helper.getRandomMap()));
 

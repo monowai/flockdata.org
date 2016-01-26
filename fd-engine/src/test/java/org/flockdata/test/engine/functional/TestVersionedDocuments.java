@@ -24,7 +24,7 @@ public class TestVersionedDocuments extends EngineBase {
     @Test
     public void defaults_ByDocumentType() throws Exception {
 
-        // Document properties can override be overrident from the fortress default
+        // Document properties can be overridden from the fortress default
         SystemUser su = registerSystemUser("defaults_ByDocumentType");
 
         Fortress fortress= fortressService.registerFortress(su.getCompany(),
@@ -63,7 +63,7 @@ public class TestVersionedDocuments extends EngineBase {
                                 .setCode("Memory"))
         .setVersionStrategy(DocumentType.VERSION.FORTRESS));
 
-        EntityInputBean eib = new EntityInputBean(fortress, memoryType)
+        EntityInputBean eib = new EntityInputBean(fortress, memoryType.getName())
                 .setCode("ABC");
 
         TrackResultBean memResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
@@ -86,7 +86,7 @@ public class TestVersionedDocuments extends EngineBase {
 
         TestCase.assertEquals(DocumentType.VERSION.DISABLE, noneType.getVersionStrategy());
 
-        eib = new EntityInputBean(fortress, noneType)
+        eib = new EntityInputBean(fortress, noneType.getName())
                 .setCode("CBA");
 
         TrackResultBean noneResultBean = mediationFacade.trackEntity(su.getCompany(), eib);

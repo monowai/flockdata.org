@@ -21,10 +21,10 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
@@ -51,7 +51,7 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void entity_JsonStructure() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/profile/gov.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/gov.json");
         JsonEntityMapper entity = new JsonEntityMapper();
 
         try {
@@ -91,9 +91,9 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void object_ImportJsonEntity() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ProfileReader.getImportProfile("/profile/gov.json");
-        profile.setContentType(ProfileConfiguration.ContentType.JSON);
-        profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
+        ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
+        profile.setContentType(ContentProfile.ContentType.JSON);
+        profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
         profile.setFortressName("testing");
 
         Company company = Mockito.mock(Company.class);
@@ -106,10 +106,10 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void array_ImportJsonEntities() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile profile = ProfileReader.getImportProfile("/profile/gov.json");
-        profile.setContentType(ProfileConfiguration.ContentType.JSON);
+        ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
+        profile.setContentType(ContentProfile.ContentType.JSON);
         profile.setFortressName("testing");
-        profile.setTagOrEntity(ProfileConfiguration.DataType.ENTITY);
+        profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");

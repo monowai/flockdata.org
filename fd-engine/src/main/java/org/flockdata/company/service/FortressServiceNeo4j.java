@@ -22,10 +22,10 @@ package org.flockdata.company.service;
 
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
+import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
@@ -347,7 +347,7 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public FortressSegment resolveSegment(Company company, EntityInputBean entityInputBean) throws NotFoundException {
-        String fortressName = entityInputBean.getFortress();
+        String fortressName = entityInputBean.getFortressName();
         String segmentName = entityInputBean.getSegment();
 
         Fortress fortress;

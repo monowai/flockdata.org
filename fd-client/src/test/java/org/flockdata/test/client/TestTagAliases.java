@@ -19,7 +19,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
@@ -43,7 +43,7 @@ public class TestTagAliases extends AbstractImport {
         String paramFile = "/profile/csv-tag-alias.json";
         ClientConfiguration configuration = getClientConfiguration(paramFile);
 
-        ImportProfile params = ProfileReader.getImportProfile(paramFile);
+        ContentProfileImpl params = ProfileReader.getImportProfile(paramFile);
         fileProcessor.processFile(params, "/data/csv-tag-alias.txt", getFdWriter(), null, configuration);
 
         Collection<TagInputBean> tagInputBeans = getFdWriter().getTags();

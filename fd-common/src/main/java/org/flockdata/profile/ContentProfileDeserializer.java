@@ -25,7 +25,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
 import java.io.File;
@@ -40,85 +41,92 @@ import java.util.Map;
  * Date: 9/05/14
  * Time: 8:45 AM
  */
-public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
+public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileImpl> {
+
+    ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+
     @Override
-    public ImportProfile deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ImportProfile importProfile = new ImportProfile();
+    public ContentProfileImpl deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        ContentProfileImpl contentProfileImpl = new ContentProfileImpl();
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode nodeValue = node.get("documentName");
-        if ( nodeValue == null )
-            nodeValue = node.get("documentType");
         if (nodeValue != null)
-            importProfile.setDocumentName(nodeValue.asText());
+            contentProfileImpl.setDocumentName(nodeValue.asText());
+
+        nodeValue = node.get("documentType");
+        if ( nodeValue != null ) {
+            nodeValue = node.get("documentType");
+            contentProfileImpl.setDocumentType(mapper.readValue(nodeValue.toString(), DocumentTypeInputBean.class));
+        }
 
         nodeValue = node.get("handler");
         if (nodeValue != null && !nodeValue.isNull())
-            importProfile.setHandler(nodeValue.asText());
+            contentProfileImpl.setHandler(nodeValue.asText());
 
         nodeValue = node.get("fortressName");
         if (nodeValue != null&& !nodeValue.isNull())
-            importProfile.setFortressName(nodeValue.asText());
+            contentProfileImpl.setFortressName(nodeValue.asText());
 
         nodeValue = node.get("tagOrEntity");
         if ( nodeValue == null  )
             nodeValue = node.get("tagOrTrack");
 
         if (nodeValue != null)
-            importProfile.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ProfileConfiguration.DataType.ENTITY : ProfileConfiguration.DataType.TAG);
+            contentProfileImpl.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ContentProfile.DataType.ENTITY : ContentProfile.DataType.TAG);
 
         nodeValue = node.get("condition");
         if ( nodeValue!=null && ! nodeValue.isNull())
-            importProfile.setCondition(nodeValue.asText());
+            contentProfileImpl.setCondition(nodeValue.asText());
 
         nodeValue = node.get("fortressUser");
         if (nodeValue != null&& !nodeValue.isNull())
-            importProfile.setFortressUser(nodeValue.asText());
+            contentProfileImpl.setFortressUser(nodeValue.asText());
 
         nodeValue = node.get("entityOnly");
         if ( nodeValue == null || nodeValue.isNull() )
             nodeValue = node.get("metaOnly"); // legacy value
         if (nodeValue != null&& !nodeValue.isNull())
-            importProfile.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
+            contentProfileImpl.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("header");
         if (nodeValue != null)
-            importProfile.setHeader(Boolean.parseBoolean(nodeValue.asText()));
+            contentProfileImpl.setHeader(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("emptyIgnored");
         if (nodeValue != null)
-            importProfile.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
+            contentProfileImpl.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
 
         nodeValue = node.get("preParseRowExp");
         if (nodeValue != null)
-            importProfile.setPreParseRowExp(nodeValue.asText());
+            contentProfileImpl.setPreParseRowExp(nodeValue.asText());
 
 
         nodeValue = node.get("archiveTags");
         if (nodeValue != null)
-            importProfile.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
+            contentProfileImpl.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("delimiter");
         if (nodeValue != null&& !nodeValue.isNull())
-            importProfile.setDelimiter(nodeValue.asText());
+            contentProfileImpl.setDelimiter(nodeValue.asText());
 
         nodeValue = node.get("quoteCharacter");
         if (nodeValue != null&& !nodeValue.isNull())
-            importProfile.setQuoteCharacter(nodeValue.asText());
+            contentProfileImpl.setQuoteCharacter(nodeValue.asText());
 
         if ( nodeValue !=null && !nodeValue.isNull() )
-            importProfile.setEntityKey(nodeValue.asText());
+            contentProfileImpl.setEntityKey(nodeValue.asText());
 
         nodeValue = node.get("event");
         if ( nodeValue != null && !nodeValue.isNull() )
-            importProfile.setEvent(nodeValue.asText());
+            contentProfileImpl.setEvent(nodeValue.asText());
 
         nodeValue = node.get("segment");
         if ( nodeValue != null && !nodeValue.isNull() )
-            importProfile.setSegmentExpression(nodeValue.asText());
+            contentProfileImpl.setSegmentExpression(nodeValue.asText());
 
         if ( nodeValue!=null) {
-            importProfile.setEntityKey(nodeValue.asText());
+            contentProfileImpl.setEntityKey(nodeValue.asText());
         }
 
 
@@ -126,51 +134,51 @@ public class ImportProfileDeserializer extends JsonDeserializer<ImportProfile> {
         if (nodeValue != null) {
             switch (nodeValue.textValue().toLowerCase()) {
                 case "csv":
-                    importProfile.setContentType(ProfileConfiguration.ContentType.CSV);
+                    contentProfileImpl.setContentType(ContentProfile.ContentType.CSV);
                     break;
                 case "xml":
-                    importProfile.setContentType(ProfileConfiguration.ContentType.XML);
+                    contentProfileImpl.setContentType(ContentProfile.ContentType.XML);
                     break;
                 case "json":
-                    importProfile.setContentType(ProfileConfiguration.ContentType.JSON);
+                    contentProfileImpl.setContentType(ContentProfile.ContentType.JSON);
                     break;
             }
         }
         nodeValue = node.get("content");
         if ( nodeValue !=null ){
-            ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-            Iterator<Map.Entry<String,JsonNode>> columnNodes = nodeValue.fields();
+
+            Iterator<Map.Entry<String,JsonNode>> fields = nodeValue.fields();
             Map<String,ColumnDefinition>content = new HashMap<>();
-            while (columnNodes.hasNext()) {
-                Map.Entry<String, JsonNode> next = columnNodes.next();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> next = fields.next();
                 String colName = next.getKey();
                 ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
 //                if ( columnDefinition.getTarget()!=null )
 //                    colName = columnDefinition.getTarget();
                 content.put(colName, columnDefinition);
             }
-            importProfile.setContent(content);
+            contentProfileImpl.setContent(content);
         }
-        return importProfile;  //To change body of implemented methods use File | Settings | File Templates.
+        return contentProfileImpl;  //To change body of implemented methods use File | Settings | File Templates.
     }
-    public static ImportProfile getImportParams(String profile) throws IOException {
-        ImportProfile importProfile;
+    public static ContentProfileImpl getImportParams(String profile) throws IOException {
+        ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
+            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
+                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
             } else
                 // Defaults??
-                importProfile = new ImportProfile();
+                contentProfileImpl = new ContentProfileImpl();
         }
         //importParams.setRestClient(restClient);
-        return importProfile;
+        return contentProfileImpl;
     }
 
 }

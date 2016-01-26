@@ -21,7 +21,7 @@ package org.flockdata.test.client;
 
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
@@ -46,7 +46,7 @@ public class TestImportProfileValidation extends AbstractImport{
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ProfileReader.getImportProfile("/properties-rlx.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);

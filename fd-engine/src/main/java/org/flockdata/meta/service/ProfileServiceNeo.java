@@ -26,13 +26,13 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
@@ -64,7 +64,7 @@ public class ProfileServiceNeo implements ImportProfileService {
 
     static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
-    public ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException {
+    public ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException {
         Profile profile = profileDao.find(fortress, documentType);
 
         if (profile == null)
@@ -72,7 +72,7 @@ public class ProfileServiceNeo implements ImportProfileService {
         //return profile;
         String json = profile.getContent();
         try {
-            ImportProfile iProfile=  objectMapper.readValue(json, ImportProfile.class);
+            ContentProfileImpl iProfile=  objectMapper.readValue(json, ContentProfileImpl.class);
             iProfile.setFortressName(fortress.getName());
             iProfile.setDocumentName(documentType.getName());
             return iProfile;
@@ -81,7 +81,7 @@ public class ProfileServiceNeo implements ImportProfileService {
         }
     }
 
-    public Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException {
+    public Profile save(Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException {
         //objectMapper.
         Profile profile = profileDao.find(fortress, documentType);
         if (profile == null) {
@@ -99,7 +99,7 @@ public class ProfileServiceNeo implements ImportProfileService {
     }
 
     @Override
-    public void save(Company company, String fortressCode, String documentCode, ImportProfile profile) throws FlockException {
+    public void save(Company company, String fortressCode, String documentCode, ContentProfileImpl profile) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
         if (documentType == null )
@@ -126,7 +126,7 @@ public class ProfileServiceNeo implements ImportProfileService {
     }
 
     public Long process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-        ProfileConfiguration profile = get(fortress, documentType);
+        ContentProfile profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
         FileProcessor fileProcessor = new FileProcessor();
@@ -152,7 +152,7 @@ public class ProfileServiceNeo implements ImportProfileService {
     }
 
     @Override
-    public ProfileConfiguration get(Company company, String fortressCode, String documentCode) throws FlockException {
+    public ContentProfile get(Company company, String fortressCode, String documentCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if ( fortress == null )
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);

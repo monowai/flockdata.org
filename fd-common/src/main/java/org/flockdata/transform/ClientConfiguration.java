@@ -19,7 +19,7 @@
 
 package org.flockdata.transform;
 
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -182,7 +182,7 @@ public class ClientConfiguration {
      * @throws ClassNotFoundException
      * @deprecated - use org.flockdata.transform.ProfileConfiguration
      */
-    public static ImportProfile getImportProfile(String profile) throws IOException, ClassNotFoundException {
+    public static ContentProfileImpl getImportProfile(String profile) throws IOException, ClassNotFoundException {
         return ProfileReader.getImportProfile(profile);
     }
 

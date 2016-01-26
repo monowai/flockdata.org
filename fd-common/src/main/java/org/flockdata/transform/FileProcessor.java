@@ -31,11 +31,11 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
@@ -130,7 +130,7 @@ public class FileProcessor {
         return results;
     }
 
-    public Long processFile(ProfileConfiguration importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public Long processFile(ContentProfile importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         fdLoader = new FdLoader(writer, defaults, company);
 
@@ -141,12 +141,12 @@ public class FileProcessor {
         try {
             for (String file : files) {
 
-                if (importProfile.getContentType() == ProfileConfiguration.ContentType.CSV)
+                if (importProfile.getContentType() == ContentProfile.ContentType.CSV)
                     result = processCSVFile(file, importProfile, writer);
-                else if (importProfile.getContentType() == ProfileConfiguration.ContentType.XML)
+                else if (importProfile.getContentType() == ContentProfile.ContentType.XML)
                     result = processXMLFile(file, importProfile, writer);
-                else if (importProfile.getContentType() == ProfileConfiguration.ContentType.JSON) {
-                    if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY)
+                else if (importProfile.getContentType() == ContentProfile.ContentType.JSON) {
+                    if (importProfile.getTagOrEntity() == ContentProfile.DataType.ENTITY)
                         result = processJsonEntities(file, importProfile, writer);
                     else
                         result = processJsonTags(file);
@@ -201,7 +201,7 @@ public class FileProcessor {
         return tags.size();
     }
 
-    private long processJsonEntities(String fileName, ProfileConfiguration importProfile, FdWriter writer) throws FlockException {
+    private long processJsonEntities(String fileName, ContentProfile importProfile, FdWriter writer) throws FlockException {
         long rows = 0;
 
         File file = new File(fileName);
@@ -275,7 +275,7 @@ public class FileProcessor {
         return endProcess(watch, rows, 0);
     }
 
-    private void processJsonNode(JsonNode node, ProfileConfiguration importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
+    private void processJsonNode(JsonNode node, ContentProfile importProfile, List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
         EntityInputBean entityInputBean = Transformer.transformToEntity(node, importProfile);
         if (!entityInputBean.getEntityLinks().isEmpty()) {
             referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
@@ -286,7 +286,7 @@ public class FileProcessor {
 
     }
 
-    private long processXMLFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private long processXMLFile(String file, ContentProfile importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
             StopWatch watch = new StopWatch();
@@ -330,7 +330,7 @@ public class FileProcessor {
         }
     }
 
-    private long processCSVFile(String file, ProfileConfiguration importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private long processCSVFile(String file, ContentProfile importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         long ignoreCount = 0;
@@ -380,7 +380,7 @@ public class FileProcessor {
                         Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, importProfile);
 
                         if (map != null) {
-                            if (importProfile.getTagOrEntity() == ProfileConfiguration.DataType.ENTITY) {
+                            if (importProfile.getTagOrEntity() == ContentProfile.DataType.ENTITY) {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
@@ -449,7 +449,7 @@ public class FileProcessor {
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
-    public static String[] preProcess(String[] row, ProfileConfiguration importProfile) {
+    public static String[] preProcess(String[] row, ContentProfile importProfile) {
         String[] result = new String[row.length];
         String exp = importProfile.getPreParseRowExp();
         if ((exp == null || exp.equals("")))
