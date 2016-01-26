@@ -19,7 +19,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -42,7 +42,7 @@ public class TestStates extends AbstractImport {
         String profile = "/states.json";
         ClientConfiguration configuration = getClientConfiguration(profile);
         FileProcessor fileProcessor = new FileProcessor();
-        ImportProfile params = ProfileReader.getImportProfile(profile);
+        ContentProfileImpl params = ProfileReader.getImportProfile(profile);
         fileProcessor.processFile(params, "/states.csv", getFdWriter(), null, configuration);
         assertEquals(72, getFdWriter().getTags().size());
 

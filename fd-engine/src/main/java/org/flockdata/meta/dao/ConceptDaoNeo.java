@@ -25,7 +25,9 @@ import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.RelationshipResultBean;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.DynamicRelationshipType;
+import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,7 +156,7 @@ public class ConceptDaoNeo {
             documents = documentTypeRepo.findDocuments(company, docNames);
 
         for (DocumentType document : documents) {
-            template.fetch(document.getFortress());
+//            template.fetch(document.getFortress());
 
             DocumentResultBean documentResult = new DocumentResultBean(document);
             documentResults.add(documentResult);

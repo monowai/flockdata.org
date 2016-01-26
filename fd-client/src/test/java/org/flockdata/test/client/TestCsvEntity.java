@@ -22,7 +22,7 @@ package org.flockdata.test.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -52,7 +52,7 @@ public class TestCsvEntity {
 
     @Test
     public void entityRow() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/csvtest.json");
         EntityMapper entity = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals", "Category", "xRef"};
@@ -143,7 +143,7 @@ public class TestCsvEntity {
     @Test
     public void validate_ColumnHelper() throws Exception {
         String[] headers = new String[]{"Title", "Tag", "TagVal", "ValTag", "Origin", "Year", "Gold Medals"};
-        ImportProfile params = getImportParams("/csvtest.json");
+        ContentProfileImpl params = getImportParams("/csvtest.json");
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
         assertTrue("CallerRef was wrong", colDef.isCallerRef());
@@ -187,7 +187,7 @@ public class TestCsvEntity {
 
     @Test
     public void complexCSVStructure() throws Exception {
-        ImportProfile params = getImportParams("/complex-concept.json");
+        ContentProfileImpl params = getImportParams("/complex-concept.json");
 
 
         String[] headers = {"Athlete", "Age", "Country", "Year", "Sport", "Gold Medals", "Silver Medals", "Bronze Medals"};
@@ -247,7 +247,7 @@ public class TestCsvEntity {
 
     @Test
     public void nestedTags() throws Exception {
-        ImportProfile params = getImportParams("/nestedTags.json");
+        ContentProfileImpl params = getImportParams("/nestedTags.json");
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"transaction_id", "zip", "state", "stateName", "city", "country"};
         String[] data = new String[]{"1", "123", "CA", "California", "San Francisco", "United States"};
@@ -287,7 +287,7 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "Tag"};
         String[] data = new String[]{"TitleTests", "TagA,TagB,TagC"};
-        ImportProfile params = getImportParams("/csv-entity-tags.json");
+        ContentProfileImpl params = getImportParams("/csv-entity-tags.json");
         EntityMapper mapper = new EntityMapper(params);
         mapper.setData(Transformer.convertToMap(headers, data, params), params);
 
@@ -313,7 +313,7 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
-        ImportProfile params = getImportParams("/csv-entity-data-types.json");
+        ContentProfileImpl params = getImportParams("/csv-entity-data-types.json");
         assertTrue(params.isEntityOnly());
         EntityMapper mapper = new EntityMapper(params);
 
@@ -338,29 +338,29 @@ public class TestCsvEntity {
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
     }
 
-    public static ImportProfile getImportParams(String profile) throws IOException {
-        ImportProfile importProfile;
+    public static ContentProfileImpl getImportParams(String profile) throws IOException {
+        ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
+            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
+                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
             } else
                 // Defaults??
-                importProfile = new ImportProfile();
+                contentProfileImpl = new ContentProfileImpl();
         }
         //importParams.setWriter(restClient);
-        return importProfile;
+        return contentProfileImpl;
     }
 
     @Test
     public void null_EntityRow() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Field", "Year"};
@@ -379,7 +379,7 @@ public class TestCsvEntity {
 
     @Test
     public void empty_ColumnWithASpace() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/csvtest.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/csvtest.json");
         EntityMapper mapper = new EntityMapper(params);
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag
         String[] headers = new String[]{"Title",  "Year"};
@@ -397,7 +397,7 @@ public class TestCsvEntity {
     }
     @Test
     public void empty_ColumnWithASpaceIsIgnored() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/csvtest-emptyisignored.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/csvtest-emptyisignored.json");
         EntityMapper mapper = new EntityMapper(params);
         assertTrue("isEmptyIgnored is not set", params.isEmptyIgnored());
         // @*, the column Header becomes the index for the tag and the Value becomes the name of the tag

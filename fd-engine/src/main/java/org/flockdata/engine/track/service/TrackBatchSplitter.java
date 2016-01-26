@@ -20,9 +20,9 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
@@ -85,7 +85,7 @@ public class TrackBatchSplitter {
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
 
-            String segmentKey = FortressSegment.key(Fortress.code(entityInputBean.getFortress()), entityInputBean.getSegment());
+            String segmentKey = FortressSegment.key(Fortress.code(entityInputBean.getFortressName()), entityInputBean.getSegment());
             FortressSegment segment = resolvedSegments.get(segmentKey);
             if ( segment == null ) {
                 segment = fortressService.resolveSegment(company, entityInputBean);

@@ -19,6 +19,7 @@
 
 package org.flockdata.profile.model;
 
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ import java.util.Map;
  * Date: 3/10/14
  * Time: 2:51 PM
  */
-public interface ProfileConfiguration {
+public interface ContentProfile {
     String getDocumentName();
 
     ContentType getContentType();
@@ -76,7 +77,15 @@ public interface ProfileConfiguration {
 
     String getSegmentExpression();
 
+    DocumentTypeInputBean getDocumentType();
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}
+
+    void setHeader(boolean header);
+
+    void setContentType(ContentType contentType);
+
+    void setTagOrEntity(DataType dataType);
 }

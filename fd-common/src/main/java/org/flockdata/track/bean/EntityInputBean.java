@@ -20,7 +20,6 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.TagInputBean;
@@ -38,10 +37,10 @@ import java.util.*;
 public class EntityInputBean implements Serializable, UserProperties{
     private String metaKey;
     private String code;
-    private String fortress;
+    private String fortressName;
     private String fortressUser;
     private String documentName;
-    private DocumentType documentType;
+    private DocumentTypeInputBean documentType;
 
     private Date when = null; // Created Date
 
@@ -69,7 +68,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public EntityInputBean(EntityKeyBean entityKeyBean) {
-        setFortress(entityKeyBean.getFortressName());
+        setFortressName(entityKeyBean.getFortressName());
         setDocumentName(entityKeyBean.getDocumentType());
         setCode(entityKeyBean.getCode());
     }
@@ -77,21 +76,21 @@ public class EntityInputBean implements Serializable, UserProperties{
     /**
      * Constructor is for testing purposes
      *
-     * @param fortressName      Application/Division or System that owns this information
+     * @param fortress      Application/Division or System that owns this information
      * @param fortressUser  who in the fortressName created it
      * @param documentName  within the fortressName, this is a document of this unique type
      * @param fortressWhen  when did this occur in the fortressName
      * @param code     case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(Fortress fortressName, String fortressUser, String documentName, DateTime fortressWhen, String code) {
+    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
         if (fortressWhen != null) {
             setWhen(fortressWhen.toDate());
         }
-        setFortress(fortressName.getName());
+        setFortressName(fortress.getName());
         setFortressUser( fortressUser);
         setDocumentName(documentName);
-        this.documentType = new DocumentType(fortressName, documentName);
+        this.documentType = new DocumentTypeInputBean(documentName);
         setCode(code);
     }
 
@@ -100,21 +99,24 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     }
 
-    public EntityInputBean(Fortress fortress, DocumentType documentType) {
-        this ( fortress.getName(), documentType.getName());
-        this.documentType = documentType;
-    }
-
     public EntityInputBean(String fortressName, String documentName) {
         this();
-        this.fortress= fortressName;
+        this.fortressName= fortressName;
         this.documentName = documentName;
     }
 
-    public EntityInputBean(DocumentType docType, String code) {
-        this.code = code;
-        this.fortress = docType.getFortress().getName();
-        this.documentType = docType;
+    public EntityInputBean(Fortress fortress, String documentName) {
+        this(fortress.getName(), documentName);
+    }
+
+    public EntityInputBean(Fortress fortress, DocumentTypeInputBean documentType) {
+        this ( fortress.getName(), documentType.getName());
+        setDocumentType(documentType);
+    }
+
+    public EntityInputBean(Fortress fortress, DocumentTypeInputBean docType, String entityCode) {
+        this(fortress, docType);
+        this.code = entityCode;
 
     }
 
@@ -145,8 +147,8 @@ public class EntityInputBean implements Serializable, UserProperties{
 
 
 
-    public String getFortress() {
-        return fortress;
+    public String getFortressName() {
+        return fortressName;
     }
 
     /**
@@ -157,8 +159,8 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @param fortress unique fortressName relationshipName
      */
-    public EntityInputBean setFortress(final String fortress) {
-        this.fortress = fortress;
+    public EntityInputBean setFortressName(final String fortress) {
+        this.fortressName = fortress;
         return this;
     }
 
@@ -358,7 +360,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     @Override
     public String toString() {
         return "EntityInputBean{" +
-                "for='" + getFortress() + '\'' +
+                "for='" + getFortressName() + '\'' +
                 ", doc='" + getDocumentName() + '\'' +
                 ", seg='" + getSegment() + '\'' +
                 ", mek='" + getMetaKey() + '\'' +
@@ -440,7 +442,7 @@ public class EntityInputBean implements Serializable, UserProperties{
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (!documentName.equals(that.documentName)) return false;
-        if (!fortress.equals(that.fortress)) return false;
+        if (!fortressName.equals(that.fortressName)) return false;
         return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 
     }
@@ -449,7 +451,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     public int hashCode() {
         int result = metaKey != null ? metaKey.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + fortress.hashCode();
+        result = 31 * result + fortressName.hashCode();
         result = 31 * result + documentName.hashCode();
         return result;
     }
@@ -463,7 +465,7 @@ public class EntityInputBean implements Serializable, UserProperties{
         return user;
     }
 
-    public DocumentType getDocumentType() {
+    public DocumentTypeInputBean getDocumentType() {
         return documentType;
     }
 
@@ -477,8 +479,11 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
 
-    public EntityInputBean setDocumentType(final DocumentType documentType) {
-        this.documentType = documentType;
+    public EntityInputBean setDocumentType(final DocumentTypeInputBean documentType) {
+        if ( documentType!=null) {
+            this.documentType = documentType;
+            this.documentName = documentType.getName();
+        }
         return this;
     }
 

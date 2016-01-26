@@ -111,4 +111,8 @@ public class DocumentTypeInputBean {
     }
 
 
+    public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
+        this.tagStructure = tagStructure;
+        return this;
+    }
 }

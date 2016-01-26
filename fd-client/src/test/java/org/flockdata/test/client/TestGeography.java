@@ -22,7 +22,7 @@ package org.flockdata.test.client;
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
 import org.flockdata.model.Tag;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvTagMapper;
@@ -48,7 +48,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_Countries() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -81,7 +81,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTag() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -102,7 +102,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -123,7 +123,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
-        ImportProfile params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -172,7 +172,7 @@ public class TestGeography extends AbstractImport{
         ClientConfiguration configuration = Configure.getConfiguration(file);
         TestCase.assertNotNull(configuration);
 
-        ImportProfile params = ProfileReader.getImportProfile(fileName);
+        ContentProfileImpl params = ProfileReader.getImportProfile(fileName);
         TestCase.assertEquals('|', params.getDelimiter());
         TestCase.assertEquals(true, params.hasHeader());
         TestCase.assertNotNull(params.getCondition());

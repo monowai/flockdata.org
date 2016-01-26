@@ -20,7 +20,8 @@
 package org.flockdata.profile;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
 import java.util.ArrayList;
@@ -33,13 +34,14 @@ import java.util.Map;
  * Date: 28/04/14
  * Time: 8:47 AM
  */
-@JsonDeserialize(using = ImportProfileDeserializer.class)
-public class ImportProfile implements ProfileConfiguration {
+@JsonDeserialize(using = ContentProfileDeserializer.class)
+public class ContentProfileImpl implements ContentProfile {
 
     // Default fortress name if not otherwise supplied
     private String fortressName = null;
     // Default document name if not otherwise supplied
     private String documentName;
+    private DocumentTypeInputBean documentType;
     private ContentType contentType;
     private DataType tagOrEntity;
     private String handler = null;
@@ -62,7 +64,7 @@ public class ImportProfile implements ProfileConfiguration {
     private String condition; // an expression that determines if the row will be processed
 
 
-    public ImportProfile() {
+    public ContentProfileImpl() {
 
     }
 
@@ -277,5 +279,14 @@ public class ImportProfile implements ProfileConfiguration {
 
     public void setSegmentExpression(String segmentExpression) {
         this.segmentExpression = segmentExpression;
+    }
+
+    public DocumentTypeInputBean getDocumentType() {
+        return (DocumentTypeInputBean) documentType;
+    }
+
+    public ContentProfileImpl setDocumentType(DocumentTypeInputBean documentType) {
+        this.documentType = documentType;
+        return this;
     }
 }

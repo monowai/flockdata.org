@@ -22,7 +22,7 @@ package org.flockdata.test.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -49,7 +49,7 @@ public class TestEntityRlxProperties extends AbstractImport{
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ProfileReader.getImportProfile("/properties-rlx.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);

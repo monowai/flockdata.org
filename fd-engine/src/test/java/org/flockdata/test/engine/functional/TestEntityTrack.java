@@ -125,12 +125,12 @@ public class TestEntityTrack extends EngineBase {
         Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
         assertEquals("DB has stray DocumentType objects lying around",0, docs.size());
 
-        DocumentType docTypeObject = new DocumentType(fortress, "docTypeFromInput");
+        DocumentTypeInputBean docTypeObject = new DocumentTypeInputBean("docTypeFromInput");
         docTypeObject.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
 
-        EntityInputBean eib = new EntityInputBean(docTypeObject, "!123321!");
-        eib.setFortress(fortress.getName());
-        eib.setEntityOnly(true);
+        EntityInputBean eib = new EntityInputBean(fortress, docTypeObject, "!123321!")
+                .setFortressName(fortress.getName())
+                .setEntityOnly(true);
 
 
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
