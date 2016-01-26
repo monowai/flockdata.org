@@ -53,8 +53,6 @@ public interface ContentProfile {
 
     boolean isEntityOnly();
 
-    String getEntityKey();
-
     Collection<String> getStrategyCols();
 
     boolean isArchiveTags();

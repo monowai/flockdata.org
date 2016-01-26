@@ -188,15 +188,6 @@ public class ContentProfileImpl implements ContentProfile {
         return content.get(column);
     }
 
-    public void setEntityKey(String entityKey) {
-        this.entityKey = entityKey;
-    }
-
-    @Override
-    public String getEntityKey() {
-        return entityKey;
-    }
-
     public Map<String, ColumnDefinition> getContent() {
         return content;
     }

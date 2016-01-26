@@ -59,10 +59,6 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
             contentProfileImpl.setDocumentType(mapper.readValue(nodeValue.toString(), DocumentTypeInputBean.class));
         }
 
-        nodeValue = node.get("handler");
-        if (nodeValue != null && !nodeValue.isNull())
-            contentProfileImpl.setHandler(nodeValue.asText());
-
         nodeValue = node.get("fortressName");
         if (nodeValue != null&& !nodeValue.isNull())
             contentProfileImpl.setFortressName(nodeValue.asText());
@@ -88,34 +84,13 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         if (nodeValue != null&& !nodeValue.isNull())
             contentProfileImpl.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
 
-        nodeValue = node.get("header");
-        if (nodeValue != null)
-            contentProfileImpl.setHeader(Boolean.parseBoolean(nodeValue.asText()));
-
         nodeValue = node.get("emptyIgnored");
         if (nodeValue != null)
             contentProfileImpl.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
-
-        nodeValue = node.get("preParseRowExp");
-        if (nodeValue != null)
-            contentProfileImpl.setPreParseRowExp(nodeValue.asText());
-
-
         nodeValue = node.get("archiveTags");
         if (nodeValue != null)
             contentProfileImpl.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
-
-        nodeValue = node.get("delimiter");
-        if (nodeValue != null&& !nodeValue.isNull())
-            contentProfileImpl.setDelimiter(nodeValue.asText());
-
-        nodeValue = node.get("quoteCharacter");
-        if (nodeValue != null&& !nodeValue.isNull())
-            contentProfileImpl.setQuoteCharacter(nodeValue.asText());
-
-        if ( nodeValue !=null && !nodeValue.isNull() )
-            contentProfileImpl.setEntityKey(nodeValue.asText());
 
         nodeValue = node.get("event");
         if ( nodeValue != null && !nodeValue.isNull() )
@@ -125,10 +100,42 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         if ( nodeValue != null && !nodeValue.isNull() )
             contentProfileImpl.setSegmentExpression(nodeValue.asText());
 
-        if ( nodeValue!=null) {
-            contentProfileImpl.setEntityKey(nodeValue.asText());
+        nodeValue = node.get("content");
+        if ( nodeValue !=null ){
+
+            Iterator<Map.Entry<String,JsonNode>> fields = nodeValue.fields();
+            Map<String,ColumnDefinition>content = new HashMap<>();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> next = fields.next();
+                String colName = next.getKey();
+                ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
+                content.put(colName, columnDefinition);
+            }
+            contentProfileImpl.setContent(content);
         }
 
+        // ********
+        // Batch handling
+        // ********
+        nodeValue = node.get("handler");
+        if (nodeValue != null && !nodeValue.isNull())
+            contentProfileImpl.setHandler(nodeValue.asText());
+
+        nodeValue = node.get("header");
+        if (nodeValue != null)
+            contentProfileImpl.setHeader(Boolean.parseBoolean(nodeValue.asText()));
+
+        nodeValue = node.get("preParseRowExp");
+        if (nodeValue != null)
+            contentProfileImpl.setPreParseRowExp(nodeValue.asText());
+
+        nodeValue = node.get("delimiter");
+        if (nodeValue != null&& !nodeValue.isNull())
+            contentProfileImpl.setDelimiter(nodeValue.asText());
+
+        nodeValue = node.get("quoteCharacter");
+        if (nodeValue != null&& !nodeValue.isNull())
+            contentProfileImpl.setQuoteCharacter(nodeValue.asText());
 
         nodeValue = node.get("contentType");
         if (nodeValue != null) {
@@ -144,21 +151,10 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
                     break;
             }
         }
-        nodeValue = node.get("content");
-        if ( nodeValue !=null ){
+        // ********
+        // End Batch handling
+        // ********
 
-            Iterator<Map.Entry<String,JsonNode>> fields = nodeValue.fields();
-            Map<String,ColumnDefinition>content = new HashMap<>();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> next = fields.next();
-                String colName = next.getKey();
-                ColumnDefinition columnDefinition = mapper.readValue(next.getValue().toString(), ColumnDefinition.class);
-//                if ( columnDefinition.getTarget()!=null )
-//                    colName = columnDefinition.getTarget();
-                content.put(colName, columnDefinition);
-            }
-            contentProfileImpl.setContent(content);
-        }
         return contentProfileImpl;  //To change body of implemented methods use File | Settings | File Templates.
     }
     public static ContentProfileImpl getImportParams(String profile) throws IOException {
