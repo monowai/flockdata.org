@@ -1139,23 +1139,25 @@ public class TestFdIntegration {
         Fortress timesheetFortress = fortressService.registerFortress(
                 su.getCompany(), new FortressInputBean("timesheet", false));
 
-        EntityInputBean cleaner = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
-        cleaner.addTag(new TagInputBean("Cleaner", "Position", "role"));
-        mediationFacade.trackEntity(su.getCompany(), cleaner);
+        EntityInputBean cleanerInput = new EntityInputBean(timesheetFortress, "wally", "Staff", new DateTime(), "ABC123");
+        cleanerInput.addTag(new TagInputBean("Cleaner", "Position", "role"));
+        TrackResultBean cleaner = mediationFacade.trackEntity(su.getCompany(), cleanerInput);
+        esHelper.waitForFirstSearchResult(su.getCompany(), cleaner.getEntity(), entityService);
 
         DocumentType docTypeWork = new DocumentType(timesheetFortress, "Work");
         docTypeWork = conceptService.findOrCreate(timesheetFortress, docTypeWork);
 
         assertEquals(DocumentType.VERSION.FORTRESS, docTypeWork.getVersionStrategy());
 
-        EntityInputBean workRecord = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
+        EntityInputBean workInput = new EntityInputBean(timesheetFortress, "wally", docTypeWork.getName(), new DateTime(), "ABC321");
         // Without content, there will not be a search document
-        workRecord.setContent(new ContentInputBean(Helper.getRandomMap()));
+        workInput.setContent(new ContentInputBean(Helper.getRandomMap()));
 
-        TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
+        TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workInput);
+        esHelper.waitForFirstSearchResult(su.getCompany(), workResult.getEntity(), entityService);
 
-        EntityKeyBean staffKey = new EntityKeyBean(cleaner.getDocumentName(), cleaner.getFortressName(), cleaner.getCode());
-        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortressName(), workRecord.getCode());
+        EntityKeyBean staffKey = new EntityKeyBean(cleanerInput);
+        EntityKeyBean workKey = new EntityKeyBean(workInput);
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(staffKey);
@@ -1164,8 +1166,6 @@ public class TestFdIntegration {
         Collection<EntityKeyBean> entities = entityService.getInboundEntities(workResult.getEntity(), true);
         Assert.assertTrue(entities != null);
         assertFalse(entities.isEmpty());
-
-        esHelper.waitForFirstSearchResult(su.getCompany(), workResult.getEntity(), entityService);
 
         // We are looking for the Position label to be lower case in the key
         esHelper.doEsFieldQuery(workResult.getEntity(), "e.staff.tag.role.position.code", "cleaner",1 ); // DAT-538
