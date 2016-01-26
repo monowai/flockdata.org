@@ -65,6 +65,10 @@ public class EntityKeyBean {
         this.code = code;
     }
 
+    public EntityKeyBean(EntityInputBean entityInput) {
+        this(entityInput.getDocumentName(), entityInput.getFortressName(), entityInput.getCode());
+    }
+
     public EntityKeyBean(String code) {
         this.code = code;
     }
