@@ -20,10 +20,9 @@
 package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.FlockException;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
@@ -47,14 +46,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -94,43 +91,8 @@ public class SearchServiceFacade {
     @Autowired
     EntityTagFinder defaultTagFinder;
 
-    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
-
-    //
-    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
-    public void searchDocSyncResult(byte[] searchResults) throws IOException {
-        searchDocSyncResult(objectMapper.readValue(searchResults, SearchResults.class));
-    }
-
-    /**
-     * Callback handler that is invoked from fd-search. This routine ties the generated search document ID
-     * to the Entity
-     * <p/>
-     * ToDo: On completion of this, an outbound message should be posted so that the caller can be made aware(?)
-     *
-     * @param searchResults contains keys to tie the search to the entity
-     */
-    @ServiceActivator(inputChannel = "searchSyncResult", requiresReply = "false")
-    public void searchDocSyncResult(SearchResults searchResults) {
-        Collection<SearchResult> theResults = searchResults.getSearchResults();
-        int count = 0;
-        int size = theResults.size();
-        logger.debug("searchDocSyncResult processing {} incoming search results", size);
-        for (SearchResult searchResult : theResults) {
-            count++;
-            logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
-            Long entityId = searchResult.getEntityId();
-            if (entityId == null)
-                return;
-
-            try {
-                entityService.recordSearchResult(searchResult, entityId);
-            } catch (FlockException e) {
-                logger.error("Unexpected error recording searchResult for entityId " + entityId, e);
-            }
-        }
-        logger.trace("Finished processing search results");
-    }
+    @Autowired
+    PlatformConfig engineConfig;
 
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
@@ -209,17 +171,14 @@ public class SearchServiceFacade {
         // Description is not carried against the entity - todo: configurable?
         if (trackResultBean.getEntityInputBean()!=null)
             searchDocument.setDescription(trackResultBean.getEntityInputBean().getDescription());
-//        searchDocument.setDescription(entity.getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
 
 
         if (docType != null && docType.hasParent()) {
             EntityKeyBean parent = entityService.findParent(entity);
-
             if (parent != null) {
                 searchDocument.setParent(parent);
-
             }
 
         }
@@ -243,14 +202,14 @@ public class SearchServiceFacade {
 
         if (entity.getId() == null) {
             logger.debug("No entityId so we are not expecting a reply");
-            //searchDocument.setWhen(null);
             searchDocument.setReplyRequired(false);
             searchDocument.setSearchKey(null);
         }
 
-        // If we already have this search key, then don't bother us with a reply
-        if (entity.getSearch() != null)
-            searchDocument.setReplyRequired(false);
+        if (!engineConfig.isSearchRequiredToConfirm() )
+            // If we already have the search key for this Entity then don't bother us with a reply
+            searchDocument.setReplyRequired(entity.getSearch() == null);
+
 
         return searchDocument;
     }
@@ -263,7 +222,9 @@ public class SearchServiceFacade {
      * @return SearchChange payload that can be sent to fd-search
      */
     public EntitySearchChange rebuild(Entity entity, EntityLog lastLog) {
-
+        // ToDO: this should work via getSearchDocument
+        // The way that this is implemented may means the description will be lost as that is only
+        // persisted in ES
         try {
             Log lastChange = null;
             if (lastLog != null)
@@ -293,7 +254,10 @@ public class SearchServiceFacade {
             }
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
             searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
-            searchDocument.setReplyRequired(false);
+
+            if ( !engineConfig.isSearchRequiredToConfirm())
+                searchDocument.setReplyRequired(false);
+
             searchDocument.setForceReindex(true);
 
             return searchDocument;
