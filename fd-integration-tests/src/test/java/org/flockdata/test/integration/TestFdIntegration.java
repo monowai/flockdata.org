@@ -540,7 +540,7 @@ public class TestFdIntegration {
             i++;
         }
         Helper.waitForLogCount(su.getCompany(), entity, max, entityService);
-        esHelper.waitForFirstSearchResult(1, su.getCompany(), entity, entityService);
+        esHelper.waitForFirstSearchResult(0, su.getCompany(), entity, entityService);
 
         watch.stop();
         esHelper.doEsFieldQuery(entity, EntitySearchSchema.DATA + ".blah", "*", 1);
@@ -1001,7 +1001,7 @@ public class TestFdIntegration {
         EntityLog resultBean = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), Helper.getRandomMap())).getCurrentLog();
         assertNotNull(resultBean);
 
-        esHelper.waitForFirstSearchResult(1, su.getCompany(), entity, entityService);
+        esHelper.waitForFirstSearchResult(0, su.getCompany(), entity, entityService);
         esHelper.doEsTermQuery(entity, "tag." + relationshipName + ".tag.code.facet", "Code Test Works", 1);
         esHelper.doEsQuery(entity, "code test works", 1);
 
@@ -1078,7 +1078,7 @@ public class TestFdIntegration {
         Map<String, Object> what = Helper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         entity = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", entity.getMetaKey(), new DateTime(), what)).getEntity();
-        esHelper.waitForFirstSearchResult(1, su.getCompany(), entity, entityService);
+        esHelper.waitForFirstSearchResult(0, su.getCompany(), entity, entityService);
 
         String indexName = entity.getFortress().getRootIndex();
         esHelper.getMapping(indexName);
@@ -1175,9 +1175,9 @@ public class TestFdIntegration {
     @Test
     public void linkedEntity_AddingTo() throws Exception {
         assumeTrue(runMe);
-        SystemUser su = registerSystemUser("linkedEntity_AddingTo");
+        SystemUser su = registerSystemUser("linkedEntity_AddingTo", "linkedEntity_AddingTo");
         Fortress timeRecordingFortress = fortressService.registerFortress(
-                su.getCompany(), new FortressInputBean("timesheet"));
+                su.getCompany(), new FortressInputBean("linkedEntity_AddingTo"));
 
         EntityInputBean staffInput
                 = new EntityInputBean(timeRecordingFortress, "wally", "Staff", new DateTime(), "ABC123")
