@@ -19,7 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.flockdata.model.DocumentType;
 import org.flockdata.track.service.EntityService;
 
@@ -108,12 +107,6 @@ public class DocumentTypeInputBean {
         return searchEnabled;
     }
 
-//    private DocumentTypeInputBean setTagStructure(String tagStructure) {
-//        this.tagStructure = EntityService.TAG_STRUCTURE.valueOf(tagStructure);
-//        return this;
-//    }
-
-    @JsonProperty()
     public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
         this.tagStructure = tagStructure;
         return this;
