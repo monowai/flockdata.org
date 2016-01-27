@@ -451,7 +451,8 @@ public class EsIntegrationHelper {
     }
 
     Entity waitForFirstSearchResult(int searchCount, Company company, Entity entity, EntityService entityService) throws Exception {
-       // Looking for the first searchKey to be logged against the entity
+        // SearchCount of 0 means we will take any old value, i.e. nothing specific
+        // Looking for the first searchKey to be logged against the entity
        int runCount = 1;
 
        Thread.yield();
@@ -461,7 +462,7 @@ public class EsIntegrationHelper {
 
        int timeout = 10;
 
-       while ( (entity.getSearch() == null ||entity.getSearch()<searchCount) && runCount <= timeout) {
+       do {
 
            entity = entityService.getEntity(company, entity.getMetaKey());
            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
@@ -471,9 +472,9 @@ public class EsIntegrationHelper {
                Thread.yield(); // Small pause to let things happen
 
            runCount++;
-       }
+       }  while ( (entity.getSearch() == null || (searchCount == 0 || entity.getSearch() != searchCount) && runCount <= timeout));
 
-       if (entity.getSearch() == null || entity.getSearch()!=searchCount) {
+        if (entity.getSearch() == null || (searchCount > 0 && entity.getSearch()!=searchCount)) {
            logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", runCount, entity.getId(), entity.getSearchKey());
            fail("Search reply not received from fd-search");
        }
