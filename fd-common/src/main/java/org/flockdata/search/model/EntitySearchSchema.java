@@ -29,6 +29,7 @@ public class EntitySearchSchema {
     public static final String META_KEY = "metaKey";
     public static final String CODE = "code";
     public static final String DESCRIPTION = "description";
+    public static final String NAME = "name";
     public static final String TIMESTAMP = "timestamp";
     public static final String FORTRESS = "fortress";
     public static final String DOC_TYPE = "docType";

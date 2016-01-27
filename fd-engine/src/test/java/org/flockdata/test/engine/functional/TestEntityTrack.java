@@ -81,7 +81,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
-        assertNotNull("Find by callerRef failed", entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCode()));
+        assertNotNull("Find by callerRef failed", entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentType().getName(), inputBean.getCode()));
         assertNotNull("Find by metaKey failed", entityService.getEntity(su.getCompany(), result.getMetaKey()));
     }
 
@@ -102,7 +102,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(result);
         assertNotNull(result.getEntity().getMetaKey());
         assertNotNull("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
-        Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentName(), inputBean.getCode());
+        Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentType().getName(), inputBean.getCode());
         assertNotNull(e);
         assertNotNull("Locating an entity by callerRef did not set the fortress", e.getSegment());
         assertNotNull("Did not find the Company in the Fortress", e.getSegment().getCompany());
@@ -125,12 +125,12 @@ public class TestEntityTrack extends EngineBase {
         Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
         assertEquals("DB has stray DocumentType objects lying around",0, docs.size());
 
-        DocumentType docTypeObject = new DocumentType(fortress, "docTypeFromInput");
+        DocumentTypeInputBean docTypeObject = new DocumentTypeInputBean("docTypeFromInput");
         docTypeObject.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
 
-        EntityInputBean eib = new EntityInputBean(docTypeObject, "!123321!");
-        eib.setFortress(fortress.getName());
-        eib.setEntityOnly(true);
+        EntityInputBean eib = new EntityInputBean(fortress, docTypeObject, "!123321!")
+                .setFortressName(fortress.getName())
+                .setEntityOnly(true);
 
 
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
@@ -307,7 +307,7 @@ public class TestEntityTrack extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), "ABC123");
         assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean));
 
-        Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentName(), inputBean.getCode());
+        Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentType().getName(), inputBean.getCode());
         assertNotNull("Unable to locate entity by callerRef", entity);
 
         ContentInputBean contentBean = new ContentInputBean("wally", new DateTime(), Helper.getSimpleMap("blah", 1));
@@ -841,7 +841,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(entity);
         // DAT-278
         assertNotNull(entity.getType());
-        assertEquals(inputBean.getDocumentName(), entity.getType());
+        assertEquals(inputBean.getDocumentType().getName(), entity.getType());
         assertEquals(metaKey, entity.getMetaKey());
     }
 
@@ -1157,7 +1157,9 @@ public class TestEntityTrack extends EngineBase {
         FortressInputBean fortressBean = new FortressInputBean("event_NotNullWhenMetaOnlyIsTrue", true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fortressBean);
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime());
+        EntityInputBean inputBean =
+                new EntityInputBean(fortress, "wally", "TestTrack", new DateTime())
+                .setEvent("Create");
 
         inputBean.setEntityOnly(true);
         TrackResultBean result = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean); // Mock result as we're not tracking

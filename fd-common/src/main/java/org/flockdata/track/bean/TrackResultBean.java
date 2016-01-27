@@ -30,9 +30,10 @@ import java.util.Collection;
 
 /**
  * Represents the internal in-memory state of a request to record a change in FlockData
- * This payload is passed around services and is enriched.
+ * This payload is passed around services enriched and returned.
  * <p/>
- * TrackResultBean is not persisted and is not expected to be returned to a user
+ * TrackResultBean is not persisted and it's state is only guaranteed within FlockData
+ * @see org.flockdata.track.bean.TrackRequestResult for user represetned results
  * <p/>
  * User: Mike Holdsworth
  * Since: 11/05/13
@@ -56,6 +57,7 @@ public class TrackResultBean implements Serializable {
 
     private TxRef txReference = null; // Reference used to track the transaction
     private String tenant = "";
+    private Company company;
 
 
     protected TrackResultBean() {
@@ -79,12 +81,13 @@ public class TrackResultBean implements Serializable {
     public TrackResultBean(Fortress fortress, Entity entity, DocumentType documentType, EntityInputBean entityInputBean) {
         this(entity);
         this.entityInputBean = entityInputBean;
+        this.company = fortress.getCompany();
         this.contentInput = entityInputBean.getContent();
         this.documentType = documentType;
         this.index = fortress.getRootIndex();
     }
 
-    public TrackResultBean(Entity entity) {
+    private TrackResultBean(Entity entity) {
         this.entity = entity;
         this.newEntity = entity.isNewEntity();
     }
@@ -291,5 +294,13 @@ public class TrackResultBean implements Serializable {
         int result = entityInputBean != null ? entityInputBean.hashCode() : 0;
         result = 31 * result + (contentInput != null ? contentInput.hashCode() : 0);
         return result;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

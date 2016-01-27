@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -54,7 +54,7 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ProfileReader.getImportProfile("/profile/no-header-entities.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/no-header-entities.json");
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/no-header.txt", getFdWriter(), null, configuration);

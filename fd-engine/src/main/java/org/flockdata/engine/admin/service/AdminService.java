@@ -27,12 +27,12 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.Company;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
@@ -52,7 +52,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * General maintenance activities across fortress entities. Async in nature
@@ -263,6 +266,15 @@ public class AdminService implements EngineAdminService {
         entities.add(entity);
         reindexEntities(entities, 0l);
         return new AsyncResult<>(1l);
+    }
+
+    public void doReindex(Entity entity) throws FlockException {
+        try {
+            doReindex(entity.getFortress(), entity).get(3000l, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            logger.error ( e.getMessage());
+            throw new FlockException(e.getMessage());
+        }
     }
 
     long reindex(Fortress fortress) {

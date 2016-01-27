@@ -23,6 +23,7 @@ import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.dao.DocumentTypeRepo;
+import org.flockdata.model.*;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexHelper;
@@ -30,7 +31,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.*;
 import org.flockdata.track.service.EntityTagService;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
@@ -418,7 +418,7 @@ public class EntityDaoNeo {
         Node target = template.getPersistentState(entity);
         for (Entity sourceEntity : entities) {
             Node dest = template.getPersistentState(sourceEntity);
-            if (template.getRelationshipBetween(sourceEntity, target, refName) == null)
+            if (template.getRelationshipBetween(dest, target, refName) == null)
                 template.createRelationshipBetween(dest, target, refName, null);
         }
     }
@@ -512,11 +512,17 @@ public class EntityDaoNeo {
     public Collection<EntityKeyBean> getInboundEntities(Entity childEntity, boolean withEntityTags) {
         Collection<EntityKeyBean> results = new ArrayList<>();
         Collection<Entity> entities = entityRepo.findInbountEntities(childEntity.getId());
-        entities.stream().filter(entity -> withEntityTags).forEach(entity -> {
-            Collection<EntityTag> entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
-            // ToDo: Requires the entity to entity relationship name
-            results.add(new EntityKeyBean(entity, entityTags, indexHelper.parseIndex(entity)).addRelationship(""));
-        });
+
+        for (Entity entity : entities) {
+            Collection<EntityTag> entityTags;
+            if ( withEntityTags){
+                entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
+                results.add(new EntityKeyBean(entity, entityTags, indexHelper.parseIndex(entity)).addRelationship(""));
+            } else {
+                results.add(new EntityKeyBean(entity, indexHelper.parseIndex(entity)).addRelationship(""));
+            }
+
+        }
         return results;
     }
 }

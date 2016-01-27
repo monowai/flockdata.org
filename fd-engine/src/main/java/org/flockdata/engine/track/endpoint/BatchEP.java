@@ -22,10 +22,10 @@ package org.flockdata.engine.track.endpoint;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
-import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.model.Company;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,7 +73,7 @@ public class BatchEP {
 
     @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public void putDocument(@RequestBody ImportProfile profile,
+    public void putDocument(@RequestBody ContentProfileImpl profile,
                             HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Company company = CompanyResolver.resolveCompany(request);
         profileService.save(company, fortressCode, documentName, profile);
@@ -82,7 +82,7 @@ public class BatchEP {
 
     @RequestMapping(value = "/{fortress}/{document}", consumes = "application/json", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public ProfileConfiguration getDocument(HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public ContentProfile getDocument(HttpServletRequest request, @PathVariable("fortress") String fortressCode, @PathVariable("document") String documentName) throws FlockException, InterruptedException, ExecutionException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Company company = CompanyResolver.resolveCompany(request);
         return profileService.get(company, fortressCode, documentName);
     }

@@ -153,9 +153,10 @@ public class Fortress implements Serializable {
         return searchEnabled;
     }
 
-    public void setSearchEnabled(Boolean searchEnabled) {
+    public Fortress setSearchEnabled(Boolean searchEnabled) {
         if (searchEnabled != null)
             this.searchEnabled = searchEnabled;
+        return this;
     }
 
     public void setAccumulatingChanges(Boolean addChanges) {
