@@ -26,6 +26,7 @@ package org.flockdata.test.engine.functional;
  */
 
 import org.flockdata.dao.EntityTagDao;
+import org.flockdata.engine.integration.SearchRequests;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
@@ -40,6 +41,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
@@ -1158,6 +1160,8 @@ public class TestEntityTags extends EngineBase {
 
     }
 
+    @Autowired
+    SearchRequests searchRequests;
     @Test
     public void search_seperateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
@@ -1172,7 +1176,7 @@ public class TestEntityTags extends EngineBase {
         searchChange.setSearchKey("SearchKey"); // any value
 
         SearchResults searchResults = getSearchResults(searchChange);
-        searchService.searchDocSyncResult(searchResults);
+        searchRequests.syncSearchResult(searchResults);
 
         assertNotNull(searchChange);
 

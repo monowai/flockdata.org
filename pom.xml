@@ -26,7 +26,8 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://wiki.flockdata.com</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>4.1.7.RELEASE</org.springframework.version>
+        <jackson.version>2.6.5</jackson.version>
+        <org.springframework.version>4.1.9.RELEASE</org.springframework.version>
         <org.springintegration.version>4.1.6.RELEASE</org.springintegration.version>
         <org.springsecurity.version>3.2.7.RELEASE</org.springsecurity.version>
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
@@ -40,7 +41,6 @@
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj.version>1.8.4</org.aspectj.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
-        <jackson.version>2.6.3</jackson.version>
         <surefire.version>2.18</surefire.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -155,7 +155,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.6.3</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.annotation</groupId>
@@ -215,7 +215,7 @@
             <dependency>
                 <groupId>de.grundid.opendatalab</groupId>
                 <artifactId>geojson-jackson</artifactId>
-                <version>1.2</version>
+                <version>1.5.1</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>

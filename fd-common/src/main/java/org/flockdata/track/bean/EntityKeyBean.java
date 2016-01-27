@@ -19,7 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.search.model.SearchTag;
@@ -38,7 +37,6 @@ public class EntityKeyBean {
     private String fortressName;
     private String index;
     private String documentType;
-    private String company;
     private String metaKey;
     private String code;
     private String name;
@@ -52,18 +50,14 @@ public class EntityKeyBean {
 
     private EntityKeyBean(){}
 
-    public EntityKeyBean (DocumentType documentType, String code){
-        this.fortressName = documentType.getFortress().getName();
-        this.company = documentType.getFortress().getCompany().getCode();
-        this.documentType = documentType.getName();
-        this.code = code;
-
-    }
-
     public EntityKeyBean(String documentType, String fortressName, String code){
         this.fortressName = fortressName;
         this.documentType = documentType;
         this.code = code;
+    }
+
+    public EntityKeyBean(EntityInputBean entityInput) {
+        this(entityInput.getDocumentType().getName(), entityInput.getFortressName(), entityInput.getCode());
     }
 
     public EntityKeyBean(String code) {
@@ -125,12 +119,6 @@ public class EntityKeyBean {
 
     public String getMetaKey() {
         return metaKey;
-    }
-
-
-
-    public String getCompany() {
-        return company;
     }
 
     public String getIndex() {

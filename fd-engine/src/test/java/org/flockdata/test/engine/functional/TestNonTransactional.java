@@ -19,16 +19,16 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
 import org.flockdata.model.SystemUser;
-import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.model.EntityTag;
+import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
@@ -78,8 +78,8 @@ public class TestNonTransactional extends EngineBase {
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
         List<EntityKeyBean> callerRefs = new ArrayList<>();
 
-        callerRefs.add(new EntityKeyBean("ABC321"));
-        callerRefs.add(new EntityKeyBean("ABC333"));
+        callerRefs.add(new EntityKeyBean("ABC321", "123", "444"));
+        callerRefs.add(new EntityKeyBean("ABC333", "123", "444"));
 
         refs.put("cites",callerRefs);
         EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);

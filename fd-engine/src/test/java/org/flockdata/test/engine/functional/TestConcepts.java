@@ -61,9 +61,9 @@ public class TestConcepts extends EngineBase {
     public void documentType_InputThroughToDb() throws Exception {
         // DAT-540
         DocumentTypeInputBean documentTypeInputBean = new DocumentTypeInputBean("DTIB")
-                .versionStrategy(DocumentType.VERSION.DISABLE)
-                .tagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
-                .geoQuery("Testing GeoQuery");
+                .getVersionStrategy(DocumentType.VERSION.DISABLE)
+                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
+                .getGeoQuery("Testing GeoQuery");
 
         String json = JsonUtils.getJSON(documentTypeInputBean);
         documentTypeInputBean = JsonUtils.getBytesAsObject(json.getBytes(), DocumentTypeInputBean.class);

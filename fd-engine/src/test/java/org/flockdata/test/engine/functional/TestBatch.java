@@ -21,8 +21,8 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
-import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
@@ -50,7 +50,7 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ImportProfile params = Helper.getImportParams("/profiles/test-csv-batch.json");
+        ContentProfileImpl params = Helper.getImportParams("/profiles/test-csv-batch.json");
 
         Profile p = importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
@@ -63,7 +63,7 @@ public class TestBatch extends EngineBase {
     @Test
     public void import_ValidateArgs() throws Exception{
         FileProcessor fileProcessor = new FileProcessor();
-        ProfileConfiguration profileConfiguration = new ImportProfile();
+        ContentProfile contentProfile = new ContentProfileImpl();
         try {
             FileProcessor.validateArgs("/illegalFile");
             fail("Exception not thrown");

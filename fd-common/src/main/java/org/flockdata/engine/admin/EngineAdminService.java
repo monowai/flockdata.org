@@ -40,4 +40,6 @@ public interface EngineAdminService {
     Future<Boolean> purge(Company company, Fortress fortress) throws FlockException ;
 
     Future<Collection<String>> validateFromSearch(Company company, Fortress fortress, String docType) throws FlockException;
+
+    void doReindex(Entity entity) throws FlockException;
 }

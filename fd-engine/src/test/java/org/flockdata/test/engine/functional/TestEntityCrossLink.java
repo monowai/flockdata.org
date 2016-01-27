@@ -76,8 +76,8 @@ public class TestEntityCrossLink extends EngineBase {
 
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
-        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentName(), parent.getFortress(), parent.getCode());
-        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentName(), child.getFortress(), child.getCode());
+        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortressName(), parent.getCode());
+        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentType().getName(), child.getFortressName(), child.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey);
@@ -207,12 +207,12 @@ public class TestEntityCrossLink extends EngineBase {
         // Check that exception is thrown if the callerRef is not unique for the fortress
         Collection<EntityKeyBean> xRef = new ArrayList<>();
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        String destKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
+        TrackResultBean destKey = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(destKey);
-        assertFalse(destKey.equals(callerRef));
+        assertFalse(callerRef.equals(destKey.getMetaKey()));
 
-        xRef.add(new EntityKeyBean("ABC321"));
-        xRef.add(new EntityKeyBean("Doesn't matter"));
+        xRef.add(new EntityKeyBean("ABC321", "123", "444"));
+        xRef.add(new EntityKeyBean("Doesn't matter", "123", "444"));
         try {
             EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), callerRef);
             entityKey.setMissingAction(EntityKeyBean.ACTION.ERROR);
@@ -230,17 +230,17 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        mediationFacade.trackEntity(su.getCompany(), inputBean);
+        TrackResultBean trDocA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         Collection<EntityKeyBean> callerRefs = new ArrayList<>();
         // These are the two records that will cite the previously created entity
-        inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        mediationFacade.trackEntity(su.getCompany(), inputBean);
-        inputBean = new EntityInputBean(fortress, "wally", "DocTypeS", new DateTime(), "ABC333");
-        mediationFacade.trackEntity(su.getCompany(), inputBean);
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeE", new DateTime(), "ABC321");
+        TrackResultBean trDocE = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        inputBean = new EntityInputBean(fortress, "wally", "DocTypeF", new DateTime(), "ABC333");
+        TrackResultBean trDocF = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        callerRefs.add(new EntityKeyBean("ABC321"));
-        callerRefs.add(new EntityKeyBean("ABC333"));
+        callerRefs.add(new EntityKeyBean(trDocE.getEntityInputBean()));
+        callerRefs.add(new EntityKeyBean(trDocF.getEntityInputBean()));
 
         EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), "ABC123");
         Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, callerRefs, "cites");
@@ -275,8 +275,8 @@ public class TestEntityCrossLink extends EngineBase {
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
         List<EntityKeyBean> callerRefs = new ArrayList<>();
 
-        callerRefs.add(new EntityKeyBean("ABC321"));
-        callerRefs.add(new EntityKeyBean("ABC333"));
+        callerRefs.add(new EntityKeyBean(inputBeanB));
+        callerRefs.add(new EntityKeyBean(inputBeanC));
 
         refs.put("cites", callerRefs);
         inputBean.setEntityLinks(refs);

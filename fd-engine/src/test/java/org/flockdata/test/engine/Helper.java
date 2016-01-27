@@ -22,11 +22,11 @@ package org.flockdata.test.engine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.model.*;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.*;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -51,23 +51,23 @@ public class Helper {
 
     }
 
-    public static ImportProfile getImportParams(String profile) throws IOException {
-        ImportProfile importProfile;
+    public static ContentProfileImpl getImportParams(String profile) throws IOException {
+        ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
+            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
+                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
             } else
                 // Defaults??
-                importProfile = new ImportProfile();
+                contentProfileImpl = new ContentProfileImpl();
         }
-        return importProfile;
+        return contentProfileImpl;
     }
 
     public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {

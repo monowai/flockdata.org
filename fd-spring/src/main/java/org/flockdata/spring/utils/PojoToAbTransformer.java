@@ -19,9 +19,10 @@
 
 package org.flockdata.spring.utils;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.spring.annotations.*;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.helper.FlockException;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 
@@ -73,9 +74,9 @@ public class PojoToAbTransformer {
                 // Class Is annotated for being send to AB
                 Trackable auditableAnnotation = (Trackable) annotation;
                 if (auditableAnnotation.documentType().equals("")) {
-                    entityInputBean.setDocumentName(aClass.getSimpleName().toLowerCase());
+                    entityInputBean.setDocumentType(new DocumentTypeInputBean(aClass.getSimpleName().toLowerCase()));
                 } else {
-                    entityInputBean.setDocumentName(auditableAnnotation.documentType());
+                    entityInputBean.setDocumentType(new DocumentTypeInputBean(auditableAnnotation.documentType()));
                 }
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {

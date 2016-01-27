@@ -17,8 +17,10 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -384,6 +386,58 @@ public class EsIntegrationHelper {
         return doEsQuery(indexHelper.parseIndex(entity), entity.getType(), queryString, expectedHitCount);
     }
 
+    String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
+        // There should only ever be one document for a given AuditKey.
+        // Let's assert that
+        int runCount = 0, nbrResult;
+
+        JestResult result;
+        do {
+
+            runCount++;
+            String query = "{\n" +
+                    "    \"query\" : {\n" +
+                    "        \"filtered\" : {\n" +
+                    "            \"filter\" : {\n" +
+                    "                \"term\" : {\n" +
+                    "                    \"" + field + "\" : \"" + queryString + "\"\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}";
+            Search search = new Search.Builder(query)
+                    .addIndex(indexHelper.parseIndex(entity))
+                    .addType(IndexHelper.parseType(entity))
+                    .build();
+
+            result = esClient.execute(search);
+            String message = indexHelper.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            assertNotNull(message, result);
+            assertNotNull(message, result.getJsonObject());
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(message, result.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        } while (nbrResult != expectedHitCount && runCount < 5);
+
+        logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
+        Assert.assertEquals("Unexpected hit count searching '" + indexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        if (nbrResult != 0)
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray()
+                    .iterator()
+                    .next()
+                    .getAsJsonObject().get("_source").toString();
+        else
+            return result.getJsonObject()
+                    .getAsJsonObject("hits")
+                    .getAsJsonArray("hits")
+                    .getAsJsonArray().toString();
+    }
+
+
     void validateResultFieds(String result) throws Exception {
         JsonNode node = FdJsonObjectMapper.getObjectMapper().readTree(result);
 
@@ -396,9 +450,10 @@ public class EsIntegrationHelper {
 
     }
 
-    Entity waitForFirstSearchResult(Company company, Entity entity, EntityService entityService) throws Exception {
-       // Looking for the first searchKey to be logged against the entity
-       int i = 1;
+    Entity waitForFirstSearchResult(int searchCount, Company company, Entity entity, EntityService entityService) throws Exception {
+        // SearchCount of 0 means we will take any old value, i.e. nothing specific
+        // Looking for the first searchKey to be logged against the entity
+       int runCount = 1;
 
        Thread.yield();
 //        Entity entity = entityService.getEntity(company, metaKey);
@@ -407,20 +462,20 @@ public class EsIntegrationHelper {
 
        int timeout = 10;
 
-       while (entity.getSearch() == null && i <= timeout) {
+       do {
 
            entity = entityService.getEntity(company, entity.getMetaKey());
            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
-           if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
+           if (runCount > 5) // All this yielding is not letting other threads complete, so we will sleep
                Helper.waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
            else if (entity.getSearch() == null)
                Thread.yield(); // Small pause to let things happen
 
-           i++;
-       }
+           runCount++;
+       }  while ( (entity.getSearch() == null || (searchCount == 0 || entity.getSearch() != searchCount) && runCount <= timeout));
 
-       if (entity.getSearch() == null) {
-           logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
+        if (entity.getSearch() == null || (searchCount > 0 && entity.getSearch()!=searchCount)) {
+           logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", runCount, entity.getId(), entity.getSearchKey());
            fail("Search reply not received from fd-search");
        }
        return entity;
@@ -439,5 +494,13 @@ public class EsIntegrationHelper {
             logger.error("Client tracking error {}", e.getMessage());
         }
         return null;
+    }
+
+    public void waitForFirstSearchResult(TrackResultBean trackResult, EntityService entityService) throws Exception {
+        waitForFirstSearchResult(1, trackResult.getCompany(), trackResult.getEntity(), entityService);
+    }
+
+    public void waitForSearchCount(int searchCount, TrackResultBean trackResult, EntityService entityService) throws Exception {
+        waitForFirstSearchResult(searchCount, trackResult.getCompany(), trackResult.getEntity(), entityService);
     }
 }
