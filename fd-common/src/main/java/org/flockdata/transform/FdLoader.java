@@ -113,7 +113,7 @@ public class FdLoader {
     }
 
     private boolean validDocumentType(EntityInputBean entityInputBean) {
-        return entityInputBean.getDocumentType() != null || !(entityInputBean.getDocumentName() == null || entityInputBean.getDocumentName().equals(""));
+        return !(entityInputBean.getDocumentType() == null || entityInputBean.getDocumentType().getName().equals(""));
 
     }
 

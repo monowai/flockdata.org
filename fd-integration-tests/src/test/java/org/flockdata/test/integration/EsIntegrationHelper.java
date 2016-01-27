@@ -17,6 +17,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -449,9 +450,9 @@ public class EsIntegrationHelper {
 
     }
 
-    Entity waitForFirstSearchResult(Company company, Entity entity, EntityService entityService) throws Exception {
+    Entity waitForFirstSearchResult(int searchCount, Company company, Entity entity, EntityService entityService) throws Exception {
        // Looking for the first searchKey to be logged against the entity
-       int i = 1;
+       int runCount = 1;
 
        Thread.yield();
 //        Entity entity = entityService.getEntity(company, metaKey);
@@ -460,20 +461,20 @@ public class EsIntegrationHelper {
 
        int timeout = 10;
 
-       while (entity.getSearch() == null && i <= timeout) {
+       while ( (entity.getSearch() == null ||entity.getSearch()<searchCount) && runCount <= timeout) {
 
            entity = entityService.getEntity(company, entity.getMetaKey());
            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
-           if (i > 5) // All this yielding is not letting other threads complete, so we will sleep
+           if (runCount > 5) // All this yielding is not letting other threads complete, so we will sleep
                Helper.waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");
            else if (entity.getSearch() == null)
                Thread.yield(); // Small pause to let things happen
 
-           i++;
+           runCount++;
        }
 
-       if (entity.getSearch() == null) {
-           logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", i, entity.getId(), entity.getSearchKey());
+       if (entity.getSearch() == null || entity.getSearch()!=searchCount) {
+           logger.debug("!!! Search not working after [{}] attempts for entityId [{}]. SearchKey [{}]", runCount, entity.getId(), entity.getSearchKey());
            fail("Search reply not received from fd-search");
        }
        return entity;
@@ -492,5 +493,13 @@ public class EsIntegrationHelper {
             logger.error("Client tracking error {}", e.getMessage());
         }
         return null;
+    }
+
+    public void waitForFirstSearchResult(TrackResultBean trackResult, EntityService entityService) throws Exception {
+        waitForFirstSearchResult(1, trackResult.getCompany(), trackResult.getEntity(), entityService);
+    }
+
+    public void waitForSearchCount(int searchCount, TrackResultBean trackResult, EntityService entityService) throws Exception {
+        waitForFirstSearchResult(searchCount, trackResult.getCompany(), trackResult.getEntity(), entityService);
     }
 }

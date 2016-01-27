@@ -61,7 +61,7 @@ public class TestJsonEntity extends AbstractImport{
             entity.setData(theMap, params);
             assertEquals(11, entity.getTags().size());
             assertEquals("hr4015-113", entity.getCode());
-            assertEquals("hr", entity.getDocumentName());
+            assertEquals("hr", entity.getDocumentType().getName());
             assertNotNull(entity.getName());
             for (TagInputBean tagInputBean : entity.getTags()) {
                 if ( tagInputBean.getEntityLinks().get("sponsors")!=null ) {

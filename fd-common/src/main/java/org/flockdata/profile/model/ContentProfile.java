@@ -31,7 +31,6 @@ import java.util.Map;
  * Time: 2:51 PM
  */
 public interface ContentProfile {
-    String getDocumentName();
 
     ContentType getContentType();
 

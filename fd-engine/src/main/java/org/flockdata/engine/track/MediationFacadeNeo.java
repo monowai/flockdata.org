@@ -223,8 +223,8 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
             assert docs.size()!=0;
         } catch (TimeoutException e) {
-            logger.error("Time out looking/creating docType " + first.getDocumentName());
-            throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
+            logger.error("Time out looking/creating docType " + first.getDocumentType().getName());
+            throw new FlockException("Time out looking/creating docType " + first.getDocumentType().getName());
         }
 
         List<List<EntityInputBean>>

@@ -91,13 +91,8 @@ public class ContentProfileImpl implements ContentProfile {
                 '}';
     }
 
-    @Override
-    public String getDocumentName() {
-        return documentName;
-    }
-
     public void setDocumentName(String documentName) {
-        this.documentName = documentName;
+        this.documentType = new DocumentTypeInputBean(documentName);
     }
 
     @Override
@@ -136,8 +131,8 @@ public class ContentProfileImpl implements ContentProfile {
 
     @Override
     public char getDelimiter() {
-        if ( delimiter.equals("\t"))
-                return '\t';
+        if (delimiter.equals("\t"))
+            return '\t';
         return delimiter.charAt(0);
     }
 
@@ -197,7 +192,7 @@ public class ContentProfileImpl implements ContentProfile {
         Map<String, ColumnDefinition> columns = getContent();
 
         ArrayList<String> strategyColumns = new ArrayList<>();
-        if (columns == null )
+        if (columns == null)
             return strategyColumns;
         for (String column : columns.keySet()) {
             String strategy = columns.get(column).getStrategy();
@@ -234,7 +229,6 @@ public class ContentProfileImpl implements ContentProfile {
     }
 
     /**
-     *
      * @return should we ignore columns with empty values
      */
     public boolean isEmptyIgnored() {

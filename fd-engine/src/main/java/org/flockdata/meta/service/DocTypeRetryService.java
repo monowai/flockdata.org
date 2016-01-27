@@ -65,17 +65,16 @@ public class DocTypeRetryService {
      * Handles linked entities which may be part of the EntityInputBean.
      * Ensures the fortress also exists for the linked Entities
      *
-     * @param fortress      all InputBeans are deemed to belong to this fortress
-     * @param inputBeans    collection of Entities from which to find DocumentTypes and linked Entities
-     *
+     * @param fortress   all InputBeans are deemed to belong to this fortress
+     * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
      * @return Collection of DocumentType objects that were created
      */
     @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
-    public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans)  {
+    public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
         Collection<DocumentType> docTypes = new ArrayList<>();
-        DocumentType master ;
+        DocumentType master;
         for (EntityInputBean entityInputBean : inputBeans) {
-            master = getDocumentType(fortress, entityInputBean);
+            master = new DocumentType(fortress, entityInputBean.getDocumentType());
             if (!docTypes.contains(master)) {
                 master = conceptService.findOrCreate(fortress, master);
                 docTypes.add(master);
@@ -94,9 +93,9 @@ public class DocTypeRetryService {
 
                             DocumentType linkedDocument = new DocumentType(subFortress, entityKeyBean.getDocumentType());
                             if (!docTypes.contains(linkedDocument)) {
-                                linkedDocument= conceptService.findOrCreate(subFortress, linkedDocument);
+                                linkedDocument = conceptService.findOrCreate(subFortress, linkedDocument);
                                 docTypes.add(linkedDocument);
-                                conceptService.linkEntities (master, relationship, linkedDocument);
+                                conceptService.linkEntities(master, relationship, linkedDocument);
                             }
                         }
                     }
@@ -108,14 +107,4 @@ public class DocTypeRetryService {
         return new AsyncResult<>(docTypes);
     }
 
-    public DocumentType getDocumentType(Fortress fortress, EntityInputBean entityInputBean) {
-        DocumentType result;
-        if (entityInputBean.getDocumentType() == null)
-            // OldWay
-            result = new DocumentType(fortress, entityInputBean.getDocumentName());
-        else
-            //  new way DAT-498 - a way to pass the DocType properties
-            result = new DocumentType(fortress, entityInputBean.getDocumentType());
-        return result;
-    }
 }

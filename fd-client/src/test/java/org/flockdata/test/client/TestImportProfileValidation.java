@@ -25,7 +25,9 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
 
@@ -38,6 +40,9 @@ import static org.junit.Assert.assertEquals;
  * Created by mike on 28/01/15.
  */
 public class TestImportProfileValidation extends AbstractImport{
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     @Test
     public void valid_Properties() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
@@ -66,7 +71,7 @@ public class TestImportProfileValidation extends AbstractImport{
         }
 
         params.setFortressName("abc");
-
+        exception.expect(IllegalArgumentException.class);
         params.setDocumentName(null);
         try {
             fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
