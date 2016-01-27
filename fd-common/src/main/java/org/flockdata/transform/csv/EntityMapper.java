@@ -48,11 +48,10 @@ public class EntityMapper extends EntityInputBean implements Mappable {
 
     private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
 
-    public EntityMapper(ContentProfile importProfile) {
-        setDocumentName(importProfile.getDocumentName());
-        setDocumentType(importProfile.getDocumentType());
-        setFortressName(importProfile.getFortressName());
-        setFortressUser(importProfile.getFortressUser());
+    public EntityMapper(ContentProfile contentProfile) {
+        setDocumentType(contentProfile.getDocumentType());
+        setFortressName(contentProfile.getFortressName());
+        setFortressUser(contentProfile.getFortressUser());
     }
 
     @Override

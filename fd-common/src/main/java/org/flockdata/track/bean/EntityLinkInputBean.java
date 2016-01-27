@@ -41,7 +41,7 @@ public class EntityLinkInputBean {
     protected EntityLinkInputBean(){}
 
     public EntityLinkInputBean(EntityInputBean entityInputBean) {
-        this(entityInputBean.getFortressName(), entityInputBean.getDocumentName(), entityInputBean.getCode());
+        this(entityInputBean.getFortressName(), entityInputBean.getDocumentType().getName(), entityInputBean.getCode());
         this.references = entityInputBean.getEntityLinks();
     }
 

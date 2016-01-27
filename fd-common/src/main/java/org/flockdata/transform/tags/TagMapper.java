@@ -46,7 +46,7 @@ public class TagMapper extends TagInputBean implements Mappable{
         if (contentProfile.getContentType()== ContentProfile.ContentType.CSV)
             return new CsvTagMapper();
 
-        return new TagMapper(contentProfile.getDocumentName());
+        return new TagMapper(contentProfile.getDocumentType().getName());
     }
 
 }

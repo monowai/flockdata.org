@@ -76,8 +76,8 @@ public class TestEntityCrossLink extends EngineBase {
 
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
-        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentName(), parent.getFortressName(), parent.getCode());
-        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentName(), child.getFortressName(), child.getCode());
+        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortressName(), parent.getCode());
+        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentType().getName(), child.getFortressName(), child.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey);

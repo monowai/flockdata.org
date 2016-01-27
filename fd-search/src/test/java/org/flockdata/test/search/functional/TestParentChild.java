@@ -67,7 +67,6 @@ public class TestParentChild extends ESBase {
                 "    {\n" +
                 "      \"fortressName\": \"timesheet\",\n" +
                 "      \"documentType\": \"Staff\",\n" +
-                "      \"company\": null,\n" +
                 "      \"metaKey\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
                 "      \"code\": \"ABC123\",\n" +
                 "      \"index\": \""+indexHelper.getPrefix()+"xref_frominputbeans.timesheet\",\n" +

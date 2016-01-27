@@ -19,6 +19,7 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.flockdata.model.DocumentType;
 import org.flockdata.track.service.EntityService;
 
@@ -40,6 +41,8 @@ public class DocumentTypeInputBean {
 
     public DocumentTypeInputBean(String docName) {
         this();
+        if ( docName == null || docName.trim().equals(""))
+            throw new IllegalArgumentException("DocumentType name is invalid");
         this.name = docName;
         this.code = docName;
     }
@@ -81,28 +84,23 @@ public class DocumentTypeInputBean {
         return tagStructure;
     }
 
-    public DocumentTypeInputBean name(final String name) {
+    public DocumentTypeInputBean getName(final String name) {
         this.name = name;
         return this;
     }
 
-    public DocumentTypeInputBean code(final String code) {
+    public DocumentTypeInputBean getCode(final String code) {
         this.code = code;
         return this;
     }
 
-    public DocumentTypeInputBean geoQuery(final String geoQuery) {
+    public DocumentTypeInputBean getGeoQuery(final String geoQuery) {
         this.geoQuery = geoQuery;
         return this;
     }
 
-    public DocumentTypeInputBean versionStrategy(final DocumentType.VERSION versionStrategy) {
+    public DocumentTypeInputBean getVersionStrategy(final DocumentType.VERSION versionStrategy) {
         this.versionStrategy = versionStrategy;
-        return this;
-    }
-
-    public DocumentTypeInputBean tagStructure(final EntityService.TAG_STRUCTURE tagStructure) {
-        this.tagStructure = tagStructure;
         return this;
     }
 
@@ -110,9 +108,24 @@ public class DocumentTypeInputBean {
         return searchEnabled;
     }
 
+//    private DocumentTypeInputBean setTagStructure(String tagStructure) {
+//        this.tagStructure = EntityService.TAG_STRUCTURE.valueOf(tagStructure);
+//        return this;
+//    }
 
+    @JsonProperty()
     public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
         this.tagStructure = tagStructure;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentTypeInputBean{" +
+                "name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", tagStructure=" + tagStructure +
+                ", versionStrategy=" + versionStrategy +
+                '}';
     }
 }

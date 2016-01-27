@@ -22,6 +22,7 @@ package org.flockdata.transform.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.tags.TagProfile;
@@ -54,7 +55,7 @@ public class JsonEntityMapper extends EntityInputBean  {
                         if ( colDef.isDescription())
                             setDescription(nodeField.asText());
                         if ( colDef.isDocument())
-                            setDocumentName(nodeField.asText());
+                            setDocumentType(new DocumentTypeInputBean(nodeField.asText()));
                         if ( colDef.isTag())
                             addTag(getTagFromNode(nodeField, colDef));
 

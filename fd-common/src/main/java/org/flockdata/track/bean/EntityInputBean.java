@@ -34,12 +34,11 @@ import java.util.*;
  * Date: 11/05/13
  * Time: 9:19 AM
  */
-public class EntityInputBean implements Serializable, UserProperties{
+public class EntityInputBean implements Serializable, UserProperties {
     private String metaKey;
     private String code;
     private String fortressName;
     private String fortressUser;
-    private String documentName;
     private DocumentTypeInputBean documentType;
 
     private Date when = null; // Created Date
@@ -49,7 +48,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private transient List<TagInputBean> tags = new ArrayList<>();
 
     // String is the relationship name
-    private transient Map<String,List<EntityKeyBean>> entityLinks = new HashMap<>();
+    private transient Map<String, List<EntityKeyBean>> entityLinks = new HashMap<>();
     Map<String, Object> properties = new HashMap<>();
 
     private String event = null;
@@ -57,7 +56,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     private String name;
     private boolean searchSuppressed;
     private boolean trackSuppressed = false;
-    private boolean entityOnly = false;
+    private boolean entityOnly = true;
     private String timezone;
     private boolean archiveTags = true;
     private String updateUser;
@@ -65,22 +64,23 @@ public class EntityInputBean implements Serializable, UserProperties{
     private String segment;
 
     public EntityInputBean() {
+        setEntityOnly(true);
     }
 
     public EntityInputBean(EntityKeyBean entityKeyBean) {
         setFortressName(entityKeyBean.getFortressName());
-        setDocumentName(entityKeyBean.getDocumentType());
+        setDocumentType(new DocumentTypeInputBean(entityKeyBean.getDocumentType()));
         setCode(entityKeyBean.getCode());
     }
 
     /**
      * Constructor is for testing purposes
      *
-     * @param fortress      Application/Division or System that owns this information
-     * @param fortressUser  who in the fortressName created it
-     * @param documentName  within the fortressName, this is a document of this unique type
-     * @param fortressWhen  when did this occur in the fortressName
-     * @param code     case sensitive unique key. If not supplied, then the service will generate one
+     * @param fortress     Application/Division or System that owns this information
+     * @param fortressUser who in the fortressName created it
+     * @param documentName within the fortressName, this is a document of this unique type
+     * @param fortressWhen when did this occur in the fortressName
+     * @param code         case sensitive unique key. If not supplied, then the service will generate one
      */
     public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
@@ -88,8 +88,8 @@ public class EntityInputBean implements Serializable, UserProperties{
             setWhen(fortressWhen.toDate());
         }
         setFortressName(fortress.getName());
-        setFortressUser( fortressUser);
-        setDocumentName(documentName);
+        setFortressUser(fortressUser);
+        setDocumentType(new DocumentTypeInputBean(documentName));
         this.documentType = new DocumentTypeInputBean(documentName);
         setCode(code);
     }
@@ -101,8 +101,8 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     public EntityInputBean(String fortressName, String documentName) {
         this();
-        this.fortressName= fortressName;
-        this.documentName = documentName;
+        this.fortressName = fortressName;
+        setDocumentType(new DocumentTypeInputBean(documentName));
     }
 
     public EntityInputBean(Fortress fortress, String documentName) {
@@ -110,7 +110,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public EntityInputBean(Fortress fortress, DocumentTypeInputBean documentType) {
-        this ( fortress.getName(), documentType.getName());
+        this.fortressName = fortress.getName();
         setDocumentType(documentType);
     }
 
@@ -137,14 +137,13 @@ public class EntityInputBean implements Serializable, UserProperties{
      * @return when created in the owning fortress
      */
     public Date getWhen() {
-        if (when !=null  )
+        if (when != null)
             return when;
         // Default to the content date
         if (content != null && content.getWhen() != null && content.getWhen().getTime() > 0)
             return content.getWhen();
         return null;
     }
-
 
 
     public String getFortressName() {
@@ -154,7 +153,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     /**
      * Fortress is a computer application/service in the callers environment, i.e. Payroll, HR, AR.
      * This could also be thought of as a Database in an DBMS
-     *
+     * <p/>
      * The Fortress relationshipName is unique for the Company.
      *
      * @param fortress unique fortressName relationshipName
@@ -176,11 +175,13 @@ public class EntityInputBean implements Serializable, UserProperties{
         return this;
     }
 
-    public String getDocumentName() {
-        if ( documentType==null )
-            return documentName;
-        return documentType.getName();
-    }
+//    @Deprecated // use getDocumentType().getName()
+//    @JsonIgnore
+//    public String getDocumentName() {
+//        if ( documentType == null )
+//            return null;
+//        return documentType.getName();
+//    }
 
     /**
      * Fortress unique type of document that categorizes this type of change.
@@ -188,7 +189,7 @@ public class EntityInputBean implements Serializable, UserProperties{
      * @param documentName relationshipName of the document
      */
     public EntityInputBean setDocumentName(final String documentName) {
-        this.documentName = documentName;
+        this.documentType = new DocumentTypeInputBean(documentName);
         return this;
     }
 
@@ -202,9 +203,8 @@ public class EntityInputBean implements Serializable, UserProperties{
      * a primary key, then to update "this" instance of the Entity you will need to use
      * the generated AuditKey returned by FlockData in the TrackResultBean
      *
-     * @see TrackResultBean
-     *
      * @param code case sensitive primary key generated by the calling fortressName
+     * @see TrackResultBean
      */
     public EntityInputBean setCode(String code) {
         this.code = code;
@@ -212,9 +212,10 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     @Deprecated
-    public void setLog(ContentInputBean content){
+    public void setLog(ContentInputBean content) {
         setContent(content);
     }
+
     public EntityInputBean setContent(ContentInputBean content) {
         this.content = content;
         if (content != null) {
@@ -230,8 +231,8 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     @Override
-    public Object getProperty(String key){
-        if (properties == null )
+    public Object getProperty(String key) {
+        if (properties == null)
             return null;
         return properties.get(key);
     }
@@ -242,7 +243,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public void setProperty(String key, Object value) {
-        if ( properties == null )
+        if (properties == null)
             properties = new HashMap<>();
         properties.put(key, value);
     }
@@ -266,7 +267,6 @@ public class EntityInputBean implements Serializable, UserProperties{
     /**
      * Single tag
      *
-     *
      * @param tag tag to add
      * @see EntityInputBean#getTags()
      */
@@ -289,7 +289,7 @@ public class EntityInputBean implements Serializable, UserProperties{
         return tags;
     }
 
-    public void setTags(Collection<TagInputBean>tags){
+    public void setTags(Collection<TagInputBean> tags) {
         for (TagInputBean next : tags) {
             this.tags.add(next);
 
@@ -303,7 +303,6 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     /**
-     *
      * @param description User definable note describing the entity
      */
     public EntityInputBean setDescription(String description) {
@@ -330,15 +329,16 @@ public class EntityInputBean implements Serializable, UserProperties{
 
     /**
      * do not index in the graph - search only
+     *
      * @return graphable?
      */
     public boolean isTrackSuppressed() {
         return trackSuppressed;
     }
 
-    public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey){
-        List<EntityKeyBean>refs = entityLinks.get(relationshipName);
-        if ( refs == null ){
+    public EntityInputBean addEntityLink(String relationshipName, EntityKeyBean entityKey) {
+        List<EntityKeyBean> refs = entityLinks.get(relationshipName);
+        if (refs == null) {
             refs = new ArrayList<>();
             entityLinks.put(relationshipName, refs);
         }
@@ -353,7 +353,7 @@ public class EntityInputBean implements Serializable, UserProperties{
      *
      * @return entityLinks
      */
-    public Map<String,List<EntityKeyBean>> getEntityLinks(){
+    public Map<String, List<EntityKeyBean>> getEntityLinks() {
         return entityLinks;
     }
 
@@ -361,7 +361,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     public String toString() {
         return "EntityInputBean{" +
                 "for='" + getFortressName() + '\'' +
-                ", doc='" + getDocumentName() + '\'' +
+                ", doc='" + getDocumentType() + '\'' +
                 ", seg='" + getSegment() + '\'' +
                 ", mek='" + getMetaKey() + '\'' +
                 ", cod='" + getCode() + '\'' +
@@ -374,7 +374,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     }
 
     public EntityInputBean setName(String name) {
-        this.name = (name!=null? name.trim():null);
+        this.name = (name != null ? name.trim() : null);
         return this;
     }
 
@@ -405,7 +405,7 @@ public class EntityInputBean implements Serializable, UserProperties{
      * @return TimeZone.getTimeZone(fortressTz).getID();
      */
     public String getTimezone() {
-        if (timezone !=null )
+        if (timezone != null)
             return timezone;
         return TimeZone.getDefault().getID();
     }
@@ -441,7 +441,7 @@ public class EntityInputBean implements Serializable, UserProperties{
         EntityInputBean that = (EntityInputBean) o;
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (!documentName.equals(that.documentName)) return false;
+        if (!getDocumentType().getName().equals(that.getDocumentType().getName())) return false;
         if (!fortressName.equals(that.fortressName)) return false;
         return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
 
@@ -452,7 +452,7 @@ public class EntityInputBean implements Serializable, UserProperties{
         int result = metaKey != null ? metaKey.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + fortressName.hashCode();
-        result = 31 * result + documentName.hashCode();
+        result = 31 * result + getDocumentType().getName().hashCode();
         return result;
     }
 
@@ -478,12 +478,8 @@ public class EntityInputBean implements Serializable, UserProperties{
         return segment;
     }
 
-
     public EntityInputBean setDocumentType(final DocumentTypeInputBean documentType) {
-        if ( documentType!=null) {
-            this.documentType = documentType;
-            this.documentName = documentType.getName();
-        }
+        this.documentType = documentType;
         return this;
     }
 
@@ -526,7 +522,7 @@ public class EntityInputBean implements Serializable, UserProperties{
     /**
      * Instructs FlockData to Move tags already associated with an entity to the content
      * if they are NOT present in this track request.
-     *
+     * <p/>
      * Only applies to updating existing entities.
      *
      * @param archiveTags default False - tags not present in this request but are recorded
@@ -547,11 +543,11 @@ public class EntityInputBean implements Serializable, UserProperties{
         for (EntityInputBean entityInputBean : source) {
             for (TagInputBean tagInputBean : entityInputBean.getTags()) {
                 int index = tags.indexOf(tagInputBean);
-                if ( index != -1) {
+                if (index != -1) {
                     // Tag exists, but do the relationships?
                     TagInputBean existingTag = tags.get(index);
                     for (String key : tagInputBean.getEntityLinks().keySet()) {
-                        if ( !existingTag.hasRelationship(key)){
+                        if (!existingTag.hasRelationship(key)) {
                             existingTag.addEntityLink(key, tagInputBean.getEntityLinks().get(key));
                         }
                     }

@@ -127,6 +127,15 @@ public class EngineConfig implements PlatformConfig {
         this.timing = "@null".equals(timing) || Boolean.parseBoolean(timing);
     }
 
+
+    // By default, we only require a reply if this is being indexed for the first time
+    @Value("${fd-engine.search.update:false}")
+    Boolean requireSearchToConfirm = false;
+
+    public Boolean isSearchRequiredToConfirm() {
+        return requireSearchToConfirm;
+    }
+
     @Override
     public boolean isTiming() {
         return timing;
