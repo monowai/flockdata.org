@@ -33,12 +33,11 @@ public class Transformer {
 
         if (!(profile.getHandler() == null || profile.getHandler().equals("")))
             mappable = (Mappable) Class.forName(profile.getHandler()).newInstance();
-        else if (profile.getTagOrEntity() == ContentProfile.DataType.ENTITY) {
+        else if (profile.getDocumentType() != null ) {
             mappable = EntityMapper.newInstance(profile);
-        } else if (profile.getTagOrEntity() == ContentProfile.DataType.TAG) {
+        } else {
             mappable = TagMapper.newInstance(profile);
-        } else
-            throw new RuntimeException("Unable to determine the implementing handler for " + profile.toString());
+        }
 
 
         return mappable;

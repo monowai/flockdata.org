@@ -1,18 +1,11 @@
 package org.flockdata.test.helper;
 
-import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.service.EntityService;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Verifies that EntityInputBeans can be merged into each other
@@ -55,31 +48,5 @@ public class TestEntityInputBean {
 
     }
 
-    @Test
-    public void defaults_Serialize() throws Exception{
-        // Fundamental assertions are the payload is serialized
 
-        DocumentTypeInputBean dib = new DocumentTypeInputBean("MyDoc")
-                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY)
-                .setVersionStrategy(DocumentType.VERSION.DISABLE);
-
-        Company company = new Company("CompanyName");
-        Fortress fortress = new Fortress(new FortressInputBean("FortressName"),company)
-                .setSearchEnabled(true);
-
-        byte[] bytes = JsonUtils.getObjectAsJsonBytes(dib);
-        assertEquals(dib.getTagStructure(), JsonUtils.getBytesAsObject(bytes,DocumentTypeInputBean.class).getTagStructure() );
-
-        EntityInputBean compareFrom = new EntityInputBean(fortress, dib);
-        assertEquals(dib.getTagStructure(), compareFrom.getDocumentType().getTagStructure());
-
-        EntityInputBean deserialize
-                = JsonUtils.getBytesAsObject(JsonUtils.getObjectAsJsonBytes(compareFrom), EntityInputBean.class);
-        assertNotNull (deserialize);
-
-        assertEquals(compareFrom.getDocumentType().getCode(), deserialize.getDocumentType().getCode());
-        assertEquals(compareFrom.getDocumentType().getTagStructure(), deserialize.getDocumentType().getTagStructure());
-        assertEquals(compareFrom.getDocumentType().getVersionStrategy(), deserialize.getDocumentType().getVersionStrategy());
-
-    }
 }
