@@ -33,7 +33,7 @@ public class DocumentTypeInputBean {
 
     private String geoQuery;
     private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
-    EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
+    private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
     private Boolean searchEnabled; // If null default to fortress
 
     DocumentTypeInputBean(){}
@@ -64,9 +64,9 @@ public class DocumentTypeInputBean {
         return this;
     }
 
-    // MKH - Overrides the geo query path for this DocumentType. VULNERABLE!
-    // DAT-507
+    // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
     public String getGeoQuery() {
+        // DAT-507
         return geoQuery;
     }
 
