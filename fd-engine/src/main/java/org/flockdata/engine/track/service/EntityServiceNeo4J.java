@@ -19,13 +19,14 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.meta.service.TxService;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
@@ -97,6 +98,9 @@ public class EntityServiceNeo4J implements EntityService {
     @Autowired
     TagService tagService;
 
+    @Autowired
+    PlatformConfig engineConfig;
+
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
     @Override
@@ -111,7 +115,6 @@ public class EntityServiceNeo4J implements EntityService {
     public Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags) {
         return entityDao.getInboundEntities(entity, withEntityTags);
     }
-
 
     @Override
     public KvContent getWhat(Entity entity, Log change) {
@@ -551,15 +554,15 @@ public class EntityServiceNeo4J implements EntityService {
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
             if (documentType == null || documentType.getCode() == null || documentType.getId() == null)
-                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentName());
-            else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentName())) {
-                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentName());
+                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentType().getName());
+            else if (!documentType.getCode().equalsIgnoreCase(inputBean.getDocumentType().getName())) {
+                documentType = conceptService.resolveByDocCode(segment.getFortress(), inputBean.getDocumentType().getName());
             }
             assert (documentType != null);
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
             if ( result.getEntity()!=null)
-                logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentName());
+                logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
             arb.add(result);
         }
 
@@ -676,6 +679,7 @@ public class EntityServiceNeo4J implements EntityService {
             }
 
         }
+        // ToDo: Update search doc?
         if (!targets.isEmpty())
             entityDao.linkEntities(sourceEntity, targets, linkName);
         return ignored;
@@ -718,7 +722,7 @@ public class EntityServiceNeo4J implements EntityService {
             throw new AmqpRejectAndDontRequeueException("metaKey could not be found for [{" + searchResult.getMetaKey() + "}]");
         }
 
-        if (entity.getSearch() == null) { // Search ACK
+        if (entity.getSearch() == null || engineConfig.isSearchRequiredToConfirm()) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly

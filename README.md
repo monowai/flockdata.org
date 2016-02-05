@@ -1,23 +1,26 @@
-[FlockData](http://FlockData.com) - Headless Content Management for MicroServices
+[FlockData](http://FlockData.com) - Federated, distributed and heterogeneous information platform   
 ===========
 
-##The Idea
-* Your enterprise/systems/services/microservices create and modify organisational data in to their database
-  * Have a standarised way of tracking changes to business data for users
-  * A Read/write service that simply tracks changes to data in your services
-* Headless content management to track state of data 
-* Enable users to report on data across data silos
+##What?
+* Enterprise/systems/services/applications create and modify organisational data databases
+  * Storing data as information requires federated and heterogeneous storage capabilities
+  * FD provides a standardised way of accessing this data.
+  * Standardization enables discussions about information without loosing visibility of the data
+* Visualise and operate on the semantic entities of your business
+* Simplify management dashboards, operational metrics 
+* Look around and into your data to perform forensic analysis
+* Deliver information and data to any digital platform
+* Track data lineage back to originating systems of record
 
 ##FlockData
-* Aggregating data provides a platform for agile analytics
-  * Batch mode or as changes happen
-* Information recording api - turning the data in to user centric information for reporting
-* Data Lineage - Tracks which service data originates from which system
-* Free text searching of your business information - help users find data irrespective of the system that created it
-* Keeping audit data out of your transaction processing systems while providing users version history
+* Manages data as information
+* Object model and services to deliver FDH-IP
+* Exposed via RESTful web services 
+* Full text - help users find data irrespective of the system that created it
+* Store history of data changes letting you keep audit out of transaction processing systems 
 
 ## Project Status
-Stable. Full support for ElasticSearch 2.0 and Neo4j 2.2.x in place. 
+Stable. Full support for ElasticSearch 1.7 and Neo4j 2.2.x in place. 
 
 ## Overview
 Collect, Connect Compare and Explore  - FlockData helps you find data you're looking for.
@@ -29,7 +32,7 @@ Turn your information in to an accessible resource. See if our data [Mission](ht
 ##Design
 FD follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
 
-![Alt text](https://bitbucket.org/monowai/flockdata.org/raw/77e20cdf6e83f28cd8db6ee4561a4b0659f06443/micro-service.png?at=develop)
+![Alt text](https://github.com/monowai/flockdata.org/blob/master/micro-service.png)
 
 FlockData is inspired by Domain Driven Design (the way we look at information), ROA & SOA architectures (API access). It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information.
 

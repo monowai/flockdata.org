@@ -2,20 +2,7 @@
   "mapping": {
     "numeric_detection": false,
     "properties": {
-      "code": {
-        "type": "string",
-        "boost": 2,
-        "index": "not_analyzed",
-        "doc_values": true,
-        "norms": {
-          "enabled": true
-        }
-      },
-      "description": {
-        "type": "string",
-        "boost": 4
-      },
-      "docType": {
+      "metaKey": {
         "type": "string",
         "index": "not_analyzed",
         "doc_values": true
@@ -25,12 +12,34 @@
         "index": "not_analyzed",
         "doc_values": true
       },
-      "lastEvent": {
+      "docType": {
         "type": "string",
         "index": "not_analyzed",
         "doc_values": true
       },
-      "metaKey": {
+      "code": {
+        "type": "string",
+        "doc_values": true,
+        "boost": "2.0",
+        "index": "not_analyzed"
+      },
+      "name": {
+        "type" : "string",
+        "boost": "4.0",
+        "fields": {
+          "facet": {
+            "type": "string",
+            "boost": "8.0",
+            "doc_values": true,
+            "index": "not_analyzed"
+          }
+        }
+      },
+      "description": {
+        "type": "string",
+        "boost": 4
+      },
+      "lastEvent": {
         "type": "string",
         "index": "not_analyzed",
         "doc_values": true
@@ -254,6 +263,73 @@
           },
           "match_mapping_type": "string",
           "path_match": "tag.*.geo.*Name"
+        }
+      },
+      {
+        "inline_entity_tag_name_template": {
+          "path_match": "e.*.tag.*.name",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "boost": "3.0",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "boost": "5.0",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
+      },
+      {
+        "inline_entity_code_template": {
+          "match_mapping_type": "string",
+          "path_match": "e.*.code",
+          "path_unmatch": "e.*.tag.*.code",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_index_template": {
+          "path_match": "e.*.index",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "string",
+            "doc_values": true,
+            "boost": "2.0",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      {
+        "inline_entity_name_template": {
+          "path_match": "e.*.name",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "multi_field",
+            "fields": {
+              "{name}": {
+                "type": "string",
+                "index": "analyzed"
+              },
+              "facet": {
+                "type": "string",
+                "doc_values": true,
+                "index": "not_analyzed"
+              }
+            }
+          }
         }
       }
     ]

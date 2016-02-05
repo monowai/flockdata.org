@@ -20,7 +20,6 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.model.EntityTag;
-import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
@@ -149,4 +148,6 @@ public interface SearchChange {
     SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities);
 
     Collection<EntityKeyBean> getEntityLinks();
+
+    String getName();
 }

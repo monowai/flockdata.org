@@ -26,8 +26,8 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
-import org.flockdata.profile.model.ProfileConfiguration;
 
 import java.util.Map;
 
@@ -38,6 +38,6 @@ import java.util.Map;
  */
 public interface DelimitedMappable extends Mappable {
 
-    Map<String, Object> setData(String[] headerRow, String[] line, ProfileConfiguration profileConfiguration) throws JsonProcessingException, FlockException;
+    Map<String, Object> setData(String[] headerRow, String[] line, ContentProfile contentProfile) throws JsonProcessingException, FlockException;
 
 }

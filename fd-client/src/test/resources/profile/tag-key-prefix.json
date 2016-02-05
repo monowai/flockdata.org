@@ -1,8 +1,5 @@
 {
-  "documentName": "City",
   "contentType": "csv",
-  "tagOrEntity": "tag",
-  // Don't write empty source column values in to the "what" map
   "emptyIgnored": true,
   "header": true,
   "content": {

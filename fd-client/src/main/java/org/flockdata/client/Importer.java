@@ -23,7 +23,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
@@ -116,10 +116,10 @@ public class Importer {
 
                     item++;
                 }
-                ImportProfile importProfile;
+                ContentProfileImpl contentProfileImpl;
                 FdWriter restClient = getRestClient(configuration);
                 if (clazz != null) {
-                    importProfile = ProfileReader.getImportProfile(clazz);
+                    contentProfileImpl = ProfileReader.getImportProfile(clazz);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
@@ -133,13 +133,13 @@ public class Importer {
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
-                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, importProfile, batchSize, skipCount);
+                logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentProfileImpl, batchSize, skipCount);
 
                 if (fileProcessor == null)
                     fileProcessor = new FileProcessor(skipCount, rowsToProcess);
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(importProfile, fileName, restClient, null, configuration);
+                totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName, restClient, null, configuration);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 

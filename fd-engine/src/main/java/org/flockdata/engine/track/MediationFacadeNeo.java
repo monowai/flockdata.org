@@ -22,13 +22,12 @@ package org.flockdata.engine.track;
 import com.google.common.collect.Lists;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.meta.service.DocTypeRetryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
 import org.flockdata.engine.track.endpoint.TrackGateway;
 import org.flockdata.engine.track.service.ConceptRetryService;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.EntityRetryService;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
@@ -36,6 +35,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.meta.service.DocTypeRetryService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -154,10 +154,10 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Fortress fortress = fortressService.findByName(company, inputBean.getFortress());
+        Fortress fortress = fortressService.findByName(company, inputBean.getFortressName());
         if (fortress == null)
             fortress = fortressService.registerFortress(company,
-                    new FortressInputBean(inputBean.getFortress(), IGNORE_SEARCH_ENGINE)
+                    new FortressInputBean(inputBean.getFortressName(), IGNORE_SEARCH_ENGINE)
                             .setTimeZone(inputBean.getTimezone()));
         fortress.setCompany(company);
         FortressSegment segment;
@@ -223,8 +223,8 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
             assert docs.size()!=0;
         } catch (TimeoutException e) {
-            logger.error("Time out looking/creating docType " + first.getDocumentName());
-            throw new FlockException("Time out looking/creating docType " + first.getDocumentName());
+            logger.error("Time out looking/creating docType " + first.getDocumentType().getName());
+            throw new FlockException("Time out looking/creating docType " + first.getDocumentType().getName());
         }
 
         List<List<EntityInputBean>>

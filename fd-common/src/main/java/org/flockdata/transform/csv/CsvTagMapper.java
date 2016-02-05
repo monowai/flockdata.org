@@ -19,13 +19,11 @@
 
 package org.flockdata.transform.csv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
-import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
-import org.flockdata.transform.DelimitedMappable;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;
 
@@ -44,7 +42,7 @@ public class CsvTagMapper extends TagInputBean implements Mappable {
 //    }
 
     @Override
-    public Map<String, Object> setData(Map<String,Object> row, ProfileConfiguration importProfile) throws FlockException {
+    public Map<String, Object> setData(Map<String,Object> row, ContentProfile importProfile) throws FlockException {
 
         if ( !TransformationHelper.processRow(row, importProfile))
             return null;

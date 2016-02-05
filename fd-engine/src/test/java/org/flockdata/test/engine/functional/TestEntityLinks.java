@@ -3,7 +3,7 @@ package org.flockdata.test.engine.functional;
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.TagInputBean;
@@ -67,8 +67,8 @@ public class TestEntityLinks extends EngineBase {
 
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
 
-        EntityKeyBean staffKey = new EntityKeyBean(staff.getDocumentName(), staff.getFortress(), staff.getCode());
-        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentName(), workRecord.getFortress(), workRecord.getCode());
+        EntityKeyBean staffKey = new EntityKeyBean(staff.getDocumentType().getName(), staff.getFortressName(), staff.getCode());
+        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentType().getName(), workRecord.getFortressName(), workRecord.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(staffKey);
@@ -147,7 +147,7 @@ public class TestEntityLinks extends EngineBase {
 
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
 
-        ImportProfile params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
         Profile p = importProfileService.save(fortress, timesheet, params );
         importProfileService.process(su.getCompany(), fortress, timesheet, "/data/test-entitylinks.csv", false);
         // recorded is the relationship type in the content profile definition
@@ -177,7 +177,7 @@ public class TestEntityLinks extends EngineBase {
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
         String rlxName = "recorded";
 
-        ImportProfile params = ClientConfiguration.getImportProfile("/profiles/test-entitylinks.json");
+        ContentProfileImpl params = ClientConfiguration.getImportProfile("/profiles/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
         Profile p = importProfileService.save(fortress, timesheet, params );

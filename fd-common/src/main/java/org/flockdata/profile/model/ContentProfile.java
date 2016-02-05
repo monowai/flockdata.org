@@ -19,9 +19,9 @@
 
 package org.flockdata.profile.model;
 
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -29,10 +29,9 @@ import java.util.Map;
  * Date: 3/10/14
  * Time: 2:51 PM
  */
-public interface ProfileConfiguration {
-    String getDocumentName();
+public interface ContentProfile extends ImportFile {
 
-    ContentType getContentType();
+    DocumentTypeInputBean getDocumentType();
 
     void setContent(Map<String, ColumnDefinition> columns);
 
@@ -40,21 +39,11 @@ public interface ProfileConfiguration {
 
     String getHandler();
 
-    char getDelimiter();
-
-    DataType getTagOrEntity();
-
     String getFortressName();
-
-    boolean hasHeader();
 
     String getFortressUser();
 
     boolean isEntityOnly();
-
-    String getEntityKey();
-
-    Collection<String> getStrategyCols();
 
     boolean isArchiveTags();
 
@@ -66,10 +55,6 @@ public interface ProfileConfiguration {
 
     void setDocumentName(String name);
 
-    String getPreParseRowExp();
-
-    String getQuoteCharacter();
-
     boolean isEmptyIgnored();
 
     String getCondition();
@@ -79,4 +64,10 @@ public interface ProfileConfiguration {
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}
+
+    void setHeader(boolean header);
+
+    void setContentType(ContentType contentType);
+
+    void setTagOrEntity(DataType dataType);
 }

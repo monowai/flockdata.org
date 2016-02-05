@@ -20,8 +20,8 @@
 package org.flockdata.transform.tags;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
-import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.csv.CsvTagMapper;
 
@@ -38,15 +38,15 @@ public class TagMapper extends TagInputBean implements Mappable{
         setLabel(documentName);
     }
 
-    public Map<String, Object> setData(Map<String,Object>row, ProfileConfiguration profileConfiguration) throws FlockException {
+    public Map<String, Object> setData(Map<String,Object>row, ContentProfile contentProfile) throws FlockException {
         return null;
     }
 
-    public static Mappable newInstance(ProfileConfiguration profileConfiguration) {
-        if (profileConfiguration.getContentType()== ProfileConfiguration.ContentType.CSV)
+    public static Mappable newInstance(ContentProfile contentProfile) {
+        if (contentProfile.getContentType()== ContentProfile.ContentType.CSV)
             return new CsvTagMapper();
 
-        return new TagMapper(profileConfiguration.getDocumentName());
+        return new TagMapper(contentProfile.getDocumentType().getName());
     }
 
 }
