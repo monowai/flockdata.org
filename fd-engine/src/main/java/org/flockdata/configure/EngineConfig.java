@@ -91,7 +91,7 @@ public class EngineConfig implements PlatformConfig {
 
     }
 
-    @Value("${rabbit.port:@null}")
+    @Value("${fd.rabbit.port:@null}")
     protected void setRabbitPort(String rabbitPort) {
         if ("@null".equals(rabbitPort)) this.rabbitPort = null;
         else this.rabbitPort = rabbitPort;
@@ -235,7 +235,7 @@ public class EngineConfig implements PlatformConfig {
             healthResults.put("fd-search.url", fdSearch);
         } else {
             healthResults.put("rabbit.host", rabbitHost);
-            healthResults.put("rabbit.port", rabbitPort);
+            healthResults.put("fd.rabbit.port", rabbitPort);
         }
         return healthResults;
 

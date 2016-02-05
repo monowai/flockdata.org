@@ -9,6 +9,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>fd-config</module>
+        <module>fd-discovery</module>
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
