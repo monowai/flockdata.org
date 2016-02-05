@@ -22,7 +22,7 @@ package org.flockdata.test.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -34,9 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by mike on 28/01/15.
@@ -48,7 +48,7 @@ public class TestImporterPreparsing extends AbstractImport {
         ClientConfiguration configuration = getClientConfiguration("/pre-parse.json");
         configuration.setDefaultUser("test");
 
-        ImportProfile params = ProfileReader.getImportProfile("/pre-parse.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/pre-parse.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);

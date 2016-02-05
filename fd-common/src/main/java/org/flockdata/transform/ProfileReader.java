@@ -2,7 +2,7 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,22 +22,22 @@ public class ProfileReader {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static ImportProfile getImportProfile(String profile) throws IOException, ClassNotFoundException {
-        ImportProfile importProfile;
+    public static ContentProfileImpl getImportProfile(String profile) throws IOException, ClassNotFoundException {
+        ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
         File fileIO = new File(profile);
         if (fileIO.exists()) {
-            importProfile = om.readValue(fileIO, ImportProfile.class);
+            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
 
         } else {
             InputStream stream = ClassLoader.class.getResourceAsStream(profile);
             if (stream != null) {
-                importProfile = om.readValue(stream, ImportProfile.class);
+                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
             } else {
-                throw new IllegalArgumentException("Unable to locate the profile " + profile);
+                throw new IllegalArgumentException("Unable to locate the profile [" + profile +"] Working directory ["+System.getProperty("user.dir")+"]");
             }
         }
-        return importProfile;
+        return contentProfileImpl;
     }
 }

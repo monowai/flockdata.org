@@ -168,7 +168,8 @@ public class Entity implements Serializable {
         else
             this.name = entityInput.getName();
 
-        this.description = entityInput.getDescription();
+//        if ( entityInput.getDescription()!=null && !entityInput.getDescription().equals(entityInput.getName()))
+//            this.description = entityInput.getDescription();
 
 //        indexName = indexHelper.getIndexRoot(this.segment);
 

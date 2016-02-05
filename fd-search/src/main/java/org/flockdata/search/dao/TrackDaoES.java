@@ -313,6 +313,9 @@ public class TrackDaoES implements TrackSearchDao {
         if (searchChange.getCode() != null)
             indexMe.put(EntitySearchSchema.CODE, searchChange.getCode());
 
+        if (searchChange.getName() != null)
+            indexMe.put(EntitySearchSchema.NAME, searchChange.getName());
+
         if (searchChange.getDescription() != null)
             indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
 

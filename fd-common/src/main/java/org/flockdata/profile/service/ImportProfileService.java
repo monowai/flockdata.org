@@ -21,12 +21,12 @@ package org.flockdata.profile.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.profile.ImportProfile;
-import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.model.ContentProfile;
 
 import java.io.IOException;
 
@@ -37,11 +37,11 @@ import java.io.IOException;
  */
 public interface ImportProfileService {
 
-    ProfileConfiguration get(Fortress fortress, DocumentType documentType) throws FlockException ;
+    ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException ;
 
-    void save(Company company, String fortressCode, String documentName, ImportProfile profile) throws FlockException;
+    void save(Company company, String fortressCode, String documentName, ContentProfileImpl profile) throws FlockException;
 
-    Profile save(Fortress fortress, DocumentType documentType, ProfileConfiguration profileConfig) throws FlockException;
+    Profile save(Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException;
 
     void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
 
@@ -51,5 +51,5 @@ public interface ImportProfileService {
 
     void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 
-    ProfileConfiguration get(Company company, String fortressCode, String documentName) throws FlockException;
+    ContentProfile get(Company company, String fortressCode, String documentName) throws FlockException;
 }

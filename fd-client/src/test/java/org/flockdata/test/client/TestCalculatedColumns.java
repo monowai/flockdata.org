@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ImportProfile;
+import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
@@ -30,7 +30,7 @@ public class TestCalculatedColumns extends AbstractImport {
         assertNotNull(configuration);
 
 
-        ImportProfile params = ProfileReader.getImportProfile("/profile/calculatedcolumns.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/calculatedcolumns.json");
 
         long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv", getFdWriter(), null, configuration);
         int expectedRows = 1;

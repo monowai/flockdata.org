@@ -23,14 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;
-import org.flockdata.profile.model.ProfileConfiguration;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.bean.AliasInputBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -405,7 +403,7 @@ public class TransformationHelper {
 
     }
 
-    public static String[] defaultHeader(String[] line, ProfileConfiguration profileConfig) {
+    public static String[] defaultHeader(String[] line, ContentProfile profileConfig) {
         int col = 0;
         Collection<String> header = new ArrayList<>(line.length);
 
@@ -447,7 +445,7 @@ public class TransformationHelper {
         }
     }
 
-    public static boolean processRow(Map<String, Object> row, ProfileConfiguration importProfile) {
+    public static boolean processRow(Map<String, Object> row, ContentProfile importProfile) {
         String condition = importProfile.getCondition();
         if (condition != null) {
             Object evaluate = ExpressionHelper.getValue(row, condition);

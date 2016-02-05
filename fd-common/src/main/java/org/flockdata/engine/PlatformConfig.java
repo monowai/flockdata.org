@@ -75,5 +75,7 @@ public interface PlatformConfig {
 
     void setStoreEnabled(String enabled);
 
+    Boolean isSearchRequiredToConfirm() ;
+
     boolean isTiming();
 }

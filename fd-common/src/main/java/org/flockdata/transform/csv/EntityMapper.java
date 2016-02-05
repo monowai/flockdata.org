@@ -20,8 +20,8 @@
 package org.flockdata.transform.csv;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
-import org.flockdata.profile.model.ProfileConfiguration;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -44,18 +44,18 @@ import java.util.Map;
  * Date: 27/04/14
  * Time: 4:34 PM
  */
-public class CsvEntityMapper extends EntityInputBean implements Mappable {
+public class EntityMapper extends EntityInputBean implements Mappable {
 
-    private static final Logger logger = LoggerFactory.getLogger(CsvEntityMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntityMapper.class);
 
-    public CsvEntityMapper(ProfileConfiguration importProfile) {
-        setDocumentName(importProfile.getDocumentName());
-        setFortress(importProfile.getFortressName());
-        setFortressUser(importProfile.getFortressUser());
+    public EntityMapper(ContentProfile contentProfile) {
+        setDocumentType(contentProfile.getDocumentType());
+        setFortressName(contentProfile.getFortressName());
+        setFortressUser(contentProfile.getFortressUser());
     }
 
     @Override
-    public Map<String, Object> setData(Map<String, Object> row, ProfileConfiguration importProfile) throws FlockException {
+    public Map<String, Object> setData(Map<String, Object> row, ContentProfile importProfile) throws FlockException {
         if (!TransformationHelper.processRow(row, importProfile))
             return null;
 
@@ -201,8 +201,8 @@ public class CsvEntityMapper extends EntityInputBean implements Mappable {
         return value;
     }
 
-    public static CsvEntityMapper newInstance(ProfileConfiguration importProfile) {
-        return new CsvEntityMapper(importProfile);
+    public static EntityMapper newInstance(ContentProfile importProfile) {
+        return new EntityMapper(importProfile);
     }
 
 }

@@ -271,9 +271,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     @Override
     public String toString() {
         return "TagInputBean{" +
-                "code='" + code + '\'' +
+                "label='" + label + '\'' +
+                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", label='" + label + '\'' +
                 ", keyPrefix='" + keyPrefix+ '\'' +
                 '}';
     }
@@ -286,7 +286,8 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         TagInputBean that = (TagInputBean) o;
 
         if (reverse != that.reverse) return false;
-        if (!code.equalsIgnoreCase(that.code)) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (code != null ? !code.equalsIgnoreCase(that.code) : that.code != null) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
         return !(keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null);
 
@@ -294,7 +295,8 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
 
     @Override
     public int hashCode() {
-        int result = code.toLowerCase().hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
         result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);

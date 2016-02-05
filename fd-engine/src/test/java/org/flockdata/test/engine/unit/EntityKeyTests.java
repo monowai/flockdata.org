@@ -43,7 +43,7 @@ public class EntityKeyTests {
 
         EntityKeyBean entityKeyC = new EntityKeyBean(null, "abc", "456");
         assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
-        entityKeyC = new EntityKeyBean("code");
+        entityKeyC = new EntityKeyBean("code", "123", "444");
         assertEquals("WildCard document not working", "*", entityKeyC.getDocumentType());
     }
 }

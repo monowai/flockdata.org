@@ -76,10 +76,10 @@ public class FdLoader {
             if (entityInputBean != null) {
 //                if (entityInputBean.getFortress() == null && importProfile!= null)
 //                    entityInputBean.setFortress(importProfile.getFortressName());
-                if ( entityInputBean.getFortress() == null || entityInputBean.getFortress().equals(""))
+                if ( entityInputBean.getFortressName() == null || entityInputBean.getFortressName().equals(""))
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
 
-                if ( entityInputBean.getDocumentName() == null ||  entityInputBean.getDocumentName().equals("") )
+                if ( !validDocumentType(entityInputBean)  )
                     throw new FlockException("Unable to resolve the document type name that defines this entity. Add this via your import profile with the documentName attribute.");
 
                 int existingIndex = getExistingIndex(entityInputBean);
@@ -109,6 +109,11 @@ public class FdLoader {
         } finally {
             entityLock.unlock();
         }
+
+    }
+
+    private boolean validDocumentType(EntityInputBean entityInputBean) {
+        return !(entityInputBean.getDocumentType() == null || entityInputBean.getDocumentType().getName().equals(""));
 
     }
 

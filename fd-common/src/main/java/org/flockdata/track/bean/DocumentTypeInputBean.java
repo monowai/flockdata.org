@@ -33,13 +33,15 @@ public class DocumentTypeInputBean {
 
     private String geoQuery;
     private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
-    EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
+    private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
     private Boolean searchEnabled; // If null default to fortress
 
     DocumentTypeInputBean(){}
 
     public DocumentTypeInputBean(String docName) {
         this();
+        if ( docName == null || docName.trim().equals(""))
+            throw new IllegalArgumentException("DocumentType name is invalid");
         this.name = docName;
         this.code = docName;
     }
@@ -62,9 +64,9 @@ public class DocumentTypeInputBean {
         return this;
     }
 
-    // MKH - Overrides the geo query path for this DocumentType. VULNERABLE!
-    // DAT-507
+    // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
     public String getGeoQuery() {
+        // DAT-507
         return geoQuery;
     }
 
@@ -81,28 +83,23 @@ public class DocumentTypeInputBean {
         return tagStructure;
     }
 
-    public DocumentTypeInputBean name(final String name) {
+    public DocumentTypeInputBean getName(final String name) {
         this.name = name;
         return this;
     }
 
-    public DocumentTypeInputBean code(final String code) {
+    public DocumentTypeInputBean getCode(final String code) {
         this.code = code;
         return this;
     }
 
-    public DocumentTypeInputBean geoQuery(final String geoQuery) {
+    public DocumentTypeInputBean getGeoQuery(final String geoQuery) {
         this.geoQuery = geoQuery;
         return this;
     }
 
-    public DocumentTypeInputBean versionStrategy(final DocumentType.VERSION versionStrategy) {
+    public DocumentTypeInputBean getVersionStrategy(final DocumentType.VERSION versionStrategy) {
         this.versionStrategy = versionStrategy;
-        return this;
-    }
-
-    public DocumentTypeInputBean tagStructure(final EntityService.TAG_STRUCTURE tagStructure) {
-        this.tagStructure = tagStructure;
         return this;
     }
 
@@ -110,5 +107,18 @@ public class DocumentTypeInputBean {
         return searchEnabled;
     }
 
+    public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
+        this.tagStructure = tagStructure;
+        return this;
+    }
 
+    @Override
+    public String toString() {
+        return "DocumentTypeInputBean{" +
+                "name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", tagStructure=" + tagStructure +
+                ", versionStrategy=" + versionStrategy +
+                '}';
+    }
 }
