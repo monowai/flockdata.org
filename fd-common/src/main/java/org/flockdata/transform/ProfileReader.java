@@ -35,7 +35,7 @@ public class ProfileReader {
             if (stream != null) {
                 contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
             } else {
-                throw new IllegalArgumentException("Unable to locate the profile " + profile);
+                throw new IllegalArgumentException("Unable to locate the profile [" + profile +"] Working directory ["+System.getProperty("user.dir")+"]");
             }
         }
         return contentProfileImpl;
