@@ -146,10 +146,10 @@ public class FileProcessor {
                 else if (importProfile.getContentType() == ContentProfile.ContentType.XML)
                     result = processXMLFile(file, importProfile, writer);
                 else if (importProfile.getContentType() == ContentProfile.ContentType.JSON) {
-                    if (importProfile.getTagOrEntity() == ContentProfile.DataType.ENTITY)
-                        result = processJsonEntities(file, importProfile, writer);
-                    else
+                    if (importProfile.getDocumentType() == null)
                         result = processJsonTags(file);
+                    else
+                        result = processJsonEntities(file, importProfile, writer);
                 }
 
             }
@@ -380,7 +380,7 @@ public class FileProcessor {
                         Map<String, Object> map = Transformer.convertToMap(headerRow, nextLine, importProfile);
 
                         if (map != null) {
-                            if (importProfile.getTagOrEntity() == ContentProfile.DataType.ENTITY) {
+                            if (importProfile.getDocumentType() != null) {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)

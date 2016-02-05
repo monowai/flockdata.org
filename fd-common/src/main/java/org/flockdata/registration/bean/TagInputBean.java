@@ -271,9 +271,9 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
     @Override
     public String toString() {
         return "TagInputBean{" +
-                "code='" + code + '\'' +
+                "label='" + label + '\'' +
+                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", label='" + label + '\'' +
                 ", keyPrefix='" + keyPrefix+ '\'' +
                 '}';
     }

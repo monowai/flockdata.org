@@ -15,7 +15,7 @@
 
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
-        <docs.url>http://www.monowai.com/wiki/display/DAT/</docs.url>
+        <docs.url>http://wiki.flockdata.com</docs.url>
         <org.springbatch-version>3.0.2.RELEASE</org.springbatch-version>
         <start-class>org.flockdata.engine.FdEngine</start-class>
         <spring-boot.version>1.2.0.RELEASE</spring-boot.version>
