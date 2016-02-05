@@ -32,7 +32,7 @@ Turn your information in to an accessible resource. See if our data [Mission](ht
 ##Design
 FD follows the design concepts of a [Microservice](http://martinfowler.com/articles/microservices.html). As a service it is in fact itself made up of microservices.
 
-![Alt text](https://bitbucket.org/monowai/flockdata.org/raw/77e20cdf6e83f28cd8db6ee4561a4b0659f06443/micro-service.png?at=develop)
+![Alt text](https://github.com/monowai/flockdata.org/blob/master/micro-service.png)
 
 FlockData is inspired by Domain Driven Design (the way we look at information), ROA & SOA architectures (API access). It integrates sophisticated index technologies and document management logic in to highly scalable JSON databases. The result lets you look at your information in new and innovative ways to discover patterns in information.
 
