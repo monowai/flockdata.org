@@ -59,7 +59,7 @@ public class KvConfig implements FdKvConfig {
 
     }
 
-    @Value("${rabbit.port:@null}")
+    @Value("${fd.rabbit.port:@null}")
     protected void setRabbitPort(String rabbitPort) {
         if ("@null".equals(rabbitPort)) this.rabbitPort = null;
         else this.rabbitPort = rabbitPort;

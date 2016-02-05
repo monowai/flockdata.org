@@ -62,7 +62,7 @@ public class AmqpConfig {
     @Value("${fd-store.queue}")
     private String storeQueue;
 
-    @Value("${rabbit.port}")
+    @Value("${fd.rabbit.port}")
     private Integer rabbitPort;
 
     @Value("${rabbit.publisherCacheSize}")
