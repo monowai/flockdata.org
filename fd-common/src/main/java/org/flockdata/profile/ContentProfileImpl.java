@@ -21,11 +21,10 @@ package org.flockdata.profile;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,7 +34,7 @@ import java.util.Map;
  * Time: 8:47 AM
  */
 @JsonDeserialize(using = ContentProfileDeserializer.class)
-public class ContentProfileImpl implements ContentProfile {
+public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     // Default fortress name if not otherwise supplied
     private String fortressName = null;
@@ -140,11 +139,6 @@ public class ContentProfileImpl implements ContentProfile {
         this.delimiter = delimiter;
     }
 
-    @Override
-    public DataType getTagOrEntity() {
-        return tagOrEntity;
-    }
-
     public void setTagOrEntity(DataType tagOrEntity) {
         this.tagOrEntity = tagOrEntity;
     }
@@ -185,21 +179,6 @@ public class ContentProfileImpl implements ContentProfile {
 
     public Map<String, ColumnDefinition> getContent() {
         return content;
-    }
-
-    @Override
-    public Collection<String> getStrategyCols() {
-        Map<String, ColumnDefinition> columns = getContent();
-
-        ArrayList<String> strategyColumns = new ArrayList<>();
-        if (columns == null)
-            return strategyColumns;
-        for (String column : columns.keySet()) {
-            String strategy = columns.get(column).getStrategy();
-            if (strategy != null)
-                strategyColumns.add(column);
-        }
-        return strategyColumns;
     }
 
     public void setEmptyIgnored(boolean emptyIgnored) {

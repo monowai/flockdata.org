@@ -19,7 +19,6 @@
 
 package org.flockdata.track.bean;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.flockdata.model.DocumentType;
 import org.flockdata.track.service.EntityService;
 
@@ -34,7 +33,7 @@ public class DocumentTypeInputBean {
 
     private String geoQuery;
     private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
-    EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
+    private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
     private Boolean searchEnabled; // If null default to fortress
 
     DocumentTypeInputBean(){}
@@ -65,9 +64,9 @@ public class DocumentTypeInputBean {
         return this;
     }
 
-    // MKH - Overrides the geo query path for this DocumentType. VULNERABLE!
-    // DAT-507
+    // MKH - Overrides the default geo query path for this DocumentType. VULNERABLE!
     public String getGeoQuery() {
+        // DAT-507
         return geoQuery;
     }
 
@@ -108,12 +107,6 @@ public class DocumentTypeInputBean {
         return searchEnabled;
     }
 
-//    private DocumentTypeInputBean setTagStructure(String tagStructure) {
-//        this.tagStructure = EntityService.TAG_STRUCTURE.valueOf(tagStructure);
-//        return this;
-//    }
-
-    @JsonProperty()
     public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
         this.tagStructure = tagStructure;
         return this;
