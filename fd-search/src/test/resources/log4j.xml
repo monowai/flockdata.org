@@ -45,6 +45,10 @@
         <level value="error"/>
     </logger>
 
+    <logger name="rest.suppressed">
+        <level value="error"/>
+    </logger>
+
     <logger name="org.flockdata">
         <level value="${fd.logLevel}"/>
     </logger>

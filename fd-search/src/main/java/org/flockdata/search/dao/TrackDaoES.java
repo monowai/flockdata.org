@@ -97,7 +97,6 @@ public class TrackDaoES implements TrackSearchDao {
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb = esClient.prepareIndex(searchChange.getIndexName(), documentType)
-
                 .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
@@ -331,17 +330,36 @@ public class TrackDaoES implements TrackSearchDao {
     private void setEntityLinks(Map<String, Object> indexMe, Collection<EntityKeyBean> entityLinks) {
 
         for (EntityKeyBean linkedEntity : entityLinks) {
-            String prefix;
-            if (linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())) {
-                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() + ".";
-            } else {
-                prefix = "e." + linkedEntity.getDocumentType().toLowerCase() + "." + linkedEntity.getRelationship() + ".";
+            //String prefix;
+
+            Map<String,Map<String,Object>> entity = (Map<String, Map<String, Object>>) indexMe.get("e");
+            if ( entity == null ) {
+                entity = new HashMap<>();//
+                indexMe.put("e", entity);
+
             }
-            setNonEmptyValue(prefix + EntitySearchSchema.CODE, linkedEntity.getCode(), indexMe);
-            setNonEmptyValue(prefix + EntitySearchSchema.INDEX, linkedEntity.getIndex(), indexMe);
-            setNonEmptyValue(prefix + EntitySearchSchema.DESCRIPTION, linkedEntity.getDescription(), indexMe);
-            setNonEmptyValue(prefix + "name", linkedEntity.getName(), indexMe);
-            setTags(prefix, indexMe, linkedEntity.getSearchTags());
+            String docType = linkedEntity.getDocumentType().toLowerCase();
+            Map<String,Object>docEntry = entity.get(docType);
+            if ( docEntry == null) {
+                docEntry = new HashMap<>();
+            }
+            entity.put(docType, docEntry);
+
+            Map<String,Object>leaf;
+            if (linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())) {
+                leaf = docEntry;
+                //prefix = "e" +QueryDaoES.ES_FIELD_SEP + linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP;
+            } else {
+                leaf = new HashMap<>();
+                docEntry.put(linkedEntity.getRelationship().toLowerCase(), leaf);
+
+                //prefix = "e" +QueryDaoES.ES_FIELD_SEP+ linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP + linkedEntity.getRelationship() + QueryDaoES.ES_FIELD_SEP;
+            }
+            setNonEmptyValue(EntitySearchSchema.CODE, linkedEntity.getCode(), leaf);
+            setNonEmptyValue(EntitySearchSchema.INDEX, linkedEntity.getIndex(), leaf);
+            setNonEmptyValue(EntitySearchSchema.DESCRIPTION, linkedEntity.getDescription(), leaf);
+            setNonEmptyValue("name", linkedEntity.getName(), leaf);
+            setTags("", leaf, linkedEntity.getSearchTags());
         }
     }
 
