@@ -22,7 +22,8 @@ package org.flockdata.search.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * POJO representing a TagCloud .
@@ -32,10 +33,10 @@ import java.util.*;
  */
 public class TagCloud {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Long> terms;
+    private Map<Object, Long> terms;
 
     @JsonIgnore
-    private Map<String, Long> workingMap;
+    private Map<Object, Long> workingMap;
 
     private int maxEntries;
 
@@ -49,19 +50,19 @@ public class TagCloud {
         workingMap = new HashMap<>();
     }
 
-    public Map<String, Long> getTerms() {
+    public Map<Object, Long> getTerms() {
         return terms;
     }
 
-    public void setTerms(Map<String, Long> terms) {
+    public void setTerms(Map<Object, Long> terms) {
         this.terms = terms;
     }
 
     private Long minValue = 0l;
     private Long maxValue = 0l;
-    private String smallestTerm = null;
+    private Object smallestTerm = null;
 
-    public void addTerm(String term, long occurrence) {
+    public void addTerm(Object term, long occurrence) {
         if (workingMap.isEmpty()) {
             minValue = occurrence;
             maxValue = occurrence;
@@ -88,7 +89,7 @@ public class TagCloud {
     }
 
     public void scale() {
-        for (String key : workingMap.keySet()) {
+        for (Object key : workingMap.keySet()) {
             Long value = workingMap.get(key);
             Double scaled = scale(Double.valueOf(value.toString()), minValue.doubleValue(), maxValue.doubleValue(), 15, 60);
             terms.put(key, scaled.longValue());

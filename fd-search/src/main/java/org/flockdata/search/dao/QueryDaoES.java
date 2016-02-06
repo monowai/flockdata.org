@@ -21,15 +21,11 @@ package org.flockdata.search.dao;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
@@ -71,6 +67,10 @@ import java.util.concurrent.TimeoutException;
 @Repository
 public class QueryDaoES implements QueryDao {
 
+    public static final String ES_FIELD_SEP = ".";
+    public static final String CODE_FACET = ".code.facet";
+    public static final String NAME_FACET = ".name.facet";
+
     @Autowired
     private Client client;
 
@@ -111,13 +111,11 @@ public class QueryDaoES implements QueryDao {
     }
 
     private String parseTagCode(String relationship, String tag) {
-        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ".") + tag.toLowerCase() + ".code.facet";
-        //return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".code.facet";
+        return EntitySearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_FACET;
     }
 
     private String parseTagName(String relationship, String tag) {
-        return EntitySearchSchema.TAG + "." + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ".") + tag.toLowerCase() + ".name.facet";
-//        return EntitySearchSchema.TAG + "." + relationship.toLowerCase() + "."+tag.toLowerCase() + ".name.facet";
+        return EntitySearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-facet";
     }
 
     public String[] getIndexes(TagCloudParams tagCloudParams) {
@@ -147,8 +145,6 @@ public class QueryDaoES implements QueryDao {
         for (String whatAndTagField : whatAndTagFields) {
             query.addAggregation(AggregationBuilders.terms(whatAndTagField).field(whatAndTagField).size(50));
         }
-//        query.setExtraSource(QueryGenerator.getSearchText(tagCloudParams.getSearchText(), false));
-        //searchRequest.setQuer("*");
 
         // No hits, just the aggs
         SearchResponse response = query.execute().actionGet();
@@ -162,9 +158,14 @@ public class QueryDaoES implements QueryDao {
         Map<String, Aggregation> aggregates = resolveKeys(tagCloudFacet.getAsMap());
         for (String key : aggregates.keySet()) {
             InternalTerms terms = (InternalTerms) aggregates.get(key);
-            for (Terms.Bucket bucket : terms.getBuckets()) {
+            for (Object object : terms.getBuckets()) {
+
+                org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket bucket = (Terms.Bucket) object;
                 tagcloud.addTerm(bucket.getKey(), bucket.getDocCount());
             }
+//            for (Terms.Bucket bucket : terms.getBuckets()) {
+
+  //          }
         }
         tagcloud.scale(); // Scale the results suitable for presentation
         return tagcloud;
@@ -188,7 +189,7 @@ public class QueryDaoES implements QueryDao {
         ArrayList<String> relationships = new ArrayList<>();
 
         for (String s : asMap.keySet()) {
-            int pos = s.indexOf(".name.facet"); // Names by preference
+            int pos = s.indexOf(NAME_FACET); // Names by preference
             if (pos > 0) {
 
                 InternalTerms terms = (InternalTerms) asMap.get(s);
@@ -201,7 +202,7 @@ public class QueryDaoES implements QueryDao {
         }
         // Pickup any Codes that don't have Name entries
         for (String s : asMap.keySet()) {
-            int pos = s.indexOf(".code.facet"); // Names by preference
+            int pos = s.indexOf(CODE_FACET); // Names by preference
             if (pos > 0) {
                 String relationship = s.substring(0, pos);
                 if (!relationships.contains(relationship)) {
@@ -272,13 +273,13 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public void getTags(String indexName) {
-        GetMappingsResponse fieldMappings = client
-                .admin()
-                .indices()
-                .getMappings(new GetMappingsRequest())
-                .actionGet();
+//        GetMappingsResponse fieldMappings = client
+//                .admin()
+//                .indices()
+//                .getMappings(new GetMappingsRequest())
+//                .actionGet();
 
-        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = fieldMappings.getMappings();
+//        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = fieldMappings.getMappings();
 
     }
 

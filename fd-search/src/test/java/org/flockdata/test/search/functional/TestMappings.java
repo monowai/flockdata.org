@@ -94,9 +94,6 @@ public class TestMappings extends ESBase {
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
         // Assert that the description facet exists
         doFacetQuery(entity, "name.facet", change.getName(),1);
-//        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my tag", 1, "Case insensitive text match of tag codes is not working");
-        //doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code", "my", 1, "Keyword search of tag codes is not working");
-//        doTermQuery(entity.getFortress().getIndexName(), "tag.mytag.code.analyzed", "my tag", 1, "Case insensitive search of tag codes is not working");
         assertNotNull(json);
 
     }
@@ -243,6 +240,7 @@ public class TestMappings extends ESBase {
         // DAT-328
         Thread.sleep(5000);
         doFacetQuery(entity, "tag.mytag.code.facet", tag.getCode(), 1);
+//         doFacetQuery(entity, "tag-mytag-code-facet", tag.getCode(), 1);
 
     }
 
@@ -274,8 +272,8 @@ public class TestMappings extends ESBase {
         GeoDataBeans geoPayLoad = new GeoDataBeans();
         GeoDataBean geoData = new GeoDataBean();
         GeoDataBean streetData = new GeoDataBean();
-        streetData.add("street", "abc", "123 Main Street", 168.0, -13.03);
-        geoData.add("country", "NZ", "New Zealand", 174.0, -41.0);
+        streetData.add("street", "abc", "123 Main Street", -13.03, 168.0);
+        geoData.add("country", "NZ", "New Zealand", -41.0, 174.0);
         geoPayLoad.add("country", geoData);
         geoPayLoad.add("street", streetData);
         geoData = geoPayLoad.getGeoBeans().get("country");
