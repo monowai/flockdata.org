@@ -10,7 +10,7 @@
 
     <rabbit:connection-factory id="connectionFactory"
                                host="${rabbit.host}"
-                               port="${rabbit.port}"
+                               port="${fd.rabbit.port}"
                                username="${rabbit.user}"
                                password="${rabbit.pass}"
                                requested-heartbeat="${rabbit.heartbeat.secs}"
