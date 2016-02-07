@@ -1,0 +1,80 @@
+discovery:
+  container_name: discovery
+  image: flockdata/discovery:latest
+  ports:
+   - "8761:8761"
+  links:
+   - config
+config:
+  container_name: config
+  image: flockdata/config:latest
+  ports:
+   - "8888:8888"
+rabbit:
+  container_name: rabbit
+  image: rabbitmq:3-management
+  ports:
+   - "5672:5672"
+   - "15672:15672"
+riak:
+  container_name: riak
+  image: lapax/riak:latest
+engine:
+  container_name: engine
+  image: flockdata/engine:latest
+  ports:
+   - "8080:8080"
+   - "7474:7474"
+  environment:
+    neo4j: "java"
+    fd.integration: "http"
+    fd.auth.provider: "simple"
+    fd.config: "/var/lib/flockdata/conf/config.properties"
+    log4j.configuration: "/var/lib/flockdata/conf/log4j.xml"
+    links:
+     - rabbit
+     - riak
+search:
+  container_name: search
+  image: flockdata/search:latest
+  ports:
+   - "8081:8081"
+   - "9200:9200"
+  environment:
+    fd.integration: "http"
+    fd.config: "/var/lib/flockdata/conf/config.properties"
+    log4j.configuration: "/var/lib/flockdata/conf/log4j.xml"
+  links:
+   - rabbit
+   - riak
+es_master:
+  container_name: es_master
+  image: elasticsearch:1.7.5
+  command: elasticsearch -Des.cluster.name=es_flockdata -Des.http.port=9201 -Des.transport.tcp.port=9301
+  ports:
+    - "9201:9201"
+    - "9301:9301"
+  environment:
+    ES_NODE_NAME: "TestNode"
+    ES_CLUSTER_NAME: "es_flockdata"
+    ES_HTTP_PORT: 9201
+kibana:
+  container_name: kibana
+  image: kibana:4.1.4
+  ports:
+    - "5601:5601"
+  environment:
+    ELASTICSEARCH_URL: "http://es_master:9201/"
+scope:
+  container_name: weave-scope
+  volumes:
+    - "/var/run/:/var/run:rw"
+  command:
+    - "--probe.docker"
+    - "true"
+  image: weaveworks/scope:0.11.1
+  net: "host"
+  pid: "host"
+  ports:
+    - "4040:4040"
+  privileged: true
