@@ -13,8 +13,9 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>2.2.0</es.version>
-        <spring.elasticsearch-version>2.1.0</spring.elasticsearch-version>
+        <es.version>1.7.3</es.version>
+        <!--<spring.elasticsearch-version>2.0.0</spring.elasticsearch-version>-->
+        <spring.elasticsearch-version>1.4.2</spring.elasticsearch-version>
     </properties>
 
     <dependencies>
@@ -92,15 +93,32 @@
             <artifactId>spring-elasticsearch</artifactId>
             <version>${spring.elasticsearch-version}</version>
         </dependency>
+        <!--  Required for 1.4.2 of spring-es-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <!--  end required for 1.4.2 of spring-es-->
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>${es.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.3.2</version>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
@@ -110,26 +128,9 @@
         <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
-            <version>2.0.0</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.elasticsearch</groupId>-->
-        <!--<artifactId>elasticsearch-mapper-attachments</artifactId>-->
-        <!--<version>${es.attachment-mapper.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tika</groupId>-->
-        <!--<artifactId>tika-parsers</artifactId>-->
-        <!--<version>${tika.version}</version>-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>org.apache.httpcomponents</groupId>-->
-        <!--<artifactId>httpcore</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--</dependency>-->
-
     </dependencies>
 
     <build>
@@ -259,17 +260,17 @@
                     </warRunDependencies>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>repackage</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -283,7 +284,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <imageName>flockdata/${artifactId}</imageName>
+                    <imageName>flockdata/${project.artifactId}</imageName>
                     <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
                     <resources>
                         <resource>

@@ -23,9 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
@@ -40,10 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -108,36 +104,13 @@ public class TestElasticSearch {
             return "Unknown Computer";
     }
 
-    public  Node getNode() throws Exception {
-        File tempDir = File.createTempFile("elasticsearch-temp", Long.toString(System.nanoTime()));
-        tempDir.delete();
-        tempDir.mkdir();
-        //LOGGER.info("writing to: %s", tempDir);
 
-        String clusterName = UUID.randomUUID().toString();
-        Node esNode = NodeBuilder
-                .nodeBuilder()
-                .local(false)
-                .clusterName(clusterName)
-                .settings(  Settings.builder()
-                                .put("index.number_of_shards", "1")
-                                .put("index.number_of_replicas", "0")
-                                .put("path.home", new File(tempDir, "./").getAbsolutePath())
-                                .put("path.data", new File(tempDir, "data").getAbsolutePath())
-                                .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
-                                .put("path.work", new File(tempDir, "work").getAbsolutePath())
-                ).node();
-        esNode.start();
-        return esNode;
-    }
-
-//    static Node esNode;
 
     private  GetResponse writeSimple(EntitySearchChange change) throws Exception {
 
         // Elasticsearch
-
-        Client client = getNode().client();
+        Node node = org.elasticsearch.node.NodeBuilder.nodeBuilder().local(true).node();
+        Client client = node.client();
         String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
 
         // Write the object to Lucene
@@ -156,8 +129,58 @@ public class TestElasticSearch {
                 .setRouting(change.getMetaKey())
                 .execute()
                 .actionGet();
-        client.close();
+        node.close();
         return response;
     }
+
+//    private  GetResponse writeSimpleV2(EntitySearchChange change) throws Exception {
+//
+//        // Elasticsearch v2
+//
+//        Client client = getNode().client();
+//        String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
+//
+//        // Write the object to Lucene
+//        IndexResponse ir =
+//                client.prepareIndex(indexKey, change.getWho())
+//                        .setSource(om.writeValueAsString(change))
+//                        .setRouting(change.getMetaKey())
+//                        .execute()
+//                        .actionGet();
+//
+//        assertNotNull(ir);
+//        logger.info(ir.getId());
+//
+//        // Retrieve from Lucene
+//        GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
+//                .setRouting(change.getMetaKey())
+//                .execute()
+//                .actionGet();
+//        client.close();
+//        return response;
+//    }
+
+    //    public  Node getNode() throws Exception {
+//        File tempDir = File.createTempFile("elasticsearch-temp", Long.toString(System.nanoTime()));
+//        tempDir.delete();
+//        tempDir.mkdir();
+//        //LOGGER.info("writing to: %s", tempDir);
+//
+//        String clusterName = UUID.randomUUID().toString();
+//        Node esNode = NodeBuilder
+//                .nodeBuilder()
+//                .local(false)
+//                .clusterName(clusterName)
+//                .settings(  Settings.builder()
+//                                .put("index.number_of_shards", "1")
+//                                .put("index.number_of_replicas", "0")
+//                                .put("path.home", new File(tempDir, "./").getAbsolutePath())
+//                                .put("path.data", new File(tempDir, "data").getAbsolutePath())
+//                                .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
+//                                .put("path.work", new File(tempDir, "work").getAbsolutePath())
+//                ).node();
+//        esNode.start();
+//        return esNode;
+//    }
 
 }

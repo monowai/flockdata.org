@@ -12,7 +12,8 @@ services:
       image: lapax/riak:latest
 
   elasticsearch:
-    image: elasticsearch:latest
+    container_name: elasticsearch
+    image: elasticsearch:1.7.3
     command: elasticsearch -Des.cluster.name=es_flockdata
     ports:
       - '9201:9201'
@@ -21,6 +22,7 @@ services:
       ES_NODE_NAME: 'TestNode'
 
   kibana:
+    container_name: kibana
     image: kibana:latest
     ports:
       - 5601:5601
@@ -48,6 +50,7 @@ services:
       log4j.configuration: '/var/lib/flockdata/conf/log4j.xml'
 
   fd-search:
+    container_name: fd-search
     image: flockdata/fd-search:latest
     ports:
      - '8081:8081'
@@ -62,7 +65,35 @@ services:
      - rabbit
      - riak
      - elasticsearch
+# Monitoring tools
 
+  discovery:
+    container_name: discovery
+    image: flockdata/discovery:latest
+    ports:
+      - '8761:8761'
+    links:
+      - config
+
+  config:
+    container_name: config
+    image: flockdata/config:latest
+    ports:
+      - '8888:8888'
+
+#  scope:
+#    image: weaveworks/scope:latest
+#    container_name: weave-scope
+#    volumes:
+#      - '/var/run/:/var/run:rw'
+#    command:
+#      - '--probe.docker'
+#      - 'true'
+#    network_mode: 'host'
+#    pid: 'host'
+#    ports:
+#      - '4040:4040'
+#    privileged: true
 
 
 #networks:

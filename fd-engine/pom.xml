@@ -511,7 +511,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <imageName>flockdata/${artifactId}</imageName>
+                    <imageName>flockdata/${project.artifactId}</imageName>
                     <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
                     <resources>
                         <resource>
