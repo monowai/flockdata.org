@@ -12,6 +12,21 @@
 * Deliver information and data to any digital platform
 * Track data lineage back to originating systems of record
 
+##Docker
+`mvn install -DskipTests=true`
+Create a docker VM ( I just start Kitematic)
+
+Configure your envionment. 
+
+`eval "$(docker-machine env default)`
+Build
+`docker-compose up -d`
+
+Useful docker commands
+`docker-machine ip default` Get the machiens IP
+`docker-compose run kibana env` Dump the kibana environment
+
+
 ##FlockData
 * Manages data as information
 * Object model and services to deliver FDH-IP

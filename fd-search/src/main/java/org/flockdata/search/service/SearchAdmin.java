@@ -50,7 +50,7 @@ public class SearchAdmin {
     @Value("${rabbit.host}")
     String rabbitHost;
 
-    @Value("${rabbit.port}")
+    @Value("${fd.rabbit.port}")
     String rabbitPort;
 
     @Value("${es.mappings}")

@@ -1,0 +1,71 @@
+version: '2'
+services:
+
+  rabbit:
+      container_name: rabbit
+      image: rabbitmq:3-management
+      ports:
+        - '5672:5672'
+        - '15672:15672'
+  riak:
+      container_name: riak
+      image: lapax/riak:latest
+
+  elasticsearch:
+    image: elasticsearch:latest
+    command: elasticsearch -Des.cluster.name=es_flockdata
+    ports:
+      - '9201:9201'
+      - '9301:9301'
+    environment:
+      ES_NODE_NAME: 'TestNode'
+
+  kibana:
+    image: kibana:latest
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    links:
+      - elasticsearch
+
+  fd-engine:
+    container_name: fd-engine
+    image: flockdata/fd-engine:latest
+    ports:
+      - '8080:8080'
+      - '7474:7474'
+    links:
+      - fd-search
+      - rabbit
+      - riak
+    environment:
+      fd.auth.provider: 'simple'
+      fd-search.url: http://fd-search:8081/fd-search
+      neo4j.datastore: '/var/lib/flockdata/data/neo4j/fd'
+      fd.logLevel: 'info'
+      fd.config: '/var/lib/flockdata/conf/config.properties'
+      log4j.configuration: '/var/lib/flockdata/conf/log4j.xml'
+
+  fd-search:
+    image: flockdata/fd-search:latest
+    ports:
+     - '8081:8081'
+     - '9200:9200'
+    environment:
+      fd-engine.url: http://fd-engine:8080/fd-engine
+      fd.config: '/var/lib/flockdata/conf/config.properties'
+      es.clustername: 'es_flockdata'
+      fd.logLevel: 'info'
+      log4j.configuration: '/var/lib/flockdata/conf/log4j.xml'
+    links:
+     - rabbit
+     - riak
+     - elasticsearch
+
+
+
+#networks:
+#  default:
+    # Use the overlay driver for multi-host communication
+#    driver: bridge
