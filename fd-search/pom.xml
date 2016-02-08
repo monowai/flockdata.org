@@ -73,11 +73,6 @@
             <version>7.0.30</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>4.2.1</version>
-        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -103,6 +98,11 @@
             <version>${es.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <version>${project.version}</version>
@@ -113,6 +113,23 @@
             <version>2.0.0</version>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.elasticsearch</groupId>-->
+        <!--<artifactId>elasticsearch-mapper-attachments</artifactId>-->
+        <!--<version>${es.attachment-mapper.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.apache.tika</groupId>-->
+        <!--<artifactId>tika-parsers</artifactId>-->
+        <!--<version>${tika.version}</version>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>org.apache.httpcomponents</groupId>-->
+        <!--<artifactId>httpcore</artifactId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
+        <!--</dependency>-->
+
     </dependencies>
 
     <build>
@@ -127,6 +144,11 @@
         </resources>
 
         <plugins>
+            <!--<plugin>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--<version>${spring-boot.version}</version>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -137,6 +159,16 @@
                         </manifest>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-search-jar</id>
+                        <!-- ToDo package? -->
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
@@ -225,6 +257,43 @@
                             <contextPath>/${project.artifactId}</contextPath>
                         </warRunDependency>
                     </warRunDependencies>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.3.7</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <imageName>flockdata/${artifactId}</imageName>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.artifactId}-war.jar</include>
+                            <include>classes/config.properties</include>
+                            <include>classes/log4j.xml</include>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>

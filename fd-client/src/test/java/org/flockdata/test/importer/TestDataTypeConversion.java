@@ -29,6 +29,7 @@ import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -120,6 +121,7 @@ public class TestDataTypeConversion extends AbstractImport {
     }
 
     @Test
+    @Ignore
     public void number_ConvertsWithThousandSeparator() throws Exception {
         // DAT-454
 

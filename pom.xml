@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>fd-config</module>
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
@@ -18,6 +19,7 @@
         <module>fd-search</module>
         <module>fd-spring</module>
         <module>fd-integration-tests</module>
+        <module>fd-discovery</module>
 
     </modules>
 
@@ -382,11 +384,16 @@
 
         </dependencies>
     </dependencyManagement>
-    <!--<repositories>-->
-    <!--<repository>-->
-    <!--<id>clojars.org</id>-->
-    <!--<url>http://clojars.org/repo</url>-->
-    <!--</repository>-->
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <!--</repositories>-->
     <!--
