@@ -32,7 +32,7 @@ import org.springframework.messaging.MessageChannel;
  */
 @Configuration
 @IntegrationComponentScan
-public class FdChannels {
+public class FdNeoChannels {
     String neoUrl;
     String searchUrl;
 

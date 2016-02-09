@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Configuration
 @IntegrationComponentScan
-public class EntityLogRequests extends RequestBase{
+public class EntityLogRequests extends NeoRequestBase {
 
     @Bean
     public IntegrationFlow makeLog() {

@@ -26,7 +26,7 @@ import org.springframework.messaging.MessageHandler;
 public class AdminRequests {
 
     @Autowired
-    FdChannels channels;
+    FdNeoChannels channels;
 
     @Bean
     IntegrationFlow doFdNeoHealth() {

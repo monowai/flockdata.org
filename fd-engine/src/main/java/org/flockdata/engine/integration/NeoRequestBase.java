@@ -30,10 +30,10 @@ import javax.annotation.PostConstruct;
 /**
  * Created by mike on 15/07/15.
  */
-public class RequestBase {
+public class NeoRequestBase {
 
     @Autowired
-    FdChannels channels;
+    FdNeoChannels channels;
 
     public String getEntityUrl() {
         return channels.getUriRoot() +"/entity";

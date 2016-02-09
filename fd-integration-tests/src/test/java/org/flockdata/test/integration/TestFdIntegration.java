@@ -24,7 +24,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.integration.FdChannels;
+import org.flockdata.engine.integration.FdNeoChannels;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -192,7 +192,7 @@ public class TestFdIntegration {
     ApplicationContext applicationContext;
 
     @Autowired
-    FdChannels fdChannels;
+    FdNeoChannels fdChannels;
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     static MockMvc mockMvc;
