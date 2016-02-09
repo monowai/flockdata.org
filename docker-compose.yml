@@ -1,6 +1,5 @@
 version: '2'
 services:
-
   rabbit:
       container_name: rabbit
       image: rabbitmq:3-management
@@ -13,7 +12,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
-    image: elasticsearch:1.7.3
+    image: elasticsearch:1.7.5
     command: elasticsearch -Des.cluster.name=es_flockdata
     ports:
       - '9201:9201'
@@ -23,7 +22,7 @@ services:
 
   kibana:
     container_name: kibana
-    image: kibana:latest
+    image: kibana:4.1.4
     ports:
       - 5601:5601
     environment:
@@ -65,8 +64,8 @@ services:
      - rabbit
      - riak
      - elasticsearch
-# Monitoring tools
 
+# Monitoring tools
   discovery:
     container_name: discovery
     image: flockdata/discovery:latest
@@ -81,19 +80,19 @@ services:
     ports:
       - '8888:8888'
 
-#  scope:
-#    image: weaveworks/scope:latest
-#    container_name: weave-scope
-#    volumes:
-#      - '/var/run/:/var/run:rw'
-#    command:
-#      - '--probe.docker'
-#      - 'true'
-#    network_mode: 'host'
-#    pid: 'host'
-#    ports:
-#      - '4040:4040'
-#    privileged: true
+  scope:
+    image: weaveworks/scope:latest
+    container_name: weave-scope
+    volumes:
+      - '/var/run/:/var/run:rw'
+    command:
+      - '--probe.docker'
+      - 'true'
+    network_mode: 'host'
+    pid: 'host'
+    ports:
+      - '4040:4040'
+    privileged: true
 
 
 #networks:
