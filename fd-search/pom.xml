@@ -13,7 +13,7 @@
     <artifactId>fd-search</artifactId>
     <packaging>war</packaging>
     <properties>
-        <es.version>1.7.3</es.version>
+        <es.version>1.7.5</es.version>
         <!--<spring.elasticsearch-version>2.0.0</spring.elasticsearch-version>-->
         <spring.elasticsearch-version>1.4.2</spring.elasticsearch-version>
     </properties>
