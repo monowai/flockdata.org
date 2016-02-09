@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Configuration
 @IntegrationComponentScan
-public class TagRequests extends RequestBase{
+public class TagRequests extends NeoRequestBase {
 
     @Bean
     public IntegrationFlow makeTags() {
