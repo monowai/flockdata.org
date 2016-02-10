@@ -3023,14 +3023,14 @@
             "values": [
                 {
                     "key": "fd-engine",
-                    "value": "http://localhost:8080/fd-engine",
+                    "value": "http://localhost:8080/",
                     "type": "text",
                     "name": "fd-engine",
                     "enabled": true
                 },
                 {
                     "key": "fd-search",
-                    "value": "http://localhost:8081/fd-search",
+                    "value": "http://localhost:8081/",
                     "type": "text",
                     "name": "fd-search",
                     "enabled": true
