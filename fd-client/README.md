@@ -21,7 +21,7 @@ __parameter__  description __example__
 - -c (optional) fully qualified file name pointing to the config file to use
 - -cf (optional) look in this folder for the configuration file
 - If neither -c or -cf is used, then ./conf is assumed
-- _-s_ server address __-s=http://localhost:8081/fd-engine__ (overrides the configured server in the config file)
+- _-s_ server address __-s=http://localhost:8081__ (overrides the configured server in the config file)
 - _-x_ stop after this many rows 
 - _"{file},{profile}"_ the file to import and the content profile to use - repeating block
 to process file content __"./cow.txt,org.flockdata.health.Countries"__
@@ -33,7 +33,7 @@ JSON Tag Input
 If you have a JSON file in the Tag Input syntax, then you can simply pass this file with a command similar to this:
 
 ````
-java -jar org.flockdata.client.Importer -c target/conf/client.config -b=10 -s=http://localhost:8081/fd-engine "./src/main/resources/myTags.json"
+java -jar org.flockdata.client.Importer -c target/conf/client.config -b=10 -s=http://localhost:8081 "./src/main/resources/myTags.json"
 ````
 
 Saving the text below to myTags.json and importing it with the previous command will produce a mindmap style graph that shows the conceptual structure of a Microservice. 

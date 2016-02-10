@@ -10,10 +10,10 @@ RUN mkdir /var/lib/flockdata && \
     mkdir /var/lib/flockdata/conf
 
 # Add files.
-ADD fd-engine-war.jar /var/lib/flockdata/bin/app.jar
+ADD fd-engine-war.jar /var/lib/flockdata/bin/fd-engine-war.jar
 ADD classes/config.properties /var/lib/flockdata/conf/config.properties
 ADD classes/log4j.xml /var/lib/flockdata/conf/log4j.xml
 
-RUN bash -c 'touch /app.jar'
+RUN bash -c 'touch /fd-engine-war.jar'
 EXPOSE 8080 7474
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/var/lib/flockdata/bin/app.jar","-httpPort=8080","-Dneo4=java","-Dfd.integration=http","-Dfd.auth.provider=simple","-Dfd.config=/var/lib/flockdata/conf/config.properties","-Dlog4j.configuration=file:/var/lib/flockdata/conf/log4j.xml"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/var/lib/flockdata/bin/fd-engine-war.jar","-httpPort=8080","-Dneo4=java","-Dfd.auth.provider=simple","-Dfd.config=/var/lib/flockdata/conf/config.properties","-Dlog4j.configuration=file:/var/lib/flockdata/conf/log4j.xml"]

@@ -42,7 +42,7 @@ services:
       - riak
     environment:
       fd.auth.provider: 'simple'
-      fd-search.url: http://fd-search:8081/fd-search
+      fd-search.url: http://fd-search:8081
       neo4j.datastore: '/var/lib/flockdata/data/neo4j/fd'
       fd.logLevel: 'info'
       fd.config: '/var/lib/flockdata/conf/config.properties'
@@ -55,7 +55,7 @@ services:
      - '8081:8081'
      - '9200:9200'
     environment:
-      fd-engine.url: http://fd-engine:8080/fd-engine
+      fd-engine.url: http://fd-engine:8080
       fd.config: '/var/lib/flockdata/conf/config.properties'
       es.clustername: 'es_flockdata'
       fd.logLevel: 'info'

@@ -232,7 +232,7 @@ public class TestFdIntegration {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         logger.info("**** Checking to see if we can ping fd-search @ {}", FD_SEARCH);
         try {
-            ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH + "/fd-search/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(FD_SEARCH + "/v1/admin/ping", HttpMethod.GET, requestEntity, String.class);
             assertTrue("didn't get the Pong response", response.getBody().equals("pong"));
 
         } catch (Exception e) {
@@ -1928,7 +1928,7 @@ public class TestFdIntegration {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange(FD_SEARCH + "/fd-search/v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(FD_SEARCH + "v1/query/fdView", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }

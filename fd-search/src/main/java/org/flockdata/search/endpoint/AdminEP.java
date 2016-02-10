@@ -41,14 +41,14 @@ public class AdminEP {
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
 
     String ping() throws Exception {
-        // curl -X GET http://localhost:8081/fd-search/v1/admin/ping
+        // curl -X GET http://localhost:8081/v1/admin/ping
         return "pong";
     }
 
     @RequestMapping(value = "/health", produces = "application/json", method = RequestMethod.GET)
 
     public Map<String, Object> getHealth() throws Exception {
-        // curl -u mike:123 -X GET http://localhost:8081/fd-search/v1/admin/health
+        // curl -u mike:123 -X GET http://localhost:8081/v1/admin/health
         return searchAdmin.getHealth();
     }
 

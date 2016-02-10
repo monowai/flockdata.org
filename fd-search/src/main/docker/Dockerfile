@@ -16,4 +16,4 @@ ADD classes/log4j.xml /var/lib/flockdata/conf/log4j.xml
 
 RUN bash -c 'touch /app.jar'
 EXPOSE 8081
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/var/lib/flockdata/bin/app.jar","-httpPort=8081","-Dfd.integration=http","-Dfd.config=/var/lib/flockdata/conf/config.properties","-Dlog4j.configuration=file:/var/lib/flockdata/conf/log4j.xml"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/var/lib/flockdata/bin/app.jar","-httpPort=8081","-Dfd.config=/var/lib/flockdata/conf/config.properties","-Dlog4j.configuration=file:/var/lib/flockdata/conf/log4j.xml"]

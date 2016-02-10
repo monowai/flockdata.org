@@ -69,7 +69,7 @@ public class AdminEP {
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {
-        // curl -X GET http://localhost:8081/fd-engine/v1/track/ping
+        // curl -X GET http://localhost:8081/v1/track/ping
         return engineConfig.authPing();
     }
 

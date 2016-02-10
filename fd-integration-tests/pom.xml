@@ -237,7 +237,7 @@
                                     <artifactId>fd-search</artifactId>
                                     <type>war</type>
                                     <properties>
-                                        <context>/fd-search</context>
+                                        <context>/</context>
                                     </properties>
                                 </deployable>
                             </deployables>
