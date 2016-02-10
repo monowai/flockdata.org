@@ -85,25 +85,25 @@ You are free to configure your own security domain, or help us out with an OAuth
 By default, information is tracked in Neo4J and ElasticSearch. You can, at the point of POST, request that the information be only tracked in Neo4j or only ElasticSearch. This depends on your use case. You might be simply tracking event type information that never changes, so simply storing in ElasticSearch is functional enough as the data is not require the meshing of connections.
 
 ## Creating Data
-In the examples below, /fd-engine/ represents the application context with the endpoints starting at /v1/. Substitute for whatever server & context is appropriate for your deployment.
+In the examples below, endpoints start at /v1/. Substitute for whatever server & context is appropriate for your deployment.
 
 ###Register yourself with an account
 ```
-curl -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/profiles/ -d '{"name":"batch", "companyName":"Monowai","login":"whocares"}'
+curl -H "Content-Type:application/json" -X POST http://localhost:8080/v1/profiles/ -d '{"name":"batch", "companyName":"Monowai","login":"whocares"}'
 ```
 ### See who you are
 ```
-curl -u batch:123 -X GET http://localhost:8080/fd-engine/v1/profiles/me/
+curl -u batch:123 -X GET http://localhost:8080/v1/profiles/me/
 ```
 ### Create an Application Fortress
 This is one of your computer systems that you want to track information coming from
 ```
-curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/fortress/ -d '{"name": "demo-app","searchEnabled": true}'
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/v1/fortress/ -d '{"name": "demo-app","searchEnabled": true}'
 ```
 ### Track a Data Event
 You should have started [fd-search](../fd-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
-curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/fd-engine/v1/track/ -d '{
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/v1/track/ -d '{
   "fortress":"demo-app", 
   "event":"Create",
   "documentName":"Debtor",

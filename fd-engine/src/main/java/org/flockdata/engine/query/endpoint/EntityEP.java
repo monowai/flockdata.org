@@ -19,19 +19,17 @@
 
 package org.flockdata.engine.query.endpoint;
 
-import org.flockdata.meta.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
-import org.flockdata.model.Company;
-import org.flockdata.model.Fortress;
+import org.flockdata.meta.service.TxService;
+import org.flockdata.model.*;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.LogDetailBean;
-import org.flockdata.model.*;
 import org.flockdata.track.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +103,7 @@ public class EntityEP {
     public EntityBean getEntity(@PathVariable("metaKey") String metaKey,
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
+        // curl -u mike:123 -X GET http://localhost:8081/v1/track/{metaKey}
         Entity result = entityService.getEntity(company, metaKey, true);
         if (result == null)
             throw new NotFoundException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
@@ -117,7 +115,7 @@ public class EntityEP {
     public String reindexEntity(@PathVariable("metaKey") String metaKey,
                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
+        // curl -u mike:123 -X GET http://localhost:8081/v1/track/{metaKey}
         Entity entity = entityService.getEntity(company, metaKey, true);
         if (entity == null)
             throw new NotFoundException("Unable to resolve requested meta key [" + metaKey + "]. Company is " + (company == null ? "Invalid" : "Valid"));
@@ -158,7 +156,7 @@ public class EntityEP {
     Set<EntityLog> getLogs(@PathVariable("metaKey") String metaKey,
                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}/logs
+        // curl -u mike:123 -X GET http://localhost:8081/v1/track/{metaKey}/logs
         return entityService.getEntityLogs(company, metaKey);
 
     }
@@ -168,7 +166,7 @@ public class EntityEP {
     public ResponseEntity<EntityLog> getLastLog(@PathVariable("metaKey") String metaKey,
                                                 HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
+        // curl -u mike:123 -X GET http://localhost:8081/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
         EntityLog changed = entityService.getLastEntityLog(company, metaKey);
         if (changed != null)
             return new ResponseEntity<>(changed, HttpStatus.OK);
@@ -194,7 +192,7 @@ public class EntityEP {
     Collection<EntityTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
                                      HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
+        // curl -u mike:123 -X GET http://localhost:8081/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         EntityLog tl = entityService.getEntityLog(company, metaKey, logId);
         return entityService.getLogTags(company, tl);
     }

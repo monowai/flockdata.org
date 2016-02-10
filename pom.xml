@@ -380,8 +380,6 @@
                 <artifactId>commons-cli</artifactId>
                 <version>1.2</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
     <repositories>
@@ -453,6 +451,16 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${org.springboot.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>

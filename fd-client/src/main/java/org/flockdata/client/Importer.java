@@ -47,7 +47,7 @@ import java.util.List;
  * to massage your data prior to dispatch to FD.
  * <p>
  * Parameters:
- * -s=http://localhost:8080/fd-engine
+ * -s=http://localhost:8080
  * <p>
  * quoted string containing "file,DelimitedClass,BatchSize"
  * "./path/to/file/cow.csv,org.flockdata.health.Countries,200"

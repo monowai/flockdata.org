@@ -35,13 +35,13 @@ We assume you've read the all important [fd-engine](../fd-engine) container sect
 There is a ping url
 
 ```
-curl -X GET http://localhost:8081/fd-search/v1/ping
+curl -X GET http://localhost:8081/v1/ping
 ```
 
 And health of the service can be queried via a secured call
 
 ```
-curl -u mike:123 -X GET http://localhost:8081/fd-search/v1/health
+curl -u mike:123 -X GET http://localhost:8081/v1/health
 ```
 
 Say hello to ElasticSearch
