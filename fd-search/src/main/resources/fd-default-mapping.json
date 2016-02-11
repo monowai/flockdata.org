@@ -76,14 +76,6 @@
     },
     "dynamic_templates": [
       {
-        "inline_tag": {
-          "match": "tag.*",
-          "mapping": {
-            "type": "nested"
-          }
-        }
-      },
-      {
         "inline_tag_code_template": {
           "path_match": "tag.*.code",
           "match_mapping_type": "string",
