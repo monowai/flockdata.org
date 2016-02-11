@@ -45,29 +45,29 @@ public class SearchAdmin {
     TrackSearchDao engineDao;
 
     @Value("${fdengine.result}")
-    String fdEngine;
+    private String fdEngine;
 
     @Value("${rabbit.host}")
-    String rabbitHost;
+    private String rabbitHost;
 
-    @Value("${fd.rabbit.port}")
-    String rabbitPort;
+    @Value("${rabbit.port}")
+    private String rabbitPort;
 
     @Value("${es.mappings}")
-    String esMappingPath;
+    private String esMappingPath;
 
     @Value("${es.settings}")
     String esSettings;
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
     String esDefaultMapping = "fd-default-mapping.json";
-    String esTaxonomyMapping = "fd-taxonomy-mapping.json";
+    String esTaxonomyMapping = "fd-taxonomy-mapping.json"; // ToDo: hard coded taxonmy is not very flexible!
 
 
     public String getEsMappingPath() {
 
         if (esMappingPath.equals("${es.mappings}"))
-            esMappingPath= "/"; // Internal
+            esMappingPath = "/"; // Internal
         return esMappingPath;
     }
 
@@ -77,11 +77,15 @@ public class SearchAdmin {
         return esSettings;
     }
 
-    public String getEsDefaultMapping(EntityService.TAG_STRUCTURE tagStructure) {
+    public String getEsMapping(EntityService.TAG_STRUCTURE tagStructure) {
         if (tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
-            return getEsMappingPath() + "/" + esTaxonomyMapping;
+            return "/" + esTaxonomyMapping;
         else
-            return getEsMappingPath() + "/" + esDefaultMapping;
+            return "/" + esDefaultMapping;
+    }
+
+    public String getEsPathedMapping(EntityService.TAG_STRUCTURE tagStructure) {
+        return getEsMappingPath() + getEsMapping(tagStructure);
     }
 
     //    @Secured({"ROLE_FD_ADMIN"})
@@ -103,7 +107,7 @@ public class SearchAdmin {
         healthResults.put("fd.config", config);
         healthResults.put("es.default settings", getEsDefaultSettings());
         healthResults.put("es.mapping settings", getEsMappingPath());
-        healthResults.put("es.default mapping", getEsDefaultMapping(EntityService.TAG_STRUCTURE.DEFAULT));
+        healthResults.put("es.default mapping", getEsPathedMapping(EntityService.TAG_STRUCTURE.DEFAULT));
 
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
