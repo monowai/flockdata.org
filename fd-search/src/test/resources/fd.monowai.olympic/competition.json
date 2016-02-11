@@ -28,7 +28,7 @@
             "whenCreated": {
                 "type": "date"
             },
-            "what": {
+            "data": {
                 "properties": {
                     "Closing Ceremony Date": {
                         "type": "date",
