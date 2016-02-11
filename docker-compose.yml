@@ -67,16 +67,16 @@ services:
 
 # Monitoring tools
   discovery:
-    container_name: discovery
-    image: flockdata/discovery:latest
+    container_name: fd-discovery
+    image: flockdata/fd-discovery:latest
     ports:
       - '8761:8761'
     links:
       - config
 
   config:
-    container_name: config
-    image: flockdata/config:latest
+    container_name: fd-config
+    image: flockdata/fd-config:latest
     ports:
       - '8888:8888'
 
