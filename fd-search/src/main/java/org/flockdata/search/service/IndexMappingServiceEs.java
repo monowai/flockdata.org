@@ -50,7 +50,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = indexHelper.parseType(change.getDocumentType());
+        String documentType = IndexHelper.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -215,7 +215,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
         }
 
-        String esDefault = searchAdmin.getEsDefaultMapping(tagStructure);
+        String esDefault = searchAdmin.getEsPathedMapping(tagStructure);
         try {
             // Chance to find it on disk
             found = getMapping(esDefault);
@@ -223,7 +223,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         } catch (IOException ioe) {
             // Extract it from the WAR
             logger.debug("Reading default mapping from the package");
-            found = getMapping("/fd-default-mapping.json");
+            found = getMapping(searchAdmin.getEsMapping(tagStructure));
         }
         return found;
     }
