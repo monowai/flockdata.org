@@ -1747,7 +1747,7 @@ public class TestFdIntegration {
     @Test
     public void tags_TaxonomyStructure() throws Exception {
 
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
 
         logger.info("## tags_TaxonomyStructure");
 
@@ -1755,6 +1755,8 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("tags_TaxonomyStructure", "tags_TaxonomyStructure");
         assertNotNull(su);
         engineConfig.setStoreEnabled("false");
+
+        esHelper.deleteEsIndex("fd.tags_taxonomystructure.tags_taxonomystructure.dat-498");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
         assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
