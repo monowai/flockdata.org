@@ -26,13 +26,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -42,7 +41,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @Configuration
 @EnableAsync(mode = AdviceMode.PROXY)
-@PropertySource(value = "classpath:/config.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class AsyncConfig extends AsyncConfigurerSupport {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -84,36 +82,36 @@ public class AsyncConfig extends AsyncConfigurerSupport {
     private String engineQueueCapacity;
 
     @Bean(name = "fd-track")
-    public Executor trackExecutor() {
+    public ExecutorService trackExecutor() {
         return getExecutor("fd-track", trackPoolSize, Integer.parseInt(trackQueueCapacity));
     }
 
     @Bean(name = "fd-engine")
-    public Executor engineExecutor() {
+    public ExecutorService engineExecutor() {
         return getExecutor( "fd-engine", enginePoolSize, Integer.parseInt(engineQueueCapacity)  );
     }
 
     @Bean(name = "fd-log")
-    public Executor logExecutor() {
+    public ExecutorService logExecutor() {
         return getExecutor("fd-log", logPoolSize, Integer.parseInt(logQueueCapacity));
     }
 
     @Bean(name = "fd-tag")
-    public Executor tagExecutor() {
+    public ExecutorService tagExecutor() {
         return getExecutor("fd-tag", tagPoolSize, Integer.parseInt(tagQueueCapacity));
     }
 
     @Bean(name = "fd-search")
-    public Executor searchExecutor() {
+    public ExecutorService searchExecutor() {
         return getExecutor("fd-search", searchPoolSize, getValue(searchQueueCapacity, 2));
     }
 
     @Bean(name = "fd-store")
-    public Executor storeExecutor() {
+    public ExecutorService storeExecutor() {
         return getExecutor("fd-store", storePoolSize, Integer.parseInt(storeQueueCapacity));
     }
 
-    private Executor getExecutor(String name, String poolSize, int  qCapacity) {
+    private ExecutorService getExecutor(String name, String poolSize, int  qCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         String vals[] = StringUtils.split(poolSize, "-");
 
@@ -126,7 +124,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         executor.setThreadNamePrefix(name + "-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
-        return executor;
+        return executor.getThreadPoolExecutor();
     }
 
     private Integer getValue(String input, Integer def){
@@ -137,7 +135,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
 
     @PostConstruct
     void logStatus() {
-        logger.info("**** Async Config Initialised");
+        logger.info("**** Async Config Executors Initialised");
     }
 
 }

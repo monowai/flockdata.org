@@ -47,12 +47,6 @@ public class SearchAdmin {
     @Value("${fdengine.result}")
     private String fdEngine;
 
-    @Value("${rabbit.host}")
-    private String rabbitHost;
-
-    @Value("${rabbit.port}")
-    private String rabbitPort;
-
     @Value("${es.mappings}")
     private String esMappingPath;
 
@@ -111,8 +105,6 @@ public class SearchAdmin {
 
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("rabbitmq.host", rabbitHost);
-        healthResults.put("rabbitmq.port", rabbitPort);
         return healthResults;
 
     }

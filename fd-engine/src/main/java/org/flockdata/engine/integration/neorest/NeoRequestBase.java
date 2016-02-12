@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.neorest;
 
 import com.google.common.net.MediaType;
 import org.flockdata.helper.JsonUtils;

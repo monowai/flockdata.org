@@ -61,7 +61,6 @@ public class AuthenticationEP {
 
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-
     public ResponseEntity<UserProfile> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();

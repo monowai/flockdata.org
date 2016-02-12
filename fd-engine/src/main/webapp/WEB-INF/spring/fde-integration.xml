@@ -90,14 +90,11 @@
 
     <!--End KV-->
 
-    <int:channel id="syncSearchDocs"/>
-
-
     <!--Channel to capture incoming search result from fd-search-->
     <int:channel id="searchDocSyncResult"/>
     <int:channel id="searchSyncResult"/>
 
-    <int:channel id="sendEntityIndexRequest"/>
+    <!--<int:channel id="sendEntityIndexRequest"/>-->
     <int:channel id="searchReply"/>
 
     <int:channel id="sendSearchRequest"/>
@@ -130,7 +127,7 @@
 
     <!--KV Outbound -->
     <int:channel id="startKvWrite"/>
-    <int:channel id="writeKvContent"/>
+    <!--<int:channel id="writeKvContent"/>-->
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
     <int:channel id="kvErrors"/>

@@ -49,10 +49,10 @@
             <version>0.6</version>
             <scope>test</scope>
             <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>com.google.guava</groupId>-->
-                    <!--<artifactId>guava</artifactId>-->
-                <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>com.google.guava</groupId>-->
+            <!--<artifactId>guava</artifactId>-->
+            <!--</exclusion>-->
             <!--</exclusions>-->
         </dependency>
         <dependency>
@@ -160,8 +160,8 @@
                     <artifactId>neo4j-cypher</artifactId>
                 </exclusion>
                 <!--<exclusion>-->
-                    <!--<groupId>org.neo4j</groupId>-->
-                    <!--<artifactId>neo4j-kernel</artifactId>-->
+                <!--<groupId>org.neo4j</groupId>-->
+                <!--<artifactId>neo4j-kernel</artifactId>-->
                 <!--</exclusion>-->
             </exclusions>
         </dependency>
@@ -336,6 +336,7 @@
                 <configuration>
                     <packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>
                     <packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>
+                    <packagingExcludes>WEB-INF/lib/javax.servlet-api*.jar</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -413,24 +414,91 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <!--http://tomcat.apache.org/maven-plugin-trunk/tomcat7-maven-plugin/exec-war-only-mojo.html#accessLogValveFormat-->
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
+            <!--<plugin>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<goals>-->
+            <!--<goal>repackage</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <!--
+                Builds an executable JAR and performs the docker packaging steps for that jar.
+                The jar can be deployed using other means, i.e. java -jar fd-engine-war.jar
+             -->
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!--http://tomcat.apache.org/maven-plugin-trunk/tomcat7-maven-plugin/exec-war-only-mojo.html#accessLogValveFormat-->
+                        <groupId>org.apache.tomcat.maven</groupId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
 
-                <executions>
-                    <execution>
-                        <id>tomcat-run</id>
-                        <goals>
-                            <goal>exec-war-only</goal>
-                        </goals>
-                        <phase>install</phase>
+                        <executions>
+                            <execution>
+                                <id>tomcat-run</id>
+                                <goals>
+                                    <goal>exec-war-only</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <finalName>${project.artifactId}-war.jar</finalName>
+                                    <!-- optional only if you want to use a preconfigured server.xml file -->
+                                    <!--
+                                    <serverXml>src/main/tomcatconf/server.xml</serverXml>
+                                    -->
+                                    <warRunDependencies>
+                                        <warRunDependency>
+                                            <dependency>
+                                                <groupId>${project.groupId}</groupId>
+                                                <artifactId>${project.artifactId}</artifactId>
+                                                <version>${project.version}</version>
+                                                <type>war</type>
+                                            </dependency>
+                                            <contextPath>/</contextPath>
+
+                                        </warRunDependency>
+                                    </warRunDependencies>
+                                    <!--<enableNaming>true</enableNaming>-->
+                                    <extraDependencies>
+                                        <dependency>
+                                            <groupId>org.slf4j</groupId>
+                                            <artifactId>slf4j-api</artifactId>
+                                            <version>${org.slf4j.version}</version>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>org.slf4j</groupId>
+                                            <artifactId>jul-to-slf4j</artifactId>
+                                            <version>${org.slf4j.version}</version>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>org.slf4j</groupId>
+                                            <artifactId>slf4j-log4j12</artifactId>
+                                            <version>${org.slf4j.version}</version>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>log4j</groupId>
+                                            <artifactId>log4j</artifactId>
+                                            <version>1.2.17</version>
+                                        </dependency>
+                                    </extraDependencies>
+                                </configuration>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <finalName>${project.artifactId}-war.jar</finalName>
-                            <!-- optional only if you want to use a preconfigured server.xml file -->
-                            <!--
-                            <serverXml>src/main/tomcatconf/server.xml</serverXml>
-                            -->
+                            <server>tomcat-development-server</server>
+                            <port>8080</port>
+                            <ajpPort>8087</ajpPort>
                             <warRunDependencies>
                                 <warRunDependency>
                                     <dependency>
@@ -439,74 +507,12 @@
                                         <version>${project.version}</version>
                                         <type>war</type>
                                     </dependency>
-                                    <contextPath>/</contextPath>
-
+                                    <contextPath>/${project.artifactId}</contextPath>
                                 </warRunDependency>
                             </warRunDependencies>
-                            <!--<enableNaming>true</enableNaming>-->
-                            <extraDependencies>
-                                <dependency>
-                                    <groupId>org.slf4j</groupId>
-                                    <artifactId>slf4j-api</artifactId>
-                                    <version>${org.slf4j.version}</version>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.slf4j</groupId>
-                                    <artifactId>jul-to-slf4j</artifactId>
-                                    <version>${org.slf4j.version}</version>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.slf4j</groupId>
-                                    <artifactId>slf4j-log4j12</artifactId>
-                                    <version>${org.slf4j.version}</version>
-                                </dependency>
-                                <dependency>
-                                    <groupId>log4j</groupId>
-                                    <artifactId>log4j</artifactId>
-                                    <version>1.2.17</version>
-                                </dependency>
-                            </extraDependencies>
                         </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <server>tomcat-development-server</server>
-                    <port>8080</port>
-                    <ajpPort>8087</ajpPort>
-                    <warRunDependencies>
-                        <warRunDependency>
-                            <dependency>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                                <type>war</type>
-                            </dependency>
-                            <contextPath>/${project.artifactId}</contextPath>
-                        </warRunDependency>
-                    </warRunDependencies>
-                </configuration>
-            </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>repackage</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>docker</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
+                    </plugin>
+
                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>

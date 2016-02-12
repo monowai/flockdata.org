@@ -1,18 +1,19 @@
 package org.flockdata.engine.integration;
 
+import com.google.common.net.MediaType;
+import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.FlockException;
-import org.flockdata.search.model.SearchResult;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.SearchResults;
-import org.flockdata.track.service.EntityService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.json.ObjectToJsonTransformer;
+import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * fd-search -->> fd-engine (inbound)
@@ -20,11 +21,29 @@ import java.util.Collection;
  * Created by mike on 21/07/15.
  */
 @Service
+@Profile({"integration","production"})
 public class SearchRequests {
-    private Logger logger = LoggerFactory.getLogger(SearchRequests.class);
 
     @Autowired
-    EntityService entityService;
+    SearchHandler searchHandler;
+
+    @Autowired
+    FdSearchChannels channels;
+
+    private ObjectToJsonTransformer transformer;
+
+    @PostConstruct
+    public void createTransformer() {
+        transformer = new ObjectToJsonTransformer(
+                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
+        );
+        transformer.setContentType(MediaType.JSON_UTF_8.toString());
+        //return transformer;
+    }
+
+    public ObjectToJsonTransformer getTransformer(){
+        return transformer;
+    }
 
     //
     @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
@@ -42,24 +61,24 @@ public class SearchRequests {
      */
     @ServiceActivator(inputChannel = "searchSyncResult", requiresReply = "false")
     public void syncSearchResult(SearchResults searchResults) {
-        Collection<SearchResult> theResults = searchResults.getSearchResults();
-        int count = 0;
-        int size = theResults.size();
-        logger.debug("searchDocSyncResult processing {} incoming search results", size);
-        for (SearchResult searchResult : theResults) {
-            count++;
-            logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
-            Long entityId = searchResult.getEntityId();
-            if (entityId == null)
-                return;
-
-            try {
-                entityService.recordSearchResult(searchResult, entityId);
-            } catch (FlockException e) {
-                logger.error("Unexpected error recording searchResult for entityId " + entityId, e);
-            }
-        }
-        logger.trace("Finished processing search results");
+        searchHandler.handlResults(searchResults);
     }
+
+//    @Bean
+//    public IntegrationFlow indexSearchDoc() {
+//        return IntegrationFlows.from(channels.sendEntityIndexRequest())
+//                .transform(getTransformer())
+//                .handle(fdMakeEntityRequest())
+//                .get();
+//    }
+
+//    private MessageHandler fdIndexEntity() {
+//
+//        HttpRequestExecutingMessageHandler handler =
+//                new HttpRequestExecutingMessageHandler(getEntityUrl());
+//        handler.setExpectedResponseType(SearchResults.class);
+//
+//        return handler;
+//    }
 
 }

@@ -20,7 +20,7 @@
 
     <context:component-scan base-package=
                                     "org.flockdata">
-        <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+        <!--<context:exclude-filter type="assignable" expression="org.flockdata.engine.integration.AmqpRabbitConfig"/>-->
         <!-- SDN4 -->
         <!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
 
@@ -30,15 +30,13 @@
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
-                                  location="classpath:config.properties"/>
+                                  location="classpath:application.properties"/>
 
     <!--<import resource="neo4j-context.xml"/>-->
     <import resource="integration.xml"/>
     <import resource="test-security.xml" />
     <import resource="kv-context.xml"/>
-    <!--<import resource="fde-task.xml"/>-->
-    <import resource="neo4j-context.xml"/>
-    <import resource="http-monitoring-integration.xml"/>
+    <!--<import resource="neo4j-context.xml"/>-->
 
     <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 

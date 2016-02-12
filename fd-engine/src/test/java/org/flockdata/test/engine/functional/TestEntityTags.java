@@ -26,7 +26,7 @@ package org.flockdata.test.engine.functional;
  */
 
 import org.flockdata.dao.EntityTagDao;
-import org.flockdata.engine.integration.SearchRequests;
+import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
@@ -1161,7 +1161,8 @@ public class TestEntityTags extends EngineBase {
     }
 
     @Autowired
-    SearchRequests searchRequests;
+    SearchHandler searchHandler;
+
     @Test
     public void search_seperateLogEventUpdatesSameSearchObject() throws Exception {
         logger.info("## search_nGramDefaults");
@@ -1176,7 +1177,7 @@ public class TestEntityTags extends EngineBase {
         searchChange.setSearchKey("SearchKey"); // any value
 
         SearchResults searchResults = getSearchResults(searchChange);
-        searchRequests.syncSearchResult(searchResults);
+        searchHandler.handlResults(searchResults);
 
         assertNotNull(searchChange);
 
@@ -1299,6 +1300,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), trackResultBean.getEntity());
         assertFalse("The custom EntityTag path should have been used to find the tags", entityTags.isEmpty());
         SearchChange searchChange = searchService.getSearchChange(trackResultBean);
+        assertNotNull(searchChange);
         assertFalse(searchChange.getTagValues().isEmpty());
 
         boolean divisonFound = false;

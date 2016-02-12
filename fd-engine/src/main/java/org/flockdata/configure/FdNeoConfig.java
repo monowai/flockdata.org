@@ -23,59 +23,67 @@ package org.flockdata.configure;
  * Created by mike on 31/03/15.
  */
 
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@EnableRetry
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
+
 @EnableTransactionManagement
-@EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao", "org.flockdata.engine.dao", "org.flockdata.geography.dao"})
+@EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
+                                         "org.flockdata.engine.tag.dao",
+                                         "org.flockdata.engine.dao",
+                                         "org.flockdata.geography.dao",
+                                         "org.flockdata.meta.dao",
+                                         "org.flockdata.model.*"})
 @Configuration
-@PropertySource(value = "classpath:/config.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
+
 public class FdNeoConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    public FdNeoConfig() {
-        super();
-        logger.info( "**** Neo4j configuration deploying");
-    }
-//    @Bean
-//    public Neo4jServer neo4jServer() {
-//        return new RemoteServer("http://localhost:7474");
-//    }
-//
-//    @Bean
-//    public SessionFactory getSessionFactory() {
-//        // with domain entity base package(s)
-//        return new SessionFactory("org.flockdata");
-//    }
-//
-//    // needed for session in view in web-applications
-//    @Bean
-//    @Scope(entityTag = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-//    public Session getSession() throws Exception {
-//        return super.getSession();
-//    }
+    // ToDo: The bean is initialized before the storeDir property is set
+    @Value("${neo4j.datastore}")
+    String neoStoreDir;
 
-//    @Bean (name = "neo4jTemplate")
-//    public Neo4jTemplate getNeo4jTemplate() throws Exception{
-//
-//        return new Neo4jTemplate(getSession());
-//
-//    }
-//
-//    @Bean (name = "neo4jMappingContent")
-//    public Neo4jMappingContext getMappingContext() throws Exception{
-//
-//        return new Neo4jMappingContext();
-//
-//    }
+    String getNeoStoreDir(){
+        if ( neoStoreDir == null ) {
+            String systemProperty= System.getProperty("neo4j.datastore");
+            if ( systemProperty== null )
+                systemProperty = "./data/neo4j/fd";
+            return systemProperty;
+        }
+        return neoStoreDir;
+    }
+
+    @PostConstruct
+    public void logFdNeoConfig() {
+        logger.info("**** Neo4j configuration deployed");
+    }
+
+    GraphDatabaseService gds = null;
+    @Bean
+    public GraphDatabaseService graphDatabaseService() {
+        if ( gds == null ) {
+            setBasePackage("org.flockdata.*");
+            gds = new GraphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
+        }
+        return gds;
+    }
+
+    Map<String, String> dbProperties() {
+        Map<String, String> props = new HashMap<>();
+        return props;
+    }
 
 
 }

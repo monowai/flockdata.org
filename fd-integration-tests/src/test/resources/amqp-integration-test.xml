@@ -37,28 +37,21 @@
                               connection-factory="connectionFactory"
                               message-converter="jsonToSearchResultConverter"/>
 
-    <int-amqp:outbound-channel-adapter
-            channel="syncSearchDocs"
-            lazy-connect="${fd.amqp.lazyConnect:false}"
-            routing-key="${fd-search.binding}"
-            default-delivery-mode="NON_PERSISTENT"
-            amqp-template="amqpTemplate"
-            exchange-name="${fd-search.exchange}"/>
+    <!--<int-amqp:outbound-channel-adapter-->
+            <!--channel="syncSearchDocs"-->
+            <!--lazy-connect="${fd.amqp.lazyConnect:false}"-->
+            <!--routing-key="${fd-search.binding}"-->
+            <!--default-delivery-mode="NON_PERSISTENT"-->
+            <!--amqp-template="amqpTemplate"-->
+            <!--exchange-name="${fd-search.exchange}"/>-->
 
     <!--Part of the track flow. Writes the entity to the KV store-->
-    <int-amqp:outbound-channel-adapter
-            channel="writeKvContent"
-            default-delivery-mode="NON_PERSISTENT"
-            routing-key="${fd-store.binding}"
-            exchange-name="${fd-store.exchange}"/>
+    <!--<int-amqp:outbound-channel-adapter-->
+            <!--channel="writeKvContent"-->
+            <!--default-delivery-mode="NON_PERSISTENT"-->
+            <!--routing-key="${fd-store.binding}"-->
+            <!--exchange-name="${fd-store.exchange}"/>-->
 
-    <!--internally used to send content to the inboundTrackGateway -->
-    <int-amqp:outbound-channel-adapter
-            channel="writeEntityContent"
-            routing-key="${fd-track.binding}"
-            default-delivery-mode="NON_PERSISTENT"
-            mapped-request-headers="apiKey"
-            exchange-name="${fd-track.exchange}"/>
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-gateway id="kvWrite"

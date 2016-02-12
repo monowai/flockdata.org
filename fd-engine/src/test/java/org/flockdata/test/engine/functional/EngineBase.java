@@ -21,7 +21,6 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.meta.service.TxService;
 import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -32,6 +31,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
+import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.RegistrationBean;
@@ -54,6 +54,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
@@ -66,6 +67,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:root-context.xml",
         "classpath:apiDispatcher-servlet.xml"})
+@ActiveProfiles("dev")
 public abstract class EngineBase {
 
     @Rule
@@ -140,7 +142,7 @@ public abstract class EngineBase {
 
     @Autowired
     @Deprecated // Use companyService instead
-            CompanyEP companyEP;
+    CompanyEP companyEP;
 
     @Autowired
     SearchServiceFacade searchService;
@@ -165,6 +167,9 @@ public abstract class EngineBase {
         return fortressService.registerFortress(su.getCompany(), new FortressInputBean("" + System.currentTimeMillis(), true));
     }
 
+    static {
+        System.setProperty("neo4j.datastore", "./target/data/neo/");
+    }
 
     @Rollback(false)
     @BeforeTransaction

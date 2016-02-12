@@ -32,11 +32,9 @@
 
     <import resource="simple-security.xml" />
     <import resource="http-proxy-integration.xml"/>
-    <import resource="neo4j-context-test.xml"/>
+    <!--<import resource="neo4j-context-test.xml"/>-->
     <import resource="kv-context.xml"/>
     <import resource="fdit-integration.xml"/>
-
-    <import resource="http-monitoring-integration.xml"/>
 
     <cache:annotation-driven cache-manager="fdCacheManager" />
 

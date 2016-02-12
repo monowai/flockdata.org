@@ -31,25 +31,25 @@
                               message-converter="jsonToSearchResultConverter"/>
 
     <!--internally used to send content to the inboundTrackGateway -->
-    <int-amqp:outbound-channel-adapter
-            channel="writeEntityContent"
-            lazy-connect="${fd.amqp.lazyConnect}"
-            mapped-request-headers="apiKey"
-            routing-key="${fd-track.binding}"
-            exchange-name="${fd-track.exchange}"/>
+    <!--<int-amqp:outbound-channel-adapter-->
+            <!--channel="writeEntityContent"-->
+            <!--lazy-connect="${amqp.lazyConnect}"-->
+            <!--mapped-request-headers="apiKey"-->
+            <!--routing-key="${fd-track.binding}"-->
+            <!--exchange-name="${fd-track.exchange}"/>-->
 
-    <int-amqp:outbound-channel-adapter
-            channel="syncSearchDocs"
-            lazy-connect="${fd.amqp.lazyConnect}"
-            routing-key="${fd-search.binding}"
-            exchange-name="${fd-search.exchange}"/>
+    <!--<int-amqp:outbound-channel-adapter-->
+            <!--channel="syncSearchDocs"-->
+            <!--lazy-connect="${fd.amqp.lazyConnect}"-->
+            <!--routing-key="${fd-search.binding}"-->
+            <!--exchange-name="${fd-search.exchange}"/>-->
 
     <!--Writes entity to the KV store. Part of the track workflow. -->
-    <int-amqp:outbound-channel-adapter
-            channel="writeKvContent"
-            routing-key="${fd-store.binding}"
-            lazy-connect="${fd.amqp.lazyConnect}"
-            exchange-name="${fd-store.exchange}"/>
+    <!--<int-amqp:outbound-channel-adapter-->
+            <!--channel="writeKvContent"-->
+            <!--routing-key="${fd-store.binding}"-->
+            <!--lazy-connect="${amqp.lazyConnect}"-->
+            <!--exchange-name="${fd-store.exchange}"/>-->
 
     <!--Receives the inbound request from writeKvContent-->
     <int-amqp:inbound-channel-adapter id="kvWrite"

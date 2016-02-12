@@ -29,9 +29,7 @@ import org.springframework.integration.annotation.MessagingGateway;
  * Time: 11:48 AM
  */
 @MessagingGateway
-//@Async("fd-store")
 public interface KvGateway {
-
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
     void doKvWrite(KvContentBean resultBean);
 }

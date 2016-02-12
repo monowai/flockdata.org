@@ -1,10 +1,11 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.neorest;
 
 import org.flockdata.model.EntityLog;
 import org.flockdata.track.EntityLogs;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 @Configuration
 @IntegrationComponentScan
+@Profile("neorest")
 public class EntityLogRequests extends NeoRequestBase {
 
     @Bean

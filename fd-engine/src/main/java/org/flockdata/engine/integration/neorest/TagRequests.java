@@ -1,10 +1,11 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.neorest;
 
 import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.track.bean.AliasPayload;
 import org.flockdata.track.bean.TagResults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @Configuration
 @IntegrationComponentScan
+@Profile("neorest")
 public class TagRequests extends NeoRequestBase {
 
     @Bean

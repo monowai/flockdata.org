@@ -7,9 +7,11 @@ package org.flockdata.engine.integration;
  * Created by mike on 21/07/15.
  */
 
+import org.flockdata.engine.PlatformConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -23,37 +25,24 @@ import org.springframework.messaging.MessageHandler;
 
 @Configuration
 @IntegrationComponentScan
-public class AdminRequests {
+@Profile({"integration","production"})
+public class SearchAdminRequests {
 
     @Autowired
-    FdNeoChannels channels;
+    FdSearchChannels channels;
+
+    @Autowired
+    PlatformConfig engineConfig;
 
     @Bean
-    IntegrationFlow doFdNeoHealth() {
+    IntegrationFlow doFdSearchPing() {
 
-        return IntegrationFlows.from("neoFdHealth")
-                .handle(fdHealthRequest())
-                .get();
-    }
-
-    @Bean
-    IntegrationFlow doFdNeoPing() {
-
-        return IntegrationFlows.from("neoFdPing")
+        return IntegrationFlows.from("fdSearchPing")
                 .handle(fdPingRequest())
                 .get();
     }
 
     private MessageHandler fdPingRequest() {
-        HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(channels.getUriRoot());
-        handler.setExpectedResponseType(String.class);
-        handler.setHttpMethod(HttpMethod.GET);
-
-        return handler;
-    }
-
-    private MessageHandler fdHealthRequest() {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getHealthUrl());
         handler.setExpectedResponseType(String.class);
@@ -62,8 +51,9 @@ public class AdminRequests {
         return handler;
     }
 
+
     public String getHealthUrl() {
-        return channels.getUriRoot()+ "health";
+        return engineConfig.getFdSearch()+ "/v1/admin/ping";
     }
 
 

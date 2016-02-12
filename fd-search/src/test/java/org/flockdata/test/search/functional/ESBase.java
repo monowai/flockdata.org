@@ -102,7 +102,7 @@ public class ESBase {
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
         logger.info("You have to be running this with a working directory of fd-search for this to work");
-        FileInputStream f = new FileInputStream("./src/test/resources/fd-search-config.properties");
+        FileInputStream f = new FileInputStream("./src/test/resources/application.properties");
         properties.load(f);
 
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
