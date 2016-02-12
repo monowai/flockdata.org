@@ -231,7 +231,7 @@
                                                 <version>${project.version}</version>
                                                 <type>war</type>
                                             </dependency>
-                                            <contextPath>/${project.artifactId}</contextPath>
+                                            <contextPath>/</contextPath>
 
                                         </warRunDependency>
                                     </warRunDependencies>
@@ -302,7 +302,7 @@
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.artifactId}-war.jar</include>
-                                    <include>classes/config.properties</include>
+                                    <include>classes/application.properties</include>
                                     <include>classes/log4j.xml</include>
                                 </resource>
                             </resources>
