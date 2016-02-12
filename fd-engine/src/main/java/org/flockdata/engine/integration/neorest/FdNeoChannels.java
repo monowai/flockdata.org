@@ -17,11 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.neorest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.messaging.MessageChannel;
@@ -32,9 +33,9 @@ import org.springframework.messaging.MessageChannel;
  */
 @Configuration
 @IntegrationComponentScan
+@Profile("neorest")
 public class FdNeoChannels {
     String neoUrl;
-    String searchUrl;
 
     @Value("${neo4j.url:@null}")
     public void setNeoUrl(String neoUrl) {
@@ -42,15 +43,6 @@ public class FdNeoChannels {
             this.neoUrl = "http://localhost:7474";
         else
             this.neoUrl = neoUrl;
-    }
-
-    @Value("${fd-search.url}")
-    public void setFdSearchUrl(String searchUrl){
-        this.searchUrl = searchUrl;
-    }
-
-    public String getSearchUrl() {
-        return searchUrl;
     }
 
     public String getNeoUrl() {

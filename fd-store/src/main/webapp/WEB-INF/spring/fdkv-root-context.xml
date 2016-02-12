@@ -22,11 +22,11 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<context:component-scan
-		base-package="org.flockdata.kv" />
+		base-package="org.flockdata.kv,org.flockdata.engine.integration" />
 
 	<context:property-placeholder
 		ignore-resource-not-found="true" ignore-unresolvable="true"
-		location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}" />
+		location="classpath:/application.properties,file:${fd.config},file:${fd.auth.config}" />
 		
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
     <!--<import resource="classpath:${fd.auth.provider}-security.xml" />-->

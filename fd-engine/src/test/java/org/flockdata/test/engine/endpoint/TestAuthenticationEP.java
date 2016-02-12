@@ -44,93 +44,100 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:root-context.xml",
-		"classpath:apiDispatcher-servlet.xml" })
+@ContextConfiguration(locations = {"classpath:root-context.xml",
+        "classpath:apiDispatcher-servlet.xml"})
 public class TestAuthenticationEP {
 
-	private MockMvc mockMVC;
+    private MockMvc mockMVC;
 
-	@Autowired
-	private WebApplicationContext webApplicationContext;
+    static {
+        // ToDo: Sort this out. The WAC creates a new context which deploys a new Neo4j DB without the previous
+        // one shutting down. So here we give it it's dedicated work area
+        System.setProperty("neo4j.datastore", "./target/data/auth/neo/");
+    }
 
-	@Before
-	public void setUp() {
-		mockMVC = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-				.build();
-	}
 
-	@Test
-	public void validUserPassword_ShouldReturnUserProfile() throws Exception {
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Before
+    public void setUp() {
+        mockMVC = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .build();
+    }
+
+    @Test
+    public void validUserPassword_ShouldReturnUserProfile() throws Exception {
         // As per the entry in test-security.xml
-		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername("mike");
-		loginReq.setPassword("123");
+        LoginRequest loginReq = new LoginRequest();
+        loginReq.setUsername("mike");
+        loginReq.setPassword("123");
 
-		MvcResult response = mockMVC
-				.perform(
-						MockMvcRequestBuilders.post("/login")
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(JsonUtils.getJSON(loginReq)))
-				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        MvcResult response = mockMVC
+                .perform(
+                        MockMvcRequestBuilders.post("/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtils.getJSON(loginReq)))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-		UserProfile userProfile = JsonUtils.getBytesAsObject(response
-				.getResponse().getContentAsByteArray(), UserProfile.class);
-		assertNotNull(userProfile);
-	}
+        UserProfile userProfile = JsonUtils.getBytesAsObject(response
+                .getResponse().getContentAsByteArray(), UserProfile.class);
+        assertNotNull(userProfile);
+    }
 
-	@Test
-	public void invalidUserPassword_ShouldReturnUnAuthorized() throws Exception {
+    @Test
+    public void invalidUserPassword_ShouldReturnUnAuthorized() throws Exception {
         // As per the entry in test-security.xml
-		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername("mike");
-		loginReq.setPassword("1234");
+        LoginRequest loginReq = new LoginRequest();
+        loginReq.setUsername("mike");
+        loginReq.setPassword("1234");
 
-		mockMVC.perform(
-				MockMvcRequestBuilders.post("/login")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(JsonUtils.getJSON(loginReq)))
-				.andExpect(MockMvcResultMatchers.status().isUnauthorized())
-				.andReturn();
+        mockMVC.perform(
+                MockMvcRequestBuilders.post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(loginReq)))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andReturn();
 
-	}
+    }
 
-	@Test
-	public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
+    @Test
+    public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
         // As per the entry in test-security.xml
-		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername("mike");
-		loginReq.setPassword("123");
+        LoginRequest loginReq = new LoginRequest();
+        loginReq.setUsername("mike");
+        loginReq.setPassword("123");
 
-		MvcResult response = mockMVC
-				.perform(
-						MockMvcRequestBuilders.post("/login")
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(JsonUtils.getJSON(loginReq)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.userRoles", hasSize(2))).andReturn();
+        MvcResult response = mockMVC
+                .perform(
+                        MockMvcRequestBuilders.post("/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtils.getJSON(loginReq)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.userRoles", hasSize(2))).andReturn();
 
-		UserProfile userProfile = JsonUtils.getBytesAsObject(response
-				.getResponse().getContentAsByteArray(), UserProfile.class);
-		assertNotNull(userProfile.getUserRoles());
-	}
+        UserProfile userProfile = JsonUtils.getBytesAsObject(response
+                .getResponse().getContentAsByteArray(), UserProfile.class);
+        assertNotNull(userProfile.getUserRoles());
+    }
 
-	@Test
-	public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
-			throws Exception {
+    @Test
+    public void whenLoggedInAsMike_ShouldBelongToAdminAndUserRoles()
+            throws Exception {
 
         // As per the entry in test-security.xml
-		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername("mike");
-		loginReq.setPassword("123");
+        LoginRequest loginReq = new LoginRequest();
+        loginReq.setUsername("mike");
+        loginReq.setPassword("123");
 
-		mockMVC.perform(
-				MockMvcRequestBuilders.post("/login")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(JsonUtils.getJSON(loginReq)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.userRoles[0]", is("ROLE_FD_ADMIN")))
-				.andExpect(jsonPath("$.userRoles[1]", is("ROLE_FD_USER")))
-				.andReturn();
-	}
+        mockMVC.perform(
+                MockMvcRequestBuilders.post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtils.getJSON(loginReq)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.userRoles[0]", is("ROLE_FD_ADMIN")))
+                .andExpect(jsonPath("$.userRoles[1]", is("ROLE_FD_USER")))
+                .andReturn();
+    }
 
 }

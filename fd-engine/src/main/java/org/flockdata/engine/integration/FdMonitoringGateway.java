@@ -17,13 +17,13 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.admin.endpoint;
+package org.flockdata.engine.integration;
 
-import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.messaging.handler.annotation.Payload;
 
-//@MessagingGateway ???
+@MessagingGateway
 public interface FdMonitoringGateway {
     /**
      * A required Payload must be declared due to spring Integration constraint
@@ -31,6 +31,6 @@ public interface FdMonitoringGateway {
      * @return PingResult
      */
     @Payload("new java.util.Date()")
-    @Gateway(requestChannel = "pingEsRequest", replyChannel = "pingEsReply")
-    PingResult ping();
+    @Gateway(requestChannel = "fdSearchPing")
+    String ping();
 }

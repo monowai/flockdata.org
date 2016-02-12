@@ -20,14 +20,13 @@
 package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.admin.endpoint.FdMonitoringGateway;
+import org.flockdata.engine.integration.FdMonitoringGateway;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.Company;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.search.model.PingResult;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,21 +47,25 @@ import java.util.Map;
  * User: Mike Holdsworth
  * Since: 29/08/13
  */
-@Service
+@Service(value = "engineConfig")
 @Transactional
+@Configuration
 public class EngineConfig implements PlatformConfig {
 
     @Autowired
     FdKvConfig kvConfig;
 
-    @Autowired
-    SchemaService schemaService;
-
     private String fdSearch;
 
-    private String rabbitHost;
 
-    private String rabbitPort;
+    @Value("${fd-search.url:http://localhost:8081}")
+    public void setFdSearch( String url) {
+        fdSearch = url;
+    }
+
+
+    @Autowired
+    SchemaService schemaService;
 
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
@@ -77,32 +81,12 @@ public class EngineConfig implements PlatformConfig {
     @Autowired
     SystemUserService systemUserService;
 
-    private boolean conceptsEnabled=true;
+    private boolean conceptsEnabled = true;
     private boolean systemConstraints = true;
 
     private boolean duplicateRegistration;
     private boolean testMode;
-    private boolean searchEnabled =true;
-
-    @Value("${rabbit.host:@null}")
-    protected void setRabbitHost(String rabbitHost) {
-        if ("@null".equals(rabbitHost)) this.rabbitHost = null;
-        else this.rabbitHost = rabbitHost;
-
-    }
-
-    @Value("${fd.rabbit.port:@null}")
-    protected void setRabbitPort(String rabbitPort) {
-        if ("@null".equals(rabbitPort)) this.rabbitPort = null;
-        else this.rabbitPort = rabbitPort;
-
-    }
-
-    @Value("${fd-search.url:@null}")
-    protected void setFdSearch(String fdSearchMake) {
-        if ("@null".equals(fdSearchMake)) this.fdSearch = null;
-        else this.fdSearch = fdSearchMake;
-    }
+    private boolean searchEnabled = true;
 
     @Value("${fdengine.multiTenanted:@null}")
     protected void setMultiTenanted(String multiTenanted) {
@@ -141,7 +125,7 @@ public class EngineConfig implements PlatformConfig {
         return timing;
     }
 
-    public Boolean isStoreEnabled(){
+    public Boolean isStoreEnabled() {
         return kvConfig.getStoreEnabled();
     }
 
@@ -156,6 +140,7 @@ public class EngineConfig implements PlatformConfig {
 
     /**
      * Should be disabled for testing purposes
+     *
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     @Override
@@ -171,7 +156,7 @@ public class EngineConfig implements PlatformConfig {
 
     }
 
-    public KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore){
+    public KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore) {
         return kvConfig.setKvStore(kvStore);
     }
 
@@ -187,18 +172,19 @@ public class EngineConfig implements PlatformConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({SecurityHelper.ADMIN,SecurityHelper.USER})
+    @Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
     public Map<String, String> getHealthAuth() {
-     return getHealth();
+        return getHealth();
     }
 
-        /**
-         * Only users with a pre-validated api-key should be calling this
-         * @return system configuration details
-         */
+    /**
+     * Only users with a pre-validated api-key should be calling this
+     *
+     * @return system configuration details
+     */
     @Override
     public Map<String, String> getHealth() {
-        if ( System.getProperty("neo4j")!=null )
+        if (System.getProperty("neo4j") != null)
             logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
 
         String version = VersionHelper.getFdVersion();
@@ -214,29 +200,22 @@ public class EngineConfig implements PlatformConfig {
         if (config == null || config.equals(""))
             config = "system-default";
         healthResults.put("config-file", config);
-        String integration = System.getProperty("fd.integration");
 
-        healthResults.put("fd.integration", integration);
         healthResults.put("fd-store.engine", kvConfig.getKvStore().toString());
         healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
-        String esPingResult ;
+        String esPingResult;
         try {
-            PingResult esPing = fdMonitoringGateway.ping();
-            esPingResult = (esPing == null || !esPing.getMessage().equals("pong")?"Problem":"Ok");
-        } catch (Exception ce){
-            esPingResult="!Unreachable! ";
-            if ( ce.getCause() !=null )
+            String esPing = fdMonitoringGateway.ping();
+            esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
+        } catch (Exception ce) {
+            esPingResult = "!Unreachable! ";
+            if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
         healthResults.put("fd-search", esPingResult);
-
-        //healthResults.put("fd.multiTenanted", multiTenanted.toString());
-        if ("http".equalsIgnoreCase(integration)) {
-            healthResults.put("fd-search.url", fdSearch);
-        } else {
-            healthResults.put("rabbit.host", rabbitHost);
-            healthResults.put("fd.rabbit.port", rabbitPort);
-        }
+        healthResults.put("fd-search.url", fdSearch);
+//        healthResults.put("rabbit.host", rabbitConfig.getHost());
+//        healthResults.put("rabbit.port", Integer.toString(rabbitConfig.getPort()));
         return healthResults;
 
     }
@@ -252,7 +231,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
-            "companyEvent", "labels" }, allEntries = true)
+            "companyEvent", "labels"}, allEntries = true)
     @Override
     @Secured({SecurityHelper.ADMIN})
     public void resetCache() {
@@ -280,9 +259,9 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN,SecurityHelper.USER})
+    @Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
     public String authPing() {
-        return  "pong";
+        return "pong";
     }
 
     @Override
@@ -301,6 +280,10 @@ public class EngineConfig implements PlatformConfig {
         if (createSystemConstraints())
             schemaService.ensureSystemIndexes(null);
 
+    }
+
+    public String getFdSearch() {
+        return fdSearch;
     }
 
 }

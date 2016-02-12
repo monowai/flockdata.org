@@ -8,18 +8,10 @@
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
 
 
-    <!--<rabbit:connection-factory id="connectionFactory"-->
-                               <!--host="${rabbit.host}"-->
-                               <!--port="${rabbit.port}"-->
-                               <!--channel-cache-size="${rabbit.publisherCacheSize}"-->
-                               <!--publisher-confirms="${rabbit.publisher.confirms}"-->
-                               <!--publisher-returns="${rabbit.publisher.returns}"-->
-                               <!--executor="fd-engine"/>-->
+    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
 
-    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
-
-    <rabbit:admin connection-factory="connectionFactory"/>
-
+    <rabbit:admin connection-factory="connectionFactory" auto-startup="true" />
+    <!-- FD SEARCH QUEUE DEFINITIONS -->
     <rabbit:queue name="${fd-search.queue}" id="fd.search.queue">
         <rabbit:queue-arguments>
             <entry key="x-dead-letter-exchange" value="${fd-search.dlq.exchange}"/>
@@ -94,6 +86,5 @@
             <rabbit:binding queue="${fd-store.queue}" key="${fd-store.binding}"/>
         </rabbit:bindings>
     </rabbit:direct-exchange>
-
 
 </beans>

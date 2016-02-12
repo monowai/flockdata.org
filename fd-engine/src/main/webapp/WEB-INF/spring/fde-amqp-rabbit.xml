@@ -8,18 +8,7 @@
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
 
 
-    <!--<rabbit:connection-factory id="connectionFactory"-->
-                               <!--host="${rabbit.host}"-->
-                               <!--port="${rabbit.port}"-->
-                               <!--username="${rabbit.user}"-->
-                               <!--password="${rabbit.pass}"-->
-                               <!--channel-cache-size="${rabbit.publisherCacheSize}"-->
-                               <!--requested-heartbeat="${rabbit.heartbeat.secs}"-->
-                               <!--publisher-confirms="${rabbit.publisher.confirms}"-->
-                               <!--publisher-returns="${rabbit.publisher.returns}"-->
-                               <!--executor="fd-engine"/>-->
-
-    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
+    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
 
     <rabbit:admin connection-factory="connectionFactory" auto-startup="true" />
     <!-- FD SEARCH QUEUE DEFINITIONS -->

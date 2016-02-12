@@ -19,37 +19,33 @@
 
 package org.flockdata.test.engine.endpoint;
 
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.test.engine.functional.TestQueryResults;
+import org.flockdata.test.engine.functional.WacBase;
 import org.flockdata.track.bean.ConceptResultBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Created by mike on 16/02/15.
  */
 @WebAppConfiguration
-public class DocTestEP extends EngineBase {
-
-    @Autowired
-    WebApplicationContext wac;
+public class DocTestEP extends WacBase {
 
     @Test
     public void flow_docPoints() throws Exception {

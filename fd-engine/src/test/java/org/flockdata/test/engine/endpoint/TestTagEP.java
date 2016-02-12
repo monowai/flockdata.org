@@ -24,11 +24,9 @@ import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,10 +35,8 @@ import java.util.Map;
  * Created by mike on 31/05/15.
  */
 @WebAppConfiguration
-public class TestTagEP extends EngineBase {
+public class TestTagEP extends WacBase {
 
-    @Autowired
-    WebApplicationContext wac;
 
     @Test
     public void get_tags() throws Exception {

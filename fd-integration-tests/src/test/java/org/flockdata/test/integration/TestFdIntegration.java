@@ -24,7 +24,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.integration.FdNeoChannels;
+import org.flockdata.engine.integration.neorest.FdNeoChannels;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -63,6 +63,7 @@ import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -117,6 +118,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
+@ActiveProfiles("integration")
 @ContextConfiguration(locations = {"classpath:root-context.xml", "classpath:apiDispatcher-servlet.xml"})
 public class TestFdIntegration {
 
@@ -197,6 +199,10 @@ public class TestFdIntegration {
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     static MockMvc mockMvc;
     String company = "Monowai";
+
+    static {
+        System.setProperty("neo4j.datastore", "./target/data/neo/");
+    }
 
 
     @AfterClass
@@ -1289,7 +1295,6 @@ public class TestFdIntegration {
             }
 
         } finally {
-            //engineConfig.setKvStore(previousStore);
             if (amqpServices !=null )
                 amqpServices.close();
         }
@@ -1454,7 +1459,7 @@ public class TestFdIntegration {
 
     @Test
     public void geo_TagsWork() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         logger.info("geo_TagsWork");
         SystemUser su = registerSystemUser("geoTag", "geo_Tag");
         // DAT-339
@@ -1747,7 +1752,7 @@ public class TestFdIntegration {
     @Test
     public void tags_TaxonomyStructure() throws Exception {
 
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
 
         logger.info("## tags_TaxonomyStructure");
 
@@ -1755,8 +1760,6 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("tags_TaxonomyStructure", "tags_TaxonomyStructure");
         assertNotNull(su);
         engineConfig.setStoreEnabled("false");
-
-        esHelper.deleteEsIndex("fd.tags_taxonomystructure.tags_taxonomystructure.dat-498");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
         assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());

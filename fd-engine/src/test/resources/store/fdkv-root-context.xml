@@ -18,9 +18,12 @@
 
     <!-- Root Context: defines shared resources visible to all other web components -->
     <context:component-scan base-package=
-                                    "org.flockdata.kv,org.flockdata.configure,org.flockdata.search">
-        <context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
+                                    "org.flockdata.kv,
+                                     org.flockdata.configure,
+                                     org.flockdata.search,
+                                     org.flockdata.engine.integration">
         <context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>
+        <context:exclude-filter type="assignable" expression="org.flockdata.engine.integration.TrackRequests"/>
         <context:exclude-filter type="assignable" expression="org.flockdata.configure.EngineConfig"/>
         <!-- SDN4 -->
         <!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
@@ -29,7 +32,7 @@
 
     <context:property-placeholder
             ignore-resource-not-found="true" ignore-unresolvable="true"
-            location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}"/>
+            location="classpath:/application.properties,file:${fd.config},file:${fd.auth.config}"/>
 
     <import resource="fdkv-integration.xml"/>
     <import resource="fdkv-amqp-integration.xml"/>

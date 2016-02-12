@@ -55,7 +55,7 @@
 
     <!--End KV-->
 
-    <int:channel id="syncSearchDocs"/>
+    <!--<int:channel id="syncSearchDocs"/>-->
 
 
     <!--KV Outbound -->

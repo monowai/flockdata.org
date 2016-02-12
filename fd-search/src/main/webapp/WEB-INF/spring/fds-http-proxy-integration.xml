@@ -18,8 +18,6 @@
     <int-http:inbound-gateway request-channel="doMetaKeyQuery"
                               reply-channel="doMetaKeyReply"
                               path="/api/metaKey"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
                               request-payload-type="org.flockdata.search.model.QueryParams"
                               supported-methods="POST">
     </int-http:inbound-gateway>
@@ -28,8 +26,6 @@
     <int-http:inbound-gateway request-channel="doFdViewQuery"
                               reply-channel="doFdViewReply"
                               path="/api/fdView"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
                               request-payload-type="org.flockdata.search.model.QueryParams"
                               supported-methods="POST">
     </int-http:inbound-gateway>
@@ -38,8 +34,6 @@
     <int-http:inbound-gateway request-channel="doContentQuery"
                               reply-channel="doContentReply"
                               path="/api/esContent"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
                               request-payload-type="org.flockdata.search.model.QueryParams"
                               supported-methods="POST">
 
@@ -48,8 +42,6 @@
     <int-http:inbound-gateway request-channel="doTagCloudQuery"
                               reply-channel="doTagCloudReply"
                               path="/api/esTagCloud"
-                              reply-timeout="${reply.timeout}"
-                              request-timeout="${request.timeout}"
                               request-payload-type="org.flockdata.search.model.TagCloudParams"
                               supported-methods="POST"/>
 

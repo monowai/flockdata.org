@@ -23,10 +23,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.FdKvConfig;
+import org.flockdata.kv.KvContent;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.kv.KvContent;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +63,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/store/fdkv-root-context.xml",
 })
-
+@ActiveProfiles("no-integration")
 public class KvServiceTest {
 
 
@@ -284,7 +285,7 @@ public class KvServiceTest {
             assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
-            logger.error("KV Stores are configured in config.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
+            logger.error("KV Stores are configured in application.properties. This test is failing to find the {} server. Is it even installed?", kvConfig.getKvStore());
         }
     }
 

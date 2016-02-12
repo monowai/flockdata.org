@@ -23,7 +23,6 @@
             acknowledge-mode="AUTO"
             task-executor="fd-search"
             shutdown-timeout="3000"
-            receive-timeout="${request.timeout}"
             connection-factory="connectionFactory"
             message-converter="jsonToSearchChangeConverter"
             />

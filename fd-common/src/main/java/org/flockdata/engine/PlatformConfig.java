@@ -78,4 +78,10 @@ public interface PlatformConfig {
     Boolean isSearchRequiredToConfirm() ;
 
     boolean isTiming();
+
+    String getFdSearch();
+
+    void setFdSearch (String url);
+
+
 }
