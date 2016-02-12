@@ -41,12 +41,15 @@ services:
       - rabbit
       - riak
     environment:
-      fd.auth.provider: 'simple'
-      fd-search.url: http://fd-search:8081
-      neo4j.datastore: '/var/lib/flockdata/data/neo4j/fd'
-      fd.logLevel: 'info'
-      fd.config: '/var/lib/flockdata/conf/config.properties'
-      log4j.configuration: '/var/lib/flockdata/conf/log4j.xml'
+      fd.auth.provider: simple
+      rabbit.host: rabbit
+      fd-search.url: http://fd-search:8081/fd-search
+      fd.auth.provider: simple
+      neo4j.datastore: /opt/flockdata/data/neo4j/fd
+      fd.logLevel: info
+      # Enables integration functionality
+      spring.profiles.default: production
+      log4j.configuration: /opt/flockdata/conf/log4j.xml
 
   fd-search:
     container_name: fd-search
@@ -55,11 +58,13 @@ services:
      - '8081:8081'
      - '9200:9200'
     environment:
-      fd-engine.url: http://fd-engine:8080
-      fd.config: '/var/lib/flockdata/conf/config.properties'
+      rabbit.host: rabbit
+      fd-engine.url: http://fd-engine:8080/fd-engine
+      # Enables integration functionality
+      spring.profiles.default: production
       es.clustername: 'es_flockdata'
-      fd.logLevel: 'info'
-      log4j.configuration: '/var/lib/flockdata/conf/log4j.xml'
+      fd.logLevel: info
+      log4j.configuration: opt/flockdata/conf/log4j.xml
     links:
      - rabbit
      - riak
@@ -95,7 +100,7 @@ services:
     privileged: true
 
 
-#networks:
-#  default:
+networks:
+  default:
     # Use the overlay driver for multi-host communication
-#    driver: bridge
+    driver: bridge
