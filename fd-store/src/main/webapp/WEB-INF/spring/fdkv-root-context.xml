@@ -22,7 +22,7 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<context:component-scan
-		base-package="org.flockdata.kv,org.flockdata.engine.integration" />
+		base-package="org.flockdata.kv" />
 
 	<context:property-placeholder
 		ignore-resource-not-found="true" ignore-unresolvable="true"

@@ -24,7 +24,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.integration.neorest.FdNeoChannels;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -91,27 +90,27 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 /**
  * Allows the fd-engine services to be tested against fd-search with actual integration.
  * fd-search is stated by Cargo as a Tomcat server while fd-engine is debuggable in-process.
- * <p>
+ * <p/>
  * Note that Logs and Search docs are written asyncronously. For this reason you will see
  * various "waitAWhile" loops giving other threads time to process the payloads before
  * making assertions.
- * <p>
- * <p>
+ * <p/>
+ * <p/>
  * This approach requires RabbitMQ to be installed to allow integration to occur.
- * <p>
+ * <p/>
  * No web interface is launched for fd-engine
- * <p>
+ * <p/>
  * Make sure that you create unique User ids for your test.
- * <p>
+ * <p/>
  * To run the integration suite:
  * mvn clean install -P integration
- * <p>
+ * <p/>
  * If you want to debug engine then you add to your command line
  * -Dfd.debug=true -DforkCount=0
- * <p>
+ * <p/>
  * To debug the search service refer to the commented line in pom.xml where the
  * default port is set to 8000
- * <p>
+ * <p/>
  * User: nabil, mike
  * Date: 16/07/13
  * Time: 22:51
@@ -134,11 +133,12 @@ public class TestFdIntegration {
 
     @Autowired
     IndexHelper indexHelper;
-    
+
     @Autowired
     EsIntegrationHelper esHelper;
 
     @Autowired
+    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Autowired
@@ -192,9 +192,6 @@ public class TestFdIntegration {
 
     @Autowired
     ApplicationContext applicationContext;
-
-    @Autowired
-    FdNeoChannels fdChannels;
 
     private static Logger logger = LoggerFactory.getLogger(TestFdIntegration.class);
     static MockMvc mockMvc;
@@ -280,8 +277,8 @@ public class TestFdIntegration {
         String callerRef = "ABC123X";
         EntityInputBean entityInputBean =
                 new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef)
-                .setName("find by name")
-                .setDescription("describe me to be found");
+                        .setName("find by name")
+                        .setDescription("describe me to be found");
 
         Map<String, Object> json = Helper.getRandomMap();
         json.put("int", 123);
@@ -298,7 +295,7 @@ public class TestFdIntegration {
 
         esHelper.doEsFieldQuery(entity, EntitySearchSchema.DATA + ".int", "123", 1);
         // scan by name facet?
-        esHelper.doFacetQuery(entity, EntitySearchSchema.NAME+".facet", entityInputBean.getName(), 1);
+        esHelper.doFacetQuery(entity, EntitySearchSchema.NAME + ".facet", entityInputBean.getName(), 1);
         // Can we find by description?
         esHelper.doEsQuery(entity, entityInputBean.getDescription());
         assertNull("EntityInput.description is not stored in the entity", entity.getDescription());
@@ -330,7 +327,7 @@ public class TestFdIntegration {
         esHelper.deleteEsIndex(indexHelper.parseIndex(entity));
     }
 
-//    @Test       DAT-521
+    //    @Test       DAT-521
     public void search_pdfTrackedAndFound() throws Exception {
         assumeTrue(runMe);
         logger.info("## search_pdfTrackedAndFound");
@@ -940,9 +937,9 @@ public class TestFdIntegration {
 
     private EsSearchResult runSearchQuery(SystemUser su, QueryParams input) throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
-                        .header("api-key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(input))
+                .header("api-key", su.getApiKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJSON(input))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), EsSearchResult.class);
@@ -978,7 +975,7 @@ public class TestFdIntegration {
 
         entityInput = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
         entityInput.setSearchSuppressed(true);
-        entityInput.setContent (new ContentInputBean("olivia@sunnybell.com", new DateTime(), Helper.getSimpleMap("who", "bob")));
+        entityInput.setContent(new ContentInputBean("olivia@sunnybell.com", new DateTime(), Helper.getSimpleMap("who", "bob")));
 
         // Bob's not there because we said we didn't want to index that entity
         esHelper.doEsQuery(entity, "bob", 0);
@@ -1149,7 +1146,7 @@ public class TestFdIntegration {
 
         EntityInputBean staffInput
                 = new EntityInputBean(timeRecordingFortress, "wally", "Staff", new DateTime(), "ABC123")
-                        .addTag(new TagInputBean("Cleaner", "Position", "role"));
+                .addTag(new TagInputBean("Cleaner", "Position", "role"));
         TrackResultBean staffResult = mediationFacade.trackEntity(su.getCompany(), staffInput);
 
         esHelper.waitForFirstSearchResult(staffResult, entityService);
@@ -1200,7 +1197,7 @@ public class TestFdIntegration {
 
         EntityInputBean workInput =
                 new EntityInputBean(timeRecordingFortress, new DocumentTypeInputBean(docTypeWork.getName()), "ABC321")
-                .setDescription("a description to search on");
+                        .setDescription("a description to search on");
         TestCase.assertEquals(docTypeWork.getName(), workInput.getDocumentType().getName());
 
 
@@ -1247,17 +1244,17 @@ public class TestFdIntegration {
         int count = 0;
         Collection<EntityInputBean> entityBatch = new ArrayList<>();
 
-        while (count < required){
+        while (count < required) {
             EntityInputBean beanA = Helper
-                    .getEntity(fortress, "olivia@sunnybell.com", "DocType", "AAA"+count,
+                    .getEntity(fortress, "olivia@sunnybell.com", "DocType", "AAA" + count,
                             new ContentInputBean("blah", Helper.getRandomMap()));
             entityBatch.add(beanA);
 
-            count ++;
+            count++;
         }
 
         Properties properties = getProperties(su);
-        AmqpServices amqpServices =null;
+        AmqpServices amqpServices = null;
 
         try {
             ClientConfiguration configuration = new ClientConfiguration(properties);
@@ -1295,18 +1292,18 @@ public class TestFdIntegration {
             }
 
         } finally {
-            if (amqpServices !=null )
+            if (amqpServices != null)
                 amqpServices.close();
         }
 
     }
 
-    static Properties getProperties(SystemUser su) throws Exception{
+    static Properties getProperties(SystemUser su) throws Exception {
         Properties properties = new Properties();
         FileInputStream f = new FileInputStream("./src/test/resources/config.properties");
         properties.load(f);
 
-        if ( su!=null)
+        if (su != null)
             properties.put("apiKey", su.getApiKey());
 
         String fdDebug = System.getProperty("fd.debug");
@@ -1426,40 +1423,55 @@ public class TestFdIntegration {
 
     @Test
     public void utfText() throws Exception {
-        assumeTrue(runMe);
+        //assumeTrue(runMe);
         Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("Utf8");
 
-        //KvService.KV_STORE previousStore = engineConfig.getKvStore();
-        //engineConfig.setKvStore(KvService.KV_STORE.NONE);
-        Fortress fortress = fortressService
-                .registerFortress(su.getCompany(),
-                        new FortressInputBean("UTF8-Test")
-                                .setSearchActive(true));
+        KvService.KV_STORE previousStore = engineConfig.getKvStore();
+        engineConfig.setKvStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
 
-        ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
-        EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
-                .setDescription("This text, Neumannová, might look great in a search result");
-        input.setContent(log);
+        try {
+            Fortress fortress = fortressService
+                    .registerFortress(su.getCompany(),
+                            new FortressInputBean("UTF8-Test")
+                                    .setSearchActive(true));
 
-        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-        logger.info("Track request made. About to wait for first search result");
+            ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
+            EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
+                    .setDescription("This text, Neumannová, might look great in a search result");
+            input.setContent(log);
 
-        // Test directly against ElasticSearch
-        esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
-        esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+            TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+            logger.info("Track request made. About to wait for first search result");
 
-        // And via FD query
-        QueryParams queryParams = new QueryParams("*");
-        queryParams.setFortress(fortress.getName().toLowerCase());
+            // Test directly against ElasticSearch
+            esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
+            esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
 
-        EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
-        assertTrue("Incorrect result count found via queryService ",esSearchResult.getResults().size() ==1);
+            EntityLog entityLog = entityService.getLastEntityLog(su.getCompany(), result.getMetaKey());
+
+            assertNotNull(entityLog);
+            assertNotNull(entityLog.getLog());
+            KvContent content = kvService.getContent(result.getEntity(), entityLog.getLog());
+
+            assertNotNull(content);
+            assertNotNull(content.getData());
+            assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
+
+            // And via FD query
+            QueryParams queryParams = new QueryParams("*");
+            queryParams.setFortress(fortress.getName().toLowerCase());
+
+            EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
+            assertTrue("Incorrect result count found via queryService ", esSearchResult.getResults().size() == 1);
+        } finally {
+            engineConfig.setKvStore(previousStore);
+        }
     }
 
     @Test
     public void geo_TagsWork() throws Exception {
-        //assumeTrue(runMe);
+        assumeTrue(runMe);
         logger.info("geo_TagsWork");
         SystemUser su = registerSystemUser("geoTag", "geo_Tag");
         // DAT-339
@@ -1589,8 +1601,8 @@ public class TestFdIntegration {
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1599,8 +1611,8 @@ public class TestFdIntegration {
 
         kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
     }
 
@@ -1635,8 +1647,8 @@ public class TestFdIntegration {
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1645,8 +1657,8 @@ public class TestFdIntegration {
 
         kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
     }
 
@@ -1680,8 +1692,8 @@ public class TestFdIntegration {
         // And are we returning the same data from the KV Service?
         KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
         content.setData(Helper.getSimpleMap("Athlete", "Michael Phelps"));
         input.setContent(content);
@@ -1695,8 +1707,8 @@ public class TestFdIntegration {
 
         kvContent = kvService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
-        assertNotNull(kvContent.getWhat());
-        assertEquals(content.getData().get("Athlete"), kvContent.getWhat().get("Athlete"));
+        assertNotNull(kvContent.getData());
+        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
 
 
     }
@@ -1795,9 +1807,9 @@ public class TestFdIntegration {
         eib.setEntityOnly(true);
 
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/track/")
-                        .header("api-key", su.getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.getJSON(eib))
+                .header("api-key", su.getApiKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJSON(eib))
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
         DocumentType foundDoc = conceptService.resolveByDocCode(fortress, docType.getName(), false);
@@ -1825,10 +1837,10 @@ public class TestFdIntegration {
         assertTrue("Couldn't find the term relationship", searchDoc.getTagValues().containsKey("viewed"));
         Map<String, ArrayList<SearchTag>> tagMap = searchDoc.getTagValues().get("viewed");
         assertTrue("Couldn't find the root level term relationship", tagMap.containsKey("term"));
-        Collection<SearchTag>searchTags = tagMap.get("term");
+        Collection<SearchTag> searchTags = tagMap.get("term");
         assertEquals(1, searchTags.size());
         SearchTag termSearchTag = searchTags.iterator().next();
-        assertEquals("audi a3",termSearchTag.getCode());
+        assertEquals("audi a3", termSearchTag.getCode());
 
         // division, interest and category
         assertEquals(3, termSearchTag.getParent().size());
@@ -1901,7 +1913,7 @@ public class TestFdIntegration {
             // Ensure we can find the entity content when it is stored in a segmented ES index
             EntityLog lastLog = entityService.getLastEntityLog(entity2014.getId());
             KvContent contentFromEs = kvService.getContent(entity2014, lastLog.getLog());
-            assertNotNull("fd-store, unable to locate the content from ES",contentFromEs);
+            assertNotNull("fd-store, unable to locate the content from ES", contentFromEs);
         } finally {
             engineConfig.setKvStore(previousKv);
         }

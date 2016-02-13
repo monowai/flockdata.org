@@ -15,12 +15,12 @@
     <int:annotation-config/>
     <beans:bean class="org.springframework.integration.http.inbound.IntegrationRequestMappingHandlerMapping"/>
 
-    <int-http:inbound-gateway request-channel="doMetaKeyQuery"
-                              reply-channel="doMetaKeyReply"
-                              path="/api/metaKey"
-                              request-payload-type="org.flockdata.search.model.QueryParams"
-                              supported-methods="POST">
-    </int-http:inbound-gateway>
+    <!--<int-http:inbound-gateway request-channel="handleMetaKey"-->
+                              <!--reply-channel="doMetaKeyReply"-->
+                              <!--path="/api/metaKey"-->
+                              <!--request-payload-type="org.flockdata.search.model.QueryParams"-->
+                              <!--supported-methods="POST">-->
+    <!--</int-http:inbound-gateway>-->
 
 
     <int-http:inbound-gateway request-channel="doFdViewQuery"
@@ -31,13 +31,12 @@
     </int-http:inbound-gateway>
 
     <!--DAT-347 -->
-    <int-http:inbound-gateway request-channel="doContentQuery"
-                              reply-channel="doContentReply"
-                              path="/api/esContent"
-                              request-payload-type="org.flockdata.search.model.QueryParams"
-                              supported-methods="POST">
-
-    </int-http:inbound-gateway>
+    <!--<int-http:inbound-gateway request-channel="doContentQuery"-->
+                              <!--reply-channel="doContentReply"-->
+                              <!--path="/api/data"-->
+                              <!--request-payload-type="org.flockdata.search.model.QueryParams"-->
+                              <!--supported-methods="POST">-->
+    <!--</int-http:inbound-gateway>-->
 
     <int-http:inbound-gateway request-channel="doTagCloudQuery"
                               reply-channel="doTagCloudReply"

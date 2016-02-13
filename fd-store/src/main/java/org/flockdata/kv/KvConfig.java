@@ -23,8 +23,7 @@ import org.flockdata.helper.VersionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +34,7 @@ import static org.flockdata.kv.service.KvService.KV_STORE;
  * User: Mike Holdsworth
  * Since: 29/08/13
  */
-@Service
-@Transactional
+@Configuration
 public class KvConfig implements FdKvConfig {
 
 
@@ -51,6 +49,12 @@ public class KvConfig implements FdKvConfig {
     private KV_STORE kvStore = null;
 
     private Boolean storeEnabled = true;
+    @Value("${fd-search.url:http://localhost:8081}")
+    String fdSearchUrl;
+
+    public String getFdSearchUrl() {
+        return fdSearchUrl;
+    }
 
     @Value("${rabbit.host:@null}")
     protected void setRabbitHost(String rabbitHost) {
@@ -59,7 +63,7 @@ public class KvConfig implements FdKvConfig {
 
     }
 
-    @Value("${fd.rabbit.port:@null}")
+    @Value("${rabbit.port:@null}")
     protected void setRabbitPort(String rabbitPort) {
         if ("@null".equals(rabbitPort)) this.rabbitPort = null;
         else this.rabbitPort = rabbitPort;

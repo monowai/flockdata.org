@@ -21,9 +21,9 @@ package org.flockdata.kv.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.kv.KvContent;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.kv.KvContent;
 import org.flockdata.model.Log;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -113,7 +113,7 @@ public class KvContentBean implements KvContent, Serializable{
     }
 
     @JsonIgnore
-    public Map<String, Object> getWhat() {
+    public Map<String, Object> getData() {
         if ( content == null )
             return null;
 
@@ -137,7 +137,7 @@ public class KvContentBean implements KvContent, Serializable{
         if ( getAttachment() != null )
             bytes =getAttachment().getBytes();
         else
-            bytes= JsonUtils.getObjectAsJsonBytes(getWhat());
+            bytes= JsonUtils.getObjectAsJsonBytes(getData());
         crcChecksum.update(bytes, 0, bytes.length);
         checksum = Long.toHexString(crcChecksum.getValue()).toUpperCase();
         return checksum;

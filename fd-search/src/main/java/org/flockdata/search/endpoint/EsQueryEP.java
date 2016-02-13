@@ -26,7 +26,11 @@ import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.search.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * ElasticSearch input end-point
@@ -36,8 +40,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RequestMapping("/query")
 @RestController
-public class ElasticSearchEP {
+public class EsQueryEP {
     @Autowired
+    @Qualifier("queryServiceEs")
     QueryService searchService;
 
     @RequestMapping(value = "/", consumes = "application/json", produces = "application/json",
@@ -59,10 +64,9 @@ public class ElasticSearchEP {
         return searchService.doMetaKeyQuery(queryParams);
     }
 
-    @RequestMapping(value = "/what", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public EsSearchResult whatContent(@RequestBody QueryParams queryParams) throws FlockException {
-
-        return searchService.contentQuery(queryParams);
+    @RequestMapping(value = "/data", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public EsSearchResult dataContent(@RequestBody QueryParams queryParams) throws FlockException {
+        return searchService.doEntityQuery(queryParams);
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

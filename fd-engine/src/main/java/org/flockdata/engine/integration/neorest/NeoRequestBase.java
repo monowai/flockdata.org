@@ -22,6 +22,7 @@ package org.flockdata.engine.integration.neorest;
 import com.google.common.net.MediaType;
 import org.flockdata.helper.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 
@@ -30,6 +31,7 @@ import javax.annotation.PostConstruct;
 /**
  * Created by mike on 15/07/15.
  */
+@Profile("neorest")
 public class NeoRequestBase {
 
     @Autowired

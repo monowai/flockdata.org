@@ -40,7 +40,7 @@
     <!--DAT -347 -->
     <int-http:outbound-gateway request-channel="doContentQuery"
                                reply-channel="receiveContentReply"
-                               url="${fd-search.url}/v1/api/esContent"
+                               url="${fd-search.url}/v1/query/data"
                                expected-response-type="org.flockdata.search.model.EsSearchResult">
     </int-http:outbound-gateway>
 

@@ -33,7 +33,7 @@ public interface KvContent {
 
     String getAttachment();
 
-    Map<String, Object> getWhat() ;
+    Map<String, Object> getData() ;
 
     String getChecksum() throws IOException;
 

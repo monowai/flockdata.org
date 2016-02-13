@@ -22,15 +22,16 @@ package org.flockdata.kv.none;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.AbstractKvRepo;
+import org.flockdata.kv.KvContent;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.kv.integration.EsGateway;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Log;
 import org.flockdata.search.IndexHelper;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.model.Entity;
-import org.flockdata.kv.KvContent;
-import org.flockdata.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class EsRepo extends AbstractKvRepo{
         ContentInputBean contentInput = new ContentInputBean();
         // DAT-347
         if ( entity.getSearchKey() != null ){
-            EsSearchResult result = esGateway.get(queryParams);
+            EsSearchResult result = esGateway.getData(queryParams);
 
             if (result!=null )
                 try {

@@ -21,7 +21,7 @@
 
     <!--DAT-347 - implement as appropriate-->
     <int:gateway id="esGateway"
-                 service-interface="org.flockdata.kv.none.EsGateway"/>
+                 service-interface="org.flockdata.kv.integration.EsGateway"/>
 
     <int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
@@ -31,7 +31,7 @@
                                     input-channel="sendEntityIndexRequest"
                                     output-channel="syncSearchDocs"/>
 
-    <int:json-to-object-transformer id="contentSearchReply"
+    <int:json-to-object-transformer id="jsonToSearchResult"
                                     input-channel="doContentReply"
                                     output-channel="receiveContentReply"
                                     type="org.flockdata.search.model.EsSearchResult"/>

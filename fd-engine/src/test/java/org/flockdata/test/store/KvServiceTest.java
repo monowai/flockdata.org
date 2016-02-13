@@ -211,13 +211,13 @@ public class KvServiceTest {
 
     private void validateWhat(Map<String, Object> what, KvContent kvContent) throws InterruptedException {
         Thread.sleep(1500);
-        assertEquals(what.get("sval"), kvContent.getWhat().get("sval"));
-        assertEquals(what.get("lval"), kvContent.getWhat().get("lval"));
-        assertEquals(what.get("dval"), kvContent.getWhat().get("dval"));
-        assertEquals(what.get("ival"), kvContent.getWhat().get("ival"));
-        assertEquals(what.get("bval"), kvContent.getWhat().get("bval"));
+        assertEquals(what.get("sval"), kvContent.getData().get("sval"));
+        assertEquals(what.get("lval"), kvContent.getData().get("lval"));
+        assertEquals(what.get("dval"), kvContent.getData().get("dval"));
+        assertEquals(what.get("ival"), kvContent.getData().get("ival"));
+        assertEquals(what.get("bval"), kvContent.getData().get("bval"));
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        assertEquals(json, kvContent.getWhat().get("utf-8"));
+        assertEquals(json, kvContent.getData().get("utf-8"));
     }
 
 

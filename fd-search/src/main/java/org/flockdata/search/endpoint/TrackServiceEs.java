@@ -22,15 +22,15 @@ package org.flockdata.search.endpoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Entity;
+import org.flockdata.search.integration.EngineGateway;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
-import org.flockdata.search.service.EngineGateway;
 import org.flockdata.search.service.IndexMappingService;
-import org.flockdata.search.service.TrackService;
-import org.flockdata.model.Entity;
 import org.flockdata.search.service.TrackSearchDao;
+import org.flockdata.search.service.TrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,7 +144,7 @@ public class TrackServiceEs implements TrackService {
     }
 
 
-        @Override
+    @Override
     public void delete(Entity entity) {
         //trackDao.delete(entity, null);
     }

@@ -19,6 +19,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-java-dsl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.basho.riak</groupId>
             <artifactId>riak-client</artifactId>
             <version>2.0.0</version>

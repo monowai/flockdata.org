@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.FileInputStream;
 import java.util.List;
@@ -65,6 +66,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 12:55 PM
  */
 @Component
+@ActiveProfiles("dev")
 public class ESBase {
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
 
