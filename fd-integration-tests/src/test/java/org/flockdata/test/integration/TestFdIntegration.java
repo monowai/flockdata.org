@@ -82,6 +82,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -1453,6 +1454,12 @@ public class TestFdIntegration {
             assertNotNull(entityLog);
             assertNotNull(entityLog.getLog());
             KvContent content = kvService.getContent(result.getEntity(), entityLog.getLog());
+            // Now test other ES http integration functions
+            QueryParams qp = new QueryParams(result.getMetaKey());
+            qp.setCompany(su.getCompany().getName());
+            EsSearchResult queryResults = queryService.search(su.getCompany(), qp);
+            assertNotNull(queryResults);
+            assertTrue("Result size should be 1", queryResults.getRawResults().size()>0);
 
             assertNotNull(content);
             assertNotNull(content.getData());

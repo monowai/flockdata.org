@@ -23,6 +23,8 @@ import org.flockdata.search.model.*;
 import org.flockdata.model.Entity;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 /**
  * Facades the call to the underlying fd-search implementation.
@@ -39,7 +41,7 @@ public interface FdSearchGateway {
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveFdViewReply")
     EsSearchResult fdSearch(QueryParams queryParams);
 
-    @Gateway(requestChannel = "sendMetaKeyRequest", replyChannel = "receiveMetaKeyReply")
+    @Gateway(requestChannel = "sendmetaKeyQuery", replyChannel = "receiveMetaKeyReply")
     MetaKeyResults metaKeys(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "receiveTagCloudReply")

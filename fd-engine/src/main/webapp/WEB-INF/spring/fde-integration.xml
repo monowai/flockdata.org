@@ -93,8 +93,8 @@
     <!--<int:channel id="sendEntityIndexRequest"/>-->
     <int:channel id="searchReply"/>
 
-    <int:channel id="sendSearchRequest"/>
-    <int:channel id="receiveSearchReply"/>
+    <!--<int:channel id="sendSearchRequest"/>-->
+    <!--<int:channel id="receiveSearchReply"/>-->
 
     <!--<int:channel id="sendMetaKeyRequest"/>-->
     <!--<int:channel id="receiveMetaKeyReply"/>-->
