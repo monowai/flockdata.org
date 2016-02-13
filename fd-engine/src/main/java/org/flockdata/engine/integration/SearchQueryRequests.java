@@ -10,11 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 
 import javax.annotation.PostConstruct;
@@ -33,12 +35,18 @@ public class SearchQueryRequests {
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
+    // Seems we have to transform via this
+    @Transformer(inputChannel="sendSearchRequest", outputChannel="doFdViewQuery")
+    public Message<?> fdQueryTransform(Message theObject){
+        return objectToJson().transform(theObject);
+    }
+
     @Bean
     IntegrationFlow fdViewQuery() {
 
         return IntegrationFlows.from("doFdViewQuery")
                 .handle(fdViewQueryHandler())
-                .transform(getTransformer())
+                .transform(objectToJson())
                 .get();
     }
 
@@ -50,12 +58,18 @@ public class SearchQueryRequests {
         return handler;
     }
 
+    // Seems we have to transform via this
+    @Transformer(inputChannel="doMetaKeyQuery", outputChannel="doMetaKeyQuery")
+    public Message<?> transformRequest(Message theObject){
+        return objectToJson().transform(theObject);
+    }
+
     @Bean
     IntegrationFlow metaKeyQuery() {
 
         return IntegrationFlows.from("doMetaKeyQuery")
                 .handle(metaKeyHandler())
-                .transform(getTransformer())
+                .transform(objectToJson())
                 .get();
     }
 
@@ -74,7 +88,7 @@ public class SearchQueryRequests {
 
         return IntegrationFlows.from("doTagCloudQuery")
                 .handle(tagCloudHandler())
-                .transform(getTransformer())
+                .transform(objectToJson())
                 .get();
     }
 
@@ -111,7 +125,7 @@ public class SearchQueryRequests {
         //return transformer;
     }
 
-    public ObjectToJsonTransformer getTransformer(){
+    public ObjectToJsonTransformer objectToJson(){
         return transformer;
     }
 

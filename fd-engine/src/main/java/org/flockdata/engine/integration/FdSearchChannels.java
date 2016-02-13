@@ -35,6 +35,21 @@ import org.springframework.messaging.MessageChannel;
 @IntegrationComponentScan
 public class FdSearchChannels {
 
+    @Bean
+    MessageChannel receiveFdViewReply () {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel receiveMetaKeyReply() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel receiveTagCloudReply() {
+        return new DirectChannel();
+    }
+
 
     @Bean
     MessageChannel doMetaKeyQuery() {
@@ -63,6 +78,21 @@ public class FdSearchChannels {
 
     @Bean
     MessageChannel writeEntityContent() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel sendSearchRequest()  {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel sendmetaKeyQuery (){
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel sendTagCloudRequest (){
         return new DirectChannel();
     }
 
