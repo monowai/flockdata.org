@@ -14,7 +14,7 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:spring-configured/>
-    <!--<context:annotation-config/>-->
+    <aop:aspectj-autoproxy />
 
     <context:component-scan base-package="org.flockdata.search"/>
     <!-- Root Context: defines shared resources visible to all other web components -->
@@ -25,9 +25,7 @@
     <import resource="spring-security.xml"/>
     <import resource="es-context.xml"/>
     <import resource="fds-integration.xml"/>
-    <!--<import resource="fds-http-proxy-integration.xml"/>-->
 
-    <aop:aspectj-autoproxy />
     <task:annotation-driven executor="fd-search"/>
 
 

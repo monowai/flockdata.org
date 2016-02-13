@@ -22,15 +22,19 @@ package org.flockdata.kv.integration;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 /**
  * Interface to fd-search so support locating what data
  *
  * Created by mike on 22/03/15.
  */
-//@MessagingGateway
+@MessagingGateway
 public interface EsGateway {
 
+    @Retryable( maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
     EsSearchResult getData(QueryParams queryParams);
 
