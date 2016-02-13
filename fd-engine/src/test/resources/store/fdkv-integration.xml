@@ -28,10 +28,10 @@
                                     input-channel="sendEntityIndexRequest"
                                     output-channel="syncSearchDocs"/>
 
-    <int:json-to-object-transformer id="jsonToSearchResult"
-                                    input-channel="doContentReply"
-                                    output-channel="receiveContentReply"
-                                    type="org.flockdata.search.model.EsSearchResult"/>
+    <!--<int:json-to-object-transformer id="jsonToSearchResult"-->
+                                    <!--input-channel="doContentReply"-->
+                                    <!--output-channel="receiveContentReply"-->
+                                    <!--type="org.flockdata.search.model.EsSearchResult"/>-->
 
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
@@ -64,7 +64,6 @@
 
     <!--DAT-347 -->
     <int:channel id="sendKvSearchRequest"/>
-    <int:channel id="receiveContentReply"/>
 
     <!--End KV -->
 
