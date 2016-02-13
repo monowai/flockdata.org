@@ -24,7 +24,7 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.AbstractKvRepo;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.bean.KvContentBean;
-import org.flockdata.kv.integration.EsGateway;
+import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.search.IndexHelper;
@@ -49,7 +49,7 @@ import java.util.Map;
 public class EsRepo extends AbstractKvRepo{
 
     @Autowired
-    EsGateway esGateway;
+    EsStoreRequest.ContentStoreEs esStore;
 
     @Autowired
     IndexHelper indexHelper;
@@ -68,7 +68,7 @@ public class EsRepo extends AbstractKvRepo{
         ContentInputBean contentInput = new ContentInputBean();
         // DAT-347
         if ( entity.getSearchKey() != null ){
-            EsSearchResult result = esGateway.getData(queryParams);
+            EsSearchResult result = esStore.getData(queryParams);
 
             if (result!=null )
                 try {

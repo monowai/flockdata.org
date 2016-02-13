@@ -18,7 +18,7 @@ Transformers, gateways and channels -->
                            ref="fdKvErrorHandler"/>
 
 
-    <bean id="fdKvErrorHandler" class="org.flockdata.kv.KvErrorHandler">
+    <bean id="fdKvErrorHandler" class="org.flockdata.kv.integration.KvErrorHandler">
 
     </bean>
 

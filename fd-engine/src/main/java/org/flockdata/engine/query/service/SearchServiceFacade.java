@@ -21,7 +21,8 @@ package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.query.endpoint.FdSearchGateway;
+import org.flockdata.engine.integration.FdSearchGateway;
+import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
@@ -93,6 +94,10 @@ public class SearchServiceFacade {
 
     @Autowired
     PlatformConfig engineConfig;
+
+    @Autowired
+    FdViewQuery.FdViewGateway fdViewQuery;
+
 
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
@@ -276,7 +281,7 @@ public class SearchServiceFacade {
     }
 
     public EsSearchResult search(QueryParams queryParams) {
-        return searchGateway.fdSearch(queryParams);
+        return fdViewQuery.fdSearch(queryParams);
     }
 
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) {

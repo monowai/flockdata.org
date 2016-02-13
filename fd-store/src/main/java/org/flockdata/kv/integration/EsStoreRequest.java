@@ -2,12 +2,15 @@ package org.flockdata.kv.integration;
 
 import org.flockdata.kv.KvConfig;
 import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -16,6 +19,8 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 /**
  * Pulls the "data" block from ElasticSearch
@@ -24,19 +29,27 @@ import org.springframework.messaging.MessageHandler;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
-public class KvEsStoreRequest extends AbstractIntegrationRequest {
+@Profile({"integration", "production"})
+public class EsStoreRequest extends AbstractIntegrationRequest {
 
     @Autowired
     KvConfig kvConfig;
 
+    @MessagingGateway
+    public interface ContentStoreEs {
+        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+        @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
+        EsSearchResult getData(QueryParams queryParams);
+    }
+
+
     @Bean
-    MessageChannel receiveContentReply(){
+    MessageChannel receiveContentReply() {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel sendDataQuery(){
+    MessageChannel sendDataQuery() {
         return new DirectChannel();
     }
 
@@ -57,17 +70,17 @@ public class KvEsStoreRequest extends AbstractIntegrationRequest {
 
     public String getDataQuery() {
         // The endpoint in fd-search
-        return kvConfig.getFdSearchUrl()+ "/v1/query/data";
+        return kvConfig.getFdSearchUrl() + "/v1/query/data";
     }
 
     @Bean
-    MessageChannel doDataQuery(){
+    MessageChannel doDataQuery() {
         return new DirectChannel();
     }
 
     // Seems we have to transform via this
-    @Transformer(inputChannel="doDataQuery", outputChannel="sendDataQuery")
-    public Message<?> transformRequest(Message theObject){
+    @Transformer(inputChannel = "doDataQuery", outputChannel = "sendDataQuery")
+    public Message<?> transformRequest(Message theObject) {
         return objectToJson().transform(theObject);
     }
 
