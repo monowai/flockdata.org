@@ -60,10 +60,6 @@
                                     <!--input-channel="sendTagCloudRequest"-->
                                     <!--output-channel="doTagCloudQuery"/>-->
 
-    <!--<int:object-to-json-transformer id="simpleSearchSend"-->
-                                    <!--input-channel="sendSearchRequest"-->
-                                    <!--output-channel="doFdViewQuery"/>-->
-
     <!--<int:object-to-json-transformer id="metaKeySearch"-->
                                     <!--input-channel="sendMetaKeyRequest"-->
                                     <!--output-channel="doMetaKeyQuery"/>-->
@@ -90,15 +86,12 @@
     <!--<int:channel id="sendEntityIndexRequest"/>-->
     <int:channel id="searchReply"/>
 
-    <!--<int:channel id="sendSearchRequest"/>-->
     <!--<int:channel id="receiveSearchReply"/>-->
 
     <!--<int:channel id="sendMetaKeyRequest"/>-->
     <!--<int:channel id="receiveMetaKeyReply"/>-->
-    <!--<int:channel id="receiveFdViewReply"/>-->
 
     <!--<int:channel id="handleMetaKey"/>-->
-    <!--<int:channel id="doFdViewQuery"/>-->
     <!--<int:channel id="doFdViewReply"/>-->
     <!--DAT-347 Requests the "data" content from the search doc-->
     <!--<int:channel id="doContentQuery"/>-->

@@ -66,18 +66,9 @@
                                     output-channel="receiveTagCloudReply"
                                     type="org.flockdata.search.model.TagCloud"/>
 
-    <int:object-to-json-transformer id="simpleSearchSend"
-                                    input-channel="sendSearchRequest"
-                                    output-channel="doFdViewQuery"/>
-
     <int:object-to-json-transformer id="metaKeySearch"
                                     input-channel="sendMetaKeyRequest"
                                     output-channel="doMetaKeyQuery"/>
-
-    <int:json-to-object-transformer id="simpleSearchReply"
-                                    input-channel="doFdViewReply"
-                                    output-channel="receiveFdViewReply"
-                                    type="org.flockdata.search.model.EsSearchResult"/>
 
     <int:json-to-object-transformer id="metaKeyReply"
                                     input-channel="doMetaKeyReply"
@@ -122,15 +113,12 @@
     <int:channel id="sendEntityIndexRequest"/>
     <int:channel id="searchReply"/>
 
-    <int:channel id="sendSearchRequest"/>
     <int:channel id="receiveSearchReply"/>
 
     <int:channel id="sendMetaKeyRequest"/>
     <int:channel id="receiveMetaKeyReply"/>
-    <int:channel id="receiveFdViewReply"/>
 
     <int:channel id="doMetaKeyQuery"/>
-    <int:channel id="doFdViewQuery"/>
     <int:channel id="doFdViewReply"/>
     <!--DAT-347 Requests the "data" content from the search doc-->
     <int:channel id="doContentQuery"/>

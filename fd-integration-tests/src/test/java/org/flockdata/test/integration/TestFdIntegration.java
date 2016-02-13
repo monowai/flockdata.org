@@ -1459,7 +1459,7 @@ public class TestFdIntegration {
             qp.setCompany(su.getCompany().getName());
             EsSearchResult queryResults = queryService.search(su.getCompany(), qp);
             assertNotNull(queryResults);
-            assertTrue("Result size should be 1", queryResults.getRawResults().size()>0);
+            assertTrue("Result size should be at least 1 - was {}" + queryResults.getResults().size(), queryResults.getResults().size()>0);
 
             assertNotNull(content);
             assertNotNull(content.getData());
