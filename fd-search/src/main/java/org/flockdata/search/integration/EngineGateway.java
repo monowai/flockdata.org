@@ -28,7 +28,7 @@ import org.springframework.scheduling.annotation.Async;
  * User: Mike Holdsworth
  * Since: 13/07/13
  */
-@MessagingGateway(asyncExecutor = "fd-search")
+@MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
 public interface EngineGateway {
 
     @Gateway(requestChannel = "searchReply", requestTimeout = 40000)

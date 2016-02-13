@@ -12,8 +12,8 @@
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-    <int:gateway id="engineGateway"
-                 service-interface="org.flockdata.search.integration.EngineGateway" />
+    <!--<int:gateway id="engineGateway"-->
+                 <!--service-interface="org.flockdata.search.integration.EngineGateway" />-->
 
     <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="errors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
@@ -27,43 +27,12 @@
                                     output-channel="searchDocSyncResult"/>
 
 
-    <!--<int:object-to-json-transformer id="kvReplyToJson"-->
-                                    <!--content-type="application/json; charset=UTF-8"-->
-                                    <!--input-channel="contentReply"-->
-                                    <!--output-channel="doContentReply"/>-->
-
-    <!--<int:object-to-json-transformer id="mkReplyToJson"-->
-                                    <!--content-type="application/json; charset=UTF-8"-->
-                                    <!--input-channel="metaKeyReply"-->
-                                    <!--output-channel="doMetaKeyReply"/>-->
-
-    <!--<int:object-to-json-transformer id="fdReplyToJson"-->
-                                    <!--content-type="application/json; charset=UTF-8"-->
-                                    <!--input-channel="fdViewReply"-->
-                                    <!--output-channel="doFdViewReply"/>-->
-
-    <!--<int:object-to-json-transformer id="tagCloudReplyToJson"-->
-                                    <!--content-type="application/json; charset=UTF-8"-->
-                                    <!--input-channel="tagCloudReply"-->
-                                    <!--output-channel="doTagCloudReply"/>-->
-
-
-
     <int:channel id="syncSearchDocs"/>
     <int:channel id="searchDocSyncResult"/>
     <int:channel id="searchReply"/>
     <int:channel id="errors"/>
-    <!--<int:channel id="handleMetaKey"/>-->
-    <!--<int:channel id="doMetaKeyReply"/>-->
-    <int:channel id="doFdViewQuery"/>
-    <int:channel id="doFdViewReply"/>
 
-    <!--DAT-347 Returns the "What" -->
-    <!--<int:channel id="doContentReply"/>-->
 
-    <!-- TAG CLOUD CHANNEL -->
-    <int:channel id="doTagCloudQuery"/>
-    <int:channel id="doTagCloudReply"/>
 
     <!--<int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>-->
 
