@@ -1,7 +1,5 @@
 package org.flockdata.kv.integration;
 
-import com.google.common.net.MediaType;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.KvConfig;
 import org.flockdata.search.model.EsSearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +13,9 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
-import org.springframework.integration.json.ObjectToJsonTransformer;
-import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.retry.annotation.EnableRetry;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Pulls the "data" block from ElasticSearch
@@ -31,25 +24,19 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @IntegrationComponentScan
-@EnableRetry
 @Profile({"integration","production"})
-public class KvStoreRequests {
+public class KvEsStoreRequest extends AbstractIntegrationRequest {
 
     @Autowired
     KvConfig kvConfig;
 
     @Bean
-    MessageChannel doDataQuery(){
+    MessageChannel receiveContentReply(){
         return new DirectChannel();
     }
 
     @Bean
     MessageChannel sendDataQuery(){
-        return new DirectChannel();
-    }
-
-    @Bean
-    MessageChannel receiveContentReply(){
         return new DirectChannel();
     }
 
@@ -68,32 +55,20 @@ public class KvStoreRequests {
         return handler;
     }
 
-
     public String getDataQuery() {
         // The endpoint in fd-search
         return kvConfig.getFdSearchUrl()+ "/v1/query/data";
     }
 
-
+    @Bean
+    MessageChannel doDataQuery(){
+        return new DirectChannel();
+    }
 
     // Seems we have to transform via this
     @Transformer(inputChannel="doDataQuery", outputChannel="sendDataQuery")
     public Message<?> transformRequest(Message theObject){
         return objectToJson().transform(theObject);
-    }
-
-    private ObjectToJsonTransformer objectToJsonTransformer;
-
-    public ObjectToJsonTransformer objectToJson(){
-        return objectToJsonTransformer;
-    }
-
-    @PostConstruct
-    public void createTransformers() {
-        objectToJsonTransformer = new ObjectToJsonTransformer(
-                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
-        objectToJsonTransformer.setContentType(MediaType.JSON_UTF_8.toString());
     }
 
 }
