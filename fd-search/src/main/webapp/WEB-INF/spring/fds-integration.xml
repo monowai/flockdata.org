@@ -12,14 +12,6 @@
 	   http://www.springframework.org/schema/integration
 	   http://www.springframework.org/schema/integration/spring-integration.xsd">
 
-    <!--<int:gateway id="engineGateway"-->
-                 <!--service-interface="org.flockdata.search.integration.EngineGateway" />-->
-
-    <int:handler-retry-advice id="retrier" max-attempts="4" recovery-channel="errors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000" />
-    </int:handler-retry-advice>
-
-
     <import resource="fds-amqp-integration.xml"/>
     <!--Outbound result of the request to index the entity -->
     <int:object-to-json-transformer id="trackReplyToJson"
@@ -31,15 +23,6 @@
     <int:channel id="searchDocSyncResult"/>
     <int:channel id="searchReply"/>
     <int:channel id="errors"/>
-
-
-
-    <!--<int:service-activator id="fdErrorLogger" input-channel="errors" ref="fdLoggingHandler"/>-->
-
-    <!--<bean id="fdLoggingHandler" class="org.springframework.integration.handler.LoggingHandler">-->
-        <!--<constructor-arg index="0" value="DEBUG"/>-->
-    <!--</bean>-->
-
 
 
 </beans>
