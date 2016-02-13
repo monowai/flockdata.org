@@ -19,9 +19,6 @@
     <int:gateway id="kvGateway" async-executor="fd-store"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
-    <!--DAT-347 - implement as appropriate-->
-    <int:gateway id="esGateway"
-                 service-interface="org.flockdata.kv.integration.EsGateway"/>
 
     <int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>

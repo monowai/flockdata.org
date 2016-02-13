@@ -17,14 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.query.endpoint;
+package org.flockdata.engine.integration;
 
-import org.flockdata.search.model.*;
 import org.flockdata.model.Entity;
+import org.flockdata.search.model.*;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 
 /**
  * Facades the call to the underlying fd-search implementation.
@@ -37,9 +35,6 @@ public interface FdSearchGateway {
 
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel", requestTimeout = 10000)
     void makeSearchChanges(EntitySearchChanges searchChanges);
-
-    @Gateway(requestChannel = "sendSearchRequest", replyChannel = "receiveFdViewReply")
-    EsSearchResult fdSearch(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendmetaKeyQuery", replyChannel = "receiveMetaKeyReply")
     MetaKeyResults metaKeys(QueryParams queryParams);

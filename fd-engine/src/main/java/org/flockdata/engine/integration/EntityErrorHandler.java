@@ -17,13 +17,17 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.engine.integration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.context.annotation.Bean;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.MessageHandlingException;
 
@@ -32,10 +36,22 @@ import org.springframework.messaging.MessageHandlingException;
  * Date: 11/11/14
  * Time: 2:14 PM
  */
+@IntegrationComponentScan
 public class EntityErrorHandler {
     private Logger logger = LoggerFactory.getLogger(EntityErrorHandler.class);
 
-    @ServiceActivator
+    @Bean
+    MessageChannel trackError (){
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel messagingError (){
+        return new DirectChannel();
+    }
+
+
+    @ServiceActivator (inputChannel = "trackError")
     public void handleFailedTrackRequest(Message<MessageHandlingException> message) {
         // ToDo: How to persist failed messages
         MessageHandlingException payLoad = message.getPayload();
@@ -60,7 +76,8 @@ public class EntityErrorHandler {
         throw new AmqpRejectAndDontRequeueException(errorMessage);
         //throw payLoad;
     }
-    @ServiceActivator
+
+    @ServiceActivator (inputChannel = "messagingError")
     public void handleMessageDeliveryException(Message<MessageDeliveryException> message) {
         // ToDo: How to persist failed messages
         MessageDeliveryException payLoad = message.getPayload();

@@ -19,11 +19,12 @@
 
 package org.flockdata.engine.query.service;
 
-import org.flockdata.engine.query.endpoint.FdSearchGateway;
+import org.flockdata.engine.integration.FdSearchGateway;
+import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.kv.integration.EsGateway;
+import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressResultBean;
@@ -70,7 +71,10 @@ public class QueryService {
     FdSearchGateway searchGateway;
 
     @Autowired
-    EsGateway esGateway;
+    FdViewQuery.FdViewGateway fdViewQuery;
+
+    @Autowired
+    EsStoreRequest.ContentStoreEs esStore;
 
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws FlockException {
@@ -117,9 +121,9 @@ public class QueryService {
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
         if ( queryParams.getQuery() !=null )
-            esSearchResult = esGateway.getData(queryParams);
+            esSearchResult = esStore.getData(queryParams);
         else {
-            esSearchResult = searchGateway.fdSearch(queryParams);
+            esSearchResult = fdViewQuery.fdSearch(queryParams);
         }
         //watch.stop();
         //logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));

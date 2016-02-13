@@ -1,8 +1,6 @@
 package org.flockdata.engine.integration;
 
-import com.google.common.net.MediaType;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.helper.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -14,12 +12,8 @@ import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
-import org.springframework.integration.json.ObjectToJsonTransformer;
-import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Created by mike on 13/02/16.
@@ -35,33 +29,13 @@ public class SearchQueryRequests {
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
-    // Seems we have to transform via this
-    @Transformer(inputChannel="sendSearchRequest", outputChannel="doFdViewQuery")
-    public Message<?> fdQueryTransform(Message theObject){
-        return objectToJson().transform(theObject);
-    }
-
-    @Bean
-    IntegrationFlow fdViewQuery() {
-
-        return IntegrationFlows.from("doFdViewQuery")
-                .handle(fdViewQueryHandler())
-                .transform(objectToJson())
-                .get();
-    }
-
-    private MessageHandler fdViewQueryHandler() {
-        HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getFdViewQuery());
-        handler.setExpectedResponseType(org.flockdata.search.model.EsSearchResult.class);
-        handler.setHttpMethod(HttpMethod.POST);
-        return handler;
-    }
+    @Autowired
+    MessageSupport messageSupport;
 
     // Seems we have to transform via this
     @Transformer(inputChannel="doMetaKeyQuery", outputChannel="doMetaKeyQuery")
     public Message<?> transformRequest(Message theObject){
-        return objectToJson().transform(theObject);
+        return messageSupport.toJson(theObject);
     }
 
     @Bean
@@ -69,7 +43,7 @@ public class SearchQueryRequests {
 
         return IntegrationFlows.from("doMetaKeyQuery")
                 .handle(metaKeyHandler())
-                .transform(objectToJson())
+                .transform(messageSupport.objectToJson())
                 .get();
     }
 
@@ -88,7 +62,7 @@ public class SearchQueryRequests {
 
         return IntegrationFlows.from("doTagCloudQuery")
                 .handle(tagCloudHandler())
-                .transform(objectToJson())
+                .transform(messageSupport.objectToJson())
                 .get();
     }
 
@@ -101,10 +75,6 @@ public class SearchQueryRequests {
     }
 
 
-    public String getFdViewQuery() {
-        return engineConfig.getFdSearch()+ "/v1/query/fdView";
-    }
-
     public String getMetaKeyQuery() {
         return engineConfig.getFdSearch()+ "/v1/query/metaKeys";
     }
@@ -114,20 +84,6 @@ public class SearchQueryRequests {
     }
 
 
-    private ObjectToJsonTransformer transformer;
-
-    @PostConstruct
-    public void createTransformer() {
-        transformer = new ObjectToJsonTransformer(
-                new Jackson2JsonObjectMapper(JsonUtils.getMapper())
-        );
-        transformer.setContentType(MediaType.JSON_UTF_8.toString());
-        //return transformer;
-    }
-
-    public ObjectToJsonTransformer objectToJson(){
-        return transformer;
-    }
 
 
 }

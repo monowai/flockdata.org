@@ -13,29 +13,26 @@
 
     <import resource="fde-amqp-integration.xml"/>
 
-    <int:gateway id="fdSearchGateway"
-                 service-interface="org.flockdata.engine.query.endpoint.FdSearchGateway"/>
-
-    <int:gateway id="esGateway"
-                 service-interface="org.flockdata.kv.integration.EsGateway"/>
+    <!--<int:gateway id="fdSearchGateway"-->
+                 <!--service-interface="org.flockdata.engine.integration.FdSearchGateway"/>-->
 
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
-                 service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
+                 service-interface="org.flockdata.engine.integration.TrackGateway"/>
 
     <int:gateway id="kvGateway" async-executor="fd-store"
                  service-interface="org.flockdata.kv.KvGateway"/>
 
-    <int:service-activator id="fdEntityErrorLogger"
-                           input-channel="entityErrors"
-                           ref="fdeErrorHandler"/>
+    <!--<int:service-activator id="fdEntityErrorLogger"-->
+                           <!--input-channel="entityErrors"-->
+                           <!--ref="entityErrorHandler"/>-->
 
-    <int:service-activator id="fdKvErrorLogger"
-                           input-channel="kvErrors"
-                           ref="fdkvErrorHandler"/>
+    <!--<int:service-activator id="fdKvErrorLogger"-->
+                           <!--input-channel="kvErrors"-->
+                           <!--ref="fdkvErrorHandler"/>-->
 
-    <bean id="fdkvErrorHandler" class="org.flockdata.kv.KvErrorHandler"/>
+    <!--<bean id="fdkvErrorHandler" class="org.flockdata.kv.integration.KvErrorHandler"/>-->
 
-    <bean id="fdeErrorHandler" class="org.flockdata.helper.EntityErrorHandler"/>
+    <!--<bean id="fdeErrorHandler" class="org.flockdata.engine.integration.EntityErrorHandler"/>-->
 
     <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
         <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>

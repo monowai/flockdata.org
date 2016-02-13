@@ -17,11 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv;
+package org.flockdata.kv.integration;
 
 import org.flockdata.helper.FlockDataTagException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandlingException;
@@ -38,6 +39,7 @@ import org.springframework.messaging.MessageHandlingException;
  * Date: 11/11/14
  * Time: 2:14 PM
  */
+@IntegrationComponentScan
 public class KvErrorHandler {
     private Logger logger = LoggerFactory.getLogger(KvErrorHandler.class);
 
