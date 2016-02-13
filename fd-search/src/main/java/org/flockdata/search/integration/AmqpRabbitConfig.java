@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,7 @@ import javax.annotation.PostConstruct;
 @Configuration
 @EnableRabbit
 @IntegrationComponentScan
+@Profile({"integration","production"})
 public class AmqpRabbitConfig {
 
     private Logger logger = LoggerFactory.getLogger("configuration");

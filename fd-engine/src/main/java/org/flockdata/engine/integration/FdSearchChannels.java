@@ -37,6 +37,16 @@ public class FdSearchChannels {
 
 
     @Bean
+    MessageChannel doMetaKeyQuery() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel doContentQuery(){
+        return new DirectChannel();
+    }
+
+    @Bean
     MessageChannel sendEntityIndexRequest() {
         return new DirectChannel();
     }
@@ -61,4 +71,7 @@ public class FdSearchChannels {
     }
 
 
+    public MessageChannel doDataQuery() {
+        return new DirectChannel();
+    }
 }

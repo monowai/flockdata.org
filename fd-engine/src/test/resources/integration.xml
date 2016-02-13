@@ -19,7 +19,7 @@
 
     <!-- DAT-347 -->
     <int:gateway id="esGateway"
-                 service-interface="org.flockdata.kv.none.EsGateway"/>
+                 service-interface="org.flockdata.kv.integration.EsGateway"/>
 
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
                  service-interface="org.flockdata.engine.track.endpoint.TrackGateway"/>
@@ -138,7 +138,7 @@
     <int:channel id="doFdViewReply"/>
     <!--DAT-347 Requests the "data" content from the search doc-->
     <int:channel id="doContentQuery"/>
-    <int:channel id="receiveContentReply"/>
+    <!--<int:channel id="receiveContentReply"/>-->
     <int:channel id="doContentReply"/>
 
 

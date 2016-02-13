@@ -296,7 +296,7 @@ public class TestEntityTrack extends EngineBase {
             Log log = entityLog.getLog();
             assertNotNull(log.getEvent());
             KvContent whatResult = entityService.getWhat(entity, log);
-            assertTrue(whatResult.getWhat().containsKey("house"));
+            assertTrue(whatResult.getData().containsKey("house"));
         }
     }
 
@@ -444,8 +444,8 @@ public class TestEntityTrack extends EngineBase {
         for (EntityLog entityLog : logs) {
             KvContent content = kvService.getContent(entity, entityLog.getLog());
             assertNotNull(content);
-            assertNotNull(content.getWhat());
-            assertFalse(content.getWhat().isEmpty());
+            assertNotNull(content.getData());
+            assertFalse(content.getData().isEmpty());
         }
     }
 
@@ -761,7 +761,7 @@ public class TestEntityTrack extends EngineBase {
 //        assertNotNull(lastLog.getAuditChange().getLogInputBean());
         KvContent content = entityService.getWhat(entity, lastLog.getLog());
         assertNotNull(content);
-        assertTrue(content.getWhat().containsKey("house"));
+        assertTrue(content.getData().containsKey("house"));
     }
 
     @Test
@@ -957,7 +957,7 @@ public class TestEntityTrack extends EngineBase {
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
 
         KvContent content = kvService.getContent(trackResultBean.getEntity(), lastLog.getLog());
-        assertEquals(json.get("Athlete"), content.getWhat().get("Athlete"));
+        assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
@@ -1003,7 +1003,7 @@ public class TestEntityTrack extends EngineBase {
         KvContent what = kvService.getContent(entity, lastLog.getLog());
 
         assertNotNull(what);
-        Object value = what.getWhat().get("col");
+        Object value = what.getData().get("col");
         assertNotNull(value);
         assertEquals("321", value.toString());
     }
@@ -1212,7 +1212,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(Long.valueOf(updateDate.getMillis()), log.getFortressWhen());
         KvContent kvContent = kvService.getContent(result.getEntity(), log.getLog());
         assertNotNull(kvContent);
-        Object value = kvContent.getWhat().get("key");
+        Object value = kvContent.getData().get("key");
         assertNotNull(value);
         assertEquals(2, Integer.parseInt(value.toString()));
 

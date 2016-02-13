@@ -23,10 +23,10 @@ import org.flockdata.engine.query.endpoint.FdSearchGateway;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.kv.none.EsGateway;
-import org.flockdata.registration.bean.FortressResultBean;
+import org.flockdata.kv.integration.EsGateway;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.search.model.TagCloud;
@@ -117,7 +117,7 @@ public class QueryService {
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
         if ( queryParams.getQuery() !=null )
-            esSearchResult = esGateway.get(queryParams);
+            esSearchResult = esGateway.getData(queryParams);
         else {
             esSearchResult = searchGateway.fdSearch(queryParams);
         }

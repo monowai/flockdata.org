@@ -31,7 +31,7 @@
             location="classpath:/config.properties,file:${fd.config},file:${fd.auth.config}"/>
 
     <import resource="simple-security.xml" />
-    <import resource="http-proxy-integration.xml"/>
+    <!--<import resource="http-proxy-integration.xml"/>-->
     <!--<import resource="neo4j-context-test.xml"/>-->
     <import resource="kv-context.xml"/>
     <import resource="fdit-integration.xml"/>

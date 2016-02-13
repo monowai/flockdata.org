@@ -9,6 +9,7 @@ package org.flockdata.engine.integration;
 
 import org.flockdata.engine.PlatformConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,9 +30,7 @@ import org.springframework.messaging.MessageHandler;
 public class SearchAdminRequests {
 
     @Autowired
-    FdSearchChannels channels;
-
-    @Autowired
+    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Bean

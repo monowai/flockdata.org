@@ -69,29 +69,4 @@ public class FdSearchIntegration {
 
     }
 
-//    @Bean
-//    public AmqpInboundGateway inbound(SimpleMessageListenerContainer listenerContainer,
-//                                      @Qualifier("doTrackEntity") MessageChannel channel) {
-//        AmqpInboundGateway gateway = new AmqpInboundGateway(listenerContainer);
-//        gateway.setRequestChannel(channel);
-//        gateway.setReplyChannel(trackResult());
-//
-//        gateway.setDefaultReplyTo("bar");
-//        return gateway;
-    //    public AmqpInboundGateway fdEntityWrite (){
-//        <int-amqp:inbound-gateway id="entityWrite"
-//        queue-names="${fd-track.queue}"
-//        connection-factory="connectionFactory"
-//        shutdown-timeout="3000"
-//        task-executor="fd-track"
-//        mapped-request-headers="*"
-//        mapped-reply-headers="*"
-//        error-channel="entityErrors"
-//        message-converter="jsonToEntityInput"
-//        concurrent-consumers="${fd-track.concurrentConsumers}"
-//        prefetch-count="${fd-track.prefetchCount}"
-//                />
-//    }
-
-//    }
 }

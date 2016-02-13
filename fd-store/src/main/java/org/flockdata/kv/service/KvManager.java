@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
+import org.flockdata.kv.KvContent;
 import org.flockdata.kv.KvGateway;
 import org.flockdata.kv.KvRepo;
 import org.flockdata.kv.bean.KvContentBean;
@@ -34,12 +35,11 @@ import org.flockdata.kv.none.EsRepo;
 import org.flockdata.kv.redis.RedisRepo;
 import org.flockdata.kv.riak.RiakRepo;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.model.Log;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
-import org.flockdata.kv.KvContent;
-import org.flockdata.model.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -274,11 +274,11 @@ public class KvManager implements KvService {
     public boolean sameJson(KvContent compareFrom, KvContent compareTo) {
 //        if ( compareTo == null )
 //            return false;
-        if (compareFrom.getWhat().size() != compareTo.getWhat().size())
+        if (compareFrom.getData().size() != compareTo.getData().size())
             return false;
-        logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getWhat());
-        JsonNode jCompareFrom = om.valueToTree(compareFrom.getWhat());
-        JsonNode jCompareWith = om.valueToTree(compareTo.getWhat());
+        logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getData());
+        JsonNode jCompareFrom = om.valueToTree(compareFrom.getData());
+        JsonNode jCompareWith = om.valueToTree(compareTo.getData());
         return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
 
     }
@@ -289,7 +289,7 @@ public class KvManager implements KvService {
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
         KvContent source = getContent(entity, from);
         KvContent dest = getContent(entity, to);
-        MapDifference<String, Object> diffMap = Maps.difference(source.getWhat(), dest.getWhat());
+        MapDifference<String, Object> diffMap = Maps.difference(source.getData(), dest.getData());
         DeltaBean result = new DeltaBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
         result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));

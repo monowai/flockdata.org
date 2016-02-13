@@ -21,6 +21,7 @@ package org.flockdata.kv;
 
 import org.flockdata.kv.bean.KvContentBean;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
 
 /**
@@ -28,7 +29,8 @@ import org.springframework.integration.annotation.MessagingGateway;
  * Date: 19/11/14
  * Time: 11:48 AM
  */
-@MessagingGateway
+@MessagingGateway (asyncExecutor ="fd-store")
+@IntegrationComponentScan
 public interface KvGateway {
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
     void doKvWrite(KvContentBean resultBean);

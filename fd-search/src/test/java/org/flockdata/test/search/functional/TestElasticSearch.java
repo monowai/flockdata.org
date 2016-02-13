@@ -23,39 +23,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.search.endpoint.ElasticSearchEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.search.service.TrackSearchDao;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
-public class TestElasticSearch {
+/**
+ * Raw ES client functionality. Establishes a local node
+ */
+public class TestElasticSearch extends ESBase {
 
     private Logger logger = LoggerFactory.getLogger(TestElasticSearch.class);
     ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-    @Autowired
-    TrackSearchDao alRepo;
-
-    @Autowired
-    ElasticSearchEP searchEP;
 
     @Test
     public void testMappingJson() throws Exception {
@@ -93,8 +84,8 @@ public class TestElasticSearch {
 
 
     }
-    private String getComputerName()
-    {
+
+    private String getComputerName() {
         Map<String, String> env = System.getenv();
         if (env.containsKey("COMPUTERNAME"))
             return env.get("COMPUTERNAME");
@@ -105,11 +96,30 @@ public class TestElasticSearch {
     }
 
 
+    private GetResponse writeSimple(EntitySearchChange change) throws Exception {
+        File tempDir = File.createTempFile("elasticsearch-temp", Long.toString(System.nanoTime()));
+        tempDir.delete();
+        tempDir.mkdir();
 
-    private  GetResponse writeSimple(EntitySearchChange change) throws Exception {
+        ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
+                .put("cluster.name", getComputerName())
+                .put("node.name", getComputerName())
+                .put("path.home", new File(tempDir, "./").getAbsolutePath())
+                .put("path.data", new File(tempDir, "data").getAbsolutePath())
+                .put("path.logs", new File(tempDir, "logs").getAbsolutePath())
+                .put("path.work", new File(tempDir, "work").getAbsolutePath())
+
+                .put("node.data", true)
+                .put("node.local", true);
 
         // Elasticsearch
-        Node node = org.elasticsearch.node.NodeBuilder.nodeBuilder().local(true).node();
+        Node node = org.elasticsearch.node.NodeBuilder
+                .nodeBuilder()
+                .settings(settings)
+                .clusterName(getComputerName())
+                .local(true)
+                .node();
+
         Client client = node.client();
         String indexKey = change.getIndexName() == null ? "indexkey" : change.getIndexName();
 

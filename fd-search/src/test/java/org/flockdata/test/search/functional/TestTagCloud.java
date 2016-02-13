@@ -19,10 +19,13 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.model.*;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityTag;
+import org.flockdata.model.EntityTagOut;
+import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.dao.QueryDaoES;
-import org.flockdata.search.endpoint.ElasticSearchEP;
+import org.flockdata.search.endpoint.EsQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.TagCloud;
@@ -52,7 +55,7 @@ public class TestTagCloud extends ESBase {
     TrackSearchDao trackRepo;
 
     @Autowired
-    ElasticSearchEP searchEP;
+    EsQueryEP searchEP;
 
     @Autowired
     QueryDaoES queryDaoES;

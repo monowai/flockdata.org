@@ -24,8 +24,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,15 +31,13 @@ import org.springframework.stereotype.Service;
  * Date: 18/06/13
  * Time: 9:03 PM
  */
-@Service
-@MessageEndpoint
+@Service ("queryServiceEs")
 public class QueryServiceEs implements QueryService {
 
     @Autowired
     private QueryDao queryDao;
 
     @Override
-    @ServiceActivator(inputChannel = "doTagCloudQuery", outputChannel = "tagCloudReply") // Subscriber
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) throws NotFoundException {
         return queryDao.getCloudTag(tagCloudParams);
     }
@@ -52,19 +48,16 @@ public class QueryServiceEs implements QueryService {
     }
 
     @Override
-    @ServiceActivator(inputChannel = "doFdViewQuery", outputChannel = "fdViewReply") // Subscriber
     public EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException {
             return queryDao.doEntitySearch(queryParams);
     }
 
-    @ServiceActivator(inputChannel = "doMetaKeyQuery", outputChannel = "metaKeyReply") // Subscriber
     public MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException {
         return queryDao.doMetaKeySearch(queryParams);
     }
 
     @Override
-    @ServiceActivator(inputChannel = "doContentQuery", outputChannel = "contentReply") // Subscriber
-    public EsSearchResult contentQuery(QueryParams queryParams) throws FlockException {
+    public EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException {
         // DAT-347 introduces ES as KV store
         return queryDao.doWhatSearch(queryParams);
     }

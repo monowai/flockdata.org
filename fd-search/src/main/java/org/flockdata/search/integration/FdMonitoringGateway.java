@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.search.integration;
 
 import org.flockdata.search.model.PingResult;
 import org.springframework.integration.annotation.Gateway;

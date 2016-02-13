@@ -31,7 +31,7 @@
     <!--<import resource="fde-task.xml"/>-->
     <import resource="classpath:${fd.auth.provider}-security.xml"/>
     <import resource="fde-integration.xml"/>
-    <import resource="fde-http-proxy-integration.xml"/>
+    <!--<import resource="fde-http-proxy-integration.xml"/>-->
     <import resource="kv-context.xml"/>
 
     <!-- XML Config -->

@@ -208,6 +208,7 @@
                                     <es.settings>src/test/resources/fd-search/fd-int-settings.json</es.settings>
                                     <log4j.configuration>file://${project.basedir}/src/test/resources/fd-search/log4j-search.xml</log4j.configuration>
                                     <java.awt.headless>true</java.awt.headless>
+                                    <spring.profiles.active>integration</spring.profiles.active>
                                     <fd.logLevel>${fd.logLevel}</fd.logLevel>
                                 </systemProperties>
                             </container>
@@ -218,8 +219,8 @@
                                     <cargo.rmi.port>9086</cargo.rmi.port>
                                     <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
                                     <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
-                                    <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>-->
-                                    <cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</cargo.jvmargs>
+                                    <cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>
+                                    <!--<cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>-->
                                 </properties>
                                 <files>
                                     <copy>

@@ -36,13 +36,13 @@ public interface QueryService {
     EsSearchResult doFdViewSearch(QueryParams queryParams) throws FlockException;
 
     /**
-     * Returns the "What" associated with the callerRef in the queryParams
+     * Returns the "data" associated with the entity resolved from the queryParams
      * @param queryParams key to search for
      * @return searchResult with the what Map populated
      *
      * @throws FlockException
      */
-    EsSearchResult contentQuery(QueryParams queryParams) throws FlockException;
+    EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException;
 
     MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException;
 

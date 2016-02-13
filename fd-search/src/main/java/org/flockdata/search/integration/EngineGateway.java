@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
+ * Copyright (c) 2012-2014 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,20 +17,22 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv.none;
+package org.flockdata.search.integration;
 
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.SearchResults;
 import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.scheduling.annotation.Async;
 
 /**
- * Interface to fd-search so support locating what data
- *
- * Created by mike on 22/03/15.
+ * User: Mike Holdsworth
+ * Since: 13/07/13
  */
-public interface EsGateway {
+@MessagingGateway(asyncExecutor = "fd-search")
+public interface EngineGateway {
 
-    @Gateway(requestChannel = "sendKvSearchRequest", replyChannel = "receiveContentReply")
-    EsSearchResult get(QueryParams queryParams);
+    @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+    @Async("fd-search")
+    void handleSearchResult(SearchResults searchResult);
 
 }

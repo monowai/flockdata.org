@@ -314,7 +314,7 @@ public class EntityEP {
                 KvContent content = kvService.getContent(entity, log.getLog());
                 if (content == null)
                     throw new FlockException("Unable to locate the content for " + metaKey + ". The log was found - " + log);
-                return content.getWhat();
+                return content.getData();
             }
         }
 
