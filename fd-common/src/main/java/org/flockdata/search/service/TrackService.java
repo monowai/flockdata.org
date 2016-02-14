@@ -21,7 +21,6 @@ package org.flockdata.search.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.model.Entity;
 
 import java.io.IOException;
 
@@ -36,9 +35,4 @@ public interface TrackService {
 
     void createSearchableChange(byte[] bytes) throws IOException, FlockException;
 
-    void delete(Entity entity);
-
-    byte[] findOne(Entity entity);
-
-    byte[] findOne(Entity entity, String id);
 }

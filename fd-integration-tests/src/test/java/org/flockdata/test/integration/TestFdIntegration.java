@@ -285,6 +285,7 @@ public class TestFdIntegration {
             EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
                     .setDescription("This text, Neumannová, might look great in a search result");
             input.setContent(log);
+            input.addTag( new TagInputBean("code", "TheLabelz", "anything")); // For tag cloud
 
             TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
             logger.info("Track request made. About to wait for first search result");
@@ -316,6 +317,13 @@ public class TestFdIntegration {
             MetaKeyResults mkResults = queryService.getMetaKeys(su.getCompany(), qp);
             assertNotNull(mkResults);
             assertTrue("MKResult size should be at least 1 - was {}" + mkResults.getResults().size(), mkResults.getResults().size()>0);
+
+            TagCloudParams tcParams = new TagCloudParams(fortress);
+            tcParams.addTag("TheLabelz")
+                    .addRelationship("anything");
+
+            TagCloud cloud = queryService.getTagCloud(su.getCompany(), tcParams);
+            assertNotNull( cloud);
 
             // And via FD query
             QueryParams queryParams = new QueryParams("*");

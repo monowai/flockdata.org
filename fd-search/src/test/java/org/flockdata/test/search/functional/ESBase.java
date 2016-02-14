@@ -35,7 +35,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexHelper;
-import org.flockdata.search.endpoint.TrackServiceEs;
+import org.flockdata.search.integration.TrackServiceEs;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;

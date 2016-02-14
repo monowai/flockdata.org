@@ -20,11 +20,12 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.engine.integration.FdMetaKeyQuery;
-import org.flockdata.engine.integration.FdSearchGateway;
 import org.flockdata.engine.integration.FdViewQuery;
+import org.flockdata.engine.integration.TagCloudRequest;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
@@ -36,7 +37,7 @@ import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -52,9 +53,11 @@ import java.util.Set;
  * Time: 9:43 AM
  */
 @Service
+@Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
 public class QueryService {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);
+
     @Autowired
     FortressService fortressService;
 
@@ -64,9 +67,8 @@ public class QueryService {
     @Autowired
     ConceptService conceptService;
 
-    @Qualifier("fdSearchGateway")
     @Autowired
-    FdSearchGateway searchGateway;
+    TagCloudRequest.TagCloudGateway tagCloudGateway;
 
     @Autowired
     FdViewQuery.FdViewGateway fdViewQuery;
@@ -132,14 +134,12 @@ public class QueryService {
     }
 
     public TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException {
-        Fortress fortress = fortressService.findByName(company, tagCloudParams.getFortress());
+        Fortress fortress = fortressService.findByCode(company, tagCloudParams.getFortress());
         if (fortress == null)
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
         tagCloudParams.setFortress(fortress.getCode());
         tagCloudParams.setCompany(company.getCode());
-        TagCloud tagCloud = searchGateway.getTagCloud(tagCloudParams);
-
-        return tagCloud;
+        return tagCloudGateway.getTagCloud(tagCloudParams);
     }
 
     @Autowired
