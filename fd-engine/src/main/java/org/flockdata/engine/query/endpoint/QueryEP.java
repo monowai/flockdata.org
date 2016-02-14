@@ -23,14 +23,11 @@ import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.model.Company;
 import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -90,6 +87,13 @@ public class QueryEP {
         Company company = CompanyResolver.resolveCompany(request);
         return queryService.getTagCloud(company, tagCloudParams);
     }
+
+    @RequestMapping(value = "/metaKey", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public MetaKeyResults getMetaKeys(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        return queryService.getMetaKeys(company, queryParams);
+    }
+
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
