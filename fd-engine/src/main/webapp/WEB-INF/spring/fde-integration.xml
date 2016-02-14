@@ -89,7 +89,6 @@
     <!--<int:channel id="receiveSearchReply"/>-->
 
     <!--<int:channel id="sendMetaKeyRequest"/>-->
-    <!--<int:channel id="receiveMetaKeyReply"/>-->
 
     <!--<int:channel id="handleMetaKey"/>-->
     <!--<int:channel id="doFdViewReply"/>-->

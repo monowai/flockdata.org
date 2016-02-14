@@ -27,7 +27,7 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration","production"})
-public class SearchAdminRequests {
+public class SearchPingRequest {
 
     @Autowired
     @Qualifier("engineConfig")
@@ -43,16 +43,11 @@ public class SearchAdminRequests {
 
     private MessageHandler fdPingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getHealthUrl());
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 
         return handler;
-    }
-
-
-    public String getHealthUrl() {
-        return engineConfig.getFdSearch()+ "/v1/admin/ping";
     }
 
 

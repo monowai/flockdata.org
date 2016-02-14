@@ -19,6 +19,7 @@
 
 package org.flockdata.engine.query.service;
 
+import org.flockdata.engine.integration.FdMetaKeyQuery;
 import org.flockdata.engine.integration.FdSearchGateway;
 import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.engine.track.service.ConceptService;
@@ -28,10 +29,7 @@ import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
@@ -144,5 +142,11 @@ public class QueryService {
         return tagCloud;
     }
 
+    @Autowired
+    FdMetaKeyQuery.FdMetaKeyGateway mkGateway;
 
+    public MetaKeyResults getMetaKeys(Company company, QueryParams queryParams) {
+        queryParams.setCompany(company.getName());
+        return mkGateway.metaKeys(queryParams);
+    }
 }

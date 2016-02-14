@@ -70,10 +70,6 @@
                                     input-channel="sendMetaKeyRequest"
                                     output-channel="doMetaKeyQuery"/>
 
-    <int:json-to-object-transformer id="metaKeyReply"
-                                    input-channel="doMetaKeyReply"
-                                    output-channel="receiveMetaKeyReply"
-                                    type="org.flockdata.search.model.MetaKeyResults"/>
 
     <int:object-to-json-transformer id="kvSearchSend"
                                     input-channel="sendKvSearchRequest"
@@ -115,11 +111,6 @@
 
     <int:channel id="receiveSearchReply"/>
 
-    <int:channel id="sendMetaKeyRequest"/>
-    <int:channel id="receiveMetaKeyReply"/>
-
-    <int:channel id="doMetaKeyQuery"/>
-    <int:channel id="doFdViewReply"/>
     <!--DAT-347 Requests the "data" content from the search doc-->
     <int:channel id="doContentQuery"/>
     <!--<int:channel id="receiveContentReply"/>-->

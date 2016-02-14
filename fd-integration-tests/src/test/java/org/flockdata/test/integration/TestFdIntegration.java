@@ -266,6 +266,67 @@ public class TestFdIntegration {
         return restTemplate;
     }
 
+    @Test
+    public void utfTextThroughIntegrationChannels() throws Exception {
+        //assumeTrue(runMe);
+        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
+        SystemUser su = registerSystemUser("Utf8");
+
+        KvService.KV_STORE previousStore = engineConfig.getKvStore();
+        engineConfig.setKvStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
+
+        try {
+            Fortress fortress = fortressService
+                    .registerFortress(su.getCompany(),
+                            new FortressInputBean("UTF8-Test")
+                                    .setSearchActive(true));
+
+            ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
+            EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
+                    .setDescription("This text, Neumannová, might look great in a search result");
+            input.setContent(log);
+
+            TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
+            logger.info("Track request made. About to wait for first search result");
+
+            // Test directly against ElasticSearch
+            esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
+            esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
+
+            EntityLog entityLog = entityService.getLastEntityLog(su.getCompany(), result.getMetaKey());
+
+            assertNotNull(entityLog);
+            assertNotNull(entityLog.getLog());
+            KvContent content = kvService.getContent(result.getEntity(), entityLog.getLog());
+
+            // Now test other ES http integration functions
+            // Search
+            QueryParams qp = new QueryParams(result.getMetaKey());
+            qp.setCompany(su.getCompany().getName());
+            qp.setFortress(fortress.getCode());
+            EsSearchResult queryResults = queryService.search(su.getCompany(), qp);
+            assertNotNull(queryResults);
+            assertTrue("Result size should be at least 1 - was {}" + queryResults.getResults().size(), queryResults.getResults().size()>0);
+
+            assertNotNull(content);
+            assertNotNull(content.getData());
+            assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
+
+            // MetaKey
+            MetaKeyResults mkResults = queryService.getMetaKeys(su.getCompany(), qp);
+            assertNotNull(mkResults);
+            assertTrue("MKResult size should be at least 1 - was {}" + mkResults.getResults().size(), mkResults.getResults().size()>0);
+
+            // And via FD query
+            QueryParams queryParams = new QueryParams("*");
+            queryParams.setFortress(fortress.getName().toLowerCase());
+
+            EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
+            assertTrue("Incorrect result count found via queryService ", esSearchResult.getResults().size() == 1);
+        } finally {
+            engineConfig.setKvStore(previousStore);
+        }
+    }
 
     @Test
     public void search_dataFieldsIndexed() throws Exception {
@@ -1420,60 +1481,6 @@ public class TestFdIntegration {
         assertNotNull(qResult);
         assertTrue("Couldn't find a hit in the result [" + result + "]", qResult.contains("total\" : 1"));
 
-    }
-
-    @Test
-    public void utfText() throws Exception {
-        //assumeTrue(runMe);
-        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
-        SystemUser su = registerSystemUser("Utf8");
-
-        KvService.KV_STORE previousStore = engineConfig.getKvStore();
-        engineConfig.setKvStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
-
-        try {
-            Fortress fortress = fortressService
-                    .registerFortress(su.getCompany(),
-                            new FortressInputBean("UTF8-Test")
-                                    .setSearchActive(true));
-
-            ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
-            EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
-                    .setDescription("This text, Neumannová, might look great in a search result");
-            input.setContent(log);
-
-            TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
-            logger.info("Track request made. About to wait for first search result");
-
-            // Test directly against ElasticSearch
-            esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
-            esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
-
-            EntityLog entityLog = entityService.getLastEntityLog(su.getCompany(), result.getMetaKey());
-
-            assertNotNull(entityLog);
-            assertNotNull(entityLog.getLog());
-            KvContent content = kvService.getContent(result.getEntity(), entityLog.getLog());
-            // Now test other ES http integration functions
-            QueryParams qp = new QueryParams(result.getMetaKey());
-            qp.setCompany(su.getCompany().getName());
-            EsSearchResult queryResults = queryService.search(su.getCompany(), qp);
-            assertNotNull(queryResults);
-            assertTrue("Result size should be at least 1 - was {}" + queryResults.getResults().size(), queryResults.getResults().size()>0);
-
-            assertNotNull(content);
-            assertNotNull(content.getData());
-            assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
-
-            // And via FD query
-            QueryParams queryParams = new QueryParams("*");
-            queryParams.setFortress(fortress.getName().toLowerCase());
-
-            EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
-            assertTrue("Incorrect result count found via queryService ", esSearchResult.getResults().size() == 1);
-        } finally {
-            engineConfig.setKvStore(previousStore);
-        }
     }
 
     @Test
