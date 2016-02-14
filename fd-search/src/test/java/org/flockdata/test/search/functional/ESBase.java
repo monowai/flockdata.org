@@ -35,11 +35,11 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexHelper;
-import org.flockdata.search.integration.TrackServiceEs;
+import org.flockdata.search.base.SearchWriter;
+import org.flockdata.search.base.TrackSearchDao;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
-import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -84,9 +84,9 @@ public class ESBase {
     IndexMappingService indexMappingService;
 
 
-    @Qualifier("trackServiceEs")
+    @Qualifier("esSearchWriter")
     @Autowired
-    TrackServiceEs trackService;
+    SearchWriter esSearchWriter;
 
     @Autowired
     QueryServiceEs queryServiceEs;

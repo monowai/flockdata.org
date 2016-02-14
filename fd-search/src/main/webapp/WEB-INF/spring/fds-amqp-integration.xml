@@ -27,10 +27,7 @@
             message-converter="jsonToSearchChangeConverter"
             />
 
-    <int-amqp:outbound-channel-adapter
-            channel="searchDocSyncResult"
-            exchange-name="${fd-engine.exchange}"
-            routing-key="${fd-engine.binding}"/>
+
 
 
 </beans>

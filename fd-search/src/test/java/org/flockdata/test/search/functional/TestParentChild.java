@@ -85,7 +85,7 @@ public class TestParentChild extends ESBase {
                 "  \"searchKey\": \"ABC321\"\n" +
                 "}";
         EntitySearchChange change = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChange.class);
-        trackService.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(2000);
 
         //ToDo: Needs the relationship
@@ -119,11 +119,11 @@ public class TestParentChild extends ESBase {
                     .setParent(new EntityKeyBean(parentEntity, indexHelper.parseIndex(parentEntity)))
                     .setData(Helper.getSimpleMap("childKey", "childValue"));
 
-        trackService.createSearchableChange(new EntitySearchChanges(childChange));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(childChange));
         // I'm calling Parent/Child mapping broken for the time being. This test fails if the parent already exists
         // because the _hasChild is in the parent mapping, not hte child.
         //     https://github.com/elastic/elasticsearch/issues/9448
-        trackService.createSearchableChange(new EntitySearchChanges(parent));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(parent));
 
         Thread.sleep(2000);
         // One document of parent type

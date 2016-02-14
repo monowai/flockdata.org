@@ -266,6 +266,12 @@ public class TestFdIntegration {
         return restTemplate;
     }
 
+    /**
+     * Checks that UTF-8 special chars are correctly transferred across channels
+     * This function also touches most of the integration between fd-search and fd-engine
+     *
+     * @throws Exception
+     */
     @Test
     public void utfTextThroughIntegrationChannels() throws Exception {
         //assumeTrue(runMe);

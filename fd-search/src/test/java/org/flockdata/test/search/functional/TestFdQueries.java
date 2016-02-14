@@ -19,10 +19,10 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.model.Entity;
 import org.flockdata.search.model.*;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.test.engine.Helper;
-import org.flockdata.model.Entity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class TestFdQueries extends ESBase{
         deleteEsIndex(entity);
         Thread.sleep(1000);
 
-        SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(2000);
         assertNotNull(searchResult);

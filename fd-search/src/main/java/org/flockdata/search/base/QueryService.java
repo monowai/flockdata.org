@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.search.base;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

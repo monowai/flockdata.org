@@ -17,10 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.search.base;
 
-import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchResults;
 
 import java.io.IOException;
 
@@ -29,10 +29,9 @@ import java.io.IOException;
  * Date: 8/09/14
  * Time: 10:57 AM
  */
-public interface TrackService {
+public interface SearchWriter {
 
-    org.flockdata.search.model.SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException;
+    SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException;
 
-    void createSearchableChange(byte[] bytes) throws IOException, FlockException;
 
 }

@@ -64,7 +64,7 @@ public class TestSupportFunctions extends ESBase {
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
         change.setStructuredTags(tags);
 
-        SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(1000);
 
         queryServiceEs.getTags(entity.getFortress().getRootIndex());

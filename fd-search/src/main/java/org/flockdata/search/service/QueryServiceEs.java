@@ -22,6 +22,7 @@ package org.flockdata.search.service;
 import org.flockdata.dao.QueryDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
+import org.flockdata.search.base.QueryService;
 import org.flockdata.search.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

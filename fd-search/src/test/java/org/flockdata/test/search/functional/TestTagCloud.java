@@ -24,13 +24,13 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.base.TrackSearchDao;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
-import org.flockdata.search.service.TrackSearchDao;
 import org.flockdata.test.engine.Helper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,7 +83,7 @@ public class TestTagCloud extends ESBase {
 
         //deleteEsIndex(entity);
 
-        trackService.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getSegment().getCompany().getName());

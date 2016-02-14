@@ -45,7 +45,7 @@ public class TestSegmentIndexes extends ESBase{
         EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         deleteEsIndex(indexHelper.parseIndex(entity));
 
-        trackService.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
 
         // Each entity will be written to it's own segment
         Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123");
@@ -56,7 +56,7 @@ public class TestSegmentIndexes extends ESBase{
         change = new EntitySearchChange(entityOtherSegment, indexHelper.parseIndex(entityOtherSegment));
         deleteEsIndex(indexHelper.parseIndex(entityOtherSegment));
 
-        trackService.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
 
         Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
