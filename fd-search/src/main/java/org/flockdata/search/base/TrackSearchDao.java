@@ -17,11 +17,10 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.service;
+package org.flockdata.search.base;
 
 import org.flockdata.model.Entity;
 import org.flockdata.track.bean.SearchChange;
-import org.flockdata.track.service.EntityService;
 
 import java.io.IOException;
 import java.util.Map;

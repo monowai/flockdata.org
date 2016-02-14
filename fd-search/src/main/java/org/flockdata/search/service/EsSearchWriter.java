@@ -1,56 +1,27 @@
-/*
- * Copyright (c) 2012-2014 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
- */
+package org.flockdata.search.service;
 
-package org.flockdata.search.integration;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.FlockException;
+import org.flockdata.search.base.SearchWriter;
+import org.flockdata.search.base.TrackSearchDao;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
-import org.flockdata.search.service.IndexMappingService;
-import org.flockdata.search.service.TrackSearchDao;
-import org.flockdata.search.service.TrackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.annotation.MessageEndpoint;
-import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Services ENTITY requests from the Engine
- * User: mike
- * Date: 12/04/14
- * Time: 6:23 AM
+ * Created by mike on 15/02/16.
  */
 @Service
-@Transactional
-@MessageEndpoint
-public class TrackServiceEs implements TrackService {
+@Qualifier("esSearchWriter")
+public class EsSearchWriter implements SearchWriter {
 
     @Autowired
     private IndexMappingService indexMappingService;
@@ -58,32 +29,7 @@ public class TrackServiceEs implements TrackService {
     @Autowired
     private TrackSearchDao trackSearch;
 
-    private Logger logger = LoggerFactory.getLogger(TrackServiceEs.class);
-
-    @Autowired(required = false)
-    private EngineGateway engineGateway;
-
-    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
-
-    @Override
-    @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
-    public void createSearchableChange(byte[] bytes) throws FlockException {
-        //SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        //return true;
-        //return results;
-        SearchResults results ;
-        try {
-            results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        } catch (IOException e) {
-            logger.error("Unable to de-serialize the payload");
-            throw new FlockException("Unable to de-serialize the payload", e);
-        }
-        if (!results.isEmpty()) {
-            logger.debug("Processed {} requests. Sending back {} SearchChanges", results.getSearchResults().size(), results.getSearchResults().size());
-            engineGateway.handleSearchResult(results);
-        }
-
-    }
+    private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
     /**
      * Triggered by the Engine, this is the payload that is required to be indexed
@@ -94,7 +40,6 @@ public class TrackServiceEs implements TrackService {
      * @throws java.io.IOException if there is a problem with mapping files. This exception will keep
      * the message on the queue until the mapping is fixed
      */
-    @Override
     public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
@@ -140,5 +85,4 @@ public class TrackServiceEs implements TrackService {
         return results;
 
     }
-
 }

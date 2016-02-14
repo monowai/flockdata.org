@@ -4,25 +4,20 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:int="http://www.springframework.org/schema/integration"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-
-	   http://www.springframework.org/schema/integration
-	   http://www.springframework.org/schema/integration/spring-integration.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <import resource="fds-amqp-integration.xml"/>
     <!--Outbound result of the request to index the entity -->
-    <int:object-to-json-transformer id="trackReplyToJson"
-                                    input-channel="searchReply"
-                                    output-channel="searchDocSyncResult"/>
+    <!--<int:object-to-json-transformer id="trackReplyToJson"-->
+                                    <!--input-channel="searchReply"-->
+                                    <!--output-channel="searchDocSyncResult"/>-->
 
 
-    <int:channel id="syncSearchDocs"/>
-    <int:channel id="searchDocSyncResult"/>
-    <int:channel id="searchReply"/>
-    <int:channel id="errors"/>
+    <!--<int:channel id="syncSearchDocs"/>-->
+    <!--<int:channel id="searchDocSyncResult"/>-->
+    <!--<int:channel id="searchReply"/>-->
 
 
 </beans>

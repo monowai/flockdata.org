@@ -82,7 +82,7 @@ public class TestMappings extends ESBase {
 
         deleteEsIndex(entity);
         //searchRepo.ensureIndex(change.getIndexName(), change.getType());
-        SearchResults searchResults = trackService.createSearchableChange(new EntitySearchChanges(change));
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(1000);
         assertNotNull(searchResult);
@@ -130,7 +130,7 @@ public class TestMappings extends ESBase {
         changes.add(change);
         changes.add(changeB);
         EntitySearchChanges searchChanges = new EntitySearchChanges(changes);
-        SearchResults searchResults = trackService.createSearchableChange(searchChanges);
+        SearchResults searchResults = esSearchWriter.createSearchableChange(searchChanges);
         assertEquals("2 in 2 out", 2, searchResults.getSearchResults().size());
     }
 
