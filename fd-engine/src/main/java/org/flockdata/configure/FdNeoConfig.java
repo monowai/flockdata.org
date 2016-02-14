@@ -47,7 +47,7 @@ import java.util.Map;
                                          "org.flockdata.meta.dao",
                                          "org.flockdata.model.*"})
 @Configuration
-@Profile({"production"})
+@Profile({"integration","production"})
 public class FdNeoConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
