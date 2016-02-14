@@ -20,10 +20,7 @@
 package org.flockdata.search.endpoint;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.MetaKeyResults;
-import org.flockdata.search.model.QueryParams;
-import org.flockdata.search.model.TagCloudParams;
+import org.flockdata.search.model.*;
 import org.flockdata.search.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/query")
 @RestController
-public class EsQueryEP {
+public class FdQueryEP {
     @Autowired
     @Qualifier("queryServiceEs")
     QueryService searchService;
@@ -70,7 +67,7 @@ public class EsQueryEP {
     }
 
     @RequestMapping(value = "/tagCloud", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public org.flockdata.search.model.TagCloud tagCloud(@RequestBody TagCloudParams queryParams) throws FlockException {
+    public TagCloud tagCloud(@RequestBody TagCloudParams queryParams) throws FlockException {
         return searchService.getTagCloud(queryParams);
     }
 

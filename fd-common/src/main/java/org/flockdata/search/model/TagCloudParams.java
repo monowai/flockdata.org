@@ -20,8 +20,6 @@
 package org.flockdata.search.model;
 
 import org.flockdata.model.Fortress;
-import org.flockdata.search.IndexHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
@@ -117,4 +115,17 @@ public class TagCloudParams implements QueryInterface {
         this.searchText = query;
     }
 
+    public TagCloudParams addRelationship(String relationship) {
+        if ( relationships == null )
+            relationships = new ArrayList<>();
+        relationships.add(relationship);
+        return this;
+    }
+
+    public TagCloudParams addTag(String tagLabel) {
+        if ( tags == null )
+            tags = new ArrayList<>();
+        tags.add(tagLabel);
+        return this;
+    }
 }

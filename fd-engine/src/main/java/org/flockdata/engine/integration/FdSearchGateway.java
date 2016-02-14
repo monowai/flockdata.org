@@ -20,8 +20,6 @@
 package org.flockdata.engine.integration;
 
 import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 
@@ -37,7 +35,7 @@ public interface FdSearchGateway {
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel", requestTimeout = 10000)
     void makeSearchChanges(EntitySearchChanges searchChanges);
 
-    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "receiveTagCloudReply")
-    TagCloud getTagCloud(TagCloudParams tagCloudParams);
+//    @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "receiveTagCloudReply")
+//    TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
 }

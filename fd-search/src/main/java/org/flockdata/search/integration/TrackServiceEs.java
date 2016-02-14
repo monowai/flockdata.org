@@ -17,13 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search.endpoint;
+package org.flockdata.search.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Entity;
-import org.flockdata.search.integration.EngineGateway;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
@@ -141,24 +139,6 @@ public class TrackServiceEs implements TrackService {
 
         return results;
 
-    }
-
-
-    @Override
-    public void delete(Entity entity) {
-        //trackDao.delete(entity, null);
-    }
-
-    @Override
-    public byte[] findOne(Entity entity) {
-        return null;
-        //return trackDao.findOne(entity);
-    }
-
-    @Override
-    public byte[] findOne(Entity entity, String id) {
-        return null;
-        //return trackDao.findOne(entity, id);
     }
 
 }

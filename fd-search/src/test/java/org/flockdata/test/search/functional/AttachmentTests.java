@@ -20,7 +20,7 @@
 package org.flockdata.test.search.functional;
 
 import org.flockdata.model.Entity;
-import org.flockdata.search.endpoint.EsQueryEP;
+import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.SearchChange;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 public class AttachmentTests extends ESBase {
 
     @Autowired
-    EsQueryEP searchEP;
+    FdQueryEP searchEP;
 
 //    @Test  DAT-521
     public void attachment_PdfIndexedAndFound() throws Exception {

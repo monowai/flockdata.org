@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.FdSearchGateway;
 import org.flockdata.engine.integration.FdViewQuery;
+import org.flockdata.engine.integration.TagCloudRequest;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
@@ -73,6 +74,9 @@ public class SearchServiceFacade {
     @Qualifier("fdSearchGateway")
     @Autowired
     FdSearchGateway searchGateway;
+
+    @Autowired
+    TagCloudRequest.TagCloudGateway tagCloudGateway;
 
     @Autowired
     IndexHelper indexHelper;
@@ -285,7 +289,7 @@ public class SearchServiceFacade {
     }
 
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
-        return searchGateway.getTagCloud(tagCloudParams);
+        return tagCloudGateway.getTagCloud(tagCloudParams);
     }
 
     public void purge(String indexName) {
