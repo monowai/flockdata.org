@@ -21,18 +21,17 @@ package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.retry.annotation.EnableRetry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +45,6 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-@EnableRetry
 public class TestCallerRef extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);

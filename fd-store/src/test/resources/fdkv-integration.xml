@@ -16,43 +16,6 @@
 
     <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
 
-    <!--<int:gateway id="kvGateway" async-executor="fd-store"-->
-                 <!--service-interface="org.flockdata.kv.KvGateway"/>-->
-
-    <!--<int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">-->
-        <!--<int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>-->
-    <!--</int:handler-retry-advice>-->
-
-    <!--<int:json-to-object-transformer id="simpleSearchReply"-->
-                                    <!--input-channel="doMetaKeyReply"-->
-                                    <!--output-channel="receiveSearchReply"-->
-                                    <!--type="org.flockdata.search.model.EsSearchResult"/>-->
-
-    <!--<int:object-to-json-transformer id="kvSearchSend"-->
-                                    <!--input-channel="sendKvSearchRequest"-->
-                                    <!--output-channel="doContentQuery"/>-->
-
-    <!--<int:json-to-object-transformer id="contentSearchReply"-->
-                                    <!--input-channel="doContentReply"-->
-                                    <!--output-channel="receiveContentReply"-->
-                                    <!--type="org.flockdata.search.model.EsSearchResult"/>-->
-
-
-    <!--&lt;!&ndash;KV&ndash;&gt;-->
-    <!--<int:object-to-json-transformer id="kvContentToJson"-->
-                                    <!--input-channel="startKvWrite"-->
-                                    <!--output-channel="writeKvContent"/>-->
-
-    <!--<int:object-to-json-transformer id="entityInputToJson"-->
-                                    <!--input-channel="startEntityWrite"-->
-                                    <!--output-channel="writeEntityContent"/>-->
-
-    <!--<int:json-to-object-transformer id="jsonToKvContent"-->
-    <!--input-channel="writeKvContent"-->
-    <!--output-channel="doKvWrite"-->
-    <!--type="org.flockdata.kv.bean.KvContentBean">-->
-    <!--</int:json-to-object-transformer>-->
-
     <!--End KV-->
 
     <!--Channel to capture incoming search result from fd-search-->
@@ -61,25 +24,12 @@
 
     <int:channel id="sendEntityIndexRequest"/>
     <int:channel id="searchReply"/>
-
-    <int:channel id="receiveSearchReply"/>
-    <int:channel id="doMetaKeyQuery"/>
-
-
     <!-- search queries-->
-    <int:channel id="doTagCloudQuery"/>
-    <int:channel id="doTagCloudReply"/>
-    <int:channel id="doMetaKeyReply"/>
-    <int:channel id="sendTagCloudRequest"/>
-    <int:channel id="sendTagCloudReply"/>
-
     <!--KV Outbound -->
     <int:channel id="startKvWrite"/>
     <int:channel id="writeKvContent"/>
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
-    <int:channel id="kvErrors"/>
-    <int:channel id="sendKvSearchRequest"/>
     <int:channel id="doContentQuery"/>
     <!--End KV -->
 
@@ -87,10 +37,5 @@
     <int:channel id="startEntityWrite"/>
     <int:channel id="writeEntityContent"/>
 
-    <!--Entity Input-->
-    <int:channel id="doTrackEntity"/>
-    <int:channel id="entityErrors"/>
-
-    <!--End Entity-->
 
 </beans>

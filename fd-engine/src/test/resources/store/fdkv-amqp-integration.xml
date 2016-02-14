@@ -23,7 +23,7 @@
                               queue-names="${fd-store.queue}"
                               shutdown-timeout="3000"
                               acknowledge-mode="AUTO"
-                              error-channel="kvErrors"
+                              error-channel="storeErrors"
                               task-executor="fd-store"
                               concurrent-consumers="${fd-store.concurrentConsumers}"
                               prefetch-count="2"

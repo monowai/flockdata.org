@@ -16,22 +16,10 @@
 
     <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
 
-    <int:gateway id="kvGateway" async-executor="fd-store"
-                 service-interface="org.flockdata.kv.KvGateway"/>
-
-
-    <int:handler-retry-advice id="kv.retry" max-attempts="4" recovery-channel="kvErrors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
-    </int:handler-retry-advice>
 
     <int:object-to-json-transformer id="sendIndexRequest"
                                     input-channel="sendEntityIndexRequest"
                                     output-channel="syncSearchDocs"/>
-
-    <!--<int:json-to-object-transformer id="jsonToSearchResult"-->
-                                    <!--input-channel="doContentReply"-->
-                                    <!--output-channel="receiveContentReply"-->
-                                    <!--type="org.flockdata.search.model.EsSearchResult"/>-->
 
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
@@ -42,28 +30,14 @@
                                     input-channel="startEntityWrite"
                                     output-channel="writeEntityContent"/>
 
-    <!--<int:json-to-object-transformer id="jsonToKvContent"-->
-    <!--input-channel="writeKvContent"-->
-    <!--output-channel="doKvWrite"-->
-    <!--type="org.flockdata.kv.bean.KvContentBean">-->
-    <!--</int:json-to-object-transformer>-->
-
-
-
-    <!--End KV-->
-
-    <!--<int:channel id="syncSearchDocs"/>-->
-
-
     <!--KV Outbound -->
     <int:channel id="startKvWrite"/>
     <int:channel id="writeKvContent"/>
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
-    <int:channel id="kvErrors"/>
 
     <!--DAT-347 -->
-    <int:channel id="sendKvSearchRequest"/>
+    <!--<int:channel id="sendKvSearchRequest"/>-->
 
     <!--End KV -->
 

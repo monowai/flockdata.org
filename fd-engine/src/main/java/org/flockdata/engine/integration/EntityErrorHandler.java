@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
@@ -37,6 +38,7 @@ import org.springframework.messaging.MessageHandlingException;
  * Time: 2:14 PM
  */
 @IntegrationComponentScan
+@Configuration
 public class EntityErrorHandler {
     private Logger logger = LoggerFactory.getLogger(EntityErrorHandler.class);
 

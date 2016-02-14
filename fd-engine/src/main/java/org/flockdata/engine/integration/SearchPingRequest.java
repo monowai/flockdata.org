@@ -52,7 +52,7 @@ public class SearchPingRequest {
     @Bean
     IntegrationFlow doFdSearchPing() {
 
-        return IntegrationFlows.from("fdSearchPing")
+        return IntegrationFlows.from(fdSearchPing())
                 .handle(fdPingRequest())
                 .get();
     }

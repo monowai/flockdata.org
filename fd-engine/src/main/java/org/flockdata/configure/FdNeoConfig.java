@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -46,7 +47,7 @@ import java.util.Map;
                                          "org.flockdata.meta.dao",
                                          "org.flockdata.model.*"})
 @Configuration
-
+@Profile({"production"})
 public class FdNeoConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");

@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 11:59 AM
  */
 @WebAppConfiguration
-public class TestEndPoints extends EngineBase{
+public class TestEndPoints extends WacBase{
     @Autowired
     WebApplicationContext wac;
     @Test

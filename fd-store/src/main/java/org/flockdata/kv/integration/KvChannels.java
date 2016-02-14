@@ -15,7 +15,10 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 @IntegrationComponentScan
 public class KvChannels {
-
+    @Bean
+    MessageChannel storeErrors() {
+        return new DirectChannel();
+    }
 
     /**
      *

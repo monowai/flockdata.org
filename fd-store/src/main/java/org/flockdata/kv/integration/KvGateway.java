@@ -17,12 +17,13 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.kv;
+package org.flockdata.kv.integration;
 
 import org.flockdata.kv.bean.KvContentBean;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.retry.annotation.Retryable;
 
 /**
  * User: mike
@@ -33,5 +34,6 @@ import org.springframework.integration.annotation.MessagingGateway;
 @IntegrationComponentScan
 public interface KvGateway {
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
+    @Retryable
     void doKvWrite(KvContentBean resultBean);
 }

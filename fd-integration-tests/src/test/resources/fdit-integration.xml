@@ -13,42 +13,14 @@
 
     <import resource="amqp-integration-test.xml"/>
 
-    <!--<int:service-activator id="fdEntityErrorLogger"-->
-                           <!--input-channel="entityErrors"-->
-                           <!--ref="fdeErrorHandler"/>-->
-
-    <!--<int:service-activator id="fdKvErrorLogger"-->
-                           <!--input-channel="kvErrors"-->
-                           <!--ref="fdkvErrorHandler"/>-->
-
 <!--Can be removed after we untangle fd-store from fd-engine -->
     <int:gateway id="kvGateway" async-executor="fd-store"
-                 service-interface="org.flockdata.kv.KvGateway"/>
-
-    <!--<bean id="fdkvErrorHandler" class="org.flockdata.kv.integration.KvErrorHandler"/>-->
-
-    <!--<bean id="fdeErrorHandler" class="org.flockdata.engine.integration.EntityErrorHandler"/>-->
-
-    <int:handler-retry-advice id="kv.retry" max-attempts="2" recovery-channel="kvErrors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
-    </int:handler-retry-advice>
-
-    <int:handler-retry-advice id="fde.retry" max-attempts="4" recovery-channel="entityErrors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
-    </int:handler-retry-advice>
-
-    <int:handler-retry-advice id="fds.retry" max-attempts="4" recovery-channel="kvErrors">
-        <int:exponential-back-off initial="1000" multiplier="5.0" maximum="60000"/>
-    </int:handler-retry-advice>
+                 service-interface="org.flockdata.kv.integration.KvGateway"/>
 
 
     <int:object-to-json-transformer id="sendIndexRequest"
                                     input-channel="sendEntityIndexRequest"
                                     output-channel="syncSearchDocs"/>
-
-    <int:object-to-json-transformer id="kvSearchSend"
-                                    input-channel="sendKvSearchRequest"
-                                    output-channel="doContentQuery"/>
 
     <!--KV-->
     <int:object-to-json-transformer id="kvContentToJson"
@@ -72,19 +44,12 @@
 
     <int:channel id="doContentReply"/>
 
-
-
-    <!--In response to a request from fd-store-->
-    <int:channel id="kvSearchReply"/>
-
     <!-- search queries-->
 
     <!--KV Outbound -->
     <int:channel id="startKvWrite"/>
     <!--Input channel for KV-->
     <int:channel id="doKvWrite"/>
-    <int:channel id="kvErrors"/>
-    <int:channel id="sendKvSearchRequest"/>
     <!--End KV -->
 
     <!--Entity Outbound -->
@@ -92,20 +57,6 @@
     <int:channel id="writeEntityContent"/>
 
     <!--Entity Input-->
-    <int:channel id="doTrackEntity"/>
-    <int:channel id="entityErrors"/>
-
-    <int:logging-channel-adapter id="logger" level="DEBUG"/>
-
-    <int:channel id="trackResult">
-        <int:interceptors>
-            <int:wire-tap channel="logger"/>
-        </int:interceptors>
-    </int:channel>
-
-
-    <int:channel id="returnResponse"/>
-    <int:channel id="stdOut"/>
 
 
 </beans>

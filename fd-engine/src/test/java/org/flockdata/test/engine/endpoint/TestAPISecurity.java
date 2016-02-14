@@ -22,29 +22,24 @@ package org.flockdata.test.engine.endpoint;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @WebAppConfiguration
-public class TestAPISecurity extends EngineBase {
+public class TestAPISecurity extends WacBase {
 
 	private MockMvc mockMVC;
 
-	@Autowired
-	private WebApplicationContext webApplicationContext;
-
 	@Before
 	public void setUp() {
-		mockMVC = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+		mockMVC = MockMvcBuilders.webAppContextSetup(wac)
 				.build();
 		setSecurityEmpty();
 	}
