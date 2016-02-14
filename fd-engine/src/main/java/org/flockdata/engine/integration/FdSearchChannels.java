@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.messaging.MessageChannel;
 
 
@@ -80,12 +79,4 @@ public class FdSearchChannels {
         return new DirectChannel();
     }
 
-    private MessageChannel trackResult() {
-        return MessageChannels.direct("trackResult").get();
-    }
-
-
-    public MessageChannel doDataQuery() {
-        return new DirectChannel();
-    }
 }

@@ -20,7 +20,7 @@
 package org.flockdata.configure;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.integration.FdMonitoringGateway;
+import org.flockdata.engine.integration.SearchPingRequest;
 import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
@@ -52,9 +52,30 @@ import java.util.Map;
 @Configuration
 public class EngineConfig implements PlatformConfig {
 
+    private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
+
     @Autowired
     FdKvConfig kvConfig;
 
+    @Autowired
+    SchemaService schemaService;
+
+    @Autowired
+    @Qualifier("fdMonitoringGateway")
+    SearchPingRequest.MonitoringGateway fdMonitoringGateway;
+
+    @Autowired
+    SecurityHelper securityHelper;
+
+    @Autowired
+    SystemUserService systemUserService;
+
+    private Boolean multiTenanted = false;
+    private boolean conceptsEnabled = true;
+    private boolean systemConstraints = true;
+    private boolean duplicateRegistration;
+    private boolean testMode;
+    private boolean searchEnabled = true;
     private String fdSearch;
 
 
@@ -63,30 +84,6 @@ public class EngineConfig implements PlatformConfig {
         fdSearch = url;
     }
 
-
-    @Autowired
-    SchemaService schemaService;
-
-    private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
-
-    private Boolean multiTenanted = false;
-
-    @Qualifier("fdMonitoringGateway")
-    @Autowired
-    FdMonitoringGateway fdMonitoringGateway;
-
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
-    SystemUserService systemUserService;
-
-    private boolean conceptsEnabled = true;
-    private boolean systemConstraints = true;
-
-    private boolean duplicateRegistration;
-    private boolean testMode;
-    private boolean searchEnabled = true;
 
     @Value("${fdengine.multiTenanted:@null}")
     protected void setMultiTenanted(String multiTenanted) {
@@ -184,8 +181,6 @@ public class EngineConfig implements PlatformConfig {
      */
     @Override
     public Map<String, String> getHealth() {
-        if (System.getProperty("neo4j") != null)
-            logger.warn("[-Dneo4j] is now an unsupported property. Ignoring this setting");
 
         String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
@@ -214,8 +209,6 @@ public class EngineConfig implements PlatformConfig {
         }
         healthResults.put("fd-search", esPingResult);
         healthResults.put("fd-search.url", fdSearch);
-//        healthResults.put("rabbit.host", rabbitConfig.getHost());
-//        healthResults.put("rabbit.port", Integer.toString(rabbitConfig.getPort()));
         return healthResults;
 
     }
