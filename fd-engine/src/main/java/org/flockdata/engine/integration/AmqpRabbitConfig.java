@@ -72,7 +72,6 @@ public class AmqpRabbitConfig {
     @Value("${amqp.lazyConnect:false}")
     Boolean amqpLazyConnect;
 
-
     @Autowired
     AsyncConfig asyncConfig;
 
@@ -104,6 +103,7 @@ public class AmqpRabbitConfig {
     public String getHost() {
         return rabbitHost;
     }
+
     public Integer getPort() {
         return rabbitPort;
     }

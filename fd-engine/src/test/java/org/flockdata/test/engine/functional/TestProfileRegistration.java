@@ -23,7 +23,6 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.bean.SystemUserResultBean;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,7 +30,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,10 +40,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 2:23 PM
  */
 @WebAppConfiguration
-public class TestProfileRegistration extends EngineBase {
-
-    @Autowired
-    protected WebApplicationContext wac;
+public class TestProfileRegistration extends WacBase {
 
     MockMvc mockMvc;
 

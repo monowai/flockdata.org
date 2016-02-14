@@ -19,20 +19,18 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.Entity;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Entity;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,12 +44,9 @@ import static org.junit.Assert.assertFalse;
  * Time: 1:16 PM
  */
 @WebAppConfiguration
-public class TestQueryResults extends EngineBase {
+public class TestQueryResults extends WacBase {
     public static final String VEGETABLE = "Vegetable";
     public static final String FRUIT = "Fruit";
-    @Autowired
-    WebApplicationContext wac;
-
 
     @Test
     public void matrixQuery() throws Exception {

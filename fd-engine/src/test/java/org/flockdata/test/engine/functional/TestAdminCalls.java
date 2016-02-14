@@ -55,7 +55,7 @@ import static org.junit.Assert.*;
  * Time: 3:46 PM
  */
 @WebAppConfiguration
-public class TestAdminCalls extends EngineBase {
+public class TestAdminCalls extends WacBase {
 
     @Autowired
     protected WebApplicationContext wac;

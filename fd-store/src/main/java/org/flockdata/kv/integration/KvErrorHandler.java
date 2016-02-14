@@ -43,7 +43,7 @@ import org.springframework.messaging.MessageHandlingException;
 public class KvErrorHandler {
     private Logger logger = LoggerFactory.getLogger(KvErrorHandler.class);
 
-    @ServiceActivator
+    @ServiceActivator (inputChannel = "storeErrors")
     public void handleFailedKvRequest(Message<MessageHandlingException> message) {
         MessageHandlingException payLoad = message.getPayload();
         if ( payLoad.getCause()!= null ) {

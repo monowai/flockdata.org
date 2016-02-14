@@ -19,14 +19,12 @@
 
 package org.flockdata.test.engine.endpoint;
 
-import org.flockdata.model.Company;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
 
@@ -36,10 +34,7 @@ import static org.junit.Assert.*;
  * Created by mike on 16/02/15.
  */
 @WebAppConfiguration
-public class CompanyTestEP extends EngineBase {
-
-    @Autowired
-    WebApplicationContext wac;
+public class CompanyTestEP extends WacBase {
 
 
 

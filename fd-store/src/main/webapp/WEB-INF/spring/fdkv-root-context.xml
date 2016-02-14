@@ -30,19 +30,16 @@
 		
 	<!--ToDo: We'll have to add in a parameter to make this dynamic-->
     <!--<import resource="classpath:${fd.auth.provider}-security.xml" />-->
-	<import resource="fdkv-integration.xml" />
-	<import resource="fdkv-amqp-integration.xml" />
+	<!--<import resource="fdkv-integration.xml" />-->
+	<!--<import resource="fdkv-amqp-integration.xml" />-->
 	<import resource="kv-context.xml" />
 
 	<aop:aspectj-autoproxy />
-
-    <!--<bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager" />-->
 
     <task:annotation-driven executor="fd-engine"  />
 
     <!--Pool size is the number of executors that will handle Bulk Uploads and
         incoming search responses -->
-
     <task:executor id="fd-engine"
                    pool-size="${q.thread.poolSize}"
                    queue-capacity="${q.task.capacity}"

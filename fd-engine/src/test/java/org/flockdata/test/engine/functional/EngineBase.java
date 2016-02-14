@@ -112,8 +112,7 @@ public abstract class EngineBase {
     TxService txService;
 
     @Autowired
-    protected
-    LogService logService;
+    protected LogService logService;
 
     @Autowired
     TrackEventService trackEventService;
@@ -125,8 +124,8 @@ public abstract class EngineBase {
     TagService tagService;
 
     @Autowired
-    public
-    PlatformConfig engineConfig;
+    @Qualifier("engineConfig")
+    public PlatformConfig engineConfig;
 
     @Autowired
     QueryService queryService;
@@ -183,6 +182,7 @@ public abstract class EngineBase {
         template.query("match (n) delete n", null);
         engineConfig.setDuplicateRegistration(true);
         engineConfig.setTestMode(true);
+        System.setProperty("neo4j.datastore", "./target/data/"+System.currentTimeMillis()+"/neo/");
     }
 
     @Before

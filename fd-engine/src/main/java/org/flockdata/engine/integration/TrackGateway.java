@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
  * Date: 5/11/14
  * Time: 2:29 PM
  */
-@MessagingGateway(errorChannel = "entityErrors", asyncExecutor = "fd-track")
+@MessagingGateway(errorChannel = "trackError", asyncExecutor = "fd-track")
 @Async("fd-track")
 public interface TrackGateway {
 //    ToDo: where to send the reply

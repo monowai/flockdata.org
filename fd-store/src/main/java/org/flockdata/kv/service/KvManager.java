@@ -27,9 +27,9 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.KvContent;
-import org.flockdata.kv.KvGateway;
 import org.flockdata.kv.KvRepo;
 import org.flockdata.kv.bean.KvContentBean;
+import org.flockdata.kv.integration.KvGateway;
 import org.flockdata.kv.memory.MapRepo;
 import org.flockdata.kv.none.EsRepo;
 import org.flockdata.kv.redis.RedisRepo;
@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,7 @@ import java.util.Set;
  */
 @Service
 @Transactional
+//@Profile({"integration","production"})
 public class KvManager implements KvService {
 
     @Autowired
@@ -107,8 +109,10 @@ public class KvManager implements KvService {
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
      */
-    @ServiceActivator(inputChannel = "doKvWrite", adviceChain = {"kv.retry"}, requiresReply = "false")
+    @ServiceActivator(inputChannel = "doKvWrite", requiresReply = "false")
+    @Retryable
     public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
+        // ToDo: Extract in to a standalone class
         try {
             // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add kvBean {}", kvBean);

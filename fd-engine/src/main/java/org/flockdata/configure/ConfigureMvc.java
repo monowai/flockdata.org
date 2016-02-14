@@ -1,6 +1,7 @@
 package org.flockdata.configure;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -14,6 +15,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableWebMvc
+@Profile({"integration","production","web-dev"})
 public class ConfigureMvc extends WebMvcConfigurerAdapter {
 
     @Override

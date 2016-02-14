@@ -18,33 +18,18 @@
     <context:annotation-config/>
     <aop:aspectj-autoproxy/>
 
-    <context:component-scan base-package=
-                                    "org.flockdata">
-        <!--<context:exclude-filter type="assignable" expression="org.flockdata.engine.integration.AmqpRabbitConfig"/>-->
-        <!-- SDN4 -->
-        <!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
-
-    </context:component-scan>
-
+    <context:component-scan base-package="org.flockdata"/>
 
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:application.properties"/>
-
-    <!--<import resource="neo4j-context.xml"/>-->
-    <import resource="integration.xml"/>
+    <!-- Neo test database -->
+    <import resource="neo4j-context.xml"/>
     <import resource="test-security.xml" />
     <import resource="kv-context.xml"/>
-    <!--<import resource="neo4j-context.xml"/>-->
-
-    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
-
-    <!--<bean id="template" class="org.springframework.data.neo4j.template.Neo4jTemplate"/>-->
-
-    <!--<bean id ="neoConfig" class = "org.flockdata.test.engine.FdNeoConfigTest"/>-->
 
     <bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
 

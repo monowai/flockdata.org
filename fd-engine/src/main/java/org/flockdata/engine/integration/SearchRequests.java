@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -46,8 +47,10 @@ public class SearchRequests {
     }
 
     //
-    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false", adviceChain = {"fds.retry"})
+    @ServiceActivator(inputChannel = "searchDocSyncResult", requiresReply = "false")
+    @Retryable
     public void syncSearchResult(byte[] searchResults) throws IOException {
+        // ToDo: Which of these two methods do we want??
         syncSearchResult(FdJsonObjectMapper.getObjectMapper().readValue(searchResults, SearchResults.class));
     }
 

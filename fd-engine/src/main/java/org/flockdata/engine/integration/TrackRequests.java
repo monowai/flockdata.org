@@ -11,7 +11,10 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.channel.DirectChannel;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +42,12 @@ public class TrackRequests {
     @Autowired
     SecurityHelper securityHelper;
 
-    @ServiceActivator(inputChannel = "doTrackEntity", adviceChain = {"fde.retry"})
+    @Bean
+    MessageChannel doTrackEntity () {
+        return new DirectChannel();
+    }
+
+    @ServiceActivator(inputChannel = "doTrackEntity")
     public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(value = "apiKey") String apiKey) throws FlockException, IOException, ExecutionException, InterruptedException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
