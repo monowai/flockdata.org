@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -16,7 +15,6 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync(mode = AdviceMode.PROXY)
-@PropertySource(value = "classpath:/application.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class AsyncConfig extends AsyncConfigurerSupport {
 
     private Logger logger = LoggerFactory.getLogger("configuration");

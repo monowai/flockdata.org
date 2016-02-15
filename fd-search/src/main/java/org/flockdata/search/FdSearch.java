@@ -24,20 +24,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 /**
- * Preparatory work for Spring Boot. Before we can embrace this we need to do a few things
- *  ToDo: Logging looks odd
- *  ToDo: Servlet specification
- *  ToDo: Figure out server port numbers - couldn't ping
- *  ToDo: How to run debug mode -- complains that web-inf resources are unavailable
- *
- *  Get fd-search working first. fd-engine has neo4j embedded rest interface that might cause problems
  *
  * User: mike
  * Date: 16/12/14
  * Time: 7:36 AM
  */
 @SpringBootApplication
-@PropertySource(value = "classpath:/application.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
+@PropertySource(value = "classpath:/application.properties,file:${fd.config}", ignoreResourceNotFound = true)
 public class FdSearch {
     public static void main(String[] args) {
         SpringApplication.run(FdSearch.class, args);
