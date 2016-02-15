@@ -27,7 +27,7 @@ import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
@@ -52,7 +52,7 @@ public class EsRepo extends AbstractKvRepo{
     EsStoreRequest.ContentStoreEs esStore;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
@@ -62,7 +62,7 @@ public class EsRepo extends AbstractKvRepo{
 
     public KvContent getValue(Entity entity, Log forLog)  {
         QueryParams queryParams = new QueryParams(indexHelper.parseIndex(entity)
-                ,IndexHelper.parseType(entity)
+                , IndexManager.parseType(entity)
                 ,entity.getSearchKey() );
 
         ContentInputBean contentInput = new ContentInputBean();

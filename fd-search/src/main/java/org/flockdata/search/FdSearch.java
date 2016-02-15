@@ -19,6 +19,10 @@
 
 package org.flockdata.search;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
+
 /**
  * Preparatory work for Spring Boot. Before we can embrace this we need to do a few things
  *  ToDo: Logging looks odd
@@ -32,11 +36,11 @@ package org.flockdata.search;
  * Date: 16/12/14
  * Time: 7:36 AM
  */
-//@SpringBootApplication
-//@ImportResource("classpath:WEB-INF/spring/fds-root-context.xml")
+@SpringBootApplication
+@PropertySource(value = "classpath:/application.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class FdSearch {
     public static void main(String[] args) {
-//        SpringApplication.run(FdSearch.class, args);
+        SpringApplication.run(FdSearch.class, args);
 
     }
 }

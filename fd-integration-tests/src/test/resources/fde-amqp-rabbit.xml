@@ -8,9 +8,9 @@
 		                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
 
 
-    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
+    <!--<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />-->
 
-    <rabbit:admin connection-factory="connectionFactory" auto-startup="true" />
+    <!--<rabbit:admin connection-factory="connectionFactory" auto-startup="true" />-->
     <!-- FD SEARCH QUEUE DEFINITIONS -->
     <rabbit:queue name="${fd-search.queue}" id="fd.search.queue">
         <rabbit:queue-arguments>

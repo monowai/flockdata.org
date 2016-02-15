@@ -1,30 +1,30 @@
 package org.flockdata.search.integration;
 
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * Configuration and
  * Created by mike on 12/02/16.
  */
 @Configuration
+@IntegrationComponentScan
+@PropertySource(value = "classpath:/application.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class Exchanges {
-    @Value("${fd-search.binding:fd-search.binding}")
+    @Value("${fd-search.binding:fd.search.binding}")
     String searchBinding;
 
-    @Value("${fd-search.exchange:fd-search.exchange}")
+    @Value("${fd-search.exchange:fd.search.exchange}")
     String searchExchange;
-
-    @Value("${fd-store.binding:fd-store.binding}")
-    String storeBinding;
-
-    @Value("${fd-store.exchange:fd-store.exchange}")
-    String storeExchange;
-
-    @Value("${fd-track.binding:fd-track.binding}")
-    String trackBinding;
-
-    @Value("${fd-track.exchange:fd-track.exchange}")
-    String trackExchange;
 
     @Value("${fd-engine.binding:fd.engine.binding}")
     private String engineBinding;
@@ -32,35 +32,75 @@ public class Exchanges {
     @Value("${fd-engine.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    public String getSearchBinding() {
-        return searchBinding;
-    }
+    @Value("${fd-search.queue:fd.search.queue}")
+    private String searchQueue;
 
-    String getSearchExchange() {
-        return searchExchange;
-    }
+    @Value("${fd-search.concurrentConsumers:2}")
+    private int searchConcurrentConsumers;
 
-    public String getStoreBinding() {
-        return storeBinding;
-    }
+    @Value("${fd-search.prefetchCount:3}")
+    private int searchPreFetchCount;
 
-    public String getStoreExchange() {
-        return storeExchange;
-    }
+    @Value("${fd-search.dlq.queue:fd.search.dlq.queue}")
+    private String searchDlq;
 
-    public String getTrackBinding() {
-        return trackBinding;
-    }
+    @Value("${fd-search.dlq.exchange:fd.search.dlq.exchange}")
+    private String searchDlqExchange;
 
-    public String getTrackExchange() {
-        return trackExchange;
-    }
+    @Value("${fd-engine.dlq.exchange:fd.engine.dlq.exchange}")
+    private String engineDlqExchange;
 
-    String getEngineBinding() {
+    @Value("${fd-engine.queue:fd.engine.queue}")
+    private String engineQueue;
+
+    String engineBinding() {
         return engineBinding;
     }
 
-    public String getEngineExchange() {
+    String engineExchangeName(){
         return engineExchange;
     }
+    int searchConcurrentConsumers() {
+        return searchConcurrentConsumers;
+    }
+
+    int searchPreFetchCount() {
+        return searchPreFetchCount;
+    }
+
+    @Bean
+    Queue fdSearchQueue(){
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", searchDlqExchange);
+        return new Queue(searchQueue, true, false, false, params);
+    }
+
+    @Bean
+    Queue fdEngineQueue(){
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", engineDlqExchange);
+        return new Queue(engineQueue, true, false, false, params);
+
+    }
+
+    @Bean
+    Exchange fdEngineExchange() {
+        return new DirectExchange(engineExchangeName());
+    }
+
+    @Bean
+    Queue fdSearchQueueDlq(){
+        return new Queue(searchDlq);
+    }
+
+    @Bean
+    Exchange fdSearchExchange() {
+        return new DirectExchange(searchExchange);
+    }
+
+    @Bean
+    Exchange fdSearchDlqExchange() {
+        return new DirectExchange(searchDlqExchange);
+    }
+
 }

@@ -19,7 +19,7 @@
 
 package org.flockdata.configure;
 
-import org.apache.commons.lang3.StringUtils;
+import org.flockdata.helper.ExecutorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +28,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executor;
 
 /**
  * FlockData TaskExecutors
@@ -82,49 +80,37 @@ public class AsyncConfig extends AsyncConfigurerSupport {
     private String engineQueueCapacity;
 
     @Bean(name = "fd-track")
-    public ExecutorService trackExecutor() {
+    public Executor trackExecutor() {
         return getExecutor("fd-track", trackPoolSize, Integer.parseInt(trackQueueCapacity));
     }
 
     @Bean(name = "fd-engine")
-    public ExecutorService engineExecutor() {
+    public Executor engineExecutor() {
         return getExecutor( "fd-engine", enginePoolSize, Integer.parseInt(engineQueueCapacity)  );
     }
 
     @Bean(name = "fd-log")
-    public ExecutorService logExecutor() {
+    public Executor logExecutor() {
         return getExecutor("fd-log", logPoolSize, Integer.parseInt(logQueueCapacity));
     }
 
     @Bean(name = "fd-tag")
-    public ExecutorService tagExecutor() {
+    public Executor tagExecutor() {
         return getExecutor("fd-tag", tagPoolSize, Integer.parseInt(tagQueueCapacity));
     }
 
     @Bean(name = "fd-search")
-    public ExecutorService searchExecutor() {
+    public Executor searchExecutor() {
         return getExecutor("fd-search", searchPoolSize, getValue(searchQueueCapacity, 2));
     }
 
     @Bean(name = "fd-store")
-    public ExecutorService storeExecutor() {
+    public Executor storeExecutor() {
         return getExecutor("fd-store", storePoolSize, Integer.parseInt(storeQueueCapacity));
     }
 
-    private ExecutorService getExecutor(String name, String poolSize, int  qCapacity) {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        String vals[] = StringUtils.split(poolSize, "-");
-
-        executor.setCorePoolSize(Integer.parseInt(vals[0]));
-        if ( vals.length ==2 )
-            executor.setMaxPoolSize(Integer.parseInt(vals[1]));
-        else
-            executor.setMaxPoolSize(Integer.parseInt(vals[0]));
-        executor.setQueueCapacity(qCapacity);
-        executor.setThreadNamePrefix(name + "-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor.getThreadPoolExecutor();
+    private Executor getExecutor(String name, String poolSize, int  qCapacity) {
+       return ExecutorHelper.getExecutor(name, poolSize, qCapacity);
     }
 
     private Integer getValue(String input, Integer def){

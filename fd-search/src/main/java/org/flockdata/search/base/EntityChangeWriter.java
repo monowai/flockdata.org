@@ -30,7 +30,7 @@ import java.util.Map;
  * Date: 26/04/13
  * Time: 12:26 PM
  */
-public interface TrackSearchDao {
+public interface EntityChangeWriter {
 
     /**
      * Rewrites an existing document

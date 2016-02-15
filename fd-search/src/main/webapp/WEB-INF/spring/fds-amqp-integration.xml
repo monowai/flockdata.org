@@ -3,29 +3,28 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
-       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
-                        http://www.springframework.org/schema/integration/amqp
-	                    http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+
+
 		                http://www.springframework.org/schema/integration
 		                http://www.springframework.org/schema/integration/spring-integration.xsd">
     <int:annotation-config/>
     <!-- RabbitMQ CONFIGURATION  -->
     <import resource="fds-amqp-rabbit.xml"/>
 
-    <int-amqp:inbound-channel-adapter
-            id="writeEntitySearch"
-            channel="syncSearchDocs"
-            queue-names="${fd-search.queue}"
-            concurrent-consumers="${fd-search.concurrentConsumers}"
-            prefetch-count="${fd-search.prefetchCount}"
-            acknowledge-mode="AUTO"
-            task-executor="fd-search"
-            shutdown-timeout="3000"
-            connection-factory="connectionFactory"
-            message-converter="jsonToSearchChangeConverter"
-            />
+    <!--<int-amqp:inbound-channel-adapter-->
+            <!--id="writeEntitySearch"-->
+            <!--channel="syncSearchDocs"-->
+            <!--queue-names="${fd-search.queue}"-->
+            <!--concurrent-consumers="${fd-search.concurrentConsumers}"-->
+            <!--prefetch-count="${fd-search.prefetchCount}"-->
+            <!--acknowledge-mode="AUTO"-->
+            <!--task-executor="fd-search"-->
+            <!--shutdown-timeout="3000"-->
+            <!--connection-factory="connectionFactory"-->
+            <!--message-converter="jsonToSearchChangeConverter"-->
+            <!--/>-->
 
 
 

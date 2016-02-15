@@ -3,14 +3,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/task
-		http://www.springframework.org/schema/task/spring-task.xsd
+
+
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:spring-configured/>
@@ -22,12 +22,10 @@
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
                                   location="classpath:/application.properties,file:${fd.config}"/>
 
-    <import resource="spring-security.xml"/>
-    <import resource="es-context.xml"/>
-    <import resource="fds-integration.xml"/>
-
-    <task:annotation-driven executor="fd-search"/>
-
+    <!--<import resource="es-context.xml"/>-->
+    <!--<import resource="spring-security.xml"/>-->
+    <!--<import resource="fds-amqp-rabbit.xml"/>-->
+    <!--<rabbit:admin connection-factory="connectionFactory"/>-->
 
 
 

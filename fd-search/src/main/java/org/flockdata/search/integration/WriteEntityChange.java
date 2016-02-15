@@ -21,13 +21,14 @@ package org.flockdata.search.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.FlockException;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,8 +37,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
 import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,14 +64,11 @@ public class WriteEntityChange {
 
     private Logger logger = LoggerFactory.getLogger(WriteEntityChange.class);
 
-    @Autowired(required = false)
-    private EngineGateway engineGateway;
-
     @Autowired
     Exchanges exchanges;
 
     @Autowired
-    @Qualifier("esSearchWriter")
+    @Qualifier("esSearchWriter")  // We only suppport ElasticSearch
     SearchWriter searchWriter;
 
     @Autowired
@@ -77,12 +79,48 @@ public class WriteEntityChange {
 
     private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
-    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
-    public interface EngineGateway {
+    @Bean
+    MessageChannel syncSearchDocs(){
+        return new DirectChannel();
+    }
 
-        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
-        @Async("fd-search")
-        void writeEntitySearchResult(SearchResults searchResult);
+    @Bean
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
+        return IntegrationFlows.from(
+                Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
+                    .outputChannel(syncSearchDocs())
+
+                    .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
+                    .prefetchCount(exchanges.searchPreFetchCount())
+                )
+                .handle(handler())
+                .get();
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "syncSearchDocs")
+    public MessageHandler handler() {
+        return message -> {
+            try {
+                searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), EntitySearchChanges.class));
+            } catch (IOException e) {
+                logger.error("Unable to de-serialize the payload");
+                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+            }
+
+        };
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "searchDocSyncResult")
+    public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
+        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+        outbound.setRoutingKey(exchanges.engineBinding());
+        outbound.setExchangeName(exchanges.engineExchangeName());
+        outbound.setExpectReply(false);
+        //outbound.setConfirmAckChannel();
+        return outbound;
 
     }
 
@@ -91,42 +129,13 @@ public class WriteEntityChange {
         return messageSupport.toJson(message);
     }
 
-    @ServiceActivator(inputChannel = "syncSearchDocs", requiresReply = "false") // Subscriber
-    public void createSearchableChange(byte[] bytes) throws FlockException {
-        //SearchResults results = createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        //return true;
-        //return results;
-        SearchResults results;
-        try {
-            results = searchWriter.createSearchableChange(objectMapper.readValue(bytes, EntitySearchChanges.class));
-        } catch (IOException e) {
-            logger.error("Unable to de-serialize the payload");
-            throw new FlockException("Unable to de-serialize the payload", e);
-        }
-        if (!results.isEmpty()) {
-            logger.debug("Processed {} requests. Sending back {} SearchChanges", results.getSearchResults().size(), results.getSearchResults().size());
-            engineGateway.writeEntitySearchResult(results);
-        }
+    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
+    public interface EngineGateway {
+
+        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+        @Async("fd-search")
+        void writeEntitySearchResult(SearchResults searchResult);
 
     }
-
-    @Bean
-    MessageChannel syncSearchDocs(){
-        return new DirectChannel();
-    }
-
-    @Bean
-    @ServiceActivator(inputChannel = "searchDocSyncResult")
-    public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.getEngineBinding());
-        outbound.setExchangeName(exchanges.getEngineExchange());
-        outbound.setExpectReply(false);
-        //outbound.setConfirmAckChannel();
-        return outbound;
-
-    }
-
 
 }

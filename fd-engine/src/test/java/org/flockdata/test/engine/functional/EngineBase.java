@@ -38,7 +38,7 @@ import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,7 +98,7 @@ public abstract class EngineBase {
     GeographyService geoService;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Qualifier("mediationFacadeNeo")
     @Autowired

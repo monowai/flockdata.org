@@ -30,12 +30,12 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
-import org.flockdata.search.IndexHelper;
-import org.flockdata.search.base.TrackSearchDao;
+import org.flockdata.search.IndexManager;
+import org.flockdata.search.base.EntityChangeWriter;
+import org.flockdata.search.integration.ElasticSearchConfig;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -55,15 +55,15 @@ import java.util.*;
  * Time: 12:00 PM
  */
 @Repository
-public class TrackDaoES implements TrackSearchDao {
+public class EntityChangeWriterEs implements EntityChangeWriter {
 
     @Autowired
-    private Client esClient;
+    private ElasticSearchConfig esConfig;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexManager;
 
-    private Logger logger = LoggerFactory.getLogger(TrackDaoES.class);
+    private Logger logger = LoggerFactory.getLogger(EntityChangeWriterEs.class);
 
     @Override
     public boolean delete(SearchChange searchChange) {
@@ -72,7 +72,7 @@ public class TrackDaoES implements TrackSearchDao {
 
         String existingIndexKey = searchChange.getSearchKey();
 
-        DeleteResponse dr = esClient.prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
+        DeleteResponse dr = esConfig.elasticSearchClient().prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
                 .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
@@ -96,7 +96,7 @@ public class TrackDaoES implements TrackSearchDao {
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb = esClient.prepareIndex(searchChange.getIndexName(), documentType)
+        IndexRequestBuilder irb = esConfig.elasticSearchClient().prepareIndex(searchChange.getIndexName(), documentType)
                 .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
@@ -145,7 +145,7 @@ public class TrackDaoES implements TrackSearchDao {
             String index ;
 
             GetRequestBuilder request =
-                    esClient.prepareGet(searchChange.getIndexName(),
+                    esConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
@@ -191,8 +191,8 @@ public class TrackDaoES implements TrackSearchDao {
             }
 
             // Update the existing document with the searchChange change
-            IndexRequestBuilder update = esClient
-                    .prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
+            IndexRequestBuilder update = esConfig
+                    .elasticSearchClient().prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
             //.setRouting(searchChange.getMetaKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
@@ -223,13 +223,13 @@ public class TrackDaoES implements TrackSearchDao {
     }
 
     public Map<String, Object> findOne(Entity entity, String id) {
-        String indexName = indexHelper.parseIndex(entity);//entity.getFortress().getRootIndex();
+        String indexName = indexManager.parseIndex(entity);//entity.getFortress().getRootIndex();
         String documentType = entity.getType();
         if (id == null)
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esClient.prepareGet(indexName, documentType, id)
+        GetResponse response = esConfig.elasticSearchClient().prepareGet(indexName, documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
@@ -245,7 +245,7 @@ public class TrackDaoES implements TrackSearchDao {
     public Map<String, Object> ping() {
         Map<String, Object> results = new HashMap<>();
         ClusterHealthRequest request = new ClusterHealthRequest();
-        ClusterHealthResponse response = esClient.admin().cluster().health(request).actionGet();
+        ClusterHealthResponse response = esConfig.elasticSearchClient().admin().cluster().health(request).actionGet();
         if (response == null) {
             results.put("status", "error!");
             return results;
@@ -255,7 +255,7 @@ public class TrackDaoES implements TrackSearchDao {
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());
         results.put("clusterName", response.getClusterName());
-        results.put("nodeName", esClient.settings().get("name"));
+        results.put("nodeName", esConfig.elasticSearchClient().settings().get("name"));
 
         return results;
     }

@@ -28,7 +28,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
@@ -79,7 +79,7 @@ public class SearchServiceFacade {
     TagCloudRequest.TagCloudGateway tagCloudGateway;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Autowired
     EntityTagService entityTagService;

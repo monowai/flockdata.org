@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Company;
 import org.flockdata.model.Entity;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.bean.TrackResultBean;
@@ -53,7 +53,7 @@ public class EsIntegrationHelper {
     private static final Logger logger = LoggerFactory.getLogger(EsIntegrationHelper.class);
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @PostConstruct
     void setupEsClient () throws Exception{
@@ -408,7 +408,7 @@ public class EsIntegrationHelper {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
+                    .addType(IndexManager.parseType(entity))
                     .build();
 
             result = esClient.execute(search);

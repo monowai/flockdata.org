@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -81,9 +83,13 @@ public class AmqpRabbitConfig {
         logger.info ( "rabbit.host: {}, rabbit.port {}, rabbit.user {}",rabbitHost, rabbitPort, rabbitUser);
     }
 
+    @Bean
+    RabbitTemplate rabbitTemplate () throws Exception {
+        return new RabbitTemplate(connectionFactory());
+    }
 
-    @Bean (name="connectionFactory")
-    CachingConnectionFactory getConnectionFactory() throws Exception {
+    @Bean
+    ConnectionFactory connectionFactory() throws Exception {
         CachingConnectionFactory connect = new CachingConnectionFactory();
         connect.setHost(rabbitHost);
         connect.setPort(rabbitPort);

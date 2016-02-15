@@ -30,8 +30,8 @@ public class FdSearchIntegration {
     public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.getSearchBinding());
-        outbound.setExchangeName(exchanges.getSearchExchange());
+        outbound.setRoutingKey(exchanges.searchBinding());
+        outbound.setExchangeName(exchanges.searchExchange());
         outbound.setExpectReply(false);
         outbound.setConfirmAckChannel(new NullChannel());// NOOP
         //outbound.setConfirmAckChannel();
@@ -44,8 +44,8 @@ public class FdSearchIntegration {
     public AmqpOutboundEndpoint fdWriteKvContent(AmqpTemplate amqpTemplate){
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.getStoreBinding());
-        outbound.setExchangeName(exchanges.getStoreExchange());
+        outbound.setRoutingKey(exchanges.storeBinding());
+        outbound.setExchangeName(exchanges.storeExchange());
         outbound.setExpectReply(false);
         outbound.setConfirmAckChannel(new NullChannel());// NOOP
         //outbound.setConfirmAckChannel();
@@ -58,8 +58,8 @@ public class FdSearchIntegration {
     public AmqpOutboundEndpoint fdWriteEntityContent(AmqpTemplate amqpTemplate){
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.getTrackBinding());
-        outbound.setExchangeName(exchanges.getTrackExchange());
+        outbound.setRoutingKey(exchanges.trackBinding());
+        outbound.setExchangeName(exchanges.trackExchange());
         DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
         headerMapper.setRequestHeaderNames("apiKey");
         outbound.setHeaderMapper(headerMapper);

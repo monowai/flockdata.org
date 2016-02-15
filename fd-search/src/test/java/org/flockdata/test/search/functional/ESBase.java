@@ -34,9 +34,9 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
+import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
-import org.flockdata.search.base.TrackSearchDao;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
@@ -75,10 +75,10 @@ public class ESBase {
     static JestClient esClient;
 
     @Autowired
-    TrackSearchDao searchRepo;
+    EntityChangeWriter searchRepo;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Autowired
     IndexMappingService indexMappingService;
@@ -274,7 +274,7 @@ public class ESBase {
     }
 
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doQuery(indexHelper.parseIndex(entity), IndexHelper.parseType(entity), queryString, expectedHitCount);
+        return doQuery(indexHelper.parseIndex(entity), IndexManager.parseType(entity), queryString, expectedHitCount);
     }
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
@@ -348,7 +348,7 @@ public class ESBase {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexHelper.parseIndex(entity))
-                    .addType(IndexHelper.parseType(entity))
+                    .addType(IndexManager.parseType(entity))
                     .build();
 
             result = esClient.execute(search);
