@@ -6,7 +6,6 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 
 import java.util.HashMap;
@@ -18,7 +17,6 @@ import java.util.Map;
  */
 @Configuration
 @IntegrationComponentScan
-@PropertySource(value = "classpath:/application.properties,file:${fd.config},file:${fd.auth.config}", ignoreResourceNotFound = true)
 public class Exchanges {
     @Value("${fd-search.binding:fd.search.binding}")
     String searchBinding;
