@@ -30,7 +30,7 @@ import org.flockdata.model.*;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
@@ -70,7 +70,7 @@ public class FortressServiceNeo4j implements FortressService {
     private PlatformConfig engineConfig;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Override
     public Fortress getFortress(Long id) {

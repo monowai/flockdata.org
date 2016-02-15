@@ -6,16 +6,17 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
+import org.flockdata.search.integration.ElasticSearchConfig;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -33,16 +34,17 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Created by mike on 10/09/15.
  */
 @Service
+@DependsOn("elasticSearchConfig")
 public class IndexMappingServiceEs implements IndexMappingService {
 
     @Autowired
-    private Client esClient;
+    private ElasticSearchConfig esConfig;
 
     @Autowired
     private SearchAdmin searchAdmin;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
 
@@ -50,7 +52,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = IndexHelper.parseType(change.getDocumentType());
+        String documentType = IndexManager.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -68,7 +70,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String, Object> esSettings = getSettings();
             try {
                 if (esSettings != null) {
-                    esClient.admin()
+                    esConfig.elasticSearchClient().admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -76,7 +78,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                             .execute()
                             .actionGet();
                 } else {
-                    esClient.admin()
+                    esConfig.elasticSearchClient().admin()
                             .indices()
                             .prepareCreate(indexName)
                             .addMapping(documentType, esMapping)
@@ -106,7 +108,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         String[] indexNames = new String[1];
         indexNames[0] = change.getIndexName();
 
-        boolean hasIndexMapping = esClient.admin()
+        boolean hasIndexMapping = esConfig.elasticSearchClient().admin()
                 .indices()
                         //.exists( new IndicesExistsRequest(indexNames))
                 .typesExists(new TypesExistsRequest(indexNames,change.getDocumentType()))
@@ -114,7 +116,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                 .isExists();
         if (!hasIndexMapping) {
             XContentBuilder mapping = getMapping(change);
-            esClient.admin().indices()
+            esConfig.elasticSearchClient().admin().indices()
                     .preparePutMapping(indexNames[0])
                     .setType(change.getDocumentType())
                     .setSource(mapping)
@@ -125,7 +127,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
     private boolean hasIndex(SearchChange change) {
         String indexName = change.getIndexName();
-        boolean hasIndex = esClient
+        boolean hasIndex = esConfig.elasticSearchClient()
                 .admin()
                 .indices()
                 .exists(new IndicesExistsRequest(indexName))
@@ -183,7 +185,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String,Object>theMapping = (Map<String, Object>) map.get("mapping");
             if ( change.getParent() != null ){
                 HashMap<String,Object>parentMap = new HashMap<> ();
-                parentMap.put ("type", IndexHelper.parseType(change.getParent().getDocumentType()));
+                parentMap.put ("type", IndexManager.parseType(change.getParent().getDocumentType()));
                 theMapping.put("_parent", parentMap);
             }
             docMap.put(change.getDocumentType(), theMapping);

@@ -30,7 +30,7 @@ import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.track.bean.*;
@@ -84,7 +84,7 @@ public class EntityServiceNeo4J implements EntityService {
     ConceptService conceptService;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Autowired
     TxService txService;

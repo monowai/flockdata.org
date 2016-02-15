@@ -26,7 +26,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.search.base.TrackSearchDao;
+import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.test.engine.Helper;
@@ -54,7 +54,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
 public class TestDataTypes extends ESBase {
 
     @Autowired
-    TrackSearchDao searchRepo;
+    EntityChangeWriter searchRepo;
 
     @Test (expected =AmqpRejectAndDontRequeueException.class )
     public void validate_MismatchSubsequentValue() throws Exception{

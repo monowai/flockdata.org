@@ -2,8 +2,12 @@ package org.flockdata.search.integration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -60,9 +64,18 @@ public class AmqpRabbitConfig {
         logger.info ( "rabbit.host: {}, rabbit.port {}, rabbit.user {}",rabbitHost, rabbitPort, rabbitUser);
     }
 
+    @Bean
+    RabbitTemplate rabbitTemplate () {
+        return new RabbitTemplate(connectionFactory());
+    }
+
+    @Bean
+    AmqpAdmin amqpAdmin() {
+        return new RabbitAdmin(connectionFactory());
+    }
 
     @Bean (name="connectionFactory")
-    CachingConnectionFactory getConnectionFactory() throws Exception {
+    public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connect = new CachingConnectionFactory();
         connect.setHost(rabbitHost);
         connect.setPort(rabbitPort);
@@ -70,7 +83,7 @@ public class AmqpRabbitConfig {
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-        connect.setExecutor(asyncConfig.searchExecutor());
+        connect.setExecutor(asyncConfig.fdSearchExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
     }

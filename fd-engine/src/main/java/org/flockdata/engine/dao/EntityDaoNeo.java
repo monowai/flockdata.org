@@ -26,7 +26,7 @@ import org.flockdata.meta.dao.DocumentTypeRepo;
 import org.flockdata.model.*;
 import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.registration.service.SystemUserService;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
@@ -82,7 +82,7 @@ public class EntityDaoNeo {
     EntityTagService entityTagService;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Autowired
     Neo4jTemplate template;

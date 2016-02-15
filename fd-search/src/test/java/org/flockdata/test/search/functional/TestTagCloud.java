@@ -24,7 +24,7 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.search.base.TrackSearchDao;
+import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration({"classpath:root-context.xml"})
 public class TestTagCloud extends ESBase {
     @Autowired
-    TrackSearchDao trackRepo;
+    EntityChangeWriter trackRepo;
 
     @Autowired
     FdQueryEP searchEP;

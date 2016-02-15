@@ -42,7 +42,7 @@ import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
@@ -133,7 +133,7 @@ public class TestFdIntegration {
     EntityService entityService;
 
     @Autowired
-    IndexHelper indexHelper;
+    IndexManager indexHelper;
 
     @Autowired
     EsIntegrationHelper esHelper;

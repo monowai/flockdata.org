@@ -19,14 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressUser;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.model.Company;
-import org.flockdata.model.FortressUser;
-import org.flockdata.model.SystemUser;
-import org.flockdata.search.IndexHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

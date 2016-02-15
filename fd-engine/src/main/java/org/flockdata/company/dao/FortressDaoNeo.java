@@ -24,7 +24,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class FortressDaoNeo  {
     private FortressUserRepository fortressUserRepo;
 
     @Autowired
-    private IndexHelper indexHelper;
+    private IndexManager indexHelper;
 
     @Autowired
     Neo4jTemplate template;

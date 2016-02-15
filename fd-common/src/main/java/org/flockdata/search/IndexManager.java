@@ -20,7 +20,7 @@ import java.util.Collection;
  * Created by mike on 23/07/15.
  */
 @Configuration
-public class IndexHelper {
+public class IndexManager {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
@@ -30,9 +30,9 @@ public class IndexHelper {
     @Value("${fd.search.index.typeSuffix:false}")
     private Boolean typeSuffix ;   // use docType as an index suffix?
 
-    IndexHelper (){}
+    IndexManager(){}
 
-    public IndexHelper(String prefix, boolean typeSuffix){
+    public IndexManager(String prefix, boolean typeSuffix){
         this.prefix = prefix;
         this.typeSuffix = typeSuffix;
     }

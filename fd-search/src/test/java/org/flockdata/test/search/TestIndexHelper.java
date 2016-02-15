@@ -1,7 +1,7 @@
 package org.flockdata.test.search;
 
 import junit.framework.TestCase;
-import org.flockdata.search.IndexHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.QueryParams;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class TestIndexHelper {
 
     @Test
     public void compute_segmentIndex() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "FlockData";
         String fortress = "fdm";
         String segment = "2013";
@@ -34,7 +34,7 @@ public class TestIndexHelper {
 
     @Test
     public void compute_segmentWildCard() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "FlockData";
         String fortress = "fdm";
         String segment = null;
@@ -48,7 +48,7 @@ public class TestIndexHelper {
 
     @Test
     public void testA() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -64,7 +64,7 @@ public class TestIndexHelper {
     //
     @Test
     public void kvStoreRetrievalIndex() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -81,7 +81,7 @@ public class TestIndexHelper {
 
     @Test
     public void testFromQueryParams() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "abc";
         String fortress = "123";
         String segment = "segment";
@@ -97,7 +97,7 @@ public class TestIndexHelper {
 
     @Test
     public void wildCardFortress() throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         String company = "abc";
         //String fortress = "123";
         QueryParams qp = new QueryParams();
@@ -123,7 +123,7 @@ public class TestIndexHelper {
      * @throws Exception
      */
     private void validateIndexesForQuery(String company, String fortress, String segment, String[] indexes) throws Exception {
-        IndexHelper indexHelper = new IndexHelper("fd.", false);
+        IndexManager indexHelper = new IndexManager("fd.", false);
         assertNotNull(indexes);
         assertEquals(1, indexes.length);
         int foundCount = 0;

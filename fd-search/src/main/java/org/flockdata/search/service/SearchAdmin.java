@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.VersionHelper;
-import org.flockdata.search.base.TrackSearchDao;
+import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,15 +42,12 @@ import java.util.Map;
 @Service
 public class SearchAdmin {
     @Autowired
-    TrackSearchDao engineDao;
+    EntityChangeWriter engineDao;
 
-    @Value("${fdengine.result}")
-    private String fdEngine;
-
-    @Value("${es.mappings}")
+    @Value("${es.mappings:./}")
     private String esMappingPath;
 
-    @Value("${es.settings}")
+    @Value("${es.settings:/fd-default-settings.json}")
     String esSettings;
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
@@ -83,8 +79,6 @@ public class SearchAdmin {
         return getEsMappingPath() + getEsMapping(tagStructure);
     }
 
-    //    @Secured({"ROLE_FD_ADMIN"})
-    // DAT-382
     public Map<String, Object> getHealth() {
         String version = VersionHelper.getFdVersion();
 
@@ -110,7 +104,7 @@ public class SearchAdmin {
 
     }
 
-    @PostConstruct
+//    @PostConstruct
     private void doHealth() {
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         try {

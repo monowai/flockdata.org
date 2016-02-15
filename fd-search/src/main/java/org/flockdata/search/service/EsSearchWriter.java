@@ -1,7 +1,8 @@
 package org.flockdata.search.service;
 
+import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
-import org.flockdata.search.base.TrackSearchDao;
+import org.flockdata.search.integration.WriteEntityChange;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResult;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,13 +23,17 @@ import java.util.Map;
  */
 @Service
 @Qualifier("esSearchWriter")
+@DependsOn("elasticSearchConfig")
 public class EsSearchWriter implements SearchWriter {
 
     @Autowired
     private IndexMappingService indexMappingService;
 
     @Autowired
-    private TrackSearchDao trackSearch;
+    private EntityChangeWriter trackSearch;
+
+    @Autowired
+    WriteEntityChange.EngineGateway engineGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
@@ -81,7 +87,10 @@ public class EsSearchWriter implements SearchWriter {
             }
 
         }
-
+        if (!results.isEmpty()) {
+            logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
+            engineGateway.writeEntitySearchResult(results);
+        }
         return results;
 
     }

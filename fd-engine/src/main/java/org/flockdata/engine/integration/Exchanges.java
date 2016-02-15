@@ -26,27 +26,27 @@ public class Exchanges {
     @Value("${fd-track.exchange}")
     String trackExchange;
 
-    public String getSearchBinding() {
+    String searchBinding() {
         return searchBinding;
     }
 
-    public String getSearchExchange() {
+    String searchExchange() {
         return searchExchange;
     }
 
-    public String getStoreBinding() {
+    String storeBinding() {
         return storeBinding;
     }
 
-    public String getStoreExchange() {
+    String storeExchange() {
         return storeExchange;
     }
 
-    public String getTrackBinding() {
+    String trackBinding() {
         return trackBinding;
     }
 
-    public String getTrackExchange() {
+    String trackExchange() {
         return trackExchange;
     }
 }
