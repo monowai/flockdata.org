@@ -32,7 +32,7 @@ import java.util.Map;
  * Date: 5/05/14
  * Time: 9:25 AM
  */
-@RequestMapping("/admin")
+@RequestMapping("/v1/admin")
 @RestController
 public class AdminEP {
     @Autowired

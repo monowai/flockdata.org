@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Date: 7/07/13
  * Time: 10:03 PM
  */
-@RequestMapping("/query")
+@RequestMapping("/v1/query")
 @RestController
 public class FdQueryEP {
     @Autowired
