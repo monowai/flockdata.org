@@ -17,21 +17,21 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 @Configuration
 public class EsConfig {
 
-    @Value("${es.cluster.name:es_flockdata}")
+    @Value("${es.clustername:es_flockdata}")
     String clusterName;
-    @Value("${es.path.home:.}")
+    @Value("${es.path.home}")
     String pathHome;
     @Value("${es.path.data:/data/es}")
     String pathData;
     @Value("${es.http.port:9200}")
     String httpPort;
-    @Value("${es.transport.tcp.port:9300}")
+    @Value("${es.tcp.port:9300}")
     String tcpPort;
 
-    @Value("${es.mappings:./}")
+    @Value("${fd-search.es.mappings:classpath:/}")
     private String esMappingPath;
 
-    @Value("${es.settings:/fd-default-settings.json}")
+    @Value("${fd-search.es.settings:classpath:/fd-default-settings.json}")
     String esSettings;
 
     String esDefaultMapping = "fd-default-mapping.json";
@@ -43,7 +43,7 @@ public class EsConfig {
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
                 .put("clustername", clusterName)
                 .put("path.home", pathHome)
-                .put("path.data", pathHome+pathData)
+                .put("path.data", pathData)
                 .put("http.port", httpPort)
                 .put("transport.tcp.port", tcpPort);
         return settings.build();
@@ -73,13 +73,13 @@ public class EsConfig {
     public String getEsMappingPath() {
 
         if (esMappingPath.equals("${es.mappings}"))
-            esMappingPath = "/"; // Internal
+            esMappingPath = "classpath:/"; // Internal
         return esMappingPath;
     }
 
     public String getEsDefaultSettings() {
         if (esSettings.equals("${es.settings}"))
-            esSettings = "/fd-default-settings.json";
+            esSettings = "classpath:/fd-default-settings.json";
         return esSettings;
     }
     public String getEsMapping(EntityService.TAG_STRUCTURE tagStructure) {

@@ -32,7 +32,7 @@ import org.springframework.context.annotation.PropertySource;
  * Time: 7:36 AM
  */
 @SpringBootApplication (scanBasePackages = "org.flockdata.search")
-@PropertySource(value = "classpath:/application.properties,file:${fd.config}", ignoreResourceNotFound = true)
+@PropertySource(value = "classpath:/application.yml,file:${fd.config}", ignoreResourceNotFound = true)
 public class FdSearch {
 
     private Logger logger = LoggerFactory.getLogger(FdSearch.class);

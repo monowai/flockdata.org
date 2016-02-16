@@ -19,6 +19,9 @@
 
 package org.flockdata.test.search.functional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -55,7 +58,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -69,8 +71,6 @@ import static org.junit.Assert.assertNotNull;
 @ActiveProfiles("dev")
 public class ESBase {
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
-
-    static Properties properties = new Properties();
 
     static JestClient esClient;
 
@@ -104,10 +104,18 @@ public class ESBase {
     @Rollback(false)
     public static void cleanupElasticSearch() throws Exception {
         logger.info("You have to be running this with a working directory of fd-search for this to work");
-        FileInputStream f = new FileInputStream("./src/test/resources/application.properties");
-        properties.load(f);
 
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + properties.get("es.http.port")).multiThreaded(false).build();
+        FileInputStream f = new FileInputStream("./src/test/resources/application.yml");
+
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JsonNode tree = mapper.reader().readTree(f);
+        JsonNode esNode = tree.get("es");
+        JsonNode http = esNode.get("http");
+        Object port = http.get("port").asText();
+
+        //properties.get("es.http.port")
+        HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:" + port).multiThreaded(false).build();
         // Construct a new Jest client according to configuration via factory
         JestClientFactory factory = new JestClientFactory();
         factory.setHttpClientConfig(clientConfig);
@@ -276,6 +284,7 @@ public class ESBase {
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
         return doQuery(indexHelper.parseIndex(entity), IndexManager.parseType(entity), queryString, expectedHitCount);
     }
+
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
         // There should only ever be one document for a given AuditKey.
         // Let's assert that

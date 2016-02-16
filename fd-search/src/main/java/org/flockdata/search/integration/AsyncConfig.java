@@ -19,10 +19,10 @@ public class AsyncConfig extends AsyncConfigurerSupport {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${fd-search.poolSize}")
+    @Value("${fd-search.executor.poolSize}")
     private String searchPoolSize;
 
-    @Value("${fd-search.searchCapacity:2}")
+    @Value("${fd-search.executor.capacity:2}")
     private String searchQueueCapacity;
 
     @Override

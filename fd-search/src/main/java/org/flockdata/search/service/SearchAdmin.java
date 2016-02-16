@@ -26,7 +26,6 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.configure.EsConfig;
-import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,9 +67,8 @@ public class SearchAdmin {
             logger.info(esConfig.getEsMappingPath());
         }
         healthResults.put("fd.config", config);
-        healthResults.put("es.default settings", esConfig.getEsDefaultSettings());
-        healthResults.put("es.mapping settings", esConfig.getEsMappingPath());
-        healthResults.put("es.default mapping", esConfig.getEsPathedMapping(EntityService.TAG_STRUCTURE.DEFAULT));
+        healthResults.put("fd-search.es.settings", esConfig.getEsDefaultSettings());
+        healthResults.put("fd-search.es.mapping", esConfig.getEsMappingPath());
 
         return healthResults;
 

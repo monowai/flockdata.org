@@ -18,37 +18,37 @@ import java.util.Map;
 @Configuration
 @IntegrationComponentScan
 public class Exchanges {
-    @Value("${fd-search.binding:fd.search.binding}")
+    @Value("${fd-search.messaging.binding:fd.search.binding}")
     String searchBinding;
 
-    @Value("${fd-search.exchange:fd.search.exchange}")
+    @Value("${fd-search.messaging.exchange:fd.search.exchange}")
     String searchExchange;
 
     @Value("${fd-engine.binding:fd.engine.binding}")
     private String engineBinding;
 
-    @Value("${fd-engine.exchange:fd.engine.exchange}")
+    @Value("${fd-engine.messaging.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    @Value("${fd-search.queue:fd.search.queue}")
+    @Value("${fd-search.messaging.queue:fd.search.queue}")
     private String searchQueue;
 
-    @Value("${fd-search.concurrentConsumers:2}")
+    @Value("${fd-search.messaging.concurrentConsumers:2}")
     private int searchConcurrentConsumers;
 
-    @Value("${fd-search.prefetchCount:3}")
+    @Value("${fd-search.messaging.prefetchCount:3}")
     private int searchPreFetchCount;
 
-    @Value("${fd-search.dlq.queue:fd.search.dlq.queue}")
+    @Value("${fd-search.messaging.dlq.queue:fd.search.dlq.queue}")
     private String searchDlq;
 
-    @Value("${fd-search.dlq.exchange:fd.search.dlq.exchange}")
+    @Value("${fd-search.messaging.dlq.exchange:fd.search.dlq.exchange}")
     private String searchDlqExchange;
 
-    @Value("${fd-engine.dlq.exchange:fd.engine.dlq.exchange}")
+    @Value("${fd-engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
     private String engineDlqExchange;
 
-    @Value("${fd-engine.queue:fd.engine.queue}")
+    @Value("${fd-engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
     String engineBinding() {

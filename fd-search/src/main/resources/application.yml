@@ -1,0 +1,51 @@
+spring:
+  profiles:
+    active: production
+
+es:
+  clustername: es_flockdata
+  http:
+    port: 9200
+  tcp:
+    port: 9300
+  path:
+    home: ./
+    data: ${es.path.home}/data/es
+
+rabbit:
+    user: guest
+    pass: guest
+    host: localhost
+    port: 5672
+    heartbeat.secs: 30
+
+fd-engine:
+  url: http://fd-engine:8080
+  messaging:
+    queue: fd.engine.queue
+    binding: fd.engine.binding
+    exchange: fd.engine.exchange
+    dlq.queue: fd.engine.dlq.queue
+    dlq.exchange: fd.engine.dlq.exchange
+    prefetchCount: 3
+    concurrentConsumers: 2
+  executor:
+    poolSize: 4
+    capacity: 4
+
+fd-search:
+  mappings: ./
+  messaging:
+    exchange: fd.search.exchange
+    binding: fd.search.binding
+    queue: fd.search.queue
+    dlq.queue: fd.search.dlq.queue
+    dlq.exchange: fd.search.dlq.exchange
+    concurrentConsumers: 2
+    prefetchCount: 3
+  executor:
+    poolSize: 4
+    capacity: 10
+
+
+
