@@ -32,7 +32,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +40,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,9 +54,6 @@ import static org.junit.Assert.*;
  */
 @WebAppConfiguration
 public class TestAdminCalls extends WacBase {
-
-    @Autowired
-    protected WebApplicationContext wac;
 
     MockMvc mockMvc;
 
@@ -102,7 +97,26 @@ public class TestAdminCalls extends WacBase {
     }
 
     @Test
-    public void deleteFortressPurgesEntitiesAndLogs() throws Exception {
+    public void unauthorisedUserCannotDeleteFortress() throws Exception {
+
+        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
+
+        TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        String metaKey = resultBean.getEntity().getMetaKey();
+
+        assertNotNull(metaKey);
+        assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
+
+        SecurityContextHolder.getContext().setAuthentication(null);
+        // Assert that unauthorised user can't purge a fortress
+        exception.expect(AuthenticationException.class);
+        mediationFacade.purge(fortress);
+    }
+
+    @Test
+    public void purgedFortressRemovesEntities() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
@@ -119,16 +133,11 @@ public class TestAdminCalls extends WacBase {
 
         assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntity().getMetaKey()));
 
-        SecurityContextHolder.getContext().setAuthentication(null);
-        // Assert that unauthorised user can't purge a fortress
-        exception.expect(AuthenticationException.class);
-        mediationFacade.purge(fortress);
-        setSecurity();
         mediationFacade.purge(fortress);
         waitAWhile("Waiting for Async processing to complete");
         assertNull(fortressService.findByName(su.getCompany(), fortress.getName()));
         exception.expect(NotFoundException.class);
-        assertNull(entityService.getEntity(su.getCompany(), metaKey));
+        entityService.getEntity(su.getCompany(), metaKey);
     }
 
     @Test
@@ -155,7 +164,7 @@ public class TestAdminCalls extends WacBase {
 
         SecurityContextHolder.getContext().setAuthentication(null);
         // Assert that unauthorised user can't purge a fortress
-        exception.expect(AuthenticationException.class);
+        exception.expect(SecurityException.class);
         mediationFacade.purge(su.getCompany(), fortress.getName());
         setSecurity();
         mediationFacade.purge(fortress);

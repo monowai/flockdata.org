@@ -24,6 +24,7 @@ import org.flockdata.authentication.registration.bean.SystemUserResultBean;
 import org.flockdata.helper.JsonUtils;
 import org.junit.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 2:23 PM
  */
 @WebAppConfiguration
+@ActiveProfiles({"dev","web-dev","fd-auth-test"})
 public class TestProfileRegistration extends WacBase {
 
     MockMvc mockMvc;
