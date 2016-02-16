@@ -129,9 +129,9 @@ public class WriteEntityChange {
         return messageSupport.toJson(message);
     }
 
+    @Profile({"integration","production"})
     @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
     public interface EngineGateway {
-
         @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
         @Async("fd-search")
         void writeEntitySearchResult(SearchResults searchResult);

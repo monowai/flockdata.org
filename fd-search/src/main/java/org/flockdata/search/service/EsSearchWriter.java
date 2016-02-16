@@ -32,7 +32,7 @@ public class EsSearchWriter implements SearchWriter {
     @Autowired
     private EntityChangeWriter trackSearch;
 
-    @Autowired
+    @Autowired (required = false)
     WriteEntityChange.EngineGateway engineGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
@@ -44,16 +44,16 @@ public class EsSearchWriter implements SearchWriter {
      *
      * @param changes to process
      * @throws java.io.IOException if there is a problem with mapping files. This exception will keep
-     * the message on the queue until the mapping is fixed
+     *                             the message on the queue until the mapping is fixed
      */
     public SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException {
         Iterable<EntitySearchChange> thisChange = changes.getChanges();
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
-        Map<String,Boolean> checked = new HashMap<>();
+        Map<String, Boolean> checked = new HashMap<>();
         SearchResults results = new SearchResults();
 //        boolean mappingChecked = false;
         for (EntitySearchChange searchChange : thisChange) {
-            if ( searchChange == null ) {
+            if (searchChange == null) {
                 logger.error("Null search change received. Retry your operation with data!");
                 return results;
             }
@@ -64,11 +64,11 @@ public class EsSearchWriter implements SearchWriter {
                 trackSearch.delete(searchChange);
                 return results;
             }
-            if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName()+ "/"+searchChange.getDocumentType())) {
+            if (checked.isEmpty() && !checked.containsKey(searchChange.getIndexName() + "/" + searchChange.getDocumentType())) {
                 trackSearch.purgeCache();
                 // Batches must be for the same fortress/doctype combo
                 indexMappingService.ensureIndexMapping(searchChange);
-                String key = searchChange.getIndexName()+ "/"+searchChange.getDocumentType();
+                String key = searchChange.getIndexName() + "/" + searchChange.getDocumentType();
                 checked.put(key, true);
             }
 
@@ -87,7 +87,7 @@ public class EsSearchWriter implements SearchWriter {
             }
 
         }
-        if (!results.isEmpty()) {
+        if (!results.isEmpty() && engineGateway != null) {
             logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
             engineGateway.writeEntitySearchResult(results);
         }
