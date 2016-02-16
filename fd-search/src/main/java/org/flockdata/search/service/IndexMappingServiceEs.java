@@ -10,7 +10,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.IndexManager;
-import org.flockdata.search.integration.ElasticSearchConfig;
+import org.flockdata.search.configure.EsConfig;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
@@ -34,14 +34,11 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Created by mike on 10/09/15.
  */
 @Service
-@DependsOn("elasticSearchConfig")
+@DependsOn("esConfig")
 public class IndexMappingServiceEs implements IndexMappingService {
 
     @Autowired
-    private ElasticSearchConfig esConfig;
-
-    @Autowired
-    private SearchAdmin searchAdmin;
+    private EsConfig esConfig;
 
     @Autowired
     IndexManager indexHelper;
@@ -146,7 +143,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         try {
 
             if (defaultSettings == null) {
-                String settings = searchAdmin.getEsDefaultSettings();
+                String settings = esConfig.getEsDefaultSettings();
                 // Look for a file in a configuration folder
                 file = getClass().getClassLoader().getResourceAsStream(settings);
                 if (file == null) {
@@ -208,7 +205,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         // Locate file on disk
         try {
-            found = getMapping(searchAdmin.getEsMappingPath() + "/" + keyName);
+            found = getMapping(esConfig.getEsMappingPath() + "/" + keyName);
             if (found != null) {
                 logger.debug("Found custom mapping for {}", keyName);
                 return found;
@@ -217,7 +214,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
         }
 
-        String esDefault = searchAdmin.getEsPathedMapping(tagStructure);
+        String esDefault = esConfig.getEsPathedMapping(tagStructure);
         try {
             // Chance to find it on disk
             found = getMapping(esDefault);
@@ -225,7 +222,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         } catch (IOException ioe) {
             // Extract it from the WAR
             logger.debug("Reading default mapping from the package");
-            found = getMapping(searchAdmin.getEsMapping(tagStructure));
+            found = getMapping(esConfig.getEsMapping(tagStructure));
         }
         return found;
     }

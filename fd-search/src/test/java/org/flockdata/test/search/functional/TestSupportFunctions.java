@@ -24,13 +24,14 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.test.engine.Helper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import java.util.Map;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
 public class TestSupportFunctions extends ESBase {
     @Test
     public void defaultTagQueryWorks() throws Exception {

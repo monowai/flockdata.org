@@ -26,6 +26,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
@@ -37,7 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Map;
@@ -50,7 +52,8 @@ import static org.springframework.test.util.AssertionErrors.fail;
  * Created by mike on 27/03/15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
+@ActiveProfiles({"dev"})
 public class TestDataTypes extends ESBase {
 
     @Autowired

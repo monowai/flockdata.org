@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Service
 @Qualifier("esSearchWriter")
-@DependsOn("elasticSearchConfig")
+@DependsOn("esConfig")
 public class EsSearchWriter implements SearchWriter {
 
     @Autowired

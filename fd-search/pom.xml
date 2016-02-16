@@ -11,11 +11,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-search</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <properties>
         <es.version>1.7.5</es.version>
-        <!--<spring.elasticsearch-version>2.0.0</spring.elasticsearch-version>-->
-        <spring.elasticsearch-version>1.4.2</spring.elasticsearch-version>
     </properties>
 
     <dependencies>
@@ -94,12 +92,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>7.0.30</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -120,28 +112,6 @@
             <artifactId>spring-data-elasticsearch</artifactId>
             <version>1.3.0.RELEASE</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>fr.pilato.spring</groupId>-->
-            <!--<artifactId>spring-elasticsearch</artifactId>-->
-            <!--<version>${spring.elasticsearch-version}</version>-->
-        <!--</dependency>-->
-        <!--  Required for 1.4.2 of spring-es-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.logging.log4j</groupId>-->
-            <!--<artifactId>log4j-1.2-api</artifactId>-->
-            <!--<version>2.4.1</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.logging.log4j</groupId>-->
-            <!--<artifactId>log4j-slf4j-impl</artifactId>-->
-            <!--<version>2.4.1</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.logging.log4j</groupId>-->
-            <!--<artifactId>log4j-core</artifactId>-->
-            <!--<version>2.4.1</version>-->
-        <!--</dependency>-->
-        <!--  end required for 1.4.2 of spring-es-->
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -176,60 +146,6 @@
             </resource>
         </resources>
 
-        <plugins>
-            <!--<plugin>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-            <!--<version>${spring-boot.version}</version>-->
-            <!--</plugin>-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${start-class}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-search-jar</id>
-                        <!-- ToDo package? -->
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <archive>
-                        <manifest>
-                            <mainClass>${start-class}</mainClass>
-                        </manifest>
-                    </archive>
-                    <packagingExcludes>WEB-INF/classes/log4j.xml,
-                        WEB-INF/classes/fd.monowai.*/
-                    </packagingExcludes>
-                </configuration>
-            </plugin>
-
-            <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>repackage</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-        </plugins>
     </build>
     <profiles>
         <profile>
@@ -240,80 +156,39 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>tomcat-run</id>
                                 <goals>
-                                    <goal>exec-war-only</goal>
+                                    <goal>repackage</goal>
                                 </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <finalName>${project.artifactId}-war.jar</finalName>
-                                    <!-- optional only if you want to use a preconfigured server.xml file -->
-                                    <!--
-                                    <serverXml>src/main/tomcatconf/server.xml</serverXml>
-                                    -->
-                                    <warRunDependencies>
-                                        <warRunDependency>
-                                            <dependency>
-                                                <groupId>${project.groupId}</groupId>
-                                                <artifactId>${project.artifactId}</artifactId>
-                                                <version>${project.version}</version>
-                                                <type>war</type>
-                                            </dependency>
-                                            <contextPath>/</contextPath>
-
-                                        </warRunDependency>
-                                    </warRunDependencies>
-                                    <!-- naming is disable by default so use true to enable it -->
-                                    <!--<enableNaming>true</enableNaming>-->
-                                    <extraDependencies>
-                                        <dependency>
-                                            <groupId>org.slf4j</groupId>
-                                            <artifactId>slf4j-api</artifactId>
-                                            <version>${org.slf4j.version}</version>
-                                        </dependency>
-                                        <dependency>
-                                            <groupId>org.slf4j</groupId>
-                                            <artifactId>jul-to-slf4j</artifactId>
-                                            <version>${org.slf4j.version}</version>
-                                        </dependency>
-                                        <!--<dependency>-->
-                                            <!--<groupId>org.slf4j</groupId>-->
-                                            <!--<artifactId>slf4j-log4j12</artifactId>-->
-                                            <!--<version>${org.slf4j.version}</version>-->
-                                        <!--</dependency>-->
-                                        <!--<dependency>-->
-                                            <!--<groupId>log4j</groupId>-->
-                                            <!--<artifactId>log4j</artifactId>-->
-                                            <!--<version>1.2.17</version>-->
-                                        <!--</dependency>-->
-                                    </extraDependencies>
-
-
-                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <server>tomcat-development-server</server>
-                            <port>8081</port>
-                            <ajpPort>8087</ajpPort>
-                            <path>/${project.artifactId}</path>
-                            <warRunDependencies>
-                                <warRunDependency>
-                                    <dependency>
-                                        <groupId>${project.groupId}</groupId>
-                                        <artifactId>${project.artifactId}</artifactId>
-                                        <version>${project.version}</version>
-                                        <type>war</type>
-                                    </dependency>
-                                    <contextPath>/</contextPath>
-                                </warRunDependency>
-                            </warRunDependencies>
-                        </configuration>
                     </plugin>
+
+                    <!--<plugin>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-jar-plugin</artifactId>-->
+                    <!--<configuration>-->
+                    <!--<archive>-->
+                    <!--<manifest>-->
+                    <!--<mainClass>${start-class}</mainClass>-->
+                    <!--</manifest>-->
+                    <!--</archive>-->
+                    <!--</configuration>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>make-search-jar</id>-->
+                    <!--&lt;!&ndash; ToDo package? &ndash;&gt;-->
+                    <!--<phase>compile</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>jar</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
+                    <!--</plugin>-->
+
                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>

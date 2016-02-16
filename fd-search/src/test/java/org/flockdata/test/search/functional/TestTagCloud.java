@@ -24,6 +24,7 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.FdQueryEP;
@@ -35,7 +36,7 @@ import org.flockdata.test.engine.Helper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import static org.junit.Assert.assertEquals;
  * Time: 12:53 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
 public class TestTagCloud extends ESBase {
     @Autowired
     EntityChangeWriter trackRepo;
