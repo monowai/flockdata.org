@@ -8,9 +8,9 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
- * Simple "permitAll" security implementation
+ * Hardcoded users and passwords. Suitable for evaluation and testing
  *
- * You should include the profoile configuration to use this implementation
+ * You should include the configuration to use this implementation
  *
  * Created by mike on 16/02/16.
  */
@@ -39,7 +39,7 @@ public class SecurityTesting implements FdWebSecurity {
                 .roles("USER", FdWebSecurity.USER, FdWebSecurity.ADMIN);
         ima.withUser("harry")
                 .password("123")
-                .roles("USER", FdWebSecurity.USER, FdWebSecurity.ADMIN);
+                .roles("USER", FdWebSecurity.USER );
 
     }
 }
