@@ -19,17 +19,17 @@
 
 package org.flockdata.engine.query.service;
 
+import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.registration.bean.FortressResultBean;
 import org.flockdata.engine.integration.FdMetaKeyQuery;
 import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.engine.integration.TagCloudRequest;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.service.EntityTagService;
@@ -53,7 +53,7 @@ import java.util.Set;
  * Time: 9:43 AM
  */
 @Service
-@Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
+@Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
 public class QueryService {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);

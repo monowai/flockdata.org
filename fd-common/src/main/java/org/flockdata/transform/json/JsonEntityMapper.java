@@ -20,8 +20,8 @@
 package org.flockdata.transform.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ColumnDefinition;

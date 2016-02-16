@@ -20,11 +20,11 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;

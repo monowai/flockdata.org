@@ -19,17 +19,17 @@
 
 package org.flockdata.company.endpoint;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.FortressResultBean;
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
-import org.flockdata.model.DocumentType;
-import org.flockdata.model.FortressSegment;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.FortressResultBean;
 import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.service.CompanyService;
+import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.FortressService;

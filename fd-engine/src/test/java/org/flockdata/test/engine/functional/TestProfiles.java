@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -1,9 +1,9 @@
 package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.engine.functional.EngineBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

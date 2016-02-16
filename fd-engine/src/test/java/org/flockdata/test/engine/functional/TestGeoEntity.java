@@ -1,11 +1,10 @@
 package org.flockdata.test.engine.functional;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
@@ -17,9 +16,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by mike on 6/11/15.

@@ -1,10 +1,10 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -13,9 +13,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by mike on 13/10/15.

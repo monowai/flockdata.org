@@ -19,9 +19,9 @@
 
 package org.flockdata.track.service;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.TagInputBean;
 
 import java.util.Collection;
 

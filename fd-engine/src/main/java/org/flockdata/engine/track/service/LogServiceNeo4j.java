@@ -19,12 +19,12 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;

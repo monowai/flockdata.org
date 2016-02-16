@@ -1,8 +1,8 @@
 package org.flockdata.engine.integration;
 
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.track.bean.EntityInputBean;

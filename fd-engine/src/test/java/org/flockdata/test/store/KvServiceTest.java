@@ -21,13 +21,13 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.bean.KvContentBean;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -61,9 +61,8 @@ import static org.springframework.test.util.AssertionErrors.fail;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:/store/fdkv-root-context.xml",
-})
-@ActiveProfiles("no-integration")
+@ContextConfiguration(locations = {"classpath:/store/fdkv-root-context.xml"})
+@ActiveProfiles({"dev","fd-auth-none"})
 public class KvServiceTest {
 
 

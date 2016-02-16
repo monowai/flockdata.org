@@ -21,8 +21,8 @@ package org.flockdata.neo4j;
 
 import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.neo4j.service.TagService;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.track.TagPayload;
 import org.flockdata.track.bean.AliasPayload;
 import org.flockdata.track.bean.TagResults;

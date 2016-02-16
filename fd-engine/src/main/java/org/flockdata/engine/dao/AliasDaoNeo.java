@@ -19,10 +19,10 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.authentication.registration.bean.AliasInputBean;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Tag;
-import org.flockdata.registration.bean.AliasInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;

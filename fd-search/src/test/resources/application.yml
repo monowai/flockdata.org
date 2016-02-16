@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: dev
+    include: fd-auth-test
 
 es:
   clustername: es_fd_test

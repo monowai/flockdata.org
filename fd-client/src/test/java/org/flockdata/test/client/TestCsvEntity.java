@@ -20,10 +20,10 @@
 package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.transform.ColumnDefinition;

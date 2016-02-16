@@ -20,30 +20,18 @@
 package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
-import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.test.engine.functional.EngineBase;
-import org.flockdata.test.engine.functional.TestQueryResults;
-import org.flockdata.track.bean.ConceptResultBean;
-import org.flockdata.track.bean.DocumentResultBean;
-import org.flockdata.track.bean.DocumentTypeInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Created by mike on 16/02/15.

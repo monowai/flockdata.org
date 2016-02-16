@@ -20,10 +20,10 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.client.Configure;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;

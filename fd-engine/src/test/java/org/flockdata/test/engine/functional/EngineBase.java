@@ -19,7 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.RegistrationBean;
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.authentication.registration.service.RegistrationService;
+import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.engine.query.service.QueryService;
@@ -28,16 +34,10 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.track.service.*;
 import org.junit.Before;
@@ -67,7 +67,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:root-context.xml",
         "classpath:apiDispatcher-servlet.xml"})
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "fd-auth-test"})
 public abstract class EngineBase {
 
     @Rule

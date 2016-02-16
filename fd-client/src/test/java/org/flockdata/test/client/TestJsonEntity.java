@@ -21,10 +21,10 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;

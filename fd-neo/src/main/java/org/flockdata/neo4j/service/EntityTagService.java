@@ -23,7 +23,7 @@ import org.flockdata.dao.EntityTagDao;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.neo4j.EntityTagNode;
-import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.EntityTagPayload;

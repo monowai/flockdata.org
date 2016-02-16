@@ -19,6 +19,7 @@
 
 package org.flockdata.helper;
 
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.slf4j.Logger;

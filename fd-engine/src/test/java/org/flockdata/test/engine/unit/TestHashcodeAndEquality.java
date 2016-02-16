@@ -19,11 +19,10 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Tag;
-import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.*;
+import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 
 import java.util.ArrayList;

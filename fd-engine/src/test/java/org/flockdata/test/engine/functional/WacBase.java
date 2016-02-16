@@ -10,7 +10,7 @@ import org.springframework.web.context.WebApplicationContext;
  * Created by mike on 12/02/16.
  */
 @WebAppConfiguration
-@ActiveProfiles({"dev","web-dev"})
+@ActiveProfiles({"dev","web-dev","fd-auth-test"})
 public class WacBase extends EngineBase{
 
     @Autowired

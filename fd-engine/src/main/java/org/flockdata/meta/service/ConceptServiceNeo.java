@@ -19,12 +19,12 @@
 
 package org.flockdata.meta.service;
 
-import org.flockdata.meta.dao.ConceptDaoNeo;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;

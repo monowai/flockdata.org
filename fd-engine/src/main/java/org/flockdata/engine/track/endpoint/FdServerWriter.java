@@ -19,18 +19,18 @@
 
 package org.flockdata.engine.track.endpoint;
 
+import org.flockdata.authentication.registration.bean.SystemUserResultBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FdLoader;
+import org.flockdata.transform.FdWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

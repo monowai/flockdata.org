@@ -19,12 +19,12 @@
 
 package org.flockdata.transform;
 
+import org.flockdata.authentication.registration.bean.SystemUserResultBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
-import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.model.Company;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 
 import java.util.List;
 

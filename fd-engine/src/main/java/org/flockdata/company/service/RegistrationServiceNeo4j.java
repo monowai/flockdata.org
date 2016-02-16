@@ -19,20 +19,22 @@
 
 package org.flockdata.company.service;
 
-import org.flockdata.model.SystemUser;
+import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.registration.bean.RegistrationBean;
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.authentication.registration.service.KeyGenService;
+import org.flockdata.authentication.registration.service.RegistrationService;
+import org.flockdata.authentication.registration.service.SystemUserService;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.bean.RegistrationBean;
 import org.flockdata.model.Company;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.KeyGenService;
-import org.flockdata.registration.service.RegistrationService;
-import org.flockdata.registration.service.SystemUserService;
+import org.flockdata.model.SystemUser;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     SchemaService schemaService;
 
     @Autowired
+    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Autowired
@@ -63,7 +66,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Override
     @Transactional
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -78,7 +81,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
 

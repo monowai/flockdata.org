@@ -20,13 +20,13 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;

@@ -19,9 +19,9 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.authentication.registration.bean.RegistrationBean;
+import org.flockdata.authentication.registration.bean.SystemUserResultBean;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.bean.SystemUserResultBean;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.web.WebAppConfiguration;

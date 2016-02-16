@@ -20,6 +20,12 @@
 package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
+import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.integration.TrackGateway;
@@ -32,15 +38,10 @@ import org.flockdata.engine.track.service.EntityRetryService;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.service.DocTypeRetryService;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -296,7 +297,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public String reindex(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -323,7 +324,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public String reindex(Company company, Entity entity) throws FlockException {
         Fortress fortress = entity.getSegment().getFortress();
         if (fortress == null)
@@ -356,7 +357,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
@@ -382,7 +383,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public void mergeTags(Company company, Long source, Long target) {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
@@ -406,7 +407,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public void purge(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -426,7 +427,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @return
      */
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -438,7 +439,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured(SecurityHelper.ADMIN)
+    @Secured(FdWebSecurity.ROLE_ADMIN)
     public void purge(Fortress fortress) throws FlockException {
         adminService.purge(fortress.getCompany(), fortress);
     }

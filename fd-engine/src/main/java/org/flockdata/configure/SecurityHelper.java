@@ -17,11 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.configure;
 
+import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,8 +34,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SecurityHelper {
-    public static final String ADMIN = "ROLE_FD_ADMIN";
-    public static final String USER  = "ROLE_FD_USER";
 
     @Autowired
     private SystemUserService sysUserService;
@@ -69,6 +67,7 @@ public class SecurityHelper {
 
     public SystemUser getSysUser(boolean exceptionOnNull) {
         Authentication a = SecurityContextHolder.getContext().getAuthentication();
+
         if (a == null)
             if (exceptionOnNull)
                 throw new SecurityException("User is not authenticated");

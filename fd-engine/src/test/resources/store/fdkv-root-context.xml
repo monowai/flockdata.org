@@ -20,6 +20,7 @@
     <context:component-scan base-package=
                                     "org.flockdata.kv,
                                      org.flockdata.configure,
+                                     org.flockdata.authentication,
                                      org.flockdata.search,
                                      org.flockdata.engine.integration">
         <context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>

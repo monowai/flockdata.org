@@ -29,7 +29,7 @@
         <jackson.version>2.6.5</jackson.version>
         <org.springframework.version>4.2.4.RELEASE</org.springframework.version>
         <org.springintegration.version>4.2.4.RELEASE</org.springintegration.version>
-        <org.springsecurity.version>3.2.7.RELEASE</org.springsecurity.version>
+        <org.springsecurity.version>4.0.3.RELEASE</org.springsecurity.version>
         <org.springboot.version>1.3.2.RELEASE</org.springboot.version>
         <org.springcloud.version>1.0.4.RELEASE</org.springcloud.version>
         <org.springcloud.eureka.version>1.0.6.RELEASE</org.springcloud.eureka.version>

@@ -20,12 +20,12 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.model.EntitySearchChange;

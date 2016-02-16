@@ -1,6 +1,6 @@
 package org.flockdata.engine.integration.neorest;
 
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.track.bean.AliasPayload;
 import org.flockdata.track.bean.TagResults;
 import org.springframework.context.annotation.Bean;

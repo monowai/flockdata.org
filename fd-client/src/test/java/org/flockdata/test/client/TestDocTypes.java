@@ -1,13 +1,13 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.EntityService;

@@ -19,7 +19,7 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 
 import java.util.ArrayList;
 import java.util.Collection;

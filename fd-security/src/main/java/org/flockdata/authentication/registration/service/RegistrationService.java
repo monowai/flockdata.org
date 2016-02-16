@@ -17,21 +17,24 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.dao;
+package org.flockdata.authentication.registration.service;
 
 
+import org.flockdata.authentication.registration.bean.RegistrationBean;
+import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 
 /**
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:31 PM
+ * User: mike
+ * Date: 22/08/14
+ * Time: 9:43 AM
  */
-public interface RegistrationDao {
-    org.flockdata.model.SystemUser findSysUserByName(String name);
+public interface RegistrationService {
+    org.flockdata.model.SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException;
 
-    org.flockdata.model.SystemUser findByApiKey(String apiKey);
+    org.flockdata.model.SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException;
 
-    org.flockdata.model.SystemUser save(Company company, String userName, String password);
+    Company resolveCompany(String apiKey) throws FlockException;
 
+    org.flockdata.model.SystemUser getSystemUser(String s);
 }

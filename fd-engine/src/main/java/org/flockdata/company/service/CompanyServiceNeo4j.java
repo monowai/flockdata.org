@@ -20,13 +20,13 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.model.Company;
+import org.flockdata.authentication.registration.dao.CompanyDao;
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.authentication.registration.service.KeyGenService;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.helper.SecurityHelper;
-import org.flockdata.registration.dao.CompanyDao;
+import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.KeyGenService;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

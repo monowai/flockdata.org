@@ -20,12 +20,12 @@
 package org.flockdata.test.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 

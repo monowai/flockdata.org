@@ -22,10 +22,10 @@ package org.flockdata.test.engine.endpoint;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.authentication.UserProfile;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -35,7 +35,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -46,23 +45,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:root-context.xml",
         "classpath:apiDispatcher-servlet.xml"})
-public class TestAuthenticationEP {
+public class TestAuthenticationEP extends WacBase{
 
     private MockMvc mockMVC;
 
-    static {
-        // ToDo: Sort this out. The WAC creates a new context which deploys a new Neo4j DB without the previous
-        // one shutting down. So here we give it it's dedicated work area
-        System.setProperty("neo4j.datastore", "./target/data/auth/neo/");
-    }
-
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
     @Before
     public void setUp() {
-        mockMVC = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        mockMVC = MockMvcBuilders.webAppContextSetup(wac)
                 .build();
     }
 

@@ -1,6 +1,6 @@
 package org.flockdata.test.helper;
 
-import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 

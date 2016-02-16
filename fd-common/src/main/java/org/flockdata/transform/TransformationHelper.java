@@ -21,11 +21,11 @@ package org.flockdata.transform;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.flockdata.authentication.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.registration.bean.AliasInputBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
 import org.slf4j.LoggerFactory;
 

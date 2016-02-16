@@ -19,17 +19,17 @@
 
 package org.flockdata.engine.tag.service;
 
+import org.flockdata.authentication.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.engine.tag.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
+import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;
-import org.flockdata.registration.bean.AliasInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.track.TagPayload;
 import org.flockdata.track.service.TagService;
 import org.slf4j.Logger;

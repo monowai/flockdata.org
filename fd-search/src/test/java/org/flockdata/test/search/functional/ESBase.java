@@ -31,12 +31,12 @@ import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
@@ -68,7 +68,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 12:55 PM
  */
 @Component
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev"})
 public class ESBase {
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
 
