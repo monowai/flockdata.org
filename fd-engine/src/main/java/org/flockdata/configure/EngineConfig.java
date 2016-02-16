@@ -19,14 +19,14 @@
 
 package org.flockdata.configure;
 
+import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.SearchPingRequest;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.kv.FdKvConfig;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.Company;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +167,7 @@ public class EngineConfig implements PlatformConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
+    @Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
     public Map<String, String> getHealthAuth() {
         return getHealth();
     }
@@ -224,7 +224,7 @@ public class EngineConfig implements PlatformConfig {
     @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
             "companyEvent", "labels"}, allEntries = true)
     @Override
-    @Secured({SecurityHelper.ADMIN})
+    @Secured({FdWebSecurity.ROLE_ADMIN})
     public void resetCache() {
         logger.debug("Cache Reset");
     }
@@ -250,7 +250,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Override
-    @Secured({SecurityHelper.ADMIN, SecurityHelper.USER})
+    @Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
     public String authPing() {
         return "pong";
     }

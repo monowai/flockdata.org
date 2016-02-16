@@ -19,7 +19,7 @@
 
 package org.flockdata.neo4j.helper;
 
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 
 import java.util.Map;
 

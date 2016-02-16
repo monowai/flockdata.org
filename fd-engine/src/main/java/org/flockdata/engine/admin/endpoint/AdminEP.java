@@ -19,11 +19,11 @@
 
 package org.flockdata.engine.admin.endpoint;
 
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.track.service.MediationFacade;
 import org.slf4j.Logger;

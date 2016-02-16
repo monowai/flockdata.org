@@ -19,12 +19,12 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;

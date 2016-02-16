@@ -19,7 +19,7 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.AliasInputBean;
 
 /**
  * Data necessary to create a single Alias for a tag

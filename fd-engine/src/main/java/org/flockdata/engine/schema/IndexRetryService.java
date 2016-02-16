@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.schema;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.service.SchemaService;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;

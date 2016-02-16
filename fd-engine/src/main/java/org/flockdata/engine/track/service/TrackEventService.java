@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.dao.TrackEventDao;
 import org.flockdata.model.ChangeEvent;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

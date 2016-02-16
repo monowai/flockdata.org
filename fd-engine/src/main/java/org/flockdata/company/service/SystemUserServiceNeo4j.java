@@ -19,8 +19,8 @@
 
 package org.flockdata.company.service;
 
-import org.flockdata.registration.bean.RegistrationBean;
-import org.flockdata.registration.dao.RegistrationDao;
+import org.flockdata.authentication.registration.bean.RegistrationBean;
+import org.flockdata.authentication.registration.dao.RegistrationDao;
 import org.flockdata.model.SystemUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class SystemUserServiceNeo4j implements org.flockdata.registration.service.SystemUserService {
+public class SystemUserServiceNeo4j implements org.flockdata.authentication.registration.service.SystemUserService {
 
     @Autowired
     RegistrationDao regDao;

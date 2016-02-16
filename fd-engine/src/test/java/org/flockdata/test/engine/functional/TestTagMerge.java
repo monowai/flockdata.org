@@ -19,14 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.SystemUser;
-import org.flockdata.model.Tag;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.model.*;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityTag;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

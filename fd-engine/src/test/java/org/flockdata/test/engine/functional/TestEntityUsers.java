@@ -19,18 +19,18 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.model.Entity;
+import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.test.engine.Helper;
+import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.model.EntityLog;
 import org.flockdata.track.bean.SearchChange;
-import org.junit.Assert;
+import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: mike

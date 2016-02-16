@@ -19,17 +19,17 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.authentication.registration.service.SystemUserService;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.kv.KvContent;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
-import org.flockdata.registration.service.CompanyService;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;

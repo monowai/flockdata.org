@@ -20,7 +20,7 @@
 package org.flockdata.transform.tags;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.flockdata.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.AliasInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.GeoDefinition;
 import org.flockdata.transform.GeoDeserializer;

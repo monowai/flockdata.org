@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.bean;
+package org.flockdata.authentication.registration.bean;
 
 /**
  * Payload representing alias attributes for a tag.

@@ -19,13 +19,16 @@
 
 package org.flockdata.geography.endpoint;
 
+import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.ApiKeyHelper;
-import org.flockdata.model.Tag;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.service.RegistrationService;
+import org.flockdata.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 

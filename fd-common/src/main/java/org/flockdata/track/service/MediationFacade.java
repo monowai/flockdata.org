@@ -19,11 +19,14 @@
 
 package org.flockdata.track.service;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
-import org.flockdata.track.bean.*;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.TrackResultBean;
 
 import java.io.IOException;
 import java.util.Collection;

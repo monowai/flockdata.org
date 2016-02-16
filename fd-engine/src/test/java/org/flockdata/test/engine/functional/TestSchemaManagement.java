@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.DocumentType;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

@@ -20,16 +20,16 @@
 package org.flockdata.company.service;
 
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.FortressResultBean;
+import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.company.dao.FortressDaoNeo;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.FortressResultBean;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;

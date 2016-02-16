@@ -20,12 +20,12 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.SystemUserResultBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;

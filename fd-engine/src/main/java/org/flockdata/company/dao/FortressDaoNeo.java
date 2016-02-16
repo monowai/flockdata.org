@@ -19,11 +19,11 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
-import org.flockdata.registration.bean.FortressInputBean;
 import org.flockdata.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

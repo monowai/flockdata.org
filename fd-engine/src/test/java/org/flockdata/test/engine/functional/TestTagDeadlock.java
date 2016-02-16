@@ -19,11 +19,11 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;

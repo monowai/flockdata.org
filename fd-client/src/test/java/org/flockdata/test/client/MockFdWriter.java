@@ -19,15 +19,15 @@
 
 package org.flockdata.test.client;
 
+import org.flockdata.authentication.registration.bean.SystemUserResultBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.registration.bean.SystemUserResultBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
-import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FdLoader;
+import org.flockdata.transform.FdWriter;
 
 import java.util.List;
 

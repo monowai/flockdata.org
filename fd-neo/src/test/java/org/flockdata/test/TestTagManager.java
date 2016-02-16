@@ -21,9 +21,9 @@ package org.flockdata.test;
 
 import junit.framework.TestCase;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.registration.bean.AliasInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
+import org.flockdata.authentication.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.neo4j.TagManager;
 import org.flockdata.track.TagPayload;
 import org.junit.Test;

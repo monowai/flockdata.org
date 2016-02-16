@@ -19,9 +19,9 @@
 
 package org.flockdata.test.client;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.client.Configure;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;

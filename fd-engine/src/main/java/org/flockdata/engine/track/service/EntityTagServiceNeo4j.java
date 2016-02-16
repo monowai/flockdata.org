@@ -19,14 +19,14 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.configure.SecurityHelper;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.dao.EntityRepo;
 import org.flockdata.engine.dao.EntityTagDaoNeo;
 import org.flockdata.engine.dao.EntityTagRepo;
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.SecurityHelper;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityTagInputBean;
 import org.flockdata.track.service.EntityTagService;

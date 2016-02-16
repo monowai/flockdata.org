@@ -17,9 +17,9 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.service;
+package org.flockdata.authentication.registration.service;
 
-import org.flockdata.registration.bean.RegistrationBean;
+import org.flockdata.authentication.registration.bean.RegistrationBean;
 import org.flockdata.model.SystemUser;
 
 /**

@@ -133,6 +133,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.flockdata</groupId>
+            <artifactId>fd-security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
             <version>1.0.0</version>

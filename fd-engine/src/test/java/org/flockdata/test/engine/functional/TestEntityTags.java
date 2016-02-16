@@ -25,14 +25,14 @@ package org.flockdata.test.engine.functional;
  * Time: 4:49 PM
  */
 
+import org.flockdata.authentication.registration.bean.FortressInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.registration.bean.FortressInputBean;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.*;

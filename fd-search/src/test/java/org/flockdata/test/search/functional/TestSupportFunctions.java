@@ -19,11 +19,11 @@
 
 package org.flockdata.test.search.functional;
 
+import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
-import org.flockdata.registration.bean.TagInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;

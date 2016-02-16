@@ -20,15 +20,15 @@
 package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
+import org.flockdata.authentication.registration.bean.AliasInputBean;
+import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.dao.TagRepo;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;
-import org.flockdata.registration.bean.AliasInputBean;
-import org.flockdata.registration.bean.TagInputBean;
-import org.flockdata.registration.bean.TagResultBean;
 import org.flockdata.track.TagPayload;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
