@@ -35,7 +35,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.integration.ElasticSearchConfig;
+import org.flockdata.search.configure.EsConfig;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
@@ -54,11 +54,11 @@ import java.util.*;
  * Date: 27/04/13
  * Time: 12:00 PM
  */
-@Repository
+@Service
 public class EntityChangeWriterEs implements EntityChangeWriter {
 
     @Autowired
-    private ElasticSearchConfig esConfig;
+    private EsConfig esConfig;
 
     @Autowired
     IndexManager indexManager;

@@ -25,6 +25,7 @@ import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.bean.TagInputBean;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.*;
 import org.flockdata.test.engine.Helper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -35,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
@@ -50,7 +51,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 12:53 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
 public class TestMappings extends ESBase {
 
     private Logger logger = LoggerFactory.getLogger(TestMappings.class);

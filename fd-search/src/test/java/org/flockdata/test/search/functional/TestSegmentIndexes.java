@@ -3,11 +3,12 @@ package org.flockdata.test.search.functional;
 import junit.framework.TestCase;
 import org.flockdata.model.Entity;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
 public class TestSegmentIndexes extends ESBase{
     /**
      * Fortress are linked to segments that in turn have entities.

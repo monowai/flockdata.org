@@ -19,6 +19,8 @@
 
 package org.flockdata.search;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
@@ -29,11 +31,16 @@ import org.springframework.context.annotation.PropertySource;
  * Date: 16/12/14
  * Time: 7:36 AM
  */
-@SpringBootApplication
+@SpringBootApplication (scanBasePackages = "org.flockdata.search")
 @PropertySource(value = "classpath:/application.properties,file:${fd.config}", ignoreResourceNotFound = true)
 public class FdSearch {
+
+    private Logger logger = LoggerFactory.getLogger(FdSearch.class);
+
+
     public static void main(String[] args) {
         SpringApplication.run(FdSearch.class, args);
-
     }
+
+
 }

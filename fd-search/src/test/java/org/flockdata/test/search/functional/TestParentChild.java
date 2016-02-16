@@ -4,6 +4,7 @@ import io.searchbox.client.JestResult;
 import io.searchbox.core.Search;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Entity;
+import org.flockdata.search.FdSearch;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
@@ -13,7 +14,7 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static junit.framework.TestCase.assertTrue;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
  * Created by mike on 10/09/15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:root-context.xml"})
+@SpringApplicationConfiguration(FdSearch.class)
 public class TestParentChild extends ESBase {
 
     @Test
