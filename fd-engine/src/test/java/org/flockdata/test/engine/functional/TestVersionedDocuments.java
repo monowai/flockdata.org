@@ -6,7 +6,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -68,9 +68,9 @@ public class TestVersionedDocuments extends EngineBase {
 
         TrackResultBean memResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
 
-        KvService.KV_STORE kvStore = kvService.getKvStore(memResultBean);
+        Store kvStore = Store.resolveStore(memResultBean, Store.MEMORY);
 
-        TestCase.assertEquals(KvService.KV_STORE.MEMORY, kvStore);
+        TestCase.assertEquals( Store.MEMORY, kvStore);
         DocumentTypeInputBean documentTypeInputBean =new DocumentTypeInputBean("None")
                 .setCode("None")
                 .setVersionStrategy (DocumentType.VERSION.DISABLE);
@@ -90,8 +90,8 @@ public class TestVersionedDocuments extends EngineBase {
                 .setCode("CBA");
 
         TrackResultBean noneResultBean = mediationFacade.trackEntity(su.getCompany(), eib);
-        kvStore = kvService.getKvStore(noneResultBean);
-        TestCase.assertEquals(KvService.KV_STORE.NONE, kvStore);
+        kvStore = Store.resolveStore(noneResultBean, Store.NONE);
+        TestCase.assertEquals( Store.NONE, kvStore);
 
     }
 }

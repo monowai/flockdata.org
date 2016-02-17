@@ -32,7 +32,6 @@ import org.flockdata.model.Fortress;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
@@ -75,9 +74,6 @@ public class AdminService implements EngineAdminService {
     SchemaService schemaService;
 
     @Autowired
-    KvService kvService;
-
-    @Autowired
     FortressService fortressService;
 
     @Autowired
@@ -111,10 +107,6 @@ public class AdminService implements EngineAdminService {
 
         } while (keepRunning);
 
-        if (fortress.isStoreEnabled() && engineConfig.getKvStore() != KvService.KV_STORE.NONE) {
-            logger.info("Purging KV");
-            kvService.purge(fortress.getRootIndex());
-        }
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(fortress.getRootIndex());

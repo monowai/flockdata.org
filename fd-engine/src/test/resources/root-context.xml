@@ -27,7 +27,6 @@
     <!-- Neo test database -->
     <import resource="neo4j-context.xml"/>
     <import resource="test-security.xml" />
-    <import resource="kv-context.xml"/>
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 

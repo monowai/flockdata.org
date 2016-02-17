@@ -40,5 +40,4 @@ public interface FdStoreRepo {
 
     String ping();
 
-    Log prepareLog(Log log, KvContent kvContent) throws IOException;
 }

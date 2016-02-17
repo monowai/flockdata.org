@@ -26,7 +26,7 @@ import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -68,7 +68,7 @@ public class TestCsvImportIntegration extends EngineBase {
 //        engineConfig.setConceptsEnabled(false);
         logger.debug("### csvImport_DuplicateLogsNotCreated");
         engineConfig.setTestMode(true);
-        assertTrue(engineConfig.getKvStore().equals(KvService.KV_STORE.MEMORY));
+        assertTrue(engineConfig.store().equals(Store.MEMORY));
         setSecurity();
         final SystemUser su = registerSystemUser("importSflow", mike_admin);
 

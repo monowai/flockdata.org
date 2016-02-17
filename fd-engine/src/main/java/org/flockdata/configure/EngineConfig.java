@@ -19,14 +19,13 @@
 
 package org.flockdata.configure;
 
-import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.SearchPingRequest;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
-import org.flockdata.store.FdStoreConfig;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,12 @@ public class EngineConfig implements PlatformConfig {
 
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
-    @Autowired
-    FdStoreConfig kvConfig;
+
+    @Value("fd-store.engine:RIAK")
+    private String storeEngine;
+
+    @Value("${fd-engine.fortress.store:disabled}")
+    private String storeEnabled;
 
     @Autowired
     SchemaService schemaService;
@@ -83,7 +86,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
 
-    @Value("${fdengine.multiTenanted:@null}")
+    @Value("${fd-engine.system.multiTenanted:false}")
     protected void setMultiTenanted(String multiTenanted) {
         this.multiTenanted = !"@null".equals(multiTenanted) || Boolean.parseBoolean(multiTenanted);
     }
@@ -92,8 +95,14 @@ public class EngineConfig implements PlatformConfig {
 
     @Value("${fd-store.enabled}")
     public void setStoreEnabled(String storeEnabled) {
-        kvConfig.setStoreEnabled(storeEnabled);
+        this.storeEnabled = storeEnabled;
     }
+
+    @Value("${fd-engine.fortress.search:enabled}")
+    public void setSearchEnabled(String searchEnabled) {
+        this.searchEnabled =searchEnabled.equalsIgnoreCase("enabled");
+    }
+
 
     /**
      * Default property for a fortress if not explicitly set.
@@ -101,7 +110,7 @@ public class EngineConfig implements PlatformConfig {
      *
      * @param timing defaults to true
      */
-    @Value("${fd-engine.timings}")
+    @Value("${fd-engine.system.timings:false}")
     public void setTiming(String timing) {
         this.timing = "@null".equals(timing) || Boolean.parseBoolean(timing);
     }
@@ -120,17 +129,16 @@ public class EngineConfig implements PlatformConfig {
         return timing;
     }
 
-    public Boolean isStoreEnabled() {
-        return kvConfig.storeEnabled();
+    /**
+     *
+     * @return is fd-storeEngine part of the data processing pipeline?
+     */
+    public Boolean storeEnabled() {
+        return Boolean.parseBoolean(this.storeEnabled);
     }
 
     public Boolean isSearchEnabled() {
         return searchEnabled;
-    }
-
-    @Value("${fd-search.enabled:@null}")
-    public void setSearchEnabled(String searchEnabled) {
-        this.searchEnabled = "@null".equals(searchEnabled) || Boolean.parseBoolean(searchEnabled);
     }
 
     /**
@@ -139,7 +147,7 @@ public class EngineConfig implements PlatformConfig {
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     @Override
-    @Value("${fd-engine.concepts.enabled:@null}")
+    @Value("${fd-engine.system.concepts:@null}")
     public void setConceptsEnabled(String conceptsEnabled) {
         this.conceptsEnabled = "@null".equals(conceptsEnabled) || Boolean.parseBoolean(conceptsEnabled);
     }
@@ -151,13 +159,15 @@ public class EngineConfig implements PlatformConfig {
 
     }
 
-    public KV_STORE setKvStore(KvService.KV_STORE kvStore) {
-        return kvConfig.setKvStore(kvStore);
+    public Store setStore(Store store) {
+        Store previous = Store.valueOf(storeEngine);
+        this.storeEngine = store.name();
+        return previous;
     }
 
     @Override
-    public KV_STORE getKvStore() {
-        return kvConfig.kvStore();
+    public Store store() {
+        return Store.valueOf(storeEngine);
     }
 
     @Override
@@ -167,7 +177,7 @@ public class EngineConfig implements PlatformConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
+    @Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
     public Map<String, String> getHealthAuth() {
         return getHealth();
     }
@@ -186,16 +196,14 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("flockdata.version", version);
         healthResults.put("fd-engine", "Neo4j is OK");
 
-        healthResults.put("fd-store.enabled", kvConfig.storeEnabled().toString());
-
         String config = System.getProperty("fd.config");
 
         if (config == null || config.equals(""))
             config = "system-default";
         healthResults.put("config-file", config);
 
-        healthResults.put("fd-store.engine", kvConfig.kvStore().toString());
-        healthResults.put("fd-store.enabled", kvConfig.storeEnabled().toString());
+        healthResults.put("fd-store.engine", storeEngine);
+        healthResults.put("fd-store.enabled", storeEnabled().toString());
         String esPingResult;
         try {
             String esPing = fdMonitoringGateway.ping();
@@ -224,7 +232,7 @@ public class EngineConfig implements PlatformConfig {
     @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
             "companyEvent", "labels"}, allEntries = true)
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public void resetCache() {
         logger.debug("Cache Reset");
     }
@@ -250,7 +258,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
+    @Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
     public String authPing() {
         return "pong";
     }

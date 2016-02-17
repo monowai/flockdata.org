@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.query.service;
 
-import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.integration.EsStoreRequest;
 import org.flockdata.engine.integration.FdMetaKeyQuery;
 import org.flockdata.engine.integration.FdViewQuery;
@@ -53,7 +53,7 @@ import java.util.Set;
  * Time: 9:43 AM
  */
 @Service
-@Secured({FdWebSecurity.ROLE_ADMIN, FdWebSecurity.ROLE_USER})
+@Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
 public class QueryService {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);

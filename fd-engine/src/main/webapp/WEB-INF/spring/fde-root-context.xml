@@ -25,14 +25,14 @@
 
     <context:property-placeholder
             ignore-resource-not-found="true" ignore-unresolvable="true"
-            location="classpath:/application.properties,file:${fd.config},file:${fd.auth.config}"/>
+            location="classpath:/application.yml,file:${fd.config},file:${fd.auth.config}"/>
 
     <!--ToDo: We'll have to add in a parameter to make this dynamic-->
     <!--<import resource="fde-task.xml"/>-->
     <import resource="classpath:${fd.auth.provider}-security.xml"/>
     <import resource="fde-integration.xml"/>
     <!--<import resource="fde-http-proxy-integration.xml"/>-->
-    <import resource="kv-context.xml"/>
+    <!--<import resource="kv-context.xml"/>-->
 
     <!-- XML Config -->
     <!--<import resource="neo4j-context.xml"/>-->

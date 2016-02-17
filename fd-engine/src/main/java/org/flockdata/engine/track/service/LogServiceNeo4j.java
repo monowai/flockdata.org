@@ -21,10 +21,10 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.engine.dao.EntityDaoNeo;
+import org.flockdata.engine.integration.StorageWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
@@ -54,7 +54,7 @@ public class LogServiceNeo4j implements LogService {
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
-    private KvService kvManager;
+    StorageWriter.StorageGateway storageGateway;
 
     @Autowired
     FortressService fortressService;
@@ -72,8 +72,8 @@ public class LogServiceNeo4j implements LogService {
     LogRetryService logRetryService;
 
     @Override
-    @Async ("fd-log")
-    @Transactional (timeout = 4000)
+    @Async("fd-log")
+    @Transactional(timeout = 4000)
     public Future<Collection<TrackResultBean>> processLogs(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo - ServiceActivator
         //Collection<TrackResultBean> logResults = new ArrayList<>();
@@ -84,7 +84,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    @Transactional (timeout = 4000)
+    @Transactional(timeout = 4000)
     public Collection<TrackResultBean> processLogsSync(Fortress fortress, Collection<TrackResultBean> resultBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
         // ToDo - ServiceActivator
         //Collection<TrackResultBean> logResults = new ArrayList<>();
@@ -97,7 +97,7 @@ public class LogServiceNeo4j implements LogService {
     private void processLogFromResult(Fortress fortress, TrackResultBean resultBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         // ToDo: Service Activator
         if (resultBean.getContentInput() == null)
-            return ;
+            return;
 
         ContentInputBean contentInputBean = resultBean.getContentInput();
         logger.debug("writeLog {}", contentInputBean);
@@ -105,19 +105,17 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getLogStatus() == ContentInputBean.LogStatus.NOT_FOUND)
             throw new FlockException("Unable to find Entity ");
 
-        if (resultBean.getContentInput() != null
-                && !resultBean.isLogIgnored()) {
-            //if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
-                KvContentBean kvContentBean = new KvContentBean(resultBean);
-                kvManager.doWrite(kvContentBean);
-            //}
+        if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
+            // Log is now prepared (why not just get KvContent??
+            KvContentBean kvContentBean = new KvContentBean(resultBean);
+            storageGateway.doStoreWrite(kvContentBean);
         }
     }
 
     @Override
     public TrackResultBean writeLog(DocumentType documentType, Entity entity, ContentInputBean input, FortressUser fu) throws FlockException, IOException, ExecutionException, InterruptedException {
 
-        TrackResultBean resultBean = new TrackResultBean(entity,documentType);
+        TrackResultBean resultBean = new TrackResultBean(entity, documentType);
 
         resultBean.setContentInput(input);
         ArrayList<TrackResultBean> logs = new ArrayList<>();

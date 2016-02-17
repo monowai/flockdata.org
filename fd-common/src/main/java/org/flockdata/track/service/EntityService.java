@@ -48,7 +48,7 @@ public interface EntityService {
 
     public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
-    KvContent getWhat(Entity entity, Log change);
+    KvContent getContent(Entity entity, Log change);
 
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);

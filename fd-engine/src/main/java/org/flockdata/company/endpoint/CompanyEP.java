@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/v1/company")
 public class CompanyEP {
 
 	private static final Logger logger = LoggerFactory

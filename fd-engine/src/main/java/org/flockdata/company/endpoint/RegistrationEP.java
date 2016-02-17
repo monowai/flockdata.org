@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 // Customise a dispatcher in web.xml
-@RequestMapping("/profiles")
+@RequestMapping("/v1/profiles")
 public class RegistrationEP {
 
     @Autowired

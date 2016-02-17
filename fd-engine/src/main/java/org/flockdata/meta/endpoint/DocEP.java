@@ -42,7 +42,7 @@ import java.util.Set;
  */
 
 @RestController
-@RequestMapping("/doc")
+@RequestMapping("/v1/doc")
 public class DocEP {
 
     @Autowired

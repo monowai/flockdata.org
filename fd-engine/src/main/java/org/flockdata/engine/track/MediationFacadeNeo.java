@@ -20,11 +20,12 @@
 package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
-import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.integration.TrackGateway;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
@@ -42,7 +43,6 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -97,6 +97,9 @@ public class MediationFacadeNeo implements MediationFacade {
     DocTypeRetryService docTypeRetryService;
 
     @Autowired
+    StorageProxy contentReader;
+
+    @Autowired
     TagService tagService;
 
     @Autowired
@@ -122,9 +125,6 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Autowired
     EngineAdminService adminService;
-
-    @Autowired
-    KvService kvService;
 
     @Autowired
     TrackBatchSplitter batchSplitter;
@@ -297,7 +297,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public String reindex(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -324,7 +324,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public String reindex(Company company, Entity entity) throws FlockException {
         Fortress fortress = entity.getSegment().getFortress();
         if (fortress == null)
@@ -357,12 +357,12 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
             throw new FlockException("Fortress [" + fortressName + "] could not be found");
-        Long skipCount = 0l;
+
         String message = null;
         if (fortress.isStoreDisabled()) {
             message = String.format("The store has been disabled for the fortress %s. Only information that has been recorded in a KV store can be re-indexed", fortress);
@@ -383,7 +383,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public void mergeTags(Company company, Long source, Long target) {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
@@ -401,13 +401,13 @@ public class MediationFacadeNeo implements MediationFacade {
     public Map<String, Object> getLogContent(Entity entity, Long logId) {
         EntityLog log = entityService.getLogForEntity(entity, logId);
         if (log != null)
-            return kvService.getContent(entity, log.getLog()).getData();
+            return contentReader.getContent(entity, log.getLog()).getData();
 
         return new HashMap<>();
     }
 
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public void purge(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -427,7 +427,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @return
      */
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -439,7 +439,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured(FdWebSecurity.ROLE_ADMIN)
+    @Secured(FdRoles.FD_ROLE_ADMIN)
     public void purge(Fortress fortress) throws FlockException {
         adminService.purge(fortress.getCompany(), fortress);
     }

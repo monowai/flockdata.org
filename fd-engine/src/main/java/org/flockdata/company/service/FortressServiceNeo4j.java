@@ -234,7 +234,7 @@ public class FortressServiceNeo4j implements FortressService {
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());
-        boolean storeEnabled = engineConfig.isStoreEnabled();
+        boolean storeEnabled = engineConfig.storeEnabled();
         if (fortress != null) {
             if (fortress.isStoreEnabled() == null)
                 // DAT-346 - data upgrade, revert to system default

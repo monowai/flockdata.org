@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
  * Since: 8/11/13
  */
 @RestController
-@RequestMapping("/tag")
+@RequestMapping("/v1/tag")
 public class TagEP {
 
     @Autowired

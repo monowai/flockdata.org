@@ -20,11 +20,11 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -59,10 +59,10 @@ public class LogRetryService {
     EntityService entityService;
 
     @Autowired
-    FortressService fortressService;
+    StorageProxy storage;
 
     @Autowired
-    KvService kvService;
+    FortressService fortressService;
 
     @Autowired
     TxService txService;
@@ -168,7 +168,7 @@ public class LogRetryService {
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);
-            boolean unchanged = kvService.isSame(trackResult.getEntity(), lastLog.getLog(), preparedLog);
+            boolean unchanged = storage.isSame(trackResult.getEntity(), lastLog.getLog(), preparedLog);
             if (unchanged) {
                 logger.debug("Ignoring a change we already have {}", trackResult);
                 if (trackResult.getContentInput().isForceReindex()) { // Caller is recreating the search index

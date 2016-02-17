@@ -12,7 +12,7 @@ RUN mkdir /opt/flockdata && \
 COPY fd-engine-war.jar /opt/flockdata/app/app.jar
 COPY classes/log4j.xml /opt/flockdata/conf/log4j.xml
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
-#COPY classes/application.properties /opt/flockdata/conf/application.properties
+#COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 RUN bash -c 'touch app.jar'
 EXPOSE 8080 7474

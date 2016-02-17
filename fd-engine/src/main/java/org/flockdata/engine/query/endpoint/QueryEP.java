@@ -47,7 +47,7 @@ import java.util.Set;
  * Time: 9:31 AM
  */
 @RestController
-@RequestMapping("/query")
+@RequestMapping("/v1/query")
 public class QueryEP {
     @Autowired
     MatrixService matrixService;

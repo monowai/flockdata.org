@@ -19,6 +19,9 @@
 
 package org.flockdata;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 /**
  *
  *  To use spring-boot you will need to uncomment the maven pom dependencies. The rest of the pom
@@ -30,11 +33,11 @@ package org.flockdata;
  * Date: 15/12/14
  * Time: 3:49 PM
  */
-//@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"org.flockdata"})
 //@ImportResource("classpath:WEB-INF/spring/fde-root-context.xml")
 public class FdEngine {
     public static void main(String[] args) {
-        //SpringApplication.run(FdEngine.class, args);
+        SpringApplication.run(FdEngine.class, args);
     }
 
 }

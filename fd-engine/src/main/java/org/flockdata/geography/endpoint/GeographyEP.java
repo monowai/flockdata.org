@@ -41,7 +41,7 @@ import java.util.Collection;
  * To change this template use File | Settings | File Templates.
  */
 @RestController
-@RequestMapping("/geo")
+@RequestMapping("/v1/geo")
 public class GeographyEP {
 
     @Autowired

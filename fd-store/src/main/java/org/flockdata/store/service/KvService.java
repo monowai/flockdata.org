@@ -23,9 +23,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.track.bean.DeltaBean;
+import org.flockdata.track.bean.DeltaResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.io.IOException;
@@ -50,12 +49,12 @@ public interface KvService {
 
     boolean sameJson(KvContent compareFrom, KvContent compareWith);
 
-    DeltaBean getDelta(Entity entity, Log from, Log to);
+    DeltaResultBean getDelta(Entity entity, Log from, Log to);
 
     void doWrite( KvContentBean kvBean) throws FlockException;
 
-    // Resolves the kv store to use for a given trackResult
-    Store getKvStore(TrackResultBean trackResult);
+//    // Resolves the kv store to use for a given trackResult
+//    Store getKvStore(TrackResultBean trackResult);
 
 
 }

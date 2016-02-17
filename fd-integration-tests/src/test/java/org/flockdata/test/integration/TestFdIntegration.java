@@ -278,8 +278,8 @@ public class TestFdIntegration {
         Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("Utf8");
 
-        KvService.KV_STORE previousStore = engineConfig.getKvStore();
-        engineConfig.setKvStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
+        KvService.KV_STORE previousStore = engineConfig.store();
+        engineConfig.setStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
 
         try {
             Fortress fortress = fortressService
@@ -338,7 +338,7 @@ public class TestFdIntegration {
             EsSearchResult esSearchResult = queryService.search(su.getCompany(), queryParams);
             assertTrue("Incorrect result count found via queryService ", esSearchResult.getResults().size() == 1);
         } finally {
-            engineConfig.setKvStore(previousStore);
+            engineConfig.setStore(previousStore);
         }
     }
 
@@ -1893,7 +1893,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("segments_ExistInElasticSearch", "segments_ExistInElasticSearch");
         assertNotNull(su);
         engineConfig.setStoreEnabled("false");
-        KvService.KV_STORE previousKv = engineConfig.setKvStore(KvService.KV_STORE.NONE);
+        KvService.KV_STORE previousKv = engineConfig.setStore(KvService.KV_STORE.NONE);
         try {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("segmenttest"));
@@ -1943,7 +1943,7 @@ public class TestFdIntegration {
             KvContent contentFromEs = kvService.getContent(entity2014, lastLog.getLog());
             assertNotNull("fd-store, unable to locate the content from ES", contentFromEs);
         } finally {
-            engineConfig.setKvStore(previousKv);
+            engineConfig.setStore(previousKv);
         }
     }
 

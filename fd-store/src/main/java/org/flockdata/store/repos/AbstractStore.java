@@ -39,13 +39,6 @@ public abstract class AbstractStore implements FdStoreRepo {
 
     private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
-    public Log prepareLog(Log log, KvContent kvContent) throws IOException {
-
-        log.setChecksum(kvContent.getChecksum());
-        log.setContent(kvContent);
-        return log;
-    }
-
     ObjectMapper objectMapper = new ObjectMapper();
 
     public ContentInputBean extractBytes(String base64Json) throws IOException {

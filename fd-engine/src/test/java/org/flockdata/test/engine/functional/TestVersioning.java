@@ -21,7 +21,7 @@ package org.flockdata.test.engine.functional;
 
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -49,14 +49,14 @@ public class TestVersioning extends EngineBase {
     public void defaults_Fortress() throws Exception {
         // DAT-346
         SystemUser su = registerSystemUser();
-        assertEquals(Boolean.TRUE, engineConfig.isStoreEnabled());
+        assertEquals(Boolean.TRUE, engineConfig.storeEnabled());
         // System default behaviour controlled by configuration.properties
         FortressInputBean fib = new FortressInputBean("vtest");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertTrue(fortress.isStoreEnabled());
 
         engineConfig.setStoreEnabled("false");
-        assertEquals(Boolean.FALSE, engineConfig.isStoreEnabled());
+        assertEquals(Boolean.FALSE, engineConfig.storeEnabled());
         fib = new FortressInputBean("disabledTest");
         assertEquals(null, fib.getStoreActive());
         fortress = fortressService.registerFortress(su.getCompany(), fib);
@@ -86,7 +86,7 @@ public class TestVersioning extends EngineBase {
         SystemUser su = registerSystemUser("kv_Ignored", "kv_Ignored");
         engineConfig.setStoreEnabled("false");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
-        assertFalse(engineConfig.isStoreEnabled());
+        assertFalse(engineConfig.storeEnabled());
         EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
@@ -119,7 +119,7 @@ public class TestVersioning extends EngineBase {
         assertNotNull (mockLog);
         assertNotNull(mockLog.getLog());
         assertTrue( mockLog.isMocked());
-        Assert.assertEquals(KvService.KV_STORE.NONE.name(), mockLog.getLog().getStorage());
+        Assert.assertEquals(Store.NONE.name(), mockLog.getLog().getStorage());
 
         EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getMetaKey());
         assertNotNull ( summaryBean);
@@ -144,11 +144,11 @@ public class TestVersioning extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), input);
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
         assertNotNull(entityLog);
-        Assert.assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
+        Assert.assertEquals(Store.NONE.name(), entityLog.getLog().getStorage());
 
-        engineConfig.setStoreEnabled("false");
-        assertEquals("MemMap is OK", kvService.ping());
-        engineConfig.setStoreEnabled("true");
+//        engineConfig.setStoreEnabled("false");
+//        assertEquals("MemMap is OK", kvService.ping());
+//        engineConfig.setStoreEnabled("true");
 
     }
 
@@ -168,13 +168,13 @@ public class TestVersioning extends EngineBase {
 
         Log log = new Log(entity);
 
-        log = kvService.prepareLog(trackResult, log);
-        assertEquals("Store should be set to that of the fortress", KvService.KV_STORE.NONE.name(), log.getContent().getStorage() );
+        log = Store.prepareLog(engineConfig.store(), trackResult, log);
+        assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStorage() );
 
         entity.getFortress().setStoreEnabled(true);
-        log = kvService.prepareLog(trackResult, log);
+        log = Store.prepareLog(engineConfig.store(), trackResult, log);
         // Falls back to the system default
-        assertEquals("Store should be set to the system default", KvService.KV_STORE.MEMORY.name(), log.getContent().getStorage() );
+        assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStorage() );
 
 
     }
