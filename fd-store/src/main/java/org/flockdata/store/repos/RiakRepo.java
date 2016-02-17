@@ -34,9 +34,9 @@ import com.basho.riak.client.core.util.BinaryValue;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.store.FdStoreConfig;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
-public class RiakRepo extends AbstractKvRepo{
+public class RiakRepo extends AbstractStore {
 
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private RiakClient client = null;

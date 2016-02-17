@@ -151,12 +151,12 @@ public class EngineConfig implements PlatformConfig {
 
     }
 
-    public KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore) {
+    public KV_STORE setKvStore(KvService.KV_STORE kvStore) {
         return kvConfig.setKvStore(kvStore);
     }
 
     @Override
-    public KvService.KV_STORE getKvStore() {
+    public KV_STORE getKvStore() {
         return kvConfig.kvStore();
     }
 

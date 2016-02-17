@@ -33,11 +33,11 @@ import java.io.IOException;
 import java.util.Date;
 
 @Component
-public class RedisRepo extends AbstractKvRepo {
+public class RedisRepo extends AbstractStore {
 
     @Autowired
     private RedisTemplate<Long, byte[]> template;
-    private static Logger logger = LoggerFactory.getLogger(RedisRepo.class);
+    private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
     public void add(KvContent kvContent) throws IOException {
         template.opsForValue().set(kvContent.getId(), ObjectHelper.serialize(kvContent.getContent()));

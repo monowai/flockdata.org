@@ -20,7 +20,7 @@
 package org.flockdata.engine;
 
 import org.flockdata.model.Company;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
@@ -47,9 +47,9 @@ public interface PlatformConfig {
     @Value("${fd-engine.system.constraints:@null}")
     void setSystemConstraints(String constraints);
 
-    KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore);
+    Store setKvStore(Store kvStore);
 
-    KvService.KV_STORE getKvStore();
+    Store getKvStore();
 
     boolean isConceptsEnabled();
 

@@ -40,8 +40,8 @@ import org.springframework.messaging.MessageHandlingException;
  * Time: 2:14 PM
  */
 @IntegrationComponentScan
-public class KvErrorHandler {
-    private Logger logger = LoggerFactory.getLogger(KvErrorHandler.class);
+public class StoreErrorHandler {
+    private Logger logger = LoggerFactory.getLogger(StoreErrorHandler.class);
 
     @ServiceActivator (inputChannel = "storeErrors")
     public void handleFailedKvRequest(Message<MessageHandlingException> message) {

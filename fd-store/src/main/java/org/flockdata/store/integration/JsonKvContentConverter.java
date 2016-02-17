@@ -19,21 +19,31 @@
 
 package org.flockdata.store.integration;
 
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.store.bean.KvContentBean;
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.IntegrationComponentScan;
-import org.springframework.integration.annotation.MessagingGateway;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.support.converter.MessageConversionException;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 /**
  * User: mike
  * Date: 19/11/14
- * Time: 11:48 AM
+ * Time: 3:19 PM
  */
-@MessagingGateway (asyncExecutor ="fd-store")
-@IntegrationComponentScan
-public interface KvGateway {
-    @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
-    @Retryable
-    void doKvWrite(KvContentBean resultBean);
+@Component("jsonToKvContentConverter")
+public class JsonKvContentConverter extends SimpleMessageConverter {
+
+    @Override
+    public Object fromMessage(final Message message) throws MessageConversionException {
+
+        try {
+            return JsonUtils.getBytesAsObject(message.getBody(), KvContentBean.class);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            throw new MessageConversionException("failed to convert text-based Message content", e1);
+        }
+    }
 }

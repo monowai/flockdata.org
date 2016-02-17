@@ -3,7 +3,7 @@ package org.flockdata.store.integration;
 import org.flockdata.integration.AbstractIntegrationRequest;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.store.FdStoreConfig;
+import org.flockdata.store.service.FdStoreConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.KvRepo;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.slf4j.Logger;
@@ -36,9 +35,9 @@ import java.util.Map;
 /**
  * Created by mike on 7/03/15.
  */
-public abstract class AbstractKvRepo implements KvRepo {
+public abstract class AbstractStore implements FdStoreRepo {
 
-    private static Logger logger = LoggerFactory.getLogger(AbstractKvRepo.class);
+    private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
     public Log prepareLog(Log log, KvContent kvContent) throws IOException {
 

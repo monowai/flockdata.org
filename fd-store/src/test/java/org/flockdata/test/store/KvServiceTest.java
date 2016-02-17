@@ -25,9 +25,10 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.FdStore;
-import org.flockdata.store.FdStoreConfig;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.KvService;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -74,7 +75,7 @@ public class KvServiceTest {
     @Before
     public void resetKvStore() {
         kvConfig.setStoreEnabled("true");
-        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvConfig.setKvStore(Store.MEMORY);
     }
 
     @BeforeClass
@@ -101,36 +102,36 @@ public class KvServiceTest {
 
     @Test
     public void defaults_StoreEnabled() throws Exception {
-        assertEquals(KvService.KV_STORE.MEMORY, kvConfig.kvStore());
+        assertEquals(Store.MEMORY, kvConfig.kvStore());
 
     }
 
     @Test
     public void riak_JsonTest() throws Exception {
-        kvConfig.setKvStore(KvService.KV_STORE.RIAK);
+        kvConfig.setKvStore(Store.RIAK);
         kvMapTest();
-        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvConfig.setKvStore(Store.MEMORY);
     }
 
     @Test
     public void redis_JsonTest() throws Exception {
-        kvConfig.setKvStore(KvService.KV_STORE.REDIS);
+        kvConfig.setKvStore(Store.REDIS);
         kvMapTest();
-        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvConfig.setKvStore(Store.MEMORY);
     }
 
     @Test
     public void memory_JsonTest() throws Exception {
-        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvConfig.setKvStore(Store.MEMORY);
         kvMapTest();
     }
 
 
     @Test
     public void redis_AttachmentTest() throws Exception {
-        kvConfig.setKvStore(KvService.KV_STORE.REDIS);
+        kvConfig.setKvStore(Store.REDIS);
         kvAttachmentTest();
-        kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
+        kvConfig.setKvStore(Store.MEMORY);
     }
 
 
@@ -193,7 +194,7 @@ public class KvServiceTest {
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
-            if (kvConfig.kvStore().equals(KvService.KV_STORE.RIAK)) {
+            if (kvConfig.kvStore().equals(Store.RIAK)) {
                 logger.error("Silently passing. No what data to process for {}. KV store is not running", kvConfig.kvStore());
             } else {
                 logger.error("KV Error", e);
@@ -239,7 +240,7 @@ public class KvServiceTest {
 
     public static Map<String, Object> getWhatMap() {
         Map<String, Object> what = new HashMap<>();
-        what.put("lval", 123456789012345l);
+        what.put("lval", 123456789012345L);
         what.put("dval", 1234012345.990012d);
         // Duplicated to force compression
         what.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");

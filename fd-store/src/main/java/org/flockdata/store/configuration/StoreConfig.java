@@ -20,7 +20,8 @@
 package org.flockdata.store.configuration;
 
 import org.flockdata.helper.VersionHelper;
-import org.flockdata.store.FdStoreConfig;
+import org.flockdata.store.Store;
+import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +29,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.flockdata.store.service.KvService.KV_STORE;
 
 /**
  * User: Mike Holdsworth
@@ -43,7 +42,7 @@ public class StoreConfig implements FdStoreConfig {
 
     private Boolean multiTenanted = false;
 
-    private KV_STORE kvStore = null;
+    private Store kvStore = null;
 
     private Boolean storeEnabled = true;
 
@@ -70,31 +69,25 @@ public class StoreConfig implements FdStoreConfig {
     @Override
     @Value("${fd-store.engine}")
     public void setKvStore(String kvStore) {
-        if ( kvStore.equalsIgnoreCase(KV_STORE.REDIS.toString()))
-            setKvStore( KV_STORE.REDIS);
-        else if (kvStore.equalsIgnoreCase(KV_STORE.RIAK.toString()))
-            setKvStore( KV_STORE.RIAK);
-        else if (kvStore.equalsIgnoreCase(KV_STORE.NONE.toString()))
-            setKvStore( KV_STORE.NONE);
-        else if (kvStore.equalsIgnoreCase(KV_STORE.MEMORY.toString()))
-            setKvStore( KV_STORE.MEMORY);
-        else {
-            setKvStore( KV_STORE.NONE);
-            logger.error("Unable to resolve the fd-store.engine property [" + kvStore + "]. Defaulting to DEFAULT");
-        }
+       setKvStore(Store.valueOf(kvStore));
 
     }
 
+    /**
+     * Updates the kvStore to use
+     * @param kvStore kvStore to use
+     * @return previous value of kvStore
+     */
     @Override
-    public KV_STORE setKvStore(KV_STORE kvStore) {
-        KV_STORE current = this.kvStore;
+    public Store setKvStore(Store kvStore) {
+        Store current = this.kvStore;
         this.kvStore = kvStore;
         return current;
 
     }
 
     @Override
-    public KV_STORE kvStore() {
+    public Store kvStore() {
         return kvStore;
     }
 

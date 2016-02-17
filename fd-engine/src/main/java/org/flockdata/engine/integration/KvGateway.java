@@ -17,39 +17,23 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store;
+package org.flockdata.engine.integration;
 
-import org.flockdata.store.service.KvService;
-
-import java.util.Map;
+import org.flockdata.store.bean.KvContentBean;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.retry.annotation.Retryable;
 
 /**
  * User: mike
- * Date: 14/11/14
- * Time: 1:22 PM
+ * Date: 19/11/14
+ * Time: 11:48 AM
  */
-public interface FdStoreConfig {
-
-    /**
-     * Sets the KV store to use for ContentInputBeans
-     *
-     * @param kvStore kvStore to use
-     * @return the previous value of the kvStore
-     */
-    KvService.KV_STORE setKvStore(KvService.KV_STORE kvStore);
-
-    void setKvStore(String kvStore);
-
-    KvService.KV_STORE kvStore();
-
-    Map<String, String> health();
-
-    String riakHosts();
-
-    Boolean storeEnabled();
-
-    void setStoreEnabled(String enabled);
-
-    String fdSearchUrl();
-
+@MessagingGateway (asyncExecutor ="fd-store")
+@IntegrationComponentScan
+public interface KvGateway {
+    @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
+    @Retryable
+    void doKvWrite(KvContentBean resultBean);
 }

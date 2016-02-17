@@ -33,7 +33,7 @@ import java.util.Map;
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
  */
 @Component
-public class MapRepo extends AbstractKvRepo{
+public class MapRepo extends AbstractStore {
 
     Map<Long, ContentInputBean> map = new HashMap <>();
 

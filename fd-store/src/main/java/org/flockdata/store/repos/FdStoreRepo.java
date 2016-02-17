@@ -17,10 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store;
+package org.flockdata.store.repos;
 
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
+import org.flockdata.store.KvContent;
 
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ import java.io.IOException;
  * User: Mike Holdsworth
  * Since: 31/01/14
  */
-public interface KvRepo {
+public interface FdStoreRepo {
     void add(KvContent contentBean) throws IOException;
 
     KvContent getValue(Entity entity, Log forLog);
