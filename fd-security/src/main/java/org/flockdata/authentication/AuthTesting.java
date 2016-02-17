@@ -20,15 +20,17 @@ import javax.annotation.PostConstruct;
  */
 
 @Configuration
-@Profile("fd-auth-test")
-public class SecurityTesting implements FdWebSecurity {
+@Profile({"fd-auth-test"})
+public class AuthTesting implements FdWebSecurity {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .anyRequest()
-                .authenticated();
+                .antMatchers("/login", "/logout", "/ping").permitAll()
+                .antMatchers("/v1/**").authenticated();
+        http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
         http.httpBasic();
+        //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
 
     }
 
@@ -37,13 +39,13 @@ public class SecurityTesting implements FdWebSecurity {
         InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
         ima.withUser("mike")
                 .password("123")
-                .roles("USER", FdWebSecurity.USER, FdWebSecurity.ADMIN) ;
+                .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name()) ;
         ima.withUser("sally")
                 .password("123")
-                .roles("USER", FdWebSecurity.USER, FdWebSecurity.ADMIN);
+                .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name());
         ima.withUser("harry")
                 .password("123")
-                .roles("USER", FdWebSecurity.USER );
+                .roles("USER", FdRoles.FD_USER.name());
 
     }
 

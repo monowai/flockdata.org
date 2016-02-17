@@ -20,7 +20,7 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @Profile({"fd-auth-none"})
-public class SecurityNone implements FdWebSecurity {
+public class AuthNone implements FdWebSecurity {
 
     private static Logger logger = LoggerFactory.getLogger("configuration");
 
@@ -45,7 +45,7 @@ public class SecurityNone implements FdWebSecurity {
                 .inMemoryAuthentication()
                     .withUser("mike")
                     .password("123")
-                    .roles("USER", FdWebSecurity.USER, FdWebSecurity.ADMIN)
+                    .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name())
 
                 ;
     }

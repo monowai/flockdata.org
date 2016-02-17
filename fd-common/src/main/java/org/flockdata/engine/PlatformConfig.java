@@ -47,9 +47,9 @@ public interface PlatformConfig {
     @Value("${fd-engine.system.constraints:@null}")
     void setSystemConstraints(String constraints);
 
-    Store setKvStore(Store kvStore);
+    Store setStore(Store kvStore);
 
-    Store getKvStore();
+    Store store();
 
     boolean isConceptsEnabled();
 
@@ -67,7 +67,7 @@ public interface PlatformConfig {
 
     boolean createSystemConstraints();
 
-    Boolean isStoreEnabled();
+    Boolean storeEnabled();
 
     Boolean isSearchEnabled();
 

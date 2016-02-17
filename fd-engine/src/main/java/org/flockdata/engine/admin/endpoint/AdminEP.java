@@ -45,7 +45,7 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/v1/admin")
 public class AdminEP {
 
     @Qualifier("mediationFacadeNeo")

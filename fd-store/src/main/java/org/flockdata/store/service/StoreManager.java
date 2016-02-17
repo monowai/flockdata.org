@@ -25,15 +25,13 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
-import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.model.FortressSegment;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.repos.*;
-import org.flockdata.track.bean.DeltaBean;
+import org.flockdata.track.bean.DeltaResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,34 +141,29 @@ public class StoreManager implements KvService {
      */
     @Override
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
-        // Compress the Value of JSONText
-        Store storage = getKvStore(trackResult);
-
-        KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
-        kvContent.setStorage(storage.name());
-        log.setStorage(storage.name());
-
-        return getKvRepo(storage).prepareLog(log, kvContent);
+        // ToDo: KVStore's need to be aligned between services
+//        Store storage = getKvStore(trackResult);
+        return Store.prepareLog(kvConfig.kvStore(), trackResult, log);
     }
 
-    public Store getKvStore(TrackResultBean trackResult) {
-        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.ENABLE)
-            return kvConfig.kvStore();
-
-        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.DISABLE)
-            return Store.NONE;
-
-        Entity entity = trackResult.getEntity();
-        FortressSegment segment = entity.getSegment();
-
-        // Check against the fortress default
-        Store storage;
-        if (segment.getFortress().isStoreEnabled())
-            storage = kvConfig.kvStore();
-        else
-            storage = Store.NONE;
-        return storage;
-    }
+//    public Store getKvStore(TrackResultBean trackResult) {
+//        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.ENABLE)
+//            return kvConfig.kvStore();
+//
+//        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.DISABLE)
+//            return Store.NONE;
+//
+//        Entity entity = trackResult.getEntity();
+//        FortressSegment segment = entity.getSegment();
+//
+//        // Check against the fortress default
+//        Store storage;
+//        if (segment.getFortress().isStoreEnabled())
+//            storage = kvConfig.kvStore();
+//        else
+//            storage = Store.NONE;
+//        return storage;
+//    }
 
     // Returns the system default kv store
     FdStoreRepo getKvRepo() {
@@ -263,13 +256,13 @@ public class StoreManager implements KvService {
     }
 
     @Override
-    public DeltaBean getDelta(Entity entity, Log from, Log to) {
+    public DeltaResultBean getDelta(Entity entity, Log from, Log to) {
         if (entity == null || from == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
         KvContent source = getContent(entity, from);
         KvContent dest = getContent(entity, to);
         MapDifference<String, Object> diffMap = Maps.difference(source.getData(), dest.getData());
-        DeltaBean result = new DeltaBean();
+        DeltaResultBean result = new DeltaResultBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
         result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
         HashMap<String, Object> differences = new HashMap<>();

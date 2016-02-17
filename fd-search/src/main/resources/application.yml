@@ -26,8 +26,9 @@ fd-engine:
     queue: fd.engine.queue
     binding: fd.engine.binding
     exchange: fd.engine.exchange
-    dlq.queue: fd.engine.dlq.queue
-    dlq.exchange: fd.engine.dlq.exchange
+    dlq:
+      queue: fd.engine.dlq.queue
+      exchange: fd.engine.dlq.exchange
     prefetchCount: 3
     concurrentConsumers: 2
   executor:

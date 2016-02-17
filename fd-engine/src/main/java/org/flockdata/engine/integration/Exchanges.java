@@ -1,30 +1,76 @@
 package org.flockdata.engine.integration;
 
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by mike on 12/02/16.
  */
 @Configuration
 public class Exchanges {
-    @Value("${fd-search.binding}")
+    @Value("${fd-search.messaging.binding:fd.search.binding}")
     String searchBinding;
 
-    @Value("${fd-search.exchange}")
+    @Value("${fd-search.messaging.exchange:fd.search.exchange}")
     String searchExchange;
 
-    @Value("${fd-store.binding}")
-    String storeBinding;
+    @Value("${fd-search.messaging.dlq.queue:fd.search.dlq.queue}")
+    private String searchDlq;
 
-    @Value("${fd-store.exchange}")
-    String storeExchange;
+    @Value("${fd-search.messaging.dlq.exchange:fd.search.dlq.exchange}")
+    private String searchDlqExchange;
 
-    @Value("${fd-track.binding}")
+    @Value("${fd-track.messaging.binding:fd.track.binding}")
     String trackBinding;
 
-    @Value("${fd-track.exchange}")
+    @Value("${fd-track.messaging.exchange:fd.track.exchange}")
     String trackExchange;
+
+    @Value("${fd-track.messaging.dlq.queue:fd.track.dlq.queue}")
+    private String trackhDlq;
+
+    @Value("${fd-track.messaging.dlq.exchange:fd.track.dlq.exchange}")
+    private String trackDlqExchange;
+
+    @Value("${fd-engine.binding:fd.engine.binding}")
+    private String engineBinding;
+
+    @Value("${fd-engine.messaging.exchange:fd.engine.exchange}")
+    private String engineExchange;
+
+    @Value("${fd-engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
+    private String engineDlqExchange;
+
+    @Value("${fd-engine.messaging.queue:fd.engine.queue}")
+    private String engineQueue;
+
+    @Value("${fd-store.binding:fd.store.binding}")
+    private String storeBinding;
+
+    @Value("${fd-store.messaging.exchange:fd.store.exchange}")
+    private String storeExchange;
+
+    @Value("${fd-store.messaging.dlq.exchange:fd.store.dlq.exchange}")
+    private String storeDlqExchange;
+
+    @Value("${fd-store.messaging.dlq.queue:fd.store.dlq.queue}")
+    private String storeDlq;
+
+    @Value("${fd-search.messaging.queue:fd.search.queue}")
+    private String searchQueue;
+
+    @Value("${fd-search.messaging.concurrentConsumers:2}")
+    private int searchConcurrentConsumers;
+
+    @Value("${fd-search.messaging.prefetchCount:3}")
+    private int searchPreFetchCount;
 
     String searchBinding() {
         return searchBinding;
@@ -34,19 +80,74 @@ public class Exchanges {
         return searchExchange;
     }
 
-    String storeBinding() {
+    String engineBinding() {
+        return engineBinding;
+    }
+
+    String engineExchangeName(){
+        return engineExchange;
+    }
+    @Bean
+    Queue fdEngineQueue(){
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", engineDlqExchange);
+        return new Queue(engineQueue, true, false, false, params);
+
+    }
+
+    @Bean
+    Exchange fdEngineExchange() {
+        return new DirectExchange(engineExchangeName());
+    }
+
+    @Bean
+    Queue fdSearchQueueDlq(){
+        return new Queue(searchDlq);
+    }
+
+    @Bean
+    Queue fdStoreQueue(){
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", engineDlqExchange);
+        return new Queue(engineQueue, true, false, false, params);
+
+    }
+
+    @Bean
+    Queue fdStoreQueueDlq(){
+        return new Queue(storeDlq);
+    }
+
+    @Bean
+    Queue fdSearchQueue(){
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", searchDlqExchange);
+        return new Queue(searchQueue, true, false, false, params);
+    }
+
+    @Bean
+    Exchange fdSearchExchange() {
+        return new DirectExchange(searchExchange);
+    }
+
+    @Bean
+    Exchange fdSearchDlqExchange() {
+        return new DirectExchange(searchDlqExchange);
+    }
+
+    public String storeBinding() {
         return storeBinding;
     }
 
-    String storeExchange() {
+    public String storeExchange() {
         return storeExchange;
     }
 
-    String trackBinding() {
-        return trackBinding;
+    public String trackExchange(){
+        return trackExchange;
     }
 
-    String trackExchange() {
-        return trackExchange;
+    public String trackBinding(){
+        return trackBinding;
     }
 }

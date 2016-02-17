@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 2:05 PM
  */
 @RestController
-@RequestMapping("/batch")
+@RequestMapping("/v1/batch")
 public class BatchEP {
     @Autowired
     MediationFacade mediationFacade;

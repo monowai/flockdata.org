@@ -295,7 +295,7 @@ public class TestEntityTrack extends EngineBase {
         for (EntityLog entityLog : entitySummary.getChanges()) {
             Log log = entityLog.getLog();
             assertNotNull(log.getEvent());
-            KvContent whatResult = entityService.getWhat(entity, log);
+            KvContent whatResult = entityService.getContent(entity, log);
             assertTrue(whatResult.getData().containsKey("house"));
         }
     }
@@ -759,7 +759,7 @@ public class TestEntityTrack extends EngineBase {
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getLogInputBean());
-        KvContent content = entityService.getWhat(entity, lastLog.getLog());
+        KvContent content = entityService.getContent(entity, lastLog.getLog());
         assertNotNull(content);
         assertTrue(content.getData().containsKey("house"));
     }

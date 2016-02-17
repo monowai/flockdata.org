@@ -21,6 +21,7 @@ package org.flockdata.engine.query.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.integration.FdSearchGateway;
 import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.engine.integration.TagCloudRequest;
@@ -29,7 +30,6 @@ import org.flockdata.model.*;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -76,6 +76,9 @@ public class SearchServiceFacade {
     FdSearchGateway searchGateway;
 
     @Autowired
+    StorageProxy storageProxy;
+
+    @Autowired
     TagCloudRequest.TagCloudGateway tagCloudGateway;
 
     @Autowired
@@ -83,9 +86,6 @@ public class SearchServiceFacade {
 
     @Autowired
     EntityTagService entityTagService;
-
-    @Autowired
-    KvService kvGateway;
 
     @Autowired
     FortressService fortressService;
@@ -245,7 +245,7 @@ public class SearchServiceFacade {
             //Entity entityBean = new EntityBean(entity);
             if (lastChange != null) {
                 if (!entity.isNoLogs()) {
-                    KvContent content = kvGateway.getContent(entity, lastChange);
+                    KvContent content = storageProxy.getContent(entity, lastChange);
                     if (content == null) {
                         logger.error("Unable to locate content for {} ", entity);
                         return null;

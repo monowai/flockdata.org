@@ -21,12 +21,13 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.authentication.registration.service.KeyGenService;
 import org.flockdata.authentication.registration.service.SystemUserService;
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.meta.dao.DocumentTypeRepo;
 import org.flockdata.model.*;
 import org.flockdata.search.IndexManager;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
@@ -39,6 +40,7 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,10 @@ public class EntityDaoNeo {
     EntityRepo entityRepo;
 
     @Autowired
+    @Qualifier ("engineConfig")
+    PlatformConfig engineConfig;
+
+    @Autowired
     TxRepo txRepo;
 
     @Autowired
@@ -68,9 +74,6 @@ public class EntityDaoNeo {
 
     @Autowired
     TrackEventService trackEventService;
-
-    @Autowired
-    KvService kvService;
 
     @Autowired
     KeyGenService keyGenService;
@@ -298,7 +301,7 @@ public class EntityDaoNeo {
         changeLog.setEvent(event);
         changeLog.setPreviousLog(previousChange);
         try {
-            changeLog = kvService.prepareLog(payLoad, changeLog);
+            changeLog = Store.prepareLog(engineConfig.store(), payLoad, changeLog);
         } catch (IOException e) {
             throw new FlockException("Unexpected error talking to What Service", e);
         }

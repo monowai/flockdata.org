@@ -21,7 +21,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/path")
+@RequestMapping("/v1/path")
 public class PathEP {
 
     @Autowired

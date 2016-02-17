@@ -19,7 +19,7 @@
 
 package org.flockdata.company.service;
 
-import org.flockdata.authentication.FdWebSecurity;
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.KeyGenService;
 import org.flockdata.authentication.registration.service.RegistrationService;
@@ -66,7 +66,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Override
     @Transactional
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -81,7 +81,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     }
 
     @Override
-    @Secured({FdWebSecurity.ROLE_ADMIN})
+    @Secured({FdRoles.FD_ROLE_ADMIN})
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
 

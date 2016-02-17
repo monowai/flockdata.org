@@ -33,7 +33,7 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.*;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
@@ -1194,12 +1194,12 @@ public class TestEntityTags extends EngineBase {
 
     @Test
     public void count_NoExistingTagsFullTrackRequest () throws Exception {
-        Boolean storeEnabled = engineConfig.isStoreEnabled();
-        KvService.KV_STORE existing = engineConfig.getKvStore();
+        Boolean storeEnabled = engineConfig.storeEnabled();
+        Store existing = engineConfig.store();
         // Emulates the default PostMan json track call.
         try {
-            kvConfig.setKvStore(KvService.KV_STORE.MEMORY);
-            kvConfig.setStoreEnabled("true");
+            engineConfig.setStore(Store.MEMORY);
+            engineConfig.setStoreEnabled("true");
             logger.info("## count_NoExistingTagsFullTrackRequest");
             SystemUser su = registerSystemUser("Blah");
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
@@ -1216,7 +1216,7 @@ public class TestEntityTags extends EngineBase {
             assertEquals(2, tags.size());
         } finally {
             engineConfig.setStoreEnabled(storeEnabled.toString());
-            kvConfig.setKvStore(existing);
+            engineConfig.setStore(existing);
 
         }
     }

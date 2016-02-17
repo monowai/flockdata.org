@@ -49,7 +49,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("/track")
+@RequestMapping("/v1/track")
 public class TrackEP {
     @Autowired
     EntityService entityService;

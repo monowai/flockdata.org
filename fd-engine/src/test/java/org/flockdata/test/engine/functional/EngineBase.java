@@ -25,6 +25,7 @@ import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.integration.TrackRequests;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
@@ -37,8 +38,6 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.search.IndexManager;
-import org.flockdata.store.FdStoreConfig;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -131,12 +130,6 @@ public abstract class EngineBase {
     QueryService queryService;
 
     @Autowired
-    KvService kvService;
-
-    @Autowired
-    FdStoreConfig kvConfig;
-
-    @Autowired
     public CompanyService companyService;
 
     @Autowired
@@ -145,6 +138,9 @@ public abstract class EngineBase {
 
     @Autowired
     SearchServiceFacade searchService;
+
+    @Autowired
+    StorageProxy kvService;
 
     @Autowired
     Neo4jTemplate template;

@@ -24,9 +24,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
-import org.flockdata.store.KvContent;
-import org.flockdata.store.service.KvService;
-import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntitySummaryBean;
 import org.flockdata.track.bean.LogDetailBean;
@@ -39,7 +36,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,7 +48,7 @@ import java.util.Set;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("/entity")
+@RequestMapping("/v1/entity")
 public class EntityEP {
     @Autowired
     EntityService entityService;
@@ -65,9 +61,6 @@ public class EntityEP {
 
     @Autowired
     EntityTagService entityTagService;
-
-    @Autowired
-    KvService kvService;
 
     @Autowired
     TxService txService;
@@ -209,51 +202,72 @@ public class EntityEP {
         return entityTagService.getEntityTags(result);
     }
 
-    @RequestMapping(value = "/{metaKey}/log/last/attachment",
-            produces = "application/pdf",
-            method = RequestMethod.GET)
-    public
-    @ResponseBody
-    byte[] getAttachment(@PathVariable("metaKey") String metaKey,
-                         HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Entity entity = entityService.getEntity(company, metaKey);
-        if (entity != null) {
-            EntityLog lastLog = logService.getLastLog(entity);
-            if (lastLog == null) {
-                logger.debug("Unable to find last log for {}", entity);
-            } else {
-                KvContent log = kvService.getContent(entity, lastLog.getLog());
-                return DatatypeConverter.parseBase64Binary(log.getAttachment());
-            }
-        }
+// ToDo: Fix this little lot. Move to a service and return the data from there. requires integration to fd-store
+//    @RequestMapping(value = "/{metaKey}/log/last/attachment",
+//            produces = "application/pdf",
+//            method = RequestMethod.GET)
+//    @ResponseBody
+//    public byte[] getAttachment(@PathVariable("metaKey") String metaKey,
+//                         HttpServletRequest request) throws FlockException {
+//        Company company = CompanyResolver.resolveCompany(request);
+//        Entity entity = entityService.getEntity(company, metaKey);
+//        if (entity != null) {
+//            EntityLog lastLog = logService.getLastLog(entity);
+//            if (lastLog == null) {
+//                logger.debug("Unable to find last log for {}", entity);
+//            } else {
+//                KvContent log = kvService.getContent(entity, lastLog.getLog());
+//                return DatatypeConverter.parseBase64Binary(log.getAttachment());
+//            }
+//        }
+//
+//        throw new NotFoundException("Unable to find the content for the requested metaKey");
+//
+//    }
 
-        throw new NotFoundException("Unable to find the content for the requested metaKey");
+//    @RequestMapping(value = "/{metaKey}/log/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
+//    @ResponseBody
+//    public ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
+//                                       HttpServletRequest request) throws FlockException {
+//        Company company = CompanyResolver.resolveCompany(request);
+//        Entity entity = entityService.getEntity(company, metaKey);
+//
+//        if (entity != null) {
+//            EntityLog left = entityService.getLogForEntity(entity, logId);
+//            EntityLog right = entityService.getLogForEntity(entity, withId);
+//            if (left != null && right != null) {
+//                DeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
+//
+//                if (deltaBean != null)
+//                    return new ResponseEntity<>(deltaBean, HttpStatus.OK);
+//            }
+//        }
+//
+//        throw new NotFoundException("Unable to find any content for the requested metaKey");
+//
+//    }
 
-    }
-
-    @RequestMapping(value = "/{metaKey}/log/{logId}/delta/{withId}", produces = "application/json", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    ResponseEntity<DeltaBean> getDelta(@PathVariable("metaKey") String metaKey, @PathVariable("logId") Long logId, @PathVariable("withId") Long withId,
-                                       HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-        Entity entity = entityService.getEntity(company, metaKey);
-
-        if (entity != null) {
-            EntityLog left = entityService.getLogForEntity(entity, logId);
-            EntityLog right = entityService.getLogForEntity(entity, withId);
-            if (left != null && right != null) {
-                DeltaBean deltaBean = kvService.getDelta(entity, left.getLog(), right.getLog());
-
-                if (deltaBean != null)
-                    return new ResponseEntity<>(deltaBean, HttpStatus.OK);
-            }
-        }
-
-        throw new NotFoundException("Unable to find any content for the requested metaKey");
-
-    }
+//    @RequestMapping(value = "/{metaKey}/log/last/data", produces = "application/json", method = RequestMethod.GET)
+//    @ResponseBody
+//    public  Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
+//                                       HttpServletRequest request) throws FlockException {
+//        Company company = CompanyResolver.resolveCompany(request);
+//
+//        Entity entity = entityService.getEntity(company, metaKey);
+//        if (entity != null) {
+//
+//            EntityLog log = entityService.getLastEntityLog(entity.getId());
+//            if (log != null) {
+//                KvContent content = kvService.getContent(entity, log.getLog());
+//                if (content == null)
+//                    throw new FlockException("Unable to locate the content for " + metaKey + ". The log was found - " + log);
+//                return content.getData();
+//            }
+//        }
+//
+//        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", metaKey));
+//
+//    }
 
     @RequestMapping(value = "/{metaKey}/log/{logId}", produces = "application/json", method = RequestMethod.GET)
     public
@@ -298,30 +312,6 @@ public class EntityEP {
 
         return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
     }
-
-    @RequestMapping(value = "/{metaKey}/log/last/data", produces = "application/json", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    Map<String, Object> getLastLogWhat(@PathVariable("metaKey") String metaKey,
-                                       HttpServletRequest request) throws FlockException {
-        Company company = CompanyResolver.resolveCompany(request);
-
-        Entity entity = entityService.getEntity(company, metaKey);
-        if (entity != null) {
-
-            EntityLog log = entityService.getLastEntityLog(entity.getId());
-            if (log != null) {
-                KvContent content = kvService.getContent(entity, log.getLog());
-                if (content == null)
-                    throw new FlockException("Unable to locate the content for " + metaKey + ". The log was found - " + log);
-                return content.getData();
-            }
-        }
-
-        throw new NotFoundException(String.format("Unable to locate the log for %s / lastLog", metaKey));
-
-    }
-
 
     @RequestMapping(value = "/tx/{txRef}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<TxRef> getAuditTx(@PathVariable("txRef") String txRef,

@@ -23,6 +23,7 @@ import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -32,7 +33,6 @@ import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
@@ -90,7 +90,8 @@ public class EntityServiceNeo4J implements EntityService {
     TxService txService;
 
     @Autowired
-    KvService kvService;
+    StorageProxy contentReader;
+
 
     @Autowired
     EntityDaoNeo entityDao;
@@ -117,8 +118,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public KvContent getWhat(Entity entity, Log change) {
-        return kvService.getContent(entity, change);
+    public KvContent getContent(Entity entity, Log log) {
+        return contentReader.getContent(entity, log);
     }
 
     /**
@@ -400,7 +401,7 @@ public class EntityServiceNeo4J implements EntityService {
             entity = entityDao.save(entity);
             entityDao.delete(currentLog);
         }
-        kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
+        //kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
             // Nothing to index, no changes left so we're done
@@ -413,7 +414,7 @@ public class EntityServiceNeo4J implements EntityService {
         // Sync the update to fd-search.
         if (entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
-            KvContent priorContent = kvService.getContent(entity, fromLog);
+            KvContent priorContent = contentReader.getContent(entity, fromLog);
 
             searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexHelper.parseIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
@@ -529,7 +530,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         EntityLog log = entityDao.getLog(entity, logId);
         entityDao.fetch(log.getLog());
-        KvContent what = kvService.getContent(entity, log.getLog());
+        KvContent what = contentReader.getContent(entity, log.getLog());
 
         return new LogDetailBean(log, what);
     }
