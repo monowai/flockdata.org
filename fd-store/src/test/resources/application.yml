@@ -1,0 +1,26 @@
+# Default configuration properties for fd-engine
+
+spring:
+  profiles:
+    active: dev
+    include: fd-auth-none
+
+fd-store:
+  engine: RIAK
+  enabled: true
+  executor:
+    poolSize: 8-15
+    queueCapacity: 3
+  messaging:
+    exchange: fd.store.exchange
+    binding: fd.store.binding
+    queue: fd.store.queue
+    concurrentConsumers: 2
+    prefetchCount: 1
+
+fd-search:
+  url: http://localhost:8081
+
+riak:
+  hosts: 127.0.0.1
+  mapurl: http://localhost:8098/mapred

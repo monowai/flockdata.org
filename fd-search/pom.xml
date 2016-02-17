@@ -177,29 +177,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
-                    <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-jar-plugin</artifactId>-->
-                    <!--<configuration>-->
-                    <!--<archive>-->
-                    <!--<manifest>-->
-                    <!--<mainClass>${start-class}</mainClass>-->
-                    <!--</manifest>-->
-                    <!--</archive>-->
-                    <!--</configuration>-->
-                    <!--<executions>-->
-                    <!--<execution>-->
-                    <!--<id>make-search-jar</id>-->
-                    <!--&lt;!&ndash; ToDo package? &ndash;&gt;-->
-                    <!--<phase>compile</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>jar</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
-                    <!--</executions>-->
-                    <!--</plugin>-->
-
                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>

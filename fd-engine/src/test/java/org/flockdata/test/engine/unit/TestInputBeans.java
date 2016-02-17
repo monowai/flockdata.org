@@ -19,12 +19,12 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.TxRef;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -91,7 +91,7 @@ public class TestInputBeans {
 
         // NonNull tx ref sets the inputBean to be transactional
         DateTime logNow = DateTime.now();
-        ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, Helper.getSimpleMap("abc", 0), "", "txreftest");
+        ContentInputBean logBean = new ContentInputBean("user", "aaa", logNow, EntityContentHelper.getSimpleMap("abc", 0), "", "txreftest");
         entityBean.setContent(logBean); // Creation dates defer to the Log
         assertTrue(logBean.isTransactional());
         assertEquals(now.getMillis(), entityBean.getWhen().getTime());
@@ -108,7 +108,7 @@ public class TestInputBeans {
         assertNotSame(dateC.getTime(), entityBean.getWhen().getTime());
         assertEquals(now.getMillis(), entityBean.getWhen().getTime());
 
-        logBean = new ContentInputBean("user", "aaa", null, Helper.getRandomMap());
+        logBean = new ContentInputBean("user", "aaa", null, EntityContentHelper.getRandomMap());
         assertFalse(logBean.isTransactional());
 
 

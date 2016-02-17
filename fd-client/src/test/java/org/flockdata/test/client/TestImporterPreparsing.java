@@ -21,9 +21,9 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;

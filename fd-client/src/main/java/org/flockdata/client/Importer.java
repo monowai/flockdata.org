@@ -21,10 +21,11 @@ package org.flockdata.client;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.flockdata.authentication.registration.bean.SystemUserResultBean;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
@@ -57,7 +58,7 @@ import java.util.List;
  *
  * @see org.flockdata.client.rest.FdRestWriter
  * @see org.flockdata.profile.model.Mappable
- * @see org.flockdata.authentication.registration.bean.TagInputBean
+ * @see TagInputBean
  * @see org.flockdata.track.bean.EntityInputBean
  * <p>
  * User: Mike Holdsworth

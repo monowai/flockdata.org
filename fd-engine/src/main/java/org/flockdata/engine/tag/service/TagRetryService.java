@@ -19,11 +19,11 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.service.TagService;
 import org.neo4j.graphdb.ConstraintViolationException;
 import org.neo4j.kernel.DeadlockDetectedException;

@@ -19,11 +19,11 @@
 
 package org.flockdata.track.service;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.FortressResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.FortressResultBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;

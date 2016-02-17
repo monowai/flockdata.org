@@ -1,12 +1,12 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityInputBean;

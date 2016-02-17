@@ -14,7 +14,7 @@
     <import resource="fde-amqp-integration.xml"/>
 
     <int:gateway id="kvGateway" async-executor="fd-store"
-                 service-interface="org.flockdata.kv.integration.KvGateway"/>
+                 service-interface="org.flockdata.store.integration.KvGateway"/>
 
     <int:object-to-json-transformer id="sendIndexRequest"
                                     input-channel="sendEntityIndexRequest"

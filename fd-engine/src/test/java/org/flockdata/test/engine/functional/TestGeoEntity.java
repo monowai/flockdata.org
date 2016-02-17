@@ -1,10 +1,10 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.model.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;

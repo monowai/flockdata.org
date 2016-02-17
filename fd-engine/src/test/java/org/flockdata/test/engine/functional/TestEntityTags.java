@@ -25,16 +25,16 @@ package org.flockdata.test.engine.functional;
  * Time: 4:49 PM
  */
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.*;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.store.service.KvService;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.joda.time.DateTime;
@@ -79,7 +79,7 @@ public class TestEntityTags extends EngineBase {
         entityBean.setArchiveTags(false);
         ContentInputBean contentBean = new ContentInputBean();
         contentBean.setEvent("Test");
-        Map<String, Object> jsonMap = Helper.getRandomMap();
+        Map<String, Object> jsonMap = EntityContentHelper.getRandomMap();
         contentBean.setData(jsonMap);
         entityBean.setContent(contentBean);
 
@@ -178,7 +178,7 @@ public class TestEntityTags extends EngineBase {
 
         // Creating some content and adding a new Tag to the entity
         DateTime fUpdated = new DateTime().minus(10000);
-        ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, Helper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean("harry", fUpdated, EntityContentHelper.getRandomMap());
 
         entityBean.addTag(new TagInputBean("Tag2", null,"second").
                 setSince(true));
@@ -217,7 +217,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.addTag(new TagInputBean("TagB", null,"bbbb"));
 
         mediationFacade.trackEntity(su.getCompany(), entityInput);
-        ContentInputBean contentInputBean = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean(EntityContentHelper.getRandomMap());
         entityInput = new EntityInputBean(fortress, "DAT386", "DAT386", new DateTime(), "abc");
         entityInput.addTag(new TagInputBean("TagA", null, "aaaa"));
         entityInput.setContent(contentInputBean);
@@ -415,7 +415,7 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean entity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc");
         // This should create the same Tag object
         mediationFacade.trackEntity(su.getCompany(), entity);
-        ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), Helper.getRandomMap());
+        ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), EntityContentHelper.getRandomMap());
         exception.expect(FlockException.class);
         mediationFacade.trackLog(su.getCompany(), contentInputBean);
 
@@ -715,7 +715,7 @@ public class TestEntityTags extends EngineBase {
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
         inputBean.addTag(institutionTag);
-        inputBean.setContent(new ContentInputBean(Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean(EntityContentHelper.getRandomMap()));
 
         // Institution<-city<-state<-country
 
@@ -751,7 +751,7 @@ public class TestEntityTags extends EngineBase {
         cityInputTag.setTargets("state", stateInputTag);
         stateInputTag.setTargets("country", countryInputTag);
 
-        inputBean.setContent(new ContentInputBean(Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean(EntityContentHelper.getRandomMap()));
 
         // Institution<-city<-state<-country
 
@@ -864,7 +864,7 @@ public class TestEntityTags extends EngineBase {
         TagInputBean tagInput = new TagInputBean("TEST-CREATE", null,"rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         inputBean.addTag(tagInput);
@@ -876,7 +876,7 @@ public class TestEntityTags extends EngineBase {
         // Test that a tag is removed
         EntityInputBean updatedEntity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         updatedEntity.setContent(alb);
         // Updating an existing Entity but the tagCollection is minus TEST-CREATE tag
         // The create call should create a new Tag - TEST-UPDATE - and then remove the TEST-CREATE
@@ -901,7 +901,7 @@ public class TestEntityTags extends EngineBase {
 
         // Make sure when we pass NO tags, i.e. just running an update, we don't change ANY tags
 
-        alb = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         updatedEntity.setContent(alb);
         updatedEntity.getTags().clear();
         entityResult = mediationFacade.trackEntity(su.getCompany(), updatedEntity);
@@ -937,7 +937,7 @@ public class TestEntityTags extends EngineBase {
         TagInputBean tagInput = new TagInputBean("TAG-FIRST", null, "rlx-test");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         inputBean.addTag(tagInput);
@@ -952,7 +952,7 @@ public class TestEntityTags extends EngineBase {
         // Test that a tag is removed
         EntityInputBean updatedEntity = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
         // Force a change to be detected
-        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean alb = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         updatedEntity.setContent(alb);
         // we are updating an existing entity with two tags and telling it that only one is now valid
         updatedEntity.addTag(new TagInputBean("TAG-FIRST",null, "rlx-test"));
@@ -981,7 +981,7 @@ public class TestEntityTags extends EngineBase {
 
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "TestTag","camel"));
@@ -1007,7 +1007,7 @@ public class TestEntityTags extends EngineBase {
 
         //assertNotNull(result);
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.setContent(logBean);
         // This should create the same Tag object
         inputBean.addTag(new TagInputBean("TagA", "TestTag", "camel"));
@@ -1028,7 +1028,7 @@ public class TestEntityTags extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("ABC", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "auditTest", "aTest", new DateTime(), "abc1");
-        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.setContent(logBean);
 
         Map<String, Object> rlxProperties = new HashMap<>();
@@ -1060,7 +1060,7 @@ public class TestEntityTags extends EngineBase {
         Long currentWhen = (Long) trackOut.getProperties().get(EntityTagDao.FD_WHEN);
         assertTrue(currentWhen > 0);
 
-        logBean = new ContentInputBean("mike", new DateTime(), Helper.getRandomMap());
+        logBean = new ContentInputBean("mike", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(outBound);
         inputBean.setContent(logBean);
@@ -1119,7 +1119,7 @@ public class TestEntityTags extends EngineBase {
         SystemUser su = registerSystemUser("search", mike_admin);
         Fortress fo = fortressService.registerFortress(su.getCompany(), new FortressInputBean("cancelLogTag", true));
         EntityInputBean inputBean = new EntityInputBean(fo, "wally", "CancelDoc", new DateTime(), "ABC123");
-        ContentInputBean log = new ContentInputBean("wally", new DateTime(), Helper.getRandomMap());
+        ContentInputBean log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.addTag(new TagInputBean("Happy").addEntityLink("testinga"));
         inputBean.addTag(new TagInputBean("Happy Days").addEntityLink("testingb"));
         inputBean.setContent(log);
@@ -1129,7 +1129,7 @@ public class TestEntityTags extends EngineBase {
         // We now have 1 log with tags validated in ES
 
         // Add another Log - replacing the two existing Tags with two new ones
-        log = new ContentInputBean("wally", new DateTime(), Helper.getRandomMap());
+        log = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getRandomMap());
         inputBean.getTags().clear();
         inputBean.addTag(new TagInputBean("Sad Days").addEntityLink("testingb"));
         inputBean.addTag(new TagInputBean("Days Bay").addEntityLink("testingc"));
@@ -1181,7 +1181,7 @@ public class TestEntityTags extends EngineBase {
 
         assertNotNull(searchChange);
 
-        Map<String, Object> what = Helper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
+        Map<String, Object> what = EntityContentHelper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         // Logging after the entity has been created
         trackResult= mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getMetaKey(), new DateTime(), what));
@@ -1205,7 +1205,7 @@ public class TestEntityTags extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
             EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
             inputBean.setDescription("This is a description");
-            ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+            ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
             inputBean.addTag(new TagInputBean("Samsung" ).setLabel("Law").setEntityLink("plaintiff"));
             inputBean.addTag(new TagInputBean("Apple" ).setLabel("Law").setEntityLink("defendant"));
             inputBean.setContent(cib);

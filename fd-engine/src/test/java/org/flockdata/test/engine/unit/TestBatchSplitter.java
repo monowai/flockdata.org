@@ -22,7 +22,7 @@ package org.flockdata.test.engine.unit;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.TrackResultBean;
 import org.junit.Test;
 
@@ -40,12 +40,12 @@ public class TestBatchSplitter {
     @Test
     public void entitites() throws Exception{
         Collection<TrackResultBean> inputs = new ArrayList<>();
-        Entity entityNewA = Helper.getEntity("blah", "abc", "123", "abc");
+        Entity entityNewA = EntityContentHelper.getEntity("blah", "abc", "123", "abc");
         DocumentType documentType = new DocumentType( entityNewA.getFortress(), "abc");
         assertTrue("Entity did not default to a new state", entityNewA.isNewEntity());
-        Entity entityNewB = Helper.getEntity("blah", "abc", "123", "abcd");
-        Entity entityOldA = Helper.getEntity("blah", "abc", "123", "abcde");
-        Entity entityOldB = Helper.getEntity("blah", "abc", "123", "abcdef");
+        Entity entityNewB = EntityContentHelper.getEntity("blah", "abc", "123", "abcd");
+        Entity entityOldA = EntityContentHelper.getEntity("blah", "abc", "123", "abcde");
+        Entity entityOldB = EntityContentHelper.getEntity("blah", "abc", "123", "abcdef");
         entityOldA.setNewEntity(false);
         entityOldB.setNewEntity(false);
         assertFalse(entityOldA.isNewEntity());

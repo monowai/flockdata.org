@@ -19,10 +19,10 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityInputBean;

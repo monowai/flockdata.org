@@ -1,5 +1,6 @@
 package org.flockdata.search.integration;
 
+import org.flockdata.search.configure.ExecutorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -56,7 +57,7 @@ public class AmqpRabbitConfig {
     Boolean amqpLazyConnect;
 
     @Autowired
-    AsyncConfig asyncConfig;
+    ExecutorConfig executorConfig;
 
     @PostConstruct
     public void logStatus (){
@@ -83,7 +84,7 @@ public class AmqpRabbitConfig {
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-        connect.setExecutor(asyncConfig.fdSearchExecutor());
+        connect.setExecutor(executorConfig.fdSearchExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
     }

@@ -19,11 +19,11 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -61,7 +61,7 @@ public class TestContentDuplicate  extends  EngineBase{
         int max = 5;
         List<ContentInputBean> contentBeans = new ArrayList<>();
         for (int i=0; i<max; i++){
-            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a" +i));
+            ContentInputBean contentBean = new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a" +i));
             contentBeans.add(contentBean);
             inputBean.setContent(contentBean);
             mediationFacade.trackEntity(su.getCompany(), inputBean);

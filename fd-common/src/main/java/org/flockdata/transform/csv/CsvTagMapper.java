@@ -19,10 +19,10 @@
 
 package org.flockdata.transform.csv;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ExpressionHelper;
 import org.flockdata.transform.TransformationHelper;

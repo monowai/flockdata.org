@@ -23,7 +23,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.*;
 import org.flockdata.search.service.QueryServiceEs;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class TestFdQueries extends ESBase{
 
     @Test
     public void query_EndPoints() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
         String fortress = "epFortress";
         String company = "epCompany";

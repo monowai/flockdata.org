@@ -21,13 +21,13 @@ package org.flockdata.test.engine.endpoint;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.flockdata.authentication.LoginRequest;
-import org.flockdata.authentication.registration.bean.*;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
+import org.flockdata.registration.*;
 import org.flockdata.track.bean.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

@@ -31,19 +31,19 @@ import io.searchbox.core.Suggest;
 import io.searchbox.core.SuggestResult;
 import io.searchbox.indices.DeleteIndex;
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -451,7 +451,7 @@ public class ESBase {
         String index = indexHelper.getIndexRoot(fortress);
         fortress.setRootIndex(index);
         DateTime now = new DateTime();
-        EntityInputBean entityInput = Helper.getEntityInputBean(docType, fortress, userName, code, now);
+        EntityInputBean entityInput = EntityContentHelper.getEntityInputBean(docType, fortress, userName, code, now);
 
         DocumentType doc = new DocumentType(fortress, docType);
         return new Entity(Long.toString(System.currentTimeMillis()), fortress.getDefaultSegment(), entityInput, doc)

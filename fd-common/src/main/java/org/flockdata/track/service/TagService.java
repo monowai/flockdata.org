@@ -19,13 +19,13 @@
 
 package org.flockdata.track.service;
 
-import org.flockdata.authentication.registration.bean.AliasInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.AliasInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 
 import java.util.Collection;
 import java.util.Map;

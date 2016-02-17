@@ -21,8 +21,8 @@ package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.kv.KvContent;
-import org.flockdata.kv.service.KvService;
+import org.flockdata.store.KvContent;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
@@ -118,7 +118,7 @@ public class Log  {
      */
     public Log(Entity entity){
         //DAT-349 creates a mock node when storage is disabled
-        this.id = 0l;
+        this.id = System.currentTimeMillis();
         this.mocked = true;
         this.madeBy = (entity.getCreatedBy()==null ? new FortressUser(entity.getSegment().getFortress(), null) :entity.getCreatedBy());
         this.event = (entity.getEvent() == null ? "Create":entity.getEvent());

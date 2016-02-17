@@ -1,11 +1,11 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -77,7 +77,7 @@ public class TestFortressSegments extends EngineBase{
         FortressInputBean fib = new FortressInputBean(fortressName, true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
-        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), Helper.getSimpleMap("name", "a")));
+        inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertTrue(resultBean.getEntity().getSegment().isDefault());

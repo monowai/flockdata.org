@@ -12,19 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 @Component
 public class SimpleUser implements UserProfileService{
 	@Autowired  (required = false)
 	private SystemUserService systemUserService;
 
     private static Logger logger = LoggerFactory.getLogger("configuration");
-
-    @PostConstruct
-    void dumpConfig() {
-        logger.info("**** Using SimpleUser-Security service");
-    }
 
 	public UserProfile getUser(Authentication authentication) {
         Object userName = authentication.getPrincipal();

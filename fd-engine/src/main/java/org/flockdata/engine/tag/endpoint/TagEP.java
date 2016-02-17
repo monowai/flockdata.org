@@ -19,14 +19,14 @@
 
 package org.flockdata.engine.tag.endpoint;
 
-import org.flockdata.authentication.registration.bean.AliasInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.AliasInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;

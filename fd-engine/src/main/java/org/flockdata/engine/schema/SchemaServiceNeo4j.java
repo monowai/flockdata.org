@@ -19,11 +19,11 @@
 
 package org.flockdata.engine.schema;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.meta.dao.SchemaDaoNeo4j;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

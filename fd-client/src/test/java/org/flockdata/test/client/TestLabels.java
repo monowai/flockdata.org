@@ -20,9 +20,9 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.AliasInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
+import org.flockdata.registration.AliasInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;

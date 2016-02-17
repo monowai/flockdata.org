@@ -19,10 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
@@ -57,10 +57,10 @@ public class TestEntitySearch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
 
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
 
         ArrayList<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
@@ -80,12 +80,12 @@ public class TestEntitySearch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
-                new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
 
         mediationFacade.trackEntity(su.getCompany(), beanA); // Handle beanA as an existing entity
         // Now add a new one
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
-                new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+                new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
 
 
         ArrayList<EntityInputBean> beans = new ArrayList<>();

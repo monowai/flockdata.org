@@ -22,7 +22,7 @@ package org.flockdata.test.search.functional;
 import org.flockdata.model.Entity;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.SearchChange;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,7 +49,7 @@ public class AttachmentTests extends ESBase {
         Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
         SearchChange changeA = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
-        changeA.setAttachment(Helper.getPdfDoc());
+        changeA.setAttachment(EntityContentHelper.getPdfDoc());
 
         deleteEsIndex(entity);
 

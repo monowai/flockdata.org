@@ -20,8 +20,8 @@
 package org.flockdata.test.importer;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;

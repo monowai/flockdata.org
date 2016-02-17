@@ -1,7 +1,7 @@
 package org.flockdata.test.helper;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.junit.Test;
 
 /**

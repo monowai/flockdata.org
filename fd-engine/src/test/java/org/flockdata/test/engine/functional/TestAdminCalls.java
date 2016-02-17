@@ -19,14 +19,14 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -128,8 +128,8 @@ public class TestAdminCalls extends WacBase {
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
 
         assertEquals(2, entityService.getLogCount(su.getCompany(), resultBean.getEntity().getMetaKey()));
 
@@ -155,11 +155,11 @@ public class TestAdminCalls extends WacBase {
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
 
         inputBean.setCode("123abc");
         inputBean.setMetaKey(null);
-        inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), Helper.getRandomMap()));
+        inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
         mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
 
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -187,7 +187,7 @@ public class TestAdminCalls extends WacBase {
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
-        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
         trackBean.setContent(logBean);
         String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();
 
@@ -196,7 +196,7 @@ public class TestAdminCalls extends WacBase {
         trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc3");
         trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
         trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
-        logBean = new ContentInputBean("me", DateTime.now(), Helper.getRandomMap());
+        logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
         trackBean.setContent(logBean);
 
         String resultB = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getMetaKey();

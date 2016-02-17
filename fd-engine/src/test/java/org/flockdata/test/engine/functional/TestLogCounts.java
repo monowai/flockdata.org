@@ -19,10 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -57,13 +57,13 @@ public class TestLogCounts extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortWP.getName(), "poppy" );
 
         DateTime today = DateTime.now();
-        inputBean.setContent(new ContentInputBean("poppy", today, Helper.getSimpleMap("name", "a")));
+        inputBean.setContent(new ContentInputBean("poppy", today, EntityContentHelper.getSimpleMap("name", "a")));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertEquals("Exactly 1 log expected", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));
         DateTime yesterday = today.minusDays(1);
         inputBean.setMetaKey(result.getEntity().getMetaKey());
-        inputBean.setContent(new ContentInputBean("poppy", yesterday, Helper.getSimpleMap("name", "b")));
+        inputBean.setContent(new ContentInputBean("poppy", yesterday, EntityContentHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertEquals("Exactly 2 logs expected", 2, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));
 
@@ -72,7 +72,7 @@ public class TestLogCounts extends EngineBase {
 
         // Insert a log for which only the FortressDate time has changed. Should not create a new log
         DateTime yesterdayMoreRecent = yesterday.plusHours(1);
-        inputBean.setContent(new ContentInputBean("poppy", yesterdayMoreRecent, Helper.getSimpleMap("name", "b")));
+        inputBean.setContent(new ContentInputBean("poppy", yesterdayMoreRecent, EntityContentHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertEquals("Back filling an identical log should not create a new one", 2, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));
@@ -88,7 +88,7 @@ public class TestLogCounts extends EngineBase {
 
         DateTime today = DateTime.now();
         ContentInputBean cib = new ContentInputBean("poppy", today);
-        cib.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
+        cib.setAttachment(EntityContentHelper.getPdfDoc(), "pdf", "test.pdf");
         inputBean.setContent(cib);
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -100,7 +100,7 @@ public class TestLogCounts extends EngineBase {
         DateTime yesterday = today.minusDays(1);
         inputBean.setMetaKey(result.getEntity().getMetaKey());
         cib = new ContentInputBean("poppy", yesterday);
-        cib.setAttachment(Helper.getPdfDoc(), "pdf", "test.pdf");
+        cib.setAttachment(EntityContentHelper.getPdfDoc(), "pdf", "test.pdf");
         inputBean.setContent(cib);
         mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertEquals("Same content but different fortress date should not create  new log", 1, entityService.getLogCount(su.getCompany(), result.getEntity().getMetaKey()));

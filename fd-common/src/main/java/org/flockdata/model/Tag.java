@@ -21,8 +21,8 @@ package org.flockdata.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.TagHelper;
+import org.flockdata.registration.TagInputBean;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.*;

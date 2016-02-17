@@ -20,16 +20,16 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdWebSecurity;
-import org.flockdata.authentication.registration.bean.FortressResultBean;
+import org.flockdata.engine.integration.EsStoreRequest;
 import org.flockdata.engine.integration.FdMetaKeyQuery;
 import org.flockdata.engine.integration.FdViewQuery;
 import org.flockdata.engine.integration.TagCloudRequest;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.kv.integration.EsStoreRequest;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressResultBean;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.service.EntityTagService;
@@ -76,7 +76,6 @@ public class QueryService {
     @Autowired
     EsStoreRequest.ContentStoreEs esStore;
 
-
     public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws FlockException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();
 
@@ -120,11 +119,15 @@ public class QueryService {
 //        watch.start("Get ES Query Results");
         queryParams.setCompany(company.getName());
         EsSearchResult esSearchResult;
-        if ( queryParams.getQuery() !=null )
+
+        // ToDo: FixMe fdstore refactor
+        if ( queryParams.getQuery() !=null ) {
             esSearchResult = esStore.getData(queryParams);
-        else {
+        } else {
             esSearchResult = fdViewQuery.fdSearch(queryParams);
         }
+
+
         //watch.stop();
         //logger.info("Hit Count {}, Results {}",esSearchResult.getTotalHits(), (esSearchResult.getResults() == null ? 0 : esSearchResult.getResults().size()));
         //logger.info(watch.prettyPrint());

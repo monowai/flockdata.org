@@ -19,11 +19,11 @@
 
 package org.flockdata.test.engine.endpoint;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.test.engine.functional.TestQueryResults;
 import org.flockdata.test.engine.functional.WacBase;
 import org.flockdata.track.bean.ConceptResultBean;

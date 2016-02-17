@@ -20,10 +20,10 @@
 package org.flockdata.test.engine.endpoint;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Test;
 import org.springframework.test.context.web.WebAppConfiguration;

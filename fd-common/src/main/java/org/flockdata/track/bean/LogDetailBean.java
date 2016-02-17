@@ -20,7 +20,7 @@
 package org.flockdata.track.bean;
 
 import org.flockdata.model.EntityLog;
-import org.flockdata.kv.KvContent;
+import org.flockdata.store.KvContent;
 
 /**
  * User: Mike Holdsworth
