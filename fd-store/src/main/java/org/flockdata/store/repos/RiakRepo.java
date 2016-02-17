@@ -32,9 +32,8 @@ import com.basho.riak.client.core.query.Namespace;
 import com.basho.riak.client.core.query.RiakObject;
 import com.basho.riak.client.core.util.BinaryValue;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
@@ -97,10 +96,10 @@ public class RiakRepo extends AbstractStore {
 
     static final String bucketType = "default";
 
-    public KvContent getValue(Entity entity, Log forLog) {
+    public KvContent getValue(LogRequest logRequest) {
         try {
-            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(entity));
-            Location location = new Location(ns, forLog.getId().toString());
+            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(logRequest.getEntity()));
+            Location location = new Location(ns, logRequest.getLogId().toString());
             FetchValue fv = new FetchValue.Builder(location).build();
             FetchValue.Response response = getClient().execute(fv);
 
@@ -108,7 +107,7 @@ public class RiakRepo extends AbstractStore {
 
             if (result != null) {
                 Object oResult = ObjectHelper.deserialize(result.getValue().getValue());
-                return getKvContent(forLog, oResult);
+                return getKvContent(logRequest.getLogId(), oResult);
             }
         } catch (InterruptedException|RiakException|ExecutionException|IOException|ClassNotFoundException e) {
             logger.error("KV Error", e);
@@ -121,10 +120,10 @@ public class RiakRepo extends AbstractStore {
         return null;
     }
 
-    public void delete(Entity entity, Log log) {
+    public void delete(LogRequest logRequest) {
         try {
-            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(entity));
-            Location location = new Location(ns, log.getId().toString());
+            Namespace ns = new Namespace(bucketType, KvContentBean.parseBucket(logRequest.getEntity()));
+            Location location = new Location(ns, logRequest.getLogId().toString());
             DeleteValue dv = new DeleteValue.Builder(location).build();
             getClient().execute(dv);
         } catch (UnknownHostException|RiakException|InterruptedException|ExecutionException e) {

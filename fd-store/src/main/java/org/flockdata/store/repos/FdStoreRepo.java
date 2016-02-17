@@ -19,9 +19,8 @@
 
 package org.flockdata.store.repos;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 
 import java.io.IOException;
 
@@ -32,9 +31,9 @@ import java.io.IOException;
 public interface FdStoreRepo {
     void add(KvContent contentBean) throws IOException;
 
-    KvContent getValue(Entity entity, Log forLog);
+    KvContent getValue(LogRequest logRequest);
 
-    void delete(Entity entity, Log log);
+    void delete(LogRequest logRequest);
 
     void purge(String index);
 

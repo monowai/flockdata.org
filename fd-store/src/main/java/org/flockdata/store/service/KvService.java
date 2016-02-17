@@ -23,6 +23,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
+import org.flockdata.store.bean.DeltaBean;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.DeltaResultBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -41,15 +43,15 @@ public interface KvService {
 
     Log prepareLog(TrackResultBean content, Log log) throws IOException;
 
-    KvContent getContent(Entity entity, Log log);
+    KvContent getContent(LogRequest logRequest);
 
     void delete(Entity entity, Log change);
 
-    boolean isSame(Entity entity, Log compareFrom, Log compareTo);
+    boolean isSame(DeltaBean deltaBean);
 
     boolean sameJson(KvContent compareFrom, KvContent compareWith);
 
-    DeltaResultBean getDelta(Entity entity, Log from, Log to);
+    DeltaResultBean getDelta(LogRequest logRequest, Log to);
 
     void doWrite( KvContentBean kvBean) throws FlockException;
 

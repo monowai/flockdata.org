@@ -20,9 +20,8 @@
 package org.flockdata.store.repos;
 
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,20 +42,20 @@ public class RedisRepo extends AbstractStore {
         template.opsForValue().set(kvContent.getId(), ObjectHelper.serialize(kvContent.getContent()));
     }
 
-    public KvContent getValue(Entity entity, Log forLog) {
-        byte[] bytes = template.opsForValue().get(forLog.getId());
+    public KvContent getValue(LogRequest logRequest) {
+        byte[] bytes = template.opsForValue().get(logRequest.getLogId());
 
         try {
             Object oResult = ObjectHelper.deserialize(bytes);
-            return getKvContent(forLog, oResult);
+            return getKvContent(logRequest.getLogId(), oResult);
         } catch (ClassNotFoundException | IOException e) {
-            logger.error("Error extracting content for " + forLog, e);
+            logger.error("Error extracting content for " + logRequest, e);
         }
         return null;
     }
 
-    public void delete(Entity entity, Log log) {
-        template.opsForValue().getOperations().delete(log.getId());
+    public void delete(LogRequest logRequest) {
+        template.opsForValue().getOperations().delete(logRequest.getLogId());
     }
 
     @Override

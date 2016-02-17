@@ -21,7 +21,6 @@ package org.flockdata.store.repos;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
@@ -52,13 +51,13 @@ public abstract class AbstractStore implements FdStoreRepo {
 
     }
 
-    protected KvContent getKvContent(Log log, Object oResult) {
+    protected KvContent getKvContent(Long logId, Object oResult) {
         if ( oResult == null )
             return null;
         if (oResult instanceof ContentInputBean)
-            return new KvContentBean(log, (ContentInputBean)oResult );
+            return new KvContentBean(logId, (ContentInputBean)oResult );
         else if ( oResult instanceof Map)
-            return new KvContentBean(log, (Map<String, Object>) oResult);
+            return new KvContentBean(logId, (Map<String, Object>) oResult);
         else {
             logger.error("Unable to handle object result " + oResult.getClass().getCanonicalName());
             return null;

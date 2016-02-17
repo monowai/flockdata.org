@@ -28,7 +28,9 @@ import org.flockdata.helper.FlockServiceException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
+import org.flockdata.store.bean.DeltaBean;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.repos.*;
 import org.flockdata.track.bean.DeltaResultBean;
@@ -53,7 +55,6 @@ import java.util.Set;
  */
 @Service
 @Transactional
-//@Profile({"integration","production"})
 public class StoreManager implements KvService {
 
     private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
@@ -97,21 +98,12 @@ public class StoreManager implements KvService {
      * @param kvBean          payload for the KvStore
      */
     public void doWrite(KvContentBean kvBean) throws FlockServiceException {
-        // Code smell - we're resolving the storage twice
-        // ToDO: Fix me if an error occurs
-//        if (kvBean.getStorage() == null) {
-//            kvBean.setStorage(getKvStore(trackResultBean).name());
-//        }
+
         if (kvBean.getStorage().equals(Store.NONE.name()))
             return;
 
         kvBean.setBucket(kvBean.getBucket());
 
-//        if (kvConfig.isAsyncWrite()) {
-        // Via the Gateway
-        //          logger.debug("Async write begins {}", kvBean);
-        //        kvGateway.doKvWrite(kvBean);
-        //  } else {
         logger.debug("Sync write begins {}", kvBean);
         // ToDo: Extract in to a standalone class
         try {
@@ -142,28 +134,8 @@ public class StoreManager implements KvService {
     @Override
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // ToDo: KVStore's need to be aligned between services
-//        Store storage = getKvStore(trackResult);
         return Store.prepareLog(kvConfig.kvStore(), trackResult, log);
     }
-
-//    public Store getKvStore(TrackResultBean trackResult) {
-//        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.ENABLE)
-//            return kvConfig.kvStore();
-//
-//        if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.DISABLE)
-//            return Store.NONE;
-//
-//        Entity entity = trackResult.getEntity();
-//        FortressSegment segment = entity.getSegment();
-//
-//        // Check against the fortress default
-//        Store storage;
-//        if (segment.getFortress().isStoreEnabled())
-//            storage = kvConfig.kvStore();
-//        else
-//            storage = Store.NONE;
-//        return storage;
-//    }
 
     // Returns the system default kv store
     FdStoreRepo getKvRepo() {
@@ -192,14 +164,14 @@ public class StoreManager implements KvService {
     }
 
     @Override
-    public KvContent getContent(Entity entity, Log log) {
-        if (log == null)
+    public KvContent getContent(LogRequest logRequest) {
+        if (logRequest.getLogId() == null)
             return null;
         try {
-            return getKvRepo(log).getValue(entity, log);
+            return getKvRepo(logRequest.getStore()).getValue(logRequest);
 
         } catch (FlockServiceException re) {
-            logger.error("KV Error Entity[" + entity.getMetaKey() + "] change [" + log.getId() + "]", re);
+            logger.error("KV Error Entity[" + logRequest+ "]", re);
         }
         return null;
     }
@@ -207,45 +179,41 @@ public class StoreManager implements KvService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(entity, change);
+        getKvRepo(change).delete(new LogRequest(entity, change));
     }
 
     /**
      * Determine if the Log Content has changed
      *
-     * @param entity      thing being tracked
-     * @param compareFrom existing change to compare from
-     * @param compareTo   new Change to compare with
      * @return false if different, true if same
      */
     @Override
-    public boolean isSame(Entity entity, Log compareFrom, Log compareTo) {
-        if (compareFrom == null)
+    public boolean isSame(DeltaBean deltaBean) {
+        if (deltaBean.getLogRequest().getLogId()== null)
             return false;
 
         // ToDo: Retryable - what if KV store is down?
-        KvContent content = getContent(entity, compareFrom);
+        KvContent content = getContent(deltaBean.getLogRequest());
 
         if (content == null)
             return false;
 
         logger.debug("Content found [{}]", content);
-        boolean sameContentType = compareFrom.getContentType().equals(compareTo.getContentType());
+        boolean sameContentType = deltaBean.getLogRequest().getContentType().equals(deltaBean.getPreparedLog().getContentType());
 
         return sameContentType &&
-                (sameCheckSum(compareFrom, compareTo) || compareFrom.getContentType().equals("json") &&
-                        sameJson(content, compareTo.getContent()));
+                (sameCheckSum(deltaBean.getLogRequest().getCheckSum(), deltaBean.getPreparedLog()) || deltaBean.getLogRequest().getContentType().equals("json") &&
+                        sameJson(content, deltaBean.getPreparedLog().getContent()));
 
     }
 
-    private boolean sameCheckSum(Log compareFrom, Log compareTo) {
-        return compareFrom.getChecksum().equals(compareTo.getChecksum());
+    private boolean sameCheckSum(String compareFrom, Log compareTo) {
+        return compareFrom.equals(compareTo.getChecksum());
     }
 
     @Override
     public boolean sameJson(KvContent compareFrom, KvContent compareTo) {
-//        if ( compareTo == null )
-//            return false;
+
         if (compareFrom.getData().size() != compareTo.getData().size())
             return false;
         logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getData());
@@ -256,11 +224,11 @@ public class StoreManager implements KvService {
     }
 
     @Override
-    public DeltaResultBean getDelta(Entity entity, Log from, Log to) {
-        if (entity == null || from == null || to == null)
+    public DeltaResultBean getDelta(LogRequest logRequest, Log to) {
+        if (logRequest.getEntity() == null || logRequest.getLogId() == null || to == null)
             throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        KvContent source = getContent(entity, from);
-        KvContent dest = getContent(entity, to);
+        KvContent source = getContent(logRequest);
+        KvContent dest = getContent(new LogRequest(logRequest.getEntity(), to));
         MapDifference<String, Object> diffMap = Maps.difference(source.getData(), dest.getData());
         DeltaResultBean result = new DeltaResultBean();
         result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));

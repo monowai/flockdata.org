@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -40,7 +39,7 @@ import java.util.zip.Checksum;
  * Date: 19/11/14
  * Time: 2:41 PM
  */
-public class KvContentBean implements KvContent, Serializable{
+public class KvContentBean implements KvContent, Serializable {
     private Long id;
     private String checksum;
     private ContentInputBean content = null;
@@ -52,15 +51,9 @@ public class KvContentBean implements KvContent, Serializable{
     KvContentBean() {
     }
 
-    public KvContentBean(Log log, ContentInputBean contentInput) {
-        this.content = contentInput;
-        if ( log!=null )
-            id = log.getId();
-    }
-    public KvContentBean(Log log, Map<String, Object> oResult) {
+    public KvContentBean(Long logId, Map<String, Object> oResult) {
         this(oResult);
-        if ( log!=null )
-            id = log.getId();
+        id = logId;
 
     }
 
@@ -68,7 +61,7 @@ public class KvContentBean implements KvContent, Serializable{
         this.content = new ContentInputBean(json);
     }
 
-    public KvContentBean(Long key, ContentInputBean content){
+    public KvContentBean(Long key, ContentInputBean content) {
         this();
         this.content = content;
         this.id = key;
@@ -82,12 +75,12 @@ public class KvContentBean implements KvContent, Serializable{
 
 
         if (trackResultBean.getCurrentLog() != null) {
-            if ( trackResultBean.getCurrentLog().getLog()!=null) {
+            if (trackResultBean.getCurrentLog().getLog() != null) {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();
-                this.storage= trackResultBean.getCurrentLog().getLog().getStorage();
+                this.storage = trackResultBean.getCurrentLog().getLog().getStorage();
             }
             this.content = trackResultBean.getContentInput();
-            if ( this.content !=null ) {
+            if (this.content != null) {
                 content.setCode(trackResultBean.getEntity().getCode());
                 content.setMetaKey(trackResultBean.getMetaKey());
             }
@@ -96,7 +89,7 @@ public class KvContentBean implements KvContent, Serializable{
 
     public static String parseBucket(Entity entity) {
         // ToDo: Figure this out - DAT-419
-        if ( entity == null )
+        if (entity == null)
             return null;
         return (entity.getSegment().getKey()).toLowerCase();
     }
@@ -107,14 +100,14 @@ public class KvContentBean implements KvContent, Serializable{
 
     @JsonIgnore
     public String getAttachment() {
-        if ( content == null )
+        if (content == null)
             return null;
         return content.getAttachment();
     }
 
     @JsonIgnore
     public Map<String, Object> getData() {
-        if ( content == null )
+        if (content == null)
             return null;
 
         return content.getData();
@@ -125,19 +118,19 @@ public class KvContentBean implements KvContent, Serializable{
      *
      * returns the version of the contentProfile used to create the payload
      */
-    public Double getVersion(){
+    public Double getVersion() {
         return content.getpVer();
     }
 
     public String getChecksum() throws IOException {
-        if ( checksum!=null )
+        if (checksum != null)
             return checksum;
         Checksum crcChecksum = new CRC32();
         byte[] bytes;
-        if ( getAttachment() != null )
-            bytes =getAttachment().getBytes();
+        if (getAttachment() != null)
+            bytes = getAttachment().getBytes();
         else
-            bytes= JsonUtils.getObjectAsJsonBytes(getData());
+            bytes = JsonUtils.getObjectAsJsonBytes(getData());
         crcChecksum.update(bytes, 0, bytes.length);
         checksum = Long.toHexString(crcChecksum.getValue()).toUpperCase();
         return checksum;

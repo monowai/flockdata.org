@@ -1,9 +1,14 @@
 # Default configuration properties for fd-engine
 
 spring:
+  application:
+    name: fd-store
   profiles:
     active: production
     include: fd-auth-none
+
+server:
+  port:8082
 
 fd-store:
   engine: RIAK

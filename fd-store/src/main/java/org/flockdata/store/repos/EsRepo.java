@@ -21,13 +21,12 @@ package org.flockdata.store.repos;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.integration.EsStoreRequest;
 import org.flockdata.track.bean.ContentInputBean;
@@ -59,14 +58,14 @@ public class EsRepo extends AbstractStore {
 
     }
 
-    public KvContent getValue(Entity entity, Log forLog)  {
-        QueryParams queryParams = new QueryParams(indexHelper.parseIndex(entity)
-                , IndexManager.parseType(entity)
-                ,entity.getSearchKey() );
+    public KvContent getValue(LogRequest logRequest)  {
+        QueryParams queryParams = new QueryParams(indexHelper.parseIndex(logRequest.getEntity())
+                , IndexManager.parseType(logRequest.getEntity())
+                , logRequest.getEntity().getSearchKey() );
 
         ContentInputBean contentInput = new ContentInputBean();
         // DAT-347
-        if ( entity.getSearchKey() != null ){
+        if ( logRequest.getEntity().getSearchKey() != null ){
             EsSearchResult result = esStore.getData(queryParams);
 
             if (result!=null )
@@ -85,10 +84,10 @@ public class EsRepo extends AbstractStore {
 
 
         }
-        return new KvContentBean(forLog, contentInput);
+        return new KvContentBean(logRequest.getLogId(), contentInput);
     }
 
-    public void delete(Entity entity, Log log) {
+    public void delete(LogRequest logRequest) {
         // ToDo: delete from ES
     }
 
