@@ -49,7 +49,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("/v1/track")
+@RequestMapping("${fd-engine.system.api}/v1/track")
 public class TrackEP {
     @Autowired
     EntityService entityService;

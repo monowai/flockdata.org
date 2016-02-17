@@ -168,7 +168,7 @@ public class LogRetryService {
 
         if (lastLog != null) {
             logger.debug("createLog, existing log found {}", lastLog);
-            boolean unchanged = storage.isSame(trackResult.getEntity(), lastLog.getLog(), preparedLog);
+            boolean unchanged = storage.compare(trackResult.getEntity(), lastLog.getLog(), preparedLog);
             if (unchanged) {
                 logger.debug("Ignoring a change we already have {}", trackResult);
                 if (trackResult.getContentInput().isForceReindex()) { // Caller is recreating the search index

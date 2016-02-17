@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.track.endpoint;
+package org.flockdata.engine.track.service;
 
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.geography.service.GeographyService;

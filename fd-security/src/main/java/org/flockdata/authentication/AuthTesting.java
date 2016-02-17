@@ -26,8 +26,8 @@ public class AuthTesting implements FdWebSecurity {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/login", "/logout", "/ping").permitAll()
-                .antMatchers("/v1/**").authenticated();
+                .antMatchers("/api/login", "/api/logout", "/api/ping").permitAll()
+                .antMatchers("/api/v1/**").authenticated();
         http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
         http.httpBasic();
         //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/

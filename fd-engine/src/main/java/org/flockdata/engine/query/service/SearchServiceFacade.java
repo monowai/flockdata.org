@@ -245,7 +245,7 @@ public class SearchServiceFacade {
             //Entity entityBean = new EntityBean(entity);
             if (lastChange != null) {
                 if (!entity.isNoLogs()) {
-                    KvContent content = storageProxy.getContent(entity, lastChange);
+                    KvContent content = storageProxy.read(entity, lastChange);
                     if (content == null) {
                         logger.error("Unable to locate content for {} ", entity);
                         return null;

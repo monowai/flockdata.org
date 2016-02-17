@@ -21,7 +21,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/v1/path")
+@RequestMapping("${fd-engine.system.api}/v1/path")
 public class PathEP {
 
     @Autowired

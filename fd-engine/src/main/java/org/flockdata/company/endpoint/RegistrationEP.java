@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 // Customise a dispatcher in web.xml
-@RequestMapping("/v1/profiles")
+@RequestMapping("${fd-engine.system.api}/v1/profiles")
 public class RegistrationEP {
 
     @Autowired

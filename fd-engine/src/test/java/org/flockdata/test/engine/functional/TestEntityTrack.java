@@ -442,7 +442,7 @@ public class TestEntityTrack extends EngineBase {
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         for (EntityLog entityLog : logs) {
-            KvContent content = kvService.getContent(entity, entityLog.getLog());
+            KvContent content = kvService.read(entity, entityLog.getLog());
             assertNotNull(content);
             assertNotNull(content.getData());
             assertFalse(content.getData().isEmpty());
@@ -956,7 +956,7 @@ public class TestEntityTrack extends EngineBase {
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
 
-        KvContent content = kvService.getContent(trackResultBean.getEntity(), lastLog.getLog());
+        KvContent content = kvService.read(trackResultBean.getEntity(), lastLog.getLog());
         assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1000,7 +1000,7 @@ public class TestEntityTrack extends EngineBase {
         entity = entityService.findByCode(fortress, "TestTrack", callerRef);
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
-        KvContent what = kvService.getContent(entity, lastLog.getLog());
+        KvContent what = kvService.read(entity, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getData().get("col");
@@ -1210,7 +1210,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(1, entityService.getLogCount(su.getCompany(), result.getMetaKey()));
         EntityLog log = logService.getLastLog(result.getEntity());
         assertEquals(Long.valueOf(updateDate.getMillis()), log.getFortressWhen());
-        KvContent kvContent = kvService.getContent(result.getEntity(), log.getLog());
+        KvContent kvContent = kvService.read(result.getEntity(), log.getLog());
         assertNotNull(kvContent);
         Object value = kvContent.getData().get("key");
         assertNotNull(value);

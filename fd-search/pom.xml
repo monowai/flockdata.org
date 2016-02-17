@@ -105,7 +105,7 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
-            <artifactId>fd-engine</artifactId>
+            <artifactId>fd-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>

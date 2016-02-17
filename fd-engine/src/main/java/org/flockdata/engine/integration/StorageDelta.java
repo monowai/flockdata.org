@@ -1,6 +1,7 @@
 package org.flockdata.engine.integration;
 
 import org.flockdata.store.bean.DeltaBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.Gateway;
@@ -18,17 +19,18 @@ import org.springframework.retry.annotation.Retryable;
 @Profile({"integration","production"})
 public class StorageDelta {
 
-    private MessageChannel startDelta(){
+    @Bean
+    MessageChannel startDelta(){
         return new DirectChannel();
     }
 
-    private MessageChannel deltaReply(){
+    @Bean
+    MessageChannel deltaReply(){
         return new DirectChannel();
     }
 
-
-    @MessagingGateway(asyncExecutor ="fd-store")
-    @IntegrationComponentScan
+    // HTTP
+    @MessagingGateway
     public interface DeltaGateway {
         @Gateway(requestChannel = "startDelta", requestTimeout = 40000, replyChannel = "deltaReply")
         @Retryable

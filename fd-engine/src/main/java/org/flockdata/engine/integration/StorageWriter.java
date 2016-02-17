@@ -7,6 +7,7 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * Created by mike on 17/02/16.
@@ -16,11 +17,13 @@ import org.springframework.retry.annotation.Retryable;
 @Profile({"integration","production"})
 public class StorageWriter {
 
-    @MessagingGateway(asyncExecutor ="fd-store")
-    @IntegrationComponentScan
-    public interface StorageGateway {
+    // Over AMQP
+
+    @MessagingGateway
+    public interface WriteStorageGateway {
         @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
         @Retryable
+        @Async("fd-store")
         void doStoreWrite(KvContentBean resultBean);
     }
 
