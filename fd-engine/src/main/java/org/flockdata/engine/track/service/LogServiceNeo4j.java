@@ -20,10 +20,11 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.authentication.registration.service.CompanyService;
+import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.dao.EntityDaoNeo;
-import org.flockdata.engine.integration.StorageWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
+import org.flockdata.store.KvContent;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -54,7 +55,7 @@ public class LogServiceNeo4j implements LogService {
     private Logger logger = LoggerFactory.getLogger(LogServiceNeo4j.class);
 
     @Autowired
-    StorageWriter.StorageGateway storageGateway;
+    StorageProxy storageProxy;
 
     @Autowired
     FortressService fortressService;
@@ -108,7 +109,7 @@ public class LogServiceNeo4j implements LogService {
         if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
             // Log is now prepared (why not just get KvContent??
             KvContentBean kvContentBean = new KvContentBean(resultBean);
-            storageGateway.doStoreWrite(kvContentBean);
+            storageProxy.doStoreWrite(kvContentBean);
         }
     }
 
@@ -132,6 +133,11 @@ public class LogServiceNeo4j implements LogService {
             return null;
         logger.trace("Getting lastLog MetaID [{}]", entity.getId());
         return entityDao.getLastLog(entity.getId());
+    }
+
+    @Override
+    public KvContent getContent(Entity entity, Log log) {
+        return storageProxy.getContent(entity, log);
     }
 
 }

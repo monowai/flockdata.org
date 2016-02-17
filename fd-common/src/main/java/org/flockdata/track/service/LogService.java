@@ -21,10 +21,10 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
+import org.flockdata.store.KvContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 
-import javax.swing.text.Document;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -45,4 +45,5 @@ public interface LogService {
 
     EntityLog getLastLog(Entity entity) throws FlockException;
 
+    KvContent getContent(Entity entity, Log log);
 }

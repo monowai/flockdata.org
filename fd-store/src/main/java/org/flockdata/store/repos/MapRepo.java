@@ -19,9 +19,8 @@
 
 package org.flockdata.store.repos;
 
-import org.flockdata.model.Entity;
-import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.stereotype.Component;
@@ -41,13 +40,13 @@ public class MapRepo extends AbstractStore {
         map.put(contentBean.getId(), contentBean.getContent());
     }
 
-    public KvContent getValue(Entity entity, Log forLog) {
+    public KvContent getValue(LogRequest logRequest) {
 
-        return new KvContentBean(forLog, map.get(forLog.getId()));
+        return new KvContentBean(logRequest.getLogId(), map.get(logRequest.getLogId()));
     }
 
-    public void delete(Entity entity, Log log) {
-        map.remove(log.getId());
+    public void delete(LogRequest logRequest) {
+        map.remove(logRequest.getLogId());
     }
 
     @Override

@@ -18,7 +18,7 @@ public enum Store {
 
     public static Log prepareLog (Store defaultStore, TrackResultBean trackResult, Log log) throws IOException {
         Store storage = resolveStore(trackResult, defaultStore);
-        KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
+        KvContent kvContent = new KvContentBean(log.getId(), trackResult.getContentInput());
         kvContent.setStorage(storage.name());
         log.setStorage(storage.name());
         log.setChecksum(kvContent.getChecksum());

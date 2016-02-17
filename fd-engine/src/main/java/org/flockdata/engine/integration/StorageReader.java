@@ -1,7 +1,7 @@
 package org.flockdata.engine.integration;
 
 import org.flockdata.store.KvContent;
-import org.flockdata.store.bean.ReadContentBean;
+import org.flockdata.store.LogRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.Gateway;
@@ -32,6 +32,6 @@ public class StorageReader {
     public interface ReadStorageGateway {
         @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
         @Retryable
-        KvContent read(ReadContentBean readContentFor);
+        KvContent read(LogRequest readContentFor);
     }
 }

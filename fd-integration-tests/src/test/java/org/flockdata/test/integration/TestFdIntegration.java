@@ -43,7 +43,7 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
@@ -177,9 +177,6 @@ public class TestFdIntegration {
     ConceptService conceptService;
 
     @Autowired
-    KvService kvService;
-
-    @Autowired
     MatrixService matrixService;
 
     @Autowired
@@ -278,8 +275,8 @@ public class TestFdIntegration {
         Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("Utf8");
 
-        KvService.KV_STORE previousStore = engineConfig.store();
-        engineConfig.setStore(KvService.KV_STORE.NONE); // Will resolve to ElasticSearch
+        Store previousStore = engineConfig.store();
+        engineConfig.setStore(Store.NONE); // Will resolve to ElasticSearch
 
         try {
             Fortress fortress = fortressService
@@ -304,7 +301,7 @@ public class TestFdIntegration {
 
             assertNotNull(entityLog);
             assertNotNull(entityLog.getLog());
-            KvContent content = kvService.getContent(result.getEntity(), entityLog.getLog());
+            KvContent content = logService.getContent(result.getEntity(), entityLog.getLog());
 
             // Now test other ES http integration functions
             // Search
@@ -1618,7 +1615,7 @@ public class TestFdIntegration {
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
-        assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
+        assertEquals(Store.NONE.name(), entityLog.getLog().getStorage());
         // @see TestVersioning.log_ValidateValues - this just adds an actual call to fd-search
         logger.info("Track request made. About to wait for first search result");
         esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
@@ -1627,7 +1624,7 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(input.getCode(), entity.getSearchKey());
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
-        KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
+        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1637,7 +1634,7 @@ public class TestFdIntegration {
         assertNotNull(entityLog);
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
 
-        kvService.getContent(entity, entityLog.getLog());
+        logService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1666,14 +1663,14 @@ public class TestFdIntegration {
         EntityLog entityLog = entityService.getLastEntityLog(result.getEntity().getId());
 
         assertNotNull(entityLog);
-        assertEquals(KvService.KV_STORE.NONE.name(), entityLog.getLog().getStorage());
+        assertEquals(Store.NONE.name(), entityLog.getLog().getStorage());
         esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
 
         // Want to get the latest version to obtain the search key for debugging
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(entity.getMetaKey(), entity.getSearchKey());
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
-        KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
+        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1683,7 +1680,7 @@ public class TestFdIntegration {
         assertNotNull(entityLog);
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
 
-        kvService.getContent(entity, entityLog.getLog());
+        logService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1718,7 +1715,7 @@ public class TestFdIntegration {
         // Can we find the changed data in ES?
         esHelper.doEsQuery(result.getEntity(), content.getData().get("Athlete").toString(), 1);
         // And are we returning the same data from the KV Service?
-        KvContent kvContent = kvService.getContent(entity, result.getCurrentLog().getLog());
+        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1733,7 +1730,7 @@ public class TestFdIntegration {
         Helper.waitAWhile("Async log is still processing");
         Helper.waitAWhile("Waiting for second update to occur");
 
-        kvContent = kvService.getContent(entity, entityLog.getLog());
+        kvContent = logService.getContent(entity, entityLog.getLog());
         assertNotNull(kvContent);
         assertNotNull(kvContent.getData());
         assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
@@ -1765,7 +1762,7 @@ public class TestFdIntegration {
             esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
             Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
             assertNotNull(entity.getSearchKey());
-            KvContent kvc = kvService.getContent(entity, result.getCurrentLog().getLog());
+            KvContent kvc = logService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "1234");
 
@@ -1780,7 +1777,7 @@ public class TestFdIntegration {
 
             esHelper.doEsQuery(result.getEntity(), "*", 2);
 
-            kvc = kvService.getContent(entity, result.getCurrentLog().getLog());
+            kvc = logService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "NA");
         } finally {
@@ -1893,7 +1890,7 @@ public class TestFdIntegration {
         SystemUser su = registerSystemUser("segments_ExistInElasticSearch", "segments_ExistInElasticSearch");
         assertNotNull(su);
         engineConfig.setStoreEnabled("false");
-        KvService.KV_STORE previousKv = engineConfig.setStore(KvService.KV_STORE.NONE);
+        Store previousKv = engineConfig.setStore(Store.NONE);
         try {
 
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("segmenttest"));
@@ -1940,7 +1937,7 @@ public class TestFdIntegration {
 
             // Ensure we can find the entity content when it is stored in a segmented ES index
             EntityLog lastLog = entityService.getLastEntityLog(entity2014.getId());
-            KvContent contentFromEs = kvService.getContent(entity2014, lastLog.getLog());
+            KvContent contentFromEs = logService.getContent(entity2014, lastLog.getLog());
             assertNotNull("fd-store, unable to locate the content from ES", contentFromEs);
         } finally {
             engineConfig.setStore(previousKv);

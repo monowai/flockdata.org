@@ -26,6 +26,7 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.FdStore;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.service.FdStoreConfig;
@@ -183,7 +184,7 @@ public class KvServiceTest {
             kvService.doWrite(kvContentBean);
 
             // Retrieve the content we just created
-            KvContent kvContent = kvService.getContent(entity, trackResultBean.getCurrentLog().getLog());
+            KvContent kvContent = kvService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             assertNotNull(kvContent);
             assertNotNull(kvContent.getContent().getMetaKey());
             assertNotNull(kvContent.getContent().getCode());
@@ -271,7 +272,7 @@ public class KvServiceTest {
             KvContentBean kvContentBean = new KvContentBean(tr);
             kvService.doWrite( kvContentBean);
             EntityLog entityLog = tr.getCurrentLog();
-            KvContent entityContent = kvService.getContent(entity, entityLog.getLog());
+            KvContent entityContent = kvService.getContent(new LogRequest(entity, entityLog.getLog()));
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install

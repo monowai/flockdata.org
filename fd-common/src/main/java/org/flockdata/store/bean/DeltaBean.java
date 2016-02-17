@@ -1,7 +1,7 @@
 package org.flockdata.store.bean;
 
-import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
+import org.flockdata.store.LogRequest;
 
 /**
  * Created by mike on 17/02/16.
@@ -9,14 +9,20 @@ import org.flockdata.model.Log;
 public class DeltaBean {
     DeltaBean(){}
 
-    private Entity entity;
-    private Log log;
+    private LogRequest logRequest;
     private Log preparedLog;
 
-    public DeltaBean(Entity entity, Log log, Log preparedLog) {
+    public DeltaBean(LogRequest logRequest, Log preparedLog) {
         this();
-        this.entity = entity;
-        this.log =log;
+        this.logRequest = logRequest;
         this.preparedLog = preparedLog;
+    }
+
+    public LogRequest getLogRequest() {
+        return logRequest;
+    }
+
+    public Log getPreparedLog() {
+        return preparedLog;
     }
 }
