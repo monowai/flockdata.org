@@ -24,7 +24,7 @@ spring:
 ## or, if typeSuffix : :  true
 ##   fd.mycompany.sap.invoice/Invoice
 fd-search:
-  url: http://127.0.0.1:8081
+  api: http://127.0.0.1:8081/api
   index:
     prefix: true
   messaging:
@@ -51,6 +51,7 @@ fd-engine:
     search: enabled
     store: disabled
   system:
+    api: api # Mount point for the api
     constraints: true
     concepts: true
     timings: false

@@ -2,6 +2,7 @@ package org.flockdata.engine.integration;
 
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.Gateway;
@@ -19,16 +20,18 @@ import org.springframework.retry.annotation.Retryable;
 @Profile({"integration","production"})
 public class StorageReader {
 
+    @Bean
     MessageChannel startStoreRead(){
         return new DirectChannel();
     }
 
+    @Bean
     MessageChannel storeReadResult(){
         return new DirectChannel();
     }
 
-    @MessagingGateway(asyncExecutor ="fd-store")
-    @IntegrationComponentScan
+    // HTTP
+    @MessagingGateway
     public interface ReadStorageGateway {
         @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
         @Retryable

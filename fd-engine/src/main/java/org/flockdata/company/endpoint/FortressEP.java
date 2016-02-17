@@ -49,7 +49,7 @@ import java.util.TimeZone;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("/v1/fortress")
+@RequestMapping("${fd-engine.system.api}/v1/fortress")
 public class FortressEP {
 
     @Autowired

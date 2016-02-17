@@ -21,8 +21,8 @@ package org.flockdata.meta.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.dao.ProfileDaoNeo;
-import org.flockdata.engine.track.endpoint.FdServerWriter;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

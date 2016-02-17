@@ -25,7 +25,6 @@ import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
@@ -108,8 +107,8 @@ public class LogServiceNeo4j implements LogService {
 
         if (resultBean.getContentInput() != null && !resultBean.isLogIgnored()) {
             // Log is now prepared (why not just get KvContent??
-            KvContentBean kvContentBean = new KvContentBean(resultBean);
-            storageProxy.doStoreWrite(kvContentBean);
+
+            storageProxy.write(resultBean);
         }
     }
 
@@ -137,7 +136,7 @@ public class LogServiceNeo4j implements LogService {
 
     @Override
     public KvContent getContent(Entity entity, Log log) {
-        return storageProxy.getContent(entity, log);
+        return storageProxy.read(entity, log);
     }
 
 }

@@ -119,7 +119,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     @Override
     public KvContent getContent(Entity entity, Log log) {
-        return contentReader.getContent(entity, log);
+        return contentReader.read(entity, log);
     }
 
     /**
@@ -414,7 +414,7 @@ public class EntityServiceNeo4J implements EntityService {
         // Sync the update to fd-search.
         if (entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
-            KvContent priorContent = contentReader.getContent(entity, fromLog);
+            KvContent priorContent = contentReader.read(entity, fromLog);
 
             searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexHelper.parseIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
@@ -530,7 +530,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         EntityLog log = entityDao.getLog(entity, logId);
         entityDao.fetch(log.getLog());
-        KvContent what = contentReader.getContent(entity, log.getLog());
+        KvContent what = contentReader.read(entity, log.getLog());
 
         return new LogDetailBean(log, what);
     }
