@@ -29,15 +29,10 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.Log;
-import org.flockdata.store.FdStoreConfig;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.KvRepo;
+import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.store.integration.KvGateway;
-import org.flockdata.store.repos.EsRepo;
-import org.flockdata.store.repos.MapRepo;
-import org.flockdata.store.repos.RedisRepo;
-import org.flockdata.store.repos.RiakRepo;
+import org.flockdata.store.repos.*;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.slf4j.Logger;
@@ -61,15 +56,12 @@ import java.util.Set;
 @Service
 @Transactional
 //@Profile({"integration","production"})
-public class KvManager implements KvService {
-
-    @Autowired
-    KvGateway kvGateway;  // Used for async loose coupling between this service and the db
+public class StoreManager implements KvService {
 
     private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
     @Autowired
-    RedisRepo redisRepo;
+    AbstractStore redisRepo;
 
     @Autowired
     RiakRepo riakRepo;
@@ -83,11 +75,11 @@ public class KvManager implements KvService {
     @Autowired
     FdStoreConfig kvConfig;
 
-    private Logger logger = LoggerFactory.getLogger(KvManager.class);
+    private Logger logger = LoggerFactory.getLogger(StoreManager.class);
 
     @Override
     public String ping() {
-        KvRepo repo = getKvRepo();
+        FdStoreRepo repo = getKvRepo();
         return repo.ping();
     }
 
@@ -104,7 +96,6 @@ public class KvManager implements KvService {
      * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
      * will have to deal with any errors
      *
-     * @param trackResultBean
      * @param kvBean          payload for the KvStore
      */
     public void doWrite(KvContentBean kvBean) throws FlockServiceException {
@@ -113,7 +104,7 @@ public class KvManager implements KvService {
 //        if (kvBean.getStorage() == null) {
 //            kvBean.setStorage(getKvStore(trackResultBean).name());
 //        }
-        if (kvBean.getStorage().equals(KV_STORE.NONE.name()))
+        if (kvBean.getStorage().equals(Store.NONE.name()))
             return;
 
         kvBean.setBucket(kvBean.getBucket());
@@ -128,10 +119,10 @@ public class KvManager implements KvService {
         try {
             // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add kvBean {}", kvBean);
-            getKvRepo(KV_STORE.valueOf(kvBean.getStorage())).add(kvBean);
+            getKvRepo(Store.valueOf(kvBean.getStorage())).add(kvBean);
 
         } catch (IOException e) {
-            String errorMsg = String.format("Error writing to the %s KvStore.", kvConfig.kvStore());
+            String errorMsg = String.format("Error writing to the %s KvStore.", kvConfig.kvStore().name());
             logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
             //           resolve the underlying DB problem
             throw new AmqpRejectAndDontRequeueException(errorMsg, e); // Keep the message on the queue
@@ -153,7 +144,7 @@ public class KvManager implements KvService {
     @Override
     public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
         // Compress the Value of JSONText
-        KV_STORE storage = getKvStore(trackResult);
+        Store storage = getKvStore(trackResult);
 
         KvContent kvContent = new KvContentBean(log, trackResult.getContentInput());
         kvContent.setStorage(storage.name());
@@ -162,43 +153,43 @@ public class KvManager implements KvService {
         return getKvRepo(storage).prepareLog(log, kvContent);
     }
 
-    public KV_STORE getKvStore(TrackResultBean trackResult) {
+    public Store getKvStore(TrackResultBean trackResult) {
         if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.ENABLE)
             return kvConfig.kvStore();
 
         if (trackResult.getDocumentType().getVersionStrategy() == DocumentType.VERSION.DISABLE)
-            return KV_STORE.NONE;
+            return Store.NONE;
 
         Entity entity = trackResult.getEntity();
         FortressSegment segment = entity.getSegment();
 
         // Check against the fortress default
-        KV_STORE storage;
+        Store storage;
         if (segment.getFortress().isStoreEnabled())
             storage = kvConfig.kvStore();
         else
-            storage = KV_STORE.NONE;
+            storage = Store.NONE;
         return storage;
     }
 
     // Returns the system default kv store
-    KvRepo getKvRepo() {
+    FdStoreRepo getKvRepo() {
         return getKvRepo(kvConfig.kvStore());
     }
 
     // Returns the kvstore based on log.storage
-    KvRepo getKvRepo(Log log) {
-        return getKvRepo(KV_STORE.valueOf(log.getStorage()));
+    FdStoreRepo getKvRepo(Log log) {
+        return getKvRepo(Store.valueOf(log.getStorage()));
     }
 
-    KvRepo getKvRepo(KV_STORE kvStore) {
-        if (kvStore == KV_STORE.REDIS) {
+    FdStoreRepo getKvRepo(Store kvStore) {
+        if (kvStore == Store.REDIS) {
             return redisRepo;
-        } else if (kvStore == KV_STORE.RIAK) {
+        } else if (kvStore == Store.RIAK) {
             return riakRepo;
-        } else if (kvStore == KV_STORE.MEMORY) {
+        } else if (kvStore == Store.MEMORY) {
             return mapRepo;
-        } else if (kvStore == KV_STORE.NONE) {
+        } else if (kvStore == Store.NONE) {
             return defaultStore;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");

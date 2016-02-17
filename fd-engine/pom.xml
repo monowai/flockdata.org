@@ -25,7 +25,6 @@
             <artifactId>fd-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- We embed fd-store in to fd-engine-->
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>

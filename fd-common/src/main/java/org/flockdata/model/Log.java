@@ -22,7 +22,7 @@ package org.flockdata.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.Store;
 import org.flockdata.track.bean.ContentInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
@@ -122,7 +122,7 @@ public class Log  {
         this.mocked = true;
         this.madeBy = (entity.getCreatedBy()==null ? new FortressUser(entity.getSegment().getFortress(), null) :entity.getCreatedBy());
         this.event = (entity.getEvent() == null ? "Create":entity.getEvent());
-        this.storage = KvService.KV_STORE.NONE.name();
+        this.storage = Store.NONE.name();
     }
 
     public Log(FortressUser madeBy, ContentInputBean contentBean, TxRef txRef) {

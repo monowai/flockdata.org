@@ -2,7 +2,7 @@ package org.flockdata.store.integration;
 
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.store.service.KvManager;
+import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +17,10 @@ import org.springframework.retry.annotation.Retryable;
  */
 @Configuration
 @IntegrationComponentScan
-public class KvWriter {
+public class StoreWriter {
 
     @Autowired
-    KvManager kvManager;
+    StoreManager storeManager;
 
     @Bean
     MessageChannel startKvWrite(){
@@ -40,7 +40,7 @@ public class KvWriter {
     @ServiceActivator(inputChannel = "doKvWrite", requiresReply = "false")
     @Retryable
     public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
-        kvManager.doWrite(kvBean);
+        storeManager.doWrite(kvBean);
     }
 
 

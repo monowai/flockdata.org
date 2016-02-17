@@ -45,7 +45,7 @@ import java.util.Map;
  * current state content
  */
 @Component
-public class EsRepo extends AbstractKvRepo{
+public class EsRepo extends AbstractStore {
 
     @Autowired
     EsStoreRequest.ContentStoreEs esStore;

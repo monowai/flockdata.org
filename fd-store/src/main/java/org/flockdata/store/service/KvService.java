@@ -23,6 +23,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
+import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -54,7 +55,7 @@ public interface KvService {
     void doWrite( KvContentBean kvBean) throws FlockException;
 
     // Resolves the kv store to use for a given trackResult
-    KV_STORE getKvStore(TrackResultBean trackResult);
+    Store getKvStore(TrackResultBean trackResult);
 
-    enum KV_STORE {REDIS, RIAK, MEMORY, NONE}
+
 }
