@@ -19,13 +19,13 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentProfileImpl params = Helper.getImportParams("/profiles/test-csv-batch.json");
+        ContentProfileImpl params = ContentProfileDeserializer.getImportParams("/profiles/test-csv-batch.json");
 
         Profile p = importProfileService.save(fortress, docType, params );
         importProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);

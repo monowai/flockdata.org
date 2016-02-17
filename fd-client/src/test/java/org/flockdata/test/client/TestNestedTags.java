@@ -19,7 +19,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;

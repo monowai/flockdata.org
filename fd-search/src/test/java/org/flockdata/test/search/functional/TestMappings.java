@@ -20,14 +20,14 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.*;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;
@@ -58,7 +58,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
         String fortress = "fort";
         String company = "test";
@@ -101,7 +101,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void count_CorrectSearchResults() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
         String fortress = "fort";
         String company = "test";
@@ -137,7 +137,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void testCustomMappingWorks() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
         Entity entityA = getEntity("cust", "fort", "anyuser", "fort");
         Entity entityB = getEntity("cust", "fortb", "anyuser", "fortb");
 
@@ -172,7 +172,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void sameIndexDifferentDocumentsHaveMappingApplied() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
         String fortress = new Date().toString();
 //        String fortress = "fort";
         Entity entityA = getEntity("cust", fortress, "anyuser", "fortdoc");
@@ -217,7 +217,7 @@ public class TestMappings extends ESBase {
 
     @Test
     public void tagWithRelationshipNamesMatchingNodeNames() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
         Entity entity = getEntity("cust", "tagWithRelationshipNamesMatchingNodeNames", "anyuser", "fortdoc");
         deleteEsIndex(entity);
         SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexHelper.parseIndex(entity));
@@ -254,7 +254,7 @@ public class TestMappings extends ESBase {
         Entity entity = getEntity(comp, fort, user, fort);
         deleteEsIndex(indexHelper.parseIndex(entity));
 
-        Map<String, Object> what = Helper.getSimpleMap(
+        Map<String, Object> what = EntityContentHelper.getSimpleMap(
                 EntitySearchSchema.WHAT_CODE, "GEO");
         what.put(EntitySearchSchema.WHAT_NAME, "NameText");
         what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");

@@ -20,7 +20,6 @@
 package org.flockdata.company.service;
 
 import org.flockdata.authentication.FdWebSecurity;
-import org.flockdata.authentication.registration.bean.RegistrationBean;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.KeyGenService;
 import org.flockdata.authentication.registration.service.RegistrationService;
@@ -30,6 +29,7 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.RegistrationBean;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

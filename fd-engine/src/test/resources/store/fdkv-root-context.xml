@@ -18,12 +18,12 @@
 
     <!-- Root Context: defines shared resources visible to all other web components -->
     <context:component-scan base-package=
-                                    "org.flockdata.kv,
+                                    "org.flockdata.store,
                                      org.flockdata.configure,
                                      org.flockdata.authentication,
                                      org.flockdata.search,
                                      org.flockdata.engine.integration">
-        <context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>
+        <context:exclude-filter type="assignable" expression="org.flockdata.configure.Neo4jConfig"/>
         <context:exclude-filter type="assignable" expression="org.flockdata.engine.integration.TrackRequests"/>
         <context:exclude-filter type="assignable" expression="org.flockdata.configure.EngineConfig"/>
         <!-- SDN4 -->

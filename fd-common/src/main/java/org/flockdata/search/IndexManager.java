@@ -27,7 +27,7 @@ public class IndexManager {
     @Value("${fd.search.index.prefix:fd.}")
     private String prefix ;
 
-    @Value("${fd.search.index.typeSuffix:false}")
+    @Value("${fd.search.index.typeSuffix:true}")
     private Boolean typeSuffix ;   // use docType as an index suffix?
 
     IndexManager(){}

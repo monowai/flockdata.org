@@ -19,14 +19,14 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.AliasInputBean;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.AliasInputBean;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.junit.Test;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.data.neo4j.conversion.Result;

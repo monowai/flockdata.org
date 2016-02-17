@@ -19,11 +19,11 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagOut;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.dao.QueryDaoES;
@@ -32,7 +32,7 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +63,7 @@ public class TestTagCloud extends ESBase {
 
     @Test
     public void defaultTagQueryWorks() throws Exception {
-        Map<String, Object> json = Helper.getBigJsonText(20);
+        Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
 
         String fort = "defaultTagQueryWorks";
         String comp = "comp";

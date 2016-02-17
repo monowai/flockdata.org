@@ -20,13 +20,13 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -169,7 +169,7 @@ public class TestEntityCrossLink extends EngineBase {
         TestCase.assertTrue("",results.isEmpty());
 
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC321");
-        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         inputBean.setContent(cib);
 
         // The Entity, that previously did not exist, can have a log added and be treated like any other entity

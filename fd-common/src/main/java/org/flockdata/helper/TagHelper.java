@@ -19,10 +19,10 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.TagInputBean;
 import org.neo4j.graphdb.Label;
 
 /**

@@ -9,7 +9,7 @@ import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.EntitySearchSchema;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.junit.Assert;
 import org.junit.Test;
@@ -118,7 +118,7 @@ public class TestParentChild extends ESBase {
         EntitySearchChange childChange =
                 new EntitySearchChange(childEntity, indexHelper.parseIndex(parentEntity))
                     .setParent(new EntityKeyBean(parentEntity, indexHelper.parseIndex(parentEntity)))
-                    .setData(Helper.getSimpleMap("childKey", "childValue"));
+                    .setData(EntityContentHelper.getSimpleMap("childKey", "childValue"));
 
         esSearchWriter.createSearchableChange(new EntitySearchChanges(childChange));
         // I'm calling Parent/Child mapping broken for the time being. This test fails if the parent already exists

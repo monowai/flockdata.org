@@ -20,9 +20,9 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.flockdata.authentication.registration.bean.FortressResultBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressResultBean;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;

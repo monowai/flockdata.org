@@ -19,7 +19,6 @@
 
 package org.flockdata.engine.track.service;
 
-import com.google.protobuf.ByteString;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;

@@ -19,8 +19,8 @@
 
 package org.flockdata.engine;
 
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.Company;
+import org.flockdata.store.service.KvService;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;

@@ -21,8 +21,8 @@ package org.flockdata.client;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.flockdata.authentication.registration.bean.SystemUserResultBean;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.transform.ClientConfiguration;
 
 import java.io.*;

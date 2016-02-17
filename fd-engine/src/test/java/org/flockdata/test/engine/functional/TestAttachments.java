@@ -19,10 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -47,7 +47,7 @@ public class TestAttachments extends EngineBase {
 
         EntityInputBean entity = new EntityInputBean(fortress, "zippy", "blag", new DateTime(), "ABC");
         ContentInputBean content = new ContentInputBean("zippy", new DateTime());
-        content.setAttachment(Helper.getPdfDoc(), "PdF", "testing.pdf");
+        content.setAttachment(EntityContentHelper.getPdfDoc(), "PdF", "testing.pdf");
         entity.setContent(content);
         TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), entity);
         assertFalse("This should have been the first entity logged", trackResult.entityExists());

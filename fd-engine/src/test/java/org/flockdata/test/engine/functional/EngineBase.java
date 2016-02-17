@@ -19,8 +19,6 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.RegistrationBean;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.authentication.registration.service.SystemUserService;
@@ -34,11 +32,13 @@ import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.kv.FdKvConfig;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.RegistrationBean;
 import org.flockdata.search.IndexManager;
+import org.flockdata.store.FdStoreConfig;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -134,7 +134,7 @@ public abstract class EngineBase {
     KvService kvService;
 
     @Autowired
-    FdKvConfig kvConfig;
+    FdStoreConfig kvConfig;
 
     @Autowired
     public CompanyService companyService;

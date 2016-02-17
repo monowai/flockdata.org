@@ -21,15 +21,18 @@ package org.flockdata.track.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.kv.KvContent;
 import org.flockdata.model.*;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
+import org.flockdata.store.KvContent;
 import org.flockdata.track.bean.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**

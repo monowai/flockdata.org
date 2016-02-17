@@ -1,7 +1,7 @@
 package org.flockdata.engine.tag.dao;
 
-import org.flockdata.authentication.registration.bean.TagResultBean;
 import org.flockdata.model.Tag;
+import org.flockdata.registration.TagResultBean;
 import org.neo4j.cypher.internal.compiler.v2_2.PathImpl;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;

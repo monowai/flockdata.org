@@ -20,9 +20,9 @@
 package org.flockdata.authentication.registration.service;
 
 
-import org.flockdata.authentication.registration.bean.RegistrationBean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.registration.RegistrationBean;
 
 /**
  * User: mike

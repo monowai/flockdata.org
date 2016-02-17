@@ -20,17 +20,17 @@
 package org.flockdata.test.search.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.SearchChange;
 import org.joda.time.DateTime;
@@ -71,7 +71,7 @@ public class TestDataTypes extends ESBase {
         SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity))
                 .setDescription("Test Description");
 
-        Map<String,Object> numMap = Helper.getSimpleMap("num", 100);
+        Map<String,Object> numMap = EntityContentHelper.getSimpleMap("num", 100);
         change.setData(numMap);
 
         indexMappingService.ensureIndexMapping(change);
@@ -81,7 +81,7 @@ public class TestDataTypes extends ESBase {
         doQuery(entity, "*", 1);
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
-        Map<String,Object> strMap = Helper.getSimpleMap("num", "NA");
+        Map<String,Object> strMap = EntityContentHelper.getSimpleMap("num", "NA");
         change = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setData(strMap);

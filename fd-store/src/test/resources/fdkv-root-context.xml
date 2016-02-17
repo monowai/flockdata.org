@@ -1,39 +1,33 @@
 <?xml version=
         "1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/aop
-		http://www.springframework.org/schema/aop/spring-aop.xsd">
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<context:spring-configured />
-	<context:annotation-config />
+	<!--<context:spring-configured />-->
+	<!--<context:annotation-config />-->
 
-	<!-- Root Context: defines shared resources visible to all other web components -->
-	<context:component-scan base-package=
-									"org.flockdata.kv,org.flockdata.configure">
-		<context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>
-		<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeoConfig"/>
-		<!-- SDN4 -->
-		<!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>-->
+	<!--&lt;!&ndash; Root Context: defines shared resources visible to all other web components &ndash;&gt;-->
+	<!--<context:component-scan base-package=-->
+									<!--"org.flockdata.store,org.flockdata.configure">-->
+		<!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.AmqpConfig"/>-->
+		<!--<context:exclude-filter type="assignable" expression="org.flockdata.configure.Neo4jConfig"/>-->
+		<!--&lt;!&ndash; SDN4 &ndash;&gt;-->
+		<!--&lt;!&ndash;<context:exclude-filter type="assignable" expression="org.flockdata.configure.FdNeo4jConfig"/>&ndash;&gt;-->
 
-	</context:component-scan>
+	<!--</context:component-scan>-->
 
-	<context:property-placeholder
-		ignore-resource-not-found="true" ignore-unresolvable="true"
-		location="classpath:/application.properties,file:${fd.config},file:${fd.auth.config}" />
-		
-	<import resource="fdkv-integration.xml" />
-	<import resource="fdkv-amqp-integration.xml" />
-	<import resource="fdkv-test-redis-context.xml" />
+	<!--<context:property-placeholder-->
+		<!--ignore-resource-not-found="true" ignore-unresolvable="true"-->
+		<!--location="classpath:/application.properties,file:${fd.config},file:${fd.auth.config}" />-->
+		<!---->
+	<!--<import resource="fdkv-integration.xml" />-->
+	<!--<import resource="fdkv-amqp-integration.xml" />-->
+	<!--<import resource="fdkv-test-redis-context.xml" />-->
 
-	<aop:aspectj-autoproxy />
+	<!--<aop:aspectj-autoproxy />-->
 
 
 </beans>

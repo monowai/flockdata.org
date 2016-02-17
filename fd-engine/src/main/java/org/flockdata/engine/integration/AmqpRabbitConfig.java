@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.integration;
 
-import org.flockdata.configure.AsyncConfig;
+import org.flockdata.configure.ExecutorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -75,7 +75,7 @@ public class AmqpRabbitConfig {
     Boolean amqpLazyConnect;
 
     @Autowired
-    AsyncConfig asyncConfig;
+    ExecutorConfig executorConfig;
 
     @PostConstruct
     public void logStatus (){
@@ -97,7 +97,7 @@ public class AmqpRabbitConfig {
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-        connect.setExecutor(asyncConfig.engineExecutor());
+        connect.setExecutor(executorConfig.engineExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
     }

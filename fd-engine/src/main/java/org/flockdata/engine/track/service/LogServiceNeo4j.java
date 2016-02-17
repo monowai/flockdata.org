@@ -22,9 +22,9 @@ package org.flockdata.engine.track.service;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
-import org.flockdata.kv.bean.KvContentBean;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
+import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
@@ -109,7 +109,7 @@ public class LogServiceNeo4j implements LogService {
                 && !resultBean.isLogIgnored()) {
             //if ( resultBean.getEntityInputBean() == null || !resultBean.getEntityInputBean().isTrackSuppressed()) {
                 KvContentBean kvContentBean = new KvContentBean(resultBean);
-                kvManager.doWrite(resultBean, kvContentBean);
+                kvManager.doWrite(kvContentBean);
             //}
         }
     }

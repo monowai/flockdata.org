@@ -20,19 +20,14 @@
 package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.meta.service.TxService;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
-import org.flockdata.kv.service.KvService;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressUser;
+import org.flockdata.meta.service.TxService;
+import org.flockdata.model.*;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.LogResultBean;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
-import org.flockdata.model.Log;
-import org.flockdata.model.TxRef;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
 import org.joda.time.DateTime;

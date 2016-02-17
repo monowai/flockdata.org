@@ -19,12 +19,12 @@
 
 package org.flockdata.test.search.functional;
 
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp4";
         String fort = "fort4";
         String user = "mikey";
-        Map<String, Object> what = Helper.getRandomMap();
+        Map<String, Object> what = EntityContentHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
@@ -69,9 +69,9 @@ public class TestAutoComplete extends ESBase{
         TagInputBean zipCode = new TagInputBean("70612", "ZipCode");
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(Helper.getEntityTag(entity, noName, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, numCodeWithName, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, zipCode, "zip"));
+        tags.add(EntityContentHelper.getEntityTag(entity, noName, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, numCodeWithName, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, zipCode, "zip"));
 
         SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setData(what);
@@ -101,7 +101,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp3";
         String fort = "fort3";
         String user = "mikey";
-        Map<String, Object> what = Helper.getRandomMap();
+        Map<String, Object> what = EntityContentHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
         deleteEsIndex(entity);
@@ -111,8 +111,8 @@ public class TestAutoComplete extends ESBase{
 
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, tagInputA, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, tagInputB, "rlxname"));
 
         SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setData(what);
@@ -137,7 +137,7 @@ public class TestAutoComplete extends ESBase{
         String comp = "comp2";
         String fort = "fort2";
         String user = "mikey";
-        Map<String, Object> what = Helper.getRandomMap();
+        Map<String, Object> what = EntityContentHelper.getRandomMap();
 
         Entity entity = getEntity(comp, fort, user, fort, "AZERTY");
 //        deleteEsIndex(entity);
@@ -152,13 +152,13 @@ public class TestAutoComplete extends ESBase{
         TagInputBean procedureB = new TagInputBean("Surgical Instruments", "Procedure", "involves");
 
         Collection<EntityTag> tags = new ArrayList<>();
-        tags.add(Helper.getEntityTag(entity, tagInputA, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, tagInputB, "rlxname"));
-        tags.add(Helper.getEntityTag(entity, inst, "abc"));
-        tags.add(Helper.getEntityTag(entity, lead, "lead"));
-        tags.add(Helper.getEntityTag(entity, writer, "writer"));
-        tags.add(Helper.getEntityTag(entity, procedure, "proc"));
-        tags.add(Helper.getEntityTag(entity, procedureB, "proc"));
+        tags.add(EntityContentHelper.getEntityTag(entity, tagInputA, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, tagInputB, "rlxname"));
+        tags.add(EntityContentHelper.getEntityTag(entity, inst, "abc"));
+        tags.add(EntityContentHelper.getEntityTag(entity, lead, "lead"));
+        tags.add(EntityContentHelper.getEntityTag(entity, writer, "writer"));
+        tags.add(EntityContentHelper.getEntityTag(entity, procedure, "proc"));
+        tags.add(EntityContentHelper.getEntityTag(entity, procedureB, "proc"));
 
         SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         change.setData(what);

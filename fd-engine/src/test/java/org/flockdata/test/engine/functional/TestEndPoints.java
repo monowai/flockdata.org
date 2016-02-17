@@ -19,15 +19,15 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.FortressResultBean;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.FortressResultBean;
 import org.flockdata.test.engine.endpoint.EngineEndPoints;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
@@ -56,7 +56,7 @@ public class TestEndPoints extends WacBase{
         SystemUser su = registerSystemUser("track_MinimalArguments", "userA");
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
-        ContentInputBean cib = new ContentInputBean("userA", Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         TrackRequestResult trackResult = engineEndPoints.track(eib, su);
@@ -75,7 +75,7 @@ public class TestEndPoints extends WacBase{
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         engineEndPoints.login("mike", "123");
@@ -94,7 +94,7 @@ public class TestEndPoints extends WacBase{
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_findLogs", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         engineEndPoints.login("mike", "123");
@@ -112,7 +112,7 @@ public class TestEndPoints extends WacBase{
         Fortress f = fortressService.registerFortress(su.getCompany(), new FortressInputBean("entity_findLogs", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
         eib.setFortressUser("userA");
-        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         engineEndPoints.login("mike", "123");

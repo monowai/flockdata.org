@@ -2,11 +2,11 @@ package org.flockdata.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.csv.EntityMapper;

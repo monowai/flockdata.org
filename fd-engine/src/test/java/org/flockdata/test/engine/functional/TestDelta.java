@@ -19,11 +19,11 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DeltaBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -52,12 +52,12 @@ public class TestDelta extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("DELTAForce", true));
         assertNotNull(fortress);
 
-        Map<String, Object> jsonA = Helper.getSimpleMap("house", "red");
+        Map<String, Object> jsonA = EntityContentHelper.getSimpleMap("house", "red");
         jsonA.put("bedrooms", 2);
         jsonA.put("garage", "Y");
 
         //String jsonB = "{\"house\": \"green\", \"bedrooms\": 2, \"list\": [1,2,3]}";
-        Map<String, Object> jsonB = Helper.getSimpleMap("house", "green");
+        Map<String, Object> jsonB = EntityContentHelper.getSimpleMap("house", "green");
         jsonB.put("bedrooms", 2);
         ArrayList<Integer> values = new ArrayList<>();
         values.add(1);

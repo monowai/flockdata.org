@@ -20,13 +20,13 @@
 package org.flockdata.test.engine.functional;
 
 import junit.framework.TestCase;
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.authentication.registration.bean.SystemUserResultBean;
-import org.flockdata.authentication.registration.bean.TagInputBean;
 import org.flockdata.helper.FlockException;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.profile.ContentProfileDeserializer;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
@@ -82,7 +82,7 @@ public class TestCsvImportIntegration extends EngineBase {
 
             ClientConfiguration defaults = new ClientConfiguration();
 
-            myProcessor.processFile(Helper.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv", testWriter, su.getCompany(), defaults);
+            myProcessor.processFile(ContentProfileDeserializer.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv", testWriter, su.getCompany(), defaults);
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);

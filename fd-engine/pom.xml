@@ -28,33 +28,16 @@
         <!-- We embed fd-store in to fd-engine-->
         <dependency>
             <groupId>org.flockdata</groupId>
-            <artifactId>fd-store</artifactId>
+            <artifactId>fd-security</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
-            <artifactId>fd-security</artifactId>
-            <version>${project.version}</version>
+            <artifactId>fd-common</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.flockdata</groupId>
-            <artifactId>fd-security</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.kstyrc</groupId>
-            <artifactId>embedded-redis</artifactId>
-            <version>0.6</version>
-            <scope>test</scope>
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>com.google.guava</groupId>-->
-            <!--<artifactId>guava</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-        </dependency>
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-enterprise</artifactId>
@@ -194,10 +177,6 @@
             <artifactId>tomcat-servlet-api</artifactId>
             <version>7.0.47</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

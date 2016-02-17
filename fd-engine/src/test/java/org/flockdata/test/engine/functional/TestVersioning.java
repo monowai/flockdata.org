@@ -19,10 +19,10 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.*;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.store.service.KvService;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntitySummaryBean;
@@ -88,7 +88,7 @@ public class TestVersioning extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
         assertFalse(engineConfig.isStoreEnabled());
         EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
-        ContentInputBean cib = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), eib);
         assertEquals(Boolean.FALSE, trackResult.getEntity().getFortress().isStoreEnabled());
@@ -130,7 +130,7 @@ public class TestVersioning extends EngineBase {
     }
     @Test
     public void log_ValidateValues() throws Exception{
-        Map<String, Object> json = Helper.getSimpleMap("Athlete", "Katerina Neumannová");
+        Map<String, Object> json = EntityContentHelper.getSimpleMap("Athlete", "Katerina Neumannová");
         SystemUser su = registerSystemUser("store_Disabled");
 
         FortressInputBean fib= new FortressInputBean("store_Disabled", true);
@@ -157,9 +157,9 @@ public class TestVersioning extends EngineBase {
         // DAT-353
         engineConfig.setStoreEnabled("true");
         // The system default store is MEMORY
-        ContentInputBean content  = new ContentInputBean(Helper.getRandomMap());
+        ContentInputBean content  = new ContentInputBean(EntityContentHelper.getRandomMap());
         // Fortress is not enabled but the overall configuration says the store is enabled
-        Entity entity = Helper.getEntity("blah", "abc", "abc", "123");
+        Entity entity = EntityContentHelper.getEntity("blah", "abc", "abc", "123");
 
         // set a default for the fortress
         entity.getFortress().setStoreEnabled(false);

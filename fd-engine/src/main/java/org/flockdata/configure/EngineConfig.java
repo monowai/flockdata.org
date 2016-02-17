@@ -24,9 +24,9 @@ import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.SearchPingRequest;
 import org.flockdata.helper.VersionHelper;
-import org.flockdata.kv.FdKvConfig;
-import org.flockdata.kv.service.KvService;
 import org.flockdata.model.Company;
+import org.flockdata.store.FdStoreConfig;
+import org.flockdata.store.service.KvService;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class EngineConfig implements PlatformConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
     @Autowired
-    FdKvConfig kvConfig;
+    FdStoreConfig kvConfig;
 
     @Autowired
     SchemaService schemaService;
@@ -121,7 +121,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     public Boolean isStoreEnabled() {
-        return kvConfig.getStoreEnabled();
+        return kvConfig.storeEnabled();
     }
 
     public Boolean isSearchEnabled() {
@@ -157,7 +157,7 @@ public class EngineConfig implements PlatformConfig {
 
     @Override
     public KvService.KV_STORE getKvStore() {
-        return kvConfig.getKvStore();
+        return kvConfig.kvStore();
     }
 
     @Override
@@ -186,7 +186,7 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("flockdata.version", version);
         healthResults.put("fd-engine", "Neo4j is OK");
 
-        healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
+        healthResults.put("fd-store.enabled", kvConfig.storeEnabled().toString());
 
         String config = System.getProperty("fd.config");
 
@@ -194,8 +194,8 @@ public class EngineConfig implements PlatformConfig {
             config = "system-default";
         healthResults.put("config-file", config);
 
-        healthResults.put("fd-store.engine", kvConfig.getKvStore().toString());
-        healthResults.put("fd-store.enabled", kvConfig.getStoreEnabled().toString());
+        healthResults.put("fd-store.engine", kvConfig.kvStore().toString());
+        healthResults.put("fd-store.enabled", kvConfig.storeEnabled().toString());
         String esPingResult;
         try {
             String esPing = fdMonitoringGateway.ping();

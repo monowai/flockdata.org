@@ -19,7 +19,7 @@
 
 package org.flockdata.model;
 
-import org.flockdata.authentication.registration.bean.AliasInputBean;
+import org.flockdata.registration.AliasInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.neo4j.annotation.GraphId;

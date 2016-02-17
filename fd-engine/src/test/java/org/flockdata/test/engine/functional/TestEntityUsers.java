@@ -19,12 +19,12 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.authentication.registration.bean.FortressInputBean;
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.Helper;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.SearchChange;
@@ -65,7 +65,7 @@ public class TestEntityUsers extends EngineBase {
         EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
 
 
-        entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer"));
+        entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
 
         Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
@@ -76,7 +76,7 @@ public class TestEntityUsers extends EngineBase {
         EntityLog log = logs.iterator().next();
         assertEquals("billie", log.getLog().getMadeBy().getCode().toLowerCase());
 
-        entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), Helper.getSimpleMap("name", "b")));
+        entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), EntityContentHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
@@ -108,7 +108,7 @@ public class TestEntityUsers extends EngineBase {
         EntityInputBean entityBean = new EntityInputBean(fortress, null, "CompanyNode", DateTime.now(), callerRef);
 
         // No fortress user
-        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), Helper.getSimpleMap("name", "a"), "Answer");
+        ContentInputBean contentInputBean = new ContentInputBean(null, null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer");
         entityBean.setContent(contentInputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), entityBean);
 
