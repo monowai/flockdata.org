@@ -98,7 +98,7 @@ public class TestApiKeyInterceptor extends EngineBase {
 
 	@After
 	public void cleanUp() {
-		setSecurityEmpty();
+		setUnauthorized();
 	}
 
 }

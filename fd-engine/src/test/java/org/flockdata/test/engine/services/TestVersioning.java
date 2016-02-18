@@ -96,8 +96,10 @@ public class TestVersioning extends EngineBase {
         assertNotNull ( entityLog);
 
         assertNotNull ( entityLog.getLog());
-        assertEquals(new Long(0), entityLog.getLog().getId());
         assertNotNull ( entityLog.getId());
+        assertTrue(entityLog.getLog().isMocked());
+        assertTrue( "Mocked log has an ID set to current system time", entityLog.getLog().getId()>0);
+
 
         Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getMetaKey());
         assertNotNull ( entity);
