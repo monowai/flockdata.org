@@ -369,8 +369,8 @@ public class TestCsvEntity {
         assertNotNull(jsonMap);
 
         assertEquals(null, jsonMap.get("Field"));
-        String json = JsonUtils.getJSON(jsonMap);
-        jsonMap = JsonUtils.getAsMap(json);
+        String json = JsonUtils.toJson(jsonMap);
+        jsonMap = JsonUtils.toMap(json);
         assertNotNull(jsonMap);
         assertFalse (jsonMap.isEmpty());
         assertEquals(null, jsonMap.get("Field"));
@@ -388,8 +388,8 @@ public class TestCsvEntity {
         assertNotNull(jsonMap);
 
         assertEquals("", jsonMap.get("Title"));
-        String json = JsonUtils.getJSON(jsonMap);
-        jsonMap = JsonUtils.getAsMap(json);
+        String json = JsonUtils.toJson(jsonMap);
+        jsonMap = JsonUtils.toMap(json);
         assertNotNull(jsonMap);
         assertFalse (jsonMap.isEmpty());
         assertEquals("", jsonMap.get("Title"));
@@ -407,8 +407,8 @@ public class TestCsvEntity {
         assertNotNull(jsonMap);
 
         assertNull(jsonMap.get("Title"));
-        String json = JsonUtils.getJSON(jsonMap);
-        jsonMap = JsonUtils.getAsMap(json);
+        String json = JsonUtils.toJson(jsonMap);
+        jsonMap = JsonUtils.toMap(json);
         assertNotNull(jsonMap);
         assertFalse (jsonMap.isEmpty());
         assertNull(jsonMap.get("Title"));

@@ -24,8 +24,9 @@ package org.flockdata.test.engine.suites;
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.endpoint.*;
-import org.flockdata.test.engine.functional.*;
+import org.flockdata.test.engine.mvc.*;
+import org.flockdata.test.engine.services.TestApiKeyInterceptor;
+import org.flockdata.test.engine.services.TestNeoRestInterface;
 import org.flockdata.test.engine.unit.TestApiKeyHelper;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -40,9 +41,9 @@ import org.junit.runners.Suite;
         TestApiKeyHelper.class,
         TestProfileRegistration.class,
         TestApiKeyInterceptor.class,
-        DocTestEP.class,
+        TestDocEP.class,
         TestTagEP.class,
-        CompanyTestEP.class
+        TestCompanyEP.class
 })
 public class WebServices {
     public WebServices() {

@@ -85,7 +85,7 @@ public class TestParentChild extends ESBase {
                 "  ],\n" +
                 "  \"searchKey\": \"ABC321\"\n" +
                 "}";
-        EntitySearchChange change = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChange.class);
+        EntitySearchChange change = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
         esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
         Thread.sleep(2000);
 

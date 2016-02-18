@@ -399,12 +399,12 @@ public class QueryDaoES implements QueryDao {
         EsSearchResult result ;
         if (queryParams.getQuery() != null || queryParams.getAggs()!=null) {
 
-            String query = "{\"query\": " + JsonUtils.getJSON(queryParams.getQuery()) ;
+            String query = "{\"query\": " + JsonUtils.toJson(queryParams.getQuery()) ;
             if ( queryParams.getFields()!=null){
-                query = query +",\"fields\": "+JsonUtils.getJSON(queryParams.getFields());
+                query = query +",\"fields\": "+JsonUtils.toJson(queryParams.getFields());
             }
             if ( queryParams.getAggs()!=null )
-                query = query + ",\"aggs\": " + JsonUtils.getJSON(queryParams.getAggs()) + "}";
+                query = query + ",\"aggs\": " + JsonUtils.toJson(queryParams.getAggs()) + "}";
             else
                 query = query + "}";
 
@@ -432,7 +432,7 @@ public class QueryDaoES implements QueryDao {
                 error.put("errors", parseException(e.getRootCause().getMessage()));
 
                 try {
-                    result = new EsSearchResult(JsonUtils.getObjectAsJsonBytes(error));
+                    result = new EsSearchResult(JsonUtils.toJsonBytes(error));
                 } catch (IOException e1) {
                     throw new FlockException("Json error", e1);
                 }

@@ -23,10 +23,10 @@ package org.flockdata.test.engine.suites;
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.functional.TestEntityTags;
-import org.flockdata.test.engine.functional.TestConcepts;
-import org.flockdata.test.engine.functional.TestTagMerge;
-import org.flockdata.test.engine.functional.TestTags;
+import org.flockdata.test.engine.services.TestConcepts;
+import org.flockdata.test.engine.services.TestEntityTags;
+import org.flockdata.test.engine.services.TestTagMerge;
+import org.flockdata.test.engine.services.TestTags;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

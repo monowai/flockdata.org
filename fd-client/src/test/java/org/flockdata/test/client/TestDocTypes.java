@@ -60,14 +60,14 @@ public class TestDocTypes extends AbstractImport  {
         Fortress fortress = new Fortress(new FortressInputBean("FortressName"),company)
                 .setSearchEnabled(true);
 
-        byte[] bytes = JsonUtils.getObjectAsJsonBytes(dib);
-        assertEquals(dib.getTagStructure(), JsonUtils.getBytesAsObject(bytes,DocumentTypeInputBean.class).getTagStructure() );
+        byte[] bytes = JsonUtils.toJsonBytes(dib);
+        assertEquals(dib.getTagStructure(), JsonUtils.toObject(bytes,DocumentTypeInputBean.class).getTagStructure() );
 
         EntityInputBean compareFrom = new EntityInputBean(fortress, dib);
         assertEquals(dib.getTagStructure(), compareFrom.getDocumentType().getTagStructure());
 
         EntityInputBean deserialize
-                = JsonUtils.getBytesAsObject(JsonUtils.getObjectAsJsonBytes(compareFrom), EntityInputBean.class);
+                = JsonUtils.toObject(JsonUtils.toJsonBytes(compareFrom), EntityInputBean.class);
         assertNotNull (deserialize);
 
         assertEquals(compareFrom.getDocumentType().getCode(), deserialize.getDocumentType().getCode());

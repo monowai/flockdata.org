@@ -91,7 +91,7 @@ public class FdMetaKeyQuery {
     // ToDo: Can this be integrated to the handler?
     @Transformer(inputChannel="receiveMetaKeyReply", outputChannel="metaKeyResult")
     public MetaKeyResults transforMkResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.getBytesAsObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
+        return JsonUtils.toObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
     }
 
 }

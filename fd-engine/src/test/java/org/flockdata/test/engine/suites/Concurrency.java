@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.suites;
 
-import org.flockdata.test.engine.functional.*;
+import org.flockdata.test.engine.services.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.retry.annotation.EnableRetry;

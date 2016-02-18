@@ -69,6 +69,8 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     @Override
     public void processTag(Entity entity, EntityTagInputBean entityTagInput) {
         String relationshipName = entityTagInput.getType();
+        if (entityTagInput.getTagCode() == null)
+            throw new IllegalArgumentException("Null can not be used to find a tag (" + entityTagInput.getIndex() + ")");
 
         boolean existing = relationshipExists(entity, entityTagInput.getTagKeyPrefix(), entityTagInput.getTagCode(), relationshipName);
         if (existing)
@@ -131,17 +133,17 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     /**
      * Associates the supplied userTags with the EntityNode
-     * <p>
+     * <p/>
      * in JSON terms....
      * "ClientID123" :{"clientKey","prospectKey"}
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * The value can be null which will create a simple tag for the Entity such as
      * ClientID123
-     * <p>
+     * <p/>
      * They type can be Null, String or a Collection<String> that describes the relationship
      * types to create.
-     * <p>
+     * <p/>
      * If this scenario, ClientID123 is created as a single node with two relationships that
      * describe the association - clientKey and prospectKey
      *
@@ -208,7 +210,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
 
     /**
      * Creates and sets the relationship objects to in to the entity
-     * <p>
+     * <p/>
      * Does not save the entity
      *
      * @param entity       Object to affect
@@ -217,7 +219,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
      * @return EntityTags that were added to the entity.
      */
     private Collection<EntityTag> setRelationships(Entity entity, Tag tag, TagInputBean tagInputBean) {
-        Map<String, Map<String,Object>> entityLinks = tagInputBean.getEntityLinks();
+        Map<String, Map<String, Object>> entityLinks = tagInputBean.getEntityLinks();
 
         Collection<EntityTag> entityTags = new ArrayList<>();
         long when = (entity.getFortressUpdatedTz() == null ? 0 : entity.getFortressUpdatedTz().getMillis());
@@ -228,7 +230,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
             return new ArrayList<>();
         }
         for (String key : entityLinks.keySet()) {
-            Map<String,Object> properties = entityLinks.get(key);
+            Map<String, Object> properties = entityLinks.get(key);
             Map<String, Object> propMap;
             if (properties != null) {
                 propMap = properties;

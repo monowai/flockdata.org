@@ -37,7 +37,7 @@ import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import java.util.Set;
  * Time: 9:43 AM
  */
 @Service
-@Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
+@PreAuthorize(FdRoles.EXP_EITHER)
 public class QueryService {
 
     private Logger logger = LoggerFactory.getLogger(QueryService.class);

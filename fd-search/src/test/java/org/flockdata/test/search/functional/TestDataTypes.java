@@ -112,9 +112,9 @@ public class TestDataTypes extends ESBase {
 
         EntitySearchChange searchChange = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
         EntitySearchChanges changes = new EntitySearchChanges(searchChange);
-        String json = JsonUtils.getJSON(changes);
+        String json = JsonUtils.toJson(changes);
 
-        EntitySearchChanges fromJson = JsonUtils.getBytesAsObject(json.getBytes(), EntitySearchChanges.class);
+        EntitySearchChanges fromJson = JsonUtils.toObject(json.getBytes(), EntitySearchChanges.class);
 
         TestCase.assertTrue("", fromJson.getChanges().size()==1);
 

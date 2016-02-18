@@ -59,24 +59,28 @@ public class SystemUser  {
         return name;
     }
 
-    void setName(String name) {
+    SystemUser setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getLogin() {
         return login;
     }
 
-    public void setLogin(String login) {
+    public SystemUser setLogin(String login) {
         this.login = login.toLowerCase();
+        return  this;
+
     }
 
     public String getApiKey() {
         return apiKey;
     }
 
-    public void setApiKey(String openUID) {
+    public SystemUser setApiKey(String openUID) {
         this.apiKey = openUID;
+        return this;
     }
 
     public Company getCompany() {

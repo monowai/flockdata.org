@@ -24,10 +24,10 @@ package org.flockdata.test.engine.suites;
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.functional.TestCallerRef;
-import org.flockdata.test.engine.functional.TestEntityCrossLink;
-import org.flockdata.test.engine.functional.TestEntityLinks;
-import org.flockdata.test.engine.functional.TestEntityUsers;
+import org.flockdata.test.engine.services.TestCallerRef;
+import org.flockdata.test.engine.services.TestEntityCrossLink;
+import org.flockdata.test.engine.services.TestEntityLinks;
+import org.flockdata.test.engine.services.TestEntityUsers;
 import org.flockdata.test.engine.unit.EntityKeyTests;
 import org.flockdata.test.engine.unit.TestEntitySearch;
 import org.flockdata.test.engine.unit.TestHashcodeAndEquality;

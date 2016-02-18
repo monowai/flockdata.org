@@ -89,7 +89,7 @@ public class FdViewQuery {
     // ToDo: Can this be integrated to the handler?
     @Transformer(inputChannel="receiveFdViewReply", outputChannel="fdViewResult")
     public EsSearchResult fdViewResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.getBytesAsObject(theObject.getPayload().getBytes(), EsSearchResult.class);
+        return JsonUtils.toObject(theObject.getPayload().getBytes(), EsSearchResult.class);
     }
 
 }

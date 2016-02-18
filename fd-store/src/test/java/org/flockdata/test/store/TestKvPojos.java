@@ -50,8 +50,8 @@ public class TestKvPojos {
         TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
         KvContentBean kvContentBean = new KvContentBean(trackResultBean);
 
-        byte[] bytes =JsonUtils.getObjectAsJsonBytes(kvContentBean);
-        KvContentBean deserializedBean = JsonUtils.getBytesAsObject(bytes, KvContentBean.class);
+        byte[] bytes =JsonUtils.toJsonBytes(kvContentBean);
+        KvContentBean deserializedBean = JsonUtils.toObject(bytes, KvContentBean.class);
         TestCase.assertNotNull(deserializedBean);
         assertNull("Not handling a null fortress name ", Fortress.code(null));
     }

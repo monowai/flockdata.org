@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +66,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Override
     @Transactional
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -81,7 +81,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     }
 
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
 

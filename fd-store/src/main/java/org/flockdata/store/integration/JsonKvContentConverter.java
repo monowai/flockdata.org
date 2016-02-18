@@ -40,7 +40,7 @@ public class JsonKvContentConverter extends SimpleMessageConverter {
     public Object fromMessage(final Message message) throws MessageConversionException {
 
         try {
-            return JsonUtils.getBytesAsObject(message.getBody(), KvContentBean.class);
+            return JsonUtils.toObject(message.getBody(), KvContentBean.class);
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new MessageConversionException("failed to convert text-based Message content", e1);

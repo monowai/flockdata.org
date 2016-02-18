@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.suites;
 
-import org.flockdata.test.engine.functional.*;
+import org.flockdata.test.engine.services.*;
 import org.flockdata.test.engine.unit.TestBatchSplitter;
 import org.flockdata.test.engine.unit.TestInputBeans;
 import org.junit.runner.RunWith;

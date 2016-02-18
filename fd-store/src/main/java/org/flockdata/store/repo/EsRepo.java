@@ -75,7 +75,7 @@ public class EsRepo extends AbstractStore {
                     //           way we have it configured. It throws a deep exception for the odd incoming payload
                     //           complaining that it's not valid UTF-8 text. This approach we're now using works.
                     if ( result.getJson() !=null ) {
-                        HashMap map = JsonUtils.getBytesAsObject(result.getJson(), HashMap.class);
+                        HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
                         contentInput.setData((Map<String, Object>) map.get(EntitySearchSchema.DATA));
                     }
                     //contentInput.setData(JsonUtils.getAsMap(result.getJson()));
