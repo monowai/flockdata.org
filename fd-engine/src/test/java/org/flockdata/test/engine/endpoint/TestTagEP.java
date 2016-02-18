@@ -55,7 +55,6 @@ public class TestTagEP extends WacBase {
         // Nest the tags
         zipCode.setTargets("located", tractCode);
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
         Collection<TagResultBean> tags = createTag(zipCode);
@@ -112,7 +111,6 @@ public class TestTagEP extends WacBase {
                 .setKeyPrefix("Include");
 
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
         createTag(ignoredTag);// Same tag code, different prefix
@@ -136,7 +134,6 @@ public class TestTagEP extends WacBase {
         TagInputBean thingTag = new TagInputBean("This That", "Thing");
 
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
         Collection<TagResultBean> tags = createTag(thingTag);

@@ -66,7 +66,6 @@ public class CompanyTestEP extends WacBase {
     public void differentUsersCantAccessKnownCompany () throws Exception{
         setSecurity(mike_admin);
         SystemUser suMike = registerSystemUser("coA123", mike_admin);
-        EngineEndPoints eip = new EngineEndPoints(wac);
 
         Collection<Company> companies = findCompanies(suMike);
         assertEquals(1, companies.size());

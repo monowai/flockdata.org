@@ -51,7 +51,6 @@ public class TestPathEP extends WacBase {
         term.setTargets("classifying", sedan);
         bodies.setTargets("typed", category);
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
         createTag(term);

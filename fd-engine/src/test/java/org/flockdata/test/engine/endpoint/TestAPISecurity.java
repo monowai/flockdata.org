@@ -21,30 +21,18 @@ package org.flockdata.test.engine.endpoint;
 
 import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.WacBase;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @WebAppConfiguration
 public class TestAPISecurity extends WacBase {
 
-	private MockMvc mockMVC;
-
-	@Before
-	public void setUp() {
-		mockMVC = MockMvcBuilders.webAppContextSetup(wac)
-				.build();
-		setSecurityEmpty();
-	}
-
 	@Test
 	public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
 			throws Exception {
-		mockMVC.perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/fortress/"))
+		getMockMvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/fortress/"))
 				.andExpect(MockMvcResultMatchers.status().isUnauthorized())
 				.andReturn();
 	}
@@ -71,7 +59,7 @@ public class TestAPISecurity extends WacBase {
 		String apikey = su.getApiKey();
 		setSecurityEmpty();
 
-		mockMVC.perform(
+		getMockMvc().perform(
 				MockMvcRequestBuilders.get(WacBase.apiPath+"/fortress/").header("api-key",
 						apikey))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

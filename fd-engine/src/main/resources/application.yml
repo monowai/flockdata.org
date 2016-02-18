@@ -17,12 +17,6 @@ spring:
     active: production
     include: fd-auth-test
 
-
-## index pattern
-## {fd.search.index.prefix}{fortressname}.{segment}
-##   fd.mycompany.sap/Invoice
-## or, if typeSuffix : :  true
-##   fd.mycompany.sap.invoice/Invoice
 fd-search:
   api: http://127.0.0.1:8081/api
   index:
@@ -51,7 +45,7 @@ fd-engine:
     search: enabled
     store: disabled
   system:
-    api: api # Mount point for the api
+    api: /api # Mount point for the api
     constraints: true
     concepts: true
     timings: false

@@ -32,6 +32,8 @@ import java.util.Map;
  */
 public interface PlatformConfig {
 
+    public String apiBase();
+
     String getTagSuffix(Company company);
 
     Map<String, String> getHealth();
