@@ -1,0 +1,40 @@
+
+spring:
+  profiles:
+    active: production
+    include: fd-auth-test
+
+fd-engine:
+  fortress:  # Defaults on creation of a fortress if not otherwise supplied
+    search: disabled
+    store: disabled
+  system:
+    api: api
+
+fd-store:
+  system:
+    enabled: false
+    engine: MEMORY
+
+# Minimally required properties for the graph
+neo4j:
+  datastore: ./target/data/test/data/neo4j/
+  cacheType: hpc
+  onlineBackup: true
+  remoteShell: true
+  remoteShellHost: 127.0.0.1
+  remoteShellPort: 1337
+  keep_logical_logs: 1000M size
+
+fd-auth:
+  simple:
+    user: admin
+    pass: hackme
+  stormpath:
+    #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
+    #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
+    #group:
+    #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
+    #group:
+    #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
+

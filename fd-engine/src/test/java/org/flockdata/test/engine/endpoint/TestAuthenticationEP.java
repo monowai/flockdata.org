@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.endpoint;
 
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.LoginRequest;
 import org.flockdata.authentication.UserProfile;
 import org.flockdata.helper.JsonUtils;
@@ -27,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,8 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:root-context.xml",
-        "classpath:apiDispatcher-servlet.xml"})
 public class TestAuthenticationEP extends WacBase{
 
     private MockMvc mockMVC;
@@ -64,7 +62,7 @@ public class TestAuthenticationEP extends WacBase{
 
         MvcResult response = mockMVC
                 .perform(
-                        MockMvcRequestBuilders.post("/login")
+                        MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.getJSON(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -82,7 +80,7 @@ public class TestAuthenticationEP extends WacBase{
         loginReq.setPassword("1234");
 
         mockMVC.perform(
-                MockMvcRequestBuilders.post("/login")
+                MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -99,7 +97,7 @@ public class TestAuthenticationEP extends WacBase{
 
         MvcResult response = mockMVC
                 .perform(
-                        MockMvcRequestBuilders.post("/login")
+                        MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.getJSON(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -120,12 +118,12 @@ public class TestAuthenticationEP extends WacBase{
         loginReq.setPassword("123");
 
         mockMVC.perform(
-                MockMvcRequestBuilders.post("/login")
+                MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.userRoles[0]", is("ROLE_FD_ADMIN")))
-                .andExpect(jsonPath("$.userRoles[1]", is("ROLE_FD_USER")))
+                .andExpect(jsonPath("$.userRoles[0]", is(FdRoles.FD_ROLE_ADMIN)))
+                .andExpect(jsonPath("$.userRoles[1]", is(FdRoles.FD_ROLE_USER)))
                 .andReturn();
     }
 

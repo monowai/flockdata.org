@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.repos;
+package org.flockdata.store.common.repos;
 
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;

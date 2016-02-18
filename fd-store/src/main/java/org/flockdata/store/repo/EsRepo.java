@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.repos;
+package org.flockdata.store.repo;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -28,6 +28,7 @@ import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.common.repos.AbstractStore;
 import org.flockdata.store.integration.EsStoreRequest;
 import org.flockdata.track.bean.ContentInputBean;
 import org.slf4j.Logger;

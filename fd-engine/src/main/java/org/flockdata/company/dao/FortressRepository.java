@@ -25,7 +25,6 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 
 import java.util.List;
-
 public interface FortressRepository extends GraphRepository<Fortress> {
 
 	@Query(value = " match (fortress:Fortress)<-[:BELONGS_TO]-(fortressUser:FortressUser) where id(fortress)={0}"

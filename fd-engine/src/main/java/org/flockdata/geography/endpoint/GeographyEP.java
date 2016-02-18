@@ -20,8 +20,8 @@
 package org.flockdata.geography.endpoint;
 
 import org.flockdata.authentication.registration.service.RegistrationService;
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.geography.service.GeographyService;
-import org.flockdata.helper.ApiKeyHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import java.util.Collection;
  * To change this template use File | Settings | File Templates.
  */
 @RestController
-@RequestMapping("/v1/geo")
+@RequestMapping("${fd-engine.system.api:api}/v1/geo")
 public class GeographyEP {
 
     @Autowired
@@ -51,7 +51,7 @@ public class GeographyEP {
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
     public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        return geoService.findCountries(regService.resolveCompany(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
+        return geoService.findCountries(regService.resolveCompany(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 
 }

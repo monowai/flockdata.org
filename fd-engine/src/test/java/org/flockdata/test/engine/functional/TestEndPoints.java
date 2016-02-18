@@ -26,7 +26,6 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -58,8 +57,7 @@ public class TestEndPoints extends WacBase{
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
         ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
         eib.setContent(cib);
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        TrackRequestResult trackResult = track(eib, su);
         assertNotNull(trackResult);
         Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
 
@@ -77,9 +75,8 @@ public class TestEndPoints extends WacBase{
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
-        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        login("mike", "123");
+        TrackRequestResult trackResult = track(eib, su);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
         Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
 
@@ -96,12 +93,11 @@ public class TestEndPoints extends WacBase{
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
-        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        login("mike", "123");
+        TrackRequestResult trackResult = track(eib, su);
         assertNotNull(trackResult);
-        engineEndPoints.login("mike", "123");
-        Collection<EntityLog> entityLogs = engineEndPoints.getEntityLogs(su, trackResult.getMetaKey());
+        login("mike", "123");
+        Collection<EntityLog> entityLogs = getEntityLogs(su, trackResult.getMetaKey());
         assertEquals(1, entityLogs.size());
     }
 
@@ -114,16 +110,15 @@ public class TestEndPoints extends WacBase{
         eib.setFortressUser("userA");
         ContentInputBean cib = new ContentInputBean(EntityContentHelper.getRandomMap());
         eib.setContent(cib);
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
+        login("mike", "123");
         // Test Serialization
         byte[] bytes =JsonUtils.getObjectAsJsonBytes(eib);
         eib = JsonUtils.getBytesAsObject(bytes,EntityInputBean.class);
 
-        TrackRequestResult trackResult = engineEndPoints.track(eib, su);
+        TrackRequestResult trackResult = track(eib, su);
         assertNotNull(trackResult);
-        engineEndPoints.login("mike", "123");
-        engineEndPoints.getEntityLogsIllegalEntity(su, trackResult.getMetaKey() +"123");
+        login("mike", "123");
+        getEntityLogsIllegalEntity(su, trackResult.getMetaKey() +"123");
 
     }
 
@@ -134,13 +129,12 @@ public class TestEndPoints extends WacBase{
         SystemUser su = registerSystemUser("fortress_CreationUpdate", "userA");
         setSecurityEmpty();
         FortressInputBean fortressInputBean = new FortressInputBean("Twitter");
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        FortressResultBean result = engineEndPoints.postFortress(su, fortressInputBean);
+        FortressResultBean result = postFortress(su, fortressInputBean);
         assertEquals("Twitter", result.getName());
         assertEquals("twitter", result.getCode());
 
         fortressInputBean = new FortressInputBean("twitter");
-        result = engineEndPoints.postFortress(su, fortressInputBean);
+        result = postFortress(su, fortressInputBean);
         assertEquals("Twitter", result.getName());
         assertEquals("twitter", result.getCode());
         assertNotNull("Index Name not found", result.getIndexName());

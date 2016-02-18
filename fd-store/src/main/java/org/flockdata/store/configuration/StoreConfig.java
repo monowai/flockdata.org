@@ -40,21 +40,23 @@ public class StoreConfig implements FdStoreConfig {
 
     private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
 
-    private Boolean multiTenanted = false;
-
     private Store kvStore = null;
 
+    @Value("${fd-store.system.enabled}")
     private Boolean storeEnabled = true;
+
+    @Override
+    @Value("${fd-store.system.engine}")
+    public void setKvStore(String kvStore) {
+        setKvStore(Store.valueOf(kvStore));
+
+    }
 
     @Value("${fd-search.url:http://localhost:8081}")
     String fdSearchUrl;
 
     @Value("${riak.hosts:127.0.0.1}")
     private String riakHosts;
-
-    public String riakHosts() {
-        return riakHosts;
-    }
 
     @Value ("${redis.port:6379}")
     private int redisPort;
@@ -66,11 +68,8 @@ public class StoreConfig implements FdStoreConfig {
         return fdSearchUrl;
     }
 
-    @Override
-    @Value("${fd-store.engine}")
-    public void setKvStore(String kvStore) {
-       setKvStore(Store.valueOf(kvStore));
-
+    public String riakHosts() {
+        return riakHosts;
     }
 
     /**
@@ -97,7 +96,6 @@ public class StoreConfig implements FdStoreConfig {
      *
      * @param storeEnabled defaults to true
      */
-    @Value("${fd-store.enabled}")
     public void setStoreEnabled(String storeEnabled) {
         this.storeEnabled = "@null".equals(storeEnabled) || Boolean.parseBoolean(storeEnabled);
     }
@@ -123,7 +121,7 @@ public class StoreConfig implements FdStoreConfig {
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-store.engine", String.valueOf(kvStore));
+        healthResults.put("fd-store.system.engine", String.valueOf(kvStore));
 
         return healthResults;
 

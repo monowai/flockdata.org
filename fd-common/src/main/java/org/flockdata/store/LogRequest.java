@@ -23,6 +23,7 @@ public class LogRequest {
         this.store = Store.valueOf(log.getStorage());
         this.entity = entity;
         this.contentType = log.getContentType();
+        this.checkSum = log.getChecksum();
     }
 
     public Long getLogId() {

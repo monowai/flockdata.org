@@ -11,8 +11,11 @@ server:
   port:8082
 
 fd-store:
-  engine: RIAK
-  enabled: false
+  system:
+    enabled: true # Service is accepting requests
+    engine: RIAK # Default storage engine to use
+    api: api # Mount point for the API end-points
+
   executor:
     poolSize: 8-15
     queueCapacity: 3

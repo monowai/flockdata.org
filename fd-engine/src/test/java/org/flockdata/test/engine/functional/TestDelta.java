@@ -75,7 +75,7 @@ public class TestDelta extends EngineBase {
         assertNotNull(second);
 
         //ToDo: fd-store - fix me
-//        DeltaResultBean deltaResultBean = kvService.getDelta(result.getEntity(), first.getLog(), second.getLog());
+//        DeltaResultBean deltaResultBean = storageService.getDelta(result.getEntity(), first.getLog(), second.getLog());
 //        Map added = deltaResultBean.getAdded();
 //        assertNotNull(added);
 //        assertTrue(added.containsKey("list"));

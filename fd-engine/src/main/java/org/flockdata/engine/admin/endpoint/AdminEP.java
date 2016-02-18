@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.admin.endpoint;
 
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.helper.ApiKeyInterceptor;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
@@ -45,7 +45,7 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 @RestController
-@RequestMapping("${fd-engine.system.api}/v1/admin")
+@RequestMapping("${fd-engine.system.api:api}/v1/admin")
 public class AdminEP {
 
     @Qualifier("mediationFacadeNeo")

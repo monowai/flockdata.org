@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
  * Since: 8/11/13
  */
 @RestController
-@RequestMapping("${fd-engine.system.api}/v1/tag")
+@RequestMapping("${fd-engine.system.api:api}/v1/tag")
 public class TagEP {
 
     @Autowired

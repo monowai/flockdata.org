@@ -12,6 +12,16 @@ public class LoginRequest implements Serializable {
 	private String username;
 	private String password;
 
+	public LoginRequest(String user, String pass) {
+		this();
+		this.username = user;
+		this.password = pass;
+	}
+
+	public LoginRequest() {
+
+	}
+
 	public String getUsername() {
 		return username;
 	}

@@ -48,7 +48,7 @@ import java.util.Set;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("${fd-engine.system.api}/v1/entity")
+@RequestMapping("${fd-engine.system.api:api}/v1/entity")
 public class EntityEP {
     @Autowired
     EntityService entityService;

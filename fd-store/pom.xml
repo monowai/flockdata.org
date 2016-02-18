@@ -37,6 +37,12 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-store-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
             <version>${project.version}</version>
@@ -213,5 +219,54 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <imageName>flockdata/${project.artifactId}</imageName>
+                            <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                            <dockerHost>${DOCKER_HOST}</dockerHost>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.artifactId}-war.jar</include>
+                                    <include>classes/application.yml</include>
+                                    <include>classes/log4j.xml</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </plugin>
+                </plugins>
 
+            </build>
+        </profile>
+    </profiles>
 </project>

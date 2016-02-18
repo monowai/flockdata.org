@@ -43,23 +43,21 @@ public class CompanyTestEP extends WacBase {
         setSecurity(mike_admin);
         SystemUser su = registerSystemUser("companyLocators", "mike");
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-
-        Collection<Company> companies = eip.findCompanies(su);
+        Collection<Company> companies = findCompanies(su);
         assertEquals(1, companies.size());
-        org.flockdata.model.Company listCompany = companies.iterator().next();
-        org.flockdata.model.Company foundCompany = eip.getCompany(listCompany.getName(), su);
+        Company listCompany = companies.iterator().next();
+        Company foundCompany = getCompany(listCompany.getName(), su);
         assertNotNull(foundCompany);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
         try {
             su.setApiKey("illegal");
-            boolean failed = eip.findCompanyIllegal(foundCompany.getName(), su);
+            boolean failed = findCompanyIllegal(foundCompany.getName(), su);
             assertTrue("Illegal API key parsed in. This should not have worked", failed);
         } catch (FlockException e ){
             // Illegal API key so this is good.
         }
 //        su = registerSystemUser("companyLocators", "mike");
-  //      eip.getIllegalCompany("IllegalCompany Name", su);
+  //      getIllegalCompany("IllegalCompany Name", su);
 
 
     }
@@ -70,10 +68,10 @@ public class CompanyTestEP extends WacBase {
         SystemUser suMike = registerSystemUser("coA123", mike_admin);
         EngineEndPoints eip = new EngineEndPoints(wac);
 
-        Collection<Company> companies = eip.findCompanies(suMike);
+        Collection<Company> companies = findCompanies(suMike);
         assertEquals(1, companies.size());
         org.flockdata.model.Company listCompany = companies.iterator().next();
-        org.flockdata.model.Company foundCompany = eip.getCompany(listCompany.getName(), suMike);
+        org.flockdata.model.Company foundCompany = getCompany(listCompany.getName(), suMike);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.
@@ -83,22 +81,22 @@ public class CompanyTestEP extends WacBase {
 //        SystemUser suSally = registerSystemUser("coB123", sally_admin);
 //
 //        try {
-//            org.junit.Assert.assertEquals("Sally's APIKey cannot see Mikes company record", null, eip.findCompanyIllegal("coA123", suSally));
+//            org.junit.Assert.assertEquals("Sally's APIKey cannot see Mikes company record", null, findCompanyIllegal("coA123", suSally));
 //            fail("Security Check failed");
 //        } catch (FlockException e ){
 //            // Illegal API key so this is good.
 //        }
 //        // Happy path
-//        assertNotNull ( eip.getCompany("coB123", suSally));
+//        assertNotNull ( getCompany("coB123", suSally));
 //        setSecurity(mike_admin);
 //        try {
-//            org.junit.Assert.assertEquals("Mike's APIKey cannot see Sally's company record", null, eip.getCompany("coB123", suMike));
+//            org.junit.Assert.assertEquals("Mike's APIKey cannot see Sally's company record", null, getCompany("coB123", suMike));
 //            fail("Security Check failed");
 //        } catch (FlockException e ){
 //            // Illegal API key so this is good.
 //        }
 //        // Happy path
-//        assertNotNull ( eip.findCompanyIllegal("coA123", suMike));
+//        assertNotNull ( findCompanyIllegal("coA123", suMike));
 
     }
 

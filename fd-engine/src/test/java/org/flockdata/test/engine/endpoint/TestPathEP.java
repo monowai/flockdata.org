@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -18,7 +18,7 @@ import static junit.framework.TestCase.assertEquals;
  * Created by mike on 28/12/15.
  */
 @WebAppConfiguration
-public class TestPathEP extends EngineBase {
+public class TestPathEP extends WacBase {
     @Autowired
     WebApplicationContext wac;
 
@@ -52,16 +52,16 @@ public class TestPathEP extends EngineBase {
         bodies.setTargets("typed", category);
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
-        eip.createTag(term);
+        createTag(term);
         // Fix the resulting json
-        Collection paths = eip.getTagPaths(term.getLabel(), term.getCode(), interest.getLabel());
+        Collection paths = getTagPaths(term.getLabel(), term.getCode(), interest.getLabel());
         assertEquals(2, paths.size());
 
         String code = TagHelper.parseKey(division.getKeyPrefix(), division.getCode());
-        TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", eip.getTag("Division", code));
-        paths = eip.getTagPaths(division.getLabel(), code, interest.getLabel());
+        TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", getTag("Division", code));
+        paths = getTagPaths(division.getLabel(), code, interest.getLabel());
         assertEquals (1, paths.size());
     }
 

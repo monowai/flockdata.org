@@ -17,11 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.repos;
+package org.flockdata.store.repo;
 
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
+import org.flockdata.store.common.repos.AbstractStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
