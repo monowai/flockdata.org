@@ -34,12 +34,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
+import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
 
 /**
  * User: Mike Holdsworth
@@ -184,7 +188,7 @@ public class EngineConfig implements PlatformConfig {
         return (isMultiTenanted() ? company.getCode() : "");
     }
 
-    @Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
+    @Secured({FD_ROLE_ADMIN, FD_ROLE_USER})
     public Map<String, String> getHealthAuth() {
         return getHealth();
     }
@@ -239,7 +243,7 @@ public class EngineConfig implements PlatformConfig {
     @CacheEvict(value = {"fortress", "company", "companyTag", "geoData", "fortressDocType", "fortressUser",
             "companyEvent", "labels"}, allEntries = true)
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.EXP_ADMIN)
     public void resetCache() {
         logger.debug("Cache Reset");
     }
@@ -265,7 +269,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN, FdRoles.FD_ROLE_USER})
+    @PreAuthorize(FdRoles.EXP_EITHER)
     public String authPing() {
         return "pong";
     }

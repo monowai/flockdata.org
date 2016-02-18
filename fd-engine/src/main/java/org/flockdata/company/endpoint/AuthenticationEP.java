@@ -56,7 +56,7 @@ public class AuthenticationEP {
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {
-        // curl -X GET http://localhost:8081/v1/ping
+        // curl -X GET http://localhost:8081/api/ping
         return "pong";
     }
 

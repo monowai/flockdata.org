@@ -30,7 +30,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -55,18 +54,8 @@ public class Neo4jConfigTest extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    // ToDo: The bean is initialized before the storeDir property is set
-    @Value("${neo4j.datastore}")
-    String neoStoreDir;
-
     String getNeoStoreDir(){
-        if ( neoStoreDir == null ) {
-            String systemProperty= System.getProperty("neo4j.datastore");
-            if ( systemProperty== null )
-                systemProperty = "./target/data/neo4j/fd";
-            return systemProperty;
-        }
-        return neoStoreDir;
+            return "./target/data/" + System.currentTimeMillis();
     }
 
     @PostConstruct

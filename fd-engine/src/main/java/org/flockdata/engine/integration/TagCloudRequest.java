@@ -81,7 +81,7 @@ public class TagCloudRequest {
     // ToDo: Can this be integrated to the handler?
     @Transformer(inputChannel= "tagCloudReply", outputChannel="tagCloudResult")
     public TagCloud transformTagCloudResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.getBytesAsObject(theObject.getPayload().getBytes(), TagCloud.class);
+        return JsonUtils.toObject(theObject.getPayload().getBytes(), TagCloud.class);
     }
 
 

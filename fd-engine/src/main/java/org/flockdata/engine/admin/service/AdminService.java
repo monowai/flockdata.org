@@ -186,7 +186,7 @@ public class AdminService implements EngineAdminService {
                 "  }\n" +
                 "}";
         QueryParams qp;
-        qp = JsonUtils.getBytesAsObject(esQuery.getBytes(), QueryParams.class);
+        qp = JsonUtils.toObject(esQuery.getBytes(), QueryParams.class);
 
         qp.setCompany(company.getName().toLowerCase());
         qp.setTypes(docType.toLowerCase());

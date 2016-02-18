@@ -51,13 +51,13 @@ public class AuthTesting implements FdWebSecurity {
         InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
         ima.withUser("mike")
                 .password("123")
-                .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name()) ;
+                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN) ;
         ima.withUser("sally")
                 .password("123")
-                .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name());
+                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
         ima.withUser("harry")
                 .password("123")
-                .roles("USER", FdRoles.FD_USER.name());
+                .roles("USER", FdRoles.FD_USER);
 
     }
 

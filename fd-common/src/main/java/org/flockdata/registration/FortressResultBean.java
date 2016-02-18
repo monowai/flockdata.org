@@ -36,6 +36,7 @@ public class FortressResultBean implements Serializable{
     private Boolean searchEnabled;
     private Boolean storeEnabled;
     private String companyName;
+    private String rootIndex;
 
     protected FortressResultBean() {
 
@@ -51,6 +52,7 @@ public class FortressResultBean implements Serializable{
         this.searchEnabled = fortress.isSearchEnabled();
         this.companyName = fortress.getCompany().getName();
         this.storeEnabled = fortress.isStoreEnabled();
+        this.rootIndex = fortress.getRootIndex();
     }
 
     public String getName() {
@@ -92,4 +94,9 @@ public class FortressResultBean implements Serializable{
     public String getIndexName() {
         return indexName;
     }
+
+    public String getRootIndex() {
+        return rootIndex;
+    }
+
 }

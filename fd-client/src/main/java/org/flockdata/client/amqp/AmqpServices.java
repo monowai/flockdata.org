@@ -94,12 +94,12 @@ public class AmqpServices {
 
     public void publish(EntityInputBean entityInput) throws IOException {
 
-        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInput));
+        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.toJsonBytes(entityInput));
     }
 
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
 
-        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.getObjectAsJsonBytes(entityInputs));
+        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.toJsonBytes(entityInputs));
     }
 
 }

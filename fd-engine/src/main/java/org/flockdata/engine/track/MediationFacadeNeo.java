@@ -53,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
@@ -297,7 +297,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public String reindex(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -324,7 +324,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public String reindex(Company company, Entity entity) throws FlockException {
         Fortress fortress = entity.getSegment().getFortress();
         if (fortress == null)
@@ -357,7 +357,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @throws org.flockdata.helper.FlockException
      */
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public String reindexByDocType(Company company, String fortressName, String docType) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
         if (fortress == null)
@@ -383,7 +383,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public void mergeTags(Company company, Long source, Long target) {
         // ToDo: Transactional?
         // Update the search docs for the affected entities
@@ -407,7 +407,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public void purge(Company company, String fortressCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -427,7 +427,7 @@ public class MediationFacadeNeo implements MediationFacade {
      * @return
      */
     @Override
-    @Secured({FdRoles.FD_ROLE_ADMIN})
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public String validateFromSearch(Company company, String fortressCode, String docType) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
         if (fortress == null)
@@ -439,7 +439,7 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    @Secured(FdRoles.FD_ROLE_ADMIN)
+    @PreAuthorize(FdRoles.FD_ADMIN)
     public void purge(Fortress fortress) throws FlockException {
         adminService.purge(fortress.getCompany(), fortress);
     }

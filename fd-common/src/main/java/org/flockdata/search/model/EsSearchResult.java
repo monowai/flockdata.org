@@ -75,7 +75,7 @@ public class EsSearchResult {
     public Map<String,Object>getRawResults() {
         if ( json !=null ){
             try {
-                return JsonUtils.getAsMap(json);
+                return JsonUtils.toMap(json);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -512,13 +512,13 @@ public class TestFdIntegration {
         String queryString = "{\"query_string\": {\n" +
                 "      \"query\": \"hello world\"\n" +
                 "  }}";
-        Map<String, Object> query = JsonUtils.getAsMap(queryString);
+        Map<String, Object> query = JsonUtils.toMap(queryString);
 
         qp.setQuery(query);
         EsSearchResult searchResult = queryService.search(su.getCompany(), qp);
         assertNotNull(searchResult);
         assertEquals(1, searchResult.getTotalHits());
-        Map<String, Object> mapResult = JsonUtils.getAsMap(searchResult.getJson());
+        Map<String, Object> mapResult = JsonUtils.toMap(searchResult.getJson());
         assertFalse(mapResult.isEmpty());
         esHelper.deleteEsIndex(indexHelper.parseIndex(result.getEntity()));
     }
@@ -737,7 +737,7 @@ public class TestFdIntegration {
         // We now have 2 logs, sad tags and no happy tags
 
         String json = esHelper.doEsTermQuery(result.getEntity(), EntitySearchSchema.TAG + ".testingb.tag.code.facet", "Sad Days", 1);
-        Map<String, Object> searchDoc = JsonUtils.getAsMap(json);
+        Map<String, Object> searchDoc = JsonUtils.toMap(json);
         Long searchCreated = Long.parseLong(searchDoc.get(EntitySearchSchema.CREATED).toString());
         Long searchUpdated = Long.parseLong(searchDoc.get(EntitySearchSchema.UPDATED).toString());
         assertTrue("Fortress update was not set in to searchDoc", searchUpdated > 0);
@@ -1012,10 +1012,10 @@ public class TestFdIntegration {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/query/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJSON(input))
+                .content(JsonUtils.toJson(input))
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        return JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), EsSearchResult.class);
+        return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), EsSearchResult.class);
     }
 
     /**
@@ -1834,14 +1834,14 @@ public class TestFdIntegration {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/track/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJSON(eib))
+                .content(JsonUtils.toJson(eib))
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
         DocumentType foundDoc = conceptService.resolveByDocCode(fortress, docType.getName(), false);
         assertNotNull(foundDoc);
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, foundDoc.getTagStructure());
 
-        TrackRequestResult result = JsonUtils.getBytesAsObject(response.getResponse().getContentAsByteArray(), TrackRequestResult.class);
+        TrackRequestResult result = JsonUtils.toObject(response.getResponse().getContentAsByteArray(), TrackRequestResult.class);
         assertNotNull(result);
         assertNotNull(result.getMetaKey());
 

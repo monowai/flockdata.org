@@ -20,7 +20,6 @@
 package org.flockdata.helper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
@@ -41,18 +40,18 @@ public class JsonUtils {
     public static ObjectMapper getMapper() {
         return mapper;
     }
-    public static byte[] getObjectAsJsonBytes(Object object) throws IOException {
+    public static byte[] toJsonBytes(Object object) throws IOException {
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper.writeValueAsBytes(object);
     }
 
-    public static <T> T getBytesAsObject (byte[] bytes, Class<T> clazz) throws IOException {
+    public static <T> T toObject(byte[] bytes, Class<T> clazz) throws IOException {
         return mapper.readValue(bytes, clazz);
     }
 
 
-    public static <T> Collection<T> getAsCollection(String json, Class<T> clazz) throws IOException {
+    public static <T> Collection<T> toCollection(String json, Class<T> clazz) throws IOException {
         if (json == null || json.equals(""))
             return new ArrayList<>();
 
@@ -72,7 +71,7 @@ public class JsonUtils {
      * @return   Collection<T>
      * @throws IOException
      */
-    public static <T> Collection<T> getAsCollection(byte[] bytes, Class<T> clazz) throws IOException {
+    public static <T> Collection<T> toCollection(byte[] bytes, Class<T> clazz) throws IOException {
         if (bytes == null )
             return new ArrayList<>();
 
@@ -82,24 +81,24 @@ public class JsonUtils {
 
     }
 
-    public static Map<String,Object> getAsMap(String json) throws IOException {
+    public static Map<String,Object> toMap(String json) throws IOException {
         Map<String,Object> result = mapper.readValue(json, Map.class);
         return result;
     }
 
-    public static Map<String,Object> getAsMap(byte[] json) throws IOException {
+    public static Map<String,Object> toMap(byte[] json) throws IOException {
         Map result = mapper.readValue(json, Map.class);
         return result;
     }
 
 
-    public static String getJSON(Object obj) {
-        String json = null;
+    public static String toJson(Object obj) {
+
         try {
-            json = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
+            return new String(toJsonBytes(obj));
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return json;
+        return null;
     }
 }

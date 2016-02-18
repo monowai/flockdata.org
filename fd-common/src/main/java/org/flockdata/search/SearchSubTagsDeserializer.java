@@ -28,7 +28,7 @@ public class SearchSubTagsDeserializer extends JsonDeserializer <Map<String, Col
         while (columns.hasNext()){
             Map.Entry<String, JsonNode> row = columns.next();
             String key = row.getKey();
-            Collection<SearchTag> tags =  JsonUtils.getAsCollection(row.getValue().toString(), SearchTag.class);
+            Collection<SearchTag> tags =  JsonUtils.toCollection(row.getValue().toString(), SearchTag.class);
             //mapper.readValue(next.getValue().toString(), SearchTag.class);
             results.put(key, tags);
         }

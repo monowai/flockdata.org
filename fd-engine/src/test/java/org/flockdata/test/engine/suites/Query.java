@@ -23,8 +23,8 @@ package org.flockdata.test.engine.suites;
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.functional.TestQuery;
-import org.flockdata.test.engine.functional.TestQueryResults;
+import org.flockdata.test.engine.services.TestQuery;
+import org.flockdata.test.engine.services.TestQueryResults;
 import org.flockdata.test.engine.unit.TestQueryParameters;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

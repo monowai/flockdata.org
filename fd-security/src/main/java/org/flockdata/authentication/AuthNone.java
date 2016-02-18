@@ -45,7 +45,7 @@ public class AuthNone implements FdWebSecurity {
                 .inMemoryAuthentication()
                     .withUser("mike")
                     .password("123")
-                    .roles("USER", FdRoles.FD_USER.name(), FdRoles.FD_ADMIN.name())
+                    .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN)
 
                 ;
     }

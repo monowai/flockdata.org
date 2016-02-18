@@ -13,8 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 
 @Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity()
-//@EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired

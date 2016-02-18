@@ -130,7 +130,7 @@ public class KvContentBean implements KvContent, Serializable {
         if (getAttachment() != null)
             bytes = getAttachment().getBytes();
         else
-            bytes = JsonUtils.getObjectAsJsonBytes(getData());
+            bytes = JsonUtils.toJsonBytes(getData());
         crcChecksum.update(bytes, 0, bytes.length);
         checksum = Long.toHexString(crcChecksum.getValue()).toUpperCase();
         return checksum;
