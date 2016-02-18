@@ -130,7 +130,7 @@ public class TestRegistration extends EngineBase {
 
 
         // Create the company.
-        setSecurityEmpty();
+        setUnauthorized();
 
         // Now the user has now logged in.
         setSecurity(mike_admin);

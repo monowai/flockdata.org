@@ -341,7 +341,7 @@ public class EntityDaoNeo {
     }
 
     public Log fetch(Log lastChange) {
-        if ( lastChange.getId() == null || lastChange.getId() ==0l)
+        if ( lastChange.getId() == null || lastChange.isMocked())
             return lastChange;
         return template.fetch(lastChange);
     }

@@ -77,7 +77,7 @@ public class TestAdmin extends EngineBase {
         assertNotNull(metaKey);
         assertNotNull(entityService.getEntity(su.getCompany(), metaKey));
 
-        setSecurityEmpty();
+        setUnauthorized();
         // Assert that unauthorised user can't purge a fortress
         exception.expect(AuthenticationException.class);
         mediationFacade.purge(fortress);

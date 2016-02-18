@@ -72,7 +72,7 @@ public class EntityLog {
         this.log = log;
         this.timezone = entity.getSegment().getFortress().getTimeZone();
         if (entity.getSegment().getFortress().isStoreDisabled()) {
-            id = 0l;
+            id = System.currentTimeMillis();
             isMock = log.isMocked();
         }
         if (fortressWhen != null && fortressWhen.getMillis() != 0) {

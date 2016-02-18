@@ -206,7 +206,7 @@ public abstract class EngineBase {
         return auth;
     }
 
-    public static void setSecurityEmpty() {
+    public static void setUnauthorized() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 

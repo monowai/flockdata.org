@@ -257,6 +257,12 @@ public class Log  {
         this.madeBy = madeBy;
     }
 
+    /**
+     * If we don't store the log for an entity, then we may still need to display
+     * the data for it as resolved by fd-store.
+     *
+     * @return true if the log is not physically stored in the Graph
+     */
     public boolean isMocked() {
         return mocked;
     }
