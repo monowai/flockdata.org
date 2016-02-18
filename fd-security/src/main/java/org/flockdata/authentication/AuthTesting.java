@@ -23,14 +23,23 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-auth-test"})
 public class AuthTesting implements FdWebSecurity {
 
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/api/login", "/api/logout", "/api/ping").permitAll()
-                .antMatchers("/api/v1/**").authenticated();
+                .antMatchers("/api/login/**", "/api/ping/**", "/api/logout/**").permitAll()
+                .antMatchers("/api/v1/**").authenticated()
+
+        ;
+
+//        http.authorizeRequests()
+//                .antMatchers("/**").hasRole("USER")
+//                .antMatchers("/admin/**").hasRole("ADMIN");
+
+        //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
         http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
         http.httpBasic();
-        //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
+
 
     }
 

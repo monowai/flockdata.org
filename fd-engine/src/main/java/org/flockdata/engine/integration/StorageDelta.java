@@ -31,6 +31,7 @@ public class StorageDelta {
 
     // HTTP
     @MessagingGateway
+    @Profile({"integration","production"})
     public interface DeltaGateway {
         @Gateway(requestChannel = "startDelta", requestTimeout = 40000, replyChannel = "deltaReply")
         @Retryable

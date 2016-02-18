@@ -6,6 +6,7 @@ import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
@@ -17,13 +18,14 @@ import org.springframework.retry.annotation.Retryable;
  */
 @Configuration
 @IntegrationComponentScan
+@Profile({"integration","production"})
 public class StoreWriter {
 
     @Autowired
     StoreManager storeManager;
 
     @Bean
-    MessageChannel startKvWrite(){
+    MessageChannel startStoreWrite(){
         return new DirectChannel();
     }
 
@@ -37,7 +39,7 @@ public class StoreWriter {
      * @param kvBean content
      * @throws FlockServiceException - problem with the underlying
      */
-    @ServiceActivator(inputChannel = "doKvWrite", requiresReply = "false")
+    @ServiceActivator(inputChannel = "startStoreWrite", requiresReply = "false")
     @Retryable
     public void doKvWrite(KvContentBean kvBean) throws FlockServiceException {
         storeManager.doWrite(kvBean);

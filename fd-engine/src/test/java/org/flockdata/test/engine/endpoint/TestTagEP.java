@@ -56,13 +56,13 @@ public class TestTagEP extends WacBase {
         zipCode.setTargets("located", tractCode);
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
-        Collection<TagResultBean> tags = eip.createTag(zipCode);
+        Collection<TagResultBean> tags = createTag(zipCode);
         TestCase.assertEquals(1, tags.size());
 
 
-        Map<String, Object> targetTags = eip.getConnectedTags(zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
+        Map<String, Object> targetTags = getConnectedTags(zipCode.getLabel(), zipCode.getCode(), "*", tractCode.getLabel());
         TestCase.assertEquals(1, targetTags.size());
         Collection<Map>tagResults = (Collection<Map>) targetTags.get("located");
         TestCase.assertEquals(tractCode.getCode(), tagResults.iterator().next().get("code"));
@@ -80,20 +80,19 @@ public class TestTagEP extends WacBase {
         TagInputBean thingTag = new TagInputBean("This/That", "Things");
 
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
-        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        Collection<TagResultBean> tags = createTag(thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TagResultBean tagResultBean = getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
         TestCase.assertNotNull(tagResultBean);
         TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
-        tagResultBean = eip.getTag(thingTag.getLabel(), "This/That");
+        tagResultBean = getTag(thingTag.getLabel(), "This/That");
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -114,13 +113,13 @@ public class TestTagEP extends WacBase {
 
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
-        eip.createTag(ignoredTag);// Same tag code, different prefix
-        Collection<TagResultBean> tags = eip.createTag(prefixedTag);
+        createTag(ignoredTag);// Same tag code, different prefix
+        Collection<TagResultBean> tags = createTag(prefixedTag);
         TestCase.assertEquals(1, tags.size());
 
-        TagResultBean tagResultBean = eip.getTagWithPrefix(prefixedTag.getLabel(), prefixedTag.getKeyPrefix(), prefixedTag.getCode());
+        TagResultBean tagResultBean = getTagWithPrefix(prefixedTag.getLabel(), prefixedTag.getKeyPrefix(), prefixedTag.getCode());
         TestCase.assertEquals(prefixedTag.getCode(), tagResultBean.getCode());
         TestCase.assertNotNull(tagResultBean.getLabel());
 
@@ -138,19 +137,19 @@ public class TestTagEP extends WacBase {
 
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
-        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        Collection<TagResultBean> tags = createTag(thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TagResultBean tagResultBean = getTag(thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
         TestCase.assertNotNull(tagResultBean);
         TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
-        tagResultBean = eip.getTag(thingTag.getLabel(), "This That");
+        tagResultBean = getTag(thingTag.getLabel(), "This That");
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -166,17 +165,15 @@ public class TestTagEP extends WacBase {
 
         TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
 
+        login(mike_admin, "123");
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
-
-        Collection<TagResultBean> tags = eip.createTag(thingTag);
+        Collection<TagResultBean> tags = createTag(thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = eip.getTags(thingTag.getLabel());
+        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = eip.getTag(thingTag.getLabel(), "1% Increase");
+        TagResultBean tagResultBean = getTag(thingTag.getLabel(), "1% Increase");
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -189,10 +186,9 @@ public class TestTagEP extends WacBase {
         registerSystemUser("nf_tags", "mike");
         engineConfig.setConceptsEnabled("true");
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
         // DAT-526
-        eip.getTagNotFound("zz","123jja");
+        getTagNotFound("zz","123jja");
 
     }
 }

@@ -19,13 +19,10 @@
 
 package org.flockdata.test.engine.endpoint;
 
-import org.flockdata.authentication.LoginRequest;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.SystemUser;
 import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -47,7 +44,7 @@ public class TestAPISecurity extends WacBase {
 	@Test
 	public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
 			throws Exception {
-		mockMVC.perform(MockMvcRequestBuilders.get("/fortress/"))
+		mockMVC.perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/fortress/"))
 				.andExpect(MockMvcResultMatchers.status().isUnauthorized())
 				.andReturn();
 	}
@@ -59,15 +56,11 @@ public class TestAPISecurity extends WacBase {
 		registerSystemUser("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
 		setSecurityEmpty();
 		
-		LoginRequest loginReq = new LoginRequest();
-		loginReq.setUsername(sally_admin);
-		loginReq.setPassword("123");
+		login(sally_admin, "123");
 
-		mockMVC.perform(
-				MockMvcRequestBuilders.post("/login")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(JsonUtils.getJSON(loginReq))).andReturn();
-		mockMVC.perform(MockMvcRequestBuilders.get("/fortress/"))
+		getMockMvc()
+				.perform(MockMvcRequestBuilders
+						.get(WacBase.apiPath+"/fortress/"))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 	}
 
@@ -79,7 +72,7 @@ public class TestAPISecurity extends WacBase {
 		setSecurityEmpty();
 
 		mockMVC.perform(
-				MockMvcRequestBuilders.get("/fortress/").header("api-key",
+				MockMvcRequestBuilders.get(WacBase.apiPath+"/fortress/").header("api-key",
 						apikey))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 	}

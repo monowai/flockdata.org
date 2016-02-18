@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,8 +49,7 @@ public class TestProfileRegistration extends WacBase {
         String companyName = "Public Company";
         setSecurityEmpty();
         // Unauthenticated users can't register accounts
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")
+        getMockMvc().perform(MockMvcRequestBuilders.post(WacBase.apiPath+"/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(new RegistrationBean(companyName, sally_admin)))
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
@@ -95,7 +93,7 @@ public class TestProfileRegistration extends WacBase {
 
     SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
 
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/profiles/")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(WacBase.apiPath+"/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.getJSON(register))
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
@@ -105,7 +103,7 @@ public class TestProfileRegistration extends WacBase {
 
     SystemUserResultBean getMe() throws Exception {
 
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get("/profiles/me/")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/profiles/me/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 

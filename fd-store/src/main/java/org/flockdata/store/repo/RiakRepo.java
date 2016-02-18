@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.repos;
+package org.flockdata.store.repo;
 
 import com.basho.riak.client.api.RiakClient;
 import com.basho.riak.client.api.RiakException;
@@ -35,6 +35,7 @@ import org.flockdata.helper.ObjectHelper;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.common.repos.AbstractStore;
 import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

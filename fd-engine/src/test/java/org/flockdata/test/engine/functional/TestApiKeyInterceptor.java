@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.helper.ApiKeyInterceptor;
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.model.Company;
 import org.junit.After;
 import org.junit.Before;
@@ -29,9 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class TestApiKeyInterceptor extends EngineBase {
 

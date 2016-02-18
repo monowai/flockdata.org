@@ -6,8 +6,10 @@ spring:
     include: fd-auth-none
 
 fd-store:
-  engine: RIAK
-  enabled: true
+  system:
+    engine: RIAK
+    api: api
+    enabled: true # Is this storage engine enbaled ? If yes, then engine: is used to id the storage mechanism
   executor:
     poolSize: 8-15
     queueCapacity: 3

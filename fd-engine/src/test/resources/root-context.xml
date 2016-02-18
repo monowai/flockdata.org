@@ -23,14 +23,14 @@
     <!-- Root Context: defines shared resources visible to all other web components -->
 
     <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true"
-                                  location="classpath:application.properties"/>
+                                  location="classpath:application.yml"/>
     <!-- Neo test database -->
     <import resource="neo4j-context.xml"/>
     <import resource="test-security.xml" />
 
     <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
 
-    <bean id="apiKeyInterceptor" class="org.flockdata.helper.ApiKeyInterceptor"/>
+    <bean id="apiKeyInterceptor" class="org.flockdata.configure.ApiKeyInterceptor"/>
 
     <bean id="corsFilter" class="org.flockdata.helper.CorsSpringFilter" >
         <constructor-arg>

@@ -23,7 +23,6 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -83,20 +82,19 @@ public class TestQuery extends WacBase {
 
         Collection<String> fortresses = new ArrayList<>();
         fortresses.add(coAfA.getName());
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        Collection<DocumentResultBean> foundDocs = engineEndPoints.getDocuments(suA, fortresses);
+        Collection<DocumentResultBean> foundDocs = getDocuments(suA, fortresses);
         assertEquals(1, foundDocs.size());
 
         fortresses.add(coAfB.getName());
-        foundDocs = engineEndPoints.getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
+        foundDocs = getDocuments(suA, fortresses);//queryEP.getDocumentsInUse (fortresses, suA.getApiKey(), suA.getApiKey());
         assertEquals(2, foundDocs.size());
 
         // Company B
         fortresses.clear();
         fortresses.add(coBfA.getName());
-        assertEquals(1, engineEndPoints.getDocuments(suB, fortresses).size());
+        assertEquals(1, getDocuments(suB, fortresses).size());
         fortresses.add(coBfB.getName());
-        assertEquals(2, engineEndPoints.getDocuments(suB, fortresses).size());
+        assertEquals(2, getDocuments(suB, fortresses).size());
 
     }
 

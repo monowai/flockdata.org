@@ -21,9 +21,9 @@ package org.flockdata.company.endpoint;
 
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.RegistrationService;
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.helper.ApiKeyHelper;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FdRestNotFoundException;
 import org.flockdata.helper.FlockException;
@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 8:23 PM
  */
 @RestController
-@RequestMapping("${fd-engine.system.api}/v1/company")
+@RequestMapping("${fd-engine.system.api:api}/v1/company")
 public class CompanyEP {
 
 	private static final Logger logger = LoggerFactory
@@ -66,7 +66,7 @@ public class CompanyEP {
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
 
     public Collection<Company> findCompanies(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
-        return companyService.findCompanies(ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
+        return companyService.findCompanies(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey));
     }
 
     @RequestMapping(value = "/{companyName}",  produces = "application/json", method = RequestMethod.GET)

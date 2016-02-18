@@ -24,9 +24,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.bean.DeltaBean;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.track.bean.DeltaResultBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.io.IOException;
@@ -47,16 +45,6 @@ public interface KvService {
 
     void delete(Entity entity, Log change);
 
-    boolean isSame(DeltaBean deltaBean);
-
-    boolean sameJson(KvContent compareFrom, KvContent compareWith);
-
-    DeltaResultBean getDelta(LogRequest logRequest, Log to);
-
     void doWrite( KvContentBean kvBean) throws FlockException;
-
-//    // Resolves the kv store to use for a given trackResult
-//    Store getKvStore(TrackResultBean trackResult);
-
 
 }

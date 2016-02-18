@@ -17,14 +17,14 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.configure;
 
-import org.flockdata.configure.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Configuration
 public class ApiKeyInterceptor implements HandlerInterceptor {
     private static final Logger logger = LoggerFactory
             .getLogger(ApiKeyInterceptor.class);
@@ -83,4 +84,30 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             throws Exception {
     }
 
+    /**
+     * API key precedence
+     *
+     * User: mike
+     * Date: 15/03/14
+     * Time: 11:51 AM
+     */
+    public static class ApiKeyHelper {
+        /**
+         *
+         * api key in the HttpHeader overrides one in the request
+         *
+         *
+         * @param headerKey    headerKey
+         * @param requestKey requestKey
+         * @return null or param.
+         */
+        public static String resolveKey(String headerKey, String requestKey){
+            String key = requestKey;
+            if (headerKey !=null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
+                headerKey = null;
+            if (headerKey != null)
+                key = headerKey;
+            return key;
+        }
+    }
 }

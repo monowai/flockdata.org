@@ -23,11 +23,9 @@ import junit.framework.TestCase;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.SystemUser;
-import org.flockdata.test.engine.functional.EngineBase;
+import org.flockdata.test.engine.functional.WacBase;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
 
@@ -37,10 +35,8 @@ import static junit.framework.Assert.assertEquals;
  * Created by mike on 16/02/15.
  */
 @WebAppConfiguration
-public class FortressTestEP extends EngineBase {
+public class FortressTestEP extends WacBase {
 
-    @Autowired
-    WebApplicationContext wac;
 
     /**
      * Create a collection of DocumentTypeInputBeans for a fortress over the endpoint
@@ -55,10 +51,10 @@ public class FortressTestEP extends EngineBase {
         Fortress fortress = createFortress(su);
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
 
-        Collection<FortressSegment> segments = eip.getSegments(fortress.getName());
+        Collection<FortressSegment> segments = getSegments(fortress.getName());
         assertEquals(1, segments.size());
 
         TestCase.assertTrue("Default segment not found", segments.iterator().next().getCode().equals("Default"));

@@ -39,17 +39,23 @@ services:
     links:
       - fd-search
       - rabbit
-      - riak
+      - fd-store
     environment:
-      fd.auth.provider: simple
-      rabbit.host: rabbit
-      fd-search.url: http://fd-search:8081/fd-search
-      fd.auth.provider: simple
-      neo4j.datastore: /opt/flockdata/data/neo4j/fd
-      fd.logLevel: info
+      spring:
+        profiles:
+          default: production
+          include: fd-auth-test
+      rabbit:
+        host: rabbit
+      fd-search:
+        url: http://fd-search:8081/api
+      fd-store:
+        url: http://fd-store:8082/api
+      neo4j:
+        datastore: /opt/flockdata/data/neo4j/fd
       # Enables integration functionality
-      spring.profiles.default: production
-      log4j.configuration: /opt/flockdata/conf/log4j.xml
+      log4j:
+        configuration: /opt/flockdata/conf/log4j.xml
 
   fd-search:
     container_name: fd-search
@@ -58,13 +64,20 @@ services:
      - '8081:8081'
      - '9200:9200'
     environment:
-      rabbit.host: rabbit
-      fd-engine.url: http://fd-engine:8080/fd-engine
+      rabbit:
+        host: rabbit
+      fd-engine:
+        url: http://fd-engine:8080/api
+
       # Enables integration functionality
-      spring.profiles.default: production
-      es.clustername: 'es_flockdata'
-      fd.logLevel: info
-      log4j.configuration: opt/flockdata/conf/log4j.xml
+      spring:
+        profiles:
+          default: production
+          include: fd-auth-none
+      es:
+        clustername: 'es_flockdata'
+      log4j:
+        configuration: /opt/flockdata/conf/log4j.xml
     links:
      - rabbit
      - riak

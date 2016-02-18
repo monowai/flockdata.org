@@ -9,10 +9,10 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.bean.DeltaBean;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,40 +21,47 @@ import org.springframework.stereotype.Service;
  * Created by mike on 17/02/16.
  */
 @Service
+@Profile({"integration","production"})
 public class FdStorageProxy implements StorageProxy {
 
-    @Autowired
+    @Autowired (required = false) // Functional tests don't neeed these gateways
     StorageReader.ReadStorageGateway storeRead;
 
-    @Autowired
+    @Autowired (required = false) // Functional tests don't neeed these gateways
     StorageWriter.WriteStorageGateway storeWrite;
 
-    @Autowired
+    @Autowired (required = false) // Functional tests don't neeed these gateways
     StorageDelta.DeltaGateway storeCompare;
-
-    @Override
-    public KvContent read(Entity entity, Log log) {
-        return storeRead.read(new LogRequest(entity, log));
-    }
 
     @Override
     public void write(TrackResultBean resultBean) {
         storeWrite.doStoreWrite(new KvContentBean(resultBean));
     }
 
+    @Override
+    public KvContent read(Entity entity, Log log) {
+        return read(new LogRequest(entity, log));
+    }
+
+    @Override
+    public KvContent read(LogRequest logRequest) {
+        return storeRead.read(logRequest);
+    }
+
     /**
-     * Determines if the lastLog and the preparedLog are the same
-     * @param entity
-     * @param lastLog
-     * @param preparedLog
+     * Determines if the lastLog and the incomingLog are the same
+     * @param entity        owner of the log
+     * @param existingLog   persisted log
+     * @param incomingLog   notional log
      * @return
      */
     @Override
-    public boolean compare(Entity entity, Log lastLog, Log preparedLog) {
-        return  storeCompare.isSame(
-                new DeltaBean(
-                        new LogRequest(entity, lastLog),
-                        preparedLog));
+    public boolean compare(Entity entity, Log existingLog, Log incomingLog) {
+        LogRequest logRequest = new LogRequest(entity, existingLog);
+        KvContent existingContent = read(logRequest);
+
+        return existingContent != null && isSame(logRequest, incomingLog, existingContent);
+
     }
 
     /**
@@ -62,21 +69,16 @@ public class FdStorageProxy implements StorageProxy {
      *
      * @return false if different, true if same
      */
-    @Override
-    public boolean isSame(DeltaBean deltaBean) {
-        if (deltaBean.getLogRequest().getLogId()== null)
+    boolean isSame(LogRequest logRequest, Log compareTo, KvContent existingContent) {
+        if (logRequest.getLogId()== null)
             return false;
 
-        KvContent content = storeRead.read(deltaBean.getLogRequest());
 
-        if (content == null)
-            return false;
-
-        boolean sameContentType = deltaBean.getLogRequest().getContentType().equals(deltaBean.getPreparedLog().getContentType());
+        boolean sameContentType = logRequest.getContentType().equals(compareTo.getContentType());
 
         return sameContentType &&
-                (sameCheckSum(deltaBean.getLogRequest().getCheckSum(), deltaBean.getPreparedLog()) || deltaBean.getLogRequest().getContentType().equals("json") &&
-                        sameJson(content, deltaBean.getPreparedLog().getContent()));
+                (sameCheckSum(logRequest.getCheckSum(), compareTo) || logRequest.getContentType().equals("json") &&
+                        sameJson(existingContent, compareTo.getContent()));
 
     }
 

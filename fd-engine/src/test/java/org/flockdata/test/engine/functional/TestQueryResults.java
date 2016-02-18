@@ -25,7 +25,6 @@ import org.flockdata.model.SystemUser;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
@@ -81,8 +80,7 @@ public class TestQueryResults extends WacBase {
         concepts.add(FRUIT);
         input.setConcepts(concepts);
         int fruitCount = 5, things = 2;
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
-        MatrixResults results= engineEndPoints.getMatrixResult(su, input);
+        MatrixResults results= getMatrixResult(su, input);
         //MatrixResults results = queryEP.getMatrixResult(input, su.getApiKey(), su.getApiKey());
         assertFalse(results.getEdges().isEmpty());
         assertEquals(4+(4*4), results.getEdges().size());
@@ -94,7 +92,7 @@ public class TestQueryResults extends WacBase {
         input.setDocuments(docs);
         concepts.clear();   // Return everything
         input.setConcepts(concepts);
-        results = engineEndPoints.getMatrixResult(su, input);
+        results = getMatrixResult(su, input);
         cCount = 7;
         assertFalse(results.getEdges().isEmpty());
   //      assertEquals(concepts * (concepts-1), results.getEdges().size());
@@ -102,7 +100,7 @@ public class TestQueryResults extends WacBase {
         concepts.clear();
         concepts.add(VEGETABLE);
         input.setConcepts(concepts);
-        results = engineEndPoints.getMatrixResult(su, input);
+        results = getMatrixResult(su, input);
 
         // Though peas is recorded against both A matrix ignores occurrence with the same "concept". If both had Peas, then a Peas-Potatoes would be returned
         assertEquals("Vegetable should have no co-occurrence", 0, results.getEdges().size());
@@ -115,11 +113,11 @@ public class TestQueryResults extends WacBase {
 
         input.setFromRlxs(filter);
         input.setToRlxs(filter);
-        results = engineEndPoints.getMatrixResult(su, input);
+        results = getMatrixResult(su, input);
         assertFalse(results.getEdges().isEmpty());
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
-        Collection<DocumentResultBean>documentTypes = engineEndPoints.getDocuments(su, fortresses);
+        Collection<DocumentResultBean>documentTypes = getDocuments(su, fortresses);
         assertFalse(documentTypes.isEmpty());
 
         ArrayList<String>filterFrom = new ArrayList<>();
@@ -130,12 +128,12 @@ public class TestQueryResults extends WacBase {
         filterTo.add("dislikes");
         input.setFromRlxs(filterFrom);
         input.setToRlxs(filterTo);
-        results = engineEndPoints.getMatrixResult(su, input);
+        results = getMatrixResult(su, input);
         assertFalse(results.getEdges().isEmpty());
 
         input.setFromRlxs(filterTo);
         input.setToRlxs(filterFrom);
-        results = engineEndPoints.getMatrixResult(su, input);
+        results = getMatrixResult(su, input);
         assertFalse(results.getEdges().isEmpty());
     }
 

@@ -43,40 +43,40 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${fd-track.executor.poolSize}")
+    @Value("${fd-track.executor.poolSize:8-15}")
     private String trackPoolSize;
 
-    @Value("${fd-track.executor.queueCapacity}")
+    @Value("${fd-track.executor.queueCapacity:3}")
     private String trackQueueCapacity;
 
-    @Value("${fd-tag.executor.poolSize}")
+    @Value("${fd-tag.executor.poolSize:5-10}")
     private String tagPoolSize;
 
-    @Value("${fd-tag.executor.queueCapacity}")
+    @Value("${fd-tag.executor.queueCapacity:5}")
     private String tagQueueCapacity;
 
-    @Value("${fd-search.executor.poolSize}")
+    @Value("${fd-search.executor.poolSize:5-10}")
     private String searchPoolSize;
 
-    @Value("${fd-search.executor.queueCapacity}")
+    @Value("${fd-search.executor.queueCapacity:5}")
     private String searchQueueCapacity;
 
-    @Value("${fd-store.executor.poolSize}")
+    @Value("${fd-store.executor.poolSize:5-10}")
     private String storePoolSize;
 
-    @Value("${fd-store.executor.queueCapacity}")
+    @Value("${fd-store.executor.queueCapacity:5}")
     private String storeQueueCapacity;
 
-    @Value("${fd-log.executor.poolSize}")
+    @Value("${fd-log.executor.poolSize:5-10}")
     private String logPoolSize;
 
-    @Value("${fd-log.executor.queueCapacity}")
+    @Value("${fd-log.executor.queueCapacity:5}")
     private String logQueueCapacity;
 
-    @Value("${fd-engine.executor.poolSize}")
+    @Value("${fd-engine.executor.poolSize:5-10}")
     private String enginePoolSize;
 
-    @Value("${fd-engine.executor.queueCapacity}")
+    @Value("${fd-engine.executor.queueCapacity:5}")
     private String engineQueueCapacity;
 
     @Bean(name = "fd-track")

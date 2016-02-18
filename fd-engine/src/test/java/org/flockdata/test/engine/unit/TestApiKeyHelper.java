@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.helper.ApiKeyHelper;
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.junit.Assert;
 
 import static org.junit.Assert.assertEquals;
@@ -38,10 +38,10 @@ public class TestApiKeyHelper {
         String nullReturned = "{{hello}}";
         String headerReturned = "{{hello";
 
-        Assert.assertEquals("HttpHeader key take precedence over request key", metaKey, ApiKeyHelper.resolveKey(metaKey, requestKey));
-        assertEquals(requestKey, ApiKeyHelper.resolveKey(null, requestKey));
-        assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyHelper.resolveKey(nullReturned, null));
-        assertEquals(requestKey, ApiKeyHelper.resolveKey(nullReturned, requestKey));
-        assertEquals("HttpHeader key is valid as it doesn't end in }}", headerReturned, ApiKeyHelper.resolveKey(headerReturned, null));
+        Assert.assertEquals("HttpHeader key take precedence over request key", metaKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(metaKey, requestKey));
+        assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(null, requestKey));
+        assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, null));
+        assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, requestKey));
+        assertEquals("HttpHeader key is valid as it doesn't end in }}", headerReturned, ApiKeyInterceptor.ApiKeyHelper.resolveKey(headerReturned, null));
     }
 }

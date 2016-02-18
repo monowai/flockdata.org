@@ -49,11 +49,15 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
+            <artifactId>fd-store-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-enterprise</artifactId>
@@ -98,7 +102,6 @@
             <type>test-jar</type>
             <!-- Introduced in 2.2.x-->
         </dependency>
-
         <!-- Web UI -->
         <dependency>
             <groupId>org.neo4j.app</groupId>
@@ -305,6 +308,14 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>${org.springsecurity.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>

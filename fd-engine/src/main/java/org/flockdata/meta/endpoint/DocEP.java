@@ -42,7 +42,7 @@ import java.util.Set;
  */
 
 @RestController
-@RequestMapping("/v1/doc")
+@RequestMapping("${fd-engine.system.api:api}/v1/doc")
 public class DocEP {
 
     @Autowired

@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
-import org.flockdata.helper.ApiKeyInterceptor;
+import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
@@ -36,7 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -54,8 +53,6 @@ import static org.junit.Assert.*;
  */
 @WebAppConfiguration
 public class TestAdminCalls extends WacBase {
-
-    MockMvc mockMvc;
 
     @Test
     public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
@@ -230,12 +227,12 @@ public class TestAdminCalls extends WacBase {
     @Test
     public void testPing() throws Exception {
         setSecurity();
-        EngineEndPoints eep = new EngineEndPoints(wac);
-        String result = eep.adminPing();
+        String result = adminPing();
         assertTrue("pong".equalsIgnoreCase(result));
-        setSecurityEmpty(); // Unsecured should also work
-        result = eep.ping();
-        assertTrue("pong".equalsIgnoreCase(result));
+        setSecurityEmpty(); // Unsecured should not work
+        result = ping();
+        assertNotNull ( result);
+        assertTrue(result.contains("Authentication is required"));
     }
 
     /**
@@ -249,11 +246,11 @@ public class TestAdminCalls extends WacBase {
 
         setSecurityEmpty(); // Unsecured should fail
         EngineEndPoints eep = new EngineEndPoints(wac);
-        String result = eep.adminPing();
+        String result = adminPing();
         assertFalse(result.contains("Pong"));
 
         setSecurity(mike_admin);// Secured user should work
-        result = eep.adminPing();
+        result = adminPing();
         assertTrue("pong".equalsIgnoreCase(result));
 
     }
@@ -262,7 +259,7 @@ public class TestAdminCalls extends WacBase {
     public void auth_Health() throws Exception {
         setSecurityEmpty();
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+        mockMvc.perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
 
     }
@@ -270,9 +267,8 @@ public class TestAdminCalls extends WacBase {
     @Test
     public void testHealth() throws Exception {
         setSecurity();
-        EngineEndPoints engineEndPoints = new EngineEndPoints(wac);
         SystemUser su = registerSystemUser("healthCheck", mike_admin);
-        Map<String, Object> results = engineEndPoints.getHealth(su);
+        Map<String, Object> results = getHealth(su);
         assertFalse("We didn't get back the health results for a valid api account", results.isEmpty());
         if (results.get("fd-search").toString().equalsIgnoreCase("ok"))
             logger.warn("fd-search is running in a not unit test fashion....");
@@ -281,26 +277,24 @@ public class TestAdminCalls extends WacBase {
 
         // No api key, auth only DAT-203
         setSecurityEmpty();
-        engineEndPoints = new EngineEndPoints(wac);
-        engineEndPoints.login("mike", "123");
-        results = engineEndPoints.getHealth(null);
+        login("mike", "123");
+        results = getHealth(null);
         assertFalse("We didn't get back the health results for an admin user", results.isEmpty());
 
         setSecurityEmpty();
 
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+        getMockMvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         setSecurity();
         // Create a data access user
-        su = registerSystemUser("anyone", "healthCheck");
+//        su = registerSystemUser("anyone", "healthCheck");
         setSecurityEmpty();
-        results = engineEndPoints.getHealth(su);
+        results = getHealth(su);
         assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());
 
         // Hacking with an invalid API Key. Should fail
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/health/")
+        getMockMvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();

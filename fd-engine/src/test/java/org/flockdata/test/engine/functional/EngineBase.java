@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.functional;
 
+import org.flockdata.FdEngine;
 import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.authentication.registration.service.SystemUserService;
@@ -48,13 +49,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
@@ -64,10 +65,11 @@ import static org.junit.Assert.*;
  * User: mike Date: 16/06/14 Time: 7:54 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:root-context.xml",
-        "classpath:apiDispatcher-servlet.xml"})
+@SpringApplicationConfiguration(FdEngine.class)
+
 @ActiveProfiles({"dev", "fd-auth-test"})
 public abstract class EngineBase {
+
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
@@ -140,7 +142,7 @@ public abstract class EngineBase {
     SearchServiceFacade searchService;
 
     @Autowired
-    StorageProxy kvService;
+    StorageProxy storageService;
 
     @Autowired
     Neo4jTemplate template;

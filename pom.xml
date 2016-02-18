@@ -14,6 +14,7 @@
         <module>fd-common</module>
         <module>fd-security</module>
         <module>fd-client</module>
+        <module>fd-store-common</module>
         <module>fd-store</module>
         <module>fd-engine</module>
         <module>fd-search</module>
@@ -140,7 +141,7 @@
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
                 <artifactId>json-path-assert</artifactId>
-                <version>0.8.1</version>
+                <version>2.1.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -169,7 +170,6 @@
                 <scope>test</scope>
                 <version>${org.springboot.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
@@ -299,7 +299,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
@@ -310,17 +309,6 @@
                 <artifactId>spring-retry</artifactId>
                 <version>1.1.1.RELEASE</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>com.thetransactioncompany</groupId>-->
-                <!--<artifactId>cors-filter</artifactId>-->
-                <!--<version>2.4</version>-->
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<artifactId>servlet-api</artifactId>-->
-                        <!--<groupId>javax.servlet</groupId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-instrument</artifactId>

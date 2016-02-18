@@ -62,28 +62,27 @@ public class DocTestEP extends WacBase {
 
         assertEquals(2, entityTagService.findEntityTags(entity).size());
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
-        Collection<DocumentResultBean> docResults = eip.getDocuments(fortress.getCode());
+        login(mike_admin, "123");
+        Collection<DocumentResultBean> docResults = getDocuments(fortress.getCode());
         assertNotNull(docResults);
         assertEquals(1, docResults.size());
         DocumentResultBean docResult = docResults.iterator().next();
         assertEquals("StudyDoc", docResult.getName());
 
-        Collection<ConceptResultBean> labelResults = eip.getLabelsForDocument(fortress.getCode(), docResult.getName());
+        Collection<ConceptResultBean> labelResults = getLabelsForDocument(fortress.getCode(), docResult.getName());
         assertFalse(labelResults.isEmpty());
         Collection<TagResultBean> tags;
         for (ConceptResultBean labelResult : labelResults) {
             switch (labelResult.getName()) {
                 case "Vegetable":
-                    tags = eip.getTags(TestQueryResults.VEGETABLE);
+                    tags = getTags(TestQueryResults.VEGETABLE);
                     assertNotNull(tags);
                     assertFalse(tags.isEmpty());
                     assertEquals(1, tags.size());
                     assertEquals("Potatoes", tags.iterator().next().getCode());
                     break;
                 case "Fruit":
-                    tags = eip.getTags(TestQueryResults.FRUIT);
+                    tags = getTags(TestQueryResults.FRUIT);
                     assertNotNull(tags);
                     assertFalse(tags.isEmpty());
                     assertEquals(1, tags.size());
@@ -113,10 +112,10 @@ public class DocTestEP extends WacBase {
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity();
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+//        EngineEndPoints eip = new EngineEndPoints(wac);
+        login(mike_admin, "123");
 
-        Collection<TagResultBean> tags = eip.getTags(TestQueryResults.VEGETABLE);
+        Collection<TagResultBean> tags = getTags(TestQueryResults.VEGETABLE);
         assertNotNull(tags);
         assertFalse(tags.isEmpty());
         assertEquals(1, tags.size());
@@ -140,17 +139,17 @@ public class DocTestEP extends WacBase {
 
 
         EngineEndPoints eip = new EngineEndPoints(wac);
-        eip.login(mike_admin, "123");
+        login(mike_admin, "123");
 
         Collection<DocumentTypeInputBean>docTypes = new ArrayList<>();
         docTypes.add(docType);
 
-        Collection<DocumentResultBean> docs = eip.makeDocuments(su, fortress, docTypes);
+        Collection<DocumentResultBean> docs = makeDocuments(su, fortress, docTypes);
         assertEquals(1, docs.size());
 
         DocumentResultBean result = docs.iterator().next();
         assertEquals(docType.getName(), result.getName());
-        assertEquals(1, eip.getDocuments(fortress.getName()).size());
+        assertEquals(1, getDocuments(fortress.getName()).size());
 
     }
 

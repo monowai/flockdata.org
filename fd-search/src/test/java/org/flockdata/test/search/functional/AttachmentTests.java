@@ -33,8 +33,6 @@ import static org.junit.Assert.assertNotNull;
  * Date: 15/09/14
  * Time: 3:26 PM
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration({"classpath:root-context.xml"})
 public class AttachmentTests extends ESBase {
 
     @Autowired

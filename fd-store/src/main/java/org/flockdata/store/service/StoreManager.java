@@ -19,10 +19,7 @@
 
 package org.flockdata.store.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.model.Entity;
@@ -30,10 +27,12 @@ import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.bean.DeltaBean;
 import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.store.repos.*;
-import org.flockdata.track.bean.DeltaResultBean;
+import org.flockdata.store.common.repos.AbstractStore;
+import org.flockdata.store.common.repos.FdStoreRepo;
+import org.flockdata.store.common.repos.MapRepo;
+import org.flockdata.store.repo.EsRepo;
+import org.flockdata.store.repo.RiakRepo;
 import org.flockdata.track.bean.TrackResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
@@ -182,66 +179,6 @@ public class StoreManager implements KvService {
         getKvRepo(change).delete(new LogRequest(entity, change));
     }
 
-    /**
-     * Determine if the Log Content has changed
-     *
-     * @return false if different, true if same
-     */
-    @Override
-    public boolean isSame(DeltaBean deltaBean) {
-        if (deltaBean.getLogRequest().getLogId()== null)
-            return false;
-
-        // ToDo: Retryable - what if KV store is down?
-        KvContent content = getContent(deltaBean.getLogRequest());
-
-        if (content == null)
-            return false;
-
-        logger.debug("Content found [{}]", content);
-        boolean sameContentType = deltaBean.getLogRequest().getContentType().equals(deltaBean.getPreparedLog().getContentType());
-
-        return sameContentType &&
-                (sameCheckSum(deltaBean.getLogRequest().getCheckSum(), deltaBean.getPreparedLog()) || deltaBean.getLogRequest().getContentType().equals("json") &&
-                        sameJson(content, deltaBean.getPreparedLog().getContent()));
-
-    }
-
-    private boolean sameCheckSum(String compareFrom, Log compareTo) {
-        return compareFrom.equals(compareTo.getChecksum());
-    }
-
-    @Override
-    public boolean sameJson(KvContent compareFrom, KvContent compareTo) {
-
-        if (compareFrom.getData().size() != compareTo.getData().size())
-            return false;
-        logger.trace("Comparing [{}] with [{}]", compareFrom, compareTo.getData());
-        JsonNode jCompareFrom = om.valueToTree(compareFrom.getData());
-        JsonNode jCompareWith = om.valueToTree(compareTo.getData());
-        return !(jCompareFrom == null || jCompareWith == null) && jCompareFrom.equals(jCompareWith);
-
-    }
-
-    @Override
-    public DeltaResultBean getDelta(LogRequest logRequest, Log to) {
-        if (logRequest.getEntity() == null || logRequest.getLogId() == null || to == null)
-            throw new IllegalArgumentException("Unable to compute delta due to missing arguments");
-        KvContent source = getContent(logRequest);
-        KvContent dest = getContent(new LogRequest(logRequest.getEntity(), to));
-        MapDifference<String, Object> diffMap = Maps.difference(source.getData(), dest.getData());
-        DeltaResultBean result = new DeltaResultBean();
-        result.setAdded(new HashMap<>(diffMap.entriesOnlyOnRight()));
-        result.setRemoved(new HashMap<>(diffMap.entriesOnlyOnLeft()));
-        HashMap<String, Object> differences = new HashMap<>();
-        Set<String> keys = diffMap.entriesDiffering().keySet();
-        for (String key : keys) {
-            differences.put(key, diffMap.entriesDiffering().get(key).toString());
-        }
-        result.setChanged(differences);
-        result.setUnchanged(diffMap.entriesInCommon());
-        return result;
-    }
 
 
 }

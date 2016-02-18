@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("${fd-engine.system.api}/")
+@RequestMapping("${fd-engine.system.api:api}/")
 public class AuthenticationEP {
 
     //private static final Logger logger = LoggerFactory.getLogger(AuthenticationEP.class);

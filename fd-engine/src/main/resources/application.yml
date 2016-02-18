@@ -83,7 +83,9 @@ fd-track: # Used for handling incoming data
       queueCapacity: 3
 
 fd-store:
-  enabled: false
+  url: http://127.0.0.1:8092/api/v1
+  system:
+    enabled: false
   messaging: # Async hand offs to fd-store
     exchange: fd.store.exchange
     binding: fd.store.binding

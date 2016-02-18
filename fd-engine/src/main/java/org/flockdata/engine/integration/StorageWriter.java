@@ -20,6 +20,7 @@ public class StorageWriter {
     // Over AMQP
 
     @MessagingGateway
+    @Profile({"integration","production"})
     public interface WriteStorageGateway {
         @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
         @Retryable

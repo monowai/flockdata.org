@@ -3,7 +3,7 @@ package org.flockdata.engine.admin.service;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.KvContent;
-import org.flockdata.store.bean.DeltaBean;
+import org.flockdata.store.LogRequest;
 import org.flockdata.track.bean.TrackResultBean;
 
 /**
@@ -11,11 +11,13 @@ import org.flockdata.track.bean.TrackResultBean;
  */
 public interface StorageProxy {
 
-    boolean compare(Entity entity, Log lastLog, Log preparedLog);
+    void write(TrackResultBean trackResult);
 
     KvContent read(Entity entity, Log lastChange);
 
-    void write(TrackResultBean kvContentBean);
+    KvContent read(LogRequest logRequest) ;
 
-    public boolean isSame(DeltaBean deltaBean);
+    boolean compare(Entity entity, Log lastLog, Log preparedLog);
+
+
 }

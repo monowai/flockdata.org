@@ -53,7 +53,7 @@ public class EngineConfig implements PlatformConfig {
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
 
-    @Value("fd-store.engine:RIAK")
+    @Value("${fd-store.system.engine:RIAK}")
     private String storeEngine;
 
     @Value("${fd-engine.fortress.store:disabled}")
@@ -80,7 +80,7 @@ public class EngineConfig implements PlatformConfig {
     private String fdSearch;
 
 
-    @Value("${fd-search.url:http://localhost:8081}")
+    @Value("${fd-search.url:http://localhost:8081/api}")
     public void setFdSearch( String url) {
         fdSearch = url;
     }
@@ -93,7 +93,7 @@ public class EngineConfig implements PlatformConfig {
 
     private boolean timing = false;
 
-    @Value("${fd-store.enabled}")
+    @Value("${fd-store.system.enabled}")
     public void setStoreEnabled(String storeEnabled) {
         this.storeEnabled = storeEnabled;
     }

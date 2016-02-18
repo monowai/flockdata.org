@@ -32,6 +32,7 @@ public class StorageReader {
 
     // HTTP
     @MessagingGateway
+    @Profile({"integration","production"})
     public interface ReadStorageGateway {
         @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
         @Retryable
