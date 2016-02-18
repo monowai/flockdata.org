@@ -50,7 +50,6 @@ public class FortressTestEP extends WacBase {
 
         Fortress fortress = createFortress(su);
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
 

@@ -25,7 +25,6 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.test.engine.endpoint.EngineEndPoints;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -38,7 +37,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -245,7 +243,6 @@ public class TestAdminCalls extends WacBase {
     public void authPing() throws Exception {
 
         setSecurityEmpty(); // Unsecured should fail
-        EngineEndPoints eep = new EngineEndPoints(wac);
         String result = adminPing();
         assertFalse(result.contains("Pong"));
 
@@ -258,8 +255,7 @@ public class TestAdminCalls extends WacBase {
     @Test
     public void auth_Health() throws Exception {
         setSecurityEmpty();
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        mockMvc.perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
+        getMockMvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
 
     }

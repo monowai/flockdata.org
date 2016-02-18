@@ -138,7 +138,6 @@ public class DocTestEP extends WacBase {
                 .setCode("docCode");
 
 
-        EngineEndPoints eip = new EngineEndPoints(wac);
         login(mike_admin, "123");
 
         Collection<DocumentTypeInputBean>docTypes = new ArrayList<>();

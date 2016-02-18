@@ -30,7 +30,7 @@ public class AuthNone implements FdWebSecurity {
                 .anyRequest()
                 .permitAll();
         http.httpBasic();
-
+        http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
     }
 
     @PostConstruct

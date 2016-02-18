@@ -19,11 +19,13 @@
 
 package org.flockdata.configure;
 
+import org.flockdata.engine.PlatformConfig;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -42,22 +44,32 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     @Autowired
     private SecurityHelper securityHelper;
 
+    @Autowired
+    @Qualifier("engineConfig")
+    PlatformConfig engineConfig;
+
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
         String apiKey = request.getHeader(API_KEY);
 
         if ( apiKey == null || apiKey.equals("") ||apiKey.equals("{{api-key}}")) {
-            SystemUser su = securityHelper.getSysUser(false);
-            if ( su != null ) {
-                if (su.getCompany() != null) {
-                    request.setAttribute(COMPANY, su.getCompany());
-                    request.setAttribute(API_KEY, su.getApiKey());
-                    return true;
-                }
+            // This has nothing to do with us
+            if (request.getRequestURL().toString().contains(engineConfig.apiBase()+"/v1")) {
 
+                SystemUser su = securityHelper.getSysUser(false);
+                if (su != null) {
+                    if (su.getCompany() != null) {
+                        request.setAttribute(COMPANY, su.getCompany());
+                        request.setAttribute(API_KEY, su.getApiKey());
+                        return true;
+                    }
+                }
+            } else {
+                return true; // Nothing to attempt to resolve
             }
         } else {
+            // Attempting to authenticate via the api secret
         	logger.trace("Identifying company from api-key supplied in request HttpHeader" );
             Company company = securityHelper.getCompany(apiKey);
             if (company != null) {
@@ -69,7 +81,8 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
         response.setContentType( MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         //response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
-        throw new SecurityException("Authentication is required to access this service");
+        //throw new SecurityException("Authentication is required to access this service");
+        return false;
     }
 
     @Override

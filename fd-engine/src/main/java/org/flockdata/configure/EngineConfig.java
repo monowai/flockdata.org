@@ -59,6 +59,13 @@ public class EngineConfig implements PlatformConfig {
     @Value("${fd-engine.fortress.store:disabled}")
     private String storeEnabled;
 
+    @Value("${fd.engine.system.api:api}")
+    private String apiBase ;
+
+    public String apiBase(){
+        return apiBase;
+    }
+
     @Autowired
     SchemaService schemaService;
 

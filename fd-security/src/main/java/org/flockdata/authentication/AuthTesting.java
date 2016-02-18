@@ -1,5 +1,6 @@
 package org.flockdata.authentication;
 
+import org.flockdata.engine.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +24,15 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-auth-test"})
 public class AuthTesting implements FdWebSecurity {
 
+    @Autowired
+    PlatformConfig engineConfig;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/api/login/**", "/api/ping/**", "/api/logout/**").permitAll()
+                .antMatchers(engineConfig.apiBase() +"/login", "/api/ping", "/api/logout", "/api/account").permitAll()
                 .antMatchers("/api/v1/**").authenticated()
-
+                .antMatchers("/").permitAll();
         ;
 
 //        http.authorizeRequests()
