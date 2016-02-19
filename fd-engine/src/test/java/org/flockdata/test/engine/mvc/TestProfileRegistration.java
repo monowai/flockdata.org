@@ -24,8 +24,10 @@ import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.junit.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.Assert.assertEquals;
@@ -40,19 +42,15 @@ public class TestProfileRegistration extends MvcBase {
 
     @Test
     public void testWebRegistrationFlow() throws Exception {
-        String companyName = "Public Company";
         setSecurityEmpty();
         // Unauthenticated users can't register accounts
-        mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath+"/profiles/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(new RegistrationBean(companyName, sally_admin)))
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-
+        exception.expect(AccessDeniedException.class);
+        makeProfile(noUser(), ANYCO, "a-user", MockMvcResultMatchers.status().isUnauthorized());
         // We're now authenticating
         setSecurity();  // An admin user
 
         // Retry the operation
-        SystemUserResultBean regResult = registerSystemUser(new RegistrationBean(companyName, harry));
+        SystemUserResultBean regResult = registerSystemUser(mike(), new RegistrationBean(ANYCO, harry));
         assertNotNull(regResult);
         assertEquals(harry, regResult.getLogin());
         assertEquals(harry, regResult.getLogin());
@@ -60,40 +58,40 @@ public class TestProfileRegistration extends MvcBase {
         setSecurityEmpty();
 
         // Check we get back a Guest
-        regResult = getMe();
+        regResult = getMe(noUser());
         assertNotNull(regResult);
-        assertEquals("Guest", regResult.getName());
-        assertEquals("guest", regResult.getLogin());
+        assertEquals("noone", regResult.getLogin().toLowerCase());
 
-        login(harry, "123");
-        regResult = getMe();
+
+        regResult = getMe(harry());
         assertNotNull(regResult);
         assertEquals(harry, regResult.getLogin());
         assertNotNull(regResult.getApiKey());
 
         // Assert that harry, who is not an admin, cannot create another user
-        mvc().perform(MockMvcRequestBuilders.post("/profiles/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(new RegistrationBean(companyName, harry)))
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        makeProfile(harry(), regResult.getCompanyName(), regResult.getCompanyName(),MockMvcResultMatchers.status().isUnauthorized());
 
 
     }
 
-    SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
+    SystemUserResultBean registerSystemUser(RequestPostProcessor user, RegistrationBean register) throws Exception {
 
         MvcResult response = mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath+"/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonUtils.toJson(register))
+                        .content(JsonUtils.toJson(register)
+                        )
+                .with(user)
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);
     }
 
-    SystemUserResultBean getMe() throws Exception {
+    SystemUserResultBean getMe(RequestPostProcessor user) throws Exception {
 
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/profiles/me/")
                         .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+
         ).andReturn();
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), SystemUserResultBean.class);

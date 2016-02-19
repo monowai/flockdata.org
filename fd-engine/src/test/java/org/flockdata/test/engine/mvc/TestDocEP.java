@@ -19,7 +19,6 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.model.EntityTag;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
@@ -50,29 +49,29 @@ public class TestDocEP extends MvcBase {
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         TrackRequestResult entity = track(mike(), inputBean);
-        Collection<EntityTag> entityTags = getEntityTags(mike(), entity.getMetaKey());
+        Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getMetaKey());
         assertEquals(2, entityTags.size());
 
-        Collection<DocumentResultBean> docResults = getDocuments(fortress.getCode());
+        Collection<DocumentResultBean> docResults = getDocuments(mike(), fortress.getCode());
         assertNotNull(docResults);
         assertEquals(1, docResults.size());
         DocumentResultBean docResult = docResults.iterator().next();
         assertEquals("StudyDoc", docResult.getName());
 
-        Collection<ConceptResultBean> labelResults = getLabelsForDocument(fortress.getCode(), docResult.getName());
+        Collection<ConceptResultBean> labelResults = getLabelsForDocument(mike(), fortress.getCode(), docResult.getName());
         assertFalse(labelResults.isEmpty());
         Collection<TagResultBean> tags;
         for (ConceptResultBean labelResult : labelResults) {
             switch (labelResult.getName()) {
                 case "Vegetable":
-                    tags = getTags(TestQueryResults.VEGETABLE, mike());
+                    tags = getTags(mike(), TestQueryResults.VEGETABLE);
                     assertNotNull(tags);
                     assertFalse(tags.isEmpty());
                     assertEquals(1, tags.size());
                     assertEquals("Potatoes", tags.iterator().next().getCode());
                     break;
                 case "Fruit":
-                    tags = getTags(TestQueryResults.FRUIT, mike());
+                    tags = getTags(mike(), TestQueryResults.FRUIT);
                     assertNotNull(tags);
                     assertFalse(tags.isEmpty());
                     assertEquals(1, tags.size());
@@ -101,7 +100,7 @@ public class TestDocEP extends MvcBase {
         track(mike(), inputBean);
 
 
-        Collection<TagResultBean> tags = getTags(TestQueryResults.VEGETABLE, mike());
+        Collection<TagResultBean> tags = getTags(mike(), TestQueryResults.VEGETABLE);
         assertNotNull(tags);
         assertFalse(tags.isEmpty());
         assertEquals(1, tags.size());
@@ -132,7 +131,7 @@ public class TestDocEP extends MvcBase {
 
         DocumentResultBean result = docs.iterator().next();
         assertEquals(docType.getName(), result.getName());
-        assertEquals(1, getDocuments(fortress.getName()).size());
+        assertEquals(1, getDocuments(mike(), fortress.getName()).size());
 
     }
 

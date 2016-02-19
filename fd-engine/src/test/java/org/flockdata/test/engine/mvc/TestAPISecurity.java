@@ -39,7 +39,7 @@ public class TestAPISecurity extends MvcBase {
     @Test
     public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
             throws Exception {
-        ensureSystemUser("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
+        makeProfile("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
 
         mvc()
                 .perform(MockMvcRequestBuilders

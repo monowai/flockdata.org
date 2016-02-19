@@ -75,7 +75,7 @@ public class TestTagEP extends MvcBase {
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
+        Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
@@ -120,7 +120,7 @@ public class TestTagEP extends MvcBase {
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
+        Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
@@ -143,7 +143,7 @@ public class TestTagEP extends MvcBase {
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
         TestCase.assertEquals(1, tags.size());
 
-        Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
+        Collection<TagResultBean> targetTags = getTags(mike(), thingTag.getLabel());
         TestCase.assertEquals(1, targetTags.size());
 
         TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), "1% Increase", MockMvcResultMatchers.status().isOk());
@@ -155,7 +155,7 @@ public class TestTagEP extends MvcBase {
     @Test
     public void notFound_Tag() throws Exception {
 
-        ensureSystemUser("nf_tags", "mike");
+        makeProfile("nf_tags", "mike");
         engineConfig.setConceptsEnabled("true");
 
         // DAT-526
