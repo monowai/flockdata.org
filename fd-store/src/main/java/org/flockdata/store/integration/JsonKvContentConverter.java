@@ -20,7 +20,7 @@
 package org.flockdata.store.integration;
 
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.bean.StorageBean;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
@@ -40,7 +40,7 @@ public class JsonKvContentConverter extends SimpleMessageConverter {
     public Object fromMessage(final Message message) throws MessageConversionException {
 
         try {
-            return JsonUtils.toObject(message.getBody(), StoreBean.class);
+            return JsonUtils.toObject(message.getBody(), StorageBean.class);
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new MessageConversionException("failed to convert text-based Message content", e1);

@@ -1,7 +1,7 @@
 package org.flockdata.store.integration;
 
 import org.flockdata.helper.FlockServiceException;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +41,7 @@ public class StoreWriter {
      */
     @ServiceActivator(inputChannel = "startStoreWrite", requiresReply = "false")
     @Retryable
-    public void doKvWrite(StoreBean kvBean) throws FlockServiceException {
+    public void doKvWrite(StorageBean kvBean) throws FlockServiceException {
         storeManager.doWrite(kvBean);
     }
 

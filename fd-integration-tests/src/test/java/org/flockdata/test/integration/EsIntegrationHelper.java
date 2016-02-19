@@ -408,7 +408,7 @@ public class EsIntegrationHelper {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexHelper.parseIndex(entity))
-                    .addType(IndexManager.parseType(entity))
+                    .addType(indexHelper.parseType(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -496,11 +496,11 @@ public class EsIntegrationHelper {
         return null;
     }
 
-    public void waitForFirstSearchResult(TrackResultBean trackResult, EntityService entityService) throws Exception {
+    void waitForFirstSearchResult(TrackResultBean trackResult, EntityService entityService) throws Exception {
         waitForFirstSearchResult(1, trackResult.getCompany(), trackResult.getEntity(), entityService);
     }
 
-    public void waitForSearchCount(int searchCount, TrackResultBean trackResult, EntityService entityService) throws Exception {
+    void waitForSearchCount(int searchCount, TrackResultBean trackResult, EntityService entityService) throws Exception {
         waitForFirstSearchResult(searchCount, trackResult.getCompany(), trackResult.getEntity(), entityService);
     }
 }

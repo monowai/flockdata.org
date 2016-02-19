@@ -49,7 +49,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = IndexManager.parseType(change.getDocumentType());
+        String documentType = indexHelper.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -182,7 +182,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String,Object>theMapping = (Map<String, Object>) map.get("mapping");
             if ( change.getParent() != null ){
                 HashMap<String,Object>parentMap = new HashMap<> ();
-                parentMap.put ("type", IndexManager.parseType(change.getParent().getDocumentType()));
+                parentMap.put ("type", indexHelper.parseType(change.getParent().getDocumentType()));
                 theMapping.put("_parent", parentMap);
             }
             docMap.put(change.getDocumentType(), theMapping);

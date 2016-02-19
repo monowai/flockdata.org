@@ -5,7 +5,6 @@ import io.searchbox.core.Search;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Entity;
 import org.flockdata.search.FdSearch;
-import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.EntitySearchSchema;
@@ -138,7 +137,7 @@ public class TestParentChild extends ESBase {
         // Both entities are in the same index but are of different types
         doQuery(indexHelper.getIndexRoot(childEntity.getFortress())+"*"+"*", "*", "*", 2);
 
-        String result = doHasChild(parentEntity, IndexManager.parseType(childEntity), "childValue");
+        String result = doHasChild(parentEntity, indexHelper.parseType(childEntity), "childValue");
         assertTrue ( result.contains("123"))   ;
 
     }

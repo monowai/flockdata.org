@@ -21,7 +21,7 @@
 
     <!--&lt;!&ndash;http://docs.spring.io/spring-data/data-keyvalue/riak/docs/current/reference/html/#riak:template:config&ndash;&gt;-->
     <!--<bean id="riakTemplate" class="org.springframework.data.keyvalue.riak.core.RiakTemplate"-->
-          <!--p:defaultUri="${riak.url}/{bucket}/{key}"-->
+          <!--p:defaultUri="${riak.url}/{index}/{key}"-->
           <!--p:mapReduceUri="${riak.mapurl}"-->
           <!--p:useCache="true"/>-->
 </beans>

@@ -29,7 +29,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -245,7 +245,7 @@ public class SearchServiceFacade {
             //Entity entityBean = new EntityBean(entity);
             if (lastChange != null) {
                 if (!entity.isNoLogs()) {
-                    StoreContent content = storageProxy.read(entity, lastChange);
+                    StoredContent content = storageProxy.read(entity, lastChange);
                     if (content == null) {
                         logger.error("Unable to locate content for {} ", entity);
                         return null;

@@ -26,8 +26,8 @@ import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.common.repos.AbstractStore;
 import org.flockdata.store.integration.EsStoreRequest;
 import org.flockdata.track.bean.ContentInputBean;
@@ -55,37 +55,36 @@ public class EsRepo extends AbstractStore {
 
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
-    public void add(StoreContent contentBean) {
+    public void add(StoredContent contentBean) {
 
     }
 
-    public StoreContent getValue(LogRequest logRequest)  {
-        QueryParams queryParams = new QueryParams(indexHelper.parseIndex(logRequest.getEntity())
-                , IndexManager.parseType(logRequest.getEntity())
-                , logRequest.getEntity().getSearchKey() );
+    public StoredContent read(LogRequest logRequest) {
+        String index = indexHelper.parseIndex(logRequest.getEntity());
+        String type = indexHelper.parseType(logRequest.getEntity());
+        Object id = logRequest.getEntity().getSearchKey();
+        return read (index, type, id);
+    }
+
+    @Override
+    public StoredContent read(String index, String type, Object id) {
+        QueryParams queryParams = new QueryParams(index, type, id.toString());
 
         ContentInputBean contentInput = new ContentInputBean();
-        // DAT-347
-        if ( logRequest.getEntity().getSearchKey() != null ){
-            EsSearchResult result = esStore.getData(queryParams);
 
-            if (result!=null )
-                try {
-                    // DAT-419 - there is a problem with UTF-8 conversion of SI using http, or at least the
-                    //           way we have it configured. It throws a deep exception for the odd incoming payload
-                    //           complaining that it's not valid UTF-8 text. This approach we're now using works.
-                    if ( result.getJson() !=null ) {
-                        HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
-                        contentInput.setData((Map<String, Object>) map.get(EntitySearchSchema.DATA));
-                    }
-                    //contentInput.setData(JsonUtils.getAsMap(result.getJson()));
-                } catch (FlockException |IOException e) {
-                    logger.error("Json issue", e);
+        EsSearchResult result = esStore.getData(queryParams);
+
+        if (result != null)
+            try {
+                if (result.getJson() != null) {
+                    HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
+                    contentInput.setData((Map<String, Object>) map.get(EntitySearchSchema.DATA));
                 }
+            } catch (FlockException | IOException e) {
+                logger.error("Json issue", e);
+            }
+        return new StorageBean(id, contentInput);
 
-
-        }
-        return new StoreBean(logRequest.getLogId(), contentInput);
     }
 
     public void delete(LogRequest logRequest) {

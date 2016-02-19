@@ -22,10 +22,9 @@ package org.flockdata.store.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 
 /**
  * User: mike
@@ -35,10 +34,13 @@ import org.flockdata.store.bean.StoreBean;
 public interface StoreService {
     String ping(Store store);
 
-    StoreContent getContent(LogRequest logRequest);
+    StoredContent doRead(Store store, String index, String type, Object id);
+
+    //StoredContent doRead(LogRequest logRequest);
 
     void delete(Entity entity, Log change);
 
-    void doWrite( StoreBean kvBean) throws FlockException;
+    void doWrite( StorageBean kvBean) throws FlockException;
+
 
 }

@@ -26,10 +26,10 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.common.repos.FdStoreRepo;
-import org.flockdata.store.common.repos.MapRepo;
+import org.flockdata.store.common.repos.InMemoryRepo;
 import org.flockdata.store.repo.EsRepo;
 import org.flockdata.store.repo.RedisRepo;
 import org.flockdata.store.repo.RiakRepo;
@@ -62,7 +62,7 @@ public class StoreManager implements StoreService {
     RiakRepo riakRepo;
 
     @Autowired (required = false)
-    MapRepo mapRepo;
+    InMemoryRepo inMemoryRepo;
 
     @Autowired
     EsRepo defaultStore;
@@ -77,6 +77,13 @@ public class StoreManager implements StoreService {
         return getStore(store).ping();
     }
 
+    @Override
+    public StoredContent doRead(Store store, String index, String type, Object id) {
+        if ( id == null )
+            return null;
+
+        return getStore(store).read(index, type, id);
+    }
 
     /**
      * Persists the payload
@@ -84,17 +91,12 @@ public class StoreManager implements StoreService {
      *
      * @param storeBean          payload to write to a store
      */
-    public void doWrite(StoreBean storeBean) throws FlockServiceException {
+    public void doWrite(StorageBean storeBean) throws FlockServiceException {
 
         if (storeBean.getStore().equals(Store.NONE.name()))
-            return;
+            return; // This service does not write to ES, that is handled via fd-engine
 
-        storeBean.setBucket(storeBean.getBucket());
-
-        logger.debug("Sync write begins {}", storeBean);
-        // ToDo: Extract in to a standalone class
         try {
-            // ToDo: Retry or CircuitBreaker?
             logger.debug("Received request to add storeBean {}", storeBean);
             getStore(Store.valueOf(storeBean.getStore())).add(storeBean);
 
@@ -112,33 +114,20 @@ public class StoreManager implements StoreService {
         return getStore(Store.valueOf(log.getStorage()));
     }
 
-    FdStoreRepo getStore(Store kvStore) {
-        if (kvStore == Store.REDIS) {
+    FdStoreRepo getStore(Store store) {
+        if (store == Store.REDIS) {
             return redisRepo;
-        } else if (kvStore == Store.RIAK) {
+        } else if (store == Store.RIAK) {
             return riakRepo;
-        } else if (kvStore == Store.MEMORY) {
-            return mapRepo;
-        } else if (kvStore == Store.NONE) {
+        } else if (store == Store.MEMORY) {
+            return inMemoryRepo;
+        } else if (store == Store.NONE) {
             return defaultStore;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
-            return mapRepo;
+            return inMemoryRepo;
         }
 
-    }
-
-    @Override
-    public StoreContent getContent(LogRequest logRequest) {
-        if (logRequest.getLogId() == null)
-            return null;
-        try {
-            return getStore(logRequest.getStore()).getValue(logRequest);
-
-        } catch (FlockServiceException re) {
-            logger.error("KV Error Entity[" + logRequest+ "]", re);
-        }
-        return null;
     }
 
     @Override

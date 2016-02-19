@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.integration;
 
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.bean.StorageBean;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
@@ -35,5 +35,5 @@ import org.springframework.retry.annotation.Retryable;
 public interface KvGateway {
     @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
     @Retryable
-    void doKvWrite(StoreBean resultBean);
+    void doKvWrite(StorageBean resultBean);
 }

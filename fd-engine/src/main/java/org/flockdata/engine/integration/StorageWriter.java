@@ -1,6 +1,6 @@
 package org.flockdata.engine.integration;
 
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.bean.StorageBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.Gateway;
@@ -25,7 +25,7 @@ public class StorageWriter {
         @Gateway(requestChannel = "startKvWrite", requestTimeout = 40000, replyChannel = "nullChannel")
         @Retryable
         @Async("fd-store")
-        void doStoreWrite(StoreBean resultBean);
+        void doStoreWrite(StorageBean resultBean);
     }
 
 }

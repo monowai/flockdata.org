@@ -20,8 +20,8 @@
 package org.flockdata.store.common.repos;
 
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.stereotype.Component;
 
@@ -32,17 +32,22 @@ import java.util.Map;
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
  */
 @Component
-public class MapRepo extends AbstractStore {
+public class InMemoryRepo extends AbstractStore {
 
-    Map<Long, ContentInputBean> map = new HashMap <>();
+    Map<Object, ContentInputBean> map = new HashMap <>();
 
-    public void add(StoreContent contentBean) {
-        map.put(contentBean.getId(), contentBean.getContent());
+    public void add(StoredContent contentBean) {
+        map.put(contentBean.getType().toLowerCase()+"."+contentBean.getId(), contentBean.getContent());
     }
 
-    public StoreContent getValue(LogRequest logRequest) {
+    @Override
+    public StoredContent read(String index, String type, Object id) {
+        return new StorageBean(id, map.get(type.toLowerCase()+"."+id));
+    }
 
-        return new StoreBean(logRequest.getLogId(), map.get(logRequest.getLogId()));
+    public StoredContent read(LogRequest logRequest) {
+
+        return read("", logRequest.getType(), logRequest.getLogId());
     }
 
     public void delete(LogRequest logRequest) {

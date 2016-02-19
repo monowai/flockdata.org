@@ -19,6 +19,7 @@
 
 package org.flockdata.store;
 
+import org.flockdata.model.Entity;
 import org.flockdata.track.bean.ContentInputBean;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.util.Map;
  * Date: 17/09/14
  * Time: 1:01 PM
  */
-public interface StoreContent {
+public interface StoredContent {
 
     String getAttachment();
 
@@ -41,15 +42,15 @@ public interface StoreContent {
      *
      * @return primary key for this content
      */
-    Long getId();
-
-    String getBucket();
-
-    void setBucket(String bucket);
+    Object getId();
 
     ContentInputBean getContent();
 
     void setStore(String store);
 
     String getStore();
+
+    String getType();
+
+    Entity getEntity();
 }

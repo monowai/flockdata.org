@@ -21,14 +21,15 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import junit.framework.TestCase;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.search.IndexManager;
 import org.flockdata.store.FdStore;
-import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.StoreService;
 import org.flockdata.test.helper.EntityContentHelper;
@@ -67,6 +68,9 @@ public class StoreServiceTest {
 
     @Autowired
     private FdStoreConfig storeConfig;
+
+    @Autowired
+    IndexManager indexManager;
 
     private Logger logger = LoggerFactory.getLogger(StoreServiceTest.class);
 
@@ -111,34 +115,27 @@ public class StoreServiceTest {
 
     @Test
     public void riak_JsonTest() throws Exception {
-        storeConfig.setStore(Store.RIAK);
-        kvMapTest();
-        storeConfig.setStore(Store.MEMORY);
+        testStore(Store.RIAK);
     }
 
     @Test
     public void redis_JsonTest() throws Exception {
-        storeConfig.setStore(Store.REDIS);
-        kvMapTest();
-        storeConfig.setStore(Store.MEMORY);
+        testStore(Store.REDIS);
     }
 
     @Test
     public void memory_JsonTest() throws Exception {
-        storeConfig.setStore(Store.MEMORY);
-        kvMapTest();
+        testStore(Store.MEMORY);
     }
 
 
     @Test
     public void redis_AttachmentTest() throws Exception {
-        storeConfig.setStore(Store.REDIS);
-        kvAttachmentTest();
-        storeConfig.setStore(Store.MEMORY);
+        kvAttachmentTest(Store.REDIS);
     }
 
 
-    private void kvMapTest() throws Exception {
+    private void testStore(Store storeToTest) throws Exception {
         logger.debug("Registering system user!");
 
         String fortress = "Entity Test";
@@ -146,16 +143,16 @@ public class StoreServiceTest {
         String callerRef = "ABC123R";
         String company = "company";
 
-        Map<String, Object> what = getWhatMap();
+        Map<String, Object> theData = getData();
         Fortress fort = new Fortress(
                 new FortressInputBean("test", true),
                 new Company("MyName"));
         // Represents identifiable entity information
         EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), callerRef)
-                .setContent(new ContentInputBean(what));
+                .setContent(new ContentInputBean(theData));
 
         DocumentType documentType = new DocumentType(fort, docType);
-        // The "What" content
+        // The "Data" content
 
         // Emulate the creation of the entity
         Entity entity = EntityContentHelper.getEntity(company, fortress, "wally", documentType.getName());
@@ -169,53 +166,56 @@ public class StoreServiceTest {
 
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
-        graphLog = Store.prepareLog(Store.MEMORY, trackResultBean, graphLog);
+        graphLog = Store.prepareLog(storeToTest, trackResultBean, graphLog);
         // Graph tracks which KVService is storing this content
         EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setCurrentLog(eLog);
 
-        StoreBean storeBean = new StoreBean(trackResultBean);
-        storeBean.setStore(graphLog.getStorage());
-        // RIAK requires a bucket. Other KV stores do not.
-        assertNotNull(storeBean.getBucket());
+        StorageBean storeBean = new StorageBean(trackResultBean);
+        storeBean.setStore(storeToTest.name());
+        assertEquals(storeToTest.name(), graphLog.getStorage());
 
         // Finally! the actual write occurs
         try {
             storeService.doWrite(storeBean);
 
-            // Retrieve the content we just created
-            StoreContent storeContent = storeService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
-            assertNotNull(storeContent);
-            assertNotNull(storeContent.getContent().getMetaKey());
-            assertNotNull(storeContent.getContent().getCode());
+            StoredContent contentResult = storeService.doRead(storeToTest,
+                            indexManager.parseIndex(storeToTest, entity),
+                            indexManager.parseType(entity),
+                            trackResultBean.getCurrentLog().getLog().getId() );
 
-            validateWhat(what, storeContent);
+            validateContent("Validating result found via the service", contentResult);
             // Testing that cancel works
             storeService.delete(entity, trackResultBean.getCurrentLog().getLog());
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
             if (storeConfig.store().equals(Store.RIAK)) {
-                logger.error("Silently passing. No what data to process for {}. KV store is not running", storeConfig.store());
+                logger.error("Silently passing. No data data to process for {}. KV store is not running", storeConfig.store());
             } else {
-                logger.error("KV Error", e);
+                logger.error("Store Error", e);
                 fail("Unexpected KV error");
             }
 
         }
     }
 
-    private void validateWhat(Map<String, Object> what, StoreContent storeContent) throws InterruptedException {
+    private void validateContent(String failureMessage, StoredContent contentResult) throws InterruptedException {
+        TestCase.assertNotNull(failureMessage, contentResult);
+        TestCase.assertNotNull(failureMessage+" - content was not found", contentResult.getContent());
+        TestCase.assertNotNull(failureMessage,contentResult.getContent().getMetaKey());
+        TestCase.assertNotNull(failureMessage, contentResult.getContent().getCode());
+        Map<String, Object> data = contentResult.getContent().getData();
         Thread.sleep(1500);
-        assertEquals(what.get("sval"), storeContent.getData().get("sval"));
-        assertEquals(what.get("lval"), storeContent.getData().get("lval"));
-        assertEquals(what.get("dval"), storeContent.getData().get("dval"));
-        assertEquals(what.get("ival"), storeContent.getData().get("ival"));
-        assertEquals(what.get("bval"), storeContent.getData().get("bval"));
+        assertEquals(failureMessage, data.get("sval"), contentResult.getData().get("sval"));
+        assertEquals(failureMessage, data.get("lval"), contentResult.getData().get("lval"));
+        assertEquals(failureMessage, data.get("dval"), contentResult.getData().get("dval"));
+        assertEquals(failureMessage, data.get("ival"), contentResult.getData().get("ival"));
+        assertEquals(failureMessage, data.get("bval"), contentResult.getData().get("bval"));
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        assertEquals(json, storeContent.getData().get("utf-8"));
+        assertEquals(failureMessage, json, contentResult.getData().get("utf-8"));
     }
 
 
@@ -224,11 +224,11 @@ public class StoreServiceTest {
     }
 
     public static String getRandomJson(String s) throws JsonProcessingException {
-        return getJsonFromObject(getWhatMap(s));
+        return getJsonFromObject(getData(s));
     }
 
-    private static Map<String, Object> getWhatMap(String s) {
-        Map<String, Object> o = getWhatMap();
+    private static Map<String, Object> getData(String s) {
+        Map<String, Object> o = getData();
         if (s == null)
             return o;
 
@@ -241,22 +241,22 @@ public class StoreServiceTest {
         return mapper.writeValueAsString(what);
     }
 
-    public static Map<String, Object> getWhatMap() {
-        Map<String, Object> what = new HashMap<>();
-        what.put("lval", 123456789012345L);
-        what.put("dval", 1234012345.990012d);
+    public static Map<String, Object> getData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("lval", 123456789012345L);
+        data.put("dval", 1234012345.990012d);
         // Duplicated to force compression
-        what.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
-        what.put("ival", 12345);
-        what.put("bval", Boolean.TRUE);
-        what.put("utf-8", "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}");
-        return what;
+        data.put("sval", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval2", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval3", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("sval4", "Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party.Now is the time for all good men to come to the aid of the party");
+        data.put("ival", 12345);
+        data.put("bval", Boolean.TRUE);
+        data.put("utf-8", "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}");
+        return data;
     }
 
-    private void kvAttachmentTest() throws Exception {
+    private void kvAttachmentTest(Store storeToTest) throws Exception {
         logger.debug("Registering system user!");
 
         String docType = "KvTest";
@@ -267,14 +267,16 @@ public class StoreServiceTest {
         EntityInputBean inputBean = EntityContentHelper.getEntityInputBean(docType, entity.getFortress(), "myuser", callerRef, DateTime.now());
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
         contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
-        //inputBean.setContent(contentInputBean);
 
         try {
-            TrackResultBean tr = new TrackResultBean(null, entity, documentType, inputBean);
-            StoreBean storeBean = new StoreBean(tr);
+            TrackResultBean trackResultBean = new TrackResultBean(null, entity, documentType, inputBean);
+            StorageBean storeBean = new StorageBean(trackResultBean);
             storeService.doWrite(storeBean);
-            EntityLog entityLog = tr.getCurrentLog();
-            StoreContent entityContent = storeService.getContent(new LogRequest(entity, entityLog.getLog()));
+            EntityLog entityLog = trackResultBean.getCurrentLog();
+            StoredContent entityContent = storeService.doRead(storeToTest,
+                    indexManager.parseIndex(storeToTest, entity),
+                    indexManager.parseType(entity),
+                    trackResultBean.getCurrentLog().getLog().getId() );
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install

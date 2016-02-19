@@ -20,7 +20,7 @@
 package org.flockdata.store.common.repos;
 
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 
 import java.io.IOException;
 
@@ -29,14 +29,18 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface FdStoreRepo {
-    void add(StoreContent contentBean) throws IOException;
+    void add(StoredContent contentBean) throws IOException;
 
-    StoreContent getValue(LogRequest logRequest);
+    StoredContent read(String index, String type, Object id);
+
+    @Deprecated  // Use read(String index, String type, Object id);
+    StoredContent read(LogRequest logRequest);
 
     void delete(LogRequest logRequest);
 
     void purge(String index);
 
     String ping();
+
 
 }

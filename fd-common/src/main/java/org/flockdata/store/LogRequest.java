@@ -1,5 +1,6 @@
 package org.flockdata.store;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 
@@ -14,6 +15,7 @@ public class LogRequest {
     private Entity entity;
     private String contentType;
     private String checkSum;
+    private String type;
 
     public LogRequest(){}
 
@@ -55,4 +57,8 @@ public class LogRequest {
         return checkSum;
     }
 
+    @JsonIgnore
+    public String getType() {
+        return getEntity().getType();
+    }
 }

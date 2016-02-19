@@ -2,9 +2,9 @@ package org.flockdata.test.engine;
 
 import org.flockdata.engine.admin.service.FdStorageProxy;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
-import org.flockdata.store.common.repos.MapRepo;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
+import org.flockdata.store.common.repos.InMemoryRepo;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -21,17 +21,17 @@ import org.springframework.stereotype.Service;
 
 public class MapBasedStorageProxy extends FdStorageProxy {
     @Autowired
-    MapRepo mapRepo;
+    InMemoryRepo inMemoryRepo;
 
     @Override
     public void write(TrackResultBean trackResult) {
-        StoreContent content = new StoreBean(trackResult);
-        mapRepo.add(content);
+        StoredContent content = new StorageBean(trackResult);
+        inMemoryRepo.add(content);
     }
 
     @Override
-    public StoreContent read(LogRequest logRequest) {
-        return mapRepo.getValue( logRequest);
+    public StoredContent read(LogRequest logRequest) {
+        return inMemoryRepo.read( logRequest);
     }
 
 }
