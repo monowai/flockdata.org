@@ -47,8 +47,8 @@ public class StoreConfig implements FdStoreConfig {
 
     @Override
     @Value("${fd-store.system.engine}")
-    public void setKvStore(String kvStore) {
-        setKvStore(Store.valueOf(kvStore));
+    public void setStore(String kvStore) {
+        setStore(Store.valueOf(kvStore));
 
     }
 
@@ -73,12 +73,12 @@ public class StoreConfig implements FdStoreConfig {
     }
 
     /**
-     * Updates the kvStore to use
-     * @param kvStore kvStore to use
-     * @return previous value of kvStore
+     * Updates the store to use
+     * @param kvStore store to use
+     * @return previous value of store
      */
     @Override
-    public Store setKvStore(Store kvStore) {
+    public Store setStore(Store kvStore) {
         Store current = this.kvStore;
         this.kvStore = kvStore;
         return current;
@@ -86,7 +86,7 @@ public class StoreConfig implements FdStoreConfig {
     }
 
     @Override
-    public Store kvStore() {
+    public Store store() {
         return kvStore;
     }
 

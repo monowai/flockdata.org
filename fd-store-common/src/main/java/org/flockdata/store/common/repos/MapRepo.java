@@ -19,9 +19,9 @@
 
 package org.flockdata.store.common.repos;
 
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.stereotype.Component;
 
@@ -36,13 +36,13 @@ public class MapRepo extends AbstractStore {
 
     Map<Long, ContentInputBean> map = new HashMap <>();
 
-    public void add(KvContent contentBean) {
+    public void add(StoreContent contentBean) {
         map.put(contentBean.getId(), contentBean.getContent());
     }
 
-    public KvContent getValue(LogRequest logRequest) {
+    public StoreContent getValue(LogRequest logRequest) {
 
-        return new KvContentBean(logRequest.getLogId(), map.get(logRequest.getLogId()));
+        return new StoreBean(logRequest.getLogId(), map.get(logRequest.getLogId()));
     }
 
     public void delete(LogRequest logRequest) {

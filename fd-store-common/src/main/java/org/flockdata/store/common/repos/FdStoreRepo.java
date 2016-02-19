@@ -19,8 +19,8 @@
 
 package org.flockdata.store.common.repos;
 
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
+import org.flockdata.store.StoreContent;
 
 import java.io.IOException;
 
@@ -29,9 +29,9 @@ import java.io.IOException;
  * Since: 31/01/14
  */
 public interface FdStoreRepo {
-    void add(KvContent contentBean) throws IOException;
+    void add(StoreContent contentBean) throws IOException;
 
-    KvContent getValue(LogRequest logRequest);
+    StoreContent getValue(LogRequest logRequest);
 
     void delete(LogRequest logRequest);
 

@@ -3,7 +3,7 @@
 
 ##What?
 * Enterprise/systems/services/applications create and modify organisational data databases
-  * Storing data as information requires federated and heterogeneous storage capabilities
+  * Storing data as information requires federated and heterogeneous store capabilities
   * FD provides a standardised way of accessing this data.
   * Standardization enables discussions about information without loosing visibility of the data
 * Visualise and operate on the semantic entities of your business

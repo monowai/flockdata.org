@@ -26,7 +26,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.store.KvContent;
+import org.flockdata.store.StoreContent;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
@@ -295,7 +295,7 @@ public class TestEntityTrack extends EngineBase {
         for (EntityLog entityLog : entitySummary.getChanges()) {
             Log log = entityLog.getLog();
             assertNotNull(log.getEvent());
-            KvContent whatResult = entityService.getContent(entity, log);
+            StoreContent whatResult = entityService.getContent(entity, log);
             assertTrue(whatResult.getData().containsKey("house"));
         }
     }
@@ -442,7 +442,7 @@ public class TestEntityTrack extends EngineBase {
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         for (EntityLog entityLog : logs) {
-            KvContent content = storageService.read(entity, entityLog.getLog());
+            StoreContent content = storageService.read(entity, entityLog.getLog());
             assertNotNull(content);
             assertNotNull(content.getData());
             assertFalse(content.getData().isEmpty());
@@ -759,7 +759,7 @@ public class TestEntityTrack extends EngineBase {
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
 //        assertNotNull(lastLog.getAuditChange().getLogInputBean());
-        KvContent content = entityService.getContent(entity, lastLog.getLog());
+        StoreContent content = entityService.getContent(entity, lastLog.getLog());
         assertNotNull(content);
         assertTrue(content.getData().containsKey("house"));
     }
@@ -956,7 +956,7 @@ public class TestEntityTrack extends EngineBase {
         waitForFirstLog(su.getCompany(), trackResultBean.getEntity());
         EntityLog lastLog = logService.getLastLog(trackResultBean.getEntity());
 
-        KvContent content = storageService.read(trackResultBean.getEntity(), lastLog.getLog());
+        StoreContent content = storageService.read(trackResultBean.getEntity(), lastLog.getLog());
         assertEquals(json.get("Athlete"), content.getData().get("Athlete"));
 
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -1000,7 +1000,7 @@ public class TestEntityTrack extends EngineBase {
         entity = entityService.findByCode(fortress, "TestTrack", callerRef);
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getMetaKey());
         assertNotNull(lastLog);
-        KvContent what = storageService.read(entity, lastLog.getLog());
+        StoreContent what = storageService.read(entity, lastLog.getLog());
 
         assertNotNull(what);
         Object value = what.getData().get("col");
@@ -1210,9 +1210,9 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(1, entityService.getLogCount(su.getCompany(), result.getMetaKey()));
         EntityLog log = logService.getLastLog(result.getEntity());
         assertEquals(Long.valueOf(updateDate.getMillis()), log.getFortressWhen());
-        KvContent kvContent = storageService.read(result.getEntity(), log.getLog());
-        assertNotNull(kvContent);
-        Object value = kvContent.getData().get("key");
+        StoreContent storeContent = storageService.read(result.getEntity(), log.getLog());
+        assertNotNull(storeContent);
+        Object value = storeContent.getData().get("key");
         assertNotNull(value);
         assertEquals(2, Integer.parseInt(value.toString()));
 

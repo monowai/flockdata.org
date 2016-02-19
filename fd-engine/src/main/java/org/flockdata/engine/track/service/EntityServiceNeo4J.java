@@ -32,7 +32,7 @@ import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.store.KvContent;
+import org.flockdata.store.StoreContent;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
@@ -118,7 +118,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public KvContent getContent(Entity entity, Log log) {
+    public StoreContent getContent(Entity entity, Log log) {
         return contentReader.read(entity, log);
     }
 
@@ -414,7 +414,7 @@ public class EntityServiceNeo4J implements EntityService {
         // Sync the update to fd-search.
         if (entity.getSegment().getFortress().isSearchEnabled() && !entity.isSearchSuppressed()) {
             // Update against the Entity only by re-indexing the search document
-            KvContent priorContent = contentReader.read(entity, fromLog);
+            StoreContent priorContent = contentReader.read(entity, fromLog);
 
             searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexHelper.parseIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
@@ -530,7 +530,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         EntityLog log = entityDao.getLog(entity, logId);
         entityDao.fetch(log.getLog());
-        KvContent what = contentReader.read(entity, log.getLog());
+        StoreContent what = contentReader.read(entity, log.getLog());
 
         return new LogDetailBean(log, what);
     }

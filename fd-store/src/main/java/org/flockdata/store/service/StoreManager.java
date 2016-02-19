@@ -24,16 +24,15 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.store.common.repos.AbstractStore;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.store.common.repos.FdStoreRepo;
 import org.flockdata.store.common.repos.MapRepo;
 import org.flockdata.store.repo.EsRepo;
+import org.flockdata.store.repo.RedisRepo;
 import org.flockdata.store.repo.RiakRepo;
-import org.flockdata.track.bean.TrackResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -44,8 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 /**
- * Encapsulation of FlockData's KV management functionality. A simple wrapper with support
- * for various KV stores. Also provides retry and integration capabilities
+ * Encapsulation of FlockData's store management functionality. A simple wrapper with support
+ * for various data stores that support put/get semantics.
  * <p/>
  * User: Mike Holdsworth
  * Since: 4/09/13
@@ -56,60 +55,51 @@ public class StoreManager implements StoreService {
 
     private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
-    @Autowired
-    AbstractStore redisRepo;
+    @Autowired (required = false)
+    RedisRepo redisRepo;
 
-    @Autowired
+    @Autowired (required = false)
     RiakRepo riakRepo;
 
-    @Autowired
+    @Autowired (required = false)
     MapRepo mapRepo;
 
     @Autowired
     EsRepo defaultStore;
 
     @Autowired
-    FdStoreConfig kvConfig;
+    FdStoreConfig storeConfig;
 
     private Logger logger = LoggerFactory.getLogger(StoreManager.class);
 
     @Override
-    public String ping() {
-        FdStoreRepo repo = getKvRepo();
-        return repo.ping();
+    public String ping(Store store) {
+        return getStore(store).ping();
     }
 
-
-    @Override
-    public void purge(String indexName) {
-        getKvRepo().purge(indexName);
-    }
 
     /**
      * Persists the payload
      * <p/>
-     * if fd-engine.kv.async== true, then this will be handed off to an integration gateway
-     * for guaranteed delivery. Otherwise the write call will be performed immediately and the caller
-     * will have to deal with any errors
      *
-     * @param kvBean          payload for the KvStore
+     * @param storeBean          payload to write to a store
      */
-    public void doWrite(KvContentBean kvBean) throws FlockServiceException {
+    public void doWrite(StoreBean storeBean) throws FlockServiceException {
 
-        if (kvBean.getStorage().equals(Store.NONE.name()))
+        if (storeBean.getStore().equals(Store.NONE.name()))
             return;
 
-        kvBean.setBucket(kvBean.getBucket());
+        storeBean.setBucket(storeBean.getBucket());
 
-        logger.debug("Sync write begins {}", kvBean);
+        logger.debug("Sync write begins {}", storeBean);
         // ToDo: Extract in to a standalone class
         try {
             // ToDo: Retry or CircuitBreaker?
-            logger.debug("Received request to add kvBean {}", kvBean);
-            getKvRepo(Store.valueOf(kvBean.getStorage())).add(kvBean);
+            logger.debug("Received request to add storeBean {}", storeBean);
+            getStore(Store.valueOf(storeBean.getStore())).add(storeBean);
 
         } catch (IOException e) {
-            String errorMsg = String.format("Error writing to the %s KvStore.", kvConfig.kvStore().name());
+            String errorMsg = String.format("Error writing to the %s Store.", storeBean.getStore());
             logger.error(errorMsg); // Hopefully an ops team will monitor for this event and
             //           resolve the underlying DB problem
             throw new AmqpRejectAndDontRequeueException(errorMsg, e); // Keep the message on the queue
@@ -117,34 +107,12 @@ public class StoreManager implements StoreService {
         //}
     }
 
-    /**
-     * adds what store details to the log that will be index in Neo4j
-     * Subsequently, this data will make it to a KV store if enabled
-     * <p/>
-     * If fortress storage is disabled, then the storage is set to KV_STORE.NONE
-     *
-     * @param trackResult Escaped Json
-     * @param log         Log
-     * @return logChange
-     * @throws IOException
-     */
-    @Override
-    public Log prepareLog(TrackResultBean trackResult, Log log) throws IOException {
-        // ToDo: KVStore's need to be aligned between services
-        return Store.prepareLog(kvConfig.kvStore(), trackResult, log);
-    }
-
-    // Returns the system default kv store
-    FdStoreRepo getKvRepo() {
-        return getKvRepo(kvConfig.kvStore());
-    }
-
     // Returns the kvstore based on log.storage
-    FdStoreRepo getKvRepo(Log log) {
-        return getKvRepo(Store.valueOf(log.getStorage()));
+    FdStoreRepo getStore(Log log) {
+        return getStore(Store.valueOf(log.getStorage()));
     }
 
-    FdStoreRepo getKvRepo(Store kvStore) {
+    FdStoreRepo getStore(Store kvStore) {
         if (kvStore == Store.REDIS) {
             return redisRepo;
         } else if (kvStore == Store.RIAK) {
@@ -161,11 +129,11 @@ public class StoreManager implements StoreService {
     }
 
     @Override
-    public KvContent getContent(LogRequest logRequest) {
+    public StoreContent getContent(LogRequest logRequest) {
         if (logRequest.getLogId() == null)
             return null;
         try {
-            return getKvRepo(logRequest.getStore()).getValue(logRequest);
+            return getStore(logRequest.getStore()).getValue(logRequest);
 
         } catch (FlockServiceException re) {
             logger.error("KV Error Entity[" + logRequest+ "]", re);
@@ -176,7 +144,7 @@ public class StoreManager implements StoreService {
     @Override
     public void delete(Entity entity, Log change) {
 
-        getKvRepo(change).delete(new LogRequest(entity, change));
+        getStore(change).delete(new LogRequest(entity, change));
     }
 
 

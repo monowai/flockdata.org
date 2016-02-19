@@ -25,9 +25,9 @@ import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.store.common.repos.AbstractStore;
 import org.flockdata.store.integration.EsStoreRequest;
 import org.flockdata.track.bean.ContentInputBean;
@@ -55,11 +55,11 @@ public class EsRepo extends AbstractStore {
 
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
-    public void add(KvContent contentBean) {
+    public void add(StoreContent contentBean) {
 
     }
 
-    public KvContent getValue(LogRequest logRequest)  {
+    public StoreContent getValue(LogRequest logRequest)  {
         QueryParams queryParams = new QueryParams(indexHelper.parseIndex(logRequest.getEntity())
                 , IndexManager.parseType(logRequest.getEntity())
                 , logRequest.getEntity().getSearchKey() );
@@ -85,7 +85,7 @@ public class EsRepo extends AbstractStore {
 
 
         }
-        return new KvContentBean(logRequest.getLogId(), contentInput);
+        return new StoreBean(logRequest.getLogId(), contentInput);
     }
 
     public void delete(LogRequest logRequest) {

@@ -24,7 +24,7 @@ import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.registration.service.CompanyService;
-import org.flockdata.store.KvContent;
+import org.flockdata.store.StoreContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.FortressService;
@@ -135,7 +135,7 @@ public class LogServiceNeo4j implements LogService {
     }
 
     @Override
-    public KvContent getContent(Entity entity, Log log) {
+    public StoreContent getContent(Entity entity, Log log) {
         return storageProxy.read(entity, log);
     }
 

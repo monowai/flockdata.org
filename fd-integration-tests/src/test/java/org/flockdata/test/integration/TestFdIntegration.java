@@ -42,8 +42,8 @@ import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.Store;
+import org.flockdata.store.StoreContent;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.flockdata.transform.ClientConfiguration;
@@ -303,7 +303,7 @@ public class TestFdIntegration {
 
             assertNotNull(entityLog);
             assertNotNull(entityLog.getLog());
-            KvContent content = logService.getContent(result.getEntity(), entityLog.getLog());
+            StoreContent content = logService.getContent(result.getEntity(), entityLog.getLog());
 
             // Now test other ES http integration functions
             // Search
@@ -1626,10 +1626,10 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(input.getCode(), entity.getSearchKey());
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
-        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        StoreContent storeContent = logService.getContent(entity, result.getCurrentLog().getLog());
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1637,9 +1637,9 @@ public class TestFdIntegration {
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
 
         logService.getContent(entity, entityLog.getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
     }
 
@@ -1672,10 +1672,10 @@ public class TestFdIntegration {
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
         assertEquals(entity.getMetaKey(), entity.getSearchKey());
         esHelper.doEsQuery(result.getEntity(), json.get("Athlete").toString(), 1);
-        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        StoreContent storeContent = logService.getContent(entity, result.getCurrentLog().getLog());
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
         // This will return a mock entity log
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), null);
@@ -1683,9 +1683,9 @@ public class TestFdIntegration {
         entityLog = entityService.getEntityLog(su.getCompany(), entity.getMetaKey(), 0l);
 
         logService.getContent(entity, entityLog.getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
     }
 
@@ -1717,10 +1717,10 @@ public class TestFdIntegration {
         // Can we find the changed data in ES?
         esHelper.doEsQuery(result.getEntity(), content.getData().get("Athlete").toString(), 1);
         // And are we returning the same data from the KV Service?
-        KvContent kvContent = logService.getContent(entity, result.getCurrentLog().getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        StoreContent storeContent = logService.getContent(entity, result.getCurrentLog().getLog());
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
         content.setData(Helper.getSimpleMap("Athlete", "Michael Phelps"));
         input.setContent(content);
@@ -1732,10 +1732,10 @@ public class TestFdIntegration {
         Helper.waitAWhile("Async log is still processing");
         Helper.waitAWhile("Waiting for second update to occur");
 
-        kvContent = logService.getContent(entity, entityLog.getLog());
-        assertNotNull(kvContent);
-        assertNotNull(kvContent.getData());
-        assertEquals(content.getData().get("Athlete"), kvContent.getData().get("Athlete"));
+        storeContent = logService.getContent(entity, entityLog.getLog());
+        assertNotNull(storeContent);
+        assertNotNull(storeContent.getData());
+        assertEquals(content.getData().get("Athlete"), storeContent.getData().get("Athlete"));
 
 
     }
@@ -1764,7 +1764,7 @@ public class TestFdIntegration {
             esHelper.waitForFirstSearchResult(1, su.getCompany(), result.getEntity(), entityService);
             Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getMetaKey());
             assertNotNull(entity.getSearchKey());
-            KvContent kvc = logService.getContent(entity, result.getCurrentLog().getLog());
+            StoreContent kvc = logService.getContent(entity, result.getCurrentLog().getLog());
             assertNotNull(kvc);
             assertEquals(json.get("NumAsString"), "1234");
 
@@ -1939,7 +1939,7 @@ public class TestFdIntegration {
 
             // Ensure we can find the entity content when it is stored in a segmented ES index
             EntityLog lastLog = entityService.getLastEntityLog(entity2014.getId());
-            KvContent contentFromEs = logService.getContent(entity2014, lastLog.getLog());
+            StoreContent contentFromEs = logService.getContent(entity2014, lastLog.getLog());
             assertNotNull("fd-store, unable to locate the content from ES", contentFromEs);
         } finally {
             engineConfig.setStore(previousKv);
