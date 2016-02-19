@@ -7,7 +7,8 @@ spring:
     active: production
 
 server:
-  port:8082
+  port: 8082
+
 
 fd-store:
   system:
