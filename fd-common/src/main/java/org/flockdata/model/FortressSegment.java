@@ -45,7 +45,7 @@ public class FortressSegment {
     public static String key(String fortressCode, String segmentCode ){
         if ( segmentCode == null )
             return null;
-        return fortressCode +"/"+segmentCode.toLowerCase();
+        return fortressCode +"-"+segmentCode.toLowerCase();
     }
 
     public String getCode() {
