@@ -20,8 +20,8 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressUser;
+import org.flockdata.model.MetaFortress;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.UserProperties;
 import org.joda.time.DateTime;
@@ -82,7 +82,7 @@ public class EntityInputBean implements Serializable, UserProperties {
      * @param fortressWhen when did this occur in the fortressName
      * @param code         case sensitive unique key. If not supplied, then the service will generate one
      */
-    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
+    public EntityInputBean(MetaFortress fortress, String fortressUser, String documentName, DateTime fortressWhen, String code) {
         this();
         if (fortressWhen != null) {
             setWhen(fortressWhen.toDate());
@@ -94,7 +94,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         setCode(code);
     }
 
-    public EntityInputBean(Fortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
+    public EntityInputBean(MetaFortress fortress, String fortressUser, String documentName, DateTime fortressWhen) {
         this(fortress, fortressUser, documentName, fortressWhen, null);
 
     }
@@ -105,16 +105,16 @@ public class EntityInputBean implements Serializable, UserProperties {
         setDocumentType(new DocumentTypeInputBean(documentName));
     }
 
-    public EntityInputBean(Fortress fortress, String documentName) {
+    public EntityInputBean(MetaFortress fortress, String documentName) {
         this(fortress.getName(), documentName);
     }
 
-    public EntityInputBean(Fortress fortress, DocumentTypeInputBean documentType) {
+    public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean documentType) {
         this.fortressName = fortress.getName();
         setDocumentType(documentType);
     }
 
-    public EntityInputBean(Fortress fortress, DocumentTypeInputBean docType, String entityCode) {
+    public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean docType, String entityCode) {
         this(fortress, docType);
         this.code = entityCode;
 

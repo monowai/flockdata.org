@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.flockdata.FdEngine;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.LoginRequest;
-import org.flockdata.authentication.registration.service.CompanyService;
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FdJsonObjectMapper;
@@ -15,18 +13,22 @@ import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
 import org.flockdata.track.bean.*;
-import org.flockdata.track.service.FortressService;
-import org.flockdata.track.service.MediationFacade;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -53,65 +55,74 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @WebAppConfiguration
 @ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
 @SpringApplicationConfiguration(FdEngine.class)
-public class WacBase {
+@RunWith(SpringJUnit4ClassRunner.class)
+public abstract class MvcBase {
 
-    public static final String apiRoot = "/api";
-    public static final String LOGIN_PATH = apiRoot + "/login";
-    public static final String apiPath = apiRoot+"/v1";
+    static final String apiRoot = "/api";
+    static final String LOGIN_PATH = apiRoot + "/login";
+    static final String apiPath = apiRoot+"/v1";
 
     public static String harry = "harry";
     public static String mike_admin = "mike";
     public static String sally_admin = "sally";
+    //public static String gina_admin = "gina";
 
-    static Logger logger = LoggerFactory.getLogger(WacBase.class);
+    static Logger logger = LoggerFactory.getLogger(MvcBase.class);
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     SystemUserResultBean suHarry;
-
     SystemUserResultBean suMike;
     SystemUserResultBean suSally;
     SystemUserResultBean suIllegal;
 
     @Autowired
-    private WebApplicationContext wac;
+    public WebApplicationContext wac;
+
+    @Autowired
+    Neo4jTemplate neo4jTemplate;
 
     private MockMvc mockMvc;
 
     @Autowired
+    @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
-    @Autowired
-    CompanyService companyService;
+    public void cleanUpGraph() throws Exception {
+        // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
+        //           might be started giving you sporadic failures.
+        neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
+        neo4jTemplate.query("match (n) delete n", null);
+        suMike = ensureSystemUser("anyco", mike_admin);
+        suHarry = ensureSystemUser("anyco", harry);
+        suSally = ensureSystemUser("anyco", sally_admin);
+        suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
-    @Autowired
-    RegistrationService regService;
+    }
 
-    @Autowired
-    FortressService fortressService;
-
-    @Autowired
-    MediationFacade mediationFacade;
 
     @Before
     public void setupMvc() throws Exception{
-        suHarry =registerSystemUser("anyco", harry);
-        suMike = registerSystemUser("anyco", mike_admin);
-        suSally =registerSystemUser("anyco", sally_admin);
-        suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
+        cleanUpGraph();
+
     }
 
-    public SystemUserResultBean registerSystemUser(String companyName, String accessUser) throws Exception {
-        return registerSystemUser(mike(), companyName, accessUser);
+    public SystemUserResultBean ensureSystemUser(String companyName, String accessUser) throws Exception {
+        return ensureSystemUser(mike(), companyName, accessUser);
     }
 
-    public MockMvc mvc(){
+    public MockMvc mvc() throws Exception{
+        if ( mockMvc == null )
+            setupMvc();
         return mockMvc;
     }
 
-    public static void setSecurityEmpty() {
+    static void setSecurityEmpty() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
@@ -127,22 +138,22 @@ public class WacBase {
         return user(harry).password("123").roles(FdRoles.FD_ADMIN, FdRoles.FD_USER);
     }
 
-    public static RequestPostProcessor noUser() {
+    static RequestPostProcessor noUser() {
         return user("noone");
     }
 
     public void setSecurity() throws Exception{
     }
 
-    public Fortress createFortress(SystemUserResultBean su, String fortressName)
+    FortressResultBean createFortress(RequestPostProcessor user, String fortressName)
             throws Exception {
 
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
                                 .post(apiPath +"/fortress/")
-                                .header("api-key", su.getApiKey())
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .with(user)
                                 .content(
                                         JsonUtils
                                                 .toJson(new FortressInputBean(
@@ -151,7 +162,7 @@ public class WacBase {
                 .andReturn();
 
         return JsonUtils.toObject(response.getResponse()
-                .getContentAsByteArray(), Fortress.class);
+                .getContentAsByteArray(), FortressResultBean.class);
     }
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
@@ -186,11 +197,11 @@ public class WacBase {
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
     }
-    public SystemUserResultBean registerSystemUser(RequestPostProcessor user, String company, String accessUser) throws Exception{
-        return registerSystemUser(user, company, accessUser, MockMvcResultMatchers.status().isOk());
+    public SystemUserResultBean ensureSystemUser(RequestPostProcessor user, String company, String accessUser) throws Exception{
+        return ensureSystemUser(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
     }
 
-    public SystemUserResultBean registerSystemUser(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
+    public SystemUserResultBean ensureSystemUser(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.post(apiPath +"/profiles/")
                         .content(JsonUtils.toJson( new RegistrationBean(company, accessUser)))
@@ -203,17 +214,17 @@ public class WacBase {
     }
 
 
-    public Entity getEntity(RequestPostProcessor user, String metaKey) throws Exception {
+    public EntityBean getEntity(RequestPostProcessor user, String metaKey) throws Exception {
         return getEntity(user, metaKey, MockMvcResultMatchers.status().isOk());
     }
-    public Entity getEntity(RequestPostProcessor user, String metaKey, ResultMatcher status) throws Exception {
+    public EntityBean getEntity(RequestPostProcessor user, String metaKey, ResultMatcher status) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{metaKey}", metaKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(status).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toObject(json.getBytes(), Entity.class);
+        return JsonUtils.toObject(json.getBytes(), EntityBean.class);
     }
 
     public Map<String, Object> getHealth(RequestPostProcessor user) throws Exception {
@@ -282,7 +293,7 @@ public class WacBase {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath +"/track/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
-                .content(JsonUtils.toJsonBytes(eib))
+                .content(JsonUtils.toJson(eib))
         )   .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
@@ -322,15 +333,15 @@ public class WacBase {
 
     }
 
-    public String adminPing(RequestPostProcessor user) throws Exception {
+    public String authPing(RequestPostProcessor user, ResultMatcher expectedResult) throws Exception {
 
         ResultActions result = mvc()
                 .perform(
                         MockMvcRequestBuilders.get(apiPath +"/admin/ping")
                         .with(user)
                 )
-                .andDo(print());
-        return result.andReturn().getResponse().getContentAsString();
+                .andExpect(expectedResult)  ;
+       return result.andReturn().getResponse().getContentAsString();
 
     }
 
@@ -404,15 +415,16 @@ public class WacBase {
 
     }
 
-    public TagResultBean getTag(RequestPostProcessor user, String label, String code) throws Exception {
+    public TagResultBean getTag(RequestPostProcessor user, String label, String code, ResultMatcher resultMatch) throws Exception {
         label = URLEncoder.encode(label, "UTF-8");
         code = URLEncoder.encode(code, "UTF-8");
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.get(apiPath +"/tag/{label}/{code}", label, code)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
-                ).andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+
+                )
+                .andExpect(resultMatch).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
 
@@ -499,7 +511,7 @@ public class WacBase {
         return JsonUtils.toCollection(json, EntityTag.class);
     }
 
-    public Collection<DocumentResultBean> makeDocuments(RequestPostProcessor user, Fortress fortress, Collection<DocumentTypeInputBean> docTypes) throws Exception {
+    public Collection<DocumentResultBean> makeDocuments(RequestPostProcessor user, MetaFortress fortress, Collection<DocumentTypeInputBean> docTypes) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders

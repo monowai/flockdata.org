@@ -20,14 +20,13 @@
 package org.flockdata.test.engine.mvc;
 
 import org.flockdata.model.EntityTag;
-import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.test.engine.services.TestQueryResults;
 import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,14 +38,13 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * Created by mike on 16/02/15.
  */
-@WebAppConfiguration
-public class TestDocEP extends WacBase {
+public class TestDocEP extends MvcBase {
 
     @Test
     public void flow_docPoints() throws Exception {
 
         engineConfig.setConceptsEnabled("true");
-        Fortress fortress = createFortress(suMike, "flow_docPoints");
+        FortressResultBean fortress = createFortress(mike(), "flow_docPoints");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "StudyDoc", new DateTime());
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
@@ -55,7 +53,6 @@ public class TestDocEP extends WacBase {
         Collection<EntityTag> entityTags = getEntityTags(mike(), entity.getMetaKey());
         assertEquals(2, entityTags.size());
 
-        login(mike_admin, "123");
         Collection<DocumentResultBean> docResults = getDocuments(fortress.getCode());
         assertNotNull(docResults);
         assertEquals(1, docResults.size());
@@ -93,7 +90,7 @@ public class TestDocEP extends WacBase {
     @Test
     public void find_tagValues() throws Exception {
 
-        Fortress fortress = createFortress(suMike, "find_tagValues");
+        FortressResultBean fortress = createFortress(mike(), "find_tagValues");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "Study", new DateTime(), "StudyA");
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
@@ -119,7 +116,7 @@ public class TestDocEP extends WacBase {
     @Test
     public void make_DocTypes() throws Exception {
 
-        Fortress fortress = createFortress(suMike, "make_DocTypes");
+        FortressResultBean fortress = createFortress(mike(), "make_DocTypes");
 
         DocumentTypeInputBean docType = new DocumentTypeInputBean("docName")
                 .setCode("docCode");

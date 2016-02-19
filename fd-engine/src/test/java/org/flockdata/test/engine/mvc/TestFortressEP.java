@@ -20,10 +20,9 @@
 package org.flockdata.test.engine.mvc;
 
 import junit.framework.TestCase;
-import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.registration.FortressResultBean;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Collection;
 
@@ -32,8 +31,7 @@ import static junit.framework.Assert.assertEquals;
 /**
  * Created by mike on 16/02/15.
  */
-@WebAppConfiguration
-public class FortressTestEP extends WacBase {
+public class TestFortressEP extends MvcBase {
 
 
     /**
@@ -44,7 +42,7 @@ public class FortressTestEP extends WacBase {
     @Test
     public void get_FortressSegments() throws Exception {
 
-        Fortress fortress = createFortress(suMike, "make_DocTypes");
+        FortressResultBean fortress = createFortress(mike(), "make_DocTypes");
 
 
         Collection<FortressSegment> segments = getSegments(mike(), fortress.getName());

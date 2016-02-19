@@ -22,7 +22,6 @@ package org.flockdata.test.engine.mvc;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Collection;
 
@@ -31,8 +30,7 @@ import static org.junit.Assert.*;
 /**
  * Created by mike on 16/02/15.
  */
-@WebAppConfiguration
-public class TestCompanyEP extends WacBase {
+public class TestCompanyEP extends MvcBase {
 
     @Test
     public void companyLocators () throws Exception{
@@ -56,12 +54,12 @@ public class TestCompanyEP extends WacBase {
     }
 
     @Test
-    public void differentUsersCantAccessKnownCompany () throws Exception{
+    public void locateCompanyByApiKey() throws Exception{
 
         Collection<Company> companies = findCompanies(suMike);
         assertEquals(1, companies.size());
-        org.flockdata.model.Company listCompany = companies.iterator().next();
-        org.flockdata.model.Company foundCompany = getCompany(listCompany.getName(), suMike);
+        Company listCompany = companies.iterator().next();
+        Company foundCompany = getCompany(listCompany.getName(), suMike);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.

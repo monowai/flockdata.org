@@ -20,6 +20,7 @@
 package org.flockdata.registration;
 
 import org.flockdata.model.Fortress;
+import org.flockdata.model.MetaFortress;
 
 import java.io.Serializable;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * User: Mike Holdsworth
  * Since: 21/12/13
  */
-public class FortressResultBean implements Serializable{
+public class FortressResultBean implements MetaFortress, Serializable{
     private String code;
     private String name;
     private String indexName;

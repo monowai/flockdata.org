@@ -184,7 +184,6 @@ public abstract class EngineBase {
         template.query("match (n) delete n", null);
         engineConfig.setDuplicateRegistration(true);
         engineConfig.setTestMode(true);
-        System.setProperty("neo4j.datastore", "./target/data/"+System.currentTimeMillis()+"/neo/");
     }
 
     @Before

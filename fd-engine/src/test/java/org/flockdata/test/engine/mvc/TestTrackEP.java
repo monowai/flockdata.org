@@ -20,16 +20,15 @@
 package org.flockdata.test.engine.mvc;
 
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.Collection;
 
@@ -41,22 +40,22 @@ import static org.junit.Assert.assertNotNull;
  * Date: 29/10/14
  * Time: 11:59 AM
  */
-@WebAppConfiguration
-public class TestEndPoints extends WacBase {
+public class TestTrackEP extends MvcBase {
 
     @Test
     public void track_MinimalArguments () throws Exception {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
+        eib.setFortressUser("usera");
         ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
-        Entity e = getEntity(mike(), trackResult.getMetaKey());
+        EntityBean e = getEntity(mike(), trackResult.getMetaKey());
         //Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
 
-        assertEquals("usera", e.getLastUser().getCode());
-        assertEquals("usera", e.getCreatedBy().getCode());
+        assertEquals("usera", e.getLastUser());
+        assertEquals("usera", e.getCreatedUser());
 
     }
 
@@ -69,10 +68,10 @@ public class TestEndPoints extends WacBase {
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        Entity e = getEntity(mike(), trackResult.getMetaKey());
+        EntityBean e = getEntity(mike(), trackResult.getMetaKey());
 
-        assertEquals("usera", e.getLastUser().getCode());
-        assertEquals("usera", e.getCreatedBy().getCode());
+        assertEquals("usera", e.getLastUser());
+        assertEquals("usera", e.getCreatedUser());
     }
 
     @Test
@@ -107,16 +106,19 @@ public class TestEndPoints extends WacBase {
     }
 
     @Test
-    public void fortress_ResultProperties() throws Exception{
-        FortressInputBean fortressInputBean = new FortressInputBean("Twitter");
-        FortressResultBean result = makeFortress(mike(), fortressInputBean);
-        assertEquals("Twitter", result.getName());
-        assertEquals("twitter", result.getCode());
+    public void fortress_DuplicateNameWithProperties() throws Exception{
+        String fName= "fortress_ResultProperties";
+        cleanUpGraph();
+        FortressInputBean fortressInputBean = new FortressInputBean(fName);
+        FortressResultBean result = makeFortress(sally(), fortressInputBean);
+        assertEquals(fName, result.getName());
+        assertEquals(fName.toLowerCase(), result.getCode());
 
-        fortressInputBean = new FortressInputBean("twitter");
+        // Create the same fortress with a lowercase name.
+        fortressInputBean = new FortressInputBean(fName.toLowerCase());
         result = makeFortress(mike(), fortressInputBean);
-        assertEquals("Twitter", result.getName());
-        assertEquals("twitter", result.getCode());
+        assertEquals(fName, result.getName());
+        assertEquals(fName.toLowerCase(), result.getCode());
         assertNotNull("Index Name not found", result.getIndexName());
 
         FortressResultBean fortress = getFortress(mike(), result.getCode());

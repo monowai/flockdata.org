@@ -79,14 +79,16 @@ public class TestApiKeyInterceptor extends EngineBase {
 
 		request.setRequestURI("/api/v1/fortress/");
 		request.addHeader("api-key", "someKey");
+		exception.expect(SecurityException.class);
 		TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
 	}
 
 	@Test
 	public void givenNoAPIKey_WhenCallingSecureAPI_ThenShouldNotBeAllowed()
 			throws Exception {
-        setSecurity(sally_admin); // Sally is Authorised but has not API Key
+        setSecurity(sally_admin); // Sally is Authorised and has not API Key
 		request.setRequestURI("/api/v1/fortress/");
+		exception.expect(SecurityException.class);
 		TestCase.assertFalse(apiKeyInterceptor.preHandle(request, response, null));
 
 	}

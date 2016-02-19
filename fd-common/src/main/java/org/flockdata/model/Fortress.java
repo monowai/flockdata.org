@@ -31,7 +31,7 @@ import java.util.TimeZone;
 
 @NodeEntity
 @TypeAlias("Fortress")
-public class Fortress implements Serializable {
+public class Fortress implements MetaFortress, Serializable {
 
     @GraphId
     Long id;

@@ -24,7 +24,6 @@ import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
 import org.junit.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -37,15 +36,14 @@ import static org.junit.Assert.assertNotNull;
  * Date: 28/08/14
  * Time: 2:23 PM
  */
-@WebAppConfiguration
-public class TestProfileRegistration extends WacBase {
+public class TestProfileRegistration extends MvcBase {
 
     @Test
     public void testWebRegistrationFlow() throws Exception {
         String companyName = "Public Company";
         setSecurityEmpty();
         // Unauthenticated users can't register accounts
-        mvc().perform(MockMvcRequestBuilders.post(WacBase.apiPath+"/profiles/")
+        mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath+"/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.toJson(new RegistrationBean(companyName, sally_admin)))
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
@@ -84,7 +82,7 @@ public class TestProfileRegistration extends WacBase {
 
     SystemUserResultBean registerSystemUser(RegistrationBean register) throws Exception {
 
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(WacBase.apiPath+"/profiles/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(MvcBase.apiPath+"/profiles/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.toJson(register))
         ).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
@@ -94,7 +92,7 @@ public class TestProfileRegistration extends WacBase {
 
     SystemUserResultBean getMe() throws Exception {
 
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/profiles/me/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/profiles/me/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 

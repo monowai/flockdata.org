@@ -85,10 +85,14 @@ public class EntityBean implements Serializable {
             event = entity.getEvent();
             fortressDateCreated = entity.getFortressCreatedTz();
             fortressDateUpdated = entity.getFortressUpdatedTz();
-            if (entity.getLastUser() != null)
+            if (entity.getLastUser() != null) {
                 lastUser = entity.getLastUser().getCode();
-            if (createdUser != null)
+            }
+            if (entity.getCreatedBy() != null)
                 createdUser = entity.getCreatedBy().getCode();
+            if ( lastUser == null )
+                lastUser=createdUser ; // This is as much as we can assume
+
         }
     }
 
