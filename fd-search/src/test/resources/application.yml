@@ -1,14 +1,14 @@
 spring:
   profiles:
     active: dev
-    include: fd-auth-none
+
 
 es:
   clustername: es_fd_test
   http:
-    port: 9204
+    port: 9205
   tcp:
-    port: 9304
+    port: 9305
   path:
     home: ./target/
     data: ${es.path.home}/es-test-data

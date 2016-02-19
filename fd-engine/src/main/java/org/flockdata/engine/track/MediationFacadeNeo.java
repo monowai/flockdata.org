@@ -21,7 +21,6 @@ package org.flockdata.engine.track;
 
 import com.google.common.collect.Lists;
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.authentication.registration.service.CompanyService;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
@@ -42,6 +41,7 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;

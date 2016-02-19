@@ -19,12 +19,12 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

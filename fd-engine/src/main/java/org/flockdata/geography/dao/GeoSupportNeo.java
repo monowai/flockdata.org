@@ -19,7 +19,6 @@
 
 package org.flockdata.geography.dao;
 
-import org.flockdata.model.Entity;
 import org.flockdata.model.Tag;
 import org.flockdata.track.bean.GeoDataBean;
 import org.flockdata.track.bean.GeoDataBeans;

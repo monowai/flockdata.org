@@ -19,8 +19,8 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.search.model.SearchResults;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.search.model.SearchResults;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;

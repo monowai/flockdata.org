@@ -20,9 +20,6 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.FdEngine;
-import org.flockdata.authentication.registration.service.CompanyService;
-import org.flockdata.authentication.registration.service.RegistrationService;
-import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
@@ -39,6 +36,9 @@ import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
+import org.flockdata.registration.service.CompanyService;
+import org.flockdata.registration.service.RegistrationService;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.track.service.*;
 import org.junit.Before;

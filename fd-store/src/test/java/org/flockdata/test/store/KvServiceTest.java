@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import redis.embedded.RedisServer;
 
@@ -60,11 +61,12 @@ import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdStore.class)
+@ActiveProfiles({"dev", "fd-auth-test"})
 public class KvServiceTest {
 
 
     @Autowired
-    private FdStoreConfig kvConfig;
+    private FdStoreConfig storeConfig;
 
     private Logger logger = LoggerFactory.getLogger(KvServiceTest.class);
 
@@ -75,8 +77,8 @@ public class KvServiceTest {
 
     @Before
     public void resetKvStore() {
-        kvConfig.setStoreEnabled("true");
-        kvConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStoreEnabled("true");
+        storeConfig.setKvStore(Store.MEMORY);
     }
 
     @BeforeClass
@@ -103,36 +105,36 @@ public class KvServiceTest {
 
     @Test
     public void defaults_StoreEnabled() throws Exception {
-        assertEquals(Store.MEMORY, kvConfig.kvStore());
+        assertEquals(Store.MEMORY, storeConfig.kvStore());
 
     }
 
     @Test
     public void riak_JsonTest() throws Exception {
-        kvConfig.setKvStore(Store.RIAK);
+        storeConfig.setKvStore(Store.RIAK);
         kvMapTest();
-        kvConfig.setKvStore(Store.MEMORY);
+        storeConfig.setKvStore(Store.MEMORY);
     }
 
     @Test
     public void redis_JsonTest() throws Exception {
-        kvConfig.setKvStore(Store.REDIS);
+        storeConfig.setKvStore(Store.REDIS);
         kvMapTest();
-        kvConfig.setKvStore(Store.MEMORY);
+        storeConfig.setKvStore(Store.MEMORY);
     }
 
     @Test
     public void memory_JsonTest() throws Exception {
-        kvConfig.setKvStore(Store.MEMORY);
+        storeConfig.setKvStore(Store.MEMORY);
         kvMapTest();
     }
 
 
     @Test
     public void redis_AttachmentTest() throws Exception {
-        kvConfig.setKvStore(Store.REDIS);
+        storeConfig.setKvStore(Store.REDIS);
         kvAttachmentTest();
-        kvConfig.setKvStore(Store.MEMORY);
+        storeConfig.setKvStore(Store.MEMORY);
     }
 
 
@@ -195,8 +197,8 @@ public class KvServiceTest {
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
-            if (kvConfig.kvStore().equals(Store.RIAK)) {
-                logger.error("Silently passing. No what data to process for {}. KV store is not running", kvConfig.kvStore());
+            if (storeConfig.kvStore().equals(Store.RIAK)) {
+                logger.error("Silently passing. No what data to process for {}. KV store is not running", storeConfig.kvStore());
             } else {
                 logger.error("KV Error", e);
                 fail("Unexpected KV error");
@@ -281,7 +283,7 @@ public class KvServiceTest {
             assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
-            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", kvConfig.kvStore());
+            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeConfig.kvStore());
         }
     }
 

@@ -20,8 +20,8 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.TrackEventDao;
-import org.flockdata.model.Company;
 import org.flockdata.model.ChangeEvent;
+import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;

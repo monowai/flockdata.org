@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.dao;
 
-import org.flockdata.model.Profile;
-import org.flockdata.model.Fortress;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

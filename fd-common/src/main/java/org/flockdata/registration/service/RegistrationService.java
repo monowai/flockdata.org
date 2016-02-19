@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.authentication.registration.service;
+package org.flockdata.registration.service;
 
 
 import org.flockdata.helper.FlockException;

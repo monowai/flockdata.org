@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.model.EntityTag;
 import org.flockdata.model.EntityTagIn;
 import org.flockdata.model.EntityTagOut;
-import org.flockdata.model.EntityTag;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 

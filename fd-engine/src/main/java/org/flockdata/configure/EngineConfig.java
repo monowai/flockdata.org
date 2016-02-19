@@ -20,11 +20,11 @@
 package org.flockdata.configure;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.SearchPingRequest;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.store.Store;
 import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;

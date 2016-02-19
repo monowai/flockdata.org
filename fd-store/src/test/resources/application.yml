@@ -3,7 +3,6 @@
 spring:
   profiles:
     active: dev
-    include: fd-auth-none
 
 fd-store:
   system:

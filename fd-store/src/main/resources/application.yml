@@ -5,7 +5,6 @@ spring:
     name: fd-store
   profiles:
     active: production
-    include: fd-auth-none
 
 server:
   port:8082
