@@ -24,9 +24,9 @@ import javax.annotation.PostConstruct;
  */
 
 @Configuration
+@Profile({"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
-@Profile({"fd-auth-test"}) //
 public class AuthTesting extends WebSecurityConfigurerAdapter {
 
     @Configuration

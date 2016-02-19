@@ -19,8 +19,6 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.authentication.registration.service.CompanyService;
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.configure.ApiKeyInterceptor;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
@@ -28,6 +26,8 @@ import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FdRestNotFoundException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.registration.service.CompanyService;
+import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

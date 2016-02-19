@@ -19,7 +19,6 @@
 
 package org.flockdata.engine.query.endpoint;
 
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.helper.CompanyResolver;
@@ -27,6 +26,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
+import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.model.*;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.springframework.beans.factory.annotation.Autowired;

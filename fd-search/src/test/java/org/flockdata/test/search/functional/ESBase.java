@@ -68,7 +68,7 @@ import static org.junit.Assert.assertNotNull;
  * Time: 12:55 PM
  */
 @Component
-@ActiveProfiles({"dev", "fd-auth-none"})
+@ActiveProfiles({"dev", "fd-auth-test"})
 public class ESBase {
     private static Logger logger = LoggerFactory.getLogger(TestMappings.class);
 

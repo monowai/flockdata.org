@@ -20,7 +20,6 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
@@ -30,6 +29,7 @@ import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.track.EntityTagFinder;
 import org.flockdata.track.bean.ContentInputBean;

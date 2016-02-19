@@ -2,8 +2,8 @@ package org.flockdata.authentication.simple;
 
 import org.flockdata.authentication.UserProfile;
 import org.flockdata.authentication.UserProfileService;
-import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.service.SystemUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

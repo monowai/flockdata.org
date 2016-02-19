@@ -17,34 +17,20 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.authentication.registration.dao;
+package org.flockdata.registration.service;
 
-
-import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
-
-import java.util.Collection;
+import org.flockdata.registration.RegistrationBean;
 
 /**
- * Company represents a unique organisation who interacts with the system
- * API To abstract interactions with underlying implementations
- *
- * User: Mike Holdsworth
- * Date: 20/04/13
- * Time: 6:31 PM
+ * User: mike
+ * Date: 22/08/14
+ * Time: 9:46 AM
  */
-public interface CompanyDao {
-    Company update(Company systemUser);
+public interface SystemUserService {
+    SystemUser findByLogin(String userEmail);
 
-    Company findByPropertyValue(String property, Object value);
+    SystemUser findByApiKey(String apiKey);
 
-    SystemUser getAdminUser(Long companyId, String name);
-
-    Company create(String companyName, String uniqueKey);
-
-    Collection<Company> findCompanies(Long sysUserId);
-
-    Collection<Company> findCompanies(String userApiKey);
-
-    Company create(Company company);
+    SystemUser save(RegistrationBean regBean);
 }

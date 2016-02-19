@@ -21,9 +21,9 @@ package org.flockdata.engine.query.service;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.Company;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
-import org.flockdata.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

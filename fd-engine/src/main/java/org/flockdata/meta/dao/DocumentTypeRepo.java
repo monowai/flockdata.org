@@ -19,9 +19,9 @@
 
 package org.flockdata.meta.dao;
 
-import org.flockdata.model.TagLabel;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
+import org.flockdata.model.TagLabel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 

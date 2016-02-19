@@ -19,14 +19,14 @@
 
 package org.flockdata.meta.service;
 
-import org.flockdata.authentication.registration.service.KeyGenService;
-import org.flockdata.authentication.registration.service.SystemUserService;
 import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.dao.EntityDaoNeo;
 import org.flockdata.model.Company;
 import org.flockdata.model.Entity;
 import org.flockdata.model.SystemUser;
 import org.flockdata.model.TxRef;
+import org.flockdata.registration.service.KeyGenService;
+import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.track.bean.ContentInputBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,6 @@
 spring:
   profiles:
     active: production
-    include: fd-auth-none
 
 es:
   clustername: es_flockdata

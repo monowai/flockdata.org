@@ -19,9 +19,9 @@
 
 package org.flockdata.company.dao;
 
-import org.flockdata.authentication.registration.dao.CompanyDao;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
+import org.flockdata.registration.dao.CompanyDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

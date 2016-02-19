@@ -19,15 +19,12 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.track.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.annotation.Repeat;
 
@@ -46,11 +43,6 @@ import static org.junit.Assert.assertEquals;
 @EnableRetry
 public class TestTagDeadlock extends EngineBase {
 
-    @Autowired
-    EntityService entityService;
-
-    @Autowired
-    RegistrationService regService;
 
     @Override
     public void cleanUpGraph() {
