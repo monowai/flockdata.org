@@ -31,6 +31,7 @@ public class AuthTesting extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
+    @Profile({"fd-auth-test"}) //
     public static class ApiSecurity extends WebSecurityConfigurerAdapter {
 
         @Override
