@@ -26,6 +26,7 @@ import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntitySummaryBean;
+import org.flockdata.track.bean.EntityTagResult;
 import org.flockdata.track.bean.LogDetailBean;
 import org.flockdata.track.service.*;
 import org.slf4j.Logger;
@@ -37,10 +38,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Mike Holdsworth
@@ -172,34 +170,42 @@ public class EntityEP {
     @RequestMapping(value = "/{metaKey}/log/last/tags", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Collection<EntityTag> getLastLogTags(@PathVariable("metaKey") String metaKey,
+    Collection<EntityTagResult> getLastLogTags(@PathVariable("metaKey") String metaKey,
                                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.getLastLogTags(company, metaKey);
+        return convertTags(entityService.getLastLogTags(company, metaKey));
     }
 
 
     @RequestMapping(value = "/{metaKey}/log/{logId}/tags", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Collection<EntityTag> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
+    Collection<EntityTagResult> getLogTags(@PathVariable("metaKey") String metaKey, @PathVariable("logId") long logId,
                                      HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastchange
         EntityLog tl = entityService.getEntityLog(company, metaKey, logId);
-        return entityService.getLogTags(company, tl);
+        return convertTags(entityService.getLogTags(company, tl));
+    }
+
+    private Collection<EntityTagResult> convertTags(Collection<EntityTag> logTags) {
+        Collection<EntityTagResult>results = new ArrayList<>();
+        for (EntityTag logTag : logTags) {
+            results.add(new EntityTagResult(logTag));
+        }
+        return results;
     }
 
     @RequestMapping(value = "/{metaKey}/tags", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Collection<EntityTag> getEntityTags(@PathVariable("metaKey") String metaKey,
+    Collection<EntityTagResult> getEntityTags(@PathVariable("metaKey") String metaKey,
                                         HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         // curl -u mike:123 -X GET http://localhost:8081/fd-engine/track/{metaKey}
         Entity result = entityService.getEntity(company, metaKey);
-        return entityTagService.getEntityTags(result);
+        return convertTags(entityTagService.getEntityTags(result));
     }
 
 // ToDo: Fix this little lot. Move to a service and return the data from there. requires integration to fd-store

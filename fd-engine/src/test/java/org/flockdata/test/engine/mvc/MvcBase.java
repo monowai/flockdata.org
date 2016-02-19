@@ -61,6 +61,7 @@ public abstract class MvcBase {
     static final String apiRoot = "/api";
     static final String LOGIN_PATH = apiRoot + "/login";
     static final String apiPath = apiRoot+"/v1";
+    public static final String ANYCO = "anyco";
 
     public static String harry = "harry";
     public static String mike_admin = "mike";
@@ -94,9 +95,9 @@ public abstract class MvcBase {
         //           might be started giving you sporadic failures.
         neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
         neo4jTemplate.query("match (n) delete n", null);
-        suMike = ensureSystemUser("anyco", mike_admin);
-        suHarry = ensureSystemUser("anyco", harry);
-        suSally = ensureSystemUser("anyco", sally_admin);
+        suMike = makeProfile(ANYCO, mike_admin);
+        suHarry = makeProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
+        suSally = makeProfile(ANYCO, sally_admin);
         suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
     }
@@ -109,11 +110,12 @@ public abstract class MvcBase {
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
         cleanUpGraph();
+        engineConfig.setMultiTenanted(false);
 
     }
 
-    public SystemUserResultBean ensureSystemUser(String companyName, String accessUser) throws Exception {
-        return ensureSystemUser(mike(), companyName, accessUser);
+    public SystemUserResultBean makeProfile(String companyName, String accessUser) throws Exception {
+        return makeProfile(mike(), companyName, accessUser);
     }
 
     public MockMvc mvc() throws Exception{
@@ -135,7 +137,7 @@ public abstract class MvcBase {
     }
 
     public RequestPostProcessor harry() {
-        return user(harry).password("123").roles(FdRoles.FD_ADMIN, FdRoles.FD_USER);
+        return user(harry).password("123").roles( FdRoles.FD_USER);
     }
 
     static RequestPostProcessor noUser() {
@@ -197,20 +199,24 @@ public abstract class MvcBase {
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
     }
-    public SystemUserResultBean ensureSystemUser(RequestPostProcessor user, String company, String accessUser) throws Exception{
-        return ensureSystemUser(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
+    public SystemUserResultBean makeProfile(RequestPostProcessor user, String company, String accessUser) throws Exception{
+        return makeProfile(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
     }
 
-    public SystemUserResultBean ensureSystemUser(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
+    public SystemUserResultBean makeProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.post(apiPath +"/profiles/")
                         .content(JsonUtils.toJson( new RegistrationBean(company, accessUser)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(status).andReturn();
-        String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toObject(json.getBytes(), SystemUserResultBean.class);
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), SystemUserResultBean.class);
+        }
+        throw response.getResolvedException();
     }
 
 
@@ -387,7 +393,7 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<TagResultBean> getTags(String label, RequestPostProcessor user) throws Exception {
+    public Collection<TagResultBean> getTags(RequestPostProcessor user, String label) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/tag/" + label)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
@@ -441,18 +447,20 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<DocumentResultBean> getDocuments(String fortress) throws Exception {
+    public Collection<DocumentResultBean> getDocuments(RequestPostProcessor user, String fortress) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/doc/" + fortress)
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
         return JsonUtils.toCollection(json, DocumentResultBean.class);
     }
 
-    public Collection<ConceptResultBean> getLabelsForDocument(String code, String docResultName) throws Exception {
+    public Collection<ConceptResultBean> getLabelsForDocument(RequestPostProcessor user, String code, String docResultName) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/doc/" + code + "/" + docResultName)
                 .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
@@ -501,14 +509,14 @@ public abstract class MvcBase {
         ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
     }
 
-    public Collection<EntityTag> getEntityTags(RequestPostProcessor user, String metaKey) throws Exception{
+    public Collection<EntityTagResult> getEntityTags(RequestPostProcessor user, String metaKey) throws Exception{
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{metaKey}/tags", metaKey )
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toCollection(json, EntityTag.class);
+        return JsonUtils.toCollection(json, EntityTagResult.class);
     }
 
     public Collection<DocumentResultBean> makeDocuments(RequestPostProcessor user, MetaFortress fortress, Collection<DocumentTypeInputBean> docTypes) throws Exception {
@@ -535,7 +543,7 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<Map<String, TagResultBean>> getTagPaths(String label, String code, String targetLabel) throws Exception {
+    public Collection<Map<String, TagResultBean>> getTagPaths(RequestPostProcessor user, String label, String code, String targetLabel) throws Exception {
         label = URLEncoder.encode(label, "UTF-8");
         code = URLEncoder.encode(code, "UTF-8");
         targetLabel = URLEncoder.encode(targetLabel, "UTF-8");
@@ -544,6 +552,7 @@ public abstract class MvcBase {
                 .perform(
                         MockMvcRequestBuilders
                                 .get(apiPath +"/path/{label}/{code}/{depth}/{lastLabel}", label, code, "4", targetLabel)
+                                .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

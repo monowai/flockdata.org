@@ -259,10 +259,10 @@ public class TagWrangler {
         if (tagCode == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
-        String theLabel = TagHelper.suffixLabel(label, suffix);
+        String multiTennantedLabel = TagHelper.suffixLabel(label, suffix);
         String kp = resolveKeyPrefix(keyPrefix, suffix);
 
-        Tag tag = tagByKey(theLabel, kp, tagCode);
+        Tag tag = tagByKey(multiTennantedLabel, kp, tagCode);
         if (tag != null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
@@ -275,33 +275,33 @@ public class TagWrangler {
      * <p>
      * ToDo: A version to located by user defined AliasLabel
      *
-     * @param theLabel  Type of tag to look for
+     * @param multiTennantedLabel  Type of tag to look for
      * @param keyPrefix optional prefix that the Key might have
      * @param tagCode   mandatory value of the code
      * @return resolved tag
      */
-    private Tag tagByKey(String theLabel, String keyPrefix, String tagCode) {
+    private Tag tagByKey(String multiTennantedLabel, String keyPrefix, String tagCode) {
         if (keyPrefix != null && keyPrefix.contains(":"))
-            throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", theLabel, tagCode, keyPrefix));
+            throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", multiTennantedLabel, tagCode, keyPrefix));
         String tagKey = TagHelper.parseKey(keyPrefix, tagCode);
-        StopWatch watch = getWatch(theLabel + " / " + tagKey);
+        StopWatch watch = getWatch(multiTennantedLabel + " / " + tagKey);
 
         Collection<Tag> tags = tagRepo.findByKey(tagKey);
 
         if (tags.size() == 1) {
             Tag tag = tags.iterator().next();
-            if (tag.getLabel().equals(theLabel) || (theLabel.equals(Tag.DEFAULT_TAG) || theLabel.equals("_" + Tag.DEFAULT_TAG))) {
-                stopWatch(watch, theLabel, tagCode);
+            if (tag.getLabel().equals(multiTennantedLabel) || (multiTennantedLabel.equals(Tag.DEFAULT_TAG) || multiTennantedLabel.equals("_" + Tag.DEFAULT_TAG))) {
+                stopWatch(watch, multiTennantedLabel, tagCode);
                 return tag;
             }
         }
 
-        logger.trace("{} Not found by key {}", theLabel, tagKey);
+        logger.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
 
         // See if the tagKey is unique for the requested label
         Tag tResult = null;
         for (Tag tag : tags) {
-            if (tag.getLabel().equalsIgnoreCase(theLabel)) {
+            if (tag.getLabel().equalsIgnoreCase(multiTennantedLabel)) {
                 if (tResult == null) {
                     tResult = tag;
                 } else {
@@ -311,15 +311,15 @@ public class TagWrangler {
             }
         }
         if (tResult != null) {
-            stopWatch(watch, "byKey", theLabel, tagCode);
+            stopWatch(watch, "byKey", multiTennantedLabel, tagCode);
             return tResult;
         }
 
-        logger.trace("Locating by alias {}, {}", theLabel, tagCode);
+        logger.trace("Locating by alias {}, {}", multiTennantedLabel, tagCode);
 
         String query;
 
-        query = "match (:`" + theLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + theLabel + "`) return a";
+        query = "match (:`" + multiTennantedLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + multiTennantedLabel + "`) return a";
 
         Map<String, Object> params = new HashMap<>();
         params.put("tagKey", TagHelper.parseKey(tagCode));
@@ -340,9 +340,9 @@ public class TagWrangler {
 
         }
         if (tagResult == null)
-            logger.trace("Not found {}, {}", theLabel, tagCode);
+            logger.trace("Not found {}, {}", multiTennantedLabel, tagCode);
         else
-            stopWatch(watch, "byAlias", theLabel, tagCode);
+            stopWatch(watch, "byAlias", multiTennantedLabel, tagCode);
 
         return tagResult;
     }
