@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.IndexManager;
@@ -47,8 +48,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import redis.embedded.RedisServer;
 
 import java.io.File;
@@ -58,11 +70,13 @@ import java.util.Map;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdStore.class)
 @ActiveProfiles({"dev", "fd-auth-test"})
+@WebAppConfiguration
 public class StoreServiceTest {
 
 
@@ -71,6 +85,11 @@ public class StoreServiceTest {
 
     @Autowired
     IndexManager indexManager;
+
+    private MockMvc mockMvc;
+
+    @Autowired
+    WebApplicationContext wac;
 
     private Logger logger = LoggerFactory.getLogger(StoreServiceTest.class);
 
@@ -83,6 +102,10 @@ public class StoreServiceTest {
     public void resetKvStore() {
         storeConfig.setStoreEnabled("true");
         storeConfig.setStore(Store.MEMORY);
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(wac)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
     }
 
     @BeforeClass
@@ -181,12 +204,19 @@ public class StoreServiceTest {
         try {
             storeService.doWrite(storeBean);
 
+            String index = indexManager.parseIndex(storeToTest, entity);
+            String type = indexManager.parseType(entity);
+            Object key =  trackResultBean.getCurrentLog().getLog().getId();
             StoredContent contentResult = storeService.doRead(storeToTest,
-                            indexManager.parseIndex(storeToTest, entity),
-                            indexManager.parseType(entity),
-                            trackResultBean.getCurrentLog().getLog().getId() );
+                    index,
+                    type,
+                    key);
 
             validateContent("Validating result found via the service", contentResult);
+
+            contentResult = getContent(noUser(), storeToTest, index, type, key, MockMvcResultMatchers.status().isOk());
+            validateContent("Validating result found via Mock MVC", contentResult);
+
             // Testing that cancel works
             storeService.delete(entity, trackResultBean.getCurrentLog().getLog());
 
@@ -204,8 +234,8 @@ public class StoreServiceTest {
 
     private void validateContent(String failureMessage, StoredContent contentResult) throws InterruptedException {
         TestCase.assertNotNull(failureMessage, contentResult);
-        TestCase.assertNotNull(failureMessage+" - content was not found", contentResult.getContent());
-        TestCase.assertNotNull(failureMessage,contentResult.getContent().getMetaKey());
+        TestCase.assertNotNull(failureMessage + " - content was not found", contentResult.getContent());
+        TestCase.assertNotNull(failureMessage, contentResult.getContent().getMetaKey());
         TestCase.assertNotNull(failureMessage, contentResult.getContent().getCode());
         Map<String, Object> data = contentResult.getContent().getData();
         Thread.sleep(1500);
@@ -217,7 +247,6 @@ public class StoreServiceTest {
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
         assertEquals(failureMessage, json, contentResult.getData().get("utf-8"));
     }
-
 
     public static String getRandomJson() throws JsonProcessingException {
         return getRandomJson(null);
@@ -276,7 +305,7 @@ public class StoreServiceTest {
             StoredContent entityContent = storeService.doRead(storeToTest,
                     indexManager.parseIndex(storeToTest, entity),
                     indexManager.parseType(entity),
-                    trackResultBean.getCurrentLog().getLog().getId() );
+                    trackResultBean.getCurrentLog().getLog().getId());
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install
@@ -289,6 +318,19 @@ public class StoreServiceTest {
         }
     }
 
+    static RequestPostProcessor noUser() {
+        return user("noone");
+    }
+
+    private StoredContent getContent(RequestPostProcessor user, Store store, String index, String type, Object key, ResultMatcher status) throws Exception {
+        MvcResult response =mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/data/{store}/{index}/{type}/{key}", store.name(), index, type, key)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+        ).andExpect(status).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toObject(json.getBytes(), StorageBean.class);
+    }
 
 }
 

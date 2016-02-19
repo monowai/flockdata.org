@@ -46,13 +46,14 @@ public class RedisRepo extends AbstractStore {
 
     @Override
     public StoredContent read(String index, String type, Object id) {
-        byte[] bytes = template.opsForValue().get(id);
+        Long key = Long.decode(id.toString());
+        byte[] bytes = template.opsForValue().get(key);
 
         try {
             Object oResult = ObjectHelper.deserialize(bytes);
-            return getContent(id, oResult);
+            return getContent(key, oResult);
         } catch (ClassNotFoundException | IOException e) {
-            logger.error("Error extracting content for " + id, e);
+            logger.error("Error extracting content for " + key, e);
         }
         return null;
 
