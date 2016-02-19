@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("${fd-store.system.api:api}/v1/data")
-public class ContentEP {
+public class DataEP {
 
 
 }
