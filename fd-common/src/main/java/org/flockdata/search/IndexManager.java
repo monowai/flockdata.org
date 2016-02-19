@@ -5,6 +5,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.store.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Provides centralized access to the way that FD parses data for ElasticSearch indexes
+ * Provides centralized access to the way that FD handles Entity data for different
+ * databases
  * <p/>
  * Created by mike on 23/07/15.
  */
@@ -50,6 +52,28 @@ public class IndexManager {
         return typeSuffix;
     }
 
+    /**
+     *
+     * @param store   target datastore
+     * @param entity  object containing properties to parse
+     * @return fully qualified index
+     */
+    public String parseIndex(Store store, Entity entity) {
+        if (entity == null)
+            return null;
+
+        if ( store== Store.RIAK)
+            return parseBucket(entity);
+        else
+            return parseIndex(entity);
+    }
+
+    /**
+     * Default way of building an Index. Works for most database types including
+     * ElasticSearch
+     * @param entity properties
+     * @return parsed index
+     */
     public String parseIndex(Entity entity) {
         if (entity.getSegment().isDefault())
             return entity.getSegment().getFortress().getRootIndex() + getSuffix(entity);
@@ -58,6 +82,10 @@ public class IndexManager {
             index = index + "." + entity.getSegment().getCode().toLowerCase();
             return index;
         }
+    }
+
+    public String parseBucket(Entity entity) {
+        return (entity.getSegment().getKey()).toLowerCase();
     }
 
     /**
@@ -94,7 +122,7 @@ public class IndexManager {
     /**
      * Computes ES indexes, including wildcards, from the supplied query parameters
      *
-     * @param queryParams
+     * @param queryParams  Args holding parameters to use in the query
      * @return one index per doc type
      * @throws FlockException
      */
@@ -146,11 +174,11 @@ public class IndexManager {
         return results;
     }
 
-    public static String parseType(Entity entity) {
+    public String parseType(Entity entity) {
         return parseType(entity.getType());
     }
 
-    public static String parseType(String type) {
+    public String parseType(String type) {
         return type.toLowerCase();
     }
 

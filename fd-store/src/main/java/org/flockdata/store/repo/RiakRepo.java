@@ -32,9 +32,9 @@ import com.basho.riak.client.core.query.Namespace;
 import com.basho.riak.client.core.query.RiakObject;
 import com.basho.riak.client.core.util.BinaryValue;
 import org.flockdata.helper.ObjectHelper;
+import org.flockdata.search.IndexManager;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
 import org.flockdata.store.common.repos.AbstractStore;
 import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
@@ -54,17 +54,19 @@ public class RiakRepo extends AbstractStore {
     private static Logger logger = LoggerFactory.getLogger(RiakRepo.class);
     private RiakClient client = null;
     @Autowired
+    IndexManager indexManager;
+    @Autowired
     FdStoreConfig kvConfig;
 
     private RiakClient getClient() throws RiakException, UnknownHostException {
-        if (client!= null )
+        if (client != null)
             return client;
 
         RiakNode.Builder builder = new RiakNode.Builder();
         builder.withMinConnections(10);
         builder.withMaxConnections(50);
 
-        List<String> addresses = Arrays.asList( kvConfig.riakHosts().split("\\s*,\\s*"));
+        List<String> addresses = Arrays.asList(kvConfig.riakHosts().split("\\s*,\\s*"));
 
         List<RiakNode> nodes = RiakNode.Builder.buildNodes(builder, addresses);
         RiakCluster cluster = new RiakCluster.Builder(nodes).build();
@@ -73,12 +75,12 @@ public class RiakRepo extends AbstractStore {
         return client;
     }
 
-    public void add(StoreContent storeContent) throws IOException {
+    public void add(StoredContent storedContent) throws IOException {
         try {
-            Namespace ns = new Namespace(bucketType, storeContent.getBucket());
-            Location location = new Location(ns, storeContent.getId().toString());
+            Namespace ns = new Namespace(bucketType, indexManager.parseBucket (storedContent.getEntity()));
+            Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
-            byte[]bytes = ObjectHelper.serialize(storeContent.getContent());
+            byte[] bytes = ObjectHelper.serialize(storedContent.getContent());
             riakObject.setValue(BinaryValue.create(bytes));
             StoreValue store = new StoreValue.Builder(riakObject)
                     .withLocation(location)
@@ -86,7 +88,7 @@ public class RiakRepo extends AbstractStore {
             getClient().execute(store);
 
 
-        } catch (RiakException|UnknownHostException|ExecutionException|InterruptedException e) {
+        } catch (RiakException | UnknownHostException | ExecutionException | InterruptedException e) {
             if (client != null) {
                 client.shutdown();
                 client = null;
@@ -95,12 +97,11 @@ public class RiakRepo extends AbstractStore {
         }
     }
 
-    static final String bucketType = "default";
-
-    public StoreContent getValue(LogRequest logRequest) {
+    @Override
+    public StoredContent read(String index, String type, Object id) {
         try {
-            Namespace ns = new Namespace(bucketType, StoreBean.parseBucket(logRequest.getEntity()));
-            Location location = new Location(ns, logRequest.getLogId().toString());
+            Namespace ns = new Namespace(bucketType, index);
+            Location location = new Location(ns, id.toString());
             FetchValue fv = new FetchValue.Builder(location).build();
             FetchValue.Response response = getClient().execute(fv);
 
@@ -108,9 +109,9 @@ public class RiakRepo extends AbstractStore {
 
             if (result != null) {
                 Object oResult = ObjectHelper.deserialize(result.getValue().getValue());
-                return getContent(logRequest.getLogId(), oResult);
+                return getContent(id, oResult);
             }
-        } catch (InterruptedException|RiakException|ExecutionException|IOException|ClassNotFoundException e) {
+        } catch (InterruptedException | RiakException | ExecutionException | IOException | ClassNotFoundException e) {
             logger.error("KV Error", e);
             if (client != null) {
                 client.shutdown();
@@ -121,13 +122,20 @@ public class RiakRepo extends AbstractStore {
         return null;
     }
 
+    static final String bucketType = "default";
+
+    public StoredContent read(LogRequest logRequest) {
+        String index = indexManager.parseBucket(logRequest.getEntity());
+        return read(index, bucketType, logRequest.getLogId());
+    }
+
     public void delete(LogRequest logRequest) {
         try {
-            Namespace ns = new Namespace(bucketType, StoreBean.parseBucket(logRequest.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.parseBucket(logRequest.getEntity()));
             Location location = new Location(ns, logRequest.getLogId().toString());
             DeleteValue dv = new DeleteValue.Builder(location).build();
             getClient().execute(dv);
-        } catch (UnknownHostException|RiakException|InterruptedException|ExecutionException e) {
+        } catch (UnknownHostException | RiakException | InterruptedException | ExecutionException e) {
             logger.error("RIAK Repo Error", e);
             client.shutdown();
             client = null;

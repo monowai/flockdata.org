@@ -8,8 +8,8 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
-import org.flockdata.store.bean.StoreBean;
+import org.flockdata.store.StoredContent;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -35,16 +35,16 @@ public class FdStorageProxy implements StorageProxy {
 
     @Override
     public void write(TrackResultBean resultBean) {
-        storeWrite.doStoreWrite(new StoreBean(resultBean));
+        storeWrite.doStoreWrite(new StorageBean(resultBean));
     }
 
     @Override
-    public StoreContent read(Entity entity, Log log) {
+    public StoredContent read(Entity entity, Log log) {
         return read(new LogRequest(entity, log));
     }
 
     @Override
-    public StoreContent read(LogRequest logRequest) {
+    public StoredContent read(LogRequest logRequest) {
         return storeRead.read(logRequest);
     }
 
@@ -58,7 +58,7 @@ public class FdStorageProxy implements StorageProxy {
     @Override
     public boolean compare(Entity entity, Log existingLog, Log incomingLog) {
         LogRequest logRequest = new LogRequest(entity, existingLog);
-        StoreContent existingContent = read(logRequest);
+        StoredContent existingContent = read(logRequest);
 
         return existingContent != null && isSame(logRequest, incomingLog, existingContent);
 
@@ -69,7 +69,7 @@ public class FdStorageProxy implements StorageProxy {
      *
      * @return false if different, true if same
      */
-    boolean isSame(LogRequest logRequest, Log compareTo, StoreContent existingContent) {
+    boolean isSame(LogRequest logRequest, Log compareTo, StoredContent existingContent) {
         if (logRequest.getLogId()== null)
             return false;
 
@@ -86,7 +86,7 @@ public class FdStorageProxy implements StorageProxy {
         return compareFrom.equals(compareTo.getChecksum());
     }
 
-    private boolean sameJson(StoreContent compareFrom, StoreContent compareTo) {
+    private boolean sameJson(StoredContent compareFrom, StoredContent compareTo) {
 
         if (compareFrom.getData().size() != compareTo.getData().size())
             return false;

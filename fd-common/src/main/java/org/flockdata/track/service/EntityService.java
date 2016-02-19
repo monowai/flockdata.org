@@ -24,7 +24,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -48,7 +48,7 @@ public interface EntityService {
 
     public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
-    StoreContent getContent(Entity entity, Log change);
+    StoredContent getContent(Entity entity, Log change);
 
     @Deprecated
     Entity getEntity(@NotEmpty String metaKey);

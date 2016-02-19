@@ -22,7 +22,7 @@ package org.flockdata.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.store.Store;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.annotation.Transient;
@@ -226,13 +226,13 @@ public class Log  {
     }
 
     @Transient
-    private StoreContent content = null;
+    private StoredContent content = null;
 
     @JsonIgnore
-    public void setContent(StoreContent storeContent) {
-        this.content = storeContent;
-        if ( storeContent.getContent()!=null ){
-            this.profileVersion = storeContent.getContent().getpVer();
+    public void setContent(StoredContent storedContent) {
+        this.content = storedContent;
+        if ( storedContent.getContent()!=null ){
+            this.profileVersion = storedContent.getContent().getpVer();
         }
 
     }
@@ -242,7 +242,7 @@ public class Log  {
     }
 
     @JsonIgnore
-    public StoreContent getContent() {
+    public StoredContent getContent() {
         return content;
     }
 

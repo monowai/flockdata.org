@@ -21,9 +21,8 @@ package org.flockdata.store.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 
@@ -39,40 +38,36 @@ import java.util.zip.Checksum;
  * Date: 19/11/14
  * Time: 2:41 PM
  */
-public class StoreBean implements StoreContent, Serializable {
-    private Long id;
+public class StorageBean implements StoredContent, Serializable {
+    private Entity entity;
+    private Object id;
     private String checksum;
     private ContentInputBean content = null;
-    private String bucket = null;
     private String store;
 
-    private DocumentType documentType = null;
-
-    StoreBean() {
+    StorageBean() {
     }
 
-    public StoreBean(Long logId, Map<String, Object> oResult) {
+    public StorageBean(Object logId, Map<String, Object> oResult) {
         this(oResult);
         id = logId;
 
     }
 
-    public StoreBean(Map<String, Object> json) {
+    public StorageBean(Map<String, Object> json) {
         this.content = new ContentInputBean(json);
     }
 
-    public StoreBean(Long key, ContentInputBean content) {
+    public StorageBean(Object key, ContentInputBean content) {
         this();
         this.content = content;
         this.id = key;
     }
 
 
-    public StoreBean(TrackResultBean trackResultBean) {
+    public StorageBean(TrackResultBean trackResultBean) {
         this();
-        this.documentType = trackResultBean.getDocumentType();
-        this.bucket = parseBucket(trackResultBean.getEntity());
-
+        this.entity = trackResultBean.getEntity();
 
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
@@ -85,13 +80,6 @@ public class StoreBean implements StoreContent, Serializable {
                 content.setMetaKey(trackResultBean.getMetaKey());
             }
         }
-    }
-
-    public static String parseBucket(Entity entity) {
-        // ToDo: Figure this out - DAT-419
-        if (entity == null)
-            return null;
-        return (entity.getSegment().getKey()).toLowerCase();
     }
 
     public ContentInputBean getContent() {
@@ -137,29 +125,28 @@ public class StoreBean implements StoreContent, Serializable {
     }
 
     @Override
-    public Long getId() {
+    public Object getId() {
         return id;
-    }
-
-    @Override
-    public String getBucket() {
-        return bucket;
-    }
-
-    @Override
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
     }
 
     public String getStore() {
         return store;
     }
 
+
     public void setStore(String store) {
         this.store = store;
     }
 
-    public DocumentType getDocumentType() {
-        return documentType;
+    @Override
+    @JsonIgnore
+    public String getType() {
+        // Shorthand
+        return entity.getType();
+    }
+
+    @Override
+    public Entity getEntity(){
+        return entity;
     }
 }

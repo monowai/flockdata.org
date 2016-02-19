@@ -21,7 +21,7 @@ package org.flockdata.store.repo;
 
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoreContent;
+import org.flockdata.store.StoredContent;
 import org.flockdata.store.common.repos.AbstractStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,23 +36,30 @@ import java.util.Date;
 public class RedisRepo extends AbstractStore {
 
     @Autowired
-    private RedisTemplate<Long, byte[]> template;
+    private RedisTemplate<Object, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
-    public void add(StoreContent storeContent) throws IOException {
-        template.opsForValue().set(storeContent.getId(), ObjectHelper.serialize(storeContent.getContent()));
+    public void add(StoredContent storedContent) throws IOException {
+
+        template.opsForValue().set(storedContent.getId(), ObjectHelper.serialize(storedContent.getContent()));
     }
 
-    public StoreContent getValue(LogRequest logRequest) {
-        byte[] bytes = template.opsForValue().get(logRequest.getLogId());
+    @Override
+    public StoredContent read(String index, String type, Object id) {
+        byte[] bytes = template.opsForValue().get(id);
 
         try {
             Object oResult = ObjectHelper.deserialize(bytes);
-            return getContent(logRequest.getLogId(), oResult);
+            return getContent(id, oResult);
         } catch (ClassNotFoundException | IOException e) {
-            logger.error("Error extracting content for " + logRequest, e);
+            logger.error("Error extracting content for " + id, e);
         }
         return null;
+
+    }
+
+    public StoredContent read(LogRequest logRequest) {
+        return read ("", "", logRequest.getLogId());
     }
 
     public void delete(LogRequest logRequest) {

@@ -282,7 +282,7 @@ public class ESBase {
     }
 
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doQuery(indexHelper.parseIndex(entity), IndexManager.parseType(entity), queryString, expectedHitCount);
+        return doQuery(indexHelper.parseIndex(entity), indexHelper.parseType(entity), queryString, expectedHitCount);
     }
 
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
@@ -336,8 +336,6 @@ public class ESBase {
     }
 
     String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given AuditKey.
-        // Let's assert that
         int runCount = 0, nbrResult;
 
         JestResult result;
@@ -357,7 +355,7 @@ public class ESBase {
                     "}";
             Search search = new Search.Builder(query)
                     .addIndex(indexHelper.parseIndex(entity))
-                    .addType(IndexManager.parseType(entity))
+                    .addType(indexHelper.parseType(entity))
                     .build();
 
             result = esClient.execute(search);
@@ -369,7 +367,6 @@ public class ESBase {
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         } while (nbrResult != expectedHitCount && runCount < 5);
 
-        logger.debug("ran ES Field Query - result count {}, runCount {}", nbrResult, runCount);
         Assert.assertEquals("Unexpected hit count searching '" + indexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
