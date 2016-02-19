@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
+ * Register any additional Interceptors for fd-engine
  * Created by mike on 18/02/16.
  */
 @Configuration

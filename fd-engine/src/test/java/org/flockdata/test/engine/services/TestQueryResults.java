@@ -29,7 +29,6 @@ import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertFalse;
  * Date: 12/06/14
  * Time: 1:16 PM
  */
-@WebAppConfiguration
 public class TestQueryResults extends EngineBase {
     public static final String VEGETABLE = "Vegetable";
     public static final String FRUIT = "Fruit";

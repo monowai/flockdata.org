@@ -73,7 +73,7 @@ public class QueryService {
     @Autowired
     FdViewQuery.FdViewGateway fdViewQuery;
 
-    @Autowired
+    @Autowired (required = false)
     EsStoreRequest.ContentStoreEs esStore;
 
     public Collection<DocumentResultBean> getDocumentsInUse(Company abCompany, Collection<String> fortresses) throws FlockException {
