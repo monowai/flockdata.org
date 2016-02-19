@@ -171,12 +171,12 @@ public class TestVersioning extends EngineBase {
         Log log = new Log(entity);
 
         log = Store.prepareLog(engineConfig.store(), trackResult, log);
-        assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStorage() );
+        assertEquals("Store should be set to that of the fortress", Store.NONE.name(), log.getContent().getStore() );
 
         entity.getFortress().setStoreEnabled(true);
         log = Store.prepareLog(engineConfig.store(), trackResult, log);
         // Falls back to the system default
-        assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStorage() );
+        assertEquals("Store should be set to the system default", Store.MEMORY.name(), log.getContent().getStore() );
 
 
     }

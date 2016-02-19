@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
-import org.flockdata.store.KvContent;
+import org.flockdata.store.StoreContent;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 
@@ -39,36 +39,36 @@ import java.util.zip.Checksum;
  * Date: 19/11/14
  * Time: 2:41 PM
  */
-public class KvContentBean implements KvContent, Serializable {
+public class StoreBean implements StoreContent, Serializable {
     private Long id;
     private String checksum;
     private ContentInputBean content = null;
     private String bucket = null;
-    private String storage;
+    private String store;
 
     private DocumentType documentType = null;
 
-    KvContentBean() {
+    StoreBean() {
     }
 
-    public KvContentBean(Long logId, Map<String, Object> oResult) {
+    public StoreBean(Long logId, Map<String, Object> oResult) {
         this(oResult);
         id = logId;
 
     }
 
-    public KvContentBean(Map<String, Object> json) {
+    public StoreBean(Map<String, Object> json) {
         this.content = new ContentInputBean(json);
     }
 
-    public KvContentBean(Long key, ContentInputBean content) {
+    public StoreBean(Long key, ContentInputBean content) {
         this();
         this.content = content;
         this.id = key;
     }
 
 
-    public KvContentBean(TrackResultBean trackResultBean) {
+    public StoreBean(TrackResultBean trackResultBean) {
         this();
         this.documentType = trackResultBean.getDocumentType();
         this.bucket = parseBucket(trackResultBean.getEntity());
@@ -77,7 +77,7 @@ public class KvContentBean implements KvContent, Serializable {
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();
-                this.storage = trackResultBean.getCurrentLog().getLog().getStorage();
+                this.store = trackResultBean.getCurrentLog().getLog().getStorage();
             }
             this.content = trackResultBean.getContentInput();
             if (this.content != null) {
@@ -151,12 +151,12 @@ public class KvContentBean implements KvContent, Serializable {
         this.bucket = bucket;
     }
 
-    public String getStorage() {
-        return storage;
+    public String getStore() {
+        return store;
     }
 
-    public void setStorage(String storage) {
-        this.storage = storage;
+    public void setStore(String store) {
+        this.store = store;
     }
 
     public DocumentType getDocumentType() {

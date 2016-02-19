@@ -21,8 +21,8 @@ package org.flockdata.store.common.repos;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import org.flockdata.store.KvContent;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.track.bean.ContentInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,18 +46,18 @@ public abstract class AbstractStore implements FdStoreRepo {
         } catch (UnrecognizedPropertyException upe) {
             // Stored as a map
             Map<String, Object> result = objectMapper.readValue(base64Json, HashMap.class);
-            return new KvContentBean(result).getContent();
+            return new StoreBean(result).getContent();
         }
 
     }
 
-    protected KvContent getKvContent(Long logId, Object oResult) {
+    protected StoreContent getContent(Long logId, Object oResult) {
         if ( oResult == null )
             return null;
         if (oResult instanceof ContentInputBean)
-            return new KvContentBean(logId, (ContentInputBean)oResult );
+            return new StoreBean(logId, (ContentInputBean)oResult );
         else if ( oResult instanceof Map)
-            return new KvContentBean(logId, (Map<String, Object>) oResult);
+            return new StoreBean(logId, (Map<String, Object>) oResult);
         else {
             logger.error("Unable to handle object result " + oResult.getClass().getCanonicalName());
             return null;

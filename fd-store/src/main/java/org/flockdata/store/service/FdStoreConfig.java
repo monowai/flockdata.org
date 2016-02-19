@@ -34,14 +34,14 @@ public interface FdStoreConfig {
     /**
      * Sets the KV store to use for ContentInputBeans
      *
-     * @param kvStore kvStore to use
-     * @return the previous value of the kvStore
+     * @param store store to use
+     * @return the previous value of the store
      */
-    Store setKvStore(Store kvStore);
+    Store setStore(Store store);
 
-    void setKvStore(String kvStore);
+    void setStore(String store);
 
-    Store kvStore();
+    Store store();
 
     Map<String, String> health();
 

@@ -29,7 +29,7 @@ import java.util.Map;
  * Date: 17/09/14
  * Time: 1:01 PM
  */
-public interface KvContent {
+public interface StoreContent {
 
     String getAttachment();
 
@@ -49,7 +49,7 @@ public interface KvContent {
 
     ContentInputBean getContent();
 
-    void setStorage(String storage);
+    void setStore(String store);
 
-    String getStorage();
+    String getStore();
 }

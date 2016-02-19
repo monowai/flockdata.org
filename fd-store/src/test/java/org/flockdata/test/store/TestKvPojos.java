@@ -7,7 +7,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -48,10 +48,10 @@ public class TestKvPojos {
         // Wrap the entity in a Track Result
         // TrackResultBean represents the general accumulated payload
         TrackResultBean trackResultBean = new TrackResultBean(fort, entity, documentType, entityInputBean);
-        KvContentBean kvContentBean = new KvContentBean(trackResultBean);
+        StoreBean storeBean = new StoreBean(trackResultBean);
 
-        byte[] bytes =JsonUtils.toJsonBytes(kvContentBean);
-        KvContentBean deserializedBean = JsonUtils.toObject(bytes, KvContentBean.class);
+        byte[] bytes =JsonUtils.toJsonBytes(storeBean);
+        StoreBean deserializedBean = JsonUtils.toObject(bytes, StoreBean.class);
         TestCase.assertNotNull(deserializedBean);
         assertNull("Not handling a null fortress name ", Fortress.code(null));
     }

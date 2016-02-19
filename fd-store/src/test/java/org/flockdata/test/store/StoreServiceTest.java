@@ -25,10 +25,10 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.FdStore;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.StoreService;
 import org.flockdata.test.helper.EntityContentHelper;
@@ -78,7 +78,7 @@ public class StoreServiceTest {
     @Before
     public void resetKvStore() {
         storeConfig.setStoreEnabled("true");
-        storeConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStore(Store.MEMORY);
     }
 
     @BeforeClass
@@ -105,36 +105,36 @@ public class StoreServiceTest {
 
     @Test
     public void defaults_StoreEnabled() throws Exception {
-        assertEquals(Store.MEMORY, storeConfig.kvStore());
+        assertEquals(Store.MEMORY, storeConfig.store());
 
     }
 
     @Test
     public void riak_JsonTest() throws Exception {
-        storeConfig.setKvStore(Store.RIAK);
+        storeConfig.setStore(Store.RIAK);
         kvMapTest();
-        storeConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStore(Store.MEMORY);
     }
 
     @Test
     public void redis_JsonTest() throws Exception {
-        storeConfig.setKvStore(Store.REDIS);
+        storeConfig.setStore(Store.REDIS);
         kvMapTest();
-        storeConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStore(Store.MEMORY);
     }
 
     @Test
     public void memory_JsonTest() throws Exception {
-        storeConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStore(Store.MEMORY);
         kvMapTest();
     }
 
 
     @Test
     public void redis_AttachmentTest() throws Exception {
-        storeConfig.setKvStore(Store.REDIS);
+        storeConfig.setStore(Store.REDIS);
         kvAttachmentTest();
-        storeConfig.setKvStore(Store.MEMORY);
+        storeConfig.setStore(Store.MEMORY);
     }
 
 
@@ -169,36 +169,36 @@ public class StoreServiceTest {
 
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
-        graphLog = storeService.prepareLog(trackResultBean, graphLog);
+        graphLog = Store.prepareLog(Store.MEMORY, trackResultBean, graphLog);
         // Graph tracks which KVService is storing this content
         EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
 
         // Wrap the log result in to the TrackResult
         trackResultBean.setCurrentLog(eLog);
 
-        KvContentBean kvContentBean = new KvContentBean(trackResultBean);
-        kvContentBean.setStorage(graphLog.getStorage());
+        StoreBean storeBean = new StoreBean(trackResultBean);
+        storeBean.setStore(graphLog.getStorage());
         // RIAK requires a bucket. Other KV stores do not.
-        assertNotNull(kvContentBean.getBucket());
+        assertNotNull(storeBean.getBucket());
 
         // Finally! the actual write occurs
         try {
-            storeService.doWrite(kvContentBean);
+            storeService.doWrite(storeBean);
 
             // Retrieve the content we just created
-            KvContent kvContent = storeService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
-            assertNotNull(kvContent);
-            assertNotNull(kvContent.getContent().getMetaKey());
-            assertNotNull(kvContent.getContent().getCode());
+            StoreContent storeContent = storeService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
+            assertNotNull(storeContent);
+            assertNotNull(storeContent.getContent().getMetaKey());
+            assertNotNull(storeContent.getContent().getCode());
 
-            validateWhat(what, kvContent);
+            validateWhat(what, storeContent);
             // Testing that cancel works
             storeService.delete(entity, trackResultBean.getCurrentLog().getLog());
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
-            if (storeConfig.kvStore().equals(Store.RIAK)) {
-                logger.error("Silently passing. No what data to process for {}. KV store is not running", storeConfig.kvStore());
+            if (storeConfig.store().equals(Store.RIAK)) {
+                logger.error("Silently passing. No what data to process for {}. KV store is not running", storeConfig.store());
             } else {
                 logger.error("KV Error", e);
                 fail("Unexpected KV error");
@@ -207,15 +207,15 @@ public class StoreServiceTest {
         }
     }
 
-    private void validateWhat(Map<String, Object> what, KvContent kvContent) throws InterruptedException {
+    private void validateWhat(Map<String, Object> what, StoreContent storeContent) throws InterruptedException {
         Thread.sleep(1500);
-        assertEquals(what.get("sval"), kvContent.getData().get("sval"));
-        assertEquals(what.get("lval"), kvContent.getData().get("lval"));
-        assertEquals(what.get("dval"), kvContent.getData().get("dval"));
-        assertEquals(what.get("ival"), kvContent.getData().get("ival"));
-        assertEquals(what.get("bval"), kvContent.getData().get("bval"));
+        assertEquals(what.get("sval"), storeContent.getData().get("sval"));
+        assertEquals(what.get("lval"), storeContent.getData().get("lval"));
+        assertEquals(what.get("dval"), storeContent.getData().get("dval"));
+        assertEquals(what.get("ival"), storeContent.getData().get("ival"));
+        assertEquals(what.get("bval"), storeContent.getData().get("bval"));
         String json = "{\"Athlete\":\"Katerina Neumannová\",\"Age\":\"28\",\"Country\":\"Czech Republic\",\"Year\":\"2002\",\"Closing Ceremony Date\":\"2/24/02\",\"Sport\":\"Cross Country Skiing\",\"Gold Medals\":\"0\",\"Silver Medals\":\"2\",\"Bronze Medals\":\"0\",\"Total Medals\":\"2\"}";
-        assertEquals(json, kvContent.getData().get("utf-8"));
+        assertEquals(json, storeContent.getData().get("utf-8"));
     }
 
 
@@ -271,10 +271,10 @@ public class StoreServiceTest {
 
         try {
             TrackResultBean tr = new TrackResultBean(null, entity, documentType, inputBean);
-            KvContentBean kvContentBean = new KvContentBean(tr);
-            storeService.doWrite( kvContentBean);
+            StoreBean storeBean = new StoreBean(tr);
+            storeService.doWrite(storeBean);
             EntityLog entityLog = tr.getCurrentLog();
-            KvContent entityContent = storeService.getContent(new LogRequest(entity, entityLog.getLog()));
+            StoreContent entityContent = storeService.getContent(new LogRequest(entity, entityLog.getLog()));
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install
@@ -283,7 +283,7 @@ public class StoreServiceTest {
             assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
-            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeConfig.kvStore());
+            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeConfig.store());
         }
     }
 

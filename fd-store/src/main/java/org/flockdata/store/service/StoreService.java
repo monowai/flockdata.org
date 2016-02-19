@@ -22,12 +22,10 @@ package org.flockdata.store.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
-import org.flockdata.store.bean.KvContentBean;
-import org.flockdata.track.bean.TrackResultBean;
-
-import java.io.IOException;
+import org.flockdata.store.Store;
+import org.flockdata.store.StoreContent;
+import org.flockdata.store.bean.StoreBean;
 
 /**
  * User: mike
@@ -35,16 +33,12 @@ import java.io.IOException;
  * Time: 12:07 PM
  */
 public interface StoreService {
-    String ping();
+    String ping(Store store);
 
-    void purge(String indexName);
-
-    Log prepareLog(TrackResultBean content, Log log) throws IOException;
-
-    KvContent getContent(LogRequest logRequest);
+    StoreContent getContent(LogRequest logRequest);
 
     void delete(Entity entity, Log change);
 
-    void doWrite( KvContentBean kvBean) throws FlockException;
+    void doWrite( StoreBean kvBean) throws FlockException;
 
 }

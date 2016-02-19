@@ -4,7 +4,7 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Entity;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.Log;
-import org.flockdata.store.bean.KvContentBean;
+import org.flockdata.store.bean.StoreBean;
 import org.flockdata.track.bean.TrackResultBean;
 
 import java.io.IOException;
@@ -18,11 +18,11 @@ public enum Store {
 
     public static Log prepareLog (Store defaultStore, TrackResultBean trackResult, Log log) throws IOException {
         Store storage = resolveStore(trackResult, defaultStore);
-        KvContent kvContent = new KvContentBean(log.getId(), trackResult.getContentInput());
-        kvContent.setStorage(storage.name());
+        StoreContent storeContent = new StoreBean(log.getId(), trackResult.getContentInput());
+        storeContent.setStore(storage.name());
         log.setStorage(storage.name());
-        log.setChecksum(kvContent.getChecksum());
-        log.setContent(kvContent);
+        log.setChecksum(storeContent.getChecksum());
+        log.setContent(storeContent);
         return log;
     }
 

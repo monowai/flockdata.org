@@ -20,8 +20,8 @@
 package org.flockdata.store.repo;
 
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.store.KvContent;
 import org.flockdata.store.LogRequest;
+import org.flockdata.store.StoreContent;
 import org.flockdata.store.common.repos.AbstractStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +39,16 @@ public class RedisRepo extends AbstractStore {
     private RedisTemplate<Long, byte[]> template;
     private static Logger logger = LoggerFactory.getLogger(AbstractStore.class);
 
-    public void add(KvContent kvContent) throws IOException {
-        template.opsForValue().set(kvContent.getId(), ObjectHelper.serialize(kvContent.getContent()));
+    public void add(StoreContent storeContent) throws IOException {
+        template.opsForValue().set(storeContent.getId(), ObjectHelper.serialize(storeContent.getContent()));
     }
 
-    public KvContent getValue(LogRequest logRequest) {
+    public StoreContent getValue(LogRequest logRequest) {
         byte[] bytes = template.opsForValue().get(logRequest.getLogId());
 
         try {
             Object oResult = ObjectHelper.deserialize(bytes);
-            return getKvContent(logRequest.getLogId(), oResult);
+            return getContent(logRequest.getLogId(), oResult);
         } catch (ClassNotFoundException | IOException e) {
             logger.error("Error extracting content for " + logRequest, e);
         }

@@ -8,9 +8,9 @@
 #fd-search.url: http://fd-search:8081
 
 # Default value for new fortresses being created.
-# If storage in the fortress is false, then only current state data is stored
+# If store in the fortress is false, then only current state data is stored
 # i.e. no history
-# You can update an existing fortress and set it's storage property to false/true to
+# You can update an existing fortress and set it's store property to false/true to
 # disable/enable KV versions
 spring:
   profiles:
