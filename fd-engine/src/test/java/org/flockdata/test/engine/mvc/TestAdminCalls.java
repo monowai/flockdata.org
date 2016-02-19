@@ -22,7 +22,6 @@ package org.flockdata.test.engine.mvc;
 import org.flockdata.configure.ApiKeyInterceptor;
 import org.junit.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -35,19 +34,15 @@ import static org.junit.Assert.*;
  * Date: 19/05/14
  * Time: 3:46 PM
  */
-@WebAppConfiguration
-public class TestAdminCalls extends WacBase {
+public class TestAdminCalls extends MvcBase {
 
 
     @Test
     public void testPing() throws Exception {
-        setSecurity();
-        String result = adminPing(noUser());
+        String result = authPing(mike(), MockMvcResultMatchers.status().isOk());
         assertTrue("pong".equalsIgnoreCase(result));
         setSecurityEmpty(); // Unsecured should not work
-        result = ping();
-        assertNotNull ( result);
-        assertTrue(result.contains("Authentication is required"));
+        authPing(noUser(), MockMvcResultMatchers.status().isUnauthorized());
     }
 
     /**
@@ -60,10 +55,9 @@ public class TestAdminCalls extends WacBase {
     public void authPing() throws Exception {
 
         setSecurityEmpty(); // Unsecured should fail
-        String result = adminPing(noUser());
-        assertFalse(result.contains("Pong"));
-        registerSystemUser("TestCo", mike_admin);
-        result = adminPing(mike());
+        String result = authPing(noUser(), MockMvcResultMatchers.status().isUnauthorized());
+        assertFalse(result.contains("pong"));
+        result = authPing(mike(), MockMvcResultMatchers.status().isOk());
         assertEquals("pong", result);
 
     }
@@ -71,7 +65,7 @@ public class TestAdminCalls extends WacBase {
     @Test
     public void auth_Health() throws Exception {
         setSecurityEmpty();
-        mvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
+        mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
 
     }
@@ -92,7 +86,7 @@ public class TestAdminCalls extends WacBase {
 
         setSecurityEmpty();
 
-        mvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
+        mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         setSecurity();
@@ -103,7 +97,7 @@ public class TestAdminCalls extends WacBase {
         assertFalse("The user has no AUTH credentials but a valid APIKey - this should pass", results.isEmpty());
 
         // Hacking with an invalid API Key. Should fail
-        mvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath+"/admin/health/")
+        mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();

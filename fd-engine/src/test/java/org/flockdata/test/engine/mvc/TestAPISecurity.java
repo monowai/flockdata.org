@@ -20,17 +20,18 @@
 package org.flockdata.test.engine.mvc;
 
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@WebAppConfiguration
-public class TestAPISecurity extends WacBase {
+public class TestAPISecurity extends MvcBase {
 
     @Test
     public void invokeSecureAPIWithoutAPIKey_shouldThrowError()
             throws Exception {
-        mvc().perform(MockMvcRequestBuilders.get(WacBase.apiPath + "/fortress/"))
+        mvc().perform(MockMvcRequestBuilders
+                .get(MvcBase.apiPath + "/fortress/")
+                .with(noUser()))
+
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andReturn();
     }
@@ -38,14 +39,14 @@ public class TestAPISecurity extends WacBase {
     @Test
     public void invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk()
             throws Exception {
-        registerSystemUser("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
-        setSecurityEmpty();
-
-        login(sally_admin, "123");
+        ensureSystemUser("invokeSecureAPIWithoutAPIKeyButAfterValidLogin_shouldReturnOk", sally_admin);
 
         mvc()
                 .perform(MockMvcRequestBuilders
-                        .get(WacBase.apiPath + "/fortress/"))
+                        .get(MvcBase.apiPath + "/fortress/")
+                        .with(sally())
+                )
+
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     }
 
@@ -55,7 +56,7 @@ public class TestAPISecurity extends WacBase {
         setSecurityEmpty();
 
         mvc().perform(
-                MockMvcRequestBuilders.get(WacBase.apiPath + "/fortress/").header("api-key",
+                MockMvcRequestBuilders.get(MvcBase.apiPath + "/fortress/").header("api-key",
                         apikey)
                         .with(noUser()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

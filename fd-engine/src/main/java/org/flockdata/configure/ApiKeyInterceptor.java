@@ -19,13 +19,11 @@
 
 package org.flockdata.configure;
 
-import org.flockdata.engine.PlatformConfig;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -44,19 +42,19 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     @Autowired
     private SecurityHelper securityHelper;
 
-    @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+//    @Autowired
+//    @Qualifier("engineConfig")
+//    PlatformConfig engineConfig;
 
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
         String apiKey = request.getHeader(API_KEY);
 
-        if ( apiKey == null || apiKey.equals("") ||apiKey.equals("{{api-key}}")) {
+        if (noApiKey(apiKey)) {
             // This has nothing to do with us
-            if (request.getRequestURL().toString().contains(engineConfig.apiBase()+"/v1")) {
-
+            if (isCompanyLookupUrl(request)) {
+                // Resolve the user from the currently logged in user
                 SystemUser su = securityHelper.getSysUser(false);
                 if (su != null) {
                     if (su.getCompany() != null) {
@@ -64,13 +62,14 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                         request.setAttribute(API_KEY, su.getApiKey());
                         return true;
                     }
-                }
+                } // Fall through to Forbidden
+
             } else {
-                return true; // Nothing to attempt to resolve
+                return true; // No APIKey, no data access request; not our problem
             }
         } else {
             // Attempting to authenticate via the api secret
-        	logger.trace("Identifying company from api-key supplied in request HttpHeader" );
+            logger.trace("Identifying company from api-key supplied in request HttpHeader");
             Company company = securityHelper.getCompany(apiKey);
             if (company != null) {
                 request.setAttribute(COMPANY, company);
@@ -78,11 +77,27 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-        response.setContentType( MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         //response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
-        //throw new SecurityException("Authentication is required to access this service");
-        return false;
+        throw new SecurityException("Authentication is required to access this service");
+        //return false;
+    }
+
+    private boolean isCompanyLookupUrl(HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        return url.contains("/api/v1/company")
+                || url.contains("/api/v1/track")
+                || url.contains("/api/v1/entity")
+                || url.contains("/api/v1/fortress")
+                || url.contains("/api/v1/tag")
+                || url.contains("/api/v1/doc")
+                || url.contains("/api/v1/geo")
+                ;
+    }
+
+    private boolean noApiKey(String apiKey) {
+        return (apiKey == null || apiKey.equals("") || apiKey.equals("{{api-key}}"));
     }
 
     @Override
@@ -99,24 +114,22 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     /**
      * API key precedence
-     *
+     * <p>
      * User: mike
      * Date: 15/03/14
      * Time: 11:51 AM
      */
     public static class ApiKeyHelper {
         /**
-         *
          * api key in the HttpHeader overrides one in the request
          *
-         *
-         * @param headerKey    headerKey
+         * @param headerKey  headerKey
          * @param requestKey requestKey
          * @return null or param.
          */
-        public static String resolveKey(String headerKey, String requestKey){
+        public static String resolveKey(String headerKey, String requestKey) {
             String key = requestKey;
-            if (headerKey !=null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
+            if (headerKey != null && (headerKey.startsWith("{{") && headerKey.endsWith("}}"))) // Postman "not-set" value
                 headerKey = null;
             if (headerKey != null)
                 key = headerKey;

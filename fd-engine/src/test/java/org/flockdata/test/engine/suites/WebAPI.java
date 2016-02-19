@@ -33,11 +33,12 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        TestEndPoints.class,
+        TestTrackEP.class,
         TestNeoRestInterface.class,
         TestAuthenticationEP.class,
         TestAdminCalls.class,
         TestAPISecurity.class,
+        TestFortressEP.class,
         TestApiKeyHelper.class,
         TestProfileRegistration.class,
         TestApiKeyInterceptor.class,
@@ -45,7 +46,7 @@ import org.junit.runners.Suite;
         TestTagEP.class,
         TestCompanyEP.class
 })
-public class WebServices {
-    public WebServices() {
+public class WebAPI {
+    public WebAPI() {
     }
 }

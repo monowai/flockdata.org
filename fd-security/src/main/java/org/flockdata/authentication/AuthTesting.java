@@ -35,12 +35,12 @@ public class AuthTesting extends WebSecurityConfigurerAdapter {
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            // Security in FD take place at the service level.
+            // Security in FD take place at the service level so acess to all endpoints is granted
             // ApiKeyInterceptor is a part of the auth chain
 
             http.authorizeRequests()
                 .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                .antMatchers("/api/v1/**").authenticated()
+                .antMatchers("/api/v1/**").permitAll()
                     .antMatchers("/").permitAll()
             ;
 

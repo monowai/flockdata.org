@@ -33,17 +33,17 @@ class EntityResultBean {
     private ContentInputBean contentInputBean;
 
 
-    public EntityResultBean(ContentInputBean contentInputBean) {
+    EntityResultBean(ContentInputBean contentInputBean) {
         this.contentInputBean = contentInputBean;
     }
 
-    public String getMetaKey() {
+    String getMetaKey() {
         if (contentInputBean != null)
             return contentInputBean.getMetaKey();
         return null;
     }
 
-    public Object getResult() {
+    Object getResult() {
         return contentInputBean;
     }
 }

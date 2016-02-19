@@ -24,7 +24,7 @@ import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.junit.Test;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collection;
 import java.util.Map;
@@ -32,8 +32,7 @@ import java.util.Map;
 /**
  * Created by mike on 31/05/15.
  */
-@WebAppConfiguration
-public class TestTagEP extends WacBase {
+public class TestTagEP extends MvcBase {
 
 
     @Test
@@ -79,11 +78,11 @@ public class TestTagEP extends WacBase {
         Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
         TestCase.assertNotNull(tagResultBean);
         TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
-        tagResultBean = getTag(mike(), thingTag.getLabel(), "This/That");
+        tagResultBean = getTag(mike(), thingTag.getLabel(), "This/That", MockMvcResultMatchers.status().isOk());
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -124,11 +123,11 @@ public class TestTagEP extends WacBase {
         Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()));
+        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), TagHelper.parseKey(thingTag.getCode()), MockMvcResultMatchers.status().isOk());
         TestCase.assertNotNull(tagResultBean);
         TestCase.assertEquals("The / should have been converted to - in order to be found", thingTag.getCode(), tagResultBean.getCode());
 
-        tagResultBean = getTag(mike(), thingTag.getLabel(), "This That");
+        tagResultBean = getTag(mike(), thingTag.getLabel(), "This That", MockMvcResultMatchers.status().isOk());
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -147,7 +146,7 @@ public class TestTagEP extends WacBase {
         Collection<TagResultBean> targetTags = getTags(thingTag.getLabel(), mike());
         TestCase.assertEquals(1, targetTags.size());
 
-        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), "1% Increase");
+        TagResultBean tagResultBean = getTag(mike(), thingTag.getLabel(), "1% Increase", MockMvcResultMatchers.status().isOk());
         TestCase.assertNotNull ( tagResultBean);
         TestCase.assertEquals("Couldn't find by escape code", thingTag.getCode(), tagResultBean.getCode());
 
@@ -156,7 +155,7 @@ public class TestTagEP extends WacBase {
     @Test
     public void notFound_Tag() throws Exception {
 
-        registerSystemUser("nf_tags", "mike");
+        ensureSystemUser("nf_tags", "mike");
         engineConfig.setConceptsEnabled("true");
 
         // DAT-526

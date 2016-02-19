@@ -24,10 +24,7 @@ import org.flockdata.authentication.LoginRequest;
 import org.flockdata.authentication.UserProfile;
 import org.flockdata.helper.JsonUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -37,9 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebAppConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
-public class TestAuthenticationEP extends WacBase{
+public class TestAuthenticationEP extends MvcBase {
 
     @Test
     public void validUserPassword_ShouldReturnUserProfile() throws Exception {
@@ -50,7 +45,7 @@ public class TestAuthenticationEP extends WacBase{
 
         MvcResult response = mvc()
                 .perform(
-                        MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
+                        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.toJson(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -68,7 +63,7 @@ public class TestAuthenticationEP extends WacBase{
         loginReq.setPassword("1234");
 
         mvc().perform(
-                MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
+                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.toJson(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -79,17 +74,19 @@ public class TestAuthenticationEP extends WacBase{
     @Test
     public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
         // As per the entry in test-security.xml
+        cleanUpGraph();
         LoginRequest loginReq = new LoginRequest();
         loginReq.setUsername("mike");
         loginReq.setPassword("123");
 
         MvcResult response = mvc()
                 .perform(
-                        MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
+                        MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.toJson(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.userRoles", hasSize(2))).andReturn();
+                .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
+        // FD_USER, FD_ADMIN & USER
 
         UserProfile userProfile = JsonUtils.toObject(response
                 .getResponse().getContentAsByteArray(), UserProfile.class);
@@ -106,7 +103,7 @@ public class TestAuthenticationEP extends WacBase{
         loginReq.setPassword("123");
 
         mvc().perform(
-                MockMvcRequestBuilders.post(WacBase.LOGIN_PATH)
+                MockMvcRequestBuilders.post(MvcBase.LOGIN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtils.toJson(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk())

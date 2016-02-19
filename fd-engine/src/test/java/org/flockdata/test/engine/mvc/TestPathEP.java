@@ -5,7 +5,7 @@ import org.flockdata.helper.TagHelper;
 import org.flockdata.registration.TagInputBean;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
@@ -15,8 +15,7 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Created by mike on 28/12/15.
  */
-@WebAppConfiguration
-public class TestPathEP extends WacBase {
+public class TestPathEP extends MvcBase {
     @Autowired
     WebApplicationContext wac;
 
@@ -55,7 +54,7 @@ public class TestPathEP extends WacBase {
         assertEquals(2, paths.size());
 
         String code = TagHelper.parseKey(division.getKeyPrefix(), division.getCode());
-        TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", getTag(mike(), "Division", code));
+        TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", getTag(mike(), "Division", code, MockMvcResultMatchers.status().isOk()));
         paths = getTagPaths(division.getLabel(), code, interest.getLabel());
         assertEquals (1, paths.size());
     }
