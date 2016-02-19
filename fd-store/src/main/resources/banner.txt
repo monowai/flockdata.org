@@ -1,11 +1,5 @@
 
 ${AnsiColor.GREEN}Welcome to FlockData
-${AnsiColor.BLUE}   ___ _            _        ___      _
-${AnsiColor.BLUE}  / __\ | ___   ___| | __   /   \__ _| |_ __ _
-${AnsiColor.BLUE} / _\ | |/ _ \ / __| |/ /  / /\ / _` | __/ _` |
-${AnsiColor.BLUE}/ /   | | (_) | (__|   <  / /_// (_| | || (_| |
-${AnsiColor.BLUE}\/    |_|\___/ \___|_|\_\/___,' \__,_|\__\__,_|
-${AnsiColor.BLUE}
 ${AnsiColor.BLUE}  __     _           _
 ${AnsiColor.BLUE} / _| __| |      ___| |_ ___  _ __ ___
 ${AnsiColor.BLUE}| |_ / _` |_____/ __| __/ _ \| '__/ _ \
