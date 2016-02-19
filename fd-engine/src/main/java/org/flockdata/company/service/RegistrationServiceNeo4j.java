@@ -66,7 +66,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
 
     @Override
     @Transactional
-    @PreAuthorize(FdRoles.FD_ADMIN)
+    @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(Company company, RegistrationBean regBean) throws FlockException {
 
         SystemUser systemUser = systemUserService.findByLogin(regBean.getLogin());
@@ -81,7 +81,7 @@ public class RegistrationServiceNeo4j implements RegistrationService {
     }
 
     @Override
-    @PreAuthorize(FdRoles.FD_ADMIN)
+    @PreAuthorize(FdRoles.EXP_ADMIN)
     public SystemUser registerSystemUser(RegistrationBean regBean) throws FlockException {
         // Non-transactional method
 

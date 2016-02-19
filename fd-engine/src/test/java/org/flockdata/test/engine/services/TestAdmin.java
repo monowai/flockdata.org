@@ -12,6 +12,7 @@ import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -66,7 +67,7 @@ public class TestAdmin extends EngineBase {
 
     @Test
     public void unauthorisedUserCannotDeleteFortress() throws Exception {
-
+        setSecurity();
         SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
@@ -130,11 +131,12 @@ public class TestAdmin extends EngineBase {
         inputBean.setContent(new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
         mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
 
-        SecurityContextHolder.getContext().setAuthentication(null);
+        setSecurity(harry);// Harry is not an admin
         // Assert that unauthorised user can't purge a fortress
-        exception.expect(SecurityException.class);
+        exception.expect(AccessDeniedException.class);
         mediationFacade.purge(su.getCompany(), fortress.getName());
-        setSecurity();
+        setUnauthorized();
+        exception.expect(AccessDeniedException.class);
         mediationFacade.purge(fortress);
         EngineBase.waitAWhile("Waiting for Async processing to complete");
 

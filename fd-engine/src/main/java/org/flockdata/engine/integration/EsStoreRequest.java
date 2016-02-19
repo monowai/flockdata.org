@@ -38,6 +38,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
     PlatformConfig platformConfig;
 
     @MessagingGateway
+    @Profile({"integration", "production"})
     public interface ContentStoreEs {
         @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
         @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")

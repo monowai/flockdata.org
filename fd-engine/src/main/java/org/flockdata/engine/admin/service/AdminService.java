@@ -21,7 +21,6 @@ package org.flockdata.engine.admin.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
-import org.flockdata.engine.query.service.QueryService;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -79,8 +78,8 @@ public class AdminService implements EngineAdminService {
     @Autowired
     PlatformConfig engineConfig;
 
-    @Autowired
-    QueryService queryService;
+//    @Autowired
+//    QueryService queryService;
 
     private Logger logger = LoggerFactory.getLogger(AdminService.class);
 
@@ -142,7 +141,7 @@ public class AdminService implements EngineAdminService {
         do {
             qp.setFrom(start);
 
-            EsSearchResult searchResult = queryService.search(company, qp);
+            EsSearchResult searchResult = new EsSearchResult();//queryService.search(company, qp);
             Map<String, Object> results = searchResult.getRawResults();
 
             Map<String, Object> hits = (Map<String, Object>) results.get("hits");
