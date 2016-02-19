@@ -52,7 +52,7 @@ import java.io.IOException;
  */
 @Service
 @Transactional
-public class StoreManager implements KvService {
+public class StoreManager implements StoreService {
 
     private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 

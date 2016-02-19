@@ -30,7 +30,7 @@ import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.bean.KvContentBean;
 import org.flockdata.store.service.FdStoreConfig;
-import org.flockdata.store.service.KvService;
+import org.flockdata.store.service.StoreService;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -62,18 +62,18 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdStore.class)
 @ActiveProfiles({"dev", "fd-auth-test"})
-public class KvServiceTest {
+public class StoreServiceTest {
 
 
     @Autowired
     private FdStoreConfig storeConfig;
 
-    private Logger logger = LoggerFactory.getLogger(KvServiceTest.class);
+    private Logger logger = LoggerFactory.getLogger(StoreServiceTest.class);
 
     private static RedisServer redisServer;
 
     @Autowired
-    private KvService kvService;
+    private StoreService storeService;
 
     @Before
     public void resetKvStore() {
@@ -87,7 +87,7 @@ public class KvServiceTest {
         if (redisServer == null) {
             // If you are on Windows
             if (System.getProperty("os.arch").equals("amd64") && System.getProperty("os.name").startsWith("Windows")) {
-                URL url = KvServiceTest.class.getResource("/redis/redis-server.exe");
+                URL url = StoreServiceTest.class.getResource("/redis/redis-server.exe");
                 File redisServerExe = new File(url.getFile());
                 redisServer = new RedisServer(redisServerExe, 6379); // or new RedisServer("/path/to/your/redis", 6379);
             } else {
@@ -169,7 +169,7 @@ public class KvServiceTest {
 
         // Sets some tracking properties in to the Log and wraps the ContentInputBean in a KV wrapping class
         // This occurs before the service persists the log
-        graphLog = kvService.prepareLog(trackResultBean, graphLog);
+        graphLog = storeService.prepareLog(trackResultBean, graphLog);
         // Graph tracks which KVService is storing this content
         EntityLog eLog = new EntityLog(entity, graphLog, new DateTime());
 
@@ -183,17 +183,17 @@ public class KvServiceTest {
 
         // Finally! the actual write occurs
         try {
-            kvService.doWrite(kvContentBean);
+            storeService.doWrite(kvContentBean);
 
             // Retrieve the content we just created
-            KvContent kvContent = kvService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
+            KvContent kvContent = storeService.getContent(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             assertNotNull(kvContent);
             assertNotNull(kvContent.getContent().getMetaKey());
             assertNotNull(kvContent.getContent().getCode());
 
             validateWhat(what, kvContent);
             // Testing that cancel works
-            kvService.delete(entity, trackResultBean.getCurrentLog().getLog());
+            storeService.delete(entity, trackResultBean.getCurrentLog().getLog());
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
@@ -272,9 +272,9 @@ public class KvServiceTest {
         try {
             TrackResultBean tr = new TrackResultBean(null, entity, documentType, inputBean);
             KvContentBean kvContentBean = new KvContentBean(tr);
-            kvService.doWrite( kvContentBean);
+            storeService.doWrite( kvContentBean);
             EntityLog entityLog = tr.getCurrentLog();
-            KvContent entityContent = kvService.getContent(new LogRequest(entity, entityLog.getLog()));
+            KvContent entityContent = storeService.getContent(new LogRequest(entity, entityLog.getLog()));
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install
