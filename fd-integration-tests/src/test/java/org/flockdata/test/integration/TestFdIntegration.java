@@ -21,8 +21,6 @@ package org.flockdata.test.integration;
 
 import junit.framework.TestCase;
 import org.apache.commons.lang3.time.StopWatch;
-import org.flockdata.authentication.registration.service.CompanyService;
-import org.flockdata.authentication.registration.service.RegistrationService;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
@@ -40,6 +38,8 @@ import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.RegistrationBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.service.CompanyService;
+import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.*;
 import org.flockdata.store.KvContent;
