@@ -103,7 +103,12 @@ fd-log:
     queueCapacity: 30
 
 neo4j:
-  path: src/main/resources # path to neo4j.properties
+  path: src/main/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
+  org:
+    neo4j:
+      server:
+        database:
+          location: /Users/mike/data/neo4j/fd.db
 
 fd-auth:
   simple:
