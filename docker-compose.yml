@@ -46,7 +46,7 @@ services:
       rabbit.host: rabbit
       fd-search.url: 'http://fd-search:8081/api'
       fd-store.url: 'http://fd-store:8082/api'
-      neo4j.path: /opt/flockdata/conf
+      org.neo4j.path: /opt/flockdata/conf
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j/fd
 
       # Enables integration functionality
