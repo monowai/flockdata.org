@@ -21,7 +21,8 @@ package org.flockdata.configure;
 
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.integration.SearchPingRequest;
+import org.flockdata.engine.integration.SearchGateway;
+import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
 import org.flockdata.registration.service.SystemUserService;
@@ -74,7 +75,10 @@ public class EngineConfig implements PlatformConfig {
     SchemaService schemaService;
 
     @Autowired
-    SearchPingRequest.MonitoringGateway fdMonitoringGateway;
+    SearchGateway searchGateway;
+
+    @Autowired
+    StorageGateway storageGateway;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -90,10 +94,19 @@ public class EngineConfig implements PlatformConfig {
     private boolean searchEnabled = true;
     private String fdSearch;
 
+    @Value("${fd-store.api:http://localhost:8082/api}")
+    private String fdStoreUrl;
 
-    @Value("${fd-search.url:http://localhost:8081/api}")
+    @Value("${fd-search.api:http://localhost:8081/api}")
     public void setFdSearch( String url) {
         fdSearch = url;
+    }
+
+
+    @Override
+    public String getFdStore() {
+
+        return fdStoreUrl;
     }
 
 
@@ -213,19 +226,30 @@ public class EngineConfig implements PlatformConfig {
             config = "system-default";
         healthResults.put("config-file", config);
 
-        healthResults.put("fd-store.engine", storeEngine);
-        healthResults.put("fd-store.enabled", storeEnabled().toString());
         String esPingResult;
         try {
-            String esPing = fdMonitoringGateway.ping();
+            String esPing = searchGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable! ";
             if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
-        healthResults.put("fd-search", esPingResult);
+        healthResults.put("fd-search",  esPingResult + " on " +fdSearch);
         healthResults.put("fd-search.url", fdSearch);
+
+        try {
+            String esPing = storageGateway.ping();
+            esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
+        } catch (Exception ce) {
+            esPingResult = "!Unreachable! ";
+            if (ce.getCause() != null)
+                esPingResult = esPingResult + ce.getCause().getMessage();
+        }
+        healthResults.put("fd-store", esPingResult + " on " +getFdStore());
+        healthResults.put("fd-store.engine", storeEngine);
+        healthResults.put("fd-store.enabled", storeEnabled().toString());
+
         return healthResults;
 
     }

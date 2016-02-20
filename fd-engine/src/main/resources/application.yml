@@ -17,24 +17,6 @@ spring:
     active: production
     include: fd-auth-test
 
-fd-search:
-  api: http://127.0.0.1:8081/api
-  index:
-    prefix: true
-  messaging:
-    exchange: fd.search.exchange
-    binding: fd.search.binding
-    concurrentConsumers: 2
-    prefetchCount: 10
-    queue: fd.search.queue
-    dlq:
-      queue: fd.search.dlq.queue
-      exchange: fd.search.dlq.exchange
-  executor:
-    poolSize: 20-30
-    queueCapacity: 10
-
-
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline
 
@@ -76,8 +58,25 @@ fd-track: # Used for handling incoming data
       poolSize: 8-15
       queueCapacity: 3
 
+fd-search:
+  api: http://localhost:8081/api
+  index:
+    prefix: true
+  messaging:
+    exchange: fd.search.exchange
+    binding: fd.search.binding
+    concurrentConsumers: 2
+    prefetchCount: 10
+    queue: fd.search.queue
+    dlq:
+      queue: fd.search.dlq.queue
+      exchange: fd.search.dlq.exchange
+  executor:
+    poolSize: 20-30
+    queueCapacity: 10
+
 fd-store:
-  url: http://127.0.0.1:8092/api/v1
+  api: http://localhost:8082/api
   system:
     enabled: false
   messaging: # Async hand offs to fd-store

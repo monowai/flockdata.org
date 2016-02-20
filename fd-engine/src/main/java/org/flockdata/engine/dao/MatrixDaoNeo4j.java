@@ -20,7 +20,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.MatrixDao;
-import org.flockdata.engine.integration.FdMetaKeyQuery;
+import org.flockdata.engine.integration.SearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -51,8 +51,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
     private Neo4jTemplate template;
     private Logger logger = LoggerFactory.getLogger(MatrixDaoNeo4j.class);
 
-    @Autowired
-    FdMetaKeyQuery.FdMetaKeyGateway metaKeyGateway;
+    @Autowired (required = false) // Functional tests don't require gateways
+    SearchGateway searchGateway;
 
     @Autowired
     FortressService fortressService;
@@ -81,7 +81,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getSampleSize() > 0) {
             if (input.getSampleSize() > 3000)
                 input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
-            metaKeyResults = metaKeyGateway.metaKeys(getQueryParams(company, input));
+            metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
         }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());

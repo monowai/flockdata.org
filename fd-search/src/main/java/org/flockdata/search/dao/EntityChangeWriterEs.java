@@ -35,7 +35,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.IndexManager;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.configure.EsConfig;
+import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityKeyBean;
@@ -58,7 +58,7 @@ import java.util.*;
 public class EntityChangeWriterEs implements EntityChangeWriter {
 
     @Autowired
-    private EsConfig esConfig;
+    private SearchConfig searchConfig;
 
     @Autowired
     IndexManager indexManager;
@@ -72,7 +72,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         String existingIndexKey = searchChange.getSearchKey();
 
-        DeleteResponse dr = esConfig.elasticSearchClient().prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
+        DeleteResponse dr = searchConfig.elasticSearchClient().prepareDelete(searchChange.getIndexName(), recordType, existingIndexKey)
                 .setRouting(searchChange.getCode())
                 .execute()
                 .actionGet();
@@ -96,7 +96,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb = esConfig.elasticSearchClient().prepareIndex(searchChange.getIndexName(), documentType)
+        IndexRequestBuilder irb = searchConfig.elasticSearchClient().prepareIndex(searchChange.getIndexName(), documentType)
                 .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
@@ -145,7 +145,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             String index ;
 
             GetRequestBuilder request =
-                    esConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
+                    searchConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
                             searchChange.getDocumentType(),
                             searchChange.getSearchKey());
 
@@ -191,7 +191,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             }
 
             // Update the existing document with the searchChange change
-            IndexRequestBuilder update = esConfig
+            IndexRequestBuilder update = searchConfig
                     .elasticSearchClient().prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
             //.setRouting(searchChange.getMetaKey());
 
@@ -229,7 +229,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             id = entity.getSearchKey();
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
-        GetResponse response = esConfig.elasticSearchClient().prepareGet(indexName, documentType, id)
+        GetResponse response = searchConfig.elasticSearchClient().prepareGet(indexName, documentType, id)
                 //.setRouting(entity.getMetaKey())
                 .execute()
                 .actionGet();
@@ -245,7 +245,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     public Map<String, Object> ping() {
         Map<String, Object> results = new HashMap<>();
         ClusterHealthRequest request = new ClusterHealthRequest();
-        ClusterHealthResponse response = esConfig.elasticSearchClient().admin().cluster().health(request).actionGet();
+        ClusterHealthResponse response = searchConfig.elasticSearchClient().admin().cluster().health(request).actionGet();
         if (response == null) {
             results.put("status", "error!");
             return results;
@@ -255,7 +255,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         results.put("dataNodes", response.getNumberOfDataNodes());
         results.put("nodes", response.getNumberOfNodes());
         results.put("clusterName", response.getClusterName());
-        results.put("nodeName", esConfig.elasticSearchClient().settings().get("name"));
+        results.put("nodeName", searchConfig.elasticSearchClient().settings().get("name"));
 
         return results;
     }

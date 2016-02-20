@@ -21,7 +21,6 @@ package org.flockdata.search;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  *
@@ -30,7 +29,6 @@ import org.springframework.context.annotation.PropertySource;
  * Time: 7:36 AM
  */
 @SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.authentication"})
-@PropertySource(value = "classpath:/application.yml,file:${fd.config}", ignoreResourceNotFound = true)
 public class FdSearch {
 
     public static void main(String[] args) {

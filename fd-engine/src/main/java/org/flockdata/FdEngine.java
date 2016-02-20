@@ -34,7 +34,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Time: 3:49 PM
  */
 @SpringBootApplication(scanBasePackages = {"org.flockdata"})
-//@ImportResource("classpath:WEB-INF/spring/fde-root-context.xml")
 public class FdEngine {
     public static void main(String[] args) {
         SpringApplication.run(FdEngine.class, args);

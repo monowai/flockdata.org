@@ -28,28 +28,28 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration", "production"})
-public class SearchPingRequest {
+public class StorePingRequest {
 
     @Autowired
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Bean
-    MessageChannel searchPing(){
+    MessageChannel storePing(){
         return new DirectChannel();
     }
 
     @Bean
-    IntegrationFlow searchPingFlow() {
+    IntegrationFlow storePingFlow() {
 
-        return IntegrationFlows.from(searchPing())
-                .handle(fdPingRequest())
+        return IntegrationFlows.from(storePing())
+                .handle(pingRequest())
                 .get();
     }
 
-    private MessageHandler fdPingRequest() {
+    private MessageHandler pingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 

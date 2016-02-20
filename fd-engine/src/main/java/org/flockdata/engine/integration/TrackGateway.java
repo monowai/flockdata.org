@@ -29,6 +29,8 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.concurrent.Future;
 
 /**
+ * Inbound gateway that handles requests to track an entity
+ *
  * User: mike
  * Date: 5/11/14
  * Time: 2:29 PM

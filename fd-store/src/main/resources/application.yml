@@ -28,7 +28,7 @@ fd-store:
     prefetchCount: 1
 
 fd-search:
-  url: http://localhost:8081
+  api: http://localhost:8081/api
 
 riak:
   hosts: 127.0.0.1

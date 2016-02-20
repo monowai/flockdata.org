@@ -21,9 +21,7 @@ package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.integration.EsStoreRequest;
-import org.flockdata.engine.integration.FdMetaKeyQuery;
-import org.flockdata.engine.integration.FdViewQuery;
-import org.flockdata.engine.integration.TagCloudRequest;
+import org.flockdata.engine.integration.SearchGateway;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
@@ -67,11 +65,8 @@ public class QueryService {
     @Autowired
     ConceptService conceptService;
 
-    @Autowired
-    TagCloudRequest.TagCloudGateway tagCloudGateway;
-
-    @Autowired
-    FdViewQuery.FdViewGateway fdViewQuery;
+    @Autowired (required = false) // Functional tests don't require gateways
+    SearchGateway searchGateway;
 
     @Autowired (required = false)
     EsStoreRequest.ContentStoreEs esStore;
@@ -124,7 +119,7 @@ public class QueryService {
         if ( queryParams.getQuery() !=null ) {
             esSearchResult = esStore.getData(queryParams);
         } else {
-            esSearchResult = fdViewQuery.fdSearch(queryParams);
+            esSearchResult = searchGateway.fdSearch(queryParams);
         }
 
 
@@ -142,14 +137,11 @@ public class QueryService {
             throw new NotFoundException("Fortress [" + tagCloudParams.getFortress() + "] does not exist");
         tagCloudParams.setFortress(fortress.getCode());
         tagCloudParams.setCompany(company.getCode());
-        return tagCloudGateway.getTagCloud(tagCloudParams);
+        return searchGateway.getTagCloud(tagCloudParams);
     }
-
-    @Autowired
-    FdMetaKeyQuery.FdMetaKeyGateway mkGateway;
 
     public MetaKeyResults getMetaKeys(Company company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
-        return mkGateway.metaKeys(queryParams);
+        return searchGateway.metaKeys(queryParams);
     }
 }

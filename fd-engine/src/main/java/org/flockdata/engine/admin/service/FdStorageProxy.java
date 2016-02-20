@@ -1,12 +1,11 @@
 package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.flockdata.engine.integration.StorageDelta;
-import org.flockdata.engine.integration.StorageReader;
-import org.flockdata.engine.integration.StorageWriter;
+import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
+import org.flockdata.search.IndexManager;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
@@ -24,18 +23,15 @@ import org.springframework.stereotype.Service;
 @Profile({"integration","production"})
 public class FdStorageProxy implements StorageProxy {
 
-    @Autowired (required = false) // Functional tests don't neeed these gateways
-    StorageReader.ReadStorageGateway storeRead;
+    @Autowired (required = false) // Functional tests don't require gateways
+    StorageGateway storageGateway;
 
-    @Autowired (required = false) // Functional tests don't neeed these gateways
-    StorageWriter.WriteStorageGateway storeWrite;
-
-    @Autowired (required = false) // Functional tests don't neeed these gateways
-    StorageDelta.DeltaGateway storeCompare;
+    @Autowired
+    IndexManager indexManager;
 
     @Override
     public void write(TrackResultBean resultBean) {
-        storeWrite.doStoreWrite(new StorageBean(resultBean));
+        storageGateway.write(new StorageBean(resultBean));
     }
 
     @Override
@@ -45,7 +41,15 @@ public class FdStorageProxy implements StorageProxy {
 
     @Override
     public StoredContent read(LogRequest logRequest) {
-        return storeRead.read(logRequest);
+        String index = indexManager.parseIndex(logRequest.getStore(), logRequest.getEntity());
+        String type = indexManager.parseType(logRequest.getEntity());
+        Object key =  logRequest.getLogId();
+        StoredContent contentResult = storageGateway.read(logRequest.getStore(),
+                index,
+                type,
+                key);
+
+        return contentResult;
     }
 
     /**
@@ -53,7 +57,7 @@ public class FdStorageProxy implements StorageProxy {
      * @param entity        owner of the log
      * @param existingLog   persisted log
      * @param incomingLog   notional log
-     * @return
+     * @return true if different false if the same
      */
     @Override
     public boolean compare(Entity entity, Log existingLog, Log incomingLog) {

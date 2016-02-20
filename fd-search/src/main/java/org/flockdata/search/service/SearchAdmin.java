@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.search.base.EntityChangeWriter;
-import org.flockdata.search.configure.EsConfig;
+import org.flockdata.search.configure.SearchConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class SearchAdmin {
     EntityChangeWriter engineDao;
 
     @Autowired
-    EsConfig esConfig;
+    SearchConfig searchConfig;
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
@@ -64,11 +64,11 @@ public class SearchAdmin {
         else {
             // Test for that the supplied path exists
             // Default to the config path for mappings
-            logger.info(esConfig.getEsMappingPath());
+            logger.info(searchConfig.getEsMappingPath());
         }
         healthResults.put("fd.config", config);
-        healthResults.put("fd-search.es.settings", esConfig.getEsDefaultSettings());
-        healthResults.put("fd-search.es.mapping", esConfig.getEsMappingPath());
+        healthResults.put("fd-search.es.settings", searchConfig.getEsDefaultSettings());
+        healthResults.put("fd-search.es.mapping", searchConfig.getEsMappingPath());
 
         return healthResults;
 

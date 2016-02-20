@@ -39,7 +39,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.search.IndexManager;
-import org.flockdata.search.configure.EsConfig;
+import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.*;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class QueryDaoES implements QueryDao {
     public static final String NAME_FACET = ".name.facet";
 
     @Autowired
-    private EsConfig esClient;
+    private SearchConfig esClient;
     @Autowired
     IndexManager indexHelper;
 
