@@ -15,13 +15,13 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
  * Created by mike on 16/02/16.
  */
 @Configuration
-public class EsConfig {
+public class SearchConfig {
 
     @Value("${es.clustername:es_flockdata}")
     String clusterName;
-    @Value("${es.path.home}")
+    @Value("${es.path.home}:./")
     String pathHome;
-    @Value("${es.path.data:/data/es}")
+    @Value("${es.path.data:${es.path.home}/data/es}")
     String pathData;
     @Value("${es.http.port:9200}")
     String httpPort;

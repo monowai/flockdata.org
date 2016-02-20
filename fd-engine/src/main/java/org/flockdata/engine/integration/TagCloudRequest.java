@@ -3,16 +3,13 @@ package org.flockdata.engine.integration;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.TagCloud;
-import org.flockdata.search.model.TagCloudParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
-import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
-import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -47,12 +44,6 @@ public class TagCloudRequest {
     @Bean
     MessageChannel tagCloudReply() {
         return new DirectChannel();
-    }
-
-    @MessagingGateway
-    public interface TagCloudGateway {
-        @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
-        TagCloud getTagCloud(TagCloudParams tagCloudParams);
     }
 
     // ToDo: Can we handle this more via the flow or handler?

@@ -22,9 +22,7 @@ package org.flockdata.engine.query.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.integration.FdSearchGateway;
-import org.flockdata.engine.integration.FdViewQuery;
-import org.flockdata.engine.integration.TagCloudRequest;
+import org.flockdata.engine.integration.SearchGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.search.IndexManager;
@@ -44,7 +42,6 @@ import org.neo4j.kernel.DeadlockDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -71,15 +68,11 @@ public class SearchServiceFacade {
     @Autowired
     EntityService entityService;
 
-    @Qualifier("fdSearchGateway")
-    @Autowired
-    FdSearchGateway searchGateway;
-
     @Autowired
     StorageProxy storageProxy;
 
-    @Autowired
-    TagCloudRequest.TagCloudGateway tagCloudGateway;
+    @Autowired (required = false) // Functional tests don't require gateways
+    SearchGateway searchGateway;
 
     @Autowired
     IndexManager indexHelper;
@@ -99,8 +92,6 @@ public class SearchServiceFacade {
     @Autowired
     PlatformConfig engineConfig;
 
-    @Autowired
-    FdViewQuery.FdViewGateway fdViewQuery;
 
 
     public void makeChangeSearchable(SearchChange searchChange) {
@@ -285,11 +276,11 @@ public class SearchServiceFacade {
     }
 
     public EsSearchResult search(QueryParams queryParams) {
-        return fdViewQuery.fdSearch(queryParams);
+        return searchGateway.fdSearch(queryParams);
     }
 
     public TagCloud getTagCloud(TagCloudParams tagCloudParams) {
-        return tagCloudGateway.getTagCloud(tagCloudParams);
+        return searchGateway.getTagCloud(tagCloudParams);
     }
 
     public void purge(String indexName) {

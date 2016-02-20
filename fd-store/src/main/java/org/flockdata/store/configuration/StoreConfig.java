@@ -52,7 +52,7 @@ public class StoreConfig implements FdStoreConfig {
 
     }
 
-    @Value("${fd-search.url:http://localhost:8081}")
+    @Value("${fd-search.api:http://localhost:8081/api}")
     String fdSearchUrl;
 
     @Value("${riak.hosts:127.0.0.1}")

@@ -86,4 +86,5 @@ public interface PlatformConfig {
     void setFdSearch (String url);
 
 
+    String getFdStore();
 }

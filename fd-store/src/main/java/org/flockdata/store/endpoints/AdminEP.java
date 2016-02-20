@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Created by mike on 19/02/16.
  */
-@RequestMapping("${fd-store.system.api:api}/v1/")
+@RequestMapping("${fd-store.system.api:api}/v1/admin")
 @RestController
 
-public class RootEP {
+public class AdminEP {
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
     String ping() throws Exception {

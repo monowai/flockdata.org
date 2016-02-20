@@ -67,21 +67,5 @@ public class SearchRequests {
         searchHandler.handlResults(searchResults);
     }
 
-//    @Bean
-//    public IntegrationFlow indexSearchDoc() {
-//        return IntegrationFlows.from(channels.sendEntityIndexRequest())
-//                .transform(getTransformer())
-//                .handle(fdMakeEntityRequest())
-//                .get();
-//    }
-
-//    private MessageHandler fdIndexEntity() {
-//
-//        HttpRequestExecutingMessageHandler handler =
-//                new HttpRequestExecutingMessageHandler(getEntityUrl());
-//        handler.setExpectedResponseType(SearchResults.class);
-//
-//        return handler;
-//    }
 
 }

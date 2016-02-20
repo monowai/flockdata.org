@@ -41,7 +41,7 @@ public class StoreWriter {
      */
     @ServiceActivator(inputChannel = "startStoreWrite", requiresReply = "false")
     @Retryable
-    public void doKvWrite(StorageBean kvBean) throws FlockServiceException {
+    public void write(StorageBean kvBean) throws FlockServiceException {
         storeManager.doWrite(kvBean);
     }
 

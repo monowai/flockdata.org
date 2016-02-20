@@ -77,7 +77,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
 @SpringApplicationConfiguration(FdStore.class)
 @ActiveProfiles({"dev", "fd-auth-test"})
 @WebAppConfiguration
-public class StoreServiceTest {
+public class TestStoreService {
 
 
     @Autowired
@@ -91,7 +91,7 @@ public class StoreServiceTest {
     @Autowired
     WebApplicationContext wac;
 
-    private Logger logger = LoggerFactory.getLogger(StoreServiceTest.class);
+    private Logger logger = LoggerFactory.getLogger(TestStoreService.class);
 
     private static RedisServer redisServer;
 
@@ -114,7 +114,7 @@ public class StoreServiceTest {
         if (redisServer == null) {
             // If you are on Windows
             if (System.getProperty("os.arch").equals("amd64") && System.getProperty("os.name").startsWith("Windows")) {
-                URL url = StoreServiceTest.class.getResource("/redis/redis-server.exe");
+                URL url = TestStoreService.class.getResource("/redis/redis-server.exe");
                 File redisServerExe = new File(url.getFile());
                 redisServer = new RedisServer(redisServerExe, 6379); // or new RedisServer("/path/to/your/redis", 6379);
             } else {

@@ -23,7 +23,7 @@ rabbit:
     heartbeat.secs: 30
 
 fd-engine:
-  url: http://127.0.0.1:8080/api
+  api: http://localhost:8080/api
   messaging:
     queue: fd.engine.queue
     binding: fd.engine.binding
