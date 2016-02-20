@@ -20,6 +20,8 @@
 package org.flockdata.configure;
 
 /**
+ * Neo4j embedded database
+ *
  * Created by mike on 31/03/15.
  */
 
@@ -49,16 +51,21 @@ import javax.annotation.PostConstruct;
 public class Neo4jConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
+    private String configFile;
+    private String dbPath;
+
 
     @PostConstruct
     public void logFdNeoConfig() {
         logger.info("**** Neo4j configuration deployed from config [{}]", configFile);
+        logger.info("**** Neo4j datafiles are being written to [{}]", dbPath);
     }
-    String configFile;
+
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${neo4j.path}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:classpath:}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
         try {
             configFile = props + "/neo4j.properties";
+            this.dbPath = dbPath;
             return new GraphDatabaseFactory()
                     .newEmbeddedDatabaseBuilder(dbPath)
                     .loadPropertiesFromFile(configFile)
