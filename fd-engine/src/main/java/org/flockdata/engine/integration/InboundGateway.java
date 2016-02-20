@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
  */
 @MessagingGateway(errorChannel = "trackError", asyncExecutor = "fd-track")
 @Async("fd-track")
-public interface TrackGateway {
+public interface InboundGateway {
 //    ToDo: where to send the reply
     @Gateway(requestChannel = "startEntityWrite", replyTimeout = 10000, replyChannel = "trackResult")
     Future<TrackResultBean> doTrackEntity(EntityInputBean entityInputBean, @Header(value="apiKey") String apiKey);

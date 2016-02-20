@@ -36,8 +36,6 @@ import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
 
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
@@ -52,38 +50,20 @@ public class Neo4jConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    // ToDo: The bean is initialized before the storeDir property is set
-    @Value("${neo4j.datastore}")
-    String neoStoreDir;
-
-    String getNeoStoreDir(){
-        if ( neoStoreDir == null ) {
-            String systemProperty= System.getProperty("neo4j.datastore");
-            if ( systemProperty== null )
-                systemProperty = "./data/neo4j/fd";
-            return systemProperty;
-        }
-        return neoStoreDir;
-    }
-
     @PostConstruct
     public void logFdNeoConfig() {
-        logger.info("**** Neo4j configuration deployed");
+        logger.info("**** Neo4j configuration deployed from config [{}]", configFile);
     }
-
-    GraphDatabaseService gds = null;
+    String configFile;
     @Bean
-    public GraphDatabaseService graphDatabaseService() {
-        if ( gds == null ) {
-            setBasePackage("org.flockdata.*");
-            gds = new GraphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
-        }
-        return gds;
-    }
-
-    Map<String, String> dbProperties() {
-        Map<String, String> props = new HashMap<>();
-        return props;
+    public GraphDatabaseService graphDatabaseService(@Value("${neo4j.path}")String props) {
+        configFile = props+"/neo4j.properties";
+        return  new GraphDatabaseFactory()
+                .newEmbeddedDatabaseBuilder( "data" )
+                // ToDo: Because of the way this bean is being created (new), it has no
+                //       access to @Value or other env vars. Fix IT!
+                .loadPropertiesFromFile( configFile)
+                .newGraphDatabase();
     }
 
 

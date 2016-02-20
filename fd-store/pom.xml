@@ -11,6 +11,7 @@
     <!--<packaging>war</packaging>-->
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-store</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -262,7 +263,7 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.artifactId}-war.jar</include>
+                                    <include>${project.artifactId}.jar</include>
                                     <include>classes/application.yml</include>
                                     <include>classes/log4j.xml</include>
                                 </resource>

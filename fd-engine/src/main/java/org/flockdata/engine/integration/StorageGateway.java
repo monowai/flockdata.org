@@ -8,7 +8,6 @@ import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * Created by mike on 20/02/16.
@@ -25,7 +24,7 @@ public interface StorageGateway {
 
     @Gateway(requestChannel = "startStoreWrite", requestTimeout = 40000, replyChannel = "nullChannel")
     @Retryable
-    @Async("fd-store")
+//    @Async("fd-store")
     void write(StorageBean resultBean);
 
 }
