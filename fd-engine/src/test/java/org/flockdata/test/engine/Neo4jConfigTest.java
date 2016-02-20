@@ -43,10 +43,8 @@ import java.util.Map;
 
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
-                                         "org.flockdata.engine.tag.dao",
-                                         "org.flockdata.engine.dao",
                                          "org.flockdata.geography.dao",
-                                         "org.flockdata.meta.dao",
+                                         "org.flockdata.engine.*",
                                          "org.flockdata.model.*"})
 @Configuration
 @Profile({"dev"})

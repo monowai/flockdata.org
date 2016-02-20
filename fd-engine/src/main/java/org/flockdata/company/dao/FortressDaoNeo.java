@@ -24,7 +24,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.model.FortressUser;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

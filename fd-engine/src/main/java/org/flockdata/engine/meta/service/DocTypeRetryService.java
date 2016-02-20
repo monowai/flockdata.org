@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.meta.service;
+package org.flockdata.engine.meta.service;
 
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.model.DocumentType;

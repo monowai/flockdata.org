@@ -21,10 +21,10 @@ package org.flockdata.engine.dao;
 
 import org.flockdata.dao.MatrixDao;
 import org.flockdata.engine.integration.SearchGateway;
+import org.flockdata.engine.meta.dao.SchemaDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.meta.dao.SchemaDaoNeo4j;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.query.*;

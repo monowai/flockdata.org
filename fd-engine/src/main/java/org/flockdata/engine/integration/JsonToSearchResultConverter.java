@@ -17,9 +17,11 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.engine.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.ObjectHelper;
 import org.flockdata.search.model.SearchResults;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;

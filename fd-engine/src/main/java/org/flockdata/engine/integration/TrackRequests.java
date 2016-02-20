@@ -1,6 +1,6 @@
 package org.flockdata.engine.integration;
 
-import org.flockdata.configure.SecurityHelper;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;

@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.registration.service;
+package org.flockdata.shared;
 
 import org.flockdata.helper.Base64;
 import org.springframework.stereotype.Service;

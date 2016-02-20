@@ -17,9 +17,12 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.engine.configure;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonMessage;
+import org.flockdata.helper.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

@@ -19,12 +19,12 @@
 
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.SecurityHelper;
+import org.flockdata.engine.meta.dao.ConceptDaoNeo;
 import org.flockdata.engine.tag.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.meta.dao.ConceptDaoNeo;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;

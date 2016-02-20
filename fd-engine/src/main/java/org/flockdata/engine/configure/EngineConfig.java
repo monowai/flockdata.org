@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.configure;
+package org.flockdata.engine.configure;
 
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;

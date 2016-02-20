@@ -25,7 +25,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.EntityLog;
 import org.flockdata.model.EntityTag;
 import org.flockdata.model.Fortress;
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;

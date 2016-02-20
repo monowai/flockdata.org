@@ -20,10 +20,10 @@
 package org.flockdata.engine.track.endpoint;
 
 import org.flockdata.engine.integration.TrackRequests;
+import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.meta.service.TxService;
 import org.flockdata.model.Company;
 import org.flockdata.model.EntityLog;
 import org.flockdata.registration.service.CompanyService;

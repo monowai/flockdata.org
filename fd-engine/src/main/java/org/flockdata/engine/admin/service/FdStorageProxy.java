@@ -5,7 +5,7 @@ import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;

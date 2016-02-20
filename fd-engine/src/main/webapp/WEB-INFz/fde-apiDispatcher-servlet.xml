@@ -53,7 +53,7 @@
             <mvc:mapping path="/batch/**"/>
             <mvc:exclude-mapping path="/admin/ping/**"/>
             <mvc:exclude-mapping path="/admin/health/**"/>
-            <bean class="org.flockdata.configure.ApiKeyInterceptor"/>
+            <bean class="org.flockdata.engine.configure.ApiKeyInterceptor"/>
         </mvc:interceptor>
         <!--<mvc:interceptor>-->
         <!--<mvc:mapping path="/profiles/me/"/>-->
