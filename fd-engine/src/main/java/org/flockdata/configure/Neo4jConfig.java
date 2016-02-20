@@ -56,14 +56,17 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
     String configFile;
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${neo4j.path}")String props) {
-        configFile = props+"/neo4j.properties";
-        return  new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( "data" )
-                // ToDo: Because of the way this bean is being created (new), it has no
-                //       access to @Value or other env vars. Fix IT!
-                .loadPropertiesFromFile( configFile)
-                .newGraphDatabase();
+    public GraphDatabaseService graphDatabaseService(@Value("${neo4j.path}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
+        try {
+            configFile = props + "/neo4j.properties";
+            return new GraphDatabaseFactory()
+                    .newEmbeddedDatabaseBuilder(dbPath)
+                    .loadPropertiesFromFile(configFile)
+                    .newGraphDatabase();
+        } catch ( Exception fileNotFoundException){
+            logger.error("!!! Error initialising Neo4j from ["+configFile+"]. Path can be set from neo4j.path=");
+            throw fileNotFoundException;
+        }
     }
 
 
