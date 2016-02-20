@@ -17,15 +17,17 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.helper;
+package org.flockdata.engine.configure;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Component
-public class AnnotatedExceptionResolver extends ExceptionHandlerExceptionResolver
-{
-    public AnnotatedExceptionResolver() {
-        setOrder(HIGHEST_PRECEDENCE);
+@ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Resource not found ")  // 404
+public class FdRestNotFoundException extends RuntimeException {
+    String code = null;
+
+    public FdRestNotFoundException(String code){
+        this.code = code;
     }
+
 }

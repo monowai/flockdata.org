@@ -19,7 +19,7 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.configure.SecurityHelper;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;

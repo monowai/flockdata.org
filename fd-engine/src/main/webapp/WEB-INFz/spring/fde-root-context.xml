@@ -39,7 +39,7 @@
     <!-- SDN4 ??? -->
     <!--<bean id="template" class="org.springframework.data.neo4j.template.Neo4jTemplate"/>-->
 
-    <!--<bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>-->
+    <!--<bean name ="engineConfig" class="EngineConfig"/>-->
 
     <!--<bean name ="neoConfig" class="org.flockdata.configure.FdNeo4jConfig"/>-->
 

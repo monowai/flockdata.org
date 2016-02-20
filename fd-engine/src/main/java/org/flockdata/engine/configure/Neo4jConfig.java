@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.configure;
+package org.flockdata.engine.configure;
 
 /**
  * Neo4j embedded database
@@ -44,7 +44,7 @@ import javax.annotation.PostConstruct;
                                          "org.flockdata.engine.tag.dao",
                                          "org.flockdata.engine.dao",
                                          "org.flockdata.geography.dao",
-                                         "org.flockdata.meta.dao",
+                                         "org.flockdata.engine.meta.dao",
                                          "org.flockdata.model.*"})
 @Configuration
 @Profile({"integration","production"})

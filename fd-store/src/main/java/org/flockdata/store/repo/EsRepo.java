@@ -21,10 +21,10 @@ package org.flockdata.store.repo;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.IndexManager;
 import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;

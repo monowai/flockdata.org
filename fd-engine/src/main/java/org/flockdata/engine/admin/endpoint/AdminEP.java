@@ -19,9 +19,9 @@
 
 package org.flockdata.engine.admin.endpoint;
 
-import org.flockdata.configure.ApiKeyInterceptor;
-import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;

@@ -1,4 +1,4 @@
-package org.flockdata.search;
+package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Entity;

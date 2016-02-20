@@ -19,7 +19,7 @@
 
 package org.flockdata.helper;
 
-import org.flockdata.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.model.Company;
 
 import javax.servlet.http.HttpServletRequest;

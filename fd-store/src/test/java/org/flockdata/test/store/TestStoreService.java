@@ -26,7 +26,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.store.FdStore;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;

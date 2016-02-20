@@ -19,7 +19,7 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.configure.SecurityHelper;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;

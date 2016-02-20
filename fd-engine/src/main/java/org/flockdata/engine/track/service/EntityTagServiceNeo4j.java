@@ -19,8 +19,8 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.configure.SecurityHelper;
 import org.flockdata.dao.EntityTagDao;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.EntityRepo;
 import org.flockdata.engine.dao.EntityTagDaoNeo;
 import org.flockdata.engine.dao.EntityTagRepo;

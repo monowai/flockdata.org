@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.unit;
 
-import org.flockdata.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.junit.Assert;
 
 import static org.junit.Assert.assertEquals;

@@ -19,11 +19,11 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.configure.ApiKeyInterceptor;
-import org.flockdata.configure.SecurityHelper;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.FdRestNotFoundException;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
-import org.flockdata.helper.FdRestNotFoundException;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.service.CompanyService;

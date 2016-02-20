@@ -19,7 +19,7 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;

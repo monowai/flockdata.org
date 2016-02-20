@@ -19,7 +19,7 @@
 
 package org.flockdata.spring.service;
 
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

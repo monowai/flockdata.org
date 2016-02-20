@@ -19,10 +19,10 @@
 
 package org.flockdata.engine.query.endpoint;
 
+import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.meta.service.TxService;
 import org.flockdata.model.*;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntitySummaryBean;

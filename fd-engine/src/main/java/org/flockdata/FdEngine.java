@@ -36,7 +36,9 @@ import javax.annotation.PostConstruct;
  * Date: 15/12/14
  * Time: 3:49 PM
  */
-@SpringBootApplication(scanBasePackages = {"org.flockdata"})
+@SpringBootApplication(scanBasePackages = { "org.flockdata.company",
+                                            "org.flockdata.engine","org.flockdata.geography",
+                                            "org.flockdata.authentication", "org.flockdata.shared"})
 @EnableConfigurationProperties()
 public class FdEngine {
     public static void main(String[] args) {

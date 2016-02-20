@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.integration;
 
-import org.flockdata.configure.ExecutorConfig;
+import org.flockdata.engine.configure.ExecutorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;

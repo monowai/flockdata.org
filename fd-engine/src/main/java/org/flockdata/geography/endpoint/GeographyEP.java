@@ -19,7 +19,7 @@
 
 package org.flockdata.geography.endpoint;
 
-import org.flockdata.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;

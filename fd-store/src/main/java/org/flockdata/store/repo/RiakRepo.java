@@ -32,7 +32,7 @@ import com.basho.riak.client.core.query.Namespace;
 import com.basho.riak.client.core.query.RiakObject;
 import com.basho.riak.client.core.util.BinaryValue;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.search.IndexManager;
+import org.flockdata.shared.IndexManager;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.common.repos.AbstractStore;

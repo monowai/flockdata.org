@@ -20,7 +20,7 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
-import org.flockdata.configure.ApiKeyInterceptor;
+import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.model.Company;
 import org.junit.After;
 import org.junit.Before;

@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.configure;
+package org.flockdata.engine.configure;
 
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;

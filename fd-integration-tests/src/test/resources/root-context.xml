@@ -38,7 +38,7 @@
 
     <cache:annotation-driven cache-manager="fdCacheManager" />
 
-    <bean name ="engineConfig" class="org.flockdata.configure.EngineConfig"/>
+    <bean name ="engineConfig" class="org.flockdata.engine.configure.EngineConfig"/>
 
     <bean id="fdCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
           p:cacheManager-ref="fdCache"  p:transactionAware="true"/>

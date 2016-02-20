@@ -1,0 +1,127 @@
+### Default configuration properties for fd-engine
+
+## You can override these settings by placing a application.properties
+## in the flockdata classpath. This file, deployed with fd-engine and fd-search
+## represents the default settings if no other configuration is in use
+
+# Where fd-search
+#fd-search.url: http://fd-search:8081
+
+# Default value for new fortresses being created.
+# If store in the fortress is false, then only current state data is stored
+# i.e. no history
+# You can update an existing fortress and set it's store property to false/true to
+# disable/enable KV versions
+spring:
+  profiles:
+    active: integration
+    include: fd-auth-test
+
+# Example Stormpath configuration
+# You pass FD_HOME on your commandline
+
+# Message queues - Balance against ack/nack rate throughput
+# Threadpools
+fd-engine:
+  fortress:  # Defaults on creation of a fortress if not otherwise supplied
+    search: true
+
+  system:
+    api: /api # Mount point for the api
+    constraints: true
+    concepts: true
+    timings: false
+  messaging:
+    queue: fd.int.engine.queue
+    binding: fd.int.engine.binding
+    exchange: fd.int.engine.exchange
+    dlq.queue: fd.int.engine.dlq.queue
+    dlq.exchange: fd.int.engine.dlq.exchange
+    prefetchCount: 1
+  executor:
+    poolSize: 8-15
+    queueCapacity: 3
+
+fd-track: # Used for handling incoming data
+  messaging:
+    exchange: fd.int.track.exchange
+    binding: fd.int.track.binding
+    queue: fd.int.track.queue
+    response: fd.response.queue
+    concurrentConsumers: 1
+    queueCapacity: 10
+    prefetchCount: 10
+    dlq:
+      queue: fd.int.track.dlq.queue
+      exchange: fd.int.track.dlq.exchange
+  executor:
+      poolSize: 8-15
+      queueCapacity: 3
+
+fd-search:
+  api: http://localhost:8081/api
+  index:
+    prefix: true
+  messaging:
+    exchange: fd.int.search.exchange
+    binding: fd.int.search.binding
+    concurrentConsumers: 2
+    prefetchCount: 10
+    queue: fd.int.search.queue
+    dlq:
+      queue: fd.int.search.dlq.queue
+      exchange: fd.int.search.dlq.exchange
+  executor:
+    poolSize: 20-30
+    queueCapacity: 10
+
+fd-store:
+  api: http://localhost:8082/api
+  system:
+    enabled: false
+  messaging: # Async hand offs to fd-store
+    exchange: fd.int.store.exchange
+    binding: fd.int.store.binding
+    queue: fd.int.store.queue
+    concurrentConsumers: 2
+    prefetchCount: 1
+    dlq:
+      queue: fd.int.store.dlq.queue
+      exchange: fd.int.store.dlq.exchange
+  executor:
+    poolSize: 8-15
+    queueCapacity: 3
+
+fd-tag:
+  executor:
+    poolSize: 5-10
+    queueCapacity: 30
+
+fd-log:
+  executor:
+    poolSize: 5-10
+    queueCapacity: 30
+
+org:
+  neo4j:
+    path: src/test/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
+    server.database.location: ../target/data/test.db # where to write the db files to - required
+
+fd-auth:
+  simple:
+    user: admin
+    pass: hackme
+  stormpath:
+    #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
+    #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
+    #group:
+    #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
+    #group:
+    #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
+
+rabbit:
+  user: guest
+  pass: guest
+  host: 127.0.0.1
+
+

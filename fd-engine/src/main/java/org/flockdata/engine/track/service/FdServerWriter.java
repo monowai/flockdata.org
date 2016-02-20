@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.service;
 
-import org.flockdata.configure.SecurityHelper;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
