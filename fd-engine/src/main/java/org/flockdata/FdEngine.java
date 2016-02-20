@@ -21,6 +21,9 @@ package org.flockdata;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
+import javax.annotation.PostConstruct;
 
 /**
  *
@@ -34,9 +37,23 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Time: 3:49 PM
  */
 @SpringBootApplication(scanBasePackages = {"org.flockdata"})
+@EnableConfigurationProperties()
 public class FdEngine {
     public static void main(String[] args) {
         SpringApplication.run(FdEngine.class, args);
     }
 
+//    @Autowired
+//    SchemaService schemaService;
+
+    @PostConstruct
+    public void ensureSystemIndexes() {
+        //if (createSystemConstraints())
+            //schemaService.ensureSystemIndexes(null);
+
+    }
+
+
 }
+
+

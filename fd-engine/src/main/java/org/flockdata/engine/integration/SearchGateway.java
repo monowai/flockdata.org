@@ -10,7 +10,6 @@ import org.springframework.messaging.handler.annotation.Payload;
  *
  * Created by mike on 20/02/16.
  */
-//@Profile({"integration", "production"})
 @MessagingGateway
 public interface SearchGateway {
 

@@ -196,7 +196,7 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.artifactId}-war.jar</include>
+                                    <include>${project.artifactId}.jar</include>
                                     <include>classes/application.properties</include>
                                     <include>classes/log4j.xml</include>
                                 </resource>

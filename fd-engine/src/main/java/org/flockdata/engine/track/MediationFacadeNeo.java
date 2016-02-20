@@ -25,7 +25,7 @@ import org.flockdata.configure.SecurityHelper;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.EngineAdminService;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.integration.TrackGateway;
+import org.flockdata.engine.integration.InboundGateway;
 import org.flockdata.engine.query.service.SearchServiceFacade;
 import org.flockdata.engine.schema.IndexRetryService;
 import org.flockdata.engine.tag.service.TagRetryService;
@@ -130,7 +130,7 @@ public class MediationFacadeNeo implements MediationFacade {
     TrackBatchSplitter batchSplitter;
 
     @Autowired
-    TrackGateway trackGateway;
+    InboundGateway inboundGateway;
 
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
 

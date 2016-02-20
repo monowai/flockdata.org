@@ -25,9 +25,7 @@ import org.flockdata.engine.integration.SearchGateway;
 import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
-import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.store.Store;
-import org.flockdata.track.service.SchemaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,8 +54,7 @@ public class EngineConfig implements PlatformConfig {
 
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
-
-    @Value("${fd-store.system.engine:RIAK}")
+    @Value("${fd-store.system.engine:NONE}")
     private String storeEngine;
 
     @Value("${fd-engine.fortress.store:disabled}")
@@ -72,19 +68,11 @@ public class EngineConfig implements PlatformConfig {
     }
 
     @Autowired
-    SchemaService schemaService;
-
-    @Autowired
     SearchGateway searchGateway;
 
     @Autowired
     StorageGateway storageGateway;
 
-    @Autowired
-    SecurityHelper securityHelper;
-
-    @Autowired
-    SystemUserService systemUserService;
 
     private Boolean multiTenanted = false;
     private boolean conceptsEnabled = true;
@@ -218,13 +206,6 @@ public class EngineConfig implements PlatformConfig {
         Map<String, String> healthResults = new HashMap<>();
 
         healthResults.put("flockdata.version", version);
-        healthResults.put("fd-engine", "Neo4j is OK");
-
-        String config = System.getProperty("fd.config");
-
-        if (config == null || config.equals(""))
-            config = "system-default";
-        healthResults.put("config-file", config);
 
         String esPingResult;
         try {
@@ -307,13 +288,6 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public void setTestMode(boolean testMode) {
         this.testMode = testMode;
-    }
-
-    @PostConstruct
-    public void ensureSystemIndexes() {
-        if (createSystemConstraints())
-            schemaService.ensureSystemIndexes(null);
-
     }
 
     public String getFdSearch() {

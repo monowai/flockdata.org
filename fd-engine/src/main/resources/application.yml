@@ -102,16 +102,8 @@ fd-log:
     poolSize: 5-10
     queueCapacity: 30
 
-# Minimally required properties for the graph
 neo4j:
-  datastore: ./data/neo4j/fd
-  cacheType: hpc
-  onlineBackup: true
-# http://neo4j.com/docs/stable/shell-starting.html
-  remoteShell: true
-  remoteShellHost: 127.0.0.1
-  remoteShellPort: 1337
-  keep_logical_logs: 1000M size
+  path: src/main/resources # path to neo4j.properties
 
 fd-auth:
   simple:

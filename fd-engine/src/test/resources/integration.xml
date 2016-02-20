@@ -15,7 +15,7 @@
     <!--Contains generic integration functionality for fd-engine. Transformers, gateways and channels -->
 
     <int:gateway id="fdTrackGateway" async-executor="fd-engine"
-                 service-interface="org.flockdata.engine.integration.TrackGateway"/>
+                 service-interface="org.flockdata.engine.integration.InboundGateway"/>
 
     <int:gateway id="kvGateway" async-executor="fd-store"
                  service-interface="org.flockdata.engine.integration.StorageGateway"/>
