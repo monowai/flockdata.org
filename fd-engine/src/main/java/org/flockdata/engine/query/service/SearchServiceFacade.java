@@ -90,7 +90,7 @@ public class SearchServiceFacade {
     EntityTagFinder defaultTagFinder;
 
     @Autowired
-    PlatformConfig engineConfig;
+    PlatformConfig platformConfig;
 
 
 
@@ -206,7 +206,7 @@ public class SearchServiceFacade {
             searchDocument.setSearchKey(null);
         }
 
-        if (!engineConfig.isSearchRequiredToConfirm() )
+        if (!platformConfig.isSearchRequiredToConfirm() )
             // If we already have the search key for this Entity then don't bother us with a reply
             searchDocument.setReplyRequired(entity.getSearch() == null);
 
@@ -255,7 +255,7 @@ public class SearchServiceFacade {
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
             searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
 
-            if ( !engineConfig.isSearchRequiredToConfirm())
+            if ( !platformConfig.isSearchRequiredToConfirm())
                 searchDocument.setReplyRequired(false);
 
             searchDocument.setForceReindex(true);

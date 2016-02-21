@@ -5,11 +5,12 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.slf4j.LoggerFactory;
+
+//import org.apache.log4j.ConsoleAppender;
+//import org.apache.log4j.Level;
+//import org.apache.log4j.Logger;
+//import org.apache.log4j.PatternLayout;
 
 /**
  * Created by mike on 6/01/16.
@@ -99,15 +100,15 @@ public class InitializationSupport {
     }
 
     static org.slf4j.Logger configureLogger(Boolean debug) {
-        Logger.getRootLogger().getLoggerRepository().resetConfiguration();
-        ConsoleAppender console = new ConsoleAppender();
-        String PATTERN = "%m%n";
-        console.setLayout(new PatternLayout(PATTERN));
-        console.setThreshold((debug!=null&& debug ? Level.TRACE : Level.INFO));
-        console.activateOptions();
-
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(console);
+//        Logger.getRootLogger().getLoggerRepository().resetConfiguration();
+//        ConsoleAppender console = new ConsoleAppender();
+//        String PATTERN = "%m%n";
+//        console.setLayout(new PatternLayout(PATTERN));
+//        console.setThreshold((debug!=null&& debug ? Level.TRACE : Level.INFO));
+//        console.activateOptions();
+//
+//        //add appender to any Logger (here is root)
+//        Logger.getRootLogger().addAppender(console);
 
         return LoggerFactory.getLogger(Configure.class);
     }

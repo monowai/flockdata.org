@@ -21,8 +21,8 @@ public enum Store {
         StoredContent storedContent = new StorageBean(trackResult);
         storedContent.setStore(storage.name());
         log.setStorage(storage.name());
-        log.setChecksum(storedContent.getChecksum());
         log.setContent(storedContent);
+        log.setChecksum(storedContent.getChecksum());
         return log;
     }
 

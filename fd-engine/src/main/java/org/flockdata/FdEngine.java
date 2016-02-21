@@ -19,6 +19,8 @@
 
 package org.flockdata;
 
+import org.flockdata.track.service.SchemaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,32 +28,33 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import javax.annotation.PostConstruct;
 
 /**
- *
- *  To use spring-boot you will need to uncomment the maven pom dependencies. The rest of the pom
- *  should be good to go
- *
- *  Get fd-search working first. fd-engine has neo4j embedded rest interface that might cause problems
- *
+ * To use spring-boot you will need to uncomment the maven pom dependencies. The rest of the pom
+ * should be good to go
+ * <p>
+ * Get fd-search working first. fd-engine has neo4j embedded rest interface that might cause problems
+ * <p>
  * User: mike
  * Date: 15/12/14
  * Time: 3:49 PM
  */
-@SpringBootApplication(scanBasePackages = { "org.flockdata.company",
-                                            "org.flockdata.engine","org.flockdata.geography",
-                                            "org.flockdata.authentication", "org.flockdata.shared"})
+// test and store are required for functional testing only. not sure how to scan for them
+@SpringBootApplication(
+        scanBasePackages = {"org.flockdata.company",
+                "org.flockdata.test.engine", "org.flockdata.store",
+                "org.flockdata.engine", "org.flockdata.geography",
+                "org.flockdata.authentication", "org.flockdata.shared"})
 @EnableConfigurationProperties()
 public class FdEngine {
     public static void main(String[] args) {
         SpringApplication.run(FdEngine.class, args);
     }
 
-//    @Autowired
-//    SchemaService schemaService;
+    @Autowired
+    SchemaService schemaService;
 
     @PostConstruct
     public void ensureSystemIndexes() {
-        //if (createSystemConstraints())
-            //schemaService.ensureSystemIndexes(null);
+        schemaService.ensureSystemIndexes(null);
 
     }
 

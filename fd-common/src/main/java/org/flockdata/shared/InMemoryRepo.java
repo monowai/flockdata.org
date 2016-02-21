@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ * Copyright (c) 2012-2016 "FlockData LLC"
  *
  * This file is part of FlockData.
  *
@@ -17,12 +17,14 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.common.repos;
+package org.flockdata.shared;
 
+import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -32,17 +34,23 @@ import java.util.Map;
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
  */
 @Component
+@Profile("dev")
 public class InMemoryRepo extends AbstractStore {
 
     Map<Object, ContentInputBean> map = new HashMap <>();
 
     public void add(StoredContent contentBean) {
-        map.put(contentBean.getType().toLowerCase()+"."+contentBean.getId(), contentBean.getContent());
+        map.put(getKey(contentBean.getType(), contentBean.getId()), contentBean.getContent());
     }
 
     @Override
     public StoredContent read(String index, String type, Object id) {
-        return new StorageBean(id, map.get(type.toLowerCase()+"."+id));
+        return new StorageBean(id, map.get(getKey(type, id)));
+    }
+
+    public String getKey(String type, Object id) {
+//        return id.toString();
+        return type.toLowerCase()+"."+id;
     }
 
     public StoredContent read(LogRequest logRequest) {

@@ -9,10 +9,10 @@ RUN mkdir /opt/flockdata && \
     mkdir /opt/flockdata/conf
 
 # Add files.
-ADD fd-search-war.jar /opt/flockdata/bin/app.jar
+ADD fd-search-*.jar /opt/flockdata/bin/app.jar
 ADD classes/log4j.xml /opt/flockdata/conf/log4j.xml
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
-COPY classes/application.properties /opt/flockdata/conf/application.properties
+COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 
 RUN bash -c 'touch app.jar'

@@ -90,7 +90,7 @@ public class MediationFacadeNeo implements MediationFacade {
     @Autowired
     CompanyService companyService;
 
-    @Autowired
+    @Autowired (required = false)
     SearchServiceFacade searchService;
 
     @Autowired
@@ -451,9 +451,11 @@ public class MediationFacadeNeo implements MediationFacade {
         // Refresh the entity
         //entity = entityService.getEntity(entity);
         searchChange = entityService.cancelLastLog(company, entity);
-        if (searchChange != null) {
-            searchService.setTags(entity, searchChange);
-            searchService.makeChangeSearchable(searchChange);
+        if (searchChange != null ) {
+            if ( searchService !=null ) {
+                searchService.setTags(entity, searchChange);
+                searchService.makeChangeSearchable(searchChange);
+            }
         } else {
             logger.info("ToDo: Delete the search document {}", entity);
         }
@@ -462,7 +464,8 @@ public class MediationFacadeNeo implements MediationFacade {
     void distributeChanges(final Fortress fortress, final Iterable<TrackResultBean> resultBeans) throws IOException, InterruptedException, ExecutionException, FlockException {
 
         logger.debug("Distributing changes to sub-services");
-        searchService.makeChangesSearchable(fortress, resultBeans);
+        if ( searchService != null )
+            searchService.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests
         if (engineConfig.isTestMode())
             conceptRetryService.trackConcepts(fortress, resultBeans).get();

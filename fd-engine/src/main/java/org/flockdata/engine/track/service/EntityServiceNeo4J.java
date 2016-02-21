@@ -404,10 +404,12 @@ public class EntityServiceNeo4J implements EntityService {
         //kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
-            // Nothing to index, no changes left so we're done
-            searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
-            searchDocument.setDelete(true);
-            searchDocument.setSearchKey(searchKey);
+            if ( entity.getSegment().getFortress().isSearchEnabled() ) {
+                // Nothing to index, no changes left so we're done
+                searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+                searchDocument.setDelete(true);
+                searchDocument.setSearchKey(searchKey);
+            }
             return searchDocument;
         }
 

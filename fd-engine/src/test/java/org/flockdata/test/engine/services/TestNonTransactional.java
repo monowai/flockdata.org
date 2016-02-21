@@ -95,7 +95,7 @@ public class TestNonTransactional extends EngineBase {
     @Test
     public void multipleFortressUserRequestsThreaded() throws Exception {
         cleanUpGraph();
-        Transaction t = template.getGraphDatabase().beginTx();
+        Transaction t = neo4jTemplate.getGraphDatabase().beginTx();
         logger.info("### Starting multipleFortressUserRequestsThreaded");
         // Assume the user has now logged in.
         //org.neo4j.graphdb.Transaction t = graphDatabaseService.beginTx();

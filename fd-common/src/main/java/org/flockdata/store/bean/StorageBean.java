@@ -74,12 +74,13 @@ public class StorageBean implements StoredContent, Serializable {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();
                 this.store = trackResultBean.getCurrentLog().getLog().getStorage();
             }
-            this.content = trackResultBean.getContentInput();
-            if (this.content != null) {
-                content.setCode(trackResultBean.getEntity().getCode());
-                content.setMetaKey(trackResultBean.getMetaKey());
-            }
         }
+        this.content = trackResultBean.getContentInput();
+        if (this.content != null) {
+            content.setCode(trackResultBean.getEntity().getCode());
+            content.setMetaKey(trackResultBean.getMetaKey());
+        }
+
     }
 
     public ContentInputBean getContent() {
@@ -111,8 +112,12 @@ public class StorageBean implements StoredContent, Serializable {
     }
 
     public String getChecksum() throws IOException {
+
+        assert getData()!=null || getAttachment()!=null;
+
         if (checksum != null)
             return checksum;
+
         Checksum crcChecksum = new CRC32();
         byte[] bytes;
         if (getAttachment() != null)
@@ -120,7 +125,7 @@ public class StorageBean implements StoredContent, Serializable {
         else
             bytes = JsonUtils.toJsonBytes(getData());
         crcChecksum.update(bytes, 0, bytes.length);
-        checksum = Long.toHexString(crcChecksum.getValue()).toUpperCase();
+        checksum = Long.toHexString(crcChecksum.getValue());
         return checksum;
     }
 
