@@ -66,7 +66,7 @@ public class AdminService implements EngineAdminService {
     @Autowired
     EntityService entityService;
 
-    @Autowired
+    @Autowired (required = false)
     SearchServiceFacade searchService;
 
     @Autowired

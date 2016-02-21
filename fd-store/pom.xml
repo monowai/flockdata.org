@@ -43,17 +43,10 @@
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
-            <artifactId>fd-store-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-security</artifactId>
@@ -263,7 +256,7 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.artifactId}.jar</include>
+                                    <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
                                     <include>classes/log4j.xml</include>
                                 </resource>

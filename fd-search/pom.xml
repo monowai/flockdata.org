@@ -115,7 +115,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
-            <version>1.3.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
@@ -156,27 +155,30 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
 
     </build>
     <profiles>
         <profile>
             <id>docker</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>repackage</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
@@ -196,8 +198,8 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.artifactId}.jar</include>
-                                    <include>classes/application.properties</include>
+                                    <include>${project.build.finalName}.jar</include>
+                                    <include>classes/application.yml</include>
                                     <include>classes/log4j.xml</include>
                                 </resource>
                             </resources>

@@ -16,10 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * Created by mike on 21/02/16.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@WebAppConfiguration
-@WebIntegrationTest
-@ActiveProfiles("integration")
 @SpringApplicationConfiguration(FdEngine.class)
+// fd-engine port
+@WebIntegrationTest({"server.port=9090", "management.port=9070"})
+@ActiveProfiles("integration")
 public class TestStack {
 
     @Autowired

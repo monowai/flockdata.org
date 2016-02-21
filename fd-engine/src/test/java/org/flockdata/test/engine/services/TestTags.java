@@ -804,7 +804,7 @@ public class TestTags extends EngineBase {
         String cypher = "match (t)-[r]-(o) where id(t)={t} return count(r) as value;";
         Map<String,Object>params = new HashMap<>();
         params.put("t",tags.iterator().next().getTag().getId());
-        Result<Map<String, Object>> results = template.query(cypher, params);
+        Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
         for (Map<String, Object> row : results) {
             assertEquals(1l, row.get("value"));
         }
@@ -920,7 +920,7 @@ public class TestTags extends EngineBase {
         String cypher = "match (t)-[r]-() where id(t)= {tagId} delete r;";
         Map<String,Object>params = new HashMap<>();
         params.put("tagId",tagResultBean.getTag().getId());
-        template.query(cypher, params);
+        neo4jTemplate.query(cypher, params);
 
         // Should re-create the relationship
         mediationFacade.createTag(su.getCompany(), deliveryPoint);

@@ -33,20 +33,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <exclusions>
-                <!-- Exclude Commons Logging in favor of SLF4j -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <version>${org.springboot.version}</version>
         </dependency>
 
         <dependency>
@@ -68,20 +65,18 @@
             <groupId>org.flockdata</groupId>
             <artifactId>fd-engine</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.flockdata</groupId>
-            <artifactId>fd-search</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.flockdata</groupId>-->
+        <!--<artifactId>fd-search</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<type>jar</type>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
@@ -92,12 +87,12 @@
             <version>${surefire.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>7.0.30</version>
-            <!--<scope>test</scope>-->
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.apache.tomcat</groupId>-->
+        <!--<artifactId>tomcat-servlet-api</artifactId>-->
+        <!--<version>7.0.30</version>-->
+        <!--&lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>io.searchbox</groupId>
@@ -138,6 +133,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.data</groupId>-->
+            <!--<artifactId>spring-data-elasticsearch</artifactId>-->
+        <!--</dependency>-->
+
     </dependencies>
 
 
@@ -151,6 +151,7 @@
                     <!--Exlude Integration Tests from the standard build (mvn clean install)-->
                     <excludes>
                         <exclude>**/*Integration.java</exclude>
+                        <exclude>**/*Stack.java</exclude>
                     </excludes>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <argLine>-Xmx512m</argLine>
@@ -182,6 +183,7 @@
                                 <configuration>
                                     <excludes>
                                         <exclude>**/Abstract*.java</exclude>
+                                        <exclude>TestFdIn*.java</exclude>
                                     </excludes>
                                     <junitArtifactName>junit:junit</junitArtifactName>
                                     <argLine>-Xmx512m -Xss256k</argLine>
@@ -189,80 +191,142 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
-                        <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.4.15</version>
-                        <configuration>
-                            <container>
-                                <containerId>tomcat8x</containerId>
-                                <zipUrlInstaller>
-                                    <url>
-                                        http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.24/bin/apache-tomcat-8.0.24.zip
-                                    </url>
-                                </zipUrlInstaller>
-                                <systemProperties>
-                                    <fd.integration>amqp</fd.integration>
-                                    <fd.config>${project.basedir}/src/test/resources/config.properties</fd.config>
-                                    <es.settings>src/test/resources/fd-search/fd-int-settings.json</es.settings>
-                                    <log4j.configuration>file://${project.basedir}/src/test/resources/fd-search/log4j-search.xml</log4j.configuration>
-                                    <java.awt.headless>true</java.awt.headless>
-                                    <spring.profiles.active>integration</spring.profiles.active>
-                                    <fd.logLevel>${fd.logLevel}</fd.logLevel>
-                                </systemProperties>
-                            </container>
-                            <configuration>
-                                <home>${project.build.directory}/catalina-base</home>
-                                <properties>
-                                    <cargo.servlet.port>9081</cargo.servlet.port>
-                                    <cargo.rmi.port>9086</cargo.rmi.port>
-                                    <cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>
-                                    <!--the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented -->
-                                    <!--<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>-->
-                                    <cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>
-                                </properties>
-                                <files>
-                                    <copy>
-                                        <!-- Not currently working. TC should be able to read this but it doesn't I'm not doing it right-->
-                                        <file>${project.basedir}/src/test/resources/fd-search/fd-int-settings.json</file>
-                                        <todir>conf/Catalina/localhost/</todir>
-                                        <configfile>true</configfile>
-                                        <overwrite>true</overwrite>
-                                    </copy>
-                                </files>
-                            </configuration>
-                            <deployables>
-                                <deployable>
-                                    <groupId>org.flockdata</groupId>
-                                    <artifactId>fd-search</artifactId>
-                                    <type>war</type>
-                                    <properties>
-                                        <context>/</context>
-                                    </properties>
-                                </deployable>
-                            </deployables>
-                            <packager>
-                                <outputLocation>${project.build.directory}/tomcat-packaged</outputLocation>
-                            </packager>
-                        </configuration>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.4.0</version>
                         <executions>
                             <execution>
-                                <id>start-server</id>
-                                <phase>pre-integration-test</phase>
+                                <id>default-cli</id>
                                 <goals>
-                                    <goal>start</goal>
+                                    <goal>exec</goal>
                                 </goals>
-                            </execution>
-                            <execution>
-                                <id>stop-server</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <profiles>
+                                        <profile>integration</profile>
+                                    </profiles>
+                                    <!-- optional -->
+                                    <workingDirectory>../fd-search</workingDirectory>
+                                    <arguments>
+                                        <argument>-jar</argument>
+                                        <argument>${basedir}/target/fd-search-${project.version}.jar</argument>
+                                        <argument>port=9091</argument>
+                                    </arguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.springframework.boot</groupId>-->
+                        <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+                        <!--<version>${org.springboot.version}</version>-->
+                        <!--<configuration>-->
+                            <!--<mainClass>org.flockdata.search.FdSearch</mainClass>-->
+                            <!--<useTestClasspath>true</useTestClasspath>-->
+                            <!--<classesDirectory>../fd-search/target/classes</classesDirectory>-->
+                            <!--<profiles>-->
+                                <!--<profile>integration</profile>-->
+                            <!--</profiles>-->
+                            <!--<arguments>-->
+                                <!--<argument>port=9091</argument>-->
+                            <!--</arguments>-->
+                            <!--<jvmArguments>-->
+                                 <!-- -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000-->
+                            <!--</jvmArguments>-->
+
+                        <!--</configuration>-->
+
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>pre-integration-test</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>start</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                            <!--<execution>-->
+                                <!--<id>post-integration-test</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>stop</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+
+                    <!--</plugin>-->
+
+                    <!--<plugin>-->
+                    <!--<groupId>org.codehaus.cargo</groupId>-->
+                    <!--<artifactId>cargo-maven2-plugin</artifactId>-->
+                    <!--<version>1.4.15</version>-->
+                    <!--<configuration>-->
+                    <!--<container>-->
+                    <!--<containerId>tomcat8x</containerId>-->
+                    <!--<zipUrlInstaller>-->
+                    <!--<url>-->
+                    <!--http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.24/bin/apache-tomcat-8.0.24.zip-->
+                    <!--</url>-->
+                    <!--</zipUrlInstaller>-->
+                    <!--<systemProperties>-->
+                    <!--<fd.integration>amqp</fd.integration>-->
+                    <!--<fd.config>${project.basedir}/src/test/resources/config.properties</fd.config>-->
+                    <!--<es.settings>src/test/resources/fd-search/fd-int-settings.json</es.settings>-->
+                    <!--<log4j.configuration>file://${project.basedir}/src/test/resources/fd-search/log4j-search.xml</log4j.configuration>-->
+                    <!--<java.awt.headless>true</java.awt.headless>-->
+                    <!--<spring.profiles.active>integration</spring.profiles.active>-->
+                    <!--<fd.logLevel>${fd.logLevel}</fd.logLevel>-->
+                    <!--</systemProperties>-->
+                    <!--</container>-->
+                    <!--<configuration>-->
+                    <!--<home>${project.build.directory}/catalina-base</home>-->
+                    <!--<properties>-->
+                    <!--<cargo.servlet.port>9081</cargo.servlet.port>-->
+                    <!--<cargo.rmi.port>9086</cargo.rmi.port>-->
+                    <!--<cargo.tomcat.ajp.port>9087</cargo.tomcat.ajp.port>-->
+                    <!--&lt;!&ndash;the debug agent tends to cause a hang when the tomcat instance running fd-search shuts down, so please don't commit with this uncommented &ndash;&gt;-->
+                    <!--&lt;!&ndash;<cargo.jvmargs>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Xms512m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>&ndash;&gt;-->
+                    <!--<cargo.jvmargs>-Xms1024m -Xmx1024m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -Dspring.profiles.active=integration</cargo.jvmargs>-->
+                    <!--</properties>-->
+                    <!--<files>-->
+                    <!--<copy>-->
+                    <!--&lt;!&ndash; Not currently working. TC should be able to read this but it doesn't I'm not doing it right&ndash;&gt;-->
+                    <!--<file>${project.basedir}/src/test/resources/fd-search/fd-int-settings.json</file>-->
+                    <!--<todir>conf/Catalina/localhost/</todir>-->
+                    <!--<configfile>true</configfile>-->
+                    <!--<overwrite>true</overwrite>-->
+                    <!--</copy>-->
+                    <!--</files>-->
+                    <!--</configuration>-->
+                    <!--<deployables>-->
+                    <!--<deployable>-->
+                    <!--<groupId>org.flockdata</groupId>-->
+                    <!--<artifactId>fd-search</artifactId>-->
+                    <!--<type>war</type>-->
+                    <!--<properties>-->
+                    <!--<context>/</context>-->
+                    <!--</properties>-->
+                    <!--</deployable>-->
+                    <!--</deployables>-->
+                    <!--<packager>-->
+                    <!--<outputLocation>${project.build.directory}/tomcat-packaged</outputLocation>-->
+                    <!--</packager>-->
+                    <!--</configuration>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>start-server</id>-->
+                    <!--<phase>pre-integration-test</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>start</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                    <!--<id>stop-server</id>-->
+                    <!--<phase>post-integration-test</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>stop</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
+                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>

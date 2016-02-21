@@ -87,7 +87,7 @@ public class TestEntityCrossLink extends EngineBase {
         String cypher = "match (parent:Entity)-[p:"+PARENT+"]->(child:Entity) where id(parent)={parentId} return child";
         Map<String, Object> params = new HashMap<>();
         params.put("parentId", parentResult.getEntity().getId());
-        Result<Map<String, Object>> results = template.query(cypher, params);
+        Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
         boolean found = false;
         for (Map<String, Object> result : results) {
             Node node = (Node) result.get("child");

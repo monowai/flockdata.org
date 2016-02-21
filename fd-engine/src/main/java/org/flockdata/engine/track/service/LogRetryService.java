@@ -71,7 +71,7 @@ public class LogRetryService {
     EntityDaoNeo entityDao;
 
     @Autowired
-    PlatformConfig engineConfig;
+    PlatformConfig platformConfig;
 
     /**
      * Attempts to gracefully handle deadlock conditions

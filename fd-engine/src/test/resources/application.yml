@@ -1,7 +1,7 @@
 
 spring:
   profiles:
-    active: production
+    active: dev
     include: fd-auth-test
 
 fd-engine:
@@ -13,18 +13,8 @@ fd-engine:
 
 fd-store:
   system:
-    enabled: false
+    enabled: true
     engine: MEMORY
-
-# Minimally required properties for the graph
-neo4j:
-  datastore: ./target/data/test/data/neo4j/
-  cacheType: hpc
-  onlineBackup: true
-  remoteShell: true
-  remoteShellHost: 127.0.0.1
-  remoteShellPort: 1337
-  keep_logical_logs: 1000M size
 
 fd-auth:
   simple:

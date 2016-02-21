@@ -1,10 +1,10 @@
 package org.flockdata.test.engine;
 
 import org.flockdata.engine.admin.service.FdStorageProxy;
+import org.flockdata.shared.InMemoryRepo;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.common.repos.InMemoryRepo;
 import org.flockdata.track.bean.TrackResultBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

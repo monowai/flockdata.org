@@ -17,10 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.common.repos;
-
-import org.flockdata.store.LogRequest;
-import org.flockdata.store.StoredContent;
+package org.flockdata.store;
 
 import java.io.IOException;
 

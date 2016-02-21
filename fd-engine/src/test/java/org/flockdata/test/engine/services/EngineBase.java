@@ -143,13 +143,13 @@ public abstract class EngineBase {
     CompanyEP companyEP;
 
     @Autowired
-    SearchServiceFacade searchService;
+    SearchServiceFacade searchService = new SearchServiceFacade();
 
     @Autowired
     StorageProxy storageService;
 
     @Autowired
-    Neo4jTemplate template;
+    Neo4jTemplate neo4jTemplate;
 
     @Autowired
     SecurityHelper securityHelper;
@@ -179,9 +179,9 @@ public abstract class EngineBase {
         //           might be started giving you sporadic failures.
         // DAT-493 Function removed
         // https://github.com/spring-projects/spring-data-neo4j/issues/308
-        //Neo4jHelper.cleanDb(template);
-        template.query("match (n)-[r]-() delete r,n", null);
-        template.query("match (n) delete n", null);
+        //Neo4jHelper.cleanDb(neo4jTemplate);
+        neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
+        neo4jTemplate.query("match (n) delete n", null);
         engineConfig.setDuplicateRegistration(true);
         engineConfig.setTestMode(true);
     }
@@ -210,7 +210,7 @@ public abstract class EngineBase {
     }
 
     Transaction beginManualTransaction() {
-        return template.getGraphDatabase().beginTx();
+        return neo4jTemplate.getGraphDatabase().beginTx();
     }
 
     void commitManualTransaction(Transaction t) {
