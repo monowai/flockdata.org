@@ -1,4 +1,4 @@
-package org.flockdata.engine.tag.dao;
+package org.flockdata.engine.dao;
 
 import org.flockdata.model.Tag;
 import org.flockdata.registration.TagResultBean;

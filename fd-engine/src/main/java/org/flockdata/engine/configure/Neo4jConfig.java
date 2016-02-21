@@ -21,7 +21,7 @@ package org.flockdata.engine.configure;
 
 /**
  * Neo4j embedded database
- *
+ * <p>
  * Created by mike on 31/03/15.
  */
 
@@ -40,13 +40,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.annotation.PostConstruct;
 
 @EnableTransactionManagement
-@EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
-                                         "org.flockdata.engine.tag.dao",
-                                         "org.flockdata.engine.dao",
-                                         "org.flockdata.geography.dao",
-                                         "org.flockdata.model.*"})
+@EnableNeo4jRepositories(basePackages = { "org.flockdata.company.dao",
+                                          "org.flockdata.geography.dao",
+                                          "org.flockdata.engine.*",
+                                          "org.flockdata.model.*"})
 @Configuration
-@Profile({"integration","production"})
+@Profile({"integration", "production"})
 public class Neo4jConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -61,19 +60,21 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
 
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:''}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:''}") String props, @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
             logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
             logger.info("**** Neo4j datafiles [{}]", dbPath);
 
             configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
+            setBasePackage("org.flockdata.*");
             return new GraphDatabaseFactory()
+
                     .newEmbeddedDatabaseBuilder(dbPath)
                     .loadPropertiesFromFile(configFile)
                     .newGraphDatabase();
-        } catch ( Exception fileNotFoundException){
-            logger.error("!!! Error initialising Neo4j from ["+configFile+"]. Path can be set via org.neo4j.path=");
+        } catch (Exception fileNotFoundException) {
+            logger.error("!!! Error initialising Neo4j from [" + configFile + "]. Path can be set via org.neo4j.path=");
             throw fileNotFoundException;
         }
     }

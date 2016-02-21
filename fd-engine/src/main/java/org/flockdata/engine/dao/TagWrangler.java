@@ -21,7 +21,6 @@ package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.flockdata.engine.schema.IndexRetryService;
-import org.flockdata.engine.tag.dao.TagRepo;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
