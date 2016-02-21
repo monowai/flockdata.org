@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.Transformer;
@@ -20,6 +22,8 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handles reading content from fd-store
@@ -58,9 +62,16 @@ public class StorageReader {
     }
 
     private MessageHandler storeRead() {
+        SpelExpressionParser expressionParser = new SpelExpressionParser();
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(engineConfig.getFdStore()+ "/v1/data/{store}/{index}/{type}/{key}");
         handler.setHttpMethod(HttpMethod.GET);
+        Map<String, Expression> vars = new HashMap<>();
+        vars.put("store", expressionParser.parseExpression("payload[0]"));
+        vars.put("index", expressionParser.parseExpression("payload[1]"));
+        vars.put("type", expressionParser.parseExpression("payload[2]"));
+        vars.put("key", expressionParser.parseExpression("payload[3]"));
+        handler.setUriVariableExpressions(vars);
         handler.setExpectedResponseType(StorageBean.class);
         handler.setOutputChannel(receiveStoreReadReply());
         return handler;

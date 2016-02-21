@@ -19,16 +19,16 @@
     <import resource="fde-amqp-rabbit.xml"/>
 
     <!-- Acknowledgement from fd-search of an fd-engine request-->
-    <int-amqp:inbound-channel-adapter id="searchSyncResultId"
-                              channel="searchDocSyncResult"
-                              queue-names="${fd-engine.queue}"
-                              shutdown-timeout="3000"
-                              acknowledge-mode="AUTO"
-                              concurrent-consumers="${fd-search.concurrentConsumers}"
-                              prefetch-count="${fd-search.prefetchCount}"
-                              task-executor="fd-search"
-                              connection-factory="connectionFactory"
-                              message-converter="jsonToSearchResultConverter"/>
+    <!--<int-amqp:inbound-channel-adapter id="searchSyncResultId"-->
+                              <!--channel="searchDocSyncResult"-->
+                              <!--queue-names="${fd-engine.queue}"-->
+                              <!--shutdown-timeout="3000"-->
+                              <!--acknowledge-mode="AUTO"-->
+                              <!--concurrent-consumers="${fd-search.concurrentConsumers}"-->
+                              <!--prefetch-count="${fd-search.prefetchCount}"-->
+                              <!--task-executor="fd-search"-->
+                              <!--connection-factory="connectionFactory"-->
+                              <!--message-converter="jsonToSearchResultConverter"/>-->
 
     <!--internally used to send content to the inboundTrackGateway -->
     <!--<int-amqp:outbound-channel-adapter-->

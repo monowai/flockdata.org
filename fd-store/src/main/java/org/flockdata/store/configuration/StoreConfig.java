@@ -42,8 +42,8 @@ public class StoreConfig implements FdStoreConfig {
 
     private Store kvStore = null;
 
-    @Value("${fd-store.system.enabled}")
-    private Boolean storeEnabled = true;
+//    @Value("${fd-store.system.enabled}")
+//    private Boolean storeEnabled = true;
 
     @Value("${fd-search.api:http://localhost:8081/api}")
     String fdSearchUrl;
@@ -63,20 +63,6 @@ public class StoreConfig implements FdStoreConfig {
 
     public String riakHosts() {
         return riakHosts;
-    }
-
-    /**
-     * Default property for a fortress if not explicitly set.
-     * When true (default) KV versions of information will be tracked
-     *
-     * @param storeEnabled defaults to true
-     */
-    public void setStoreEnabled(String storeEnabled) {
-        this.storeEnabled = "@null".equals(storeEnabled) || Boolean.parseBoolean(storeEnabled);
-    }
-
-    public Boolean storeEnabled(){
-        return this.storeEnabled;
     }
 
     /**

@@ -101,7 +101,6 @@ public class TestStoreService {
 
     @Before
     public void resetKvStore() {
-        storeConfig.setStoreEnabled("true");
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(SecurityMockMvcConfigurers.springSecurity())

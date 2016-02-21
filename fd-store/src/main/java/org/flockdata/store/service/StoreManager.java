@@ -28,7 +28,6 @@ import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.repo.EsRepo;
 import org.flockdata.store.repo.RedisRepo;
 import org.flockdata.store.repo.RiakRepo;
 import org.slf4j.Logger;
@@ -41,8 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 /**
- * Encapsulation of FlockData's store management functionality. A simple wrapper with support
+ * Encapsulation of FlockData's store management functionality.
+ *
+ * A simple wrapper with support
  * for various data stores that support put/get semantics.
+ *
+ *
  * <p/>
  * User: Mike Holdsworth
  * Since: 4/09/13
@@ -60,8 +63,8 @@ public class StoreManager implements StoreService {
     @Autowired (required = false)
     InMemoryRepo inMemoryRepo;
 
-    @Autowired
-    EsRepo defaultStore;
+//    @Autowired
+//    EsRepo defaultStore;
 
     @Autowired
     FdStoreConfig storeConfig;
@@ -117,8 +120,6 @@ public class StoreManager implements StoreService {
             return riakRepo;
         } else if (store == Store.MEMORY) {
             return inMemoryRepo;
-        } else if (store == Store.NONE) {
-            return defaultStore;
         } else {
             logger.info("The only supported persistent KV Stores supported are redis & riak. Returning a non-persistent memory based map");
             return inMemoryRepo;
