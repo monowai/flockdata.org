@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.meta.service;
 
-import org.flockdata.engine.meta.dao.ConceptDaoNeo;
+import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;

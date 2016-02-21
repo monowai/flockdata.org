@@ -10,7 +10,8 @@ RUN mkdir /opt/flockdata && \
 
 # Add files.
 COPY fd-store-*.jar /opt/flockdata/app/app.jar
-COPY classes/log4j.xml /opt/flockdata/conf/log4j.xml
+COPY classes/log4j.xml /opt/flockdata/log4j.xml
+COPY classes/application.yml /opt/flockdata/
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
 #COPY classes/application.yml /opt/flockdata/conf/application.yml
 

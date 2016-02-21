@@ -10,10 +10,13 @@ RUN mkdir /opt/flockdata && \
 
 # Add files.
 COPY fd-engine-*.jar /opt/flockdata/app/app.jar
-COPY classes/log4j.xml /opt/flockdata/conf/log4j.xml
+
+#COPY classes/application.yml /opt/flockdata
+COPY classes/log4j.xml /opt/flockdata
+COPY classes/neo*.properties /opt/flockdata
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
 #COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 RUN bash -c 'touch app.jar'
 EXPOSE 8080 7474
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/app/app.jar","-httpPort=8080"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/app/app.jar"]

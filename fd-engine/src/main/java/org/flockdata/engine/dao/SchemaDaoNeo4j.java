@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.meta.dao;
+package org.flockdata.engine.dao;
 
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;

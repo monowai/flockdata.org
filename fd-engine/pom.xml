@@ -446,7 +446,7 @@
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.build.finalName}.jar</include>
-                                    <include>classes/config.properties</include>
+                                    <include>classes/application.yml</include>
                                     <include>classes/log4j.xml</include>
                                     <include>classes/neo4j*.properties</include>
                                 </resource>

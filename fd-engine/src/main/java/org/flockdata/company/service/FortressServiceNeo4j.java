@@ -23,7 +23,7 @@ package org.flockdata.company.service;
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.meta.dao.ConceptDaoNeo;
+import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;

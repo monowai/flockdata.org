@@ -20,7 +20,6 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.engine.PlatformConfig;
-import org.flockdata.engine.meta.dao.DocumentTypeRepo;
 import org.flockdata.engine.track.service.TrackEventService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
