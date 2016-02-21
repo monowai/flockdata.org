@@ -1,6 +1,6 @@
 package org.flockdata.engine.tag.service;
 
-import org.flockdata.engine.tag.dao.TagPathDao;
+import org.flockdata.engine.dao.TagPathDao;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Tag;

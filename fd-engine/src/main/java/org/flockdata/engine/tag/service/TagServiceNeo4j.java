@@ -22,7 +22,7 @@ package org.flockdata.engine.tag.service;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.ConceptDaoNeo;
-import org.flockdata.engine.tag.dao.TagDaoNeo4j;
+import org.flockdata.engine.dao.TagDaoNeo4j;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
@@ -59,7 +59,7 @@ public class TagServiceNeo4j implements TagService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private TagDaoNeo4j tagDao;
+    private TagDaoNeo4j tagDaoNeo4j;
 
     @Autowired
     private ConceptDaoNeo conceptDao;
@@ -94,7 +94,7 @@ public class TagServiceNeo4j implements TagService {
                 .setTenant(tenant)
                 .setIgnoreRelationships(false);
 
-        Collection<TagResultBean> results = tagDao.save(payload);
+        Collection<TagResultBean> results = tagDaoNeo4j.save(payload);
 
         for (TagResultBean result : results) {
             if ( result.isNew() && !result.getTag().isDefault() )
@@ -112,12 +112,12 @@ public class TagServiceNeo4j implements TagService {
     public Collection<Tag> findDirectedTags(Tag startTag) {
         Company company = securityHelper.getCompany();
         String suffix = engineAdmin.getTagSuffix(company);
-        return tagDao.findDirectedTags(suffix, startTag, company);
+        return tagDaoNeo4j.findDirectedTags(suffix, startTag, company);
     }
 
     @Override
     public Collection<Tag> findTags(Company company, String label) {
-        return tagDao.findTags(label);
+        return tagDaoNeo4j.findTags(label);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class TagServiceNeo4j implements TagService {
     public Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException {
         String suffix = engineAdmin.getTagSuffix(company);
 
-        Tag tag = tagDao.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
+        Tag tag = tagDaoNeo4j.findTagNode(suffix, label, keyPrefix, tagCode, inflate);
 
         if (tag == null) {
             throw new NotFoundException("Tag "+label +"/"+tagCode +" not found");
@@ -154,7 +154,7 @@ public class TagServiceNeo4j implements TagService {
 
     public void createAlias(Company company, Tag tag, String forLabel, AliasInputBean aliasInput) {
         String suffix = engineAdmin.getTagSuffix(company);
-        tagDao.createAlias(suffix, tag, forLabel, aliasInput);
+        tagDaoNeo4j.createAlias(suffix, tag, forLabel, aliasInput);
     }
 
     /**
@@ -173,7 +173,7 @@ public class TagServiceNeo4j implements TagService {
             throw new NotFoundException("Unable to find the requested tag " + sourceCode);
         if ( relationship == null || relationship.equals("*"))
             relationship = "";
-        return tagDao.findAllTags(source, relationship, targetLabel);
+        return tagDaoNeo4j.findAllTags(source, relationship, targetLabel);
     }
 
     @Override
@@ -192,6 +192,6 @@ public class TagServiceNeo4j implements TagService {
         if (source == null)
             throw new NotFoundException("Unable to find the requested tag " + tagCode);
 
-        return tagDao.findTagAliases(source);
+        return tagDaoNeo4j.findTagAliases(source);
     }
 }
