@@ -183,7 +183,10 @@
                                 <configuration>
                                     <excludes>
                                         <exclude>**/Abstract*.java</exclude>
+                                        <!--MKH 02-2016, - excluding until we figure out how to stand up all the services -->
                                         <exclude>TestFdIn*.java</exclude>
+                                        <!-- Trying to get a SpringBoot test working, but need to start fd-store and fd-search -->
+                                        <exclude>TestEngine*.java</exclude>
                                     </excludes>
                                     <junitArtifactName>junit:junit</junitArtifactName>
                                     <argLine>-Xmx512m -Xss256k</argLine>
@@ -191,32 +194,33 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.4.0</version>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>java</executable>
-                                    <profiles>
-                                        <profile>integration</profile>
-                                    </profiles>
-                                    <!-- optional -->
-                                    <workingDirectory>../fd-search</workingDirectory>
-                                    <arguments>
-                                        <argument>-jar</argument>
-                                        <argument>${basedir}/target/fd-search-${project.version}.jar</argument>
-                                        <argument>port=9091</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!-- Trying to get a SpringBoot test working, but need to start fd-store and fd-search -->
+                    <!--<plugin>-->
+                        <!--<groupId>org.codehaus.mojo</groupId>-->
+                        <!--<artifactId>exec-maven-plugin</artifactId>-->
+                        <!--<version>1.4.0</version>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>default-cli</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>exec</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<executable>java</executable>-->
+                                    <!--<profiles>-->
+                                        <!--<profile>integration</profile>-->
+                                    <!--</profiles>-->
+                                    <!--&lt;!&ndash; optional &ndash;&gt;-->
+                                    <!--<workingDirectory>../fd-search</workingDirectory>-->
+                                    <!--<arguments>-->
+                                        <!--<argument>-jar</argument>-->
+                                        <!--<argument>${basedir}/target/fd-search-${project.version}.jar</argument>-->
+                                        <!--<argument>port=9091</argument>-->
+                                    <!--</arguments>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
                     <!--<plugin>-->
                         <!--<groupId>org.springframework.boot</groupId>-->
                         <!--<artifactId>spring-boot-maven-plugin</artifactId>-->

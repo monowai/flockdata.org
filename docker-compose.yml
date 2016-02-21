@@ -37,20 +37,22 @@ services:
       - '8080:8080'
       - '7474:7474'
     links:
-      - fd-search
-      - rabbit
-      #- fd-store
+      - fd-search # Http queries
+      - fd-store  # Http Ping
+      - rabbit    # Async processing
+
     environment:
-      spring.profiles.default: production
+      server.port: 8080
+      spring.profiles.active: production
       spring.profiles.include: fd-auth-test
       rabbit.host: rabbit
       fd-search.url: 'http://fd-search:8081/api'
       fd-store.url: 'http://fd-store:8082/api'
-      org.neo4j.path: /opt/flockdata/conf
-      org.neo4j.server.database.location: /opt/flockdata/data/neo4j/fd
+      org.neo4j.path: /opt/flockdata
+      org.neo4j.server.database.location: /opt/flockdata/data/neo4j
 
       # Enables integration functionality
-      log4j.configuration: /opt/flockdata/conf/log4j.xml
+      #log4j.configuration: classpath:/log4j
 
   fd-search:
     container_name: fd-search
@@ -61,17 +63,37 @@ services:
     environment:
       rabbit.host: rabbit
       fd-engine.url: 'http://fd-engine:8080/api'
+      riak.hosts: riak
 
       # Enables integration functionality
-      spring.profiles.default: production
-      spring.profiles.include: fd-auth-none
+      spring.profiles.active: production
+      spring.profiles.include: fd-auth-test
+
+      es.clustername: 'es_flockdata'
+      log4j.configuration: /opt/flockdata/conf/log4j.xml
+    links:
+     - rabbit
+     - elasticsearch
+
+  fd-store:
+    container_name: fd-store
+    image: flockdata/fd-store:latest
+    ports:
+     - '8082:8082'
+    environment:
+      rabbit.host: rabbit
+      fd-search.url: 'http://fd-search:8081/api'
+
+      # Enables integration functionality
+      spring.profiles.active: production
+      spring.profiles.include: fd-auth-test
 
       es.clustername: 'es_flockdata'
       log4j.configuration: /opt/flockdata/conf/log4j.xml
     links:
      - rabbit
      - riak
-     - elasticsearch
+     - fd-search
 
 # Monitoring tools
   discovery:

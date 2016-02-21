@@ -20,12 +20,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 // fd-engine port
 @WebIntegrationTest({"server.port=9090", "management.port=9070"})
 @ActiveProfiles("integration")
-public class TestStack {
+public class TestEngineDeploys {
 
     @Autowired
     RegistrationService regService;
 
-    private static Logger logger = LoggerFactory.getLogger(TestStack.class);
+    private static Logger logger = LoggerFactory.getLogger(TestEngineDeploys.class);
     @Test
     public void testNothing(){
         logger.info("Hello world");

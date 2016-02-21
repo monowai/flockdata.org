@@ -44,7 +44,6 @@ import javax.annotation.PostConstruct;
                                          "org.flockdata.engine.tag.dao",
                                          "org.flockdata.engine.dao",
                                          "org.flockdata.geography.dao",
-                                         "org.flockdata.engine.meta.dao",
                                          "org.flockdata.model.*"})
 @Configuration
 @Profile({"integration","production"})
@@ -62,8 +61,11 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
 
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:classpath:}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:''}")String props, @Value("${org.neo4j.server.database.location:data/neo4j}")String dbPath) {
         try {
+            logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
+            logger.info("**** Neo4j datafiles [{}]", dbPath);
+
             configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
             return new GraphDatabaseFactory()
@@ -71,7 +73,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
                     .loadPropertiesFromFile(configFile)
                     .newGraphDatabase();
         } catch ( Exception fileNotFoundException){
-            logger.error("!!! Error initialising Neo4j from ["+configFile+"]. Path can be set from neo4j.path=");
+            logger.error("!!! Error initialising Neo4j from ["+configFile+"]. Path can be set via org.neo4j.path=");
             throw fileNotFoundException;
         }
     }
