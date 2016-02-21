@@ -19,8 +19,6 @@
 
 package org.flockdata.store.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockServiceException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
@@ -49,11 +47,9 @@ import java.io.IOException;
  * User: Mike Holdsworth
  * Since: 4/09/13
  */
-@Service
+@Service ("fdStoreManager")
 @Transactional
 public class StoreManager implements StoreService {
-
-    private static final ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 
     @Autowired (required = false)
     RedisRepo redisRepo;
@@ -78,7 +74,7 @@ public class StoreManager implements StoreService {
     }
 
     @Override
-    public StoredContent doRead(Store store, String index, String type, Object id) {
+    public StoredContent doRead(Store store, String index, String type, String id) {
         if ( id == null )
             return null;
 

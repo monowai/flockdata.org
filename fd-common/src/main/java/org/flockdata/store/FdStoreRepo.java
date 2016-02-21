@@ -28,7 +28,7 @@ import java.io.IOException;
 public interface FdStoreRepo {
     void add(StoredContent contentBean) throws IOException;
 
-    StoredContent read(String index, String type, Object id);
+    StoredContent read(String index, String type, String id);
 
     @Deprecated  // Use read(String index, String type, Object id);
     StoredContent read(LogRequest logRequest);

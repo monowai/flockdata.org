@@ -5,6 +5,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,5 +188,13 @@ public class IndexManager {
         return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
 
+    public String resolveKey(Store store, LogRequest logRequest) {
+        if ( store == Store.NONE){
+            // ElasticSearch
+            return logRequest.getEntity().getSearchKey();
+        }
+        return logRequest.getLogId().toString();
+
+    }
 }
 

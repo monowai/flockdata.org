@@ -62,13 +62,13 @@ public class EsRepo extends AbstractStore {
     public StoredContent read(LogRequest logRequest) {
         String index = indexHelper.parseIndex(logRequest.getEntity());
         String type = indexHelper.parseType(logRequest.getEntity());
-        Object id = logRequest.getEntity().getSearchKey();
+        String id = logRequest.getEntity().getSearchKey();
         return read (index, type, id);
     }
 
     @Override
-    public StoredContent read(String index, String type, Object id) {
-        QueryParams queryParams = new QueryParams(index, type, id.toString());
+    public StoredContent read(String index, String type, String id) {
+        QueryParams queryParams = new QueryParams(index, type, id);
 
         ContentInputBean contentInput = new ContentInputBean();
 

@@ -15,8 +15,8 @@ services:
     image: elasticsearch:1.7.5
     command: elasticsearch -Des.cluster.name=es_flockdata
     ports:
-      - '9201:9201'
-      - '9301:9301'
+      - '9200:9200'
+      - '9300:9300'
     environment:
       ES_NODE_NAME: 'TestNode'
 
@@ -46,8 +46,8 @@ services:
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
       rabbit.host: rabbit
-      fd-search.url: 'http://fd-search:8081/api'
-      fd-store.url: 'http://fd-store:8082/api'
+      fd-search.api: http://fd-search:8081/api
+      fd-store.api: http://fd-store:8082/api
       org.neo4j.path: /opt/flockdata
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j
 
@@ -59,7 +59,7 @@ services:
     image: flockdata/fd-search:latest
     ports:
      - '8081:8081'
-     - '9200:9200'
+     - '9201:9201'
     environment:
       rabbit.host: rabbit
       fd-engine.url: 'http://fd-engine:8080/api'
@@ -69,8 +69,13 @@ services:
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
 
+      es.http.port: 9201
+      es.tcp.port: 9301
       es.clustername: 'es_flockdata'
       log4j.configuration: /opt/flockdata/conf/log4j.xml
+      es.path.home: /opt/flockdata
+      es.path.data: /opt/flockdata/data
+
     links:
      - rabbit
      - elasticsearch

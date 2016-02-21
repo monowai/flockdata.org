@@ -74,6 +74,7 @@ public class EngineConfig implements PlatformConfig {
     StorageGateway storageGateway;
 
 
+    @Value("${fd-engine.system.multiTenanted:false}")
     private Boolean multiTenanted = false;
     private boolean conceptsEnabled = true;
     private boolean systemConstraints = true;
@@ -98,10 +99,6 @@ public class EngineConfig implements PlatformConfig {
     }
 
 
-    @Value("${fd-engine.system.multiTenanted:false}")
-    protected void setMultiTenanted(String multiTenanted) {
-        this.multiTenanted = !"@null".equals(multiTenanted) || Boolean.parseBoolean(multiTenanted);
-    }
 
     private boolean timing = false;
 

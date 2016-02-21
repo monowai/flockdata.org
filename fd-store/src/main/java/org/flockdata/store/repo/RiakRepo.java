@@ -98,7 +98,7 @@ public class RiakRepo extends AbstractStore {
     }
 
     @Override
-    public StoredContent read(String index, String type, Object id) {
+    public StoredContent read(String index, String type, String id) {
         try {
             Namespace ns = new Namespace(bucketType, index);
             Location location = new Location(ns, id.toString());
@@ -126,7 +126,7 @@ public class RiakRepo extends AbstractStore {
 
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.parseBucket(logRequest.getEntity());
-        return read(index, bucketType, logRequest.getLogId());
+        return read(index, bucketType, logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {

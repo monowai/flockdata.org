@@ -28,6 +28,7 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.store.FdStore;
+import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
@@ -206,7 +207,7 @@ public class TestStoreService {
 
             String index = indexManager.parseIndex(storeToTest, entity);
             String type = indexManager.parseType(entity);
-            Object key =  trackResultBean.getCurrentLog().getLog().getId();
+            String key = indexManager.resolveKey(storeToTest, new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             StoredContent contentResult = storeService.doRead(storeToTest,
                     index,
                     type,
@@ -305,7 +306,7 @@ public class TestStoreService {
             StoredContent entityContent = storeService.doRead(storeToTest,
                     indexManager.parseIndex(storeToTest, entity),
                     indexManager.parseType(entity),
-                    trackResultBean.getCurrentLog().getLog().getId());
+                    trackResultBean.getCurrentLog().getLog().getId().toString());
 
             assertNotNull(entityContent);
             // Redis should always be available. RIAK is trickier to install

@@ -60,8 +60,8 @@ public class StorageReader {
     private MessageHandler storeRead() {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(engineConfig.getFdStore()+ "/v1/data/{store}/{index}/{type}/{key}");
-        handler.setExpectedResponseType(StorageBean.class);
         handler.setHttpMethod(HttpMethod.GET);
+        handler.setExpectedResponseType(StorageBean.class);
         handler.setOutputChannel(receiveStoreReadReply());
         return handler;
     }

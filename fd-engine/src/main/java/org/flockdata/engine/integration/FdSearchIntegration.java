@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.amqp.support.DefaultAmqpHeaderMapper;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.NullChannel;
@@ -39,34 +38,21 @@ public class FdSearchIntegration {
 
     }
 
-    @Bean
-    @ServiceActivator(inputChannel = "writeKvContent")
-    public AmqpOutboundEndpoint fdWriteKvContent(AmqpTemplate amqpTemplate){
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.storeBinding());
-        outbound.setExchangeName(exchanges.storeExchange());
-        outbound.setExpectReply(false);
-        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-        //outbound.setConfirmAckChannel();
-        return outbound;
 
-    }
-
-    @Bean
-    @ServiceActivator(inputChannel = "writeEntityContent")
-    public AmqpOutboundEndpoint fdWriteEntityContent(AmqpTemplate amqpTemplate){
-        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.trackBinding());
-        outbound.setExchangeName(exchanges.trackExchange());
-        DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
-        headerMapper.setRequestHeaderNames("apiKey");
-        outbound.setHeaderMapper(headerMapper);
-        outbound.setExpectReply(false);
-        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-        return outbound;
-
-    }
+//    @Bean
+//    @ServiceActivator(inputChannel = "writeEntityContent")
+//    public AmqpOutboundEndpoint fdWriteEntityContent(AmqpTemplate amqpTemplate){
+//        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
+//        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
+//        outbound.setRoutingKey(exchanges.trackBinding());
+//        outbound.setExchangeName(exchanges.trackExchange());
+//        DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
+//        headerMapper.setRequestHeaderNames("apiKey");
+//        outbound.setHeaderMapper(headerMapper);
+//        outbound.setExpectReply(false);
+//        outbound.setConfirmAckChannel(new NullChannel());// NOOP
+//        return outbound;
+//
+//    }
 
 }

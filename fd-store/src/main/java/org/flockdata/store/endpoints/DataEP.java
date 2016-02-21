@@ -22,8 +22,8 @@ public class DataEP {
     StoredContent getData(@PathVariable("repo") String repo,
                           @PathVariable ("index")String index,
                           @PathVariable ("type") String type,
-                          @PathVariable ("key") Object id ){
+                          @PathVariable ("key") String key ){
         Store store = Store.valueOf(repo);
-        return storeService.doRead(store, index.toLowerCase(), type.toLowerCase(), id);
+        return storeService.doRead(store, index.toLowerCase(), type.toLowerCase(), key);
     }
 }

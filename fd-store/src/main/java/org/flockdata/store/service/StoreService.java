@@ -34,7 +34,7 @@ import org.flockdata.store.bean.StorageBean;
 public interface StoreService {
     String ping(Store store);
 
-    StoredContent doRead(Store store, String index, String type, Object id);
+    StoredContent doRead(Store store, String index, String type, String id);
 
     //StoredContent doRead(LogRequest logRequest);
 

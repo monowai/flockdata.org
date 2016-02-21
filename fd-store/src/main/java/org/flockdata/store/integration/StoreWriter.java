@@ -1,19 +1,32 @@
 package org.flockdata.store.integration;
 
-import org.flockdata.helper.FlockServiceException;
+import org.flockdata.helper.FlockException;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.service.StoreManager;
+import org.flockdata.store.service.StoreService;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.amqp.Amqp;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.messaging.MessageHandler;
+
+import java.io.IOException;
+
+import static org.flockdata.helper.FdJsonObjectMapper.getObjectMapper;
 
 /**
+ *
+ * Inbound handler to write data to a store
+ *
  * Created by mike on 17/02/16.
  */
 @Configuration
@@ -22,27 +35,45 @@ import org.springframework.retry.annotation.Retryable;
 public class StoreWriter {
 
     @Autowired
-    StoreManager storeManager;
+    @Qualifier("fdStoreManager")
+    StoreService fdStoreManager;
+
+    @Autowired
+    Exchanges exchanges;
 
     @Bean
     MessageChannel startStoreWrite(){
         return new DirectChannel();
     }
 
-    /**
-     * Activated via an integration channel. This method goes through retry logic to handle
-     * temporary failures. If the storeBean is not processed then the message is left on the queue
-     * for retry
-     * <p/>
-     * For an add we write to the default store
-     *
-     * @param kvBean content
-     * @throws FlockServiceException - problem with the underlying
-     */
-    @ServiceActivator(inputChannel = "startStoreWrite", requiresReply = "false")
-    @Retryable
-    public void write(StorageBean kvBean) throws FlockServiceException {
-        storeManager.doWrite(kvBean);
+    @Bean
+    public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) throws Exception {
+        return IntegrationFlows.from(
+                Amqp.inboundAdapter(connectionFactory, exchanges.fdStoreQueue())
+                        .outputChannel(startStoreWrite())
+
+                        .maxConcurrentConsumers(exchanges.storeConcurrentConsumers())
+                        .prefetchCount(exchanges.storePreFetchCount())
+        )
+                .handle(handler())
+                .get();
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "startStoreWrite")
+    public MessageHandler handler() throws Exception {
+        return message -> {
+            try {
+                fdStoreManager.doWrite(
+                    getObjectMapper().readValue((byte[])message.getPayload(), StorageBean.class) );
+            } catch (IOException e) {
+                //logger.error("Unable to de-serialize the payload");
+                throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
+            } catch (FlockException e) {
+                throw new AmqpRejectAndDontRequeueException("Error writing the payload", e);
+            }
+
+        };
     }
 
 
