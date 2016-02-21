@@ -54,8 +54,10 @@ public class EngineConfig implements PlatformConfig {
 
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
-    @Value("${fd-store.system.engine:NONE}")
-    private String storeEngine;
+    @Value("${fd-engine.system.storage:RIAK}")
+    private String storeEngine; // The default store to write to IF a fortress allows it
+                                // By default, storage engine services are not disabled
+                                // and current state content is retrieved from ElasticSearch
 
     @Value("${fd-engine.fortress.store:disabled}")
     private String storeEnabled;

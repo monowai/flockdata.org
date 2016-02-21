@@ -1,12 +1,14 @@
 package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.flockdata.engine.integration.EsRepo;
 import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.store.LogRequest;
+import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.TrackResultBean;
@@ -29,6 +31,9 @@ public class FdStorageProxy implements StorageProxy {
     @Autowired
     IndexManager indexManager;
 
+    @Autowired   (required = false)
+    EsRepo esRepo;
+
     @Override
     public void write(TrackResultBean resultBean) {
         storageGateway.write(new StorageBean(resultBean));
@@ -42,12 +47,17 @@ public class FdStorageProxy implements StorageProxy {
     @Override
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.parseIndex(logRequest.getStore(), logRequest.getEntity());
-        String type = indexManager.parseType(logRequest.getEntity());
-        String key =  indexManager.resolveKey(logRequest.getStore(), logRequest);
-        StoredContent contentResult = storageGateway.read(logRequest.getStore(),
-                index,
-                type,
-                key);
+        String type  = indexManager.parseType(logRequest.getEntity());
+        String key   =  indexManager.resolveKey(logRequest.getStore(), logRequest);
+        StoredContent contentResult;
+        if ( logRequest.getStore() == Store.NONE){
+            contentResult = esRepo.read(index,type,key);
+        } else {
+            contentResult = storageGateway.read(logRequest.getStore(),
+                    index,
+                    type,
+                    key);
+        }
 
         return contentResult;
     }

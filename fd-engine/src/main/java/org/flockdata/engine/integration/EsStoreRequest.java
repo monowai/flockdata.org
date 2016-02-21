@@ -71,7 +71,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
         return handler;
     }
 
-    public String getDataQuery() {
+    private String getDataQuery() {
         // The endpoint in fd-search
         return platformConfig.getFdSearch() + "/v1/query/data";
     }

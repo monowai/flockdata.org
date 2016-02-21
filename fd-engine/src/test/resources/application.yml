@@ -10,11 +10,11 @@ fd-engine:
     store: disabled
   system:
     api: api
+    storage: MEMORY # Simple in-memory store for testing
 
 fd-store:
   system:
     enabled: true
-    engine: MEMORY
 
 fd-auth:
   simple:

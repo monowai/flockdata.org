@@ -34,10 +34,6 @@ public interface FdStoreConfig {
 
     String riakHosts();
 
-    Boolean storeEnabled();
-
-    void setStoreEnabled(String enabled);
-
     String fdSearchUrl();
 
 }

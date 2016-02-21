@@ -31,6 +31,8 @@ fd-engine:
     constraints: true
     concepts: true
     timings: false
+    storage: RIAK # The default store to write to IF a fortress allows it. See fd-engine.fortress.store & fd-store.system.enabled
+
   messaging:
     queue: fd.engine.queue
     binding: fd.engine.binding
@@ -79,6 +81,7 @@ fd-store:
   api: http://localhost:8082/api
   system:
     enabled: false
+
   messaging: # Async hand offs to fd-store
     exchange: fd.store.exchange
     binding: fd.store.binding

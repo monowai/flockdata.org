@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.store.repo;
+package org.flockdata.engine.integration;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
@@ -29,12 +29,12 @@ import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.integration.EsStoreRequest;
 import org.flockdata.track.bean.ContentInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,13 +42,18 @@ import java.util.Map;
 
 /**
  * Support for no storage engine. This will simply use elasticsearch as a store for
- * current state content
+ * "current state" content, i.e. against the Entity.
+ *
+ * If you require the storage of versions of content (Log content), then use
+ * FdStorageProxy which deals with content for a Log
+ *
  */
-@Component
+@Service
+@Profile({"integration","production"})
 public class EsRepo extends AbstractStore {
 
     @Autowired
-    EsStoreRequest.ContentStoreEs esStore;
+    EsStoreRequest.ContentStoreEs gateway;
 
     @Autowired
     IndexManager indexHelper;
@@ -72,7 +77,7 @@ public class EsRepo extends AbstractStore {
 
         ContentInputBean contentInput = new ContentInputBean();
 
-        EsSearchResult result = esStore.getData(queryParams);
+        EsSearchResult result = gateway.getData(queryParams);
 
         if (result != null)
             try {
