@@ -60,6 +60,7 @@ services:
     ports:
      - '8081:8081'
      - '9201:9201'
+     - '9301:9301'
     environment:
       rabbit.host: rabbit
       fd-engine.url: 'http://fd-engine:8080/api'
