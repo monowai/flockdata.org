@@ -151,7 +151,7 @@
                     <!--Exlude Integration Tests from the standard build (mvn clean install)-->
                     <excludes>
                         <exclude>**/*Integration.java</exclude>
-                        <exclude>**/*Stack.java</exclude>
+                        <exclude>**/*Deploys.java</exclude>
                     </excludes>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <argLine>-Xmx512m</argLine>

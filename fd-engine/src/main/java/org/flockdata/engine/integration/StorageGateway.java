@@ -20,7 +20,7 @@ public interface StorageGateway {
     String ping();
 
     @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
-    StoredContent read(Store store, String index, String type, Object key);
+    StoredContent read(Store store, String index, String type, String key);
 
     @Gateway(requestChannel = "startStoreWrite", requestTimeout = 40000, replyChannel = "nullChannel")
     @Retryable

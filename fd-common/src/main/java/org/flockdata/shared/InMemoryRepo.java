@@ -44,7 +44,7 @@ public class InMemoryRepo extends AbstractStore {
     }
 
     @Override
-    public StoredContent read(String index, String type, Object id) {
+    public StoredContent read(String index, String type, String id) {
         return new StorageBean(id, map.get(getKey(type, id)));
     }
 
@@ -55,7 +55,7 @@ public class InMemoryRepo extends AbstractStore {
 
     public StoredContent read(LogRequest logRequest) {
 
-        return read("", logRequest.getType(), logRequest.getLogId());
+        return read("", logRequest.getType(), logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {

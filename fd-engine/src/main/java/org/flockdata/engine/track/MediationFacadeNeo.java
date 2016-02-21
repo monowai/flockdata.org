@@ -210,10 +210,10 @@ public class MediationFacadeNeo implements MediationFacade {
         //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
         //indexRetryService.ensureUniqueIndexes(getTags(inputBeans) );
+        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
         createTags(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
-        Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
 
         logger.debug("Dispatched request to create tags");
         // Tune to balance against concurrency and batch transaction insert efficiency.

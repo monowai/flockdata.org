@@ -45,7 +45,7 @@ public class RedisRepo extends AbstractStore {
     }
 
     @Override
-    public StoredContent read(String index, String type, Object id) {
+    public StoredContent read(String index, String type, String id) {
         Long key = Long.decode(id.toString());
         byte[] bytes = template.opsForValue().get(key);
 
@@ -60,7 +60,7 @@ public class RedisRepo extends AbstractStore {
     }
 
     public StoredContent read(LogRequest logRequest) {
-        return read ("", "", logRequest.getLogId());
+        return read ("", "", logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {

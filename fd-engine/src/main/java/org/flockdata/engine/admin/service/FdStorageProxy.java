@@ -43,7 +43,7 @@ public class FdStorageProxy implements StorageProxy {
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.parseIndex(logRequest.getStore(), logRequest.getEntity());
         String type = indexManager.parseType(logRequest.getEntity());
-        Object key =  logRequest.getLogId();
+        String key =  indexManager.resolveKey(logRequest.getStore(), logRequest);
         StoredContent contentResult = storageGateway.read(logRequest.getStore(),
                 index,
                 type,
