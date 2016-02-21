@@ -20,8 +20,6 @@
 package org.flockdata.store.service;
 
 
-import org.flockdata.store.Store;
-
 import java.util.Map;
 
 /**
@@ -31,17 +29,6 @@ import java.util.Map;
  */
 public interface FdStoreConfig {
 
-    /**
-     * Sets the KV store to use for ContentInputBeans
-     *
-     * @param store store to use
-     * @return the previous value of the store
-     */
-    Store setStore(Store store);
-
-    void setStore(String store);
-
-    Store store();
 
     Map<String, String> health();
 

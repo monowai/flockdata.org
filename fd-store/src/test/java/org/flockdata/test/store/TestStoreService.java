@@ -102,7 +102,6 @@ public class TestStoreService {
     @Before
     public void resetKvStore() {
         storeConfig.setStoreEnabled("true");
-        storeConfig.setStore(Store.MEMORY);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
@@ -131,11 +130,6 @@ public class TestStoreService {
             redisServer.stop();
     }
 
-    @Test
-    public void defaults_StoreEnabled() throws Exception {
-        assertEquals(Store.MEMORY, storeConfig.store());
-
-    }
 
     @Test
     public void riak_JsonTest() throws Exception {
@@ -223,8 +217,8 @@ public class TestStoreService {
 
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
-            if (storeConfig.store().equals(Store.RIAK)) {
-                logger.error("Silently passing. No data data to process for {}. KV store is not running", storeConfig.store());
+            if (storeToTest.equals(Store.RIAK)) {
+                logger.error("Silently passing. No data data to process for {}. KV store is not running", storeToTest);
             } else {
                 logger.error("Store Error", e);
                 fail("Unexpected KV error");
@@ -315,7 +309,7 @@ public class TestStoreService {
             assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
-            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeConfig.store());
+            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeToTest);
         }
     }
 
