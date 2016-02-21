@@ -45,13 +45,6 @@ public class StoreConfig implements FdStoreConfig {
     @Value("${fd-store.system.enabled}")
     private Boolean storeEnabled = true;
 
-    @Override
-    @Value("${fd-store.system.engine}")
-    public void setStore(String kvStore) {
-        setStore(Store.valueOf(kvStore));
-
-    }
-
     @Value("${fd-search.api:http://localhost:8081/api}")
     String fdSearchUrl;
 
@@ -70,24 +63,6 @@ public class StoreConfig implements FdStoreConfig {
 
     public String riakHosts() {
         return riakHosts;
-    }
-
-    /**
-     * Updates the store to use
-     * @param kvStore store to use
-     * @return previous value of store
-     */
-    @Override
-    public Store setStore(Store kvStore) {
-        Store current = this.kvStore;
-        this.kvStore = kvStore;
-        return current;
-
-    }
-
-    @Override
-    public Store store() {
-        return kvStore;
     }
 
     /**
