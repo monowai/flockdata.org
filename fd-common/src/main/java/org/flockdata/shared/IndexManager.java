@@ -1,6 +1,7 @@
 package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
@@ -188,9 +189,11 @@ public class IndexManager {
         return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
 
-    public String resolveKey(Store store, LogRequest logRequest) {
-        if ( store == Store.NONE){
+    public String resolveKey(LogRequest logRequest) throws NotFoundException {
+        if ( logRequest.getStore() ==Store.NONE){
             // ElasticSearch
+            if ( logRequest.getEntity().getSearchKey() == null )
+                throw new NotFoundException("Unable to resolve the search key for the entity " + logRequest.getEntity().toString());
             return logRequest.getEntity().getSearchKey();
         }
         return logRequest.getLogId().toString();

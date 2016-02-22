@@ -28,14 +28,14 @@ public class SearchConfig {
     @Value("${es.tcp.port:9300}")
     String tcpPort;
 
-    @Value("${fd-search.es.mappings:classpath:/}")
+    @Value("${fd-search.es.mappings:'.'}")
     private String esMappingPath;
 
-    @Value("${fd-search.es.settings:classpath:/fd-default-settings.json}")
+    @Value("${fd-search.es.settings:fd-default-settings.json}")
     String esSettings;
 
-    String esDefaultMapping = "fd-default-mapping.json";
-    String esTaxonomyMapping = "fd-taxonomy-mapping.json"; // ToDo: hard coded taxonmy is not very flexible!
+    private String esDefaultMapping = "fd-default-mapping.json";
+    private String esTaxonomyMapping = "fd-taxonomy-mapping.json"; // ToDo: hard coded taxonmy is not very flexible!
 
     private Client client;
 
@@ -73,28 +73,24 @@ public class SearchConfig {
     public String getEsMappingPath() {
 
         if (esMappingPath.equals("${es.mappings}"))
-            esMappingPath = "classpath:/"; // Internal
+            esMappingPath = "."; // Internal
         return esMappingPath;
     }
 
     public String getEsDefaultSettings() {
         if (esSettings.equals("${es.settings}"))
-            esSettings = "classpath:/fd-default-settings.json";
+            esSettings = "fd-default-settings.json";
         return esSettings;
     }
     public String getEsMapping(EntityService.TAG_STRUCTURE tagStructure) {
         if (tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
-            return "/" + esTaxonomyMapping;
+            return  esTaxonomyMapping;
         else
-            return "/" + esDefaultMapping;
+            return  esDefaultMapping;
     }
 
     public String getEsPathedMapping(EntityService.TAG_STRUCTURE tagStructure) {
         return getEsMappingPath() + getEsMapping(tagStructure);
     }
-
-
-
-
 
 }

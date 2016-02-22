@@ -8,7 +8,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 
 /**
  * Created by mike on 12/02/16.
@@ -23,9 +27,22 @@ public class FdSearchIntegration {
 
     @Autowired
     Exchanges exchanges;
+    @Autowired
+    MessageSupport messageSupport;
+
+    // ToDo: Can we handle this more via the flow or handler?
+    @Transformer(inputChannel="sendEntityIndexRequest", outputChannel="writeSearchChanges")
+    public Message<?> transformSearchChanges(Message theObject){
+        return messageSupport.toJson(theObject);
+    }
 
     @Bean
-    @ServiceActivator(inputChannel = "syncSearchDocs")
+    MessageChannel writeSearchChanges(){
+        return new DirectChannel();
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "writeSearchChanges")
     public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
@@ -44,10 +61,10 @@ public class FdSearchIntegration {
 //    public AmqpOutboundEndpoint fdWriteEntityContent(AmqpTemplate amqpTemplate){
 //        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
 //        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-//        outbound.setRoutingKey(exchanges.trackBinding());
-//        outbound.setExchangeName(exchanges.trackExchange());
+//        outbound.setRoutingKey(exchanges.searchBinding());
+//        outbound.setExchangeName(exchanges.searchExchange());
 //        DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
-//        headerMapper.setRequestHeaderNames("apiKey");
+////        headerMapper.setRequestHeaderNames("apiKey");
 //        outbound.setHeaderMapper(headerMapper);
 //        outbound.setExpectReply(false);
 //        outbound.setConfirmAckChannel(new NullChannel());// NOOP

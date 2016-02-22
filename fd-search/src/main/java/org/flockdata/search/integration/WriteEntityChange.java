@@ -80,7 +80,22 @@ public class WriteEntityChange {
     private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     @Bean
-    MessageChannel syncSearchDocs(){
+    MessageChannel writeSearchDoc(){
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel searchReply () {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel sendSearchResult() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel searchDocSyncResult () {
         return new DirectChannel();
     }
 
@@ -88,8 +103,7 @@ public class WriteEntityChange {
     public IntegrationFlow writeEntityChangeFlow(ConnectionFactory connectionFactory) {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
-                    .outputChannel(syncSearchDocs())
-
+                    .outputChannel(writeSearchDoc())
                     .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
                     .prefetchCount(exchanges.searchPreFetchCount())
                 )
@@ -98,7 +112,7 @@ public class WriteEntityChange {
     }
 
     @Bean
-    @ServiceActivator(inputChannel = "syncSearchDocs")
+    @ServiceActivator(inputChannel = "writeSearchDoc")
     public MessageHandler handler() {
         return message -> {
             try {
@@ -111,31 +125,33 @@ public class WriteEntityChange {
         };
     }
 
+
+    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
+    public interface EngineResultGateway {
+        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
+        @Async("fd-search")
+        @Profile({"integration","production"})
+        void writeEntitySearchResult(SearchResults searchResult);
+
+    }
+
+    @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
+    public Message<?> transformSearchResults( Message message) {
+        return messageSupport.toJson(message);
+    }
+
     @Bean
     @ServiceActivator(inputChannel = "searchDocSyncResult")
     public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setRoutingKey(exchanges.engineBinding());
         outbound.setExchangeName(exchanges.engineExchangeName());
+        outbound.setRoutingKey(exchanges.engineBinding());
         outbound.setExpectReply(false);
         //outbound.setConfirmAckChannel();
         return outbound;
 
     }
 
-    @Transformer(inputChannel = "searchReply", outputChannel = "searchDocSyncResult")
-    public Message<?> transformMkPayload(Message message) {
-        return messageSupport.toJson(message);
-    }
-
-    @Profile({"integration","production"})
-    @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
-    public interface EngineGateway {
-        @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
-        @Async("fd-search")
-        void writeEntitySearchResult(SearchResults searchResult);
-
-    }
 
 }

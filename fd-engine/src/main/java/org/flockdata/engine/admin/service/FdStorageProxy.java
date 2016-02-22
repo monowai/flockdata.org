@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.engine.integration.EsRepo;
 import org.flockdata.engine.integration.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Entity;
 import org.flockdata.model.Log;
 import org.flockdata.shared.IndexManager;
@@ -12,6 +13,8 @@ import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class FdStorageProxy implements StorageProxy {
 
     @Autowired (required = false) // Functional tests don't require gateways
     StorageGateway storageGateway;
+    private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
 
     @Autowired
     IndexManager indexManager;
@@ -48,7 +52,13 @@ public class FdStorageProxy implements StorageProxy {
     public StoredContent read(LogRequest logRequest) {
         String index = indexManager.parseIndex(logRequest.getStore(), logRequest.getEntity());
         String type  = indexManager.parseType(logRequest.getEntity());
-        String key   =  indexManager.resolveKey(logRequest.getStore(), logRequest);
+        String key   ;
+        try {
+            key = indexManager.resolveKey(logRequest);
+        } catch (NotFoundException e) {
+            logger.error ( e.getMessage());
+            return null;
+        }
         StoredContent contentResult;
         if ( logRequest.getStore() == Store.NONE){
             contentResult = esRepo.read(index,type,key);
