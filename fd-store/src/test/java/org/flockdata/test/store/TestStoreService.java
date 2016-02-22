@@ -200,7 +200,7 @@ public class TestStoreService {
 
             String index = indexManager.parseIndex(storeToTest, entity);
             String type = indexManager.parseType(entity);
-            String key = indexManager.resolveKey(storeToTest, new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
+            String key = indexManager.resolveKey(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             StoredContent contentResult = storeService.doRead(storeToTest,
                     index,
                     type,
