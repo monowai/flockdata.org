@@ -22,7 +22,7 @@ package org.flockdata.engine.configure;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.SearchGateway;
-import org.flockdata.engine.integration.StorageGateway;
+import org.flockdata.engine.integration.store.StorageGateway;
 import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
 import org.flockdata.store.Store;

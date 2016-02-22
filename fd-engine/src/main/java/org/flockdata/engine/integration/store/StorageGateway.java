@@ -1,4 +1,4 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.store;
 
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
