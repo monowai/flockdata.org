@@ -77,7 +77,6 @@ public class EntityKeyBean {
         this.documentType = entity.getType();
         this.metaKey = entity.getMetaKey();
         this.index = index;
-        this.description = entity.getDescription();
         this.name = entity.getName();
     }
 

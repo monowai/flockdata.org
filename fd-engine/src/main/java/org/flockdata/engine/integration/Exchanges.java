@@ -79,11 +79,11 @@ public class Exchanges {
     @Value("${fd-search.messaging.prefetchCount:3}")
     private int searchPreFetchCount;
 
-    String searchBinding() {
+    public String searchBinding() {
         return searchBinding;
     }
 
-    String searchExchange() {
+    public String searchExchange() {
         return searchExchange;
     }
 
@@ -95,7 +95,7 @@ public class Exchanges {
         return engineExchange;
     }
     @Bean
-    Queue fdEngineQueue(){
+    public Queue fdEngineQueue(){
         Map<String,Object>params = new HashMap<>();
         params.put("x-dead-letter-exchange", engineDlqExchange);
         return new Queue(engineQueue, true, false, false, params);

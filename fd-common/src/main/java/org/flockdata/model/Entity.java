@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-@NodeEntity(useShortNames = true)
+@NodeEntity
 @TypeAlias("Entity")
 public class Entity implements Serializable {
 
@@ -61,8 +61,6 @@ public class Entity implements Serializable {
     private String code;
 
     private String name;
-
-    private String description;
 
     // By the Fortress
     private long dateCreated = 0;
@@ -167,11 +165,6 @@ public class Entity implements Serializable {
             this.name = (code == null ? docType : (docType + "." + code));
         else
             this.name = entityInput.getName();
-
-//        if ( entityInput.getDescription()!=null && !entityInput.getDescription().equals(entityInput.getName()))
-//            this.description = entityInput.getDescription();
-
-//        indexName = indexHelper.getIndexRoot(this.segment);
 
         if (entityInput.getProperties() != null && !entityInput.getProperties().isEmpty()) {
             props = new DynamicPropertiesContainer(entityInput.getProperties());
@@ -340,10 +333,6 @@ public class Entity implements Serializable {
         if ( fortressLastWhen == null )
             return null;
         return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void bumpSearch() {

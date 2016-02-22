@@ -1,4 +1,4 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
 /**
  * For SDN4 Un-managed Extensions
@@ -28,28 +28,28 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration", "production"})
-public class StorePingRequest {
+public class SearchPingRequest {
 
     @Autowired
     @Qualifier("engineConfig")
     PlatformConfig engineConfig;
 
     @Bean
-    MessageChannel storePing(){
+    MessageChannel searchPing(){
         return new DirectChannel();
     }
 
     @Bean
-    IntegrationFlow storePingFlow() {
+    IntegrationFlow searchPingFlow() {
 
-        return IntegrationFlows.from(storePing())
-                .handle(pingRequest())
+        return IntegrationFlows.from(searchPing())
+                .handle(fdPingRequest())
                 .get();
     }
 
-    private MessageHandler pingRequest() {
+    private MessageHandler fdPingRequest() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdStore() + "/v1/admin/ping");
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch() + "/v1/admin/ping");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.GET);
 

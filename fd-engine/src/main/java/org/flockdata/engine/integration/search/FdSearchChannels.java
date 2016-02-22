@@ -17,7 +17,7 @@
  * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

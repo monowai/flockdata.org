@@ -1,7 +1,7 @@
 package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.flockdata.engine.integration.EsRepo;
+import org.flockdata.engine.integration.store.EsRepo;
 import org.flockdata.engine.integration.store.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.NotFoundException;

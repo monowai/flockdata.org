@@ -24,7 +24,7 @@ import org.flockdata.company.endpoint.CompanyEP;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.integration.TrackRequests;
+import org.flockdata.engine.integration.inbound.TrackRequests;
 import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;

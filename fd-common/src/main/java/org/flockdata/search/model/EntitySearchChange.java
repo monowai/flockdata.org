@@ -110,7 +110,6 @@ public class EntitySearchChange implements SearchChange {
         else
             this.who = (entity.getCreatedBy() != null ? entity.getCreatedBy().getCode() : null);
         this.sysWhen = entity.getDateCreated();
-        this.description = entity.getDescription();
         this.props = entity.getProperties(); // Userdefined entity properties
         this.createdDate = entity.getFortressCreatedTz().toDate(); // UTC When created in the Fortress
         if (entity.getFortressUpdatedTz() != null)

@@ -1,6 +1,9 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.inbound;
 
 import com.google.common.net.MediaType;
+import org.flockdata.engine.integration.AmqpRabbitConfig;
+import org.flockdata.engine.integration.Exchanges;
+import org.flockdata.engine.integration.search.FdSearchChannels;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
@@ -54,7 +57,6 @@ public class WriteEntityResult {
                 new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
         transformer.setContentType(MediaType.JSON_UTF_8.toString());
-        //return transformer;
     }
 
     public ObjectToJsonTransformer getTransformer(){

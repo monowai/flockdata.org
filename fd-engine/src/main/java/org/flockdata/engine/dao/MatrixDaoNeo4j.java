@@ -20,7 +20,7 @@
 package org.flockdata.engine.dao;
 
 import org.flockdata.dao.MatrixDao;
-import org.flockdata.engine.integration.SearchGateway;
+import org.flockdata.engine.integration.search.SearchGateway;
 import org.flockdata.helper.CypherHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

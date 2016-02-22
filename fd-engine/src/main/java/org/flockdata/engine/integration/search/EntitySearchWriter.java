@@ -1,5 +1,8 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
+import org.flockdata.engine.integration.AmqpRabbitConfig;
+import org.flockdata.engine.integration.Exchanges;
+import org.flockdata.engine.integration.MessageSupport;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +23,7 @@ import org.springframework.messaging.MessageChannel;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration","production"})
-public class FdSearchIntegration {
+public class EntitySearchWriter {
 
     @Autowired
     AmqpRabbitConfig rabbitConfig;
@@ -55,21 +58,5 @@ public class FdSearchIntegration {
 
     }
 
-
-//    @Bean
-//    @ServiceActivator(inputChannel = "writeEntityContent")
-//    public AmqpOutboundEndpoint fdWriteEntityContent(AmqpTemplate amqpTemplate){
-//        AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
-//        outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-//        outbound.setRoutingKey(exchanges.searchBinding());
-//        outbound.setExchangeName(exchanges.searchExchange());
-//        DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
-////        headerMapper.setRequestHeaderNames("apiKey");
-//        outbound.setHeaderMapper(headerMapper);
-//        outbound.setExpectReply(false);
-//        outbound.setConfirmAckChannel(new NullChannel());// NOOP
-//        return outbound;
-//
-//    }
 
 }

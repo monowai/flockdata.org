@@ -20,8 +20,8 @@
 package org.flockdata.engine.query.service;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.engine.integration.EsStoreRequest;
-import org.flockdata.engine.integration.SearchGateway;
+import org.flockdata.engine.integration.search.SearchGateway;
+import org.flockdata.engine.integration.store.EsStoreRequest;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;

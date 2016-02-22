@@ -1,4 +1,4 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.inbound;
 
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
@@ -48,6 +48,16 @@ public class TrackRequests {
 
     @Bean
     MessageChannel doTrackEntity () {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel startEntityWrite () {
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel trackResult () {
         return new DirectChannel();
     }
 
