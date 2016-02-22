@@ -1,6 +1,5 @@
 package org.flockdata.engine.track.service;
 
-import org.flockdata.engine.integration.SearchRequests;
 import org.flockdata.helper.FlockException;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.search.model.SearchResults;
@@ -20,7 +19,7 @@ import java.util.Collection;
 @Service
 public class SearchHandler {
 
-    private Logger logger = LoggerFactory.getLogger(SearchRequests.class);
+    private Logger logger = LoggerFactory.getLogger(SearchHandler.class);
 
     @Autowired
     EntityService entityService;

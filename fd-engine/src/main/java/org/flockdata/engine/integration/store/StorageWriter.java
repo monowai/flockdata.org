@@ -1,5 +1,8 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.store;
 
+import org.flockdata.engine.integration.AmqpRabbitConfig;
+import org.flockdata.engine.integration.Exchanges;
+import org.flockdata.engine.integration.MessageSupport;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

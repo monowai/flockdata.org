@@ -51,6 +51,13 @@ public class Exchanges {
     @Value("${fd-engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
+    @Value("${fd-engine.messaging.concurrentConsumers:2}")
+    private int engineConcurrentConsumers;
+
+    @Value("${fd-engine.messaging.prefetchCount:3}")
+    private int enginePreFetchCount;
+
+
     @Value("${fd-store.binding:fd.store.binding}")
     private String storeBinding;
 
@@ -149,5 +156,13 @@ public class Exchanges {
 
     public String trackBinding(){
         return trackBinding;
+    }
+
+    public int enginePreFetchCount() {
+        return enginePreFetchCount;
+    }
+
+    public int engineConcurrentConsumers() {
+        return engineConcurrentConsumers;
     }
 }

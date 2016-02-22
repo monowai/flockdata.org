@@ -2,7 +2,7 @@ package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.engine.integration.EsRepo;
-import org.flockdata.engine.integration.StorageGateway;
+import org.flockdata.engine.integration.store.StorageGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Entity;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class FdStorageProxy implements StorageProxy {
 
     @Autowired (required = false) // Functional tests don't require gateways
-    StorageGateway storageGateway;
+            StorageGateway storageGateway;
     private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
 
     @Autowired
