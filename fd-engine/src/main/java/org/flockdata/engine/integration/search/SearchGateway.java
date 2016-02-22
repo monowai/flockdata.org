@@ -1,4 +1,4 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
 import org.flockdata.search.model.*;
 import org.springframework.integration.annotation.Gateway;

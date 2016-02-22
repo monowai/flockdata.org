@@ -22,7 +22,7 @@ package org.flockdata.engine.query.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
-import org.flockdata.engine.integration.SearchGateway;
+import org.flockdata.engine.integration.search.SearchGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
 import org.flockdata.search.model.*;

@@ -32,7 +32,6 @@ import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
-import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.StoreService;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
@@ -82,9 +81,6 @@ public class TestStoreService {
 
 
     @Autowired
-    private FdStoreConfig storeConfig;
-
-    @Autowired
     IndexManager indexManager;
 
     private MockMvc mockMvc;
@@ -119,7 +115,12 @@ public class TestStoreService {
             } else {
                 redisServer = new RedisServer(6379);
             }
-            redisServer.start();
+            try {
+                redisServer.start();
+            } catch (Exception e ){
+                tearDown();
+                redisServer.start(); // One off?? Had to manually kill redis so trying to be a bit richer in dealing with the scenario
+            }
         }
     }
 

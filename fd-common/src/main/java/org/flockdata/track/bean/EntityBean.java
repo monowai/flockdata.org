@@ -45,7 +45,6 @@ public class EntityBean implements Serializable {
     private String indexName;
     private boolean searchSuppressed;
     private String name;
-    private String description;
     private FortressResultBean fortress;
     private DateTime fortressDateCreated;
     private DateTime fortressDateUpdated;
@@ -76,7 +75,8 @@ public class EntityBean implements Serializable {
             whenCreated = entity.getDateCreated();
             indexName = entity.getSegment().getFortress().getRootIndex();
 
-            description = entity.getDescription();
+            // Description is recorded in the search document, not the graph
+            //description = entity.getDescription();
             searchSuppressed = entity.isSearchSuppressed();
             name = entity.getName();
 
@@ -134,10 +134,6 @@ public class EntityBean implements Serializable {
 
     public void setIndexName(String indexName) {
         this.indexName = indexName;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public boolean isSearchSuppressed() {

@@ -96,8 +96,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
-        IndexRequestBuilder irb = searchConfig.elasticSearchClient().prepareIndex(searchChange.getIndexName(), documentType)
-                .setSource(source);
+        IndexRequestBuilder irb =
+                searchConfig.elasticSearchClient()
+                        .prepareIndex(searchChange.getIndexName(), documentType)
+                        .setSource(source);
 
         irb.setId(searchChange.getSearchKey());
         if (searchChange.getParent() != null)
@@ -107,7 +109,6 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         try {
             IndexResponse ir = irb.execute().actionGet();
-            //searchChange.setSearchKey(ir.getId());
 
             logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
                     searchChange.getEntityId(),
@@ -120,10 +121,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error " + indexName + "- callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage());
+            logger.error("Parsing error {} - callerRef [{}], metaKey [{}], [{}]" , indexName , searchChange.getCode(),searchChange.getMetaKey(), e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Unexpected error on index " + indexName, e);
+            logger.error("Writing to index {} produced an error [{}]" ,indexName, e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
         }
 
@@ -142,7 +143,6 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         try {
             logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
-            String index ;
 
             GetRequestBuilder request =
                     searchConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
@@ -173,7 +173,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                         if (existingWhen.compareTo(searchChange.getUpdatedDate().getTime()) > 0) {
                             logger.debug("ignoring a request to update as the existing document dated [{}] is newer than the searchChange document dated [{}]", new Date(existingWhen), searchChange.getUpdatedDate());
                             return searchChange; // Don't overwrite the most current doc!
-                        } else if (searchChange.getUpdatedDate().getTime() == 0l && !searchChange.isReplyRequired()) {
+                        } else if (searchChange.getUpdatedDate().getTime() == 0L && !searchChange.isReplyRequired()) {
                             // Meta Change - not indexed in FD, so ignore something we already have.
                             // Likely scenario is a batch is being reprocessed
                             return searchChange;

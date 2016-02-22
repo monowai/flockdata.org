@@ -1,8 +1,9 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.integration.MessageSupport;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.model.MetaKeyResults;
+import org.flockdata.search.model.EsSearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +23,7 @@ import org.springframework.messaging.MessageHandler;
 import java.io.IOException;
 
 /**
- * Finds MetaKeys for a given set of query parameters. This can be used to drive queries in the Graph as
- * the metaKey will give you a starting point
+ * Striped down search support. Designed for fd-view. ToDo: Move to a "Backend for Frontend" module
  *
  * Created by mike on 14/02/16.
  */
@@ -31,7 +31,7 @@ import java.io.IOException;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration","production"})
-public class FdMetaKeyQuery {
+public class FdViewQuery {
 
     @Autowired
     @Qualifier("engineConfig")
@@ -41,48 +41,47 @@ public class FdMetaKeyQuery {
     MessageSupport messageSupport;
 
     @Bean
-    MessageChannel receiveMetaKeyReply(){
+    MessageChannel receiveFdViewReply(){
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel metaKeyResult () {
+    MessageChannel fdViewResult () {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel doMetaKeyQuery() {
+    MessageChannel doFdViewQuery() {
         return new DirectChannel();
     }
 
     // ToDo: Can we handle this more via the flow or handler?
-    // Must be public else SI won't pick it up and will throw a NotFoundException
-    @Transformer(inputChannel= "sendMetaKeyQuery", outputChannel="doMetaKeyQuery")
-    public Message<?> transformMkPayload(Message message){
-        return messageSupport.toJson(message);
+    @Transformer(inputChannel="sendSearchRequest", outputChannel="doFdViewQuery")
+    public Message<?> fdQueryTransform(Message theObject){
+        return messageSupport.toJson(theObject);
     }
 
     @Bean
-    IntegrationFlow fdMetaKeyQueryFlow() {
+    IntegrationFlow fdViewQueryFlow() {
 
-        return IntegrationFlows.from(doMetaKeyQuery())
-                .handle(fdMetaKeyQueryHandler())
+        return IntegrationFlows.from(doFdViewQuery())
+                .handle(fdViewQueryHandler())
                 .get();
     }
 
-    private MessageHandler fdMetaKeyQueryHandler() {
+    private MessageHandler fdViewQueryHandler() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/metaKeys");
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/fdView");
         handler.setExpectedResponseType(String.class);
         handler.setHttpMethod(HttpMethod.POST);
-        handler.setOutputChannel(receiveMetaKeyReply());
+        handler.setOutputChannel(receiveFdViewReply());
         return handler;
     }
 
     // ToDo: Can this be integrated to the handler?
-    @Transformer(inputChannel="receiveMetaKeyReply", outputChannel="metaKeyResult")
-    public MetaKeyResults transforMkResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.toObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
+    @Transformer(inputChannel="receiveFdViewReply", outputChannel="fdViewResult")
+    public EsSearchResult fdViewResponse(Message<String> theObject) throws IOException {
+        return JsonUtils.toObject(theObject.getPayload().getBytes(), EsSearchResult.class);
     }
 
 }

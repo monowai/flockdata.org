@@ -373,7 +373,6 @@ public class TestFdIntegration {
         esHelper.doFacetQuery(entity, EntitySearchSchema.NAME + ".facet", entityInputBean.getName(), 1);
         // Can we find by description?
         esHelper.doEsQuery(entity, entityInputBean.getDescription());
-        assertNull("EntityInput.description is not stored in the entity", entity.getDescription());
         esHelper.deleteEsIndex(indexHelper.parseIndex(entity));
     }
 

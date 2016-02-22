@@ -21,6 +21,7 @@ package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.flockdata.engine.schema.IndexRetryService;
+import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
 import org.flockdata.model.Company;
@@ -76,7 +77,7 @@ public class TagWrangler {
     AliasDaoNeo aliasDao;
 
     // ToDo: Turn this in to ServerSide
-    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships) {
+    TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships)  {
         // Check exists
         boolean isNew = false;
         TagResultBean tagResultBean;
@@ -101,6 +102,8 @@ public class TagWrangler {
                     return new TagResultBean(tagInput);
             } else {
                 isNew = true;
+                if ( tagInput.getCode()==null )
+                    throw new FlockDataTagException("The code property for a tag cannot be null {" +tagInput.toString());
                 startTag = createTag(company, tagInput, tagSuffix);
             }
         } else {

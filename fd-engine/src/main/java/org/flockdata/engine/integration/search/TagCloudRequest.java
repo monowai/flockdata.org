@@ -1,6 +1,7 @@
-package org.flockdata.engine.integration;
+package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.integration.MessageSupport;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.TagCloud;
 import org.springframework.beans.factory.annotation.Autowired;

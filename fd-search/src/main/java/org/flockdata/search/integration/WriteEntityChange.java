@@ -118,7 +118,7 @@ public class WriteEntityChange {
             try {
                 searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), EntitySearchChanges.class));
             } catch (IOException e) {
-                logger.error("Unable to de-serialize the payload");
+                logger.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
             }
 
