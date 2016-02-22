@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,7 +156,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
                         file = new FileInputStream(settings);
                 } else
                     logger.debug("Overriding default settings with file on disk {}", settings);
-                defaultSettings = getMapFromStream(file);
+                defaultSettings = getMap(file);
                 file.close();
                 logger.debug("Initialised settings {} with {} keys", settings, defaultSettings.keySet().size());
             }
@@ -165,13 +166,20 @@ public class IndexMappingServiceEs implements IndexMappingService {
         return defaultSettings;
     }
 
-    private Map<String, Object> getMapFromStream(InputStream file) throws IOException {
+    private Map<String, Object> getMap(InputStream file) throws IOException {
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         TypeFactory typeFactory = mapper.getTypeFactory();
         MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
         return mapper.readValue(file, mapType);
-
     }
+
+    private Map<String, Object> getMap(URL url) throws IOException {
+        ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
+        TypeFactory typeFactory = mapper.getTypeFactory();
+        MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, HashMap.class);
+        return mapper.readValue(url, mapType);
+    }
+
 
     private XContentBuilder getMapping(SearchChange change) {
 
@@ -235,10 +243,12 @@ public class IndexMappingServiceEs implements IndexMappingService {
             if (file == null)
                 // running from JUnit can only read this as a file input stream
                 file = new FileInputStream(fileName);
-            return getMapFromStream(file);
+            return getMap(file);
         } finally {
             if (file != null) {
                 file.close();
+            }  else {
+                return getMap( new URL(fileName));
             }
         }
     }

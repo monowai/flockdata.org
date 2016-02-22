@@ -25,7 +25,7 @@ fd-search:
     api: api
   es:
     settings: src/test/resources/fd-default-settings.json
-    mappings: ./
+    mappings: '.'
   messaging:
     exchange: fd.search.exchange
     binding: fd.search.binding

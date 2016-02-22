@@ -4,7 +4,6 @@ import org.flockdata.search.model.*;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.retry.annotation.Retryable;
 
 /**
  * All fd-search requests go here
@@ -30,7 +29,7 @@ public interface SearchGateway {
     EsSearchResult fdSearch(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-    @Retryable
+//    @Retryable
     void makeSearchChanges(EntitySearchChanges searchChanges);
 
 

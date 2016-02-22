@@ -33,7 +33,7 @@ public class EsSearchWriter implements SearchWriter {
     private EntityChangeWriter trackSearch;
 
     @Autowired (required = false)
-    WriteEntityChange.EngineGateway engineGateway;
+    WriteEntityChange.EngineResultGateway engineResultGateway;
 
     private Logger logger = LoggerFactory.getLogger(EsSearchWriter.class);
 
@@ -87,9 +87,9 @@ public class EsSearchWriter implements SearchWriter {
             }
 
         }
-        if (!results.isEmpty() && engineGateway != null) {
+        if (!results.isEmpty() && engineResultGateway != null) {
             logger.debug("Processed {} requests. Returning [{}] SearchResults", results.getSearchResults().size(), results.getSearchResults().size());
-            engineGateway.writeEntitySearchResult(results);
+            engineResultGateway.writeEntitySearchResult(results);
         }
         return results;
 
