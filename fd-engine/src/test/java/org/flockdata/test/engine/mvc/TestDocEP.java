@@ -45,7 +45,7 @@ public class TestDocEP extends MvcBase {
         engineConfig.setConceptsEnabled("true");
         FortressResultBean fortress = createFortress(mike(), "flow_docPoints");
 
-        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "StudyDoc", new DateTime());
+        EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "flow_docPoints", new DateTime());
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         TrackRequestResult entity = track(mike(), inputBean);
@@ -56,7 +56,7 @@ public class TestDocEP extends MvcBase {
         assertNotNull(docResults);
         assertEquals(1, docResults.size());
         DocumentResultBean docResult = docResults.iterator().next();
-        assertEquals("StudyDoc", docResult.getName());
+        assertEquals("flow_docPoints", docResult.getName());
 
         Collection<ConceptResultBean> labelResults = getLabelsForDocument(mike(), fortress.getCode(), docResult.getName());
         assertFalse(labelResults.isEmpty());
