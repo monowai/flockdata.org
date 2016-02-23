@@ -105,7 +105,7 @@ public class MediationFacadeNeo implements MediationFacade {
     LogService logService;
 
     @Autowired
-    PlatformConfig engineConfig;
+    PlatformConfig platformConfig;
 
     @Autowired
     EntityRetryService entityRetry;
@@ -202,49 +202,46 @@ public class MediationFacadeNeo implements MediationFacade {
         if (segment == null) {
             throw new FlockException("No fortress supplied. Unable to process work without a valid fortress");
         }
-        //logger.debug("About to create tags");
-        //Future<Collection<Tag>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-        //Future<Collection<TagResultBean>> tags = tagRetryService.createTagsFuture(fortress.getCompany(), getTags(inputBeans));
-        //indexRetryService.ensureUniqueIndexes(getTags(inputBeans) );
+
         Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
         createTags(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
 
         logger.debug("Dispatched request to create tags");
-        // Tune to balance against concurrency and batch transaction insert efficiency.
 
-        // We have to wait for the docType before proceeding to create entities
+
         try {
             // A long time, but this is to avoid test issues on the low spec build box
+            List<List<EntityInputBean>>
+                    splitList = Lists.partition(inputBeans, splitListInTo);
+
+            StopWatch watch = new StopWatch();
+            watch.start();
+            logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
+            Collection<TrackResultBean> allResults = new ArrayList<>();
+            // We have to wait for the docType before proceeding to create entities
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
             assert docs.size()!=0;
+            for (List<EntityInputBean> entityInputBeans : splitList) {
+                Iterable<TrackResultBean> loopResults = entityRetry.track(segment, entityInputBeans, null);
+                logger.debug("Tracked requests");
+                distributeChanges(segment.getFortress(), loopResults);
+
+                for (TrackResultBean theResult : loopResults) {
+                    allResults.add(theResult);
+                }
+            }
+            watch.stop();
+            logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
+
+            return allResults;
+
         } catch (TimeoutException e) {
             logger.error("Time out looking/creating docType " + first.getDocumentType().getName());
             throw new FlockException("Time out looking/creating docType " + first.getDocumentType().getName());
         }
 
-        List<List<EntityInputBean>>
-                splitList = Lists.partition(inputBeans, splitListInTo);
-
-        StopWatch watch = new StopWatch();
-        watch.start();
-        logger.trace("Starting Batch [{}] - size [{}]", id, inputBeans.size());
-        Collection<TrackResultBean> allResults = new ArrayList<>();
-
-        for (List<EntityInputBean> entityInputBeans : splitList) {
-            Iterable<TrackResultBean> loopResults = entityRetry.track(segment, entityInputBeans, null);
-            logger.debug("Tracked requests");
-            distributeChanges(segment.getFortress(), loopResults);
-
-            for (TrackResultBean theResult : loopResults) {
-                allResults.add(theResult);
-            }
-        }
-        watch.stop();
-        logger.debug("Completed Batch [{}] - secs= {}, RPS={}", id, f.format(watch.getTotalTimeSeconds()), f.format(inputBeans.size() / watch.getTotalTimeSeconds()));
-
-        return allResults;
     }
 
     private List<TagInputBean> getTags(List<EntityInputBean> entityInputBeans) {
@@ -463,7 +460,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if ( searchService != null )
             searchService.makeChangesSearchable(fortress, resultBeans);
         // ToDo: how to wait for results when running tests
-        if (engineConfig.isTestMode())
+        if (platformConfig.isTestMode())
             conceptRetryService.trackConcepts(fortress, resultBeans).get();
         else
             conceptRetryService.trackConcepts(fortress, resultBeans);
