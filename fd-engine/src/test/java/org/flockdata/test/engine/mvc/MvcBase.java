@@ -95,24 +95,29 @@ public abstract class MvcBase {
         //           might be started giving you sporadic failures.
         neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
         neo4jTemplate.query("match (n) delete n", null);
-        suMike = makeProfile(ANYCO, mike_admin);
-        suHarry = makeProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
-        suSally = makeProfile(ANYCO, sally_admin);
-        suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
     }
 
 
     @Before
     public void setupMvc() throws Exception{
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
-        cleanUpGraph();
         engineConfig.setMultiTenanted(false);
+        if (mockMvc == null ) {
+            mockMvc = MockMvcBuilders
+                    .webAppContextSetup(wac)
+                    .apply(SecurityMockMvcConfigurers.springSecurity())
+                    .build();
+        }
+        cleanUpGraph();
+        suMike = makeProfile(ANYCO, mike_admin);
+        suHarry = makeProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
+        suSally = makeProfile(ANYCO, sally_admin);
+        suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
+
 
     }
+
+
 
     public SystemUserResultBean makeProfile(String companyName, String accessUser) throws Exception {
         return makeProfile(mike(), companyName, accessUser);

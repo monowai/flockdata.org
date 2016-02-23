@@ -108,7 +108,7 @@ public class TestTrackEP extends MvcBase {
     @Test
     public void fortress_DuplicateNameWithProperties() throws Exception{
         String fName= "fortress_ResultProperties";
-        cleanUpGraph();
+//        cleanUpGraph();
         FortressInputBean fortressInputBean = new FortressInputBean(fName);
         FortressResultBean result = makeFortress(sally(), fortressInputBean);
         assertEquals(fName, result.getName());
