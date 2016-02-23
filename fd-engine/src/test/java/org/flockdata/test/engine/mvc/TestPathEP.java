@@ -17,7 +17,7 @@ public class TestPathEP extends MvcBase {
 
     @Test
     public void get_tags() throws Exception {
-        cleanUpGraph();
+//        cleanUpGraph();
         engineConfig.setConceptsEnabled("true");
         engineConfig.setMultiTenanted(false);
         // Creating a structure

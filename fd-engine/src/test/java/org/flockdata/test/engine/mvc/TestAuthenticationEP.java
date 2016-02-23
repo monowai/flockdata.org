@@ -74,7 +74,6 @@ public class TestAuthenticationEP extends MvcBase {
     @Test
     public void whenLoggedInAsMike_ShouldReturn2Roles() throws Exception {
         // As per the entry in test-security.xml
-        cleanUpGraph();
         LoginRequest loginReq = new LoginRequest();
         loginReq.setUsername("mike");
         loginReq.setPassword("123");
