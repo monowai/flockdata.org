@@ -2,7 +2,6 @@ package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.MessageSupport;
-import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.MetaKeyResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,8 +18,6 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-
-import java.io.IOException;
 
 /**
  * Finds MetaKeys for a given set of query parameters. This can be used to drive queries in the Graph as
@@ -56,7 +53,6 @@ public class MetaKeyQuery {
         return new DirectChannel();
     }
 
-    // ToDo: Can we handle this more via the flow or handler?
     // Must be public else SI won't pick it up and will throw a NotFoundException
     @Transformer(inputChannel= "sendMetaKeyQuery", outputChannel="doMetaKeyQuery")
     public Message<?> transformMkPayload(Message message){
@@ -67,23 +63,23 @@ public class MetaKeyQuery {
     IntegrationFlow fdMetaKeyQueryFlow() {
 
         return IntegrationFlows.from(doMetaKeyQuery())
-                .handle(fdMetaKeyQueryHandler())
+                .handle(handler())
                 .get();
     }
 
-    private MessageHandler fdMetaKeyQueryHandler() {
+    private MessageHandler handler() {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/metaKeys");
-        handler.setExpectedResponseType(String.class);
+        handler.setExpectedResponseType(MetaKeyResults.class);
         handler.setHttpMethod(HttpMethod.POST);
-        handler.setOutputChannel(receiveMetaKeyReply());
+//        handler.setOutputChannel(receiveMetaKeyReply());
         return handler;
     }
 
-    // ToDo: Can this be integrated to the handler?
-    @Transformer(inputChannel="receiveMetaKeyReply", outputChannel="metaKeyResult")
-    public MetaKeyResults transforMkResponse(Message<String> theObject) throws IOException {
-        return JsonUtils.toObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
-    }
+//    // ToDo: Can this be integrated to the handler?
+//    @Transformer(inputChannel="receiveMetaKeyReply", outputChannel="metaKeyResult")
+//    public MetaKeyResults transforMkResponse(Message<String> theObject) throws IOException {
+//        return JsonUtils.toObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
+//    }
 
 }

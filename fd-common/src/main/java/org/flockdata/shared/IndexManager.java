@@ -146,11 +146,13 @@ public class IndexManager {
         String[] results = new String[length];
         Collection<String> found = new ArrayList<>();
 
-        String indexRoot = getPrefix() + company.toLowerCase() ;
+        String indexRoot = getPrefix() + (company!=null ?company.toLowerCase() :"*");
         String segmentFilter ="";
 
-        if (!isDefaultSegment(segment))
-            segmentFilter = "."+segment.toLowerCase();
+        if ( segment !=null ) {
+            if (!isDefaultSegment(segment))
+                segmentFilter = "." + segment.toLowerCase();
+        }
 
         String fortressFilter ;
         if ( fortress == null || fortress.equals("*"))
