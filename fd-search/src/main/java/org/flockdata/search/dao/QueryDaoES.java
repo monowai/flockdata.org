@@ -239,7 +239,7 @@ public class QueryDaoES implements QueryDao {
 
         SearchResponse response;
         try {
-            response = query.execute().get(50000l, TimeUnit.MILLISECONDS);
+            response = query.execute().get(10000L, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.error("MetaKeySearch query error ", e);
             throw new FlockException("MetaKeySearch query error ", e);

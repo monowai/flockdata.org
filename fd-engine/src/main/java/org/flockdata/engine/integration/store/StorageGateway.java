@@ -19,6 +19,7 @@ public interface StorageGateway {
     @Gateway(requestChannel = "storePing")
     String ping();
 
+    @Payload("#args")
     @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
     StoredContent read(Store store, String index, String type, String key);
 

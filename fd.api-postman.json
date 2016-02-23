@@ -1448,7 +1448,7 @@
                 {
                     "id": "ab98390a-92a2-8d49-f08b-d90faac02f45",
                     "headers": "Content-Type: application/json\n",
-                    "url": "{{fd-search}}/{{v}}/query/metaKeys",
+                    "url": "{{fd-search}}/{{v}}/query/",
                     "preRequestScript": "",
                     "pathVariables": {},
                     "method": "POST",
@@ -1460,7 +1460,7 @@
                     "helperAttributes": {},
                     "time": 1456176911601,
                     "name": "Simple Search",
-                    "description": "Executes the fd-search side service that returns search results",
+                    "description": "Executes the fd-search side service that returns search results. suffix with /metaKeys if you just want entity keys returned",
                     "collectionId": "a05af044-f943-7eb7-f3b3-4d51f0842b97"
                 },
                 {
