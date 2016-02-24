@@ -32,11 +32,11 @@ fd-engine:
     concepts: true
     timings: false
   messaging:
-    queue: fd.int.engine.queue
-    binding: fd.int.engine.binding
-    exchange: fd.int.engine.exchange
-    dlq.queue: fd.int.engine.dlq.queue
-    dlq.exchange: fd.int.engine.dlq.exchange
+    queue: int.fd.engine.queue
+    binding: int.fd.engine.binding
+    exchange: int.fd.engine.exchange
+    dlq.queue: int.fd.engine.dlq.queue
+    dlq.exchange: int.fd.engine.dlq.exchange
     prefetchCount: 1
   executor:
     poolSize: 8-15
@@ -44,16 +44,16 @@ fd-engine:
 
 fd-track: # Used for handling incoming data
   messaging:
-    exchange: fd.int.track.exchange
-    binding: fd.int.track.binding
-    queue: fd.int.track.queue
-    response: fd.response.queue
+    exchange: int.fd.track.exchange
+    binding: int.fd.track.binding
+    queue: int.fd.track.queue
+#    response: fd.response.queue
     concurrentConsumers: 1
     queueCapacity: 10
     prefetchCount: 10
     dlq:
-      queue: fd.int.track.dlq.queue
-      exchange: fd.int.track.dlq.exchange
+      queue: int.fd.track.dlq.queue
+      exchange: int.fd.track.dlq.exchange
   executor:
       poolSize: 8-15
       queueCapacity: 3
@@ -63,14 +63,14 @@ fd-search:
   index:
     prefix: true
   messaging:
-    exchange: fd.int.search.exchange
-    binding: fd.int.search.binding
+    exchange: int.fd.search.exchange
+    binding: int.fd.search.binding
     concurrentConsumers: 2
     prefetchCount: 10
-    queue: fd.int.search.queue
+    queue: int.fd.search.queue
     dlq:
-      queue: fd.int.search.dlq.queue
-      exchange: fd.int.search.dlq.exchange
+      queue: int.fd.search.dlq.queue
+      exchange: int.fd.search.dlq.exchange
   executor:
     poolSize: 20-30
     queueCapacity: 10
@@ -80,14 +80,14 @@ fd-store:
   system:
     enabled: false
   messaging: # Async hand offs to fd-store
-    exchange: fd.int.store.exchange
-    binding: fd.int.store.binding
-    queue: fd.int.store.queue
+    exchange: int.fd.store.exchange
+    binding: int.fd.store.binding
+    queue: int.fd.store.queue
     concurrentConsumers: 2
     prefetchCount: 1
     dlq:
-      queue: fd.int.store.dlq.queue
-      exchange: fd.int.store.dlq.exchange
+      queue: int.fd.store.dlq.queue
+      exchange: int.fd.store.dlq.exchange
   executor:
     poolSize: 8-15
     queueCapacity: 3
