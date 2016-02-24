@@ -2,7 +2,7 @@ package org.flockdata.engine.integration.search;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.MessageSupport;
-import org.flockdata.search.model.MetaKeyResults;
+import org.flockdata.search.model.EntityKeyResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -20,8 +20,8 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
 /**
- * Finds MetaKeys for a given set of query parameters. This can be used to drive queries in the Graph as
- * the metaKey will give you a starting point
+ * Finds Keys for a given set of query parameters. This can be used to drive queries in the Graph as
+ * the key will give you a starting point
  *
  * Created by mike on 14/02/16.
  */
@@ -29,7 +29,7 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 @IntegrationComponentScan
 @Profile({"integration","production"})
-public class MetaKeyQuery {
+public class EntityKeyQuery {
 
     @Autowired
     @Qualifier("engineConfig")
@@ -39,47 +39,47 @@ public class MetaKeyQuery {
     MessageSupport messageSupport;
 
     @Bean
-    MessageChannel receiveMetaKeyReply(){
+    MessageChannel receiveKeyReply(){
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel metaKeyResult () {
+    MessageChannel keyResult () {
         return new DirectChannel();
     }
 
     @Bean
-    MessageChannel doMetaKeyQuery() {
+    MessageChannel doKeyQuery() {
         return new DirectChannel();
     }
 
     // Must be public else SI won't pick it up and will throw a NotFoundException
-    @Transformer(inputChannel= "sendMetaKeyQuery", outputChannel="doMetaKeyQuery")
+    @Transformer(inputChannel= "sendKeyQuery", outputChannel="doKeyQuery")
     public Message<?> transformMkPayload(Message message){
         return messageSupport.toJson(message);
     }
 
     @Bean
-    IntegrationFlow fdMetaKeyQueryFlow() {
+    IntegrationFlow fdKeyQueryFlow() {
 
-        return IntegrationFlows.from(doMetaKeyQuery())
+        return IntegrationFlows.from(doKeyQuery())
                 .handle(handler())
                 .get();
     }
 
     private MessageHandler handler() {
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/metaKeys");
-        handler.setExpectedResponseType(MetaKeyResults.class);
+                new HttpRequestExecutingMessageHandler(engineConfig.getFdSearch()+ "/v1/query/keys");
+        handler.setExpectedResponseType(EntityKeyResults.class);
         handler.setHttpMethod(HttpMethod.POST);
-//        handler.setOutputChannel(receiveMetaKeyReply());
+//        handler.setOutputChannel(receiveKeyReply());
         return handler;
     }
 
 //    // ToDo: Can this be integrated to the handler?
-//    @Transformer(inputChannel="receiveMetaKeyReply", outputChannel="metaKeyResult")
-//    public MetaKeyResults transforMkResponse(Message<String> theObject) throws IOException {
-//        return JsonUtils.toObject(theObject.getPayload().getBytes(), MetaKeyResults.class);
+//    @Transformer(inputChannel="receiveKeyReply", outputChannel="keyResult")
+//    public KeyResults transforMkResponse(Message<String> theObject) throws IOException {
+//        return JsonUtils.toObject(theObject.getPayload().getBytes(), KeyResults.class);
 //    }
 
 }

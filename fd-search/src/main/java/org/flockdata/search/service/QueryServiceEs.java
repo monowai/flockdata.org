@@ -53,8 +53,8 @@ public class QueryServiceEs implements QueryService {
             return queryDao.doEntitySearch(queryParams);
     }
 
-    public MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException {
-        return queryDao.doMetaKeySearch(queryParams);
+    public EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException {
+        return queryDao.doEntityKeySearch(queryParams);
     }
 
     @Override

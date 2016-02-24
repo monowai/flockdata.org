@@ -113,7 +113,7 @@ public class TrackEP {
         if (ls.equals(ContentInputBean.LogStatus.FORBIDDEN))
             return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.FORBIDDEN);
         else if (ls.equals(ContentInputBean.LogStatus.NOT_FOUND)) {
-            throw new NotFoundException("Unable to locate the requested metaKey");
+            throw new NotFoundException("Unable to locate the requested key");
         } else if (ls.equals(ContentInputBean.LogStatus.IGNORE)) {
             input.setFdMessage("Ignoring request to change as the 'data' has not changed");
             return new ResponseEntity<>(resultBean.getCurrentLog(), HttpStatus.NOT_MODIFIED);
@@ -136,18 +136,18 @@ public class TrackEP {
         input.setFortressName(fortress);
         input.setDocumentType(new DocumentTypeInputBean(recordType));
         input.setCode(callerRef);
-        input.setMetaKey(null);
+        input.setKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.addServiceMessage("OK");
         return new ResponseEntity<>(new TrackRequestResult(trackResultBean), HttpStatus.OK);
 
     }
 
-    @RequestMapping(value = "/{metaKey}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody Collection<String> crossReference(@PathVariable("metaKey") String metaKey, Collection<String> metaKeys, @PathVariable("xRefName") String relationshipName,
+    @RequestMapping(value = "/{key}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
+    public @ResponseBody Collection<String> crossReference(@PathVariable("key") String key, Collection<String> keys, @PathVariable("xRefName") String relationshipName,
                                                            HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.crossReference(company, metaKey, metaKeys, relationshipName);
+        return entityService.crossReference(company, key, keys, relationshipName);
     }
 
     /**

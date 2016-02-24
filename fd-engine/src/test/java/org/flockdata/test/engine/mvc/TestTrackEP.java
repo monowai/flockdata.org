@@ -51,8 +51,8 @@ public class TestTrackEP extends MvcBase {
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
-        EntityBean e = getEntity(mike(), trackResult.getMetaKey());
-        //Entity e = entityService.getEntity(su.getCompany(), trackResult.getMetaKey());
+        EntityBean e = getEntity(mike(), trackResult.getKey());
+        //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
 
         assertEquals("usera", e.getLastUser());
         assertEquals("usera", e.getCreatedUser());
@@ -68,7 +68,7 @@ public class TestTrackEP extends MvcBase {
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull("FortressUser in the Header, but not in Content, should work", trackResult);
-        EntityBean e = getEntity(mike(), trackResult.getMetaKey());
+        EntityBean e = getEntity(mike(), trackResult.getKey());
 
         assertEquals("usera", e.getLastUser());
         assertEquals("usera", e.getCreatedUser());
@@ -83,7 +83,7 @@ public class TestTrackEP extends MvcBase {
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
-        Collection<EntityLog> entityLogs = getEntityLogs(mike(), trackResult.getMetaKey());
+        Collection<EntityLog> entityLogs = getEntityLogs(mike(), trackResult.getKey());
         assertEquals(1, entityLogs.size());
     }
 
@@ -101,7 +101,7 @@ public class TestTrackEP extends MvcBase {
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
         login("mike", "123");
-        getEntityLogsIllegalEntity(mike(), trackResult.getMetaKey() +"123");
+        getEntityLogsIllegalEntity(mike(), trackResult.getKey() +"123");
 
     }
 

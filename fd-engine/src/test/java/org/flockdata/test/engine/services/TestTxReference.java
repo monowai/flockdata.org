@@ -85,7 +85,7 @@ public class TestTxReference extends EngineBase {
         SecurityContextHolder.getContext().setAuthentication(authCBA);
         Fortress fortressCBA = fortressService.registerFortress(suCBA.getCompany(), new FortressInputBean("cbaTest",true));
         EntityInputBean cbaEntity = new EntityInputBean(fortressCBA, "wally", "TestTrack", new DateTime(), "ABC123");
-        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getMetaKey();
+        String cbaKey = mediationFacade.trackEntity(suCBA.getCompany(), cbaEntity).getEntity().getKey();
 
         ContentInputBean cbaContent = new ContentInputBean("charlie", cbaKey, DateTime.now(), escJsonA, true);
         Assert.assertEquals("CBA Log Not Created", ContentInputBean.LogStatus.OK, mediationFacade.trackLog(suCBA.getCompany(), cbaContent).getLogStatus());
@@ -121,16 +121,16 @@ public class TestTxReference extends EngineBase {
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), "ABC123");
 
-        String metaKey = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
-        assertNotNull(metaKey);
-        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
+        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getKey();
+        assertNotNull(key);
+        Entity entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
         //assertEquals(1, entity.getTxTags().size());
-        ContentInputBean alb = new ContentInputBean("charlie", metaKey, DateTime.now(), escJsonA, null, tagRef);
+        ContentInputBean alb = new ContentInputBean("charlie", key, DateTime.now(), escJsonA, null, tagRef);
         assertTrue(alb.isTransactional());
         String albTxRef = mediationFacade.trackLog(su.getCompany(), alb).getTxReference().getName();
 
-        alb = new ContentInputBean("harry", metaKey, DateTime.now(), escJsonB);
+        alb = new ContentInputBean("harry", key, DateTime.now(), escJsonB);
 
 
         alb.setTxRef(albTxRef);
@@ -144,7 +144,7 @@ public class TestTxReference extends EngineBase {
         assertEquals(2, logs.size());
 
         // Create a new Logger for a different transaction
-        alb = new ContentInputBean("mikey", metaKey, DateTime.now(), escJsonA);
+        alb = new ContentInputBean("mikey", key, DateTime.now(), escJsonA);
         alb.setTransactional(true);
         assertNull(alb.getTxRef());
         alb.setTxRef("");
@@ -181,7 +181,7 @@ public class TestTxReference extends EngineBase {
         String tagRef = "MyTXTag";
         EntityInputBean aBean = new EntityInputBean(fortress, "wally", "TestTrackDoc", new DateTime(), "tx_TrackEntities");
 
-        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getMetaKey();
+        String key = mediationFacade.trackEntity(su.getCompany(), aBean).getEntity().getKey();
         assertNotNull(key);
         Entity entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity);
@@ -200,7 +200,7 @@ public class TestTxReference extends EngineBase {
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         for (Entity entityResult : result) {
-            assertNotNull(entityResult.getMetaKey());
+            assertNotNull(entityResult.getKey());
         }
 
 

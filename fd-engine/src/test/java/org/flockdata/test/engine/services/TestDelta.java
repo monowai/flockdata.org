@@ -69,7 +69,7 @@ public class TestDelta extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entity);
         EntityLog first = logService.getLastLog(result.getEntity());
         assertNotNull(first);
-        log = new ContentInputBean("Mike", result.getEntity().getMetaKey(), new DateTime(), jsonB);
+        log = new ContentInputBean("Mike", result.getEntity().getKey(), new DateTime(), jsonB);
         mediationFacade.trackLog(su.getCompany(), log);
         EntityLog second = logService.getLastLog(result.getEntity());
         assertNotNull(second);

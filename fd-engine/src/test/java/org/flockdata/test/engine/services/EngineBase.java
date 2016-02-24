@@ -283,10 +283,10 @@ public abstract class EngineBase {
         //logger.debug("Sleep Count {}", sleepCount);
         //Thread.sleep(sleepCount); // Avoiding RELATIONSHIP[{id}] has no property with propertyKey="__type__" NotFoundException
         while (i <= timeout) {
-            Entity updateEntity = entityService.getEntity(company, entity.getMetaKey());
-            count = entityService.getLogCount(company, updateEntity.getMetaKey());
+            Entity updateEntity = entityService.getEntity(company, entity.getKey());
+            count = entityService.getLogCount(company, updateEntity.getKey());
 
-            EntityLog log = entityService.getLastEntityLog(company, updateEntity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, updateEntity.getKey());
             // We have at least one log?
             if (count == expectedCount)
                 return log;
@@ -306,11 +306,11 @@ public abstract class EngineBase {
         long thenTime = System.currentTimeMillis();
         int i = 0;
 
-        Entity entity = entityService.getEntity(company, source.getMetaKey());
+        Entity entity = entityService.getEntity(company, source.getKey());
 
         int timeout = 100;
         while (i <= timeout) {
-            EntityLog log = entityService.getLastEntityLog(company, entity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, entity.getKey());
             if (log != null)
                 return i;
             Thread.yield();

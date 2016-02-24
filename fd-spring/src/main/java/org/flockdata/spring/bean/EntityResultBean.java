@@ -37,9 +37,9 @@ class EntityResultBean {
         this.contentInputBean = contentInputBean;
     }
 
-    String getMetaKey() {
+    String getKey() {
         if (contentInputBean != null)
-            return contentInputBean.getMetaKey();
+            return contentInputBean.getKey();
         return null;
     }
 

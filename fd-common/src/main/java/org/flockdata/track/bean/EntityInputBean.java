@@ -35,7 +35,7 @@ import java.util.*;
  * Time: 9:19 AM
  */
 public class EntityInputBean implements Serializable, UserProperties {
-    private String metaKey;
+    private String key;
     private String code;
     private String fortressName;
     private String fortressUser;
@@ -120,14 +120,14 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     }
 
-    public EntityInputBean setMetaKey(final String metaKey) {
-        this.metaKey = metaKey;
+    public EntityInputBean setKey(final String key) {
+        this.key = key;
         return this;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getMetaKey() {
-        return this.metaKey;
+    public String getKey() {
+        return this.key;
     }
 
     /**
@@ -363,7 +363,7 @@ public class EntityInputBean implements Serializable, UserProperties {
                 "for='" + getFortressName() + '\'' +
                 ", doc='" + getDocumentType() + '\'' +
                 ", seg='" + getSegment() + '\'' +
-                ", mek='" + getMetaKey() + '\'' +
+                ", mek='" + getKey() + '\'' +
                 ", cod='" + getCode() + '\'' +
                 ", nam='" + getName() + '\'' +
                 '}';
@@ -443,13 +443,13 @@ public class EntityInputBean implements Serializable, UserProperties {
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (!getDocumentType().getName().equals(that.getDocumentType().getName())) return false;
         if (!fortressName.equals(that.fortressName)) return false;
-        return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
+        return !(key != null ? !key.equals(that.key) : that.key != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = metaKey != null ? metaKey.hashCode() : 0;
+        int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + fortressName.hashCode();
         result = 31 * result + getDocumentType().getName().hashCode();

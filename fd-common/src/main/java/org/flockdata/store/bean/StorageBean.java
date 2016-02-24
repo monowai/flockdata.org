@@ -78,7 +78,7 @@ public class StorageBean implements StoredContent, Serializable {
         this.content = trackResultBean.getContentInput();
         if (this.content != null) {
             content.setCode(trackResultBean.getEntity().getCode());
-            content.setMetaKey(trackResultBean.getMetaKey());
+            content.setKey(trackResultBean.getKey());
         }
 
     }

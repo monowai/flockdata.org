@@ -127,7 +127,7 @@ public class TestElasticSearch extends ESBase {
         IndexResponse ir =
                 client.prepareIndex(indexKey, change.getWho())
                         .setSource(om.writeValueAsString(change))
-                        .setRouting(change.getMetaKey())
+                        .setRouting(change.getKey())
                         .execute()
                         .actionGet();
 
@@ -136,7 +136,7 @@ public class TestElasticSearch extends ESBase {
 
         // Retrieve from Lucene
         GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
-                .setRouting(change.getMetaKey())
+                .setRouting(change.getKey())
                 .execute()
                 .actionGet();
         node.close();
@@ -154,7 +154,7 @@ public class TestElasticSearch extends ESBase {
 //        IndexResponse ir =
 //                client.prepareIndex(indexKey, change.getWho())
 //                        .setSource(om.writeValueAsString(change))
-//                        .setRouting(change.getMetaKey())
+//                        .setRouting(change.getKey())
 //                        .execute()
 //                        .actionGet();
 //
@@ -163,7 +163,7 @@ public class TestElasticSearch extends ESBase {
 //
 //        // Retrieve from Lucene
 //        GetResponse response = client.prepareGet(indexKey, change.getWho(), ir.getId())
-//                .setRouting(change.getMetaKey())
+//                .setRouting(change.getKey())
 //                .execute()
 //                .actionGet();
 //        client.close();

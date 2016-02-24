@@ -71,7 +71,7 @@ public class TestEntityUsers extends EngineBase {
         Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
-        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertEquals(1, logs.size());
         EntityLog log = logs.iterator().next();
         assertEquals("billie", log.getLog().getMadeBy().getCode().toLowerCase());
@@ -83,7 +83,7 @@ public class TestEntityUsers extends EngineBase {
         entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
-        logs = entityService.getEntityLogs(su.getCompany(), entity.getMetaKey());
+        logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertTrue(logs.size() == 2);
         boolean billieFound = false;
         boolean nemoFound = false;

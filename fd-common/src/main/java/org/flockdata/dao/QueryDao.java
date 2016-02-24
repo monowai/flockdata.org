@@ -34,11 +34,11 @@ public interface QueryDao {
     long getHitCount(String index);
 
     /**
-     * Returns only metaKeys
+     * Returns only keys
      * @param queryParams
      * @return
      */
-    MetaKeyResults doMetaKeySearch ( QueryParams queryParams ) throws FlockException;
+    EntityKeyResults doEntityKeySearch(QueryParams queryParams ) throws FlockException;
 
     /**
      * FD-View search results

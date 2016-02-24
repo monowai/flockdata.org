@@ -72,24 +72,24 @@ public class TestTrackEvents extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String metaKey = resultBean.getEntity().getMetaKey();
-        assertNotNull(metaKey);
+        String key = resultBean.getEntity().getKey();
+        assertNotNull(key);
 
-        Entity entity = entityService.getEntity(su.getCompany(), metaKey);
+        Entity entity = entityService.getEntity(su.getCompany(), key);
         assertNotNull(entity.getType());
 
         assertNotNull(fortressService.getFortressUser(fortress, "wally", true));
         assertNull(fortressService.getFortressUser(fortress, "wallyz", false));
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
 
-        EntityLog when = entityService.getLastEntityLog(su.getCompany(), metaKey);
+        EntityLog when = entityService.getLastEntityLog(su.getCompany(), key);
         assertNotNull(when);
         assertEquals(Log.CREATE, when.getLog().getEvent().getName()); // log event default
         assertEquals(Log.CREATE.toLowerCase(), when.getLog().getEvent().getName().toLowerCase()); // log event default
 
-        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", metaKey, new DateTime(), EntityContentHelper.getRandomMap()));
-        EntityLog whenB = entityService.getLastEntityLog(su.getCompany(), metaKey);
+        mediationFacade.trackLog(su.getCompany(), new ContentInputBean("wally", key, new DateTime(), EntityContentHelper.getRandomMap()));
+        EntityLog whenB = entityService.getLastEntityLog(su.getCompany(), key);
         assertNotNull(whenB);
 
         assertFalse(whenB.equals(when));

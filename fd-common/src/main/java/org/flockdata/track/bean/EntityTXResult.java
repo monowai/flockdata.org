@@ -48,7 +48,7 @@ public class EntityTXResult {
     public EntityTXResult(Entity entity, Log change, EntityLog log) {
         this();
         this.fortressWhen = log.getFortressWhen();
-        this.auditKey = entity.getMetaKey();
+        this.auditKey = entity.getKey();
         this.documentType = entity.getType();
         this.callerRef = entity.getCode();
         this.fortressName = entity.getSegment().getFortress().getName();

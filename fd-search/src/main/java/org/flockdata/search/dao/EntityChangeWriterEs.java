@@ -93,7 +93,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     private SearchChange save(SearchChange searchChange, String source) throws IOException {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
-        logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getMetaKey(), searchChange.getSearchKey());
+        logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
 
         // Rebuilding a document after a reindex - preserving the unique key.
         IndexRequestBuilder irb =
@@ -112,7 +112,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
             logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
                     searchChange.getEntityId(),
-                    searchChange.getMetaKey(),
+                    searchChange.getKey(),
                     searchChange.getLogId(),
                     ir.getId(),
                     indexName,
@@ -121,11 +121,11 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error {} - callerRef [{}], metaKey [{}], [{}]" , indexName , searchChange.getCode(),searchChange.getMetaKey(), e.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
+            logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]" , indexName , searchChange.getCode(),searchChange.getKey(), e.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Writing to index {} produced an error [{}]" ,indexName, e.getMessage());
-            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], metaKey [" + searchChange.getMetaKey() + "], " + e.getMessage(), e);
+            throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         }
 
     }
@@ -136,13 +136,13 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
-            searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getMetaKey() : searchChange.getCode()));
-            logger.debug("No search key, creating as a new document [{}]", searchChange.getMetaKey());
+            searchChange.setSearchKey((searchChange.getCode() == null ? searchChange.getKey() : searchChange.getCode()));
+            logger.debug("No search key, creating as a new document [{}]", searchChange.getKey());
             return save(searchChange, source);
         }
 
         try {
-            logger.debug("Update request for searchKey [{}], metaKey[{}]", searchChange.getSearchKey(), searchChange.getMetaKey());
+            logger.debug("Update request for searchKey [{}], key[{}]", searchChange.getSearchKey(), searchChange.getKey());
 
             GetRequestBuilder request =
                     searchConfig.elasticSearchClient().prepareGet(searchChange.getIndexName(),
@@ -193,7 +193,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             // Update the existing document with the searchChange change
             IndexRequestBuilder update = searchConfig
                     .elasticSearchClient().prepareIndex(searchChange.getIndexName(), searchChange.getDocumentType(), searchChange.getSearchKey());
-            //.setRouting(searchChange.getMetaKey());
+            //.setRouting(searchChange.getKey());
 
             ListenableActionFuture<IndexResponse> ur = update.setSource(source).
                     execute();
@@ -230,7 +230,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         logger.debug("Looking for [{}] in {}", id, indexName + documentType);
 
         GetResponse response = searchConfig.elasticSearchClient().prepareGet(indexName, documentType, id)
-                //.setRouting(entity.getMetaKey())
+                //.setRouting(entity.getKey())
                 .execute()
                 .actionGet();
 
@@ -282,9 +282,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         Map<String, Object> indexMe = new HashMap<>();
         indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
-        if (searchChange.getMetaKey() != null) //DAT-83 No need to track NULL metaKey
+        if (searchChange.getKey() != null) //DAT-83 No need to track NULL key
             // This occurs if the search doc is not being tracked in fd-engine's graph
-            indexMe.put(EntitySearchSchema.META_KEY, searchChange.getMetaKey());
+            indexMe.put(EntitySearchSchema.META_KEY, searchChange.getKey());
 
         if (searchChange.getData() != null)
             indexMe.put(EntitySearchSchema.DATA, searchChange.getData());

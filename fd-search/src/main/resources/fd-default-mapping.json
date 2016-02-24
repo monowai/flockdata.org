@@ -2,7 +2,7 @@
   "mapping": {
     "numeric_detection": false,
     "properties": {
-      "metaKey": {
+      "key": {
         "type": "string",
         "doc_values": true,
         "store": false,

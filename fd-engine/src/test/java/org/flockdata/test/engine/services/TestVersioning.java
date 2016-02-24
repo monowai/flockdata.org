@@ -101,10 +101,10 @@ public class TestVersioning extends EngineBase {
         assertTrue( "Mocked log has an ID set to current system time", entityLog.getLog().getId()>0);
 
 
-        Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getMetaKey());
+        Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());
         assertNotNull ( entity);
 
-        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getMetaKey());
+        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getKey());
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         // Check various properties that we still want to return
@@ -123,7 +123,7 @@ public class TestVersioning extends EngineBase {
         assertTrue( mockLog.isMocked());
         Assert.assertEquals(Store.NONE.name(), mockLog.getLog().getStorage());
 
-        EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getMetaKey());
+        EntitySummaryBean summaryBean = entityService.getEntitySummary(su.getCompany(), entity.getKey());
         assertNotNull ( summaryBean);
         assertNotNull ( summaryBean.getChanges());
         assertEquals ( 1, summaryBean.getChanges().size());

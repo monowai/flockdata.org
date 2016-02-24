@@ -70,7 +70,7 @@ public class TestTagMerge extends EngineBase {
         Long entityResult = results.iterator().next();
         assertEquals("The wrong Entity was affected by this operation", entityA.getId(), entityResult);
 
-        entityA = entityService.getEntity(su.getCompany(), entityA.getMetaKey());
+        entityA = entityService.getEntity(su.getCompany(), entityA.getKey());
         Collection<EntityTag> tags = entityTagService.getEntityTags(entityA);
         assertEquals(1, tags.size()) ;
         assertEquals(tagInputB.getName(), tags.iterator().next().getTag().getName());

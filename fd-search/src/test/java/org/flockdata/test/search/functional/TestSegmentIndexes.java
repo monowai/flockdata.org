@@ -61,9 +61,9 @@ public class TestSegmentIndexes extends ESBase{
 
         Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
-        doQuery(entity, entity.getMetaKey(), 1);
+        doQuery(entity, entity.getKey(), 1);
         //"Each doc should be in it's own segmented index"
-        doQuery(entityOtherSegment, entityOtherSegment.getMetaKey(), 1);
+        doQuery(entityOtherSegment, entityOtherSegment.getKey(), 1);
         // Scanning across segmented indexes
         String index;
         if (indexHelper.isSuffixed())

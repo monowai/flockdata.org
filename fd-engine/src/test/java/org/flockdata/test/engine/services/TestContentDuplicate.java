@@ -67,7 +67,7 @@ public class TestContentDuplicate  extends  EngineBase{
             mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
         Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), "TestDoc", "123");
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
 
         // Reprocess forward
         for (ContentInputBean contentBean : contentBeans) {
@@ -75,7 +75,7 @@ public class TestContentDuplicate  extends  EngineBase{
             mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
 
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
 
         // Try reversing out of order
         Collections.reverse(contentBeans);
@@ -84,7 +84,7 @@ public class TestContentDuplicate  extends  EngineBase{
             mediationFacade.trackEntity(su.getCompany(), inputBean);
         }
 
-        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getMetaKey()));
+        assertEquals(max, entityService.getLogCount(su.getCompany(), entity.getKey()));
 
 
     }

@@ -46,7 +46,7 @@ public class TestParentChild extends ESBase {
                 "  \"fortressName\": \"timesheet\",\n" +
                 "  \"who\": null,\n" +
                 "  \"event\": null,\n" +
-                "  \"metaKey\": \"81Rpuh8WQw6xD4pDwijZPQ\",\n" +
+                "  \"key\": \"81Rpuh8WQw6xD4pDwijZPQ\",\n" +
                 "  \"code\": \"ABC321\",\n" +
                 "  \"logId\": null,\n" +
                 "  \"tagValues\": {},\n" +
@@ -67,7 +67,7 @@ public class TestParentChild extends ESBase {
                 "    {\n" +
                 "      \"fortressName\": \"timesheet\",\n" +
                 "      \"documentType\": \"Staff\",\n" +
-                "      \"metaKey\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
+                "      \"key\": \"ZnU0EpMaQHKFtUT2eZE9LQ\",\n" +
                 "      \"code\": \"ABC123\",\n" +
                 "      \"index\": \""+indexHelper.getPrefix()+"xref_frominputbeans.timesheet\",\n" +
                 "      \"searchTags\": {\n" +

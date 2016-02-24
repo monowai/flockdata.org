@@ -35,7 +35,7 @@ public class EntityTagInputBean {
     @NotNull
     private String tagCode;
     @NotNull
-    private String metaKey;
+    private String key;
     @NotNull
     private String type;
     private String index;
@@ -46,15 +46,15 @@ public class EntityTagInputBean {
     }
 
     /**
-     * @param metaKey          metaKey for an existing entity
+     * @param key          key for an existing entity
      * @param tagCode          name of an existing tag
      * @param relationshipName relationship name to create
      */
-    public EntityTagInputBean(String metaKey, String tagCode, String relationshipName) throws FlockException {
+    public EntityTagInputBean(String key, String tagCode, String relationshipName) throws FlockException {
         this();
 //        if ( tagCode == null )
 //            throw new FlockException("tagCode cannot be null");
-        this.metaKey = metaKey;
+        this.key = key;
         this.tagCode = tagCode;
         if (relationshipName == null)
             this.type = "general";
@@ -62,8 +62,8 @@ public class EntityTagInputBean {
             this.type = relationshipName;
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
     public String getTagCode() {

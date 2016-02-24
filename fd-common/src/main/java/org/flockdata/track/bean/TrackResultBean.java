@@ -226,9 +226,9 @@ public class TrackResultBean implements Serializable {
     }
 
     @JsonIgnore
-    // Convenience function to get the Enitty metaKey
-    public String getMetaKey() {
-        return entity.getMetaKey();
+    // Convenience function to get the Enitty key
+    public String getKey() {
+        return entity.getKey();
     }
 
     public ContentInputBean.LogStatus getLogStatus() {

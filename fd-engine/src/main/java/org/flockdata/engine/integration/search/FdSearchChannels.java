@@ -70,7 +70,7 @@ public class FdSearchChannels {
     }
 
     @Bean
-    MessageChannel sendMetaKeyQuery(){
+    MessageChannel sendKeyQuery(){
         return new DirectChannel();
     }
 

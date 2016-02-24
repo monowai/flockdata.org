@@ -49,12 +49,16 @@ import java.io.IOException;
 import java.util.*;
 
 /**
+ *
+ * Access to Entity objects stored in Neo4j
+ *
  * User: Mike Holdsworth
  * Date: 21/04/13
  * Time: 8:00 PM
  */
 @Repository("entityDao")
 public class EntityDaoNeo {
+
     @Autowired
     EntityRepo entityRepo;
 
@@ -91,9 +95,11 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
+    private static final String EXT_KEY = "extKey";
+
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
-        String metaKey = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
-        Entity entity = new Entity(metaKey, segment, inputBean, documentType);
+        String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
+        Entity entity = new Entity(key, segment, inputBean, documentType);
 
         entity.setIndexName(indexHelper.parseIndex(entity));
         entity.setCreatedBy(fortressUser);
@@ -167,7 +173,7 @@ public class EntityDaoNeo {
             logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
 
         String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
-        Entity result= entityRepo.findBySchemaPropertyValue("key", keyToFind);
+        Entity result= entityRepo.findBySchemaPropertyValue(EXT_KEY, keyToFind);
 
         fetch(result);
         return result;
@@ -355,18 +361,18 @@ public class EntityDaoNeo {
         if ( entity.getSegment().getFortress().isStoreDisabled() )
             return entityLog;
 
-        logger.debug(entity.getMetaKey());
+        logger.debug(entity.getKey());
 
         Entity currentState = template.fetch(entity);
         // Entity is being committed in another thread? On occasion metakKey is null on refresh meaning the Log does not get created
         // Easiest way to test is when there is not fortress and you track the first request in to it.
         // DAT-419
 
-        while ( currentState.getMetaKey() ==null )
+        while ( currentState.getKey() ==null )
             currentState = template.fetch(entity);
 
-        if ( entity.getMetaKey() == null )
-            throw new FlockException("Where has the metaKey gone?");
+        if ( entity.getKey() == null )
+            throw new FlockException("Where has the key gone?");
 
         entity.setLastUser(newLog.getMadeBy());
         entity.setLastChange(newLog);
@@ -440,13 +446,13 @@ public class EntityDaoNeo {
 
     }
 
-    public Map<String, Entity> findEntities(Company company, Collection<String> metaKeys) {
-        logger.debug("Looking for {} entities for company [{}] ", metaKeys.size(), company);
-        Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), metaKeys);
+    public Map<String, Entity> findEntities(Company company, Collection<String> keys) {
+        logger.debug("Looking for {} entities for company [{}] ", keys.size(), company);
+        Collection<Entity> foundEntities = entityRepo.findEntities(company.getId(), keys);
         Map<String, Entity> unsorted = new HashMap<>();
         for (Entity foundEntity : foundEntities) {
             if ( foundEntity.getSegment().getFortress().getCompany().getId().equals(company.getId()))
-                unsorted.put(foundEntity.getMetaKey(), foundEntity);
+                unsorted.put(foundEntity.getKey(), foundEntity);
         }
         return unsorted;
     }

@@ -31,7 +31,7 @@ public class SearchHandler {
         logger.debug("searchDocSyncResult processing {} incoming search results", size);
         for (SearchResult searchResult : theResults) {
             count++;
-            logger.debug("Updating {}/{} from search metaKey =[{}]", count, size, searchResult);
+            logger.debug("Updating {}/{} from search key =[{}]", count, size, searchResult);
             Long entityId = searchResult.getEntityId();
             if (entityId == null)
                 return;

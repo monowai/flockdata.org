@@ -97,10 +97,10 @@ public class EntityManager {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{metaKey}")
-    public Response findEntity(@PathParam(Entity.UUID_KEY) String metaKey, @Context CypherExecutor cypherExecutor) throws FlockException {
+    @Path("/{key}")
+    public Response findEntity(@PathParam(Entity.UUID_KEY) String key, @Context CypherExecutor cypherExecutor) throws FlockException {
         try (Transaction tx = database.beginTx()) {
-            Entity entity = entityService.findEntity("metaKey", metaKey);
+            Entity entity = entityService.findEntity("key", key);
             tx.success();
             if (entity == null)
                 return Response.noContent().status(Response.Status.NOT_FOUND).build();

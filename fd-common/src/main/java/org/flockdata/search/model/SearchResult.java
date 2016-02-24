@@ -19,8 +19,8 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.track.bean.SearchChange;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.flockdata.track.bean.SearchChange;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class SearchResult {
 
-    private String metaKey, fortress, searchKey, documentType;
+    private String key, fortress, searchKey, documentType;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long logId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -82,13 +82,13 @@ public class SearchResult {
         this.fortress = thisChange.getFortressName();
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
-        this.metaKey = thisChange.getMetaKey();
+        this.key = thisChange.getKey();
 
     }
 
     public SearchResult(
                         String searchKey,
-                        String metaKey,
+                        String key,
                         String fortress,
                         String event,
                         String type,
@@ -97,7 +97,7 @@ public class SearchResult {
                         String whenCreated,
                         String fdTimestamp,
                         Map<String, String[]> fragments) {
-        this.metaKey = metaKey;
+        this.key = key;
         this.documentType = type;
         this.searchKey = searchKey;
         this.fragments = fragments;
@@ -116,16 +116,16 @@ public class SearchResult {
     }
 
     /**
-     * GUID for the metaKey
+     * GUID for the key
      *
      * @return string
      */
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
     /**
-     * name of the fortress that owns the metaKey
+     * name of the fortress that owns the key
      *
      * @return string
      */
@@ -155,7 +155,7 @@ public class SearchResult {
     public String toString() {
         return "SearchResult{" +
                 "entityId='" + entityId + '\'' +
-                ", metaKey='" + metaKey + '\'' +
+                ", key='" + key + '\'' +
                 ", logId='" + logId + '\'' +
                 ", fortress='" + fortress + '\'' +
                 ", documentType='" + documentType + '\'' +

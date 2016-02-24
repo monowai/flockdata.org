@@ -194,7 +194,7 @@ public class TestEntityLinks extends EngineBase {
     public Map<String,Collection<Entity>>getLinkedEntities(Company company, String fortressName, String docType, String code, String rlxName) throws Exception{
         Entity entity = entityService.findByCode(company, fortressName, docType, code);
         assertNotNull (entity);
-        return entityService.getCrossReference(company, entity.getMetaKey(), rlxName);
+        return entityService.getCrossReference(company, entity.getKey(), rlxName);
 
     }
 }

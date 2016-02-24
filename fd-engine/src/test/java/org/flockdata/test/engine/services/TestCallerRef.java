@@ -67,16 +67,16 @@ public class TestCallerRef extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
             // Duplicate null caller ref keys
             EntityInputBean inputBean = new EntityInputBean(fortress, "harry", "TestTrack", new DateTime(), null);
-            assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey());
+            assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey());
             inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), null);
-            String metaKey = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean).getEntity().getMetaKey();
+            String key = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean).getEntity().getKey();
 
-            assertNotNull(metaKey);
-            Entity entity = entityService.getEntity(su.getCompany(), metaKey);
+            assertNotNull(key);
+            Entity entity = entityService.getEntity(su.getCompany(), key);
             assertNotNull(entity);
             assertNull(entity.getCode());
 
-            assertNotNull("Not found via the metaKey as it was null when entity created.", entityService.findByCode(fortress, "TestTrack", metaKey));
+            assertNotNull("Not found via the key as it was null when entity created.", entityService.findByCode(fortress, "TestTrack", key));
         } finally {
             cleanUpGraph(); // No transaction so need to clear down the graph
         }
@@ -92,11 +92,11 @@ public class TestCallerRef extends EngineBase {
 
             EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
 
-            // Ok we now have a metaKey, let's find it by callerRef ignoring the document and make sure we find the same entity
-            String metaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
+            // Ok we now have a key, let's find it by callerRef ignoring the document and make sure we find the same entity
+            String key = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
             Iterable<Entity> results = entityService.findByCode(su.getCompany(), fortress.getName(), "ABC123");
             assertEquals(true, results.iterator().hasNext());
-            assertEquals(metaKey, results.iterator().next().getMetaKey());
+            assertEquals(key, results.iterator().next().getKey());
 
             // Same caller ref but different document - this scenario is the callers to resolve
             inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC123");

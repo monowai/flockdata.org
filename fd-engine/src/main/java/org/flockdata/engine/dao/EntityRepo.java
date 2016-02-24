@@ -45,7 +45,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
 
     @Query(  value=" match (fortress:Fortress)-[:DEFINES]-(FortressSegment)-[:TRACKS]->(track:Entity) " +
             " where id(fortress)={0} " +
-            " return track.metaKey " +
+            " return track.key " +
             " limit {1} ")
     Collection<String> findEntitiesWithLimit(Long id, int limit);
 
@@ -56,21 +56,21 @@ public interface EntityRepo extends GraphRepository<Entity> {
     Collection<Entity> findByCode(Long fortressId, String code);
 
 //    @Query( elementClass = EntityNode.class, value = "match (c:FDCompany) where id(c)={0} with c match (entities:Entity)-[]-(:Fortress)-[]-(c) " +
-//            " where  entities.metaKey in {1}  " +
+//            " where  entities.key in {1}  " +
 //            "return entities ")
 
     @Query( elementClass = Entity.class, value = "match  (entities:Entity) " +
-            " where  entities.metaKey in {1}  " +
+            " where  entities.key in {1}  " +
             "return entities ")
     Collection<Entity> findEntities(Long id, Collection<String> toFind);
 
-    @Query(value = "match (meta:Entity)-[other]-(:FortressUser) where meta.metaKey in{0} delete other")
+    @Query(value = "match (meta:Entity)-[other]-(:FortressUser) where meta.key in{0} delete other")
     void purgePeopleRelationships(Collection<String> entities);
 
-    @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.metaKey in {0} delete otherRlx")
+    @Query(value = "match (meta:Entity)-[otherRlx]-(:Entity) where meta.key in {0} delete otherRlx")
     void purgeEntityLinks(Collection<String> entities);
 
-    @Query(value = "match (f:FortressSegment)-[track:TRACKS]-(entity:Entity) where entity.metaKey in {0} delete track, entity")
+    @Query(value = "match (f:FortressSegment)-[track:TRACKS]-(entity:Entity) where entity.key in {0} delete track, entity")
     void purgeEntities(Collection<String> entities);
 
     @Query( elementClass = Entity.class,value = "match (entity:Entity) " +

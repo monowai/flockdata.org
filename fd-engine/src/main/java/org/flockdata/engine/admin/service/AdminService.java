@@ -151,7 +151,7 @@ public class AdminService implements EngineAdminService {
             }
             searchResults = (Collection<Map<String, Object>>) hits.get("hits");
 
-            Map<String, String> searchKeys = getMetaKeys(searchResults);
+            Map<String, String> searchKeys = getKeys(searchResults);
 
             if (!searchKeys.isEmpty()) {
                 validateEntities(company, errors, searchKeys);
@@ -191,22 +191,22 @@ public class AdminService implements EngineAdminService {
         qp.setTypes(docType.toLowerCase());
         qp.setSearchText("*");
         ArrayList<String> fields = new ArrayList<>();
-        fields.add("metaKey");
+        fields.add("key");
         fields.add("_id");
         qp.setFields(fields);
         qp.setSize(size);
         return qp;
     }
 
-    // Extracts the searchKey and the metaKey in to a map for analysis
-    private Map<String, String> getMetaKeys(Collection<Map<String, Object>> searchResults) {
+    // Extracts the searchKey and the key in to a map for analysis
+    private Map<String, String> getKeys(Collection<Map<String, Object>> searchResults) {
         Map<String, String> searchKeys = new HashMap<>();
         for (Map<String, Object> result : searchResults) {
             String searchKey = result.get("_id").toString();
             Map fieldResult = (Map) result.get("fields");
-            Collection keyResult = (Collection) fieldResult.get("metaKey");
-            String metaKey = keyResult.iterator().next().toString();
-            searchKeys.put(metaKey, searchKey);
+            Collection keyResult = (Collection) fieldResult.get("key");
+            String key = keyResult.iterator().next().toString();
+            searchKeys.put(key, searchKey);
         }
         return searchKeys;
     }
@@ -214,16 +214,16 @@ public class AdminService implements EngineAdminService {
     private void validateEntities(Company company, Collection<String> errors, Map<String, String> searchKeys) {
         Map<String, Entity> entities = entityService.getEntities(company, searchKeys.keySet());
         if (entities.size() != searchKeys.size()) {
-            for (String metaKey : entities.keySet()) {
-                Entity e = entities.get(metaKey);
+            for (String key : entities.keySet()) {
+                Entity e = entities.get(key);
                 if (e == null) {
-                    String message = "Didn't find metaKey " + metaKey;
+                    String message = "Didn't find key " + key;
                     errors.add(message);
                     logger.error(message);
                 }
-                String searchKey = searchKeys.get(metaKey);
+                String searchKey = searchKeys.get(key);
                 if (e != null && !e.getSearchKey().equals(searchKey)) {
-                    String message = "SearchKey mismatch for metaKey " + metaKey + ". Found " + searchKey + " in ES, but the entity expected it as " + e.getSearchKey();
+                    String message = "SearchKey mismatch for key " + key + ". Found " + searchKey + " in ES, but the entity expected it as " + e.getSearchKey();
                     errors.add(message);
                     logger.error(message);
                 }

@@ -37,7 +37,7 @@ public class EntityResultBeanTest {
     public void testGetEntityLogInputBean() throws Exception {
         ContentInputBean contentInputBean = new ContentInputBean("", "auditKey", new DateTime(), null);
         EntityResultBean entityResultBean = new EntityResultBean(contentInputBean);
-        Assert.assertEquals(entityResultBean.getMetaKey(), "auditKey");
+        Assert.assertEquals(entityResultBean.getKey(), "auditKey");
     }
 
     @Test

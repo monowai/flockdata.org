@@ -105,7 +105,7 @@
                     "id": "ebdb1d38-dbfb-ff40-b495-06a014fa4a93",
                     "name": "Track Change",
                     "dataMode": "raw",
-                    "data": "{\n  \"metaKey\": \"t-cb9Z8gQeCudj0h0zDyJA\",\n  \"event\": \"Approve\",\n  \"fortressUser\": \"jane\",\n  \"transactional\": false,\n   \"what\": {\"ID\":\"tt015\", \"sub\": {\"sport\": \"Football\"}} \n \n}",
+                    "data": "{\n  \"key\": \"t-cb9Z8gQeCudj0h0zDyJA\",\n  \"event\": \"Approve\",\n  \"fortressUser\": \"jane\",\n  \"transactional\": false,\n   \"what\": {\"ID\":\"tt015\", \"sub\": {\"sport\": \"Football\"}} \n \n}",
                     "descriptionFormat": null,
                     "description": "",
                     "headers": "Api-Key: {{api-key}}\nContent-Type: application/json\n",
@@ -322,7 +322,7 @@
                 {
                     "id": "d6c9edb9-9c2c-46ae-9dbb-12fed6ede778",
                     "headers": "Api-Key: {{api-key}}\nContent-Type: application/json\n",
-                    "url": "{{fd-engine}}/{{v}}/query/metaKey/ ",
+                    "url": "{{fd-engine}}/{{v}}/query/key/ ",
                     "preRequestScript": "",
                     "pathVariables": {},
                     "method": "POST",
@@ -333,8 +333,8 @@
                     "currentHelper": "normal",
                     "helperAttributes": {},
                     "time": 1455411749071,
-                    "name": "MetaKey Query",
-                    "description": "Find metaKeys for search params",
+                    "name": "Key Query",
+                    "description": "Find keys for search params",
                     "collectionId": "144cdcf9-cf01-f3fd-d794-ff1b625663b7"
                 },
                 {
@@ -409,7 +409,7 @@
                     "helperAttributes": {},
                     "time": 1441248090357,
                     "name": "Reindex  Entity",
-                    "description": "Gets the latest version of an entity, by metaKey, and reindexes it in to ElasticSearch",
+                    "description": "Gets the latest version of an entity, by key, and reindexes it in to ElasticSearch",
                     "collectionId": "1d2fa127-f0c9-98b3-d128-f932f906e922"
                 },
                 {
@@ -490,7 +490,7 @@
                     "helperAttributes": {},
                     "time": 1456041073136,
                     "name": "Last Log",
-                    "description": "Last log tracked for the supplied MetaHeader\n\nThe 2nd argment is the metaKey returned in Track Meta Header",
+                    "description": "Last log tracked for the supplied MetaHeader\n\nThe 2nd argment is the key returned in Track Meta Header",
                     "collectionId": "1d2fa127-f0c9-98b3-d128-f932f906e922"
                 },
                 {
@@ -652,7 +652,7 @@
                     "helperAttributes": {},
                     "time": 1456170939959,
                     "name": "Track Entity",
-                    "description": "Creates a versionable Entity that represents unique data. \n\nLikely you will want to use the metakey for subsequent API calls.\n\nOptionally can create a Log file and Tags in the same call",
+                    "description": "Creates a versionable Entity that represents unique data. \n\nLikely you will want to use the key for subsequent API calls.\n\nOptionally can create a Log file and Tags in the same call",
                     "collectionId": "2abe0b77-4153-1d96-2f9c-b5c1e08fd8a5"
                 },
                 {
@@ -1460,7 +1460,7 @@
                     "helperAttributes": {},
                     "time": 1456176911601,
                     "name": "Simple Search",
-                    "description": "Executes the fd-search side service that returns search results. suffix with /metaKeys if you just want entity keys returned",
+                    "description": "Executes the fd-search side service that returns search results. suffix with /keys if you just want entity keys returned",
                     "collectionId": "a05af044-f943-7eb7-f3b3-4d51f0842b97"
                 },
                 {
@@ -1642,7 +1642,7 @@
                     "id": "e5531686-f2b7-be9e-4f8a-9e702e9d60aa",
                     "name": "Track Log",
                     "dataMode": "raw",
-                    "data": "{\n  \"metaKey\": \"OMyYP0jNRB2Ubrkp4g5NLw\",\n  \"event\": \"Create\",\n  \"fortressUser\": \"jane\",\n  \"comment\": \"Moved over from old system\",\n  \"what\": \"{\\\"ID\\\":\\\"901\\\", \\\"name\\\":\\\"Mary Smith\\\", \\\"hobbies\\\":{\\\"sport\\\": \\\"Football\\\"} }\"\n}",
+                    "data": "{\n  \"key\": \"OMyYP0jNRB2Ubrkp4g5NLw\",\n  \"event\": \"Create\",\n  \"fortressUser\": \"jane\",\n  \"comment\": \"Moved over from old system\",\n  \"what\": \"{\\\"ID\\\":\\\"901\\\", \\\"name\\\":\\\"Mary Smith\\\", \\\"hobbies\\\":{\\\"sport\\\": \\\"Football\\\"} }\"\n}",
                     "descriptionFormat": null,
                     "description": "Logs a change for the supplied meta header.\neventType is optional and defaults to Create/Update\nWhat text must be escaped JSON",
                     "headers": "Api-Key: {{api-key}}\nContent-Type: application/json\n",

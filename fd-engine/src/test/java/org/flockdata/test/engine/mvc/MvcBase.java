@@ -225,11 +225,11 @@ public abstract class MvcBase {
     }
 
 
-    public EntityBean getEntity(RequestPostProcessor user, String metaKey) throws Exception {
-        return getEntity(user, metaKey, MockMvcResultMatchers.status().isOk());
+    public EntityBean getEntity(RequestPostProcessor user, String key) throws Exception {
+        return getEntity(user, key, MockMvcResultMatchers.status().isOk());
     }
-    public EntityBean getEntity(RequestPostProcessor user, String metaKey, ResultMatcher status) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{metaKey}", metaKey)
+    public EntityBean getEntity(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{key}", key)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(status).andReturn();
@@ -497,8 +497,8 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<EntityLog> getEntityLogs(RequestPostProcessor user, String metaKey) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + metaKey + "/log")
+    public Collection<EntityLog> getEntityLogs(RequestPostProcessor user, String key) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + key + "/log")
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -507,15 +507,15 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, EntityLog.class);
     }
 
-    public void getEntityLogsIllegalEntity(RequestPostProcessor user, String metaKey) throws Exception {
-        mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + metaKey + "/log")
+    public void getEntityLogsIllegalEntity(RequestPostProcessor user, String key) throws Exception {
+        mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + key + "/log")
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
     }
 
-    public Collection<EntityTagResult> getEntityTags(RequestPostProcessor user, String metaKey) throws Exception{
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{metaKey}/tags", metaKey )
+    public Collection<EntityTagResult> getEntityTags(RequestPostProcessor user, String key) throws Exception{
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{key}/tags", key )
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

@@ -55,10 +55,10 @@ public class FdQueryEP {
         return searchService.doFdViewSearch(queryParams);
     }
 
-    @RequestMapping(value = "/metaKeys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
-    public MetaKeyResults metaKeys(@RequestBody QueryParams queryParams) throws FlockException {
+    @RequestMapping(value = "/keys", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)
+    public EntityKeyResults keys(@RequestBody QueryParams queryParams) throws FlockException {
 
-        return searchService.doMetaKeyQuery(queryParams);
+        return searchService.doKeyQuery(queryParams);
     }
 
     @RequestMapping(value = "/data", consumes = "application/json", produces = "application/json", method = RequestMethod.POST)

@@ -46,21 +46,21 @@ public class EntityRequests extends NeoRequestBase {
     }
 
     @Bean
-    public IntegrationFlow findEntityByMetaKey() {
+    public IntegrationFlow findEntityByKey() {
         return IntegrationFlows.from(channels.neoFdFindEntity())
-                .handle(fdFindByMetaKey())
+                .handle(fdFindByKey())
                 .get();
     }
 
-    private MessageHandler fdFindByMetaKey() {
+    private MessageHandler fdFindByKey() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =
-                new HttpRequestExecutingMessageHandler(getMetaKeyUrl());
+                new HttpRequestExecutingMessageHandler(getKeyUrl());
 
         handler.setExpectedResponseType(Entity.class);
         Map<String, Expression> vars = new HashMap<>();
-        vars.put("metaKey", expressionParser.parseExpression("payload[0]"));
+        vars.put("key", expressionParser.parseExpression("payload[0]"));
         handler.setUriVariableExpressions(vars);
 
         handler.setHttpMethod(HttpMethod.GET);

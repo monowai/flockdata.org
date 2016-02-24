@@ -45,7 +45,7 @@ import java.util.TimeZone;
 public class Entity implements Serializable {
 
     @Indexed
-    private String metaKey;
+    private String key;
 
     //@Relationship(type = "TRACKS", direction = Relationship.INCOMING)
     @RelatedTo(type = "TRACKS", direction = Direction.INCOMING)
@@ -56,7 +56,7 @@ public class Entity implements Serializable {
     private ArrayList<String> labels = new ArrayList<>();
 
     @Indexed(unique = true)
-    private String key;
+    private String extKey;   // Calculated field defining a unique external key
 
     private String code;
 
@@ -94,7 +94,7 @@ public class Entity implements Serializable {
     //@Relationship(type = "LOGGED")
     //Set<EntityLog> logs = new HashSet<>();
 
-    public static final String UUID_KEY = "metaKey";
+    public static final String UUID_KEY = "key";
 
     private String searchKey = null;
 
@@ -113,8 +113,8 @@ public class Entity implements Serializable {
     //@Transient
     private Integer search = null;
 
-    public Entity(String metaKey, Fortress fortress, EntityInputBean eib, DocumentType doc) throws FlockException {
-        this(metaKey, fortress.getDefaultSegment(), eib, doc);
+    public Entity(String key, Fortress fortress, EntityInputBean eib, DocumentType doc) throws FlockException {
+        this(key, fortress.getDefaultSegment(), eib, doc);
     }
 
     /**
@@ -136,14 +136,14 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String metaKey, FortressSegment segment, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public Entity(String key, FortressSegment segment, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
         assert segment != null;
 
         labels.add(documentType.getName());
-        this.metaKey = metaKey;
+        this.key = key;
         this.noLogs = entityInput.isEntityOnly();
         this.segment = segment;//(FortressNode)documentType.getFortress();
         // DAT-278
@@ -158,8 +158,8 @@ public class Entity implements Serializable {
 
         docType = docType.toLowerCase();
         code = entityInput.getCode();
-        key = EntityHelper.parseKey(this.segment.getFortress().getId(), documentType.getId(), (code != null ? code : this.metaKey));
-        //key = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : metaKey);
+        extKey = EntityHelper.parseKey(this.segment.getFortress().getId(), documentType.getId(), (code != null ? code : this.key));
+        //extKey = this.fortress.getId() + "." + documentType.getId() + "." + (code != null ? code : key);
 
         if (entityInput.getName() == null || entityInput.getName().equals(""))
             this.name = (code == null ? docType : (docType + "." + code));
@@ -203,16 +203,16 @@ public class Entity implements Serializable {
         return id;
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
     public FortressSegment getSegment() {
         return segment;
     }
 
-    public String getKey() {
-        return this.key;
+    public String getExtKey() {
+        return this.extKey;
     }
 
     public String getName() {
@@ -275,7 +275,7 @@ public class Entity implements Serializable {
     public String toString() {
         return "EntityNode{" +
                 "id=" + id +
-                ", metaKey='" + metaKey + '\'' +
+                ", key='" + key + '\'' +
                 ", name='" + name +
                 '}';
     }
@@ -349,13 +349,13 @@ public class Entity implements Serializable {
 
         Entity that = (Entity) o;
 
-        return !(metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null);
+        return !(key != null ? !key.equals(that.key) : that.key != null);
 
     }
 
     @Override
     public int hashCode() {
-        return metaKey != null ? metaKey.hashCode() : 0;
+        return key != null ? key.hashCode() : 0;
     }
 
     public void setCreatedBy(FortressUser createdBy) {

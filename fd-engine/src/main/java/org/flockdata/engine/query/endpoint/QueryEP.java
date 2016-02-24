@@ -88,10 +88,10 @@ public class QueryEP {
         return queryService.getTagCloud(company, tagCloudParams);
     }
 
-    @RequestMapping(value = "/metaKey", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public MetaKeyResults getMetaKeys(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
+    @RequestMapping(value = "/key", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public EntityKeyResults getKeys(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return queryService.getMetaKeys(company, queryParams);
+        return queryService.getKeys(company, queryParams);
     }
 
 

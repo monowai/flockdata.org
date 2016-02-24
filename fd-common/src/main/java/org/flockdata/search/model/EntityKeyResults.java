@@ -24,15 +24,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MetaKeyResults {
+public class EntityKeyResults {
 
     private Collection<String> results = new ArrayList<>();
     private int startedFrom;
 
-    public MetaKeyResults() {
+    public EntityKeyResults() {
     }
 
-    public MetaKeyResults(Collection<String> results) {
+    public EntityKeyResults(Collection<String> results) {
         this.results = results;
     }
 
