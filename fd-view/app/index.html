@@ -1,0 +1,138 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- build:css styles/vendor.css -->
+  <!-- bower:css -->
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+  <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
+  <!-- endbower -->
+  <!-- endbuild -->
+  <link rel="stylesheet" href="bower_components/ngprogress/ngProgress.css"/>
+  <!-- build:css({.tmp,app}) styles/main.css -->
+  <link rel="stylesheet" href="styles/demo.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/graph.css">
+  <link rel="stylesheet" href="styles/smartadmin-production.css">
+  <link rel="stylesheet" href="styles/smartadmin-skins.css">
+  <link rel="stylesheet" href="styles/fd-view.css">
+  <!-- endbuild -->
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+
+</head>
+<body ng-app="fdView">
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+  your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- Add your site or application content here -->
+<div ng-view=""></div>
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+    a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+  ga('create', 'UA-XXXXX-X');
+  ga('send', 'pageview');
+</script>
+
+<!--[if lt IE 9]>
+<script src="bower_components/es5-shim/es5-shim.js"></script>
+<script src="bower_components/json3/lib/json3.min.js"></script>
+<![endif]-->
+
+<!-- build:js scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/json3/lib/json3.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/jsondiffpatch/public/build/jsondiffpatch.js"></script>
+<script src="bower_components/jsoneditor/dist/jsoneditor.min.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
+<script src="bower_components/ngprogress/build/ngProgress.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<script src="bower_components/angular-moment/angular-moment.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+
+<!--<script type="text/javascript" src="bower_components/jsondiffpatch/src/main-full.js"></script>-->
+<script src="bower_components/jsondiffpatch/public/build/jsondiffpatch-full.min.js"></script>
+<script type="text/javascript"
+        src="bower_components/jsondiffpatch/public/build/jsondiffpatch-formatters.min.js"></script>
+
+
+<script src="scripts/datatables/jquery.dataTables-cust.min.js"></script>
+<script src="scripts/datatables/ColReorder.min.js"></script>
+<script src="scripts/datatables/FixedColumns.min.js"></script>
+<script src="scripts/datatables/ColVis.min.js"></script>
+<script src="scripts/datatables/ZeroClipboard.js"></script>
+<script src="scripts/datatables/media/js/TableTools.min.js"></script>
+<script src="scripts/datatables/DT_bootstrap.js"></script>
+<script src="scripts/chart/directives.js"></script>
+<script src="scripts/chart/chord.js"></script>
+<script src="scripts/chart/bi-partite.js"></script>
+<script src="scripts/chart/cloud.js"></script>
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/http-auth-interceptor.js"></script>
+<script src="scripts/config.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/constants.js"></script>
+<script src="scripts/services/services.js"></script>
+<script src="scripts/controllers/search.js"></script>
+<script src="scripts/controllers/analyze.js"></script>
+<script src="scripts/controllers/viewentity.js"></script>
+<script src="scripts/controllers/login.js"></script>
+<script src="scripts/controllers/settings.js"></script>
+<script src="scripts/services/factories.js"></script>
+<script src="scripts/directives.js"></script>
+<!-- endbuild -->
+<script src="scripts/init.js"></script>
+
+<link rel="stylesheet" href="bower_components/jsondiffpatch/public/formatters-styles/html.css" type="text/css"/>
+<link rel="stylesheet" href="bower_components/jsondiffpatch/public/formatters-styles/annotated.css" type="text/css"/>
+<link rel="stylesheet" href="bower_components/jsoneditor/dist/jsoneditor.css" type="text/css"/>
+<link rel="stylesheet" href="bower_components/jsoneditor/dist/jsoneditor.min.css"/>
+
+
+<script>
+  $(document).ready(function () {
+    // DO NOT REMOVE : GLOBAL FUNCTIONS!
+    //pageSetUp();
+  });
+</script>
+</body>
+</html>

@@ -56,21 +56,21 @@ public class AdminEP {
     SecurityHelper securityHelper;
 
     @Autowired
-    PlatformConfig engineConfig;
+    PlatformConfig platformConfig;
 
     private static Logger logger = LoggerFactory.getLogger(AdminEP.class);
 
     @RequestMapping(value = "/cache", method = RequestMethod.DELETE)
     public void resetCache() {
-        engineConfig.resetCache();
+        platformConfig.resetCache();
 
     }
 
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
     public String getPing() {
-        // curl -X GET http://localhost:8081/v1/track/ping
-        return engineConfig.authPing();
+        // curl -X GET http://localhost:8081/api/v1/track/ping
+        return platformConfig.authPing();
     }
 
 
@@ -87,8 +87,8 @@ public class AdminEP {
             apiKey = null;
         if ( request.getAttribute(ApiKeyInterceptor.COMPANY) == null &&
                  apiKey == null )
-            return engineConfig.getHealthAuth();// Caller may have admin role but not belong to a company
-        return engineConfig.getHealth();
+            return platformConfig.getHealthAuth();// Caller may have admin role but not belong to a company
+        return platformConfig.getHealth();
     }
 
 

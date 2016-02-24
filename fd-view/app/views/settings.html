@@ -1,0 +1,90 @@
+<ng-flockheader></ng-flockheader>
+<ng-flockleftbar active="search"></ng-flockleftbar>
+
+<!-- MAIN PANEL -->
+<div id="main" role="main" ng-controller="SettingController" data-ng-init="init()">
+
+    <!-- RIBBON -->
+    <div id="ribbon">
+
+    <span class="ribbon-button-alignment"> <span id="refresh" class="btn btn-ribbon" data-title="refresh" rel="tooltip"
+                                                 data-placement="bottom"
+                                                 data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings."
+                                                 data-html="true"><i class="fa fa-refresh"></i></span> </span>
+
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li>Home</li>
+            <li>Settings</li>
+        </ol>
+        <!-- end breadcrumb -->
+
+        <!-- You can also add more buttons to the
+        ribbon for further usability
+
+        Example below:
+
+        <span class="ribbon-button-alignment pull-right">
+        <span id="search" class="btn btn-ribbon hidden-xs" data-title="search"><i class="fa-grid"></i> Change Grid</span>
+        <span id="add" class="btn btn-ribbon hidden-xs" data-title="add"><i class="fa-plus"></i> Add</span>
+        <span id="search" class="btn btn-ribbon" data-title="search"><i class="fa-search"></i> <span class="hidden-mobile">Search</span></span>
+        </span> -->
+
+    </div>
+    <!-- END RIBBON -->
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+        <div class="widget-body">
+            <form class="smart-form ng-pristine ng-valid">
+                <fieldset>
+                    <div class="row">
+                        <section class="col col-4">
+                            <label class="input">
+                              <input type="url" name="fdEngineUrl" ng-model="setting.fdEngineUrl" autofocus
+                                     placeholder="fd-engine URL">
+                                <i class="icon-append fa fa-globe"></i>
+                            </label>
+                        </section>
+                    </div>
+                    <div class="row">
+                        <section class="col col-4">
+                            <label class="input">
+                              <input type="url" name="exploreUrl" ng-model="setting.exploreUrl"
+                                       placeholder="explore URL">
+                                <i class="icon-append fa fa-globe"></i>
+                            </label>
+                        </section>
+                    </div>
+                  <div class="row">
+
+                    <section ng-if="authenticated" class="col col-4">
+                      <label class="checkbox">
+                        <input type="checkbox" ng-model="setting.devMode" ng-checked="setting.devModeChecked">
+                        <i></i>Developer mode</label>
+
+                    </section>
+                  </div>
+                </fieldset>
+                <footer>
+                    <div class="alert alert-success fade in" ng-show="applyResult">
+                        <i class="fa-fw fa fa-check"></i>
+                        <strong>Success</strong> The Settings have been saved.
+                    </div>
+                    <div class="input-group-btn">
+
+                        <button class="btn btn-default btn-primary" type="button" href="javascript:void(0);"
+                                ng-click="apply()">
+                            Apply
+                        </button>
+                        <!--<button class="btn btn-default btn-primary" type="button" href="javascript:void(0);" ng-click="clear()">-->
+                        <!--Clear-->
+                        <!--</button>-->
+                    </div>
+                </footer>
+            </form>
+        </div>
+    </div>
+</div>
+<ng-flockdeltapopup></ng-flockdeltapopup>
+<ng-flocksinglelogpopup></ng-flocksinglelogpopup>

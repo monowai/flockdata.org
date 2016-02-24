@@ -1,0 +1,81 @@
+#tooltip {
+    color: white;
+    opacity: .9;
+    background: #333;
+    padding: 5px;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#tooltip.longlabel {
+    font-weight: bold;
+    opacity: .9;
+    font-size: 9px;
+}
+
+#circle circle {
+    fill: none;
+    pointer-events: all;
+}
+
+path.group {
+    fill-opacity: .8;
+}
+
+path.chord {
+    fill-opacity: .8;
+    stroke: #000;
+    stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+    display: none;
+}
+
+chord-diagram {
+    width: 100%;
+    height: 640px;
+    float: left;
+    display: block;
+    min-width: 200px;
+    min-height: 200px
+
+}
+
+cooccurrence-diagram {
+    width: 100%;
+    height: 640px;
+    float: left;
+    display: block;
+    min-width: 200px;
+    min-height: 200px;
+    font-size: 9px;
+
+}
+
+.background {
+    fill: #eee;
+}
+
+line {
+    stroke: #fff;
+}
+
+text.active {
+    fill: red;
+}
+
+bipartite-diagram {
+  width: 100%;
+  height: 640px;
+  float: left;
+  display: block;
+  min-width: 200px;
+  min-height: 200px;
+    font-size: 9px
+}

@@ -1,0 +1,84 @@
+<!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
+<header id="header">
+    <!--<span id="logo"></span>-->
+
+    <div id="logo-group">
+        <span id="logo"> <img src="/images/site-logo.png" alt="FlockData"> </span>
+
+        <!-- END AJAX-DROPDOWN -->
+    </div>
+</header>
+
+<div id="main" role="main" ng-controller="LoginController">
+
+    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm" style="text-align: center">
+        <h1 class="txt-color-blue login-header-big">Welcome to FlockData</h1>
+        <h4 class="paragraph-header">Collect | Connect | Compare</h4>
+        <br>
+        <img src="../images/site-logo.png" class="img-rounded"/>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+
+        <div class="row">
+
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                <div class="well no-padding">
+                    <form id="login-form" class="smart-form client-form">
+                        <header>
+                            Please sign in...
+                        </header>
+
+                        <fieldset>
+                            <section>
+                                <label class="label">Username</label>
+                                <label class="input"> <i class="icon-append fa fa-user"></i>
+                                    <input type="text" name="email" ng-model="username" autofocus></label>
+                            </section>
+
+                            <section>
+                                <label class="label">Password</label>
+                                <label class="input"> <i class="icon-append fa fa-lock"></i>
+                                    <input type="password" name="password" ng-model="password"></label>
+                            </section>
+                        </fieldset>
+                        <footer>
+                            <button type="submit" class="btn btn-primary" ng-click="login()">
+                                Sign in
+                            </button>
+                          <a href="#/settings">
+                            <button type="button" class="btn" ng-click="$location.path('#/settings')">
+                              Settings
+                            </button>
+                          </a>
+
+                        </footer>
+                    </form>
+                  <div class="alert alert-warning fade in" ng-show="msg">
+                    {{msg}}
+                  </div>
+
+
+                </div>
+
+                <!--<h5 class="text-center"> - Or sign in using -</h5>-->
+                <!---->
+                <!--<ul class="list-inline text-center">-->
+                <!--<li>-->
+                <!--<a href="javascript:void(0);" class="btn btn-primary btn-circle"><i class="fa fa-facebook"></i></a>-->
+                <!--</li>-->
+                <!--<li>-->
+                <!--<a href="javascript:void(0);" class="btn btn-info btn-circle"><i class="fa fa-twitter"></i></a>-->
+                <!--</li>-->
+                <!--<li>-->
+                <!--<a href="javascript:void(0);" class="btn btn-warning btn-circle"><i class="fa fa-linkedin"></i></a>-->
+                <!--</li>-->
+                <!--</ul>-->
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
