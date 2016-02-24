@@ -1,41 +1,52 @@
 [FlockData](http://FlockData.com) - Federated, distributed and heterogeneous information platform   
 ===========
 
-##What?
-* Enterprise/systems/services/applications create and modify organisational data databases
-  * Storing data as information requires federated and heterogeneous store capabilities
-  * FD provides a standardised way of accessing this data.
-  * Standardization enables discussions about information without loosing visibility of the data
-* Visualise and operate on the semantic entities of your business
-* Simplify management dashboards, operational metrics 
-* Look around and into your data to perform forensic analysis
-* Deliver information and data to any digital platform
-* Track data lineage back to originating systems of record
+## Project Status
+FlockData has received a significant round of framework upgrades and is now running on Spring Boot. All Spring framworks are running the latest versions.
+
+The move to Spring Boot mean we have to rethink the way that we are running end-to-end integration tests so these are currently disabled.
+
+We are introducing fd-view, and AngularJS framework that gives you a nice UI over the API. However, the upgrade to Spring Security has introduced some issues with CORS which we have not yet resolved. This means fd-view does not connect to the FlockData api :/
+
+fd-batch is in place offering a simple SQL query reader which is using SpringBatch. fd-client will slowly be retired in favour of fd-batch. The nice thing is that you can now
+stream SQL queries results into FlockData and create ElasticSearch docs and Neo4j graphs.
 
 ##Docker
-`mvn install -DskipTests=true`
-Create a docker VM ( I just start Kitematic)
+We're please to introduce the first wave of docker support. An official demo image will be availiable shortly. In the meantime, it can be built out of source
+Make sure you have installed your Docker tools and created your machine
 
-Configure your envionment. 
+Configure your environment if necessary.
 
 `eval "$(docker-machine env default)`
-Build
+
+build FlockData and the docker packages. This version skips all the FD tests.
+`mvn install -DskipTests=true -P docker`
+
+Start the demo composition
+
 `docker-compose up -d`
+
+If you're running Kitematic, then you should see something like this:
+
+![Alt text](https://github.com/monowai/flockdata.org/blob/master/docker.png)
 
 Useful docker commands
 `docker-machine ip default` Get the machiens IP
 `docker-compose run kibana env` Dump the kibana environment
 
+## Postman
+The API can be invoked via the supplied postman [Postman](https://github.com/monowai/flockdata.org/blob/master/fd.api-postman.json). This contains environments for both localhost DEV and docker
 
-##FlockData
-* Manages data as information
-* Object model and services to deliver FDH-IP
-* Exposed via RESTful web services 
-* Full text - help users find data irrespective of the system that created it
-* Store history of data changes letting you keep audit out of transaction processing systems 
-
-## Project Status
-Stable. Full support for ElasticSearch 1.7 and Neo4j 2.2.x in place. 
+##Features
+* Enterprise/systems/services/applications create and modify organisational data databases
+  * Storing data as information requires federated and heterogeneous store capabilities
+  * FD provides a standardised way of accessing this data.
+  * Standardization enables discussions about information without loosing visibility of the data
+* Visualise and operate on the semantic entities of your business
+* Simplify management dashboards, operational metrics
+* Look around and into your data to perform forensic analysis
+* Deliver information and data to any digital platform
+* Track data lineage back to originating systems of record
 
 ## Overview
 Collect, Connect Compare and Explore  - FlockData helps you find data you're looking for.
