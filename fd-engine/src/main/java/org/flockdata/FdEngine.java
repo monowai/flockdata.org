@@ -28,10 +28,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import javax.annotation.PostConstruct;
 
 /**
- * To use spring-boot you will need to uncomment the maven pom dependencies. The rest of the pom
- * should be good to go
- * <p>
- * Get fd-search working first. fd-engine has neo4j embedded rest interface that might cause problems
+ * Java configuration of fd-engines graphWriting servicee
  * <p>
  * User: mike
  * Date: 15/12/14
@@ -43,6 +40,7 @@ import javax.annotation.PostConstruct;
                 "org.flockdata.test.engine", "org.flockdata.store",
                 "org.flockdata.engine", "org.flockdata.geography",
                 "org.flockdata.authentication", "org.flockdata.shared"})
+
 @EnableConfigurationProperties()
 public class FdEngine {
     public static void main(String[] args) {

@@ -42,8 +42,8 @@ import javax.annotation.PostConstruct;
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = { "org.flockdata.company.dao",
                                           "org.flockdata.geography.dao",
-                                          "org.flockdata.engine.*",
-                                          "org.flockdata.model.*"})
+                                          "org.flockdata.engine.*"
+                                          })
 @Configuration
 @Profile({"integration", "production"})
 public class Neo4jConfig extends Neo4jConfiguration {
@@ -60,14 +60,14 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
 
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:''}") String props, @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:.}") String props, @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
             logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
             logger.info("**** Neo4j datafiles [{}]", dbPath);
 
             configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
-            setBasePackage("org.flockdata.*");
+            setBasePackage("org.flockdata.model");
             return new GraphDatabaseFactory()
 
                     .newEmbeddedDatabaseBuilder(dbPath)
