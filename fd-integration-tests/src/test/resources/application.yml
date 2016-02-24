@@ -105,7 +105,7 @@ fd-log:
 org:
   neo4j:
     path: src/test/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
-    server.database.location: ../target/data/test.db # where to write the db files to - required
+    server.database.location: target/data/test.db # where to write the db files to - required
 
 fd-auth:
   simple:
@@ -118,6 +118,16 @@ fd-auth:
     #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
     #group:
     #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
+
+es:
+  clustername: es_int_fd
+  http:
+    port: 9204
+  tcp:
+    port: 9304
+  path:
+    home: ./
+    data: ${es.path.home}/data/es
 
 rabbit:
   user: guest
