@@ -284,7 +284,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
         if (searchChange.getKey() != null) //DAT-83 No need to track NULL key
             // This occurs if the search doc is not being tracked in fd-engine's graph
-            indexMe.put(EntitySearchSchema.META_KEY, searchChange.getKey());
+            indexMe.put(EntitySearchSchema.ENTITY_KEY, searchChange.getKey());
 
         if (searchChange.getData() != null)
             indexMe.put(EntitySearchSchema.DATA, searchChange.getData());

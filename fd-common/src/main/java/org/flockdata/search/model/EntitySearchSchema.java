@@ -26,7 +26,7 @@ package org.flockdata.search.model;
 public class EntitySearchSchema {
     // Storage schema used in a Search Document
     public static final String DATA = "data";
-    public static final String META_KEY = "key";
+    public static final String ENTITY_KEY = "key";
     public static final String CODE = "code";
     public static final String DESCRIPTION = "description";
     public static final String NAME = "name";

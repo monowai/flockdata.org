@@ -444,7 +444,7 @@ public class EsIntegrationHelper {
         assertNotNull(node.get(EntitySearchSchema.CREATED));
         assertNotNull(node.get(EntitySearchSchema.WHO));
         assertNotNull(node.get(EntitySearchSchema.UPDATED));
-        assertNotNull(node.get(EntitySearchSchema.META_KEY));
+        assertNotNull(node.get(EntitySearchSchema.ENTITY_KEY));
         assertNotNull(node.get(EntitySearchSchema.DOC_TYPE));
         assertNotNull(node.get(EntitySearchSchema.FORTRESS));
 
