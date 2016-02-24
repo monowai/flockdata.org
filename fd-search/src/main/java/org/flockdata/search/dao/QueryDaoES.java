@@ -232,7 +232,7 @@ public class QueryDaoES implements QueryDao {
         }
         SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
                 .setTypes(types)
-                .addField(EntitySearchSchema.META_KEY)
+                .addField(EntitySearchSchema.ENTITY_KEY)
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
         if ( queryParams.getSize()!=null)
             query.setSize(queryParams.getSize());
@@ -253,7 +253,7 @@ public class QueryDaoES implements QueryDao {
             return results;
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            Object o = searchHitFields.getFields().get(EntitySearchSchema.META_KEY).getValues().iterator().next();
+            Object o = searchHitFields.getFields().get(EntitySearchSchema.ENTITY_KEY).getValues().iterator().next();
             results.add(o);
         }
         return results;
@@ -289,7 +289,7 @@ public class QueryDaoES implements QueryDao {
         watch.start(queryParams.toString());
 
         SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
-                .addField(EntitySearchSchema.META_KEY)
+                .addField(EntitySearchSchema.ENTITY_KEY)
                 .addField(EntitySearchSchema.FORTRESS)
                 .addField(EntitySearchSchema.LAST_EVENT)
                 .addField(EntitySearchSchema.DESCRIPTION)
@@ -336,7 +336,7 @@ public class QueryDaoES implements QueryDao {
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 // This function returns only information tracked by FD which will always have  a key
-                SearchHitField keyCol = searchHitFields.getFields().get(EntitySearchSchema.META_KEY);
+                SearchHitField keyCol = searchHitFields.getFields().get(EntitySearchSchema.ENTITY_KEY);
                 if (keyCol != null) {
                     Object key = keyCol.getValue();
                     if (key != null) {
