@@ -91,8 +91,8 @@ public class LogService {
         if (entity.getFortress().isStoreDisabled())
             return null;
 
-        if (entity.getMetaKey() == null)
-            throw new FlockException("Where has the metaKey gone?");
+        if (entity.getKey() == null)
+            throw new FlockException("Where has the key gone?");
 
 
         EntityLog entityLog = new EntityLog(entity, newLog, fortressWhen);

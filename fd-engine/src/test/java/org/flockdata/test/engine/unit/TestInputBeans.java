@@ -85,9 +85,9 @@ public class TestInputBeans {
         DateTime now = DateTime.now();
         Fortress fortress = new Fortress(new FortressInputBean("fortress"), new Company("blah"));
         EntityInputBean entityBean = new EntityInputBean(fortress, "user", "booking", now, "myRef");
-        assertNull(entityBean.getMetaKey());
-        entityBean.setMetaKey("AbC");
-        assertNotNull(entityBean.getMetaKey());
+        assertNull(entityBean.getKey());
+        entityBean.setKey("AbC");
+        assertNotNull(entityBean.getKey());
 
         // NonNull tx ref sets the inputBean to be transactional
         DateTime logNow = DateTime.now();

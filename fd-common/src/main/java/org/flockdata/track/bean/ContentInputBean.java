@@ -44,9 +44,9 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     private double pVer =1d;
 
-    // Use either metaKey or CallerRef strategy
+    // Use either key or CallerRef strategy
     // Required if not updating via a Entity
-    private String metaKey;
+    private String key;
 
     // For tracking by the Callers Reference
     private String documentType;
@@ -77,31 +77,31 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     /**
      * @param fortressUser -user name recognisable in the fortress
-     * @param metaKey      -guid
+     * @param key      -guid
      * @param fortressWhen -fortress view of DateTime
      * @param data         -escaped JSON
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, Boolean isTransactional) throws FlockException {
+    public ContentInputBean(String fortressUser, String key, DateTime fortressWhen, Map<String, Object> data, Boolean isTransactional) throws FlockException {
         this(fortressUser, fortressWhen);
-        this.metaKey = metaKey;
+        this.key = key;
         setTransactional(isTransactional);
         setData(data);
     }
 
     /**
      * @param fortressUser -user name recognisable in the fortress
-     * @param metaKey      -guid
+     * @param key      -guid
      * @param fortressWhen -fortress view of DateTime
      * @param data         - Map
      * @param event        -how the caller would like to catalog this change (create, update etc)
      */
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, String event) throws FlockException {
-        this(fortressUser, metaKey, fortressWhen, data);
+    public ContentInputBean(String fortressUser, String key, DateTime fortressWhen, Map<String, Object> data, String event) throws FlockException {
+        this(fortressUser, key, fortressWhen, data);
         this.event = event;
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime fortressWhen, Map<String, Object> data, String event, String txName) throws FlockException {
-        this(fortressUser, metaKey, fortressWhen, data, event);
+    public ContentInputBean(String fortressUser, String key, DateTime fortressWhen, Map<String, Object> data, String event, String txName) throws FlockException {
+        this(fortressUser, key, fortressWhen, data, event);
         this.setTxRef(txName);
     }
 
@@ -113,8 +113,8 @@ public class ContentInputBean implements EntityContent, Serializable {
         this(fortressUser, null, when, data);
     }
 
-    public ContentInputBean(String fortressUser, String metaKey, DateTime when, Map<String, Object> data) throws FlockException {
-        this(fortressUser, metaKey, when, data, false);
+    public ContentInputBean(String fortressUser, String key, DateTime when, Map<String, Object> data) throws FlockException {
+        this(fortressUser, key, when, data, false);
     }
 
     public ContentInputBean(String user, Map<String, Object> data) {
@@ -123,12 +123,12 @@ public class ContentInputBean implements EntityContent, Serializable {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setMetaKey(String metaKey) {
-        this.metaKey = metaKey;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getEvent() {
@@ -324,7 +324,7 @@ public class ContentInputBean implements EntityContent, Serializable {
                 "event='" + event + '\'' +
                 ", documentType='" + documentType + '\'' +
                 ", code='" + code + '\'' +
-                ", metaKey='" + metaKey + '\'' +
+                ", key='" + key + '\'' +
                 '}';
     }
 
@@ -339,7 +339,7 @@ public class ContentInputBean implements EntityContent, Serializable {
         if (contentType != null ? !contentType.equals(that.contentType) : that.contentType != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         if (fortress != null ? !fortress.equals(that.fortress) : that.fortress != null) return false;
-        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
         if (txRef != null ? !txRef.equals(that.txRef) : that.txRef != null) return false;
         return !(when != null ? !when.equals(that.when) : that.when != null);
 
@@ -347,7 +347,7 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     @Override
     public int hashCode() {
-        int result = metaKey != null ? metaKey.hashCode() : 0;
+        int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (fortress != null ? fortress.hashCode() : 0);

@@ -96,7 +96,7 @@ public class TestEntityCrossLink extends EngineBase {
 
         }
         assertTrue("We couldn't find the child connected to the parent", found);
-        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getMetaKey(), PARENT);
+        Map<String, Collection<Entity>> linked = entityService.getCrossReference(su.getCompany(), parentResult.getKey(), PARENT);
         assertTrue(linked.containsKey(PARENT));
         assertEquals(childResult.getEntity().getId(), linked.get(PARENT).iterator().next().getId());
 
@@ -108,22 +108,22 @@ public class TestEntityCrossLink extends EngineBase {
     }
 
     @Test
-    public void link_MetaKeysForSameCompany() throws Exception {
+    public void link_KeysForSameCompany() throws Exception {
         cleanUpGraph();
-        SystemUser su = registerSystemUser("xRef_MetaKeysForSameCompany", mike_admin);
+        SystemUser su = registerSystemUser("xRef_KeysForSameCompany", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
         assertNotNull(trackResultBean);
-        String sourceKey = trackResultBean.getEntity().getMetaKey();
+        String sourceKey = trackResultBean.getEntity().getKey();
 
         Collection<String> xRef = new ArrayList<>();
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         TrackResultBean destBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(destBean);
-        String destKey = destBean.getEntity().getMetaKey();
+        String destKey = destBean.getEntity().getKey();
         assertFalse(destKey.equals(sourceKey));
 
         xRef.add(destKey);
@@ -138,7 +138,7 @@ public class TestEntityCrossLink extends EngineBase {
         Collection<Entity> entities = results.get("cites");
         assertNotNull(entities);
         for (Entity entity : entities) {
-            assertEquals(destKey, entity.getMetaKey());
+            assertEquals(destKey, entity.getKey());
         }
 
 
@@ -152,7 +152,7 @@ public class TestEntityCrossLink extends EngineBase {
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        String abc123 = trackResultBean.getEntity().getMetaKey();
+        String abc123 = trackResultBean.getEntity().getKey();
 
         assertNotNull(trackResultBean);
 
@@ -186,7 +186,7 @@ public class TestEntityCrossLink extends EngineBase {
         assertEquals("ABC321", entities.iterator().next().getCode());
 
         // Inverse of above - 321 returns 123
-        xrefResults = entityService.getCrossReference(su.getCompany(), trackResultBean.getEntity().getMetaKey(), "anyrlx");
+        xrefResults = entityService.getCrossReference(su.getCompany(), trackResultBean.getEntity().getKey(), "anyrlx");
         TestCase.assertFalse(xrefResults.isEmpty());
         entities = xrefResults.get("anyrlx");
         assertEquals(1, entities.size());
@@ -200,7 +200,7 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String callerRef = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
+        String callerRef = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
         assertNotNull(callerRef);
 
@@ -209,7 +209,7 @@ public class TestEntityCrossLink extends EngineBase {
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         TrackResultBean destKey = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(destKey);
-        assertFalse(callerRef.equals(destKey.getMetaKey()));
+        assertFalse(callerRef.equals(destKey.getKey()));
 
         xRef.add(new EntityKeyBean("ABC321", "123", "444"));
         xRef.add(new EntityKeyBean("Doesn't matter", "123", "444"));
@@ -348,22 +348,22 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_CreatesUniqueRelationships", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String sourceMetaKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
+        String sourceKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
-        assertNotNull(sourceMetaKey);
+        assertNotNull(sourceKey);
 
         Collection<String> xRef = new ArrayList<>();
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
-        String destKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getMetaKey();
+        String destKey = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
         assertNotNull(destKey);
-        assertFalse(destKey.equals(sourceMetaKey));
+        assertFalse(destKey.equals(sourceKey));
 
         xRef.add(destKey);
-        entityService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
+        entityService.crossReference(su.getCompany(), sourceKey, xRef, "cites");
         // Try and force a duplicate relationship - only 1 should be created
-        entityService.crossReference(su.getCompany(), sourceMetaKey, xRef, "cites");
+        entityService.crossReference(su.getCompany(), sourceKey, xRef, "cites");
 
-        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), sourceMetaKey, "cites");
+        Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), sourceKey, "cites");
         assertNotNull(results);
         assertEquals(1, results.size());
         Collection<Entity> entities = results.get("cites");

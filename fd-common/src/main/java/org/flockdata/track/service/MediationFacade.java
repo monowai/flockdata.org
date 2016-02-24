@@ -60,7 +60,7 @@ public interface MediationFacade {
 
     String reindexByDocType(Company company, String fortressName, String docType) throws FlockException;
 
-    EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
+    EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException;
 
     //TagCloud getTagCloud(Company company, TagCloudParams tagCloudParams) throws NotFoundException;
 

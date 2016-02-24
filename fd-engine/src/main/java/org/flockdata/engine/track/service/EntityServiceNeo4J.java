@@ -131,16 +131,16 @@ public class EntityServiceNeo4J implements EntityService {
     public TrackResultBean createEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInputBean, Collection<Tag> tags) throws FlockException {
 
         Entity entity = null;
-        if (entityInputBean.getMetaKey() != null) {
-            entity = getEntity(segment.getCompany(), entityInputBean.getMetaKey());
+        if (entityInputBean.getKey() != null) {
+            entity = getEntity(segment.getCompany(), entityInputBean.getKey());
         }
 
         if (entity == null && (entityInputBean.getCode() != null && !entityInputBean.getCode().equals(EMPTY)))
             entity = findByCode(segment.getFortress(), documentType, entityInputBean.getCode());
 
         if (entity != null) {
-            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCode(), entity.getMetaKey());
-            //entityInputBean.setMetaKey(entity.getMetaKey());
+            logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCode(), entity.getKey());
+            //entityInputBean.setKey(entity.getKey());
 
             logger.trace("Existing entity [{}]", entity);
             TrackResultBean trackResult = new TrackResultBean(segment.getFortress(), entity, documentType, entityInputBean);
@@ -249,7 +249,7 @@ public class EntityServiceNeo4J implements EntityService {
 
         Entity entity = entityDao.create(entityInput, segment, entityUser, documentType);
         if (entity.getId() == null)
-            entityInput.setMetaKey("NT " + segment.getFortress().getId()); // We ain't tracking this
+            entityInput.setKey("NT " + segment.getFortress().getId()); // We ain't tracking this
         else if (!entityInput.getEntityLinks().isEmpty()) {
             // DAT-525
             EntityKeyBean thisEntity = new EntityKeyBean(entity, indexHelper.parseIndex(entity));
@@ -258,49 +258,49 @@ public class EntityServiceNeo4J implements EntityService {
             }
 
         }
-        //entityInput.setMetaKey(entity.getMetaKey());
-        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getMetaKey(), segment.getFortress().getCode(), entity.getKey());
+        //entityInput.setKey(entity.getKey());
+        logger.trace("Entity created: id=[{}] key=[{}] for fortress [{}] callerKeyRef = [{}]", entity.getId(), entity.getKey(), segment.getFortress().getCode(), entity.getExtKey());
         return entity;
     }
 
     /**
      * When you have no API key, find if authorised
      *
-     * @param metaKey known GUID
+     * @param key known GUID
      * @return entity the caller is authorised to view
      */
     @Override
-    public Entity getEntity(@NotEmpty String metaKey) {
+    public Entity getEntity(@NotEmpty String key) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
-            throw new SecurityException(userName + "Not authorised to retrieve metaKeys");
+            throw new SecurityException(userName + "Not authorised to retrieve keys");
 
-        return getEntity(su.getCompany(), metaKey, false);
+        return getEntity(su.getCompany(), key, false);
     }
 
     @Override
-    public Entity getEntity(Company company, String metaKey) throws NotFoundException {
+    public Entity getEntity(Company company, String key) throws NotFoundException {
         if (company == null)
             throw new NotFoundException("Illegal Company");
 
-        Entity entity = getEntity(company, metaKey, true);
+        Entity entity = getEntity(company, key, true);
         if (entity == null)
-            throw new NotFoundException("Unable to find the requested Entity by the metaKey " + metaKey);
+            throw new NotFoundException("Unable to find the requested Entity by the key " + key);
         return entity;
     }
 
     @Override
-    public Entity getEntity(Company company, @NotEmpty String metaKey, boolean inflate) {
+    public Entity getEntity(Company company, @NotEmpty String key, boolean inflate) {
 
         if (company == null)
-            return getEntity(metaKey);
-        Entity entity = entityDao.findEntity(metaKey, inflate);
+            return getEntity(key);
+        Entity entity = entityDao.findEntity(key, inflate);
         if (entity == null || entity.getSegment() == null)
             return null;
 
         if (!(entity.getSegment().getFortress().getCompany().getId().equals(company.getId())))
-            throw new SecurityException("CompanyNode mismatch. [" + metaKey + "] working for [" + company.getName() + "] cannot write meta records for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
+            throw new SecurityException("CompanyNode mismatch. [" + key + "] working for [" + company.getName() + "] cannot write meta records for [" + entity.getSegment().getFortress().getCompany().getName() + "]");
         return entity;
     }
 
@@ -340,8 +340,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public Set<EntityLog> getEntityLogs(Company company, String key) throws FlockException {
+        Entity entity = getEntity(company, key);
         if (entity.getSegment().getFortress().isStoreEnabled())
             return entityDao.getLogs(entity);
         Set<EntityLog> logs = new HashSet<>();
@@ -350,8 +350,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Company company, String metaKey, Date from, Date to) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException {
+        Entity entity = getEntity(company, key);
         return getLogs(entity, from, to);
     }
 
@@ -363,7 +363,7 @@ public class EntityServiceNeo4J implements EntityService {
      * This can be used toa assist in compensating transactions to roll back the last change
      * if the caller decides a rollback is required after the log has been written.
      * If there are no Log records left, then the entity will also be removed and the
-     * AB metaKey will be forever invalid.
+     * AB key will be forever invalid.
      *
      * @param company validated company the caller is authorised to work with
      * @param entity  UID of the entity
@@ -432,13 +432,13 @@ public class EntityServiceNeo4J implements EntityService {
      * counts the number of logs that exist for the given entity
      *
      * @param company validated company the caller is authorised to work with
-     * @param metaKey GUID
+     * @param key GUID
      * @return count
      */
     @Override
-    public int getLogCount(Company company, String metaKey) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
-        logger.debug("looking for logs for Entity id [{}] - metaKey [{}]", entity.getId(), metaKey);
+    public int getLogCount(Company company, String key) throws FlockException {
+        Entity entity = getEntity(company, key);
+        logger.debug("looking for logs for Entity id [{}] - key [{}]", entity.getId(), key);
         int logs = entityDao.getLogs(entity).size();
         logger.debug("Log count {}", logs);
         return logs;
@@ -475,7 +475,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     /**
-     * Locates all the Entities irrespective of the document type. Use this when you know that that metaKey is
+     * Locates all the Entities irrespective of the document type. Use this when you know that that key is
      * unique for the entire fortressName
      *
      * @param company      Company you are authorised to work with
@@ -515,18 +515,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
-        Entity entity = getEntity(company, metaKey, true);
+    public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
+        Entity entity = getEntity(company, key, true);
         if (entity == null)
-            throw new FlockException("Invalid Meta Key [" + metaKey + "]");
+            throw new FlockException("Invalid Meta Key [" + key + "]");
         Set<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
         return new EntitySummaryBean(entity, changes, tags);
     }
 
     @Override
-    public LogDetailBean getFullDetail(Company company, String metaKey, Long logId) {
-        Entity entity = getEntity(company, metaKey, true);
+    public LogDetailBean getFullDetail(Company company, String key, Long logId) {
+        Entity entity = getEntity(company, key, true);
         if (entity == null)
             return null;
 
@@ -577,15 +577,15 @@ public class EntityServiceNeo4J implements EntityService {
      * Cross references to Entities to create a link
      *
      * @param company          validated company the caller is authorised to work with
-     * @param metaKey          source from which a xref will be created
+     * @param key          source from which a xref will be created
      * @param xRef             target for the xref
      * @param relationshipName name of the relationship
      */
     @Override
-    public Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException {
+        Entity entity = getEntity(company, key);
         if (entity == null) {
-            throw new FlockException("Unable to find the Entity [" + metaKey + "]. Perhaps it has not been processed yet?");
+            throw new FlockException("Unable to find the Entity [" + key + "]. Perhaps it has not been processed yet?");
         }
         Collection<Entity> targets = new ArrayList<>();
         Collection<String> ignored = new ArrayList<>();
@@ -603,10 +603,10 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String relationship) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public Map<String, Collection<Entity>> getCrossReference(Company company, String key, String relationship) throws FlockException {
+        Entity entity = getEntity(company, key);
         if (entity == null) {
-            throw new FlockException("Unable to find the Entity [" + metaKey + "]. Perhaps it has not been processed yet?");
+            throw new FlockException("Unable to find the Entity [" + key + "]. Perhaps it has not been processed yet?");
         }
 
         return entityDao.getCrossReference(entity, relationship);
@@ -689,16 +689,16 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Map<String, Entity> getEntities(Company company, Collection<String> metaKeys) {
-        return entityDao.findEntities(company, metaKeys);
+    public Map<String, Entity> getEntities(Company company, Collection<String> keys) {
+        return entityDao.findEntities(company, keys);
     }
 
     @Override
-    public void purge(Fortress fortress, Collection<String> metaKeys) {
-        entityDao.purgeTagRelationships(metaKeys);
-        entityDao.purgeFortressLogs(metaKeys);
-        entityDao.purgePeopleRelationships(metaKeys);
-        entityDao.purgeEntities(metaKeys);
+    public void purge(Fortress fortress, Collection<String> keys) {
+        entityDao.purgeTagRelationships(keys);
+        entityDao.purgeFortressLogs(keys);
+        entityDao.purgePeopleRelationships(keys);
+        entityDao.purgeEntities(keys);
         //logger.info("Completed entity purge routine {}", fortress);
 
     }
@@ -716,13 +716,13 @@ public class EntityServiceNeo4J implements EntityService {
         try {
             entity = getEntity(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
         } catch (DataRetrievalFailureException | IllegalStateException e) {
-            logger.error("Unable to locate entity for entity {} in order to handle the search metaKey. Ignoring.", metaId);
+            logger.error("Unable to locate entity for entity {} in order to handle the search key. Ignoring.", metaId);
             throw new FlockException("Unable to locate entity for entity " + metaId + " in order to handle the search result.");
         }
 
         if (entity == null) {
-            logger.error("metaKey could not be found for [{}]", searchResult);
-            throw new AmqpRejectAndDontRequeueException("metaKey could not be found for [{" + searchResult.getMetaKey() + "}]");
+            logger.error("key could not be found for [{}]", searchResult);
+            throw new AmqpRejectAndDontRequeueException("key could not be found for [{" + searchResult.getKey() + "}]");
         }
 
         if (entity.getSearch() == null || engineConfig.isSearchRequiredToConfirm()) { // Search ACK
@@ -747,7 +747,7 @@ public class EntityServiceNeo4J implements EntityService {
                 return;
             }
         } catch (DataRetrievalFailureException e) {
-            logger.error("Unable to locate track log {} for metaId {} in order to handle the search metaKey. Ignoring.", searchResult.getLogId(), entity.getId());
+            logger.error("Unable to locate track log {} for metaId {} in order to handle the search key. Ignoring.", searchResult.getLogId(), entity.getId());
             return;
         }
 
@@ -765,8 +765,8 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException {
-        EntityLog lastLog = getLastEntityLog(company, metaKey);
+    public Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException {
+        EntityLog lastLog = getLastEntityLog(company, key);
         if (lastLog == null)
             return new ArrayList<>();
 
@@ -774,10 +774,10 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public EntityLog getLastEntityLog(Company company, String key) throws FlockException {
+        Entity entity = getEntity(company, key);
         if (entity == null)
-            throw new NotFoundException("Unable to locate the requested Entity for metaKey " + metaKey);
+            throw new NotFoundException("Unable to locate the requested Entity for key " + key);
         return entityDao.getLastEntityLog(entity);
     }
 
@@ -787,15 +787,15 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException {
-        Entity entity = getEntity(company, metaKey);
+    public EntityLog getEntityLog(Company company, String key, Long logId) throws FlockException {
+        Entity entity = getEntity(company, key);
         EntityLog log = entityDao.getLog(entity, logId);
 
         if (log == null)
-            throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));
+            throw new FlockException(String.format("Invalid logId %d for %s ", logId, key));
 
         if (!log.getEntity().getId().equals(entity.getId()))
-            throw new FlockException(String.format("Invalid logId %d for %s ", logId, metaKey));
+            throw new FlockException(String.format("Invalid logId %d for %s ", logId, key));
         return log;
     }
 

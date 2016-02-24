@@ -22,8 +22,8 @@ public interface SearchGateway {
     @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
     TagCloud getTagCloud(TagCloudParams tagCloudParams);
 
-    @Gateway(requestChannel = "sendMetaKeyQuery", replyChannel = "metaKeyResult")
-    MetaKeyResults metaKeys(QueryParams queryParams);
+    @Gateway(requestChannel = "sendKeyQuery", replyChannel = "keyResult")
+    EntityKeyResults keys(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "fdViewResult")
     EsSearchResult fdSearch(QueryParams queryParams);

@@ -111,7 +111,7 @@ public class SchemaDaoNeo4j {
 //
 //        runQuery("create constraint on (t:Log) assert t.logKey is unique");
 //
-//        runQuery("create index on :Entity(metaKey) ");
+//        runQuery("create index on :Entity(key) ");
 //        runQuery("create constraint on (t:Entity) assert t.callerKeyRef is unique");
 //
 //        runQuery("create index on :DocumentType(code) ");

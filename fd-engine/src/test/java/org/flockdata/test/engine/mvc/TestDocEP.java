@@ -49,7 +49,7 @@ public class TestDocEP extends MvcBase {
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
         TrackRequestResult entity = track(mike(), inputBean);
-        Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getMetaKey());
+        Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getKey());
         assertEquals(2, entityTags.size());
 
         Collection<DocumentResultBean> docResults = getDocuments(mike(), fortress.getCode());

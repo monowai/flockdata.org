@@ -98,7 +98,7 @@ public class EsIntegrationHelper {
     }
 
     String doEsNestedQuery(Entity entity, String path, String field, String term, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
+        // There should only ever be one document for a given key.
         // Let's assert that
         int runCount = 0, nbrResult;
         logger.debug("doEsQuery {}", term);
@@ -161,7 +161,7 @@ public class EsIntegrationHelper {
     }
 
     String doEsQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
+        // There should only ever be one document for a given key.
         // Let's assert that
         int runCount = 0, nbrResult;
         logger.debug("doEsQuery {}", queryString);
@@ -218,12 +218,12 @@ public class EsIntegrationHelper {
         return jResult.getJsonString();
     }
 
-    String doEsTermQuery(Entity entity, String metaKey, String metaKey1, int i) throws Exception {
-        return doEsTermQuery(entity, metaKey, metaKey1, i, false);
+    String doEsTermQuery(Entity entity, String key, String key1, int i) throws Exception {
+        return doEsTermQuery(entity, key, key1, i, false);
     }
 
     String doEsTermQuery(Entity entity, String field, String queryString, int expectedHitCount, boolean suppressLog) throws Exception {
-        // There should only ever be one document for a given metaKey.
+        // There should only ever be one document for a given key.
         // Let's assert that
         int runCount = 0, nbrResult;
         JestResult jResult;
@@ -295,7 +295,7 @@ public class EsIntegrationHelper {
      * @throws Exception if expectedHitCount != actual hit count
      */
     private String doEsFieldQuery(String index, String type, String field, String queryString, int expectedHitCount) throws Exception {
-        // There should only ever be one document for a given metaKey.
+        // There should only ever be one document for a given key.
         // Let's assert that
         int runCount = 0, nbrResult;
 
@@ -456,7 +456,7 @@ public class EsIntegrationHelper {
        int runCount = 1;
 
        Thread.yield();
-//        Entity entity = entityService.getEntity(company, metaKey);
+//        Entity entity = entityService.getEntity(company, key);
        if (entity == null)
            return null;
 
@@ -464,7 +464,7 @@ public class EsIntegrationHelper {
 
        do {
 
-           entity = entityService.getEntity(company, entity.getMetaKey());
+           entity = entityService.getEntity(company, entity.getKey());
            //logger.debug("Entity {}, searchKey {}", entity.getId(), entity.getSearchKey());
            if (runCount > 5) // All this yielding is not letting other threads complete, so we will sleep
                Helper.waitAWhile("Sleeping {} secs for entity [" + entity.getId() + "] to update ");

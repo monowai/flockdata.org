@@ -13,7 +13,7 @@ public class TrackRequestResult implements Serializable{
     String company;
     String fortressCode;
     String callerRef;
-    String metaKey;
+    String key;
 
     boolean newEntity;
     ContentInputBean.LogStatus logStatus;
@@ -24,7 +24,7 @@ public class TrackRequestResult implements Serializable{
 
     public TrackRequestResult(TrackResultBean resultBean){
         this();
-        this.metaKey = resultBean.getMetaKey();
+        this.key = resultBean.getKey();
         this.callerRef = resultBean.getEntity().getCode();
         this.fortressCode = resultBean.getEntity().getSegment().getCode();
         logStatus = resultBean.getLogStatus();
@@ -32,8 +32,8 @@ public class TrackRequestResult implements Serializable{
         boolean newEntity = resultBean.isNewEntity();
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
     public String getCallerRef() {

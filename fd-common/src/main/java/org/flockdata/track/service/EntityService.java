@@ -51,11 +51,11 @@ public interface EntityService {
     StoredContent getContent(Entity entity, Log change);
 
     @Deprecated
-    Entity getEntity(@NotEmpty String metaKey);
+    Entity getEntity(@NotEmpty String key);
 
-    Entity getEntity(Company company, String metaKey) throws NotFoundException;
+    Entity getEntity(Company company, String key) throws NotFoundException;
 
-    Entity getEntity(Company company, @NotEmpty String metaKey, boolean inflate);
+    Entity getEntity(Company company, @NotEmpty String key, boolean inflate);
 
     Entity getEntity(Entity entity);
 
@@ -65,19 +65,19 @@ public interface EntityService {
 
     void updateEntity(Entity entity);
 
-    EntityLog getLastEntityLog(Company company, String metaKey) throws FlockException;
+    EntityLog getLastEntityLog(Company company, String key) throws FlockException;
 
     EntityLog getLastEntityLog(Long entityId);
 
     Set<EntityLog> getEntityLogs(Entity entity);
 
-    Set<EntityLog> getEntityLogs(Company company, String metaKey) throws FlockException;
+    Set<EntityLog> getEntityLogs(Company company, String key) throws FlockException;
 
-    Set<EntityLog> getEntityLogs(Company company, String metaKey, Date from, Date to) throws FlockException;
+    Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
 
     EntitySearchChange cancelLastLog(Company company, Entity entity) throws IOException, FlockException;
 
-    int getLogCount(Company company, String metaKey) throws FlockException;
+    int getLogCount(Company company, String key) throws FlockException;
 
     Entity findByCode(Fortress fortress, DocumentType documentType, String callerRef);
 
@@ -91,25 +91,25 @@ public interface EntityService {
 
     Entity findByCode(Fortress fortress, String documentName, String callerRef);
 
-    EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException;
+    EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException;
 
-    LogDetailBean getFullDetail(Company company, String metaKey, Long logId);
+    LogDetailBean getFullDetail(Company company, String key, Long logId);
 
     EntityLog getLogForEntity(Entity entity, Long logId);
 
     Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> inputBeans, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
 
-    Collection<String> crossReference(Company company, String metaKey, Collection<String> xRef, String relationshipName) throws FlockException;
+    Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException;
 
     /**
      * Locates cross linked entities with the given relationship type
      * @param company      Owner
-     * @param metaKey      FD UID
+     * @param key      FD UID
      * @param relationship relationship
      * @return all entities connected
      * @throws FlockException
      */
-    Map<String, Collection<Entity>> getCrossReference(Company company, String metaKey, String relationship) throws FlockException;
+    Map<String, Collection<Entity>> getCrossReference(Company company, String key, String relationship) throws FlockException;
 
     Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
 
@@ -126,17 +126,17 @@ public interface EntityService {
      */
     Collection<EntityKeyBean> linkEntities(Company company, EntityKeyBean sourceKey, Collection<EntityKeyBean> targetKeys, String xRefName) throws FlockException;
 
-    Map<String, Entity> getEntities(Company company, Collection<String> metaKeys);
+    Map<String, Entity> getEntities(Company company, Collection<String> keys);
 
-    void purge(Fortress fortress, Collection<String> metaKeys);
+    void purge(Fortress fortress, Collection<String> keys);
 
     void purgeFortressDocs(Fortress fortress);
 
     void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException;
 
-    Collection<EntityTag> getLastLogTags(Company company, String metaKey) throws FlockException;
+    Collection<EntityTag> getLastLogTags(Company company, String key) throws FlockException;
 
-    EntityLog getEntityLog(Company company, String metaKey, Long logId) throws FlockException;
+    EntityLog getEntityLog(Company company, String key, Long logId) throws FlockException;
 
     /**
      *

@@ -27,7 +27,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.query.*;
-import org.flockdata.search.model.MetaKeyResults;
+import org.flockdata.search.model.EntityKeyResults;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
     public MatrixResults buildMatrixWithSearch(Company company, MatrixInputBean input) throws FlockException {
         // DAT-109 enhancements
-        MetaKeyResults metaKeyResults = null;
+        EntityKeyResults entityKeyResults = null;
 
         if (input.getQueryString() == null)
             input.setQueryString("*");
@@ -80,7 +80,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
         if (input.getSampleSize() > 0) {
             if (input.getSampleSize() > 3000)
                 input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
-            metaKeyResults = searchGateway.metaKeys(getQueryParams(company, input));
+            entityKeyResults = searchGateway.keys(getQueryParams(company, input));
         }
 
         String docIndexes = CypherHelper.getLabels("entity", input.getDocuments());
@@ -99,13 +99,13 @@ public class MatrixDaoNeo4j implements MatrixDao {
         //ToDo: MultiTenant requires restriction by Company
 
         String entityFilter;
-        if (metaKeyResults == null)
+        if (entityKeyResults == null)
             entityFilter = (docFilter ? " where " + docIndexes : "");
         else {
 
-            entityFilter = " where entity.metaKey in [";
+            entityFilter = " where entity.key in [";
             boolean first = true;
-            for (String s : metaKeyResults.getResults()) {
+            for (String s : entityKeyResults.getResults()) {
                 if (first) {
                     entityFilter = entityFilter + "\"" + s + "\"";
                     first = false;
@@ -135,9 +135,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
-        if (metaKeyResults != null) {
+        if (entityKeyResults != null) {
             int count = 0;
-            for (String s : metaKeyResults.getResults()) {
+            for (String s : entityKeyResults.getResults()) {
                 params.put("key" + count++, s);
             }
         }
@@ -215,8 +215,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
             throw new FlockException("Excessive amount of data was requested. Query cancelled " + edgeResults.get().size());
 
         results.setSampleSize(input.getSampleSize());
-        if (metaKeyResults != null)
-            results.setTotalHits(metaKeyResults.getTotalHits());
+        if (entityKeyResults != null)
+            results.setTotalHits(entityKeyResults.getTotalHits());
         return results;
     }
 

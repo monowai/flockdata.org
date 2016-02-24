@@ -225,7 +225,7 @@ public class QueryDaoES implements QueryDao {
         return response.getHits().getTotalHits();
     }
 
-    public MetaKeyResults doMetaKeySearch(QueryParams queryParams) throws FlockException {
+    public EntityKeyResults doEntityKeySearch(QueryParams queryParams) throws FlockException {
         String[] types = Strings.EMPTY_ARRAY;
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
@@ -241,14 +241,14 @@ public class QueryDaoES implements QueryDao {
         try {
             response = query.execute().get(10000L, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            logger.error("MetaKeySearch query error ", e);
-            throw new FlockException("MetaKeySearch query error ", e);
+            logger.error("KeySearch query error ", e);
+            throw new FlockException("KeySearch query error ", e);
         }
-        return getMetaKeyResults(response);
+        return getKeyResults(response);
     }
 
-    private MetaKeyResults getMetaKeyResults(SearchResponse response) {
-        MetaKeyResults results = new MetaKeyResults();
+    private EntityKeyResults getKeyResults(SearchResponse response) {
+        EntityKeyResults results = new EntityKeyResults();
         if (response == null || response.getHits().getTotalHits() == 0)
             return results;
 
@@ -335,16 +335,16 @@ public class QueryDaoES implements QueryDao {
         logger.debug("Processing [{}] SearchResults from ElasticSearch", results.size());
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
-                // This function returns only information tracked by FD which will always have  a metaKey
-                SearchHitField metaKeyCol = searchHitFields.getFields().get(EntitySearchSchema.META_KEY);
-                if (metaKeyCol != null) {
-                    Object metaKey = metaKeyCol.getValue();
-                    if (metaKey != null) {
+                // This function returns only information tracked by FD which will always have  a key
+                SearchHitField keyCol = searchHitFields.getFields().get(EntitySearchSchema.META_KEY);
+                if (keyCol != null) {
+                    Object key = keyCol.getValue();
+                    if (key != null) {
                         Map<String, String[]> fragments = convertHighlightToMap(searchHitFields.getHighlightFields());
 
                         SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
-                                metaKey.toString(),
+                                key.toString(),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.FORTRESS)),
                                 getHitValue(searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT)),
                                 searchHitFields.getType(),

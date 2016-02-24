@@ -203,7 +203,7 @@ public class TestEntityDeadlock extends EngineBase {
                 Collection<TrackRequestResult> results = trackRequests.trackEntities(inputBeans, apiKey);
                 assertEquals("Error creating entity", 1, results.size());
                 if ( entityKey == null )
-                    entityKey = results.iterator().next().getMetaKey();
+                    entityKey = results.iterator().next().getKey();
                 assertNotNull(entityService.getEntity(company, entityKey));
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);

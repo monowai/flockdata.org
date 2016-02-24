@@ -45,7 +45,7 @@ public class LogRequest {
         return "LogRequest{" +
                 "store=" + store +
                 ", logId=" + logId +
-                ", entity=" + entity.getMetaKey() +
+                ", entity=" + entity.getKey() +
                 '}';
     }
 

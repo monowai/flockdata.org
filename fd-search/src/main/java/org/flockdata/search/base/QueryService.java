@@ -44,7 +44,7 @@ public interface QueryService {
      */
     EsSearchResult doEntityQuery(QueryParams queryParams) throws FlockException;
 
-    MetaKeyResults doMetaKeyQuery(QueryParams queryParams) throws FlockException;
+    EntityKeyResults doKeyQuery(QueryParams queryParams) throws FlockException;
 
     String doSearch(QueryParams queryParams) throws FlockException;
 

@@ -19,10 +19,10 @@
 
 package org.flockdata.search.model;
 
-import org.flockdata.model.FortressSegment;
-import org.flockdata.query.MatrixInputBean;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
+import org.flockdata.model.FortressSegment;
+import org.flockdata.query.MatrixInputBean;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class QueryParams implements QueryInterface{
 
     private ArrayList<String> fields;
 
-    private String metaKey;
+    private String key;
     private String company;
     private String fortress;
     private String[] types;
@@ -179,12 +179,12 @@ public class QueryParams implements QueryInterface{
         return entityOnly;
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setMetaKey(String metaKey) {
-        this.metaKey = metaKey;
+    public void setKey(String key) {
+        this.key = key;
     }
 
 

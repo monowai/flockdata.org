@@ -77,8 +77,8 @@ public class NeoRequestBase {
         return getTagUrl() +"/alias";
     }
 
-    public String getMetaKeyUrl() {
-        return getEntityUrl() +"/{metaKey}";
+    public String getKeyUrl() {
+        return getEntityUrl() +"/{key}";
     }
 
     public String getLabelFindUrl() {

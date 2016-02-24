@@ -581,10 +581,10 @@ public class Helper {
         int count = 0;
 
         while (i <= timeout) {
-            Entity updatedEntity = entityService.getEntity(company, entity.getMetaKey());
-            count = entityService.getLogCount(company, updatedEntity.getMetaKey());
+            Entity updatedEntity = entityService.getEntity(company, entity.getKey());
+            count = entityService.getLogCount(company, updatedEntity.getKey());
 
-            EntityLog log = entityService.getLastEntityLog(company, updatedEntity.getMetaKey());
+            EntityLog log = entityService.getLastEntityLog(company, updatedEntity.getKey());
             // We have at least one log?
             if (count == expectedCount)
                 return log;

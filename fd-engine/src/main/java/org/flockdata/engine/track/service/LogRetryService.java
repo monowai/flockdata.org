@@ -92,7 +92,7 @@ public class LogRetryService {
         Entity entity = trackResultBean.getEntity();
 
         assert entity != null;
-        //assert entity.getMetaKey()!=null;
+        //assert entity.getKey()!=null;
 
         logger.debug("writeLog entityExists [{}]  entity [{}], [{}]", entityExists, entity.getId(), new DateTime(entity.getFortressUpdatedTz()));
 
@@ -144,7 +144,7 @@ public class LogRetryService {
 
         EntityLog lastLog = getLastLog(trackResult.getEntity());
 
-        logger.debug("createLog metaKey {}, ContentWhen {}, lastLogWhen {}, log {}", trackResult.getEntity().getMetaKey(),  new DateTime(trackResult.getContentInput().getWhen()),
+        logger.debug("createLog key {}, ContentWhen {}, lastLogWhen {}, log {}", trackResult.getEntity().getKey(),  new DateTime(trackResult.getContentInput().getWhen()),
                 (lastLog == null ? "[null]" : new DateTime(lastLog.getFortressWhen()))
                 , lastLog);
 

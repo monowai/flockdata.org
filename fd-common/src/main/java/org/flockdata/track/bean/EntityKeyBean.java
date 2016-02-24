@@ -37,7 +37,7 @@ public class EntityKeyBean {
     private String fortressName;
     private String index;
     private String documentType;
-    private String metaKey;
+    private String key;
     private String code;
     private String name;
     private String description;
@@ -75,7 +75,7 @@ public class EntityKeyBean {
         this.fortressName = entity.getSegment().getFortress().getName();
         this.code = entity.getCode();
         this.documentType = entity.getType();
-        this.metaKey = entity.getMetaKey();
+        this.key = entity.getKey();
         this.index = index;
         this.name = entity.getName();
     }
@@ -116,8 +116,8 @@ public class EntityKeyBean {
         return code;
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
     public String getIndex() {

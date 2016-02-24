@@ -46,7 +46,7 @@ public interface SearchChange {
      *
      * @return GUID
      */
-    String getMetaKey();
+    String getKey();
 
     SearchChange setData(Map<String, Object> what);
 

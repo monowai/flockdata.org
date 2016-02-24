@@ -37,7 +37,7 @@ public class EntityBean implements Serializable {
 
     private Long id;
     private String searchKey;
-    private String metaKey;
+    private String key;
     private String fortressCode;
     private String callerRef;
     private String documentType;
@@ -69,7 +69,7 @@ public class EntityBean implements Serializable {
             this.id = entity.getId();
             this.props = entity.getProperties();
             this.searchKey = entity.getSearchKey();
-            this.metaKey = entity.getMetaKey();
+            this.key = entity.getKey();
             documentType = entity.getType();
             callerRef = entity.getCode();
             whenCreated = entity.getDateCreated();
@@ -112,12 +112,12 @@ public class EntityBean implements Serializable {
         this.whenCreated = whenCreated;
     }
 
-    public String getMetaKey() {
-        return metaKey;
+    public String getKey() {
+        return key;
     }
 
-    void setMetaKey(String metaKey) {
-        this.metaKey = metaKey;
+    void setKey(String key) {
+        this.key = key;
     }
 
     public String getCallerRef() {
@@ -173,7 +173,7 @@ public class EntityBean implements Serializable {
     @JsonIgnore
     /**
      * Primary key of the node in the db. This should not be relied upon outside of
-     * fd-engine and the caller should instead use their own callerRef or the metaKey
+     * fd-engine and the caller should instead use their own callerRef or the key
      *
      */
     public Long getId() {
@@ -195,7 +195,7 @@ public class EntityBean implements Serializable {
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
-        if (metaKey != null ? !metaKey.equals(that.metaKey) : that.metaKey != null) return false;
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
         return !(searchKey != null ? !searchKey.equals(that.searchKey) : that.searchKey != null);
 
     }
@@ -204,7 +204,7 @@ public class EntityBean implements Serializable {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (searchKey != null ? searchKey.hashCode() : 0);
-        result = 31 * result + (metaKey != null ? metaKey.hashCode() : 0);
+        result = 31 * result + (key != null ? key.hashCode() : 0);
         result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
@@ -214,7 +214,7 @@ public class EntityBean implements Serializable {
     @Override
     public String toString() {
         return "EntityBean{" +
-                "metaKey='" + metaKey + '\'' +
+                "key='" + key + '\'' +
                 ", indexName='" + indexName + '\'' +
                 '}';
     }

@@ -89,14 +89,14 @@ public class TestCsvImportIntegration extends EngineBase {
             TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
             EntityLog log = entityService.getLastEntityLog(entityA.getId());
-            Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getMetaKey());
+            Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
             for (EntityLog entityLog : logs) {
                 logger.debug("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();
             assertEquals("Run " + i + " Log was not set to the most recent", new DateTime(1235020128000l), new DateTime(log.getFortressWhen()));
-            assertEquals( "Run "+i+" has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getMetaKey()));
+            assertEquals( "Run "+i+" has wrong log count", 6, entityService.getLogCount(su.getCompany(), entityA.getKey()));
             i++;
         } while (i <= maxRuns);
     }

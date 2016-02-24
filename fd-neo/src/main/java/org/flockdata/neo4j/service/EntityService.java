@@ -68,8 +68,8 @@ public class EntityService {
     public TrackResultBean createEntity(EntityPayload payload, EntityInputBean entityInputBean) throws FlockException {
 
         Node entityNode = null;
-        if (entityInputBean.getMetaKey() != null) {
-            entityNode = findByMetaKey(entityInputBean.getMetaKey());
+        if (entityInputBean.getKey() != null) {
+            entityNode = findByKey(entityInputBean.getKey());
         }
 
         if (entityNode == null && (entityInputBean.getCallerRef() != null && !entityInputBean.getCallerRef().equals("")))
@@ -77,7 +77,7 @@ public class EntityService {
 
         if (entityNode != null) {
             logger.trace("Existing entity found by Caller Ref [{}] found [{}]", entityInputBean.getCallerRef(), entityNode.getProperty(Entity.UUID_KEY));
-            entityInputBean.setMetaKey(entityNode.getProperty(Entity.UUID_KEY).toString());
+            entityInputBean.setKey(entityNode.getProperty(Entity.UUID_KEY).toString());
 
             logger.trace("Existing entity [{}]", entityNode);
             TrackResultBean trackResult = new TrackResultBean(payload.getFortress(), entityNode, entityInputBean);
@@ -175,12 +175,12 @@ public class EntityService {
 
 
     private Node saveEntityNode(EntityPayload payload, EntityInputBean entityInput) throws FlockException {
-        String metaKey = (entityInput.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
-        Entity e = new Entity(metaKey, payload.getFortress(), entityInput, payload.getDocumentType());
+        String key = (entityInput.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
+        Entity e = new Entity(key, payload.getFortress(), entityInput, payload.getDocumentType());
 
         String cypher = "match (f:Fortress) where id(f) = {fortressId} " +
                 "with f merge (entity:`" + payload.getDocumentType().getName() +
-                "`:Entity {metaKey: {metaKey}, name:{name}, " + (entityInput.getEvent() != null ? " event:{event}, " : "") + "callerKeyRef:{callerKeyRef}, callerRef:{callerRef}, description:{description}, dateCreated:{dateCreated},lastUpdate:{lastUpdate} " +
+                "`:Entity {key: {key}, name:{name}, " + (entityInput.getEvent() != null ? " event:{event}, " : "") + "callerKeyRef:{callerKeyRef}, callerRef:{callerRef}, description:{description}, dateCreated:{dateCreated},lastUpdate:{lastUpdate} " +
                 ", fortressLastWhen:{fortressLastWhen}, fortressCreate:{fortressCreate}, searchSuppressed:{searchSuppressed}";
 
         Map<String, Object> args = new HashMap<>();
@@ -194,7 +194,7 @@ public class EntityService {
 
         args.put("fortressId", payload.getFortress().getId());
 
-        args.put(Entity.UUID_KEY, e.getMetaKey());
+        args.put(Entity.UUID_KEY, e.getKey());
         args.put("callerRef", e.getCallerRef());
         args.put("callerKeyRef", EntityHelper.parseKey(payload.getFortress().getId(), payload.getDocumentType().getId(), e.getCallerRef()));
         args.put("name", e.getName());
@@ -224,9 +224,9 @@ public class EntityService {
 
     }
 
-    private Node findByMetaKey(String metaKey) {
+    private Node findByKey(String key) {
 
-        return database.findNode(ENTITY_LABEL, Entity.UUID_KEY, metaKey);
+        return database.findNode(ENTITY_LABEL, Entity.UUID_KEY, key);
     }
 
     private Node findByCallerRef(Fortress fortress, DocumentType documentType, String callerRef) {

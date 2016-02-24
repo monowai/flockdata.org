@@ -33,12 +33,12 @@ public class TestApiKeyHelper {
     @org.junit.Test
     @Deprecated
     public void testApiKeyOrder(){
-        String metaKey = "httpHeader";
+        String key = "httpHeader";
         String requestKey = "httpRequest";
         String nullReturned = "{{hello}}";
         String headerReturned = "{{hello";
 
-        Assert.assertEquals("HttpHeader key take precedence over request key", metaKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(metaKey, requestKey));
+        Assert.assertEquals("HttpHeader key take precedence over request key", key, ApiKeyInterceptor.ApiKeyHelper.resolveKey(key, requestKey));
         assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(null, requestKey));
         assertEquals("HttpHeader key starting in {{ and ending in }} are ignored - POSTMan testing", null, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, null));
         assertEquals(requestKey, ApiKeyInterceptor.ApiKeyHelper.resolveKey(nullReturned, requestKey));

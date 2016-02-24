@@ -264,8 +264,8 @@ public class MediationFacadeNeo implements MediationFacade {
     public TrackResultBean trackLog(Company company, ContentInputBean input) throws FlockException, IOException, ExecutionException, InterruptedException {
         // Create the basic data within a transaction
         Entity entity;
-        if (input.getMetaKey() != null)
-            entity = entityService.getEntity(company, input.getMetaKey());
+        if (input.getKey() != null)
+            entity = entityService.getEntity(company, input.getKey());
         else
             entity = entityService.findByCode(company, input.getFortress(), input.getDocumentType(), input.getCode());
         if (entity == null)
@@ -329,15 +329,15 @@ public class MediationFacadeNeo implements MediationFacade {
         String message = null;
         if (fortress.isStoreDisabled()) {
             message = String.format("Content store has been disabled for this Entity %s. \r\nIf your search document has a Content Body then reprocess from source to create it" +
-                    "\r\nYou can elect to enable the KV Store for content storage if wish", entity.getMetaKey());
+                    "\r\nYou can elect to enable the KV Store for content storage if wish", entity.getKey());
             logger.warn(message);
         }
         if (message != null) {
             message = message + "\n";
         }
         adminService.doReindex(fortress,entity);
-        message = message + "Reindex Search request is re-processing Entity and Tags for [" + entity.getMetaKey() + "]";
-        logger.info("Reindex Search request is processing Entities for [" + entity.getMetaKey() + "]");
+        message = message + "Reindex Search request is re-processing Entity and Tags for [" + entity.getKey() + "]";
+        logger.info("Reindex Search request is processing Entities for [" + entity.getKey() + "]");
         return message;
 
 
@@ -371,8 +371,8 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public EntitySummaryBean getEntitySummary(Company company, String metaKey) throws FlockException {
-        return entityService.getEntitySummary(company, metaKey);
+    public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
+        return entityService.getEntitySummary(company, key);
     }
 
     @Override
@@ -412,7 +412,7 @@ public class MediationFacadeNeo implements MediationFacade {
 
     /**
      * Iterates through all search documents and validates that an existing
-     * Entity can be found for it by the metaKey returned.
+     * Entity can be found for it by the key returned.
      *
      * @param company
      * @param fortressCode

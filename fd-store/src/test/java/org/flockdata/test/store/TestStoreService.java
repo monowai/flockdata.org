@@ -230,7 +230,7 @@ public class TestStoreService {
     private void validateContent(String failureMessage, StoredContent contentResult) throws InterruptedException {
         TestCase.assertNotNull(failureMessage, contentResult);
         TestCase.assertNotNull(failureMessage + " - content was not found", contentResult.getContent());
-        TestCase.assertNotNull(failureMessage, contentResult.getContent().getMetaKey());
+        TestCase.assertNotNull(failureMessage, contentResult.getContent().getKey());
         TestCase.assertNotNull(failureMessage, contentResult.getContent().getCode());
         Map<String, Object> data = contentResult.getContent().getData();
         Thread.sleep(1500);

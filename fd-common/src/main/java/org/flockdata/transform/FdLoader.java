@@ -124,7 +124,7 @@ public class FdLoader {
      */
     private int getExistingIndex(EntityInputBean entityInputBean) {
         int existingIndex =-1;
-        if ( (entityInputBean.getCode()!= null || entityInputBean.getMetaKey()!=null ) && entityInputBean.getContent() == null )
+        if ( (entityInputBean.getCode()!= null || entityInputBean.getKey()!=null ) && entityInputBean.getContent() == null )
             existingIndex = entityBatch.indexOf(entityInputBean);
         return existingIndex;
     }

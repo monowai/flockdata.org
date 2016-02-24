@@ -59,7 +59,7 @@ public class PojoToAbTransformer {
 
     public static EntityInputBean transformToAbFormat(Object pojo) throws IllegalAccessException, IOException, FlockException {
 
-        //ToDo: LogResultBean is only called when the @metaKey is null, otherwise it's a log
+        //ToDo: LogResultBean is only called when the @key is null, otherwise it's a log
         //ToDo:  caller does not determine this by fd-spring does.
 
         EntityInputBean entityInputBean = new EntityInputBean();
@@ -92,7 +92,7 @@ public class PojoToAbTransformer {
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof DatagioUid) {
                                 auditWhat = false;
-                                entityInputBean.setMetaKey(field.get(pojo).toString());
+                                entityInputBean.setKey(field.get(pojo).toString());
                             }
 
                             if (fieldAnnotation instanceof DatagioCallerRef) {
@@ -181,7 +181,7 @@ public class PojoToAbTransformer {
                         // The case when the value of field are not NULL
                         if (field.get(pojo) != null) {
                             if (fieldAnnotation instanceof DatagioUid) {
-                                contentInputBean.setMetaKey(field.get(pojo).toString());
+                                contentInputBean.setKey(field.get(pojo).toString());
                             }
                             if (fieldAnnotation instanceof DatagioCallerRef) {
                                 contentInputBean.setCode(field.get(pojo).toString());

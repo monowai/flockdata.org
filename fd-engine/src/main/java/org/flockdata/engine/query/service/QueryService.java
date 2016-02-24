@@ -140,8 +140,8 @@ public class QueryService {
         return searchGateway.getTagCloud(tagCloudParams);
     }
 
-    public MetaKeyResults getMetaKeys(Company company, QueryParams queryParams) {
+    public EntityKeyResults getKeys(Company company, QueryParams queryParams) {
         queryParams.setCompany(company.getName());
-        return searchGateway.metaKeys(queryParams);
+        return searchGateway.keys(queryParams);
     }
 }
