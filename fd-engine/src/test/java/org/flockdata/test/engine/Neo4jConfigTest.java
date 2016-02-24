@@ -45,7 +45,7 @@ import java.util.Map;
 @EnableNeo4jRepositories(basePackages = {"org.flockdata.company.dao",
                                          "org.flockdata.geography.dao",
                                          "org.flockdata.engine.*",
-                                         "org.flockdata.model.*"})
+                                         })
 @Configuration
 @Profile({"dev"})
 public class Neo4jConfigTest extends Neo4jConfiguration {
@@ -65,7 +65,7 @@ public class Neo4jConfigTest extends Neo4jConfiguration {
     @Bean
     public GraphDatabaseService graphDatabaseService() {
         if ( gds == null ) {
-            setBasePackage("org.flockdata.*");
+            setBasePackage("org.flockdata.model");
             gds = graphDatabaseFactory().newEmbeddedDatabase(getNeoStoreDir());
         }
         return gds;
