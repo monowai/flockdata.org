@@ -47,20 +47,11 @@ You can either deploy fd-engine to an existing servlet container or run it stand
 Run fd-engine (with Spring security configuration) straight from the fd-engine/target folder with the following command
 ```
 $ cd fd-engine/target
-$ java -jar fd-engine-war.jar -Dneo4j=java -Dfd.integration=http -Dfd.auth.provider=simple -httpPort=8080 -Dfd.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
+$ java -jar fd-engine.jar
 ```
 
-Run fd-engine (with Stormpath security configuration) straight from the fd-engine/target folder with the following command
-```
-$ cd fd-engine/target
-$ mvn package tomcat7:run -Dneo4j=java -Dfd.integration=http -Dfd.auth.provider=stormpath -Dfd.auth.config=./classes/stormpath.properties -httpPort=8080 -Dfd.config=./classes/config.properties -Dlog4j.configuration=file:./classes/log4j.xml
-```
 
-Deploy in Tomcat or whatever be your favourite container. Maven will build an executable Tomcat7 package for you that you can run from the Java command line. We will assume that you are going to deploy the WAR to TC7 via your IDE.
-
-Default HTTP port for fd-engine is 8080 and for fd-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/config.properties) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review 
-
-Once you have the .war file installed in your app server, you can start firing off urls to test things.
+Default HTTP port for fd-engine is 8080 and for fd-search its 8081. If you are using different ports then review the [configuration files] (src/main/resources/application.yml) that describe how engine and search find each other. If you have an existing ElasticSearch cluster, you will also want to review
 
 ## Interacting with FlockData
 HTTP, REST and JSON is the lingua franca.
@@ -89,21 +80,21 @@ In the examples below, endpoints start at /v1/. Substitute for whatever server &
 
 ###Register yourself with an account
 ```
-curl -H "Content-Type:application/json" -X POST http://localhost:8080/v1/profiles/ -d '{"name":"batch", "companyName":"Monowai","login":"whocares"}'
+curl -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/profiles/ -d '{"name":"batch", "companyName":"Monowai","login":"whocares"}'
 ```
 ### See who you are
 ```
-curl -u batch:123 -X GET http://localhost:8080/v1/profiles/me/
+curl -u batch:123 -X GET http://localhost:8080/api/v1/profiles/me/
 ```
 ### Create an Application Fortress
 This is one of your computer systems that you want to track information coming from
 ```
-curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/v1/fortress/ -d '{"name": "demo-app","searchEnabled": true}'
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/fortress/ -d '{"name": "demo-app","searchEnabled": true}'
 ```
 ### Track a Data Event
 You should have started [fd-search](../fd-search) before doing this if you're not using RabbitMQ otherwise expect a communications error!
 ```
-curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/v1/track/ -d '{
+curl -u batch:123 -H "Content-Type:application/json" -X POST http://localhost:8080/api/v1/track/ -d '{
   "fortress":"demo-app", 
   "event":"Create",
   "documentName":"Debtor",

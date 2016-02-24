@@ -21,13 +21,13 @@
                                request-channel="pingChannel"
                                reply-channel="nullChannel"
                                http-method="GET"
-                               url="http://localhost:8080/v1/ping"/>
+                               url="http://localhost:8080/api/v1/ping"/>
 
     <int-http:outbound-gateway reply-timeout="1000"
                                request-channel="healthChannel"
                                reply-channel="nullChannel"
                                http-method="GET"
-                               url="http://localhost:8080/v1/admin/health"/>
+                               url="http://localhost:8080/api/v1/admin/health"/>
 
 
     <int:channel id="inputChannel"/>

@@ -67,7 +67,7 @@ public class FortressServiceNeo4j implements FortressService {
     private SecurityHelper securityHelper;
 
     @Autowired
-    private PlatformConfig engineConfig;
+    private PlatformConfig platformConfig;
 
     @Autowired
     IndexManager indexHelper;
@@ -225,7 +225,7 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public Fortress registerFortress(Company company, String fortressName) {
         FortressInputBean fib = new FortressInputBean(fortressName,
-                !engineConfig.isSearchEnabled());
+                !platformConfig.isSearchEnabled());
         return registerFortress(company, fib, true);
 
     }
@@ -234,7 +234,7 @@ public class FortressServiceNeo4j implements FortressService {
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.trace("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());
-        boolean storeEnabled = engineConfig.storeEnabled();
+        boolean storeEnabled = platformConfig.storeEnabled();
         if (fortress != null) {
             if (fortress.isStoreEnabled() == null)
                 // DAT-346 - data upgrade, revert to system default

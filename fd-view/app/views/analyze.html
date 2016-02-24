@@ -1,0 +1,216 @@
+<ng-flockheader xmlns="http://www.w3.org/1999/html"></ng-flockheader>
+<ng-flockleftbar activeSearch='false' activeAnalyze='true' activeExplore='false'
+                 activeStatistics='false'></ng-flockleftbar>
+
+
+<!-- MAIN PANEL -->
+<div id="main" role="main">
+  <!-- RIBBON -->
+  <div id="ribbon">
+        <span class="ribbon-button-alignment"> <span id="refresh" class="btn btn-ribbon" data-title="refresh"
+                                                     rel="tooltip" data-placement="bottom"
+                                                     data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings."
+                                                     data-html="true"><i class="fa fa-refresh"></i></span> </span>
+    <!-- breadcrumb -->
+    <ol class="breadcrumb">
+      <li>Home</li>
+      <li>Analyze</li>
+    </ol>
+    <!-- end breadcrumb -->
+  </div>
+  <!-- END RIBBON -->
+
+  <!-- MAIN CONTENT -->
+  <div id="content">
+    <div class="row">
+      <!-- PUT YOUR CONTENT HERE -->
+      <article class="col-xs-8 col-sm-4 col-md-3 col-lg-3 sortable-grid ui-sortable">
+
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-1" data-widget-colorbutton="false"
+             data-widget-editbutton="false" style="" role="widget">
+          <header role="heading">
+            <div class="jarviswidget-ctrls" role="menu"><a href="#"
+                                                           class="button-icon jarviswidget-toggle-btn"
+                                                           rel="tooltip" title="" data-placement="bottom"
+                                                           data-original-title="Collapse"
+                                                           style="display: block;"><i
+              class="fa fa-minus "></i></a> <a href="javascript:void(0);"
+                                               class="button-icon jarviswidget-fullscreen-btn"
+                                               rel="tooltip" title="" data-placement="bottom"
+                                               data-original-title="Fullscreen"><i
+              class="fa fa-expand"></i></a> <a href="javascript:void(0);"
+                                               class="button-icon jarviswidget-delete-btn"
+                                               rel="tooltip" title="" data-placement="bottom"
+                                               data-original-title="Delete" style="display: block;"><i
+              class="fa fa-times"></i></a></div>
+            <span class="widget-icon"> <i class="fa fa-search"></i>  </span>
+
+            <h2>Search</h2>
+                        <span class="jarviswidget-loader" style="display: none;"><i
+                          class="fa fa-refresh fa-spin"></i></span></header>
+          <div class="widget-body">
+            <form class="smart-form">
+              <fieldset class="no-padding">
+                <section>
+                  <label class="label">Chart Type</label>
+                  <label class="select">
+                    <select ng-model="chartType" class="input-sm" ng-change="switchChart()">
+                      <option value="Chord">Chord</option>
+                      <option value="Matrix">Matrix</option>
+                      <option value="BiPartite">BiPartite</option>
+                      <option value="TagCloud">TagCloud</option>
+                    </select>
+                    <i></i>
+                  </label>
+                </section>
+                <section>
+                  <label class="label">Fortress</label>
+                  <label class="select select-multiple">
+                    <select class="custom-scroll" ng-model="fortress" multiple
+                            ng-options="f.name as f.name for f in fortresses"
+                            ng-change="selectFortress()"></select>
+                  </label>
+                </section>
+                <section>
+                  <label class="label">Documents</label>
+                  <label class="select select-multiple">
+                    <select class="custom-scroll" ng-model="document" multiple
+                            ng-options="d.name as d.name for d in documents"
+                            ng-change="selectDocument()"></select>
+                  </label>
+                </section>
+                <section>
+                  <label class="label">Tags</label>
+                  <label class="select select-multiple">
+                    <select class="custom-scroll" ng-model="concept" multiple
+                            ng-options="c.name as c.name for c in concepts"
+                            ng-change="selectConcept()"></select>
+                  </label>
+                </section>
+                <section ng-hide="relationshipChecked">
+                  <label class="label">Relationship From</label>
+                  <label class="select select-multiple">
+                    <select class="custom-scroll" ng-model="fromRlx" multiple
+                            ng-options="rf.name as rf.name for rf in fromRlxs"></select>
+                  </label>
+                </section>
+                <section ng-hide="shareRelationships || sharedRlxChecked">
+                  <label class="label">Relationship To</label>
+                  <label class="select select-multiple">
+                    <select class="custom-scroll" ng-model="toRlx" multiple
+                            ng-options="rt.name as rt.name for rt in toRlxs"></select>
+                  </label>
+                </section>
+
+                <section>
+                  <label class="checkbox" ng-class="{'state-enabled':sumByCount}">
+                    <input type="checkbox" ng-enabled="sumByCount"
+                           ng-model="sumByCountChecked">
+                    <i></i>Sum by count</label>
+
+                </section>
+                <section ng-if="devMode">
+                  <label class="checkbox" ng-class="{'state-enabled':shareRelationships}">
+                    <input type="checkbox" ng-enabled="shareRelationships"
+                           ng-model="sharedRlxChecked">
+                    <i></i>Share Relationships</label>
+                </section>
+                <section ng-if="devMode">
+                  <label class="checkbox" ng-class="{'state-disabled':reciprocalExcluded}">
+                    <input type="checkbox" ng-enabled="reciprocalExcluded"
+                           ng-model="reciprocalExcludedChecked">
+                    <i></i>Exclude Reciprocals</label>
+                </section>
+
+                <div class="row">
+                  <label class="label col col-5">Min Occurrence</label>
+                  <section class="col col-4">
+                    <label class="input">           <!-- state-error-->
+                      <input type="text" name="minCount" ng-model="minCount"/>
+                    </label>
+                  </section>
+                </div>
+                <div class="row">
+                  <label class="label col col-5">Sample Size</label>
+                  <section class="col col-4">
+                    <label class="input">           <!-- state-error-->
+                      <input type="text" class="input-sm" name="resultSize"
+                             ng-model="resultSize"/>
+                    </label>
+                  </section>
+                </div>
+              </fieldset>
+              <!--<footer>-->
+              <!--<div class="alert alert-warning fade in" ng-show="msg">-->
+              <!--{{msg}}-->
+              <!--</div>-->
+              <!--<div class="input-group-btn">-->
+              <!--<button class="btn btn-default btn-primary" type="submit" href="javascript:void(0);"-->
+              <!--ng-click="search()">-->
+              <!--<i class="fa fa-search"></i> Search-->
+              <!--</button>-->
+              <!--</div>-->
+              <!--</footer>-->
+
+            </form>
+          </div>
+        </div>
+      </article>
+      <div cla class="col-xs-10 col-sm-10 col-md-9 col-lg-9 sortable-grid ui-sortable">
+        <input type="search" value="*" placeholder="Select criteria before applying a filter ..."
+               ng-model="$root.searchText"
+               size="100" autocomplete="on"/>
+        <button type="submit" class="btn btn-primary" ng-click="search()">
+          <i class="fa fa-search"></i>
+        </button>
+
+        <div class="alert alert-warning fade in" ng-show="msg">
+          {{msg}}
+        </div>
+
+
+        <div class="jarviswidget jarviswidget-sortable" id="wid-id-2" data-widget-editbutton="false"
+             data-widget-collapsed="true" data-widget-colorbutton="false" style="" role="widget">
+
+          <header role="heading">
+            <div class="jarviswidget-ctrls" role="menu">
+              <a href="#" class="button-icon jarviswidget-toggle-btn" rel="tooltip" title=""
+                 data-placement="bottom" data-original-title="Collapse"><i class="fa fa-minus "></i></a>
+              <a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip"
+                 title="" data-placement="bottom" data-original-title="Fullscreen"><i
+                class="fa fa-expand "></i></a>
+              <a href="javascript:void(0);" class="button-icon jarviswidget-delete-btn" rel="tooltip"
+                 title="" data-placement="bottom" data-original-title="Delete"><i class="fa fa-times"></i></a>
+            </div>
+            <span class="widget-icon"> <i class="fa fa-bar-chart-o"></i> </span>
+
+            <h2>{{chartType}} Chart</h2>
+
+            <span class="jarviswidget-loader"><i class="fa fa-refresh fa-spin"></i></span>
+          </header>
+          <div class="widget-body">
+            <div style="text-align:right;">
+              <div id="tooltip"></div>
+              <div id="chordGraph" ng-show="chartType=='Chord'">
+                <chord-diagram data="cdData"></chord-diagram>
+              </div>
+              <div id="cooccurrenceGraph" ng-show="chartType=='Matrix'">
+                <cooccurrence-diagram data="coData" ordered-nodes="orderedNodes"></cooccurrence-diagram>
+                <select ng-model="order" ng-change="orderMatrix()">
+                  <option value="name">by Name</option>
+                  <option value="count">by Occurrence</option>
+                </select>
+              </div>
+              <div id="bipartiteGraph" ng-show="chartType=='BiPartite'">
+                <bipartite-diagram data="data" ng-repeat="data in bpData"></bipartite-diagram>
+              </div>
+              <div id="tagCloudPrinted" ng-show="chartType=='TagCloud'">
+              </div>
+            </div>
+          </div>
+        </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
