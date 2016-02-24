@@ -17,7 +17,6 @@ public class TestPathEP extends MvcBase {
 
     @Test
     public void get_tags() throws Exception {
-//        cleanUpGraph();
         engineConfig.setConceptsEnabled("true");
         engineConfig.setMultiTenanted(false);
         // Creating a structure
@@ -51,6 +50,7 @@ public class TestPathEP extends MvcBase {
         TestCase.assertNotNull("Didn't find the tag when the code had a space in the name", getTag(mike(), "Division", code, MockMvcResultMatchers.status().isOk()));
         paths = getTagPaths(mike(), division.getLabel(), code, interest.getLabel());
         assertEquals (1, paths.size());
+        Thread.sleep(1000); // Letting other threads catchup due to concepts being updated in a background thread
     }
 
 }
