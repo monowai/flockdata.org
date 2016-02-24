@@ -93,7 +93,7 @@ public abstract class MvcBase {
     public void cleanUpGraph() throws Exception {
         // DAT-348 - override this if you're running a multi-threaded tests where multiple transactions
         //           might be started giving you sporadic failures.
-        neo4jTemplate.query("match (n)-[r]-() delete r,n", null);
+        neo4jTemplate.query("match (n)-[r]-() delete r", null);
         neo4jTemplate.query("match (n) delete n", null);
 
     }
