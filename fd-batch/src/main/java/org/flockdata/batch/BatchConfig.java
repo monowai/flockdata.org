@@ -7,6 +7,8 @@ import org.flockdata.client.Importer;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.ProfileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,11 +33,11 @@ import java.util.Map;
  */
 @Configuration
 @PropertySources({
-        @PropertySource(value = "classpath:fd-batch.properties"),
+        @PropertySource(value = "classpath:/fd-batch.properties"),
         @PropertySource(value = "file:${fd.batch.properties}", ignoreResourceNotFound = true)
 })
 public class BatchConfig {
-
+    private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
     @Value("${fd.client.settings}")
     private String clientSettings;
 
@@ -135,8 +137,15 @@ public class BatchConfig {
             List<String> configs = Arrays.asList(str.split(","));
 
             for (String config : configs) {
-                StepConfig stepConfig = getStepConfig(config);
-                this.config.put(stepConfig.getStep(), stepConfig);
+                try {
+                    StepConfig stepConfig = getStepConfig(config);
+                    logger.info("Loaded configuration {}", config);
+                    this.config.put(stepConfig.getStep(), stepConfig);
+                } catch (Exception e ){
+                    logger.error (e.getMessage() +" processing " + config);
+                    throw e;
+                }
+
             }
         }
     }
