@@ -34,6 +34,19 @@ import java.util.Properties;
  */
 public class ClientConfiguration {
 
+    public static final String ENGINE_URL = "fd-engine.api";
+    public static final String DEFAULT_USER = "fd-client.defaultUser";
+    public static final String API_KEY = "fd-client.apiKey";
+    public static final String BATCH_SIZE = "fd-client.batchsize";
+    public static final String AMQP = "fd-client.amqp";
+    public static final String COMPANY = "fd-client.company";
+    public static final String FD_TRACK_EXCHANGE = "fd-track.messaging.exchange";
+    public static final String FD_TRACK_QUEUE = "fd-track.messaging.queue";
+    public static final String FD_TRACK_BINDING = "fd-track.messaging.binding";
+    public static final String RABBIT_HOST = "rabbit.host";
+    public static final String RABBIT_USER = "rabbit.user";
+    public static final String RABBIT_PASS = "rabbit.pass";
+    public static final String RABBIT_PD = "rabbit.persistent";
     private Boolean defConfig = true;
     private String company;
     private boolean async;
@@ -61,44 +74,44 @@ public class ClientConfiguration {
 
     public ClientConfiguration(Properties prop) {
         defConfig = false;
-        Object o = prop.get("engineURL");
+        Object o = prop.get(ENGINE_URL);
         if (o != null)
             setEngineURL(o.toString());
-        o = prop.get("defaultUser");
+        o = prop.get(DEFAULT_USER);
         if (o != null)
             setDefaultUser(o.toString());
 
-        o = prop.get("apiKey");
+        o = prop.get(API_KEY);
         if (o != null && !o.toString().equals(""))
             setApiKey(o.toString());
-        o = prop.get("batchSize");
+        o = prop.get(BATCH_SIZE);
         if (o != null)
             setBatchSize(Integer.parseInt(o.toString()));
-        o = prop.get("company");
+        o = prop.get(COMPANY);
         if (o != null)
             setCompany(o.toString());
 
-        o = prop.get("fd-track.exchange");
+        o = prop.get(FD_TRACK_EXCHANGE);
         if (o != null)
             setTrackExchange(o.toString());
 
-        o = prop.get("fd-track.queue");
+        o = prop.get(FD_TRACK_QUEUE);
         if (o != null)
             setTrackQueue(o.toString());
 
-        o = prop.get("fd-track.binding");
+        o = prop.get(FD_TRACK_BINDING);
         if (o != null)
             setTrackRoutingKey(o.toString());
 
-        o = prop.get("rabbit.host");
+        o = prop.get(RABBIT_HOST);
         if (o != null)
             setAmqpHostAddr(o.toString());
 
-        o = prop.get("rabbit.user");
+        o = prop.get(RABBIT_USER);
         if (o != null)
             setRabbitUser(o.toString());
 
-        o = prop.get("rabbit.pass");
+        o = prop.get(RABBIT_PASS);
         if (o != null)
             setRabbitPass(o.toString());
 
@@ -159,18 +172,18 @@ public class ClientConfiguration {
 
     public Properties getAsProperties() {
         Properties properties = new Properties();
-        properties.setProperty("engineURL", engineURL);
-        properties.setProperty("defaultUser", defaultUser);
-        properties.setProperty("company", company);
-        properties.setProperty("apiKey", apiKey);
-        properties.setProperty("batchSize", Long.toString(batchSize));
-        properties.setProperty("fd-track.queue", trackQueue);
-        properties.setProperty("fd-track.exchange", trackExchange);
-        properties.setProperty("fd-track.binding", trackRoutingKey);
-        properties.setProperty("rabbit.host", amqpHostAddr);
-        properties.setProperty("rabbit.user", rabbitUser);
-        properties.setProperty("rabbit.pass", rabbitPass);
-        properties.setProperty("persistentDelivery", persistentDelivery.toString());
+        properties.setProperty(ENGINE_URL, engineURL);
+        properties.setProperty(DEFAULT_USER, defaultUser);
+        properties.setProperty(COMPANY, company);
+        properties.setProperty(API_KEY, apiKey);
+        properties.setProperty(BATCH_SIZE, Long.toString(batchSize));
+        properties.setProperty(FD_TRACK_QUEUE, trackQueue);
+        properties.setProperty(FD_TRACK_EXCHANGE, trackExchange);
+        properties.setProperty(FD_TRACK_BINDING, trackRoutingKey);
+        properties.setProperty(RABBIT_HOST, amqpHostAddr);
+        properties.setProperty(RABBIT_USER, rabbitUser);
+        properties.setProperty(RABBIT_PASS, rabbitPass);
+        properties.setProperty(RABBIT_PD, persistentDelivery.toString());
         return properties;
     }
 

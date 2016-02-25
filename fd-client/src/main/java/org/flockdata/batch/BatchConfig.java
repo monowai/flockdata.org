@@ -38,17 +38,17 @@ import java.util.Map;
 })
 public class BatchConfig {
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
-    @Value("${fd.client.settings}")
+    @Value("${fd-client.settings}")
     private String clientSettings;
 
     private int batchSize;
 
-    @Value("${fd.client.batchsize}")
+    @Value("${fd-client.batchsize}")
     void setBatchSize(String batch){
         this.batchSize = Integer.parseInt(batch);
     }
 
-    @Value("${fd.client.amqp}")
+    @Value("${fd-client.amqp}")
     String amqp = "true";
 
     @Value("${source.datasource.url}")
@@ -104,7 +104,7 @@ public class BatchConfig {
     }
 
     ClientConfiguration getClientConfig() {
-        String[] args = {"-amqp=" + amqp.toString(), "-b " + batchSize, "-c " + getClientSettings()};
+        String[] args = {"-"+ClientConfiguration.AMQP+"=" + amqp.toString(), "-"+ClientConfiguration.BATCH_SIZE+"=" + batchSize, "-c " + getClientSettings()};
         try {
             return Importer.getConfiguration(args);
         } catch (ArgumentParserException e) {
