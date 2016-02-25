@@ -1,42 +1,61 @@
 package org.flockdata.batch;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import org.flockdata.client.Importer;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.transform.ClientConfiguration;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.flockdata.transform.ProfileReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Configuration properties
- *
+ * <p>
  * Created by mike on 24/01/16.
  */
 @Configuration
-@EnableBatchProcessing
+@PropertySources({
+        @PropertySource(value = "classpath:fd-batch.properties"),
+        @PropertySource(value = "file:${fd.batch.properties}", ignoreResourceNotFound = true)
+})
 public class BatchConfig {
-    @Value(value = "${fd.client.settings}")
+
+    @Value("${fd.client.settings}")
     private String clientSettings;
 
-    @Value(value = "${fd.content.profile}")
-    private String contentProfileName;
-
-    @Value(value = "${fd.client.batchsize}")
     private int batchSize;
 
-    @Value(value ="${fd.client.amqp:true}")
-    Boolean amqp=true;
+    @Value("${fd.client.batchsize}")
+    void setBatchSize(String batch){
+        this.batchSize = Integer.parseInt(batch);
+    }
 
-    @Value(value ="${fd.query.sql}")
-    String sqlQuery;
+    @Value("${fd.client.amqp}")
+    String amqp = "true";
 
-    @Value("${datasource.url}")
+    @Value("${source.datasource.url}")
     private String url;
-    @Value("${datasource.username:'sa'}")
+    @Value("${source.datasource.username:'sa'}")
     private String userName;
-    @Value("${datasource.password:''}")
+    @Value("${source.datasource.password:''}")
     private String password;
-    @Value("${datasource.driver}")
+    @Value("${source.datasource.driver}")
     private String driver;
 
     @Value("${batch.datasource.url}")
@@ -47,6 +66,8 @@ public class BatchConfig {
     private String batchPassword;
     @Value("${batch.datasource.driver}")
     private String batchDriver;
+
+
 
     public String getUrl() {
         return url;
@@ -76,16 +97,12 @@ public class BatchConfig {
         this.driver = driver;
     }
 
-    public String getClientSettings() {
+    String getClientSettings() {
         return clientSettings;
     }
 
-    public String getContentProfileName() {
-        return contentProfileName;
-    }
-
-    public ClientConfiguration getClientConfig(){
-        String[] args = {"-amqp="+amqp.toString(), "-b "+batchSize, "-c "+ getClientSettings()};
+    ClientConfiguration getClientConfig() {
+        String[] args = {"-amqp=" + amqp.toString(), "-b " + batchSize, "-c " + getClientSettings()};
         try {
             return Importer.getConfiguration(args);
         } catch (ArgumentParserException e) {
@@ -94,11 +111,6 @@ public class BatchConfig {
         }
         return null;
     }
-
-    public String getSqlQuery() {
-        return sqlQuery;
-    }
-
     public String getBatchUrl() {
         return batchUrl;
     }
@@ -114,4 +126,68 @@ public class BatchConfig {
     public String getBatchDriver() {
         return batchDriver;
     }
+
+    Map<String, StepConfig> config = new HashMap<>();
+
+    @Autowired
+    void loadConfigs(@Value("${fd.configs:}") final String str)  throws Exception {
+        if (str != null && !str.equals("")) {
+            List<String> configs = Arrays.asList(str.split(","));
+
+            for (String config : configs) {
+                StepConfig stepConfig = getStepConfig(config);
+                this.config.put(stepConfig.getStep(), stepConfig);
+            }
+        }
+    }
+
+    public StepConfig getStepConfig(String stepName) throws IOException, ClassNotFoundException {
+        StepConfig stepConfig = config.get(stepName);
+        if (stepConfig == null) {
+            stepConfig = readConfig(stepName.trim());
+            if (stepConfig.getProfile() != null) {
+                ContentProfile contentProfile = ProfileReader.getImportProfile(stepConfig.getProfile());
+                stepConfig.setContentProfile(contentProfile);
+            }
+
+        }
+        return stepConfig;
+    }
+
+    private StepConfig readConfig(String fileName) throws IOException {
+        StepConfig stepConfig = null;
+        InputStream file = null;
+        try {
+            file = getClass().getClassLoader().getResourceAsStream(fileName);
+            if (file == null)
+                // running from JUnit can only read this as a file input stream
+                file = new FileInputStream(fileName);
+            stepConfig = getStepConfig(file);
+        } catch (IOException e) {
+            stepConfig = getStepConfig(new URL(fileName));
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
+        return stepConfig;
+
+    }
+
+    private StepConfig getStepConfig(URL url) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        return mapper.readValue(url, StepConfig.class);
+
+    }
+
+    private StepConfig getStepConfig(InputStream file) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        return mapper.readValue(file, StepConfig.class);
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
 }

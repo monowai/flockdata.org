@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -34,6 +35,7 @@ import java.sql.SQLException;
  */
 @EnableBatchProcessing
 @Configuration
+@Profile("!dev")
 public class FdJobFactory {
 
     @Autowired
@@ -111,6 +113,7 @@ public class FdJobFactory {
         initializer.setDatabasePopulator(databasePopulator());
         return initializer;
     }
+
 
     private DatabasePopulator databasePopulator() {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();

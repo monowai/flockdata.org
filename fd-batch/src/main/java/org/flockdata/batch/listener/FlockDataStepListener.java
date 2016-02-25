@@ -1,6 +1,6 @@
 package org.flockdata.batch.listener;
 
-import org.flockdata.batch.resources.FdBatchLoader;
+import org.flockdata.batch.resources.FdWriter;
 import org.flockdata.helper.FlockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ public class FlockDataStepListener implements StepExecutionListener {
     private static final Logger logger = LoggerFactory.getLogger(FlockDataStepListener.class);
 
     @Autowired
-    FdBatchLoader batchLoader;
+    FdWriter batchLoader;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {

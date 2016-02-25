@@ -16,7 +16,7 @@ import java.util.Map;
 public class FlockDataItemProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     @Autowired
-    private FdBatchLoader batchFdLoader;
+    private FdWriter batchFdLoader;
 
     private String stepName;
 

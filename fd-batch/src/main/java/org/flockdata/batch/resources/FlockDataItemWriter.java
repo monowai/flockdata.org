@@ -12,12 +12,12 @@ import java.util.List;
 public class FlockDataItemWriter implements ItemWriter<EntityInputBean> {
 
     @Autowired
-    private FdBatchLoader fdBatchLoader;
+    private FdWriter fdWriter;
 
     @Override
     public void write(List<? extends EntityInputBean> items) throws Exception {
         for (EntityInputBean item : items) {
-            fdBatchLoader.write(item);
+            fdWriter.write(item);
         }
     }
 }

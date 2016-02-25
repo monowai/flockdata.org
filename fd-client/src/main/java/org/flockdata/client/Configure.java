@@ -100,15 +100,18 @@ public class Configure {
         String fullPath = ns.getString("config");
         if ( fullPath != null) {
             fullPath = fullPath.trim();
-            return getFileFromPath(fullPath);
+            return makeConfigFile(fullPath);
         }
         String path = ns.getString("cpath").trim();
-        return getFileFromPath(path+"/"+configFile);
+        return makeConfigFile(path+"/"+configFile);
     }
 
-    private static File getFileFromPath(String path) {
+    private static File makeConfigFile(String path) {
         File fullPath = new File(path);
-        File fPath = new File (fullPath.getParent()) ;
+        String parent = ".";
+        if ( fullPath.getParent() !=null )
+            parent = fullPath.getParent();
+        File fPath = new File (parent) ;
         if (!fPath.exists() && !fPath.mkdir()) {
             System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") + "]");
             System.exit(-1);

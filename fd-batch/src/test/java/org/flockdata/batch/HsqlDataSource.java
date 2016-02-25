@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 @Configuration
 @Profile("dev")
-public class DataConnection {
+public class HsqlDataSource {
     @Autowired
     BatchConfig batchConfig;
 
@@ -27,7 +27,10 @@ public class DataConnection {
 
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.HSQL)
+                .setName("testDb")
                 .build();
     }
+
+
 
 }

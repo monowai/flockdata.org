@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Profile("dev")
-public class FdMockBatchLoader extends FdBatchLoaderImpl{
+public class FdMockWriter extends FdWriterImpl {
 
     private MockFdWriter fdWriter = null;
 
