@@ -19,9 +19,9 @@
 
 package org.flockdata.spring;
 
-import org.flockdata.client.rest.FdRestWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.flockdata.client.rest.FdRestWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,7 +36,7 @@ public class FlockDataClientFactoryBean extends FlockDataAbstractClientFactoryBe
     @Value("${fd.batch:1}")
     private int batch;
 
-    @Value("${fd.server.url}")
+    @Value("${fd-engine.api}")
     private String serverName;
 
     @Value("${fd.server.username}")

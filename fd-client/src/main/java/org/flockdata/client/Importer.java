@@ -183,11 +183,7 @@ public class Importer {
 
         ClientConfiguration importConfig = Configure.getConfiguration(file);
 
-        Object o = nameSpace.get("async");
-        if (o != null)
-            importConfig.setAsync(Boolean.parseBoolean(o.toString()));
-
-        o = nameSpace.get("batch");
+        Object o = nameSpace.get(ClientConfiguration.BATCH_SIZE);
         if (o != null)
             importConfig.setBatchSize(Integer.parseInt(o.toString().trim()));
 
@@ -195,7 +191,7 @@ public class Importer {
         if (o != null)
             importConfig.setValidateOnly(Boolean.parseBoolean(o.toString()));
 
-        o = nameSpace.get("amqp");
+        o = nameSpace.get(ClientConfiguration.AMQP);
         if (o != null)
             importConfig.setAmqp(Boolean.parseBoolean(o.toString()), true);
 

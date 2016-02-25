@@ -5,6 +5,7 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.flockdata.transform.ClientConfiguration;
 import org.slf4j.LoggerFactory;
 
 //import org.apache.log4j.ConsoleAppender;
@@ -63,7 +64,7 @@ public class InitializationSupport {
                 .defaultHelp(true)
                 .description("Client side batch importer to FlockData");
 
-        parser.addArgument("-b", "--batch")
+        parser.addArgument("-"+ ClientConfiguration.BATCH_SIZE)
                 .required(false)
                 .help("Default batch size");
 
@@ -79,7 +80,7 @@ public class InitializationSupport {
                 .required(false)
                 .help("Runs a batch and verifies that the entities exist");
 
-        parser.addArgument("-amqp", "--amqp")
+        parser.addArgument("-"+ClientConfiguration.AMQP, "--amqp")
                 .required(false)
                 .setDefault(false)
                 .help("Use AMQP instead of HTTP (only works for track requests)");
