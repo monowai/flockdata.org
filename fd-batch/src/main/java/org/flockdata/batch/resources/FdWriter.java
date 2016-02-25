@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by mike on 22/01/16.
  */
-public interface FdBatchLoader {
+public interface FdWriter {
 
     void write(EntityInputBean item) throws FlockException;
 

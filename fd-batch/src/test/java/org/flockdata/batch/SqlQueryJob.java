@@ -17,15 +17,17 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 
 /**
+ * Simple test job t
+ *
  * Created by mike on 28/01/16.
  */
 @Configuration
@@ -34,11 +36,10 @@ public class SqlQueryJob {
     @Autowired
     FdBatchResources dataSource;
 
-    @Value("${fd.step.name:'runSql'}")
     String stepName;
 
     public String getStepName() {
-        return stepName;
+        return "olympic.athlete";
     }
 
     @Bean
@@ -55,7 +56,7 @@ public class SqlQueryJob {
     public Step readSql(StepBuilderFactory stepBuilderFactory, ItemReader<Map<String, Object>> reader,
                         ItemWriter<EntityInputBean> writer, ItemProcessor<Map<String, Object>, EntityInputBean> processor) {
 
-        return stepBuilderFactory.get(stepName)
+        return stepBuilderFactory.get(getStepName())
                 .<Map<String, Object>, EntityInputBean> chunk(10)
                 .reader(reader)
                 .processor(processor)
@@ -81,9 +82,11 @@ public class SqlQueryJob {
     BatchConfig batchConfig;
 
     @Bean
-    public ItemReader itemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
+    public ItemReader itemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
         JdbcCursorItemReader itemReader = new org.springframework.batch.item.database.JdbcCursorItemReader();
-        itemReader.setSql(batchConfig.getSqlQuery());
+        StepConfig stepConfig = batchConfig.getStepConfig(getStepName());
+
+        itemReader.setSql(stepConfig.getQuery());
         itemReader.setDataSource(dataSource.dataSource());
         itemReader.setRowMapper(rowMapper());
         return itemReader;

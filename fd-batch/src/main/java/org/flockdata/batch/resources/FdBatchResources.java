@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
@@ -23,9 +24,11 @@ import java.sql.SQLException;
 
 /**
  * Encapsulates basic DataSource functionality
+ * Kept here for reference only
  * Created by mike on 28/01/16.
  */
 @Configuration
+@Component
 public class FdBatchResources {
 
     @Autowired
@@ -49,20 +52,23 @@ public class FdBatchResources {
      * @return
      * @throws SQLException
      */
-    @Bean()
+    @Bean
     @Profile("!dev")
     @Qualifier("dataSource")
     @Primary
     public DataSource dataSource() throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getDriver(), batchConfig.getUrl());
-        Class<?> clazz = Class.forName(batchConfig.getDriver());
-        Driver driver = (Driver) clazz.newInstance();
+        if ( !batchConfig.getDriver().equals("")) {
+            logger.info("Looking for driver class [{}] then will connect on url [{}]", batchConfig.getDriver(), batchConfig.getUrl());
+            Class<?> clazz = Class.forName(batchConfig.getDriver());
+            Driver driver = (Driver) clazz.newInstance();
 
-        final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getUrl());
+            final SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, batchConfig.getUrl());
 
-        dataSource.setUsername(batchConfig.getUserName());
-        dataSource.setPassword(batchConfig.getPassword());
-        return dataSource;
+            dataSource.setUsername(batchConfig.getUserName());
+            dataSource.setPassword(batchConfig.getPassword());
+            return dataSource;
+        }
+        return null;
     }
 
     @Bean

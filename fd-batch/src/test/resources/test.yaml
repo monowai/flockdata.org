@@ -1,0 +1,4 @@
+profile: /profiles/test.json
+step: olympic.athlete
+query: >
+  SELECT ID,FIRSTNAME,LASTNAME,SURNAME from TEST

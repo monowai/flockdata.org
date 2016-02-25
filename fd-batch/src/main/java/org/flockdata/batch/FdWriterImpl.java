@@ -1,34 +1,32 @@
 package org.flockdata.batch;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import org.flockdata.batch.resources.FdBatchLoader;
+import org.flockdata.batch.resources.FdWriter;
 import org.flockdata.client.Importer;
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdLoader;
-import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.ProfileReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
+ * Initialises a FlockData loader to do the writes to the service
+ *
+ * Initialise from a client.config that exists somewhere on your path
+ *
  * Created by nabil on 19/01/2016.
  */
 @Component
 @Profile("!dev")
-public class FdBatchLoaderImpl implements FdBatchLoader {
+public class FdWriterImpl implements FdWriter {
 
     private FdLoader fdLoader;
-    private Map<String,ContentProfile> contentProfiles = new HashMap<>();
 
     @Autowired
     BatchConfig batchConfig;
@@ -39,14 +37,8 @@ public class FdBatchLoaderImpl implements FdBatchLoader {
         // ToDo: Inject ClientConfiguration in to the FDWriter
         ClientConfiguration configuration = batchConfig.getClientConfig();
         // ToDo: Inject FdLoader
-        FdWriter restClient = getRestClient(configuration);
+        org.flockdata.transform.FdWriter restClient = getRestClient(configuration);
         fdLoader = new FdLoader(restClient, configuration);
-
-        if ( batchConfig.getContentProfileName() !=null && !batchConfig.getContentProfileName().equals("") ){
-            ContentProfileImpl contentProfile = ProfileReader.getImportProfile(batchConfig.getContentProfileName());
-            String key = contentProfile.getFortressName() +"."+ contentProfile.getDocumentType().getName();
-            contentProfiles.put(key.toLowerCase(), contentProfile);
-        }
 
     }
 
@@ -55,13 +47,13 @@ public class FdBatchLoaderImpl implements FdBatchLoader {
     }
 
     public ContentProfile getContentProfile(String name) throws IOException, ClassNotFoundException {
-        ContentProfile result =contentProfiles.get(name.toLowerCase());
+        ContentProfile result =batchConfig.getStepConfig(name).getContentProfile();
         if ( result == null )
             throw new ClassNotFoundException("Unable to resolve the content profile mapping for "+name.toLowerCase());
         return result;
     }
 
-    private FdWriter getRestClient(ClientConfiguration configuration) {
+    private org.flockdata.transform.FdWriter getRestClient(ClientConfiguration configuration) {
         return Importer.getRestClient(configuration);
     }
 
