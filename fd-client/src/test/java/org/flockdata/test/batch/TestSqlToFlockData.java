@@ -43,7 +43,7 @@ public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContext
 
 
     @Test
-    @Sql({"/sql/schema.sql", "/sql/data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+    @Sql({"/batch/sql/schema.sql", "/batch/sql/data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());

@@ -48,7 +48,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_Countries() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -81,7 +81,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTag() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -102,7 +102,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void string_ConditionalTagProperties() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
@@ -123,7 +123,7 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
-        ContentProfileImpl params = ProfileReader.getImportProfile("/test-countries.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
         CsvTagMapper tag = new CsvTagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions

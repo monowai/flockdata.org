@@ -52,10 +52,10 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/no-header.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/no-header.json");
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/no-header.txt", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/no-header.txt", getFdWriter(), null, configuration);
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();

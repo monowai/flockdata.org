@@ -41,11 +41,11 @@ import static org.junit.Assert.assertEquals;
 public class TestLabels extends AbstractImport {
     @Test
     public void conflict_LabelDefinition() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration("/tag-labels.json");
+        ClientConfiguration configuration= getClientConfiguration("/profile/tag-labels.json");
         FileProcessor fileProcessor = new FileProcessor();
 
-        fileProcessor.processFile(ProfileReader.getImportProfile("/tag-labels.json"),
-                "/tag-labels.csv", getFdWriter(), null, configuration);
+        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-labels.json"),
+                "/data/tag-labels.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         assertEquals(2, tagInputBeans.size());
@@ -69,10 +69,10 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void label_expressionsAndConstants() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration("/tag-label-expressions.json");
+        ClientConfiguration configuration= getClientConfiguration("/profile/tag-label-expressions.json");
         FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ProfileReader.getImportProfile("/tag-label-expressions.json"),
-                "/tag-label-expressions.csv", getFdWriter(), null, configuration);
+        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-label-expressions.json"),
+                "/data/tag-label-expressions.csv", getFdWriter(), null, configuration);
 
         List<TagInputBean> tagInputBeans = getFdWriter().getTags();
         // 1 Politician
