@@ -27,7 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Configuration properties
+ * FlockData spring-batch configuration class
+ *
+ * creates a configured instance of an FdLoader to communicate with FlockData
+ * Loads fd-client.configs from your fd-batch.properties file that will in-turn read a
+ * YAML file for mapping between an SQL query and a ContentProfile
+ *
  * <p>
  * Created by mike on 24/01/16.
  */
@@ -133,7 +138,7 @@ public class BatchConfig {
         return batchDriver;
     }
 
-    Map<String, StepConfig> config = new HashMap<>();
+    private Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
     void loadConfigs(@Value("${fd-client.configs:}") final String str)  throws Exception {
