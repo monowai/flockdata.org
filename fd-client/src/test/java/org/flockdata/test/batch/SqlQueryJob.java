@@ -1,5 +1,7 @@
-package org.flockdata.batch;
+package org.flockdata.test.batch;
 
+import org.flockdata.batch.BatchConfig;
+import org.flockdata.batch.StepConfig;
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.batch.resources.FlockDataItemProcessor;
@@ -35,6 +37,9 @@ import java.util.Map;
 public class SqlQueryJob {
     @Autowired
     FdBatchResources dataSource;
+
+    @Autowired
+    BatchConfig batchConfig;
 
     String stepName;
 
@@ -78,8 +83,6 @@ public class SqlQueryJob {
     public RowMapper<Map<String, Object>> rowMapper() {
         return new FdRowMapper();
     }
-    @Autowired
-    BatchConfig batchConfig;
 
     @Bean
     public ItemReader itemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {

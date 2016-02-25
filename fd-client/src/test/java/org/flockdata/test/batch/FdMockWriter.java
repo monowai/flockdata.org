@@ -1,5 +1,6 @@
-package org.flockdata.batch;
+package org.flockdata.test.batch;
 
+import org.flockdata.batch.FdWriterImpl;
 import org.flockdata.helper.FlockException;
 import org.flockdata.test.client.MockFdWriter;
 import org.flockdata.track.bean.EntityInputBean;
