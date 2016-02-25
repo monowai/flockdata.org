@@ -56,7 +56,7 @@ public class TestJsonEntity extends AbstractImport{
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            InputStream file = TestCsvEntity.class.getResourceAsStream("/object-example.json");
+            InputStream file = TestCsvEntity.class.getResourceAsStream("/profile/object-example.json");
             JsonNode theMap = mapper.readTree(file);
             entity.setData(theMap, params);
             assertEquals(11, entity.getTags().size());
@@ -99,7 +99,7 @@ public class TestJsonEntity extends AbstractImport{
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
         ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/object-example.json", getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/profile/object-example.json", getFdWriter(),company, defaults  );
         assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
 

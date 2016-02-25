@@ -24,9 +24,9 @@ import org.junit.Test;
 
 import java.util.Collection;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
 
 /**
  * Validate File Processor routines - Please add to this as you can
@@ -80,7 +80,7 @@ public class TestFileProcessor {
         assertFalse(files.isEmpty());
         assertTrue("Not enough files found", files.size() > 5);
 
-        files = fileProcessor.resolveFiles("/csvtest.json");
+        files = fileProcessor.resolveFiles("/profile/csvtest.json");
         assertFalse(files.isEmpty());
         assertEquals(1, files.size());
 

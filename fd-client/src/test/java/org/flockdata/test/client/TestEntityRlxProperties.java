@@ -44,15 +44,15 @@ public class TestEntityRlxProperties extends AbstractImport{
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/properties-rlx.json");
+        File file = new File("/profile/properties-rlx.json");
         ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/properties-rlx.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
         assertEquals(4, rows);
         List<EntityInputBean> entityBatch = getFdWriter().getEntities();
         assertEquals(4, entityBatch.size());

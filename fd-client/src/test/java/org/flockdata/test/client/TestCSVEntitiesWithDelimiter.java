@@ -57,7 +57,7 @@ public class TestCSVEntitiesWithDelimiter extends AbstractImport {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/no-header-entities.json");
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/no-header.txt", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/no-header.txt", getFdWriter(), null, configuration);
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
 

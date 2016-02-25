@@ -46,17 +46,17 @@ public class TestImportProfileValidation extends AbstractImport{
     @Test
     public void valid_Properties() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/properties-rlx.json");
+        File file = new File("/profile/properties-rlx.json");
         ClientConfiguration configuration = Configure.getConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/properties-rlx.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -64,7 +64,7 @@ public class TestImportProfileValidation extends AbstractImport{
         // Should also fail with blank
         params.setFortressName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -74,7 +74,7 @@ public class TestImportProfileValidation extends AbstractImport{
         exception.expect(IllegalArgumentException.class);
         params.setDocumentName(null);
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));
