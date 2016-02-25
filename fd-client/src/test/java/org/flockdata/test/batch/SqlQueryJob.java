@@ -88,6 +88,7 @@ public class SqlQueryJob {
     public ItemReader itemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
         JdbcCursorItemReader itemReader = new org.springframework.batch.item.database.JdbcCursorItemReader();
         StepConfig stepConfig = batchConfig.getStepConfig(getStepName());
+        assert stepConfig!=null;
 
         itemReader.setSql(stepConfig.getQuery());
         itemReader.setDataSource(dataSource.dataSource());

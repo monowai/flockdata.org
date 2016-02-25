@@ -22,7 +22,8 @@ public class TestConfiguration {
 
     @Test
     public void manualConfig() throws Exception {
-        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-"+ClientConfiguration.BATCH_SIZE+"=10", "-x=55", "-cp=src/test/resources"};
+//        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-"+ClientConfiguration.BATCH_SIZE+"=10", "-x=55", "-cp=src/test/resources"};
+        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-x=55", "-cp=src/test/resources"};
         ClientConfiguration configuration = Importer.getConfiguration(args);
         assertTrue(configuration.isAmqp());
         // ArgParser turns our fd-client in to fd_client, so overriding on the command line is disabled
@@ -34,7 +35,7 @@ public class TestConfiguration {
 
     @Test
     public void illegalPath() throws Exception {
-        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-"+ClientConfiguration.BATCH_SIZE+"=10", "-x=55", "-c src/test/resources/nonexistent.props"};
+        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-x=55", "-c src/test/resources/nonexistent.props"};
         ClientConfiguration configuration = Importer.getConfiguration(args);
         assertEquals(null, configuration.getApiKey());
     }

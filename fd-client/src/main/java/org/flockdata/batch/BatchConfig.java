@@ -104,9 +104,13 @@ public class BatchConfig {
     }
 
     ClientConfiguration getClientConfig() {
-        String[] args = {"-"+ClientConfiguration.AMQP+"=" + amqp.toString(), "-"+ClientConfiguration.BATCH_SIZE+"=" + batchSize, "-c " + getClientSettings()};
+        String[] args = { "-c " + getClientSettings()};
         try {
-            return Importer.getConfiguration(args);
+
+            ClientConfiguration clientConfiguration =  Importer.getConfiguration(args);
+            clientConfiguration.setBatchSize(batchSize);
+            clientConfiguration.setAmqp(Boolean.parseBoolean(amqp));
+            return clientConfiguration;
         } catch (ArgumentParserException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -132,13 +136,13 @@ public class BatchConfig {
     Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
-    void loadConfigs(@Value("${fd.configs:}") final String str)  throws Exception {
+    void loadConfigs(@Value("${fd-client.configs:}") final String str)  throws Exception {
         if (str != null && !str.equals("")) {
             List<String> configs = Arrays.asList(str.split(","));
 
             for (String config : configs) {
                 try {
-                    StepConfig stepConfig = getStepConfig(config);
+                    StepConfig stepConfig = loadStepConfig(config);
                     logger.info("Loaded configuration {}", config);
                     this.config.put(stepConfig.getStep(), stepConfig);
                 } catch (Exception e ){
@@ -150,8 +154,12 @@ public class BatchConfig {
         }
     }
 
-    public StepConfig getStepConfig(String stepName) throws IOException, ClassNotFoundException {
-        StepConfig stepConfig = config.get(stepName);
+    public StepConfig getStepConfig(String stepName){
+        return config.get(stepName);
+    }
+
+    private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
+        StepConfig stepConfig = getStepConfig(stepName);
         if (stepConfig == null) {
             stepConfig = readConfig(stepName.trim());
             if (stepConfig.getProfile() != null) {
@@ -171,9 +179,10 @@ public class BatchConfig {
             if (file == null)
                 // running from JUnit can only read this as a file input stream
                 file = new FileInputStream(fileName);
-            stepConfig = getStepConfig(file);
+            stepConfig = loadStepConfig(file);
         } catch (IOException e) {
-            stepConfig = getStepConfig(new URL(fileName));
+            logger.info("Unable to read {} as a file, trying as a URL...", fileName);
+            stepConfig = loadStepConfig(new URL(fileName));
         } finally {
             if (file != null) {
                 file.close();
@@ -183,13 +192,13 @@ public class BatchConfig {
 
     }
 
-    private StepConfig getStepConfig(URL url) throws IOException {
+    private StepConfig loadStepConfig(URL url) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(url, StepConfig.class);
 
     }
 
-    private StepConfig getStepConfig(InputStream file) throws IOException {
+    private StepConfig loadStepConfig(InputStream file) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(file, StepConfig.class);
     }
