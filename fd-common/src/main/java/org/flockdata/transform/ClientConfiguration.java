@@ -20,6 +20,8 @@
 package org.flockdata.transform;
 
 import org.flockdata.profile.ContentProfileImpl;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.util.Properties;
  * Date: 30/04/14
  * Time: 12:38 PM
  */
+@Configuration
 public class ClientConfiguration {
 
     public static final String ENGINE_URL = "fd-engine.api";
@@ -66,6 +69,8 @@ public class ClientConfiguration {
     String engineURL = "http://localhost:8080/api";
     String defaultUser = null;
     String apiKey = null;
+
+    @Value("fd-cleint.batchsize")
     int batchSize = 100;
 
     public ClientConfiguration() {

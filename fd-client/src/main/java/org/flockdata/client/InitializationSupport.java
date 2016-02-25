@@ -64,9 +64,9 @@ public class InitializationSupport {
                 .defaultHelp(true)
                 .description("Client side batch importer to FlockData");
 
-        parser.addArgument("-"+ ClientConfiguration.BATCH_SIZE)
-                .required(false)
-                .help("Default batch size");
+//        parser.addArgument("-"+ ClientConfiguration.BATCH_SIZE)
+//                .required(false)
+//                .help("Default batch size");
 
         parser.addArgument("-s", "--skip")
                 .required(false)
