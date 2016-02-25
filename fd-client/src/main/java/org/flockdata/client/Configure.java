@@ -35,7 +35,6 @@ import java.util.Properties;
  * Time: 12:42 PM
  */
 public class Configure {
-    private static org.slf4j.Logger logger;
     protected static String configFile = "client.config";
     private static String internalUser = null;
     private static String internalPass = null;
@@ -48,16 +47,16 @@ public class Configure {
 
         if (!defaults.getFile().exists() || defaults.isReconfigure()) {
 
-            logger.info("** {}configuration process", (defaults.isReconfigure() ? "re" : "initial "));
+            System.out.println(String.format("** %sconfiguration process", (defaults.isReconfigure() ? "re" : "initial ")));
             String engineURL = defaults.getEngineURL();
-            logger.info("** Looking for FlockData on [{}]", engineURL);
+            System.out.println(String.format("** Looking for FlockData on [%s]", engineURL));
             pingServer(defaults, engineURL);
             defaults.setApiKey(null);
 
             String version = getVersion(engineURL, defaults.getApiKey());
 
             if (version != null) {
-                logger.info("** Success!! All configured default settings are working! Talking to FlockData version {}", version);
+                System.out.println(String.format("** Success!! All configured default settings are working! Talking to FlockData version %s", version));
                 if (defaults.isReconfigure()) {
                     Boolean yes = getBooleanValue("Reconfigure? ", "Do you still wish to reconfigure your settings? (n)", "n");
                     if (yes) {
@@ -75,14 +74,14 @@ public class Configure {
         if (getNameSpace().getBoolean("test")) {
             testConfig(defaults);
         } else
-            logger.info("** Success! Login name [{}], apiKey [{}]", defaults.getDefaultUser(), defaults.getApiKey());
+            System.out.println(String.format("** Success! Login name [%s], apiKey [%s]", defaults.getDefaultUser(), defaults.getApiKey()));
 
 
     }
 
     public static ClientConfiguration readConfigProfile(String[] args) throws ArgumentParserException {
         nameSpace = InitializationSupport.getConfigureNamespace(args);
-        logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
+        //logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
         internalUser = getNameSpace().getString("user");
 
         File file = getFile(getNameSpace());
@@ -100,21 +99,21 @@ public class Configure {
         String fullPath = ns.getString("config");
         if ( fullPath != null) {
             fullPath = fullPath.trim();
-            return makeConfigFile(fullPath);
+            return makeConfigPath(fullPath);
         }
         String path = ns.getString("cpath").trim();
-        return makeConfigFile(path+"/"+configFile);
+        return makeConfigPath(path+"/"+configFile);
     }
 
-    private static File makeConfigFile(String path) {
+    private static File makeConfigPath(String path) {
         File fullPath = new File(path);
-        String parent = ".";
-        if ( fullPath.getParent() !=null )
-            parent = fullPath.getParent();
-        File fPath = new File (parent) ;
-        if (!fPath.exists() && !fPath.mkdir()) {
-            System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") + "]");
-            System.exit(-1);
+        if ( fullPath.getParent() !=null ) {
+            String parent = fullPath.getParent();
+            File fPath = new File(parent);
+            if (!fPath.exists() && !fPath.mkdir()) {
+                System.out.println("Error making path [" + path + "] Working dir [" + System.getProperty("user.dir") + "]");
+                System.exit(-1);
+            }
         }
         return fullPath;
     }
@@ -150,7 +149,7 @@ public class Configure {
 
             version = getVersion(engineURL, userName, internalPass);
         } // While unauthorised
-        logger.info("Success in connecting to FlockData");
+        System.out.println("Success in connecting to FlockData");
         internalUser = userName;
         do {
             String message = "** Enter a unique user name to register for data access. ";
@@ -174,11 +173,11 @@ public class Configure {
             // Test that we can connect with the generated API Key
             getVersion(engineURL, suResult.getApiKey());
         } else {
-            logger.info("Unable to register the data access user name with the admin account [{}]", internalUser);
+            System.out.println(String.format("Unable to register the data access user name with the admin account [%s]", internalUser));
             System.exit(-1);
         }
         if (!suResult.getCompanyName().equalsIgnoreCase(company)) {
-            logger.error("The Login name [{}] is already in use with another company. Login names must be unique per company. Try using an email address", user);
+            System.out.println(String.format("The Login name [%s] is already in use with another company. Login names must be unique per company. Try using an email address", user));
             System.exit(-1);
         }
         defaults.setEngineURL(engineURL);
@@ -206,9 +205,9 @@ public class Configure {
         pingResult = ping(engineURL);
 
         if (pingResult == null || pingResult.equalsIgnoreCase("err"))
-            logger.info("!! Unable to locate FlockData on {}", engineURL);
+            System.out.println(String.format("!! Unable to locate FlockData on %s", engineURL));
         else {
-            logger.info("** Success in locating FlockData on {}", engineURL);
+            System.out.println(String.format("** Success in locating FlockData on %s", engineURL));
             defaults.setEngineURL(engineURL);
         }
         return engineURL;
@@ -226,9 +225,9 @@ public class Configure {
     private static void testConfig(ClientConfiguration defaults) {
         String version = getVersion(defaults.getEngineURL(), defaults.getApiKey());
         if (version == null)
-            logger.error("!! Error communicating with FlockData using parameters {}", defaults);
+            System.out.println(String.format("!! Error communicating with FlockData using parameters {%s}", defaults));
         else
-            logger.info("** Success communicating with FlockData {} with parameters {}", version, defaults);
+            System.out.println(String.format("** Success communicating with FlockData %s with parameters %s", version, defaults));
     }
 
     private static void writeConfiguration(File file, ClientConfiguration defaults) {
@@ -236,9 +235,9 @@ public class Configure {
             Properties properties = defaults.getAsProperties();
             OutputStream out = new FileOutputStream(file);
             properties.store(out, null);
-            logger.debug("** Configuration defaults written to {} ", file.getAbsoluteFile().toString());
+            System.out.println(String.format("** Configuration defaults written to %s ", file.getAbsoluteFile().toString()));
         } catch (IOException e) {
-            logger.error("Unexpected", e);
+            System.out.println("Unexpected: " + e.getMessage());
         }
     }
 
@@ -295,10 +294,10 @@ public class Configure {
             return String.copyValueOf(pwd);
         } else {
             try {
-                logger.info("Password for [" + userName + "] :");
+                System.out.println(String.format("Password for [%s] :", userName));
                 return new BufferedReader(new InputStreamReader(System.in)).readLine();
             } catch (IOException e) {
-                logger.error("Unexpected", e);
+                System.out.println("Unexpected: " + e.getMessage());
             }
 
         }
@@ -310,9 +309,9 @@ public class Configure {
         Console console = System.console();
         String result = null;
         if (defaultValue != null)
-            logger.info(message, defaultValue);
+            System.out.println(String.format(message, defaultValue));
         else
-            logger.info(message);
+            System.out.println(message);
 
         if (console != null) {
             // read password into the char array
@@ -321,7 +320,7 @@ public class Configure {
 
         } else {
             try {
-                logger.info(prompt);
+                System.out.println(prompt);
                 result = new BufferedReader(new InputStreamReader(System.in)).readLine();
             } catch (IOException e) {
                 //logger.error("Unexpected", e);
