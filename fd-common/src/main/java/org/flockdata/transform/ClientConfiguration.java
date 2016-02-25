@@ -50,7 +50,7 @@ public class ClientConfiguration {
     private int skipCount=0;
     private File file;
     private boolean reconfigure;
-    String engineURL = "http://localhost:8080";
+    String engineURL = "http://localhost:8080/api";
     String defaultUser = null;
     String apiKey = null;
     int batchSize = 100;
