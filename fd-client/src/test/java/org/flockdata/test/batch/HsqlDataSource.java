@@ -1,5 +1,6 @@
-package org.flockdata.batch;
+package org.flockdata.test.batch;
 
+import org.flockdata.batch.BatchConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

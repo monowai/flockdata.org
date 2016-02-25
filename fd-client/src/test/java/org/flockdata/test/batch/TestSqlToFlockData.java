@@ -1,7 +1,8 @@
-package org.flockdata.batch;
+package org.flockdata.test.batch;
 
 
 import junit.framework.TestCase;
+import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.batch.resources.FdWriter;
 import org.flockdata.track.bean.EntityInputBean;
