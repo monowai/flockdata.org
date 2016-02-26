@@ -19,7 +19,7 @@
 
 package org.flockdata.engine.track.endpoint;
 
-import org.flockdata.engine.integration.inbound.TrackRequests;
+import org.flockdata.engine.integration.engine.TrackRequests;
 import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;

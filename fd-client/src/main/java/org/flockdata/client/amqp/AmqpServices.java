@@ -63,7 +63,7 @@ public class AmqpServices {
             channel.queueBind(queue, exchange, routingKey);
             connection = factory.newConnection();
             HashMap<String,Object> headers = new HashMap<>();
-            headers.put("apiKey", configuration.getApiKey());
+            headers.put(ClientConfiguration.FD_KEY , configuration.getApiKey());
             if ( configuration.getApiKey() == null || configuration.getApiKey().equals(""))
                 throw new FlockException("Your API key appears to be invalid. Have you run the configure process?");
             builder =

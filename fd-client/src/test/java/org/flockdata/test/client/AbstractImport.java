@@ -38,6 +38,7 @@ public class AbstractImport {
     protected static ClientConfiguration getClientConfiguration(String jsonConfig) {
         File file = new File(jsonConfig);
         ClientConfiguration configuration = Configure.getConfiguration(file);
+        configuration.setBatchSize(100); // You don't want to flush before you can get your payload
         TestCase.assertNotNull(configuration);
         if ( configuration.getDefaultUser() == null )
             configuration.setDefaultUser("test");
