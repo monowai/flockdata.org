@@ -38,8 +38,6 @@ public class TestTagEP extends MvcBase {
     @Test
     public void get_tags() throws Exception {
 
-        engineConfig.setConceptsEnabled("true");
-
         TagInputBean zipCode = new TagInputBean("codeA", "ZipCode").
                 setName("NameA");
 
@@ -65,8 +63,6 @@ public class TestTagEP extends MvcBase {
     @Test
     public void get_escapedTags() throws Exception {
 
-        engineConfig.setConceptsEnabled("true");
-
         TagInputBean thingTag = new TagInputBean("This/That", "Things");
 
 
@@ -91,8 +87,6 @@ public class TestTagEP extends MvcBase {
     @Test
     public void get_prefixedTag() throws Exception {
 
-        engineConfig.setConceptsEnabled("true");
-
         TagInputBean ignoredTag = new TagInputBean("TheTag", "PrefixTest")
                 .setKeyPrefix("Ignore");
 
@@ -112,8 +106,6 @@ public class TestTagEP extends MvcBase {
 
     @Test
     public void get_tagWithSpace() throws Exception {
-
-        engineConfig.setConceptsEnabled("true");
 
         TagInputBean thingTag = new TagInputBean("This That", "Thing");
 
@@ -136,8 +128,6 @@ public class TestTagEP extends MvcBase {
     @Test
     public void get_percentageScenario() throws Exception {
 
-        engineConfig.setConceptsEnabled("true");
-
         TagInputBean thingTag = new TagInputBean("1% Increase", "Thing2");
 
         Collection<TagResultBean> tags = createTag(mike(), thingTag);
@@ -156,8 +146,6 @@ public class TestTagEP extends MvcBase {
     public void notFound_Tag() throws Exception {
 
         makeProfile("nf_tags", "mike");
-        engineConfig.setConceptsEnabled("true");
-
         // DAT-526
         getTagNotFound(mike(), "zz","123jja");
 
