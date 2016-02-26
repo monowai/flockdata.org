@@ -42,13 +42,14 @@ public class TestDocEP extends MvcBase {
     @Test
     public void flow_docPoints() throws Exception {
 
-        engineConfig.setConceptsEnabled("true");
         FortressResultBean fortress = createFortress(mike(), "flow_docPoints");
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "mike", "flow_docPoints", new DateTime());
         inputBean.addTag(new TagInputBean("Apples", TestQueryResults.FRUIT, "likes"));
         inputBean.addTag(new TagInputBean("Potatoes", TestQueryResults.VEGETABLE, "likes"));
+        engineConfig.setConceptsEnabled("true");
         TrackRequestResult entity = track(mike(), inputBean);
+
         Collection<EntityTagResult> entityTags = getEntityTags(mike(), entity.getKey());
         assertEquals(2, entityTags.size());
 
@@ -82,7 +83,7 @@ public class TestDocEP extends MvcBase {
                     throw new Exception("Unexpected label " + labelResult.getName());
             }
         }
-
+        Thread.sleep(1000);
 
     }
 
