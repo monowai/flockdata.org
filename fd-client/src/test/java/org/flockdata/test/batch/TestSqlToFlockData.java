@@ -6,6 +6,7 @@ import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.batch.resources.FdWriter;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.ClientConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 @ActiveProfiles("dev")
 @SpringApplicationConfiguration({ BatchConfig.class,
                                   FdBatchResources.class,
+        ClientConfiguration.class,
                                   FdMockWriter.class,
                                   HsqlDataSource.class,
                                   JobLauncherTestUtils.class,
