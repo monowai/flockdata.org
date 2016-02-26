@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
+<!--
+  ~ Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu.
+  -->
+
 <!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
@@ -55,13 +63,13 @@
         <level value="error"/>
     </logger>
     <!--<logger name="org.springframework.amqp">-->
-        <!--<level value="${fd.logLevel}"/>-->
+        <!--<level value="${org.fd.logLevel}"/>-->
     <!--</logger>-->
     <!--<logger name="org.springframework.amqp.rabbit.listener.BlockingQueueConsumer">-->
         <!--<level value="error"/>-->
     <!--</logger>-->
     <!--<logger name="org.springframework.integration">-->
-        <!--<level value="${fd.logLevel}"/>-->
+        <!--<level value="${org.fd.logLevel}"/>-->
     <!--</logger>-->
     <logger name="org.springframework.integration.endpoint.PollingConsumer">
         <level value="info"/>
@@ -125,11 +133,11 @@
     </logger>
 
     <logger name="org.flockdata.geography">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <logger name="org.flockdata">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <!-- Logging tags can be noisy - 1line per association-->
@@ -137,32 +145,32 @@
         <level value="info"/>
     </logger>
     <logger name="org.flockdata.engine.schema">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
     <logger name="org.flockdata.company">
         <level value="info"/>
     </logger>
     <logger name="org.flockdata.engine.query">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
     <logger name="org.flockdata.engine.track">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <logger name="org.springframework.data.neo4j">
         <level value="info"/>
     </logger>
     <logger name="org.springframework.data.neo4j.support.query">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <logger name="org.flockdata.engine.track.MediationFacadeNeo">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <!-- Root Logger -->
     <root>
-        <priority value="${fd.logLevel}"/>
+        <priority value="${org.fd.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

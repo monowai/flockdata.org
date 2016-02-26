@@ -1,48 +1,30 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.test.client;
 
-import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.transform.ClientConfiguration;
-
-import java.io.File;
 
 /**
  * Simple ancestor for encapsulating profile and writer functionality
  *
  * Created by mike on 12/02/15.
  */
+
 public class AbstractImport {
     // Re-implement an FdWriter class if you want to validate data in the flush routines
 
     private static MockFdWriter fdWriter = new MockFdWriter();
 
-    protected static ClientConfiguration getClientConfiguration(String jsonConfig) {
-        File file = new File(jsonConfig);
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        configuration.setBatchSize(100); // You don't want to flush before you can get your payload
-        TestCase.assertNotNull(configuration);
-        if ( configuration.getDefaultUser() == null )
-            configuration.setDefaultUser("test");
-        return configuration;
+    protected ClientConfiguration getClientConfiguration() {
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.setBatchSize(100);
+        return clientConfiguration;
     }
 
     public static MockFdWriter getFdWriter() {

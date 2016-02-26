@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+  ~ Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu.
+  -->
+
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -12,14 +20,14 @@
                 class="org.flockdata.authentication.stormpath.StormPathUser" />
 
     <beans:bean id="stormpathClient" class="com.stormpath.spring.security.client.ClientFactory" >
-        <beans:property name="apiKeyFileLocation" value="${fd.auth.stormpath.apiKeyFile}" />
+        <beans:property name="apiKeyFileLocation" value="${org.fd.auth.stormpath.apiKeyFile}" />
         <!--You're including this module in super module. We assume a cache configuration named fdCacheManager -->
         <beans:property name="cacheManager" ref="fdCacheManager" />
     </beans:bean>
 
     <beans:bean id="authenticationProvider" class="com.stormpath.spring.security.provider.StormpathAuthenticationProvider">
         <beans:property name="client" ref="stormpathClient" />
-        <beans:property name="applicationRestUrl" value="${fd.auth.stormpath.application}"/>
+        <beans:property name="applicationRestUrl" value="${org.fd.auth.stormpath.application}"/>
         <!-- When mapping to domain-specific role names (ie. using GroupRoleGrantedAuthorityResolver) -->
         <beans:property name="groupGrantedAuthorityResolver" ref="groupGrantedAuthorityResolver" />
     </beans:bean>
@@ -28,8 +36,8 @@
     <beans:bean id="groupRoleGrantedAuthoritiesMap" class="java.util.HashMap" scope="prototype" >
         <beans:constructor-arg>
             <beans:map key-type="java.lang.String" value-type="java.util.List">
-            	<beans:entry key="${fd.auth.stormpath.group.user}" value="ROLE_FD_USER" />
-            	<beans:entry key="${fd.auth.stormpath.group.admin}" value="ROLE_FD_ADMIN" />
+            	<beans:entry key="${org.fd.auth.stormpath.group.user}" value="ROLE_FD_USER" />
+            	<beans:entry key="${org.fd.auth.stormpath.group.admin}" value="ROLE_FD_ADMIN" />
             </beans:map>
         </beans:constructor-arg>
     </beans:bean>

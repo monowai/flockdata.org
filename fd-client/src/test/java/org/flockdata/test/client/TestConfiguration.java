@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.test.client;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -22,12 +30,11 @@ public class TestConfiguration {
 
     @Test
     public void manualConfig() throws Exception {
-//        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-"+ClientConfiguration.BATCH_SIZE+"=10", "-x=55", "-cp=src/test/resources"};
-        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-x=55", "-cp=src/test/resources"};
+//        String[] args = {"-"+ClientConfiguration.AMQP+"=true", "-"+ClientConfiguration.KEY_BATCH_SIZE+"=10", "-x=55", "-cp=src/test/resources"};
+        String[] args = { "-"+ClientConfiguration.KEY_BATCH_SIZE+"=10", "-x=55", "-cp=src/test/resources"};
         ClientConfiguration configuration = Importer.getConfiguration(args);
         assertTrue(configuration.isAmqp());
-        // ArgParser turns our fd-client in to fd_client, so overriding on the command line is disabled
-//        assertEquals(10, configuration.getBatchSize());
+        assertEquals(10, configuration.getBatchSize());
         assertEquals("abc123", configuration.getApiKey());
         assertEquals(55, configuration.getStopRowProcessCount());
 

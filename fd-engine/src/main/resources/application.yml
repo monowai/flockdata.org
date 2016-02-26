@@ -5,7 +5,7 @@
 ## represents the default settings if no other configuration is in use
 
 # Where fd-search
-#fd-search.url: http://fd-search:8081
+#fd.search.url: http://fd-search:8081
 
 # Default value for new fortresses being created.
 # If store in the fortress is false, then only current state data is stored
@@ -22,105 +22,100 @@ spring:
 
 # Message queues - Balance against ack/nack rate throughput
 # Threadpools
-fd-engine:
-  fortress:  # Defaults on creation of a fortress if not otherwise supplied
-    search: enabled
-    store: disabled
-  system:
-    api: /api # Mount point for the api
-    constraints: true
-    concepts: true
-    timings: false
-    storage: RIAK # The default store to write to IF a fortress allows it. See fd-engine.fortress.store & fd-store.system.enabled
-
-  messaging:
-    queue: fd.engine.queue
-    binding: fd.engine.binding
-    exchange: fd.engine.exchange
-    dlq.queue: fd.engine.dlq.queue
-    dlq.exchange: fd.engine.dlq.exchange
-    prefetchCount: 1
-  executor:
-    poolSize: 8-15
-    queueCapacity: 3
-
-fd-track: # Used for handling incoming data
-  messaging:
-    exchange: fd.track.exchange
-    binding: fd.track.binding
-    queue: fd.track.queue
-    response: fd.response.queue
-    concurrentConsumers: 1
-    queueCapacity: 10
-    prefetchCount: 10
-    dlq:
-      queue: fd.track.dlq.queue
-      exchange: fd.track.dlq.exchange
-  executor:
+org.fd:
+  engine:
+    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+      search: enabled
+      store: disabled
+    system:
+      api: /api # Mount point for the api
+      constraints: true
+      concepts: true
+      timings: false
+      storage: RIAK # The default store to write to IF a fortress allows it. See fd.engine.fortress.store & fd.store.system.enabled
+    messaging:
+      queue: fd.engine.queue
+      binding: fd.engine.binding
+      exchange: fd.engine.exchange
+      dlq.queue: fd.engine.dlq.queue
+      dlq.exchange: fd.engine.dlq.exchange
+      prefetchCount: 1
+    executor:
       poolSize: 8-15
       queueCapacity: 3
 
-fd-search:
-  api: http://localhost:8081/api
-  index:
-    prefix: true
-  messaging:
-    exchange: fd.search.exchange
-    binding: fd.search.binding
-    concurrentConsumers: 2
-    prefetchCount: 10
-    queue: fd.search.queue
-    dlq:
-      queue: fd.search.dlq.queue
-      exchange: fd.search.dlq.exchange
-  executor:
-    poolSize: 20-30
-    queueCapacity: 10
-
-fd-store:
-  api: http://localhost:8082/api
-  system:
-    enabled: false
-
-  messaging: # Async hand offs to fd-store
-    exchange: fd.store.exchange
-    binding: fd.store.binding
-    queue: fd.store.queue
-    concurrentConsumers: 2
-    prefetchCount: 1
-    dlq:
-      queue: fd.store.dlq.queue
-      exchange: fd.store.dlq.exchange
-  executor:
-    poolSize: 8-15
-    queueCapacity: 3
-
-fd-tag:
-  executor:
-    poolSize: 5-10
-    queueCapacity: 30
-
-fd-log:
-  executor:
-    poolSize: 5-10
-    queueCapacity: 30
+  track: # Used for handling incoming data
+    executor:
+        poolSize: 8-15
+        queueCapacity: 3
+    messaging:
+      exchange: fd.track.exchange
+      binding: fd.track.binding
+      queue: fd.track.queue
+      response: fd.response.queue
+      concurrentConsumers: 1
+      queueCapacity: 10
+      prefetchCount: 10
+      dlq:
+        queue: fd.track.dlq.queue
+        exchange: fd.track.dlq.exchange
+  search:
+    api: http://localhost:8081/api
+    index:
+      prefix: true
+    messaging:
+      exchange: fd.search.exchange
+      binding: fd.search.binding
+      concurrentConsumers: 2
+      prefetchCount: 10
+      queue: fd.search.queue
+      dlq:
+        queue: fd.search.dlq.queue
+        exchange: fd.search.dlq.exchange
+    executor:
+      poolSize: 20-30
+      queueCapacity: 10
+  store:
+    api: http://localhost:8082/api
+    system:
+      enabled: false
+    messaging: # Async hand offs to fd-store
+      exchange: fd.store.exchange
+      binding: fd.store.binding
+      queue: fd.store.queue
+      concurrentConsumers: 2
+      prefetchCount: 1
+      dlq:
+        queue: fd.store.dlq.queue
+        exchange: fd.store.dlq.exchange
+    executor:
+      poolSize: 8-15
+      queueCapacity: 3
+  tag:
+    executor:
+      poolSize: 5-10
+      queueCapacity: 30
+  log:
+    executor:
+      poolSize: 5-10
+      queueCapacity: 30
+  auth:
+    simple:
+      user: admin
+      pass: hackme
+    stormpath:
+      #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
+      #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
+      #group:
+      #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
+      #group:
+      #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
 
 org:
   neo4j:
     path: src/main/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
     server.database.location: /Users/mike/data/neo4j/fd.db # where to write the db files to - required
 
-fd-auth:
-  simple:
-    user: admin
-    pass: hackme
-  stormpath:
-    #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
-    #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
-    #group:
-    #  user: https://api.stormpath.com/v1/groups/6vxWqi44N3qr7gETXfLbsk
-    #group:
-    #  admin: https://api.stormpath.com/v1/groups/2Xro288t4Yza6CBuCoFAru
 
 rabbit:
   user: guest

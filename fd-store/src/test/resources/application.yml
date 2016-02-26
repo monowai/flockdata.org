@@ -4,23 +4,23 @@ spring:
   profiles:
     active: dev
 
-fd-store:
-  system:
-    engine: RIAK
-    api: api
-    enabled: true # Is this store engine enbaled ? If yes, then engine: is used to id the store mechanism
-  executor:
-    poolSize: 8-15
-    queueCapacity: 3
-  messaging:
-    exchange: fd.store.exchange
-    binding: fd.store.binding
-    queue: fd.store.queue
-    concurrentConsumers: 2
-    prefetchCount: 1
-
-fd-search:
-  url: http://localhost:8081
+org.fd:
+  store:
+    system:
+      engine: RIAK
+      api: api
+      enabled: true # Is this store engine enbaled ? If yes, then engine: is used to id the store mechanism
+    executor:
+      poolSize: 8-15
+      queueCapacity: 3
+    messaging:
+      exchange: fd.store.exchange
+      binding: fd.store.binding
+      queue: fd.store.queue
+      concurrentConsumers: 2
+      prefetchCount: 1
+  search:
+    url: http://localhost:8081/api
 
 riak:
   hosts: 127.0.0.1

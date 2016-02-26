@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.test.client;
@@ -28,12 +17,15 @@ import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by mike on 1/03/15.
  */
+@Service
 public class MockFdWriter implements FdWriter {
 
     public List<EntityInputBean> getEntities() {
@@ -47,6 +39,8 @@ public class MockFdWriter implements FdWriter {
     public List<EntityInputBean> entities = null;
     public List<TagInputBean> tags = null;
 
+    @Autowired
+    ClientConfiguration clientConfiguration;
 
     @Override
     public SystemUserResultBean me() {

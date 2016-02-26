@@ -22,37 +22,37 @@ rabbit:
     port: 5672
     heartbeat.secs: 30
 
-fd-engine:
-  api: http://localhost:8080/api
-  messaging:
-    queue: fd.engine.queue
-    binding: fd.engine.binding
-    exchange: fd.engine.exchange
-    dlq:
-      queue: fd.engine.dlq.queue
-      exchange: fd.engine.dlq.exchange
-    prefetchCount: 3
-    concurrentConsumers: 2
-  executor:
-    poolSize: 4
-    capacity: 4
-
-fd-search:
-  es:
-    mappings: ./
-  system:
-    api: api
-  messaging:
-    exchange: fd.search.exchange
-    binding: fd.search.binding
-    queue: fd.search.queue
-    dlq.queue: fd.search.dlq.queue
-    dlq.exchange: fd.search.dlq.exchange
-    concurrentConsumers: 2
-    prefetchCount: 3
-  executor:
-    poolSize: 4
-    capacity: 10
+org.fd:
+  engine:
+    api: http://localhost:8080/api
+    messaging:
+      queue: fd.engine.queue
+      binding: fd.engine.binding
+      exchange: fd.engine.exchange
+      dlq:
+        queue: fd.engine.dlq.queue
+        exchange: fd.engine.dlq.exchange
+      prefetchCount: 3
+      concurrentConsumers: 2
+    executor:
+      poolSize: 4
+      capacity: 4
+  search:
+    es:
+      mappings: ./
+    system:
+      api: api
+    messaging:
+      exchange: fd.search.exchange
+      binding: fd.search.binding
+      queue: fd.search.queue
+      dlq.queue: fd.search.dlq.queue
+      dlq.exchange: fd.search.dlq.exchange
+      concurrentConsumers: 2
+      prefetchCount: 3
+    executor:
+      poolSize: 4
+      capacity: 10
 
 
 

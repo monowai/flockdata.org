@@ -46,8 +46,8 @@ services:
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
       rabbit.host: rabbit
-      fd-search.api: http://fd-search:8081/api
-      fd-store.api: http://fd-store:8082/api
+      org.fd.search.api: http://fd-search:8081/api
+      org.fd.store.api: http://fd-store:8082/api
       org.neo4j.path: /opt/flockdata
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j
 
@@ -63,7 +63,7 @@ services:
      - '9301:9301'
     environment:
       rabbit.host: rabbit
-      fd-engine.url: 'http://fd-engine:8080/api'
+      org.fd.engine.url: 'http://fd-engine:8080/api'
       riak.hosts: riak
 
       # Enables integration functionality
@@ -88,7 +88,7 @@ services:
      - '8082:8082'
     environment:
       rabbit.host: rabbit
-      fd-search.url: 'http://fd-search:8081/api'
+      org.fd.search.url: 'http://fd-search:8081/api'
 
       # Enables integration functionality
       spring.profiles.active: production

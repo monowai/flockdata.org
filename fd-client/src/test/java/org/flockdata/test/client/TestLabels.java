@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.test.client;
@@ -41,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 public class TestLabels extends AbstractImport {
     @Test
     public void conflict_LabelDefinition() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration("/profile/tag-labels.json");
+        ClientConfiguration configuration= getClientConfiguration();
         FileProcessor fileProcessor = new FileProcessor();
 
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-labels.json"),
@@ -69,7 +58,7 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void label_expressionsAndConstants() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration("/profile/tag-label-expressions.json");
+        ClientConfiguration configuration= getClientConfiguration();
         FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-label-expressions.json"),
                 "/data/tag-label-expressions.csv", getFdWriter(), null, configuration);
@@ -95,7 +84,7 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void alias_DescriptionEvaluates() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration("/profile/labels.json");
+        ClientConfiguration configuration= getClientConfiguration();
         FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/labels.json"),
                 "/data/assets.txt", getFdWriter(), null, configuration);

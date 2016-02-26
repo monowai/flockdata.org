@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.search.configure;
 
 import org.elasticsearch.client.Client;
@@ -28,10 +36,10 @@ public class SearchConfig {
     @Value("${es.tcp.port:9300}")
     String tcpPort;
 
-    @Value("${fd-search.es.mappings:'.'}")
+    @Value("${org.fd.search.es.mappings:'.'}")
     private String esMappingPath;
 
-    @Value("${fd-search.es.settings:fd-default-settings.json}")
+    @Value("${org.fd.search.es.settings:fd-default-settings.json}")
     String esSettings;
 
     private String esDefaultMapping = "fd-default-mapping.json";

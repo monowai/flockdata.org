@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.client;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -64,9 +72,9 @@ public class InitializationSupport {
                 .defaultHelp(true)
                 .description("Client side batch importer to FlockData");
 
-//        parser.addArgument("-"+ ClientConfiguration.BATCH_SIZE)
-//                .required(false)
-//                .help("Default batch size");
+        parser.addArgument("-"+ ClientConfiguration.KEY_BATCH_SIZE)
+                .required(false)
+                .help("Default batch size");
 
         parser.addArgument("-s", "--skip")
                 .required(false)
