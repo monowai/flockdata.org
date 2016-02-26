@@ -23,6 +23,7 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -43,8 +44,8 @@ public class ClientConfiguration {
     public static final String BATCH_SIZE = "fd-client.batchsize";
     public static final String AMQP = "fd-client.amqp";
     public static final String COMPANY = "fd-client.company";
-    public static final String FD_TRACK_EXCHANGE = "fd-track.messaging.exchange";
     public static final String FD_TRACK_QUEUE = "fd-track.messaging.queue";
+    public static final String FD_TRACK_EXCHANGE = "fd-track.messaging.exchange";
     public static final String FD_TRACK_BINDING = "fd-track.messaging.binding";
     public static final String RABBIT_HOST = "rabbit.host";
     public static final String RABBIT_USER = "rabbit.user";
@@ -52,27 +53,49 @@ public class ClientConfiguration {
     public static final String RABBIT_PD = "rabbit.persistent";
     public static final String FD_KEY = "fd-apiKey";
     private Boolean defConfig = true;
+
+    @Value ("${"+COMPANY+"}")
     private String company;
-    private boolean async;
+
+    @Value("${"+FD_TRACK_QUEUE+":fd.track.queue}")
+    private String trackQueue = "fd.track.queue";
+
+    @Value("${"+FD_TRACK_EXCHANGE+":fd.track.exchange}")
+    private String trackExchange = "fd.track.exchange";
+
+    @Value("${"+FD_TRACK_BINDING+":fd.track.binding}")
+    private String trackRoutingKey = "fd.track.binding";
+
+    @Value("${"+RABBIT_HOST+":localhost}")
+    private String rabbitHost = "localhost";
+
+    @Value("${"+RABBIT_PASS+":guest}")
+    private String rabbitPass="guest";
+
+    @Value("${"+RABBIT_USER+":guest}")
+    private String rabbitUser="guest";
+
+    @Value("${"+ENGINE_URL+":http://localhost:8080/api}")
+    String engineURL = "http://localhost:8080/api";
+
+    @Value("${"+DEFAULT_USER+":}")
+    String defaultUser = null;
+
+    @Value("${"+API_KEY+":}")
+    String apiKey = null;
+
+    @Value("${"+BATCH_SIZE+":1}")
+    int batchSize = 1;
+
+    private Boolean persistentDelivery= true;
     private boolean validateOnly;
     private boolean amqp=true;
-    private String trackQueue = "fd.track.queue";
-    private String trackExchange = "fd.track.exchange";
-    private String trackRoutingKey = "fd.track.binding";
-    private String amqpHostAddr = "localhost";
-    private String rabbitPass="guest";
-    private String rabbitUser="guest";
-    private Boolean persistentDelivery= true;
+
     private int stopRowProcessCount =0;
     private int skipCount=0;
     private File file;
     private boolean reconfigure;
-    String engineURL = "http://localhost:8080/api";
-    String defaultUser = null;
-    String apiKey = null;
 
-    @Value("${fd-client.batchsize}")
-    int batchSize = 1;
 
     public ClientConfiguration() {
         defConfig = true;
@@ -111,7 +134,7 @@ public class ClientConfiguration {
 
         o = prop.get(RABBIT_HOST);
         if (o != null)
-            setAmqpHostAddr(o.toString());
+            setRabbitHost(o.toString());
 
         o = prop.get(RABBIT_USER);
         if (o != null)
@@ -158,12 +181,12 @@ public class ClientConfiguration {
     }
 
     @Override
+    @PostConstruct
     public String toString() {
         return "ConfigProperties{" +
                 "engineURL='" + engineURL + '\'' +
-                ", defaultUser='" + defaultUser + '\'' +
-                ", amqp='" + amqp + '\'' +
-                ", async='" + async + '\'' +
+                ", rabbitHost='" + rabbitHost+ '\'' +
+                ", rabbitUser='" + rabbitUser+ '\'' +
                 ", batchSize=" + batchSize +
                 '}';
     }
@@ -186,7 +209,7 @@ public class ClientConfiguration {
         properties.setProperty(FD_TRACK_QUEUE, trackQueue);
         properties.setProperty(FD_TRACK_EXCHANGE, trackExchange);
         properties.setProperty(FD_TRACK_BINDING, trackRoutingKey);
-        properties.setProperty(RABBIT_HOST, amqpHostAddr);
+        properties.setProperty(RABBIT_HOST, rabbitHost);
         properties.setProperty(RABBIT_USER, rabbitUser);
         properties.setProperty(RABBIT_PASS, rabbitPass);
         properties.setProperty(RABBIT_PD, persistentDelivery.toString());
@@ -205,12 +228,8 @@ public class ClientConfiguration {
         return ProfileReader.getImportProfile(profile);
     }
 
-    public void setAsync(boolean async) {
-        this.async = async;
-    }
-
     public boolean isAsync() {
-        return async;
+        return false;
     }
 
     public void setValidateOnly(boolean validateOnly) {
@@ -258,12 +277,12 @@ public class ClientConfiguration {
         this.trackRoutingKey = trackRoutingKey;
     }
 
-    public String getAmqpHostAddr() {
-        return amqpHostAddr;
+    public String getRabbitHost() {
+        return rabbitHost;
     }
 
-    public void setAmqpHostAddr(String amqpHostAddr) {
-        this.amqpHostAddr = amqpHostAddr;
+    public void setRabbitHost(String rabbitHost) {
+        this.rabbitHost = rabbitHost;
     }
 
     public void setRabbitPass(String rabbitPass) {

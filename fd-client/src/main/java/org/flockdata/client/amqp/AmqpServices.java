@@ -49,7 +49,7 @@ public class AmqpServices {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpServices.class);
 
     public AmqpServices(ClientConfiguration configuration) throws FlockException {
-        factory.setHost(configuration.getAmqpHostAddr());
+        factory.setHost(configuration.getRabbitHost());
         factory.setUsername(configuration.getRabbitUser());
         factory.setPassword(configuration.getRabbitPass());
 

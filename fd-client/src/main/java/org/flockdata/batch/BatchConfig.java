@@ -2,10 +2,7 @@ package org.flockdata.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import org.flockdata.client.Importer;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,20 +105,23 @@ public class BatchConfig {
         return clientSettings;
     }
 
-    ClientConfiguration getClientConfig() {
-        String[] args = { "-c " + getClientSettings()};
-        try {
-
-            ClientConfiguration clientConfiguration =  Importer.getConfiguration(args);
-            clientConfiguration.setBatchSize(batchSize);
-            clientConfiguration.setAmqp(true);
-            return clientConfiguration;
-        } catch (ArgumentParserException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        return null;
-    }
+//    @Autowired
+//    ClientConfiguration clientConfiguration;
+//
+//    ClientConfiguration getClientConfig() {
+//        String[] args = { "-c " + getClientSettings()};
+//        try {
+//
+//            ClientConfiguration clientConfiguration =  Importer.getConfiguration();
+//            clientConfiguration.setBatchSize(batchSize);
+//            clientConfiguration.setAmqp(true);
+//            return clientConfiguration;
+//        } catch (ArgumentParserException e) {
+//            e.printStackTrace();
+//            System.exit(-1);
+//        }
+//        return null;
+//    }
     public String getBatchUrl() {
         return batchUrl;
     }

@@ -31,14 +31,16 @@ public class FdWriterImpl implements FdWriter {
     @Autowired
     BatchConfig batchConfig;
 
+    @Autowired
+    ClientConfiguration clientConfig;
+
     @PostConstruct
     private void init() throws ArgumentParserException, IOException, ClassNotFoundException {
         // These args should come from a Configuration, not processed like this
         // ToDo: Inject ClientConfiguration in to the FDWriter
-        ClientConfiguration configuration = batchConfig.getClientConfig();
         // ToDo: Inject FdLoader
-        org.flockdata.transform.FdWriter restClient = getRestClient(configuration);
-        fdLoader = new FdLoader(restClient, configuration);
+        org.flockdata.transform.FdWriter restClient = getRestClient(clientConfig);
+        fdLoader = new FdLoader(restClient, clientConfig);
 
     }
 
