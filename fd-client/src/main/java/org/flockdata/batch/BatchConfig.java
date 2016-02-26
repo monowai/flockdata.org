@@ -48,30 +48,30 @@ public class BatchConfig {
 
     private int batchSize;
 
-    @Value("${fd-client.batchsize}")
+    @Value("${fd-client.batchsize:1}")
     void setBatchSize(String batch){
         this.batchSize = Integer.parseInt(batch);
     }
 
-    @Value("${fd-client.amqp}")
-    String amqp = "true";
+    @Value("${fd-client.amqp:true}")
+    Boolean amqp = true;
 
     @Value("${source.datasource.url}")
     private String url;
-    @Value("${source.datasource.username:'sa'}")
+    @Value("${source.datasource.username}")
     private String userName;
-    @Value("${source.datasource.password:''}")
+    @Value("${source.datasource.password}")
     private String password;
     @Value("${source.datasource.driver}")
     private String driver;
 
-    @Value("${batch.datasource.url}")
+    @Value("${batch.datasource.url:jdbc:hsqldb:mem:sb}")
     private String batchUrl;
     @Value("${batch.datasource.username:'sa'}")
     private String batchUserName;
-    @Value("${batch.datasource.password:''}")
+    @Value("${batch.datasource.password: }")
     private String batchPassword;
-    @Value("${batch.datasource.driver}")
+    @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
     private String batchDriver;
 
 
@@ -114,7 +114,7 @@ public class BatchConfig {
 
             ClientConfiguration clientConfiguration =  Importer.getConfiguration(args);
             clientConfiguration.setBatchSize(batchSize);
-            clientConfiguration.setAmqp(Boolean.parseBoolean(amqp));
+            clientConfiguration.setAmqp(true);
             return clientConfiguration;
         } catch (ArgumentParserException e) {
             e.printStackTrace();
@@ -138,7 +138,7 @@ public class BatchConfig {
         return batchDriver;
     }
 
-    private Map<String, StepConfig> config = new HashMap<>();
+    Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
     void loadConfigs(@Value("${fd-client.configs:}") final String str)  throws Exception {
