@@ -50,6 +50,7 @@ public class ClientConfiguration {
     public static final String RABBIT_USER = "rabbit.user";
     public static final String RABBIT_PASS = "rabbit.pass";
     public static final String RABBIT_PD = "rabbit.persistent";
+    public static final String FD_KEY = "fd-apiKey";
     private Boolean defConfig = true;
     private String company;
     private boolean async;
@@ -70,8 +71,8 @@ public class ClientConfiguration {
     String defaultUser = null;
     String apiKey = null;
 
-    @Value("fd-cleint.batchsize")
-    int batchSize = 100;
+    @Value("${fd-client.batchsize}")
+    int batchSize = 1;
 
     public ClientConfiguration() {
         defConfig = true;

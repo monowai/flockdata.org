@@ -1,7 +1,6 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
@@ -10,7 +9,6 @@ import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -31,8 +29,7 @@ public class TestBatchUnqueEntities extends AbstractImport{
     public void duplicateKeysInSource_UniqueEntity() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/duplicate-entities.json";
-        File file = new File(fileName);
-        ClientConfiguration configuration = Configure.getConfiguration(file);
+        ClientConfiguration configuration = getClientConfiguration(fileName);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 

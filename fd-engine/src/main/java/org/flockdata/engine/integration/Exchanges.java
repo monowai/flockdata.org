@@ -51,6 +51,10 @@ public class Exchanges {
     @Value("${fd-engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
+    @Value("${fd-track.messaging.queue:fd.track.queue}")
+    private String trackQueue;
+
+
     @Value("${fd-engine.messaging.concurrentConsumers:2}")
     private int engineConcurrentConsumers;
 
@@ -79,6 +83,13 @@ public class Exchanges {
     @Value("${fd-search.messaging.prefetchCount:3}")
     private int searchPreFetchCount;
 
+    @Value("${fd-track.messaging.prefetchCount:3}")
+    private int trackPreFetchCount;
+
+    @Value("${fd-track.messaging.concurrentConsumers:2}")
+    private int trackConcurrentConsumers;
+
+
     public String searchBinding() {
         return searchBinding;
     }
@@ -94,6 +105,17 @@ public class Exchanges {
     String engineExchangeName(){
         return engineExchange;
     }
+
+    @Bean
+    public Queue fdTrackQueue() {
+        Map<String,Object>params = new HashMap<>();
+        params.put("x-dead-letter-exchange", trackDlqExchange);
+        return new Queue(trackQueue, true, false, false, params);
+
+
+    }
+
+
     @Bean
     public Queue fdEngineQueue(){
         Map<String,Object>params = new HashMap<>();
@@ -165,4 +187,12 @@ public class Exchanges {
     public int engineConcurrentConsumers() {
         return engineConcurrentConsumers;
     }
+
+    public int trackPreFetchCount() {
+        return trackPreFetchCount;
+    }
+    public int trackConcurrentConsumers() {
+        return trackConcurrentConsumers;
+    }
+
 }

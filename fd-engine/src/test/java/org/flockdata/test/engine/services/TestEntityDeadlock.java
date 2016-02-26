@@ -29,7 +29,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.retry.annotation.EnableRetry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
@@ -157,7 +160,7 @@ public class TestEntityDeadlock extends EngineBase {
         Fortress fortress;
         // Reduce the runs
         int maxRun = 10;
-        List<EntityInputBean> inputBeans;
+        Collection<EntityInputBean> inputBeans;
         Collection<TagInputBean> tags;
         String apiKey;
         CountDownLatch latch;

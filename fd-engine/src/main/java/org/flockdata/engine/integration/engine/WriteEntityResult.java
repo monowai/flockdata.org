@@ -1,4 +1,4 @@
-package org.flockdata.engine.integration.inbound;
+package org.flockdata.engine.integration.engine;
 
 import com.google.common.net.MediaType;
 import org.flockdata.engine.integration.AmqpRabbitConfig;

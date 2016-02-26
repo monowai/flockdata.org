@@ -62,7 +62,7 @@ public class TestEntitySearch extends EngineBase {
         EntityInputBean beanB = getContentBean(fortress, "poppy", "CompanyNode", "2013",
                 new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
 
-        ArrayList<EntityInputBean> beans = new ArrayList<>();
+        Collection<EntityInputBean> beans = new ArrayList<>();
         beans.add(beanA);
         beans.add(beanB);
         Collection<TrackRequestResult> results = trackRequests.trackEntities(beans, su.getApiKey());

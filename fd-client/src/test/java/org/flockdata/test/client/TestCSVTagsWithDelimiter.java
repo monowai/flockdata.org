@@ -21,7 +21,6 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
@@ -30,7 +29,6 @@ import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -47,12 +45,12 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/no-header.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
+        String file = "/profile/no-header.json";
+        ClientConfiguration configuration = getClientConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/no-header.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile(file);
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         long rows = fileProcessor.processFile(params, "/data/no-header.txt", getFdWriter(), null, configuration);

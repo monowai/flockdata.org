@@ -43,8 +43,8 @@ public class TestCSVColumnParsing extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/profile/column-parsing.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
+        String file = "/profile/column-parsing.json";
+        ClientConfiguration configuration = getClientConfiguration(file);
         assertNotNull(configuration);
         configuration.setDefaultUser("test");
 

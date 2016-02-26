@@ -20,7 +20,6 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
@@ -29,7 +28,6 @@ import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -168,8 +166,8 @@ public class TestGeography extends AbstractImport{
     public void setPropertiesFromSource () throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/import-geo.json";
-        File file = new File(fileName);
-        ClientConfiguration configuration = Configure.getConfiguration(file);
+
+        ClientConfiguration configuration = getClientConfiguration(fileName);
         TestCase.assertNotNull(configuration);
 
         ContentProfileImpl params = ProfileReader.getImportProfile(fileName);
