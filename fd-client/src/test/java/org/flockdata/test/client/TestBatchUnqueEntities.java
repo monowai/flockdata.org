@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
@@ -29,9 +37,9 @@ public class TestBatchUnqueEntities extends AbstractImport{
     public void duplicateKeysInSource_UniqueEntity() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/duplicate-entities.json";
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
         assertNotNull(configuration);
-        configuration.setDefaultUser("test");
+        configuration.setLoginUser("test");
 
         ContentProfileImpl contentProfile = ClientConfiguration.getImportProfile(fileName);
 

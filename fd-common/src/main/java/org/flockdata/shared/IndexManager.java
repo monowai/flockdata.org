@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
@@ -28,10 +36,10 @@ public class IndexManager {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${fd.search.index.prefix:fd.}")
+    @Value("${org.fd.search.index.prefix:fd.}")
     private String prefix ;
 
-    @Value("${fd.search.index.typeSuffix:true}")
+    @Value("${org.fd.search.index.typeSuffix:true}")
     private Boolean typeSuffix ;   // use docType as an index suffix?
 
     IndexManager(){}

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.engine.integration;
 
 import org.springframework.amqp.core.DirectExchange;
@@ -15,78 +23,78 @@ import java.util.Map;
  */
 @Configuration
 public class Exchanges {
-    @Value("${fd-search.messaging.binding:fd.search.binding}")
+    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
     String searchBinding;
 
-    @Value("${fd-search.messaging.exchange:fd.search.exchange}")
+    @Value("${org.fd.search.messaging.exchange:fd.search.exchange}")
     String searchExchange;
 
-    @Value("${fd-search.messaging.dlq.queue:fd.search.dlq.queue}")
+    @Value("${org.fd.search.messaging.dlq.queue:fd.search.dlq.queue}")
     private String searchDlq;
 
-    @Value("${fd-search.messaging.dlq.exchange:fd.search.dlq.exchange}")
+    @Value("${org.fd.search.messaging.dlq.exchange:fd.search.dlq.exchange}")
     private String searchDlqExchange;
 
-    @Value("${fd-track.messaging.binding:fd.track.binding}")
+    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
     String trackBinding;
 
-    @Value("${fd-track.messaging.exchange:fd.track.exchange}")
+    @Value("${org.fd.track.messaging.exchange:fd.track.exchange}")
     String trackExchange;
 
-    @Value("${fd-track.messaging.dlq.queue:fd.track.dlq.queue}")
+    @Value("${org.fd.track.messaging.dlq.queue:fd.track.dlq.queue}")
     private String trackhDlq;
 
-    @Value("${fd-track.messaging.dlq.exchange:fd.track.dlq.exchange}")
+    @Value("${org.fd.track.messaging.dlq.exchange:fd.track.dlq.exchange}")
     private String trackDlqExchange;
 
-    @Value("${fd-engine.binding:fd.engine.binding}")
+    @Value("${org.fd.engine.binding:fd.engine.binding}")
     private String engineBinding;
 
-    @Value("${fd-engine.messaging.exchange:fd.engine.exchange}")
+    @Value("${org.fd.engine.messaging.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    @Value("${fd-engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
+    @Value("${org.fd.engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
     private String engineDlqExchange;
 
-    @Value("${fd-engine.messaging.queue:fd.engine.queue}")
+    @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
-    @Value("${fd-track.messaging.queue:fd.track.queue}")
+    @Value("${org.fd.track.messaging.queue:fd.track.queue}")
     private String trackQueue;
 
 
-    @Value("${fd-engine.messaging.concurrentConsumers:2}")
+    @Value("${org.fd.engine.messaging.concurrentConsumers:2}")
     private int engineConcurrentConsumers;
 
-    @Value("${fd-engine.messaging.prefetchCount:3}")
+    @Value("${org.fd.engine.messaging.prefetchCount:3}")
     private int enginePreFetchCount;
 
 
-    @Value("${fd-store.binding:fd.store.binding}")
+    @Value("${org.fd.store.binding:fd.store.binding}")
     private String storeBinding;
 
-    @Value("${fd-store.messaging.exchange:fd.store.exchange}")
+    @Value("${org.fd.store.messaging.exchange:fd.store.exchange}")
     private String storeExchange;
 
-    @Value("${fd-store.messaging.dlq.exchange:fd.store.dlq.exchange}")
+    @Value("${org.fd.store.messaging.dlq.exchange:fd.store.dlq.exchange}")
     private String storeDlqExchange;
 
-    @Value("${fd-store.messaging.dlq.queue:fd.store.dlq.queue}")
+    @Value("${org.fd.store.messaging.dlq.queue:fd.store.dlq.queue}")
     private String storeDlq;
 
-    @Value("${fd-search.messaging.queue:fd.search.queue}")
+    @Value("${org.fd.search.messaging.queue:fd.search.queue}")
     private String searchQueue;
 
-    @Value("${fd-search.messaging.concurrentConsumers:2}")
+    @Value("${org.fd.search.messaging.concurrentConsumers:2}")
     private int searchConcurrentConsumers;
 
-    @Value("${fd-search.messaging.prefetchCount:3}")
+    @Value("${org.fd.search.messaging.prefetchCount:3}")
     private int searchPreFetchCount;
 
-    @Value("${fd-track.messaging.prefetchCount:3}")
+    @Value("${org.fd.track.messaging.prefetchCount:3}")
     private int trackPreFetchCount;
 
-    @Value("${fd-track.messaging.concurrentConsumers:2}")
+    @Value("${org.fd.track.messaging.concurrentConsumers:2}")
     private int trackConcurrentConsumers;
 
 

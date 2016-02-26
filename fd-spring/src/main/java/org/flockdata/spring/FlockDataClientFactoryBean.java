@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.spring;
@@ -30,19 +19,19 @@ public class FlockDataClientFactoryBean extends FlockDataAbstractClientFactoryBe
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Value("${fd.fortress}")
+    @Value("${org.fd.fortress}")
     private String fortress;
 
-    @Value("${fd.batch:1}")
+    @Value("${org.fd.batch:1}")
     private int batch;
 
-    @Value("${fd-engine.api}")
+    @Value("${org.fd.engine.api}")
     private String serverName;
 
-    @Value("${fd.server.username}")
+    @Value("${org.fd.server.username}")
     private String userName;
 
-    @Value("${fd.server.password}")
+    @Value("${org.fd.server.password}")
     private String password;
 
     @Override

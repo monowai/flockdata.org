@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.store.endpoints;
 
 import org.flockdata.store.Store;
@@ -13,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by mike on 18/02/16.
  */
 @RestController
-@RequestMapping("${fd-store.system.api:api}/v1/data")
+@RequestMapping("${org.fd.store.system.api:api}/v1/data")
 public class DataEP {
     @Autowired
     StoreService storeService;

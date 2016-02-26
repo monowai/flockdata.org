@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.client;
@@ -43,7 +32,7 @@ public class Configure {
 
         ClientConfiguration defaults = readConfigProfile(args);
 
-        internalUser = defaults.getDefaultUser();
+        internalUser = defaults.getLoginUser();
 
         if (!defaults.getFile().exists() || defaults.isReconfigure()) {
 
@@ -74,7 +63,7 @@ public class Configure {
         if (getNameSpace().getBoolean("test")) {
             testConfig(defaults);
         } else
-            System.out.println(String.format("** Success! Login name [%s], apiKey [%s]", defaults.getDefaultUser(), defaults.getApiKey()));
+            System.out.println(String.format("** Success! Login name [%s], apiKey [%s]", defaults.getLoginUser(), defaults.getApiKey()));
 
 
     }
@@ -124,7 +113,7 @@ public class Configure {
         String engineURL = defaults.getEngineURL();
         //Boolean resetUser = getBooleanValue("** Have you configured FlockData with an alternative security domain?", "N");
 
-        String user = defaults.getDefaultUser();
+        String user = defaults.getLoginUser();
         String company = defaults.getCompany();
         version = null;
 
@@ -181,7 +170,7 @@ public class Configure {
             System.exit(-1);
         }
         defaults.setEngineURL(engineURL);
-        defaults.setDefaultUser(user);
+        defaults.setLoginUser(user);
         defaults.setCompany(suResult.getCompanyName());
         defaults.setApiKey(suResult.getApiKey());
         writeConfiguration(file, defaults);
@@ -241,6 +230,7 @@ public class Configure {
         }
     }
 
+    @Deprecated // Autowire ClientConfiguration or do new ClientConfiguration()
     public static ClientConfiguration getConfiguration(File file) {
         System.out.println("Reading client configuration from " + file.getAbsoluteFile());
         if (file.exists()) {

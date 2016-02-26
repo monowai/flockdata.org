@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.engine.integration.engine;
 
 import org.flockdata.engine.configure.SecurityHelper;
@@ -78,7 +86,7 @@ public class TrackRequests {
         return message -> {
             try {
                 Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
-                Object oKey = message.getHeaders().get(ClientConfiguration.FD_KEY );
+                Object oKey = message.getHeaders().get(ClientConfiguration.KEY_MSG_KEY);
                 if (oKey == null) {
                     throw new AmqpRejectAndDontRequeueException("No api key");
                 }
@@ -99,7 +107,7 @@ public class TrackRequests {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
                         .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
-                        .mappedRequestHeaders(ClientConfiguration.FD_KEY )
+                        .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY)
                         .outputChannel(doTrackEntity())
                         .prefetchCount(exchanges.trackPreFetchCount())
         )
@@ -107,7 +115,7 @@ public class TrackRequests {
                 .get();
     }
     @ServiceActivator(inputChannel = "doTrackEntity")
-    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(ClientConfiguration.FD_KEY ) String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(ClientConfiguration.KEY_MSG_KEY) String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");

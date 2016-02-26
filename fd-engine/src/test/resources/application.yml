@@ -4,23 +4,24 @@ spring:
     active: dev
     include: fd-auth-test
 
-fd-engine:
-  fortress:  # Defaults on creation of a fortress if not otherwise supplied
-    search: disabled
-    store: disabled
-  system:
-    api: api
-    storage: MEMORY # Simple in-memory store for testing
+org.fd:
+  engine:
+    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+      search: disabled
+      store: disabled
+    system:
+      api: api
+      storage: MEMORY # Simple in-memory store for testing
 
-fd-store:
-  system:
-    enabled: true
+  store:
+    system:
+      enabled: true
 
-fd-auth:
-  simple:
-    user: admin
-    pass: hackme
-  stormpath:
+  auth:
+    simple:
+      user: admin
+      pass: hackme
+    stormpath:
     #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
     #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY
     #group:

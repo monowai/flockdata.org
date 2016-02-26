@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.engine.configure;
@@ -54,15 +43,15 @@ public class EngineConfig implements PlatformConfig {
 
     private Logger logger = LoggerFactory.getLogger(EngineConfig.class);
 
-    @Value("${fd-engine.system.storage:RIAK}")
+    @Value("${org.fd.engine.system.storage:RIAK}")
     private String storeEngine; // The default store to write to IF a fortress allows it
                                 // By default, storage engine services are not disabled
                                 // and current state content is retrieved from ElasticSearch
 
-    @Value("${fd-engine.fortress.store:disabled}")
+    @Value("${org.fd.engine.fortress.store:disabled}")
     private String storeEnabled;
 
-    @Value("${fd.engine.system.api:api}")
+    @Value("${org.fd.engine.system.api:api}")
     private String apiBase ;
 
     public String apiBase(){
@@ -76,7 +65,7 @@ public class EngineConfig implements PlatformConfig {
     StorageGateway storageGateway;
 
 
-    @Value("${fd-engine.system.multiTenanted:false}")
+    @Value("${org.fd.engine.system.multiTenanted:false}")
     private Boolean multiTenanted = false;
     private boolean conceptsEnabled = true;
     private boolean systemConstraints = true;
@@ -85,10 +74,10 @@ public class EngineConfig implements PlatformConfig {
     private boolean searchEnabled = true;
     private String fdSearch;
 
-    @Value("${fd-store.api:http://localhost:8082/api}")
+    @Value("${org.fd.store.api:http://localhost:8082/api}")
     private String fdStoreUrl;
 
-    @Value("${fd-search.api:http://localhost:8081/api}")
+    @Value("${org.fd.search.api:http://localhost:8081/api}")
     public void setFdSearch( String url) {
         fdSearch = url;
     }
@@ -104,12 +93,12 @@ public class EngineConfig implements PlatformConfig {
 
     private boolean timing = false;
 
-    @Value("${fd-store.system.enabled}")
+    @Value("${org.fd.store.system.enabled}")
     public void setStoreEnabled(String storeEnabled) {
         this.storeEnabled = storeEnabled;
     }
 
-    @Value("${fd-engine.fortress.search:enabled}")
+    @Value("${org.fd.engine.fortress.search:enabled}")
     public void setSearchEnabled(String searchEnabled) {
         this.searchEnabled =searchEnabled.equalsIgnoreCase("enabled");
     }
@@ -121,14 +110,14 @@ public class EngineConfig implements PlatformConfig {
      *
      * @param timing defaults to true
      */
-    @Value("${fd-engine.system.timings:false}")
+    @Value("${org.fd.engine.system.timings:false}")
     public void setTiming(String timing) {
         this.timing = "@null".equals(timing) || Boolean.parseBoolean(timing);
     }
 
 
     // By default, we only require a reply if this is being indexed for the first time
-    @Value("${fd-engine.search.update:false}")
+    @Value("${org.fd.engine.search.update:false}")
     Boolean requireSearchToConfirm = false;
 
     public Boolean isSearchRequiredToConfirm() {
@@ -158,13 +147,13 @@ public class EngineConfig implements PlatformConfig {
      * @param conceptsEnabled if true, concepts will be created in a separate thread when entities are tracked
      */
     @Override
-    @Value("${fd-engine.system.concepts:@null}")
+    @Value("${org.fd.engine.system.concepts:@null}")
     public void setConceptsEnabled(String conceptsEnabled) {
         this.conceptsEnabled = "@null".equals(conceptsEnabled) || Boolean.parseBoolean(conceptsEnabled);
     }
 
     @Override
-    @Value("${fd-engine.system.constraints:@null}")
+    @Value("${org.fd.engine.system.constraints:@null}")
     public void setSystemConstraints(String constraints) {
         this.systemConstraints = !"@null".equals(constraints) && Boolean.parseBoolean(constraints);
 
@@ -216,7 +205,7 @@ public class EngineConfig implements PlatformConfig {
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
         healthResults.put("fd-search",  esPingResult + " on " +fdSearch);
-        healthResults.put("fd-search.url", fdSearch);
+        healthResults.put("fd.search.url", fdSearch);
 
         try {
             String esPing = storageGateway.ping();
@@ -227,8 +216,8 @@ public class EngineConfig implements PlatformConfig {
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
         healthResults.put("fd-store", esPingResult + " on " +getFdStore());
-        healthResults.put("fd-store.engine", storeEngine);
-        healthResults.put("fd-store.enabled", storeEnabled().toString());
+        healthResults.put("fd.store.engine", storeEngine);
+        healthResults.put("fd.store.enabled", storeEnabled().toString());
 
         return healthResults;
 

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.store.integration;
 
 import org.springframework.amqp.core.DirectExchange;
@@ -18,37 +26,37 @@ import java.util.Map;
 @Configuration
 @IntegrationComponentScan
 public class Exchanges {
-    @Value("${fd-store.messaging.binding:fd.store.binding}")
+    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
     String storeBinding;
 
-    @Value("${fd-store.messaging.exchange:fd.store.exchange}")
+    @Value("${org.fd.store.messaging.exchange:fd.store.exchange}")
     String storeExchange;
 
-    @Value("${fd-engine.binding:fd.engine.binding}")
+    @Value("${org.fd.engine.binding:fd.engine.binding}")
     private String engineBinding;
 
-    @Value("${fd-engine.messaging.exchange:fd.engine.exchange}")
+    @Value("${org.fd.engine.messaging.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    @Value("${fd-store.messaging.queue:fd.store.queue}")
+    @Value("${org.fd.store.messaging.queue:fd.store.queue}")
     private String storeQueue;
 
-    @Value("${fd-store.messaging.concurrentConsumers:2}")
+    @Value("${org.fd.store.messaging.concurrentConsumers:2}")
     private int storeConcurrentConsumers;
 
-    @Value("${fd-store.messaging.prefetchCount:3}")
+    @Value("${org.fd.store.messaging.prefetchCount:3}")
     private int storePreFetchCount;
 
-    @Value("${fd-store.messaging.dlq.queue:fd.store.dlq.queue}")
+    @Value("${org.fd.store.messaging.dlq.queue:fd.store.dlq.queue}")
     private String storeDlq;
 
-    @Value("${fd-store.messaging.dlq.exchange:fd.store.dlq.exchange}")
+    @Value("${org.fd.store.messaging.dlq.exchange:fd.store.dlq.exchange}")
     private String storeDlqExchange;
 
-    @Value("${fd-engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
+    @Value("${org.fd.engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
     private String engineDlqExchange;
 
-    @Value("${fd-engine.messaging.queue:fd.engine.queue}")
+    @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
     String engineBinding() {

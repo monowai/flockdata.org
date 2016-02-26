@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu.
+  -->
+
 <!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
@@ -50,12 +58,12 @@
     </logger>
 
     <logger name="org.flockdata">
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
     </logger>
 
     <!-- Root Logger -->
     <root>
-        <level value="${fd.logLevel}"/>
+        <level value="${org.fd.logLevel}"/>
         <appender-ref ref="console"/>
     </root>
 

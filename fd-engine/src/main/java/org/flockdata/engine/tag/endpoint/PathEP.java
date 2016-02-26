@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.engine.tag.endpoint;
 
 import org.flockdata.engine.tag.service.TagPath;
@@ -21,7 +29,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("${fd-engine.system.api:api}/v1/path")
+@RequestMapping("${org.fd.engine.system.api:api}/v1/path")
 public class PathEP {
 
     @Autowired

@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
- *
- * This file is part of FlockData.
- *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
  */
 
 package org.flockdata.engine.configure;
@@ -43,40 +32,40 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${fd-track.executor.poolSize:8-15}")
+    @Value("${org.fd.track.executor.poolSize:8-15}")
     private String trackPoolSize;
 
-    @Value("${fd-track.executor.queueCapacity:3}")
+    @Value("${org.fd.track.executor.queueCapacity:3}")
     private String trackQueueCapacity;
 
-    @Value("${fd-tag.executor.poolSize:5-10}")
+    @Value("${org.fd.tag.executor.poolSize:5-10}")
     private String tagPoolSize;
 
-    @Value("${fd-tag.executor.queueCapacity:5}")
+    @Value("${org.fd.tag.executor.queueCapacity:5}")
     private String tagQueueCapacity;
 
-    @Value("${fd-search.executor.poolSize:5-10}")
+    @Value("${org.fd.search.executor.poolSize:5-10}")
     private String searchPoolSize;
 
-    @Value("${fd-search.executor.queueCapacity:5}")
+    @Value("${org.fd.search.executor.queueCapacity:5}")
     private String searchQueueCapacity;
 
-    @Value("${fd-store.executor.poolSize:5-10}")
+    @Value("${org.fd.store.executor.poolSize:5-10}")
     private String storePoolSize;
 
-    @Value("${fd-store.executor.queueCapacity:5}")
+    @Value("${org.fd.store.executor.queueCapacity:5}")
     private String storeQueueCapacity;
 
-    @Value("${fd-log.executor.poolSize:5-10}")
+    @Value("${org.fd.log.executor.poolSize:5-10}")
     private String logPoolSize;
 
-    @Value("${fd-log.executor.queueCapacity:5}")
+    @Value("${org.fd.log.executor.queueCapacity:5}")
     private String logQueueCapacity;
 
-    @Value("${fd-engine.executor.poolSize:5-10}")
+    @Value("${org.fd.engine.executor.poolSize:5-10}")
     private String enginePoolSize;
 
-    @Value("${fd-engine.executor.queueCapacity:5}")
+    @Value("${org.fd.engine.executor.queueCapacity:5}")
     private String engineQueueCapacity;
 
     @Bean(name = "fd-track")

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package org.flockdata.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +35,7 @@ import java.util.Map;
  * FlockData spring-batch configuration class
  *
  * creates a configured instance of an FdLoader to communicate with FlockData
- * Loads fd-client.configs from your fd-batch.properties file that will in-turn read a
+ * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
  *
  * <p>
@@ -36,21 +44,19 @@ import java.util.Map;
 @Configuration
 @PropertySources({
         @PropertySource(value = "classpath:/fd-batch.properties"),
-        @PropertySource(value = "file:${fd.batch.properties}", ignoreResourceNotFound = true)
+        @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
 public class BatchConfig {
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
-    @Value("${fd-client.settings}")
-    private String clientSettings;
 
     private int batchSize;
 
-    @Value("${fd-client.batchsize:1}")
+    @Value("${org.fd.client.batchsize:1}")
     void setBatchSize(String batch){
         this.batchSize = Integer.parseInt(batch);
     }
 
-    @Value("${fd-client.amqp:true}")
+    @Value("${org.fd.client.amqp:true}")
     Boolean amqp = true;
 
     @Value("${source.datasource.url}")
@@ -101,27 +107,6 @@ public class BatchConfig {
         this.driver = driver;
     }
 
-    String getClientSettings() {
-        return clientSettings;
-    }
-
-//    @Autowired
-//    ClientConfiguration clientConfiguration;
-//
-//    ClientConfiguration getClientConfig() {
-//        String[] args = { "-c " + getClientSettings()};
-//        try {
-//
-//            ClientConfiguration clientConfiguration =  Importer.getConfiguration();
-//            clientConfiguration.setBatchSize(batchSize);
-//            clientConfiguration.setAmqp(true);
-//            return clientConfiguration;
-//        } catch (ArgumentParserException e) {
-//            e.printStackTrace();
-//            System.exit(-1);
-//        }
-//        return null;
-//    }
     public String getBatchUrl() {
         return batchUrl;
     }
@@ -141,7 +126,7 @@ public class BatchConfig {
     Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
-    void loadConfigs(@Value("${fd-client.configs:}") final String str)  throws Exception {
+    void loadConfigs(@Value("${org.fd.client.configs:}") final String str)  throws Exception {
         if (str != null && !str.equals("")) {
             List<String> configs = Arrays.asList(str.split(","));
 
