@@ -26,6 +26,7 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.service.FortressService;
 import org.neo4j.kernel.DeadlockDetectedException;
+import org.neo4j.kernel.api.exceptions.TransactionFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class DocTypeRetryService {
      * @param inputBeans collection of Entities from which to find DocumentTypes and linked Entities
      * @return Collection of DocumentType objects that were created
      */
-    @Retryable(include = {HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
+    @Retryable(include = {TransactionFailureException.class, HeuristicRollbackException.class, DataRetrievalFailureException.class, InvalidDataAccessResourceUsageException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class}, maxAttempts = 20, backoff = @Backoff(delay = 150, maxDelay = 500))
     public Future<Collection<DocumentType>> createDocTypes(Fortress fortress, List<EntityInputBean> inputBeans) {
         Collection<DocumentType> docTypes = new ArrayList<>();
         DocumentType master;
