@@ -10,7 +10,7 @@ Configuration:
     RollingFile:
       - name: APPLICATION
         fileName: ../logs/fd-search.log
-        filePattern: "../logs/$${date:yyyy-MM}/fd-search-%d{yyyy-MM-dd}-%i.log.gz"
+        filePattern: "../logs/$${date:yyyy-MM}/fd-engine-%d{yyyy-MM-dd}-%i.log.gz"
         PatternLayout:
           Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
         policies:

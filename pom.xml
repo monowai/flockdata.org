@@ -219,6 +219,12 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>4.3.1.Final</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jboss-logging</groupId>
+                        <artifactId>org.jboss.logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
