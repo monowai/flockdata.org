@@ -1,0 +1,59 @@
+Configuration:
+  status: error  # Controls messages from the logging classes
+
+  Appenders:
+    Console:
+      name: CONSOLE
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
+
+  Loggers:
+
+      Root:
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+               #- ref: APPLICATION
+      Logger:
+        - name: org.flockdata.
+          additivity: false
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: org.flockdata.engine.FdEngine
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+
+        - name: org.apache.
+          additivity: false
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: configuration
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: com.
+          additivity: false
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: org.springframework.
+          additivity: false
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+          #  - ref: APPLICATION
+
