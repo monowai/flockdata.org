@@ -17,6 +17,7 @@
     </properties>
 
     <dependencies>
+
         <!-- END - Required because common/model imports the annotations-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -25,6 +26,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -53,8 +64,8 @@
             <artifactId>spring-aspects</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-webmvc</artifactId>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-webmvc</artifactId>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.integration</groupId>
@@ -143,6 +154,7 @@
             <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -200,7 +212,7 @@
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
-                                    <include>classes/log4j.xml</include>
+                                    <include>classes/log4j*</include>
                                 </resource>
                             </resources>
                         </configuration>

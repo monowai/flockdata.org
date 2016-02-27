@@ -1,20 +1,17 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
+ *  Copyright 2012-2016 the original author or authors.
  *
- * This file is part of FlockData.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.test.importer;
@@ -29,7 +26,6 @@ import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -47,7 +43,7 @@ public class TestDataTypeConversion extends AbstractImport {
     public void preserve_NumberValueAsString() throws Exception {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
 
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
@@ -68,7 +64,7 @@ public class TestDataTypeConversion extends AbstractImport {
         // Tests that numeric values are converted to explicit data-type
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/entity-data-types.json";
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
 
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/entity-data-types.csv", getFdWriter(), null, configuration);
@@ -86,7 +82,7 @@ public class TestDataTypeConversion extends AbstractImport {
         // it drives a tag code.
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
 
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
@@ -121,7 +117,6 @@ public class TestDataTypeConversion extends AbstractImport {
     }
 
     @Test
-    @Ignore
     public void number_ConvertsWithThousandSeparator() throws Exception {
         // DAT-454
 
@@ -149,7 +144,7 @@ public class TestDataTypeConversion extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();
         assertEquals(1, entities.size());
@@ -163,7 +158,7 @@ public class TestDataTypeConversion extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();
         assertEquals(1, entities.size());
@@ -191,7 +186,7 @@ public class TestDataTypeConversion extends AbstractImport {
         FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration(fileName);
+        ClientConfiguration configuration = getClientConfiguration();
         fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
         List<EntityInputBean> entities = getFdWriter().getEntities();
         assertEquals(1, entities.size());

@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2012-2015 "FlockData LLC"
  *
- * This file is part of FlockData.
+ *  Copyright (c) 2012-2016 "FlockData LLC"
  *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *  This file is part of FlockData.
  *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.flockdata.store.configuration;
@@ -42,10 +43,10 @@ public class StoreConfig implements FdStoreConfig {
 
     private Store kvStore = null;
 
-//    @Value("${fd-store.system.enabled}")
+//    @Value("${org.fd.store.system.enabled}")
 //    private Boolean storeEnabled = true;
 
-    @Value("${fd-search.api:http://localhost:8081/api}")
+    @Value("${org.fd.search.api:http://localhost:8081/api}")
     String fdSearchUrl;
 
     @Value("${riak.hosts:127.0.0.1}")
@@ -75,14 +76,14 @@ public class StoreConfig implements FdStoreConfig {
 
         String version = VersionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
-        healthResults.put("fd-store.version", version);
+        healthResults.put("fd.store.version", version);
         String config = System.getProperty("fd.config");
         if (config == null || config.equals(""))
             config = "system-default";
         healthResults.put("config-file", config);
         String integration = System.getProperty("fd.integration");
         healthResults.put("fd.integration", integration);
-        healthResults.put("fd-store.system.engine", String.valueOf(kvStore));
+        healthResults.put("fd.store.system.engine", String.valueOf(kvStore));
 
         return healthResults;
 

@@ -11,24 +11,25 @@ server:
   port: 8082
 
 
-fd-store:
-  system:
-    enabled: true # Service is accepting requests
-    engine: RIAK # Default store engine to use
-    api: api # Mount point for the API end-points
+org.fd:
+  store:
+    system:
+      enabled: true # Service is accepting requests
+      engine: RIAK # Default store engine to use
+      api: api # Mount point for the API end-points
 
-  executor:
-    poolSize: 8-15
-    queueCapacity: 3
-  messaging:
-    exchange: fd.store.exchange
-    binding: fd.store.binding
-    queue: fd.store.queue
-    concurrentConsumers: 2
-    prefetchCount: 1
+    executor:
+      poolSize: 8-15
+      queueCapacity: 3
+    messaging:
+      exchange: fd.store.exchange
+      binding: fd.store.binding
+      queue: fd.store.queue
+      concurrentConsumers: 2
+      prefetchCount: 1
 
-fd-search:
-  api: http://localhost:8081/api
+  search:
+    api: http://localhost:8081/api
 
 riak:
   hosts: 127.0.0.1

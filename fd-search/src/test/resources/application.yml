@@ -20,23 +20,24 @@ rabbit:
     port: 5672
     heartbeat.secs: 30
 
-fd-search:
-  system:
-    api: api
-  es:
-    settings: src/test/resources/fd-default-settings.json
-    mappings: '.'
-  messaging:
-    exchange: fd.search.exchange
-    binding: fd.search.binding
-    queue: fd.search.queue
-    dlq.queue: fd.search.dlq.queue
-    dlq.exchange: fd.search.dlq.exchange
-    concurrentConsumers: 2
-    prefetchCount: 3
-  executor:
-    poolSize: 4
-    capacity: 10
+org.fd:
+  search:
+    system:
+      api: api
+    es:
+      settings: src/test/resources/fd-default-settings.json
+      mappings: '.'
+    messaging:
+      exchange: fd.search.exchange
+      binding: fd.search.binding
+      queue: fd.search.queue
+      dlq.queue: fd.search.dlq.queue
+      dlq.exchange: fd.search.dlq.exchange
+      concurrentConsumers: 2
+      prefetchCount: 3
+    executor:
+      poolSize: 4
+      capacity: 10
 
 
 

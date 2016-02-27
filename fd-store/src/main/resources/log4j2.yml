@@ -1,0 +1,57 @@
+Configuration:
+  status: error
+
+  Appenders:
+    Console:
+      name: CONSOLE
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
+    RollingFile:
+      - name: APPLICATION
+        fileName: ../logs/fd-search.log
+        filePattern: "../logs/$${date:yyyy-MM}/fd-store-%d{yyyy-MM-dd}-%i.log.gz"
+        PatternLayout:
+          Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
+        policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+            modulate: true
+
+  Loggers:
+      Logger:
+        - name: org.flockdata.
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: org.apache.
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: configuration
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: com.
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+           # - ref: APPLICATION
+
+        - name: org.springframework.
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+          #  - ref: APPLICATION
+
+      Root:
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+               #- ref: APPLICATION

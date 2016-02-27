@@ -1,11 +1,24 @@
+/*
+ *  Copyright 2012-2016 the original author or authors.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.flockdata.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import org.flockdata.client.Importer;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +43,7 @@ import java.util.Map;
  * FlockData spring-batch configuration class
  *
  * creates a configured instance of an FdLoader to communicate with FlockData
- * Loads fd-client.configs from your fd-batch.properties file that will in-turn read a
+ * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
  *
  * <p>
@@ -39,21 +52,19 @@ import java.util.Map;
 @Configuration
 @PropertySources({
         @PropertySource(value = "classpath:/fd-batch.properties"),
-        @PropertySource(value = "file:${fd.batch.properties}", ignoreResourceNotFound = true)
+        @PropertySource(value = "file:${org.fd.batch.properties}", ignoreResourceNotFound = true)
 })
 public class BatchConfig {
     private Logger logger = LoggerFactory.getLogger(BatchConfig.class);
-    @Value("${fd-client.settings}")
-    private String clientSettings;
 
     private int batchSize;
 
-    @Value("${fd-client.batchsize:1}")
+    @Value("${org.fd.client.batchsize:1}")
     void setBatchSize(String batch){
         this.batchSize = Integer.parseInt(batch);
     }
 
-    @Value("${fd-client.amqp:true}")
+    @Value("${org.fd.client.amqp:true}")
     Boolean amqp = true;
 
     @Value("${source.datasource.url}")
@@ -104,24 +115,6 @@ public class BatchConfig {
         this.driver = driver;
     }
 
-    String getClientSettings() {
-        return clientSettings;
-    }
-
-    ClientConfiguration getClientConfig() {
-        String[] args = { "-c " + getClientSettings()};
-        try {
-
-            ClientConfiguration clientConfiguration =  Importer.getConfiguration(args);
-            clientConfiguration.setBatchSize(batchSize);
-            clientConfiguration.setAmqp(true);
-            return clientConfiguration;
-        } catch (ArgumentParserException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        return null;
-    }
     public String getBatchUrl() {
         return batchUrl;
     }
@@ -141,7 +134,7 @@ public class BatchConfig {
     Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
-    void loadConfigs(@Value("${fd-client.configs:}") final String str)  throws Exception {
+    void loadConfigs(@Value("${org.fd.client.configs:}") final String str)  throws Exception {
         if (str != null && !str.equals("")) {
             List<String> configs = Arrays.asList(str.split(","));
 

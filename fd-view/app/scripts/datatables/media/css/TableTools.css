@@ -1,24 +1,21 @@
 /*
- * File:        TableTools.css
- * Description: Styles for TableTools 2
- * Author:      Allan Jardine (www.sprymedia.co.uk)
- * Language:    Javascript
- * License:     GPL v2 / 3 point BSD
- * Project:     DataTables
- * 
- * Copyright 2009-2012 Allan Jardine, all rights reserved.
  *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2012-2016 "FlockData LLC"
  *
- * CSS name space:
- *   DTTT                  DataTables TableTools
+ *  This file is part of FlockData.
  *
- * Style sheet provides:
- *   CONTAINER             TableTools container element and styles applying to all components
- *   BUTTON_STYLES         Action specific button styles
- *   SELECTING             Row selection styles
- *   COLLECTIONS           Drop down list (collection) styles
- *   PRINTING              Print display styles
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*

@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (c) 2012-2016 "FlockData LLC"
+ *
+ *  This file is part of FlockData.
+ *
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.flockdata.engine.integration.engine;
 
 import org.flockdata.engine.configure.SecurityHelper;
@@ -78,7 +98,7 @@ public class TrackRequests {
         return message -> {
             try {
                 Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
-                Object oKey = message.getHeaders().get(ClientConfiguration.FD_KEY );
+                Object oKey = message.getHeaders().get(ClientConfiguration.KEY_MSG_KEY);
                 if (oKey == null) {
                     throw new AmqpRejectAndDontRequeueException("No api key");
                 }
@@ -99,7 +119,7 @@ public class TrackRequests {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdTrackQueue())
                         .maxConcurrentConsumers(exchanges.trackConcurrentConsumers())
-                        .mappedRequestHeaders(ClientConfiguration.FD_KEY )
+                        .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY)
                         .outputChannel(doTrackEntity())
                         .prefetchCount(exchanges.trackPreFetchCount())
         )
@@ -107,7 +127,7 @@ public class TrackRequests {
                 .get();
     }
     @ServiceActivator(inputChannel = "doTrackEntity")
-    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(ClientConfiguration.FD_KEY ) String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
+    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(ClientConfiguration.KEY_MSG_KEY) String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");

@@ -1,9 +1,23 @@
-/*!
- * SmartAdmin - Responsive WebApp
+/*
  *
- * Copyright 2014 bootstraphunter.com
- * Designed and built with all the love in the world by @bootstraphunt.
+ *  Copyright (c) 2012-2016 "FlockData LLC"
+ *
+ *  This file is part of FlockData.
+ *
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 article.sortable-grid {
     min-height: 30px
 }
@@ -1897,10 +1911,6 @@ body.nooverflow {
     top: 17px
 }
 
-/*! X-editable - v1.5.0 
-* In-place editing with Twitter Bootstrap, jQuery UI or pure jQuery
-* http://github.com/vitalets/x-editable
-* Copyright (c) 2013 Vitaliy Potapov; Licensed MIT */
 .editableform {
     margin-bottom: 0
 }
@@ -2086,14 +2096,6 @@ body.nooverflow {
     display: inline-block
 }
 
-/*!
- * Datepicker for Bootstrap
- *
- * Copyright 2012 Stefan Petre
- * Licensed under the Apache License v2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- */
 .editable-input .datepicker {
     top: 0;
     left: 0;
@@ -2729,14 +2731,6 @@ table.fc-border-separate {
     _overflow: hidden
 }
 
-/*!
- * Colorpicker for Bootstrap
- *
- * Copyright 2012 Stefan Petre
- * Licensed under the Apache License v2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- */
 .colorpicker-saturation {
     width: 100px;
     height: 100px;
@@ -2869,16 +2863,6 @@ table.fc-border-separate {
     height: 16px
 }
 
-/*!
- * Timepicker Component for Twitter Bootstrap
- *
- * Copyright 2013 Joris de Wit
- *
- * Contributors https://github.com/jdewit/bootstrap-timepicker/graphs/contributors
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 .bootstrap-timepicker {
     position: relative
 }
@@ -8962,14 +8946,6 @@ body.fd-slider-drag-horizontal, body.fd-slider-drag-horizontal * {
     display: none
 }
 
-/*!
- * Slider for Bootstrap
- *
- * Copyright 2012 Stefan Petre
- * Licensed under the Apache License v2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- */
 .slider {
     display: inline-block;
     vertical-align: middle;
@@ -9151,16 +9127,6 @@ body.fd-slider-drag-horizontal, body.fd-slider-drag-horizontal * {
 .slider-success + .slider-track > .slider-selection {
     background: #739e73
 }
-
-/*!
- * jQuery UI Bootstrap (1.0 alpha)
- * http://addyosmani.github.io/jquery-ui-bootstrap/
- *
- * Copyright 2012 - 2013, Addy Osmani
- * Dual licensed under the MIT or GPL Version 2 licenses.
- *
- * Portions copyright jQuery UI & Twitter Bootstrap
- */
 .ui-helper-hidden {
     display: none
 }
