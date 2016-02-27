@@ -1,3 +1,6 @@
+application:
+  title: FlockData SearchWriter
+
 spring:
   profiles:
     active: production

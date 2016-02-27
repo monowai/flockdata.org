@@ -1,9 +1,9 @@
 package org.flockdata.test.engine.mvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.flockdata.FdEngine;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.authentication.LoginRequest;
+import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
@@ -46,7 +46,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 
 /**
  * Base class for Web App context driven classes
@@ -305,7 +305,7 @@ public abstract class MvcBase {
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
                 .content(JsonUtils.toJson(eib))
-        )   .andDo(print())
+        )   .andDo(log())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
         byte[] json = response.getResponse().getContentAsByteArray();
@@ -417,7 +417,7 @@ public abstract class MvcBase {
                 .perform(MockMvcRequestBuilders.get(apiPath +"/tag/{label}/{prefix}/{code}", label, keyPrefix, code)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
-                ).andDo(print())
+                ).andDo(log())
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
@@ -559,7 +559,7 @@ public abstract class MvcBase {
                                 .get(apiPath +"/path/{label}/{code}/{depth}/{lastLabel}", label, code, "4", targetLabel)
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
-                ).andDo(print())
+                ).andDo(log())
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 

@@ -39,6 +39,10 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
@@ -362,28 +366,6 @@
                     <junitArtifactName>junit:junit</junitArtifactName>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-                <!--<artifactId>maven-war-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>-->
-                    <!--<packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>-->
-                    <!--<packagingExcludes>WEB-INF/lib/javax.servlet-api*.jar</packagingExcludes>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>sources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

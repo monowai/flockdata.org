@@ -1,4 +1,5 @@
-
+application:
+  title: FlockData - Testing...
 spring:
   profiles:
     active: dev

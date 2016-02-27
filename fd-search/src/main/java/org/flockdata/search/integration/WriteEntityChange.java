@@ -128,6 +128,7 @@ public class WriteEntityChange {
 
 
     @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
+    @Profile({"integration","production"})
     public interface EngineResultGateway {
         @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
         @Async("fd-search")

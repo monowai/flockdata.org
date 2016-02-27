@@ -17,6 +17,9 @@ spring:
     active: production
     include: fd-auth-test
 
+application:
+  title: FlockData GraphWriter
+
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline
 

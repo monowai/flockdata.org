@@ -1,8 +1,11 @@
-# Default configuration properties for fd-engine
+
+application:
+  title: FlockData - Testing...
 
 spring:
   profiles:
     active: dev
+    include: redis,riak
 
 org.fd:
   store:

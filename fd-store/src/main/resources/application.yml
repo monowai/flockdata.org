@@ -5,7 +5,10 @@ spring:
     name: fd-store
   profiles:
     active: production
-    include: fd-auth-test
+    include: fd-auth-test,riak
+
+application:
+  title: FlockData StoreWriter
 
 server:
   port: 8082
