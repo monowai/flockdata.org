@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright (c) 2012-2016 "FlockData LLC"
+ *
+ *  This file is part of FlockData.
+ *
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.flockdata.store.integration;
 
 import org.springframework.amqp.core.DirectExchange;
@@ -18,37 +38,37 @@ import java.util.Map;
 @Configuration
 @IntegrationComponentScan
 public class Exchanges {
-    @Value("${fd-store.messaging.binding:fd.store.binding}")
+    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
     String storeBinding;
 
-    @Value("${fd-store.messaging.exchange:fd.store.exchange}")
+    @Value("${org.fd.store.messaging.exchange:fd.store.exchange}")
     String storeExchange;
 
-    @Value("${fd-engine.binding:fd.engine.binding}")
+    @Value("${org.fd.engine.binding:fd.engine.binding}")
     private String engineBinding;
 
-    @Value("${fd-engine.messaging.exchange:fd.engine.exchange}")
+    @Value("${org.fd.engine.messaging.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    @Value("${fd-store.messaging.queue:fd.store.queue}")
+    @Value("${org.fd.store.messaging.queue:fd.store.queue}")
     private String storeQueue;
 
-    @Value("${fd-store.messaging.concurrentConsumers:2}")
+    @Value("${org.fd.store.messaging.concurrentConsumers:2}")
     private int storeConcurrentConsumers;
 
-    @Value("${fd-store.messaging.prefetchCount:3}")
+    @Value("${org.fd.store.messaging.prefetchCount:3}")
     private int storePreFetchCount;
 
-    @Value("${fd-store.messaging.dlq.queue:fd.store.dlq.queue}")
+    @Value("${org.fd.store.messaging.dlq.queue:fd.store.dlq.queue}")
     private String storeDlq;
 
-    @Value("${fd-store.messaging.dlq.exchange:fd.store.dlq.exchange}")
+    @Value("${org.fd.store.messaging.dlq.exchange:fd.store.dlq.exchange}")
     private String storeDlqExchange;
 
-    @Value("${fd-engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
+    @Value("${org.fd.engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
     private String engineDlqExchange;
 
-    @Value("${fd-engine.messaging.queue:fd.engine.queue}")
+    @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
 
     String engineBinding() {

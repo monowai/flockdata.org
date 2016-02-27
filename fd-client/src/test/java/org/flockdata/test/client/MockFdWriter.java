@@ -1,20 +1,17 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ *  Copyright 2012-2016 the original author or authors.
  *
- * This file is part of FlockData.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.test.client;
@@ -28,12 +25,15 @@ import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by mike on 1/03/15.
  */
+@Service
 public class MockFdWriter implements FdWriter {
 
     public List<EntityInputBean> getEntities() {
@@ -47,6 +47,8 @@ public class MockFdWriter implements FdWriter {
     public List<EntityInputBean> entities = null;
     public List<TagInputBean> tags = null;
 
+    @Autowired
+    ClientConfiguration clientConfiguration;
 
     @Override
     public SystemUserResultBean me() {

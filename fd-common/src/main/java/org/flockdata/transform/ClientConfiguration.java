@@ -1,20 +1,17 @@
 /*
- * Copyright (c) 2012-2014 "FlockData LLC"
+ *  Copyright 2012-2016 the original author or authors.
  *
- * This file is part of FlockData.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * FlockData is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * FlockData is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.flockdata.transform;
@@ -23,6 +20,7 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -37,42 +35,66 @@ import java.util.Properties;
 @Configuration
 public class ClientConfiguration {
 
-    public static final String ENGINE_URL = "fd-engine.api";
-    public static final String DEFAULT_USER = "fd-client.defaultUser";
-    public static final String API_KEY = "fd-client.apiKey";
-    public static final String BATCH_SIZE = "fd-client.batchsize";
-    public static final String AMQP = "fd-client.amqp";
-    public static final String COMPANY = "fd-client.company";
-    public static final String FD_TRACK_EXCHANGE = "fd-track.messaging.exchange";
-    public static final String FD_TRACK_QUEUE = "fd-track.messaging.queue";
-    public static final String FD_TRACK_BINDING = "fd-track.messaging.binding";
-    public static final String RABBIT_HOST = "rabbit.host";
-    public static final String RABBIT_USER = "rabbit.user";
-    public static final String RABBIT_PASS = "rabbit.pass";
-    public static final String RABBIT_PD = "rabbit.persistent";
-    public static final String FD_KEY = "fd-apiKey";
+    public static final String KEY_ENGINE_API = "org.fd.engine.api";
+    public static final String KEY_LOGIN_USER = "org.fd.client.login.user";
+    public static final String KEY_COMPANY = "org.fd.client.default.company";
+    public static final String KEY_API_KEY = "org.fd.client.apikey";
+    public static final String KEY_BATCH_SIZE = "org.fd.client.batchsize";
+    public static final String AMQP = "org.fd.client.amqp";
+
+    public static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
+    public static final String KEY_TRACK_EXCHANGE = "org.fd.track.messaging.exchange";
+    public static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
+    public static final String KEY_RABBIT_HOST = "rabbit.host";
+    public static final String KEY_RABBIT_USER = "rabbit.user";
+    public static final String KEY_RABBIT_PASS = "rabbit.pass";
+    public static final String KEY_RABBIT_PD = "rabbit.persistent";
+    public static final String KEY_MSG_KEY = "fd-apiKey";
     private Boolean defConfig = true;
+
+    @Value ("${"+ KEY_COMPANY +"}")
     private String company;
-    private boolean async;
+
+    @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
+    private String trackQueue = "fd.track.queue";
+
+    @Value("${"+ KEY_TRACK_EXCHANGE +":fd.track.exchange}")
+    private String trackExchange = "fd.track.exchange";
+
+    @Value("${"+ KEY_TRACK_BINDING +":fd.track.binding}")
+    private String trackRoutingKey = "fd.track.binding";
+
+    @Value("${"+ KEY_RABBIT_HOST +":localhost}")
+    private String rabbitHost = "localhost";
+
+    @Value("${"+ KEY_RABBIT_PASS +":guest}")
+    private String rabbitPass="guest";
+
+    @Value("${"+ KEY_RABBIT_USER +":guest}")
+    private String rabbitUser="guest";
+
+    @Value("${"+ KEY_ENGINE_API +":http://localhost:8080/api}")
+    String engineURL = "http://localhost:8080/api";
+
+    // An admin user connecting to the API to retrieve a an APIKey
+    @Value("${"+ KEY_LOGIN_USER +":}")
+    String loginUser = null;
+
+    @Value("${"+ KEY_API_KEY +":}")
+    String apiKey = null;
+
+    @Value("${"+ KEY_BATCH_SIZE +":1}")
+    int batchSize = 1;
+
+    private Boolean persistentDelivery= true;
     private boolean validateOnly;
     private boolean amqp=true;
-    private String trackQueue = "fd.track.queue";
-    private String trackExchange = "fd.track.exchange";
-    private String trackRoutingKey = "fd.track.binding";
-    private String amqpHostAddr = "localhost";
-    private String rabbitPass="guest";
-    private String rabbitUser="guest";
-    private Boolean persistentDelivery= true;
+
     private int stopRowProcessCount =0;
     private int skipCount=0;
     private File file;
     private boolean reconfigure;
-    String engineURL = "http://localhost:8080/api";
-    String defaultUser = null;
-    String apiKey = null;
 
-    @Value("${fd-client.batchsize}")
-    int batchSize = 1;
 
     public ClientConfiguration() {
         defConfig = true;
@@ -80,44 +102,44 @@ public class ClientConfiguration {
 
     public ClientConfiguration(Properties prop) {
         defConfig = false;
-        Object o = prop.get(ENGINE_URL);
+        Object o = prop.get(KEY_ENGINE_API);
         if (o != null)
             setEngineURL(o.toString());
-        o = prop.get(DEFAULT_USER);
+        o = prop.get(KEY_LOGIN_USER);
         if (o != null)
-            setDefaultUser(o.toString());
+            setLoginUser(o.toString());
 
-        o = prop.get(API_KEY);
+        o = prop.get(KEY_API_KEY);
         if (o != null && !o.toString().equals(""))
             setApiKey(o.toString());
-        o = prop.get(BATCH_SIZE);
+        o = prop.get(KEY_BATCH_SIZE);
         if (o != null)
             setBatchSize(Integer.parseInt(o.toString()));
-        o = prop.get(COMPANY);
+        o = prop.get(KEY_COMPANY);
         if (o != null)
             setCompany(o.toString());
 
-        o = prop.get(FD_TRACK_EXCHANGE);
+        o = prop.get(KEY_TRACK_EXCHANGE);
         if (o != null)
             setTrackExchange(o.toString());
 
-        o = prop.get(FD_TRACK_QUEUE);
+        o = prop.get(KEY_TRACK_QUEUE);
         if (o != null)
             setTrackQueue(o.toString());
 
-        o = prop.get(FD_TRACK_BINDING);
+        o = prop.get(KEY_TRACK_BINDING);
         if (o != null)
             setTrackRoutingKey(o.toString());
 
-        o = prop.get(RABBIT_HOST);
+        o = prop.get(KEY_RABBIT_HOST);
         if (o != null)
-            setAmqpHostAddr(o.toString());
+            setRabbitHost(o.toString());
 
-        o = prop.get(RABBIT_USER);
+        o = prop.get(KEY_RABBIT_USER);
         if (o != null)
             setRabbitUser(o.toString());
 
-        o = prop.get(RABBIT_PASS);
+        o = prop.get(KEY_RABBIT_PASS);
         if (o != null)
             setRabbitPass(o.toString());
 
@@ -133,12 +155,12 @@ public class ClientConfiguration {
         this.engineURL = engineURL;
     }
 
-    public String getDefaultUser() {
-        return defaultUser;
+    public String getLoginUser() {
+        return loginUser;
     }
 
-    public void setDefaultUser(String defaultUser) {
-        this.defaultUser = defaultUser;
+    public void setLoginUser(String loginUser) {
+        this.loginUser = loginUser;
     }
 
     public String getApiKey() {
@@ -158,13 +180,14 @@ public class ClientConfiguration {
     }
 
     @Override
+    @PostConstruct
     public String toString() {
         return "ConfigProperties{" +
-                "engineURL='" + engineURL + '\'' +
-                ", defaultUser='" + defaultUser + '\'' +
-                ", amqp='" + amqp + '\'' +
-                ", async='" + async + '\'' +
-                ", batchSize=" + batchSize +
+                ""+ KEY_ENGINE_API +"='" + engineURL + '\'' +
+                ", "+ KEY_RABBIT_HOST +"='" + rabbitHost+ '\'' +
+                ", "+ KEY_RABBIT_USER +"='" + rabbitUser+ '\'' +
+                ", "+ KEY_API_KEY +"='" + ( !(apiKey!=null && apiKey.equals("")) ?"** set **": "!! not set !!")+ '\'' +
+                ", "+ KEY_BATCH_SIZE +"=" + batchSize +
                 '}';
     }
 
@@ -178,18 +201,18 @@ public class ClientConfiguration {
 
     public Properties getAsProperties() {
         Properties properties = new Properties();
-        properties.setProperty(ENGINE_URL, engineURL);
-        properties.setProperty(DEFAULT_USER, defaultUser);
-        properties.setProperty(COMPANY, company);
-        properties.setProperty(API_KEY, apiKey);
-        properties.setProperty(BATCH_SIZE, Long.toString(batchSize));
-        properties.setProperty(FD_TRACK_QUEUE, trackQueue);
-        properties.setProperty(FD_TRACK_EXCHANGE, trackExchange);
-        properties.setProperty(FD_TRACK_BINDING, trackRoutingKey);
-        properties.setProperty(RABBIT_HOST, amqpHostAddr);
-        properties.setProperty(RABBIT_USER, rabbitUser);
-        properties.setProperty(RABBIT_PASS, rabbitPass);
-        properties.setProperty(RABBIT_PD, persistentDelivery.toString());
+        properties.setProperty(KEY_ENGINE_API, engineURL);
+        properties.setProperty(KEY_LOGIN_USER, loginUser);
+        properties.setProperty(KEY_COMPANY, company);
+        properties.setProperty(KEY_API_KEY, apiKey);
+        properties.setProperty(KEY_BATCH_SIZE, Long.toString(batchSize));
+        properties.setProperty(KEY_TRACK_QUEUE, trackQueue);
+        properties.setProperty(KEY_TRACK_EXCHANGE, trackExchange);
+        properties.setProperty(KEY_TRACK_BINDING, trackRoutingKey);
+        properties.setProperty(KEY_RABBIT_HOST, rabbitHost);
+        properties.setProperty(KEY_RABBIT_USER, rabbitUser);
+        properties.setProperty(KEY_RABBIT_PASS, rabbitPass);
+        properties.setProperty(KEY_RABBIT_PD, persistentDelivery.toString());
         return properties;
     }
 
@@ -205,12 +228,8 @@ public class ClientConfiguration {
         return ProfileReader.getImportProfile(profile);
     }
 
-    public void setAsync(boolean async) {
-        this.async = async;
-    }
-
     public boolean isAsync() {
-        return async;
+        return false;
     }
 
     public void setValidateOnly(boolean validateOnly) {
@@ -258,12 +277,12 @@ public class ClientConfiguration {
         this.trackRoutingKey = trackRoutingKey;
     }
 
-    public String getAmqpHostAddr() {
-        return amqpHostAddr;
+    public String getRabbitHost() {
+        return rabbitHost;
     }
 
-    public void setAmqpHostAddr(String amqpHostAddr) {
-        this.amqpHostAddr = amqpHostAddr;
+    public void setRabbitHost(String rabbitHost) {
+        this.rabbitHost = rabbitHost;
     }
 
     public void setRabbitPass(String rabbitPass) {
