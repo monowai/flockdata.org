@@ -2,6 +2,7 @@ spring:
   profiles:
     active: production
     include: fd-auth-test
+
 server:
   port: 8081
 
