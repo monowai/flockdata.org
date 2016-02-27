@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata;
+package org.flockdata.engine;
 
 import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;

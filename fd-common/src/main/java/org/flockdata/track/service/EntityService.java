@@ -23,7 +23,6 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -48,11 +47,11 @@ public interface EntityService {
     StoredContent getContent(Entity entity, Log change);
 
     @Deprecated
-    Entity getEntity(@NotEmpty String key);
+    Entity getEntity(String key);
 
     Entity getEntity(Company company, String key) throws NotFoundException;
 
-    Entity getEntity(Company company, @NotEmpty String key, boolean inflate);
+    Entity getEntity(Company company, String key, boolean inflate);
 
     Entity getEntity(Entity entity);
 

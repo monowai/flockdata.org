@@ -19,8 +19,8 @@
 
 package org.flockdata.test.engine.services;
 
-import org.flockdata.FdEngine;
 import org.flockdata.company.endpoint.CompanyEP;
+import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.SecurityHelper;
