@@ -1,23 +1,21 @@
-/**
- * @summary     DataTables
- * @description Paginate, search and sort HTML tables
- * @version     1.9.4
- * @file        jquery.dataTables.js
- * @author      Allan Jardine (www.sprymedia.co.uk)
- * @contact     www.sprymedia.co.uk/contact
+/*
  *
- * @copyright Copyright 2008-2012 Allan Jardine, all rights reserved.
+ *  Copyright (c) 2012-2016 "FlockData LLC"
  *
- * This source file is free software, under either the GPL v2 license or a
- * BSD style license, available at:
- *   http://datatables.net/license_gpl2
- *   http://datatables.net/license_bsd
+ *  This file is part of FlockData.
  *
- * This source file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * For details please refer to: http://www.datatables.net
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*jslint evil: true, undef: true, browser: true */

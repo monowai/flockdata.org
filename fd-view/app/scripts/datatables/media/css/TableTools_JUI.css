@@ -1,34 +1,21 @@
 /*
- * File:        TableTools.css
- * Description: Styles for TableTools 2 with JUI theming
- * Author:      Allan Jardine (www.sprymedia.co.uk)
- * Language:    Javascript
- * License:     LGPL / 3 point BSD
- * Project:     DataTables
- * 
- * Copyright 2010 Allan Jardine, all rights reserved.
  *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Copyright (c) 2012-2016 "FlockData LLC"
  *
- * Notes:
- *   Generally speaking, please refer to the TableTools.css file - this file contains basic
- *   modifications to that 'master' stylesheet for ThemeRoller.
+ *  This file is part of FlockData.
  *
- * CSS name space:
- *   DTTT                  DataTables TableTools
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * Colour dictionary:
- *   Button border         #d0d0d0
- *   Button border hover   #999999
- *   Hover background      #f0f0f0
- *   Action blue           #4b66d9
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * Style sheet provides:
- *   CONTAINER             TableTools container element and styles applying to all components
- *   SELECTING             Row selection styles
- *   COLLECTIONS           Drop down list (collection) styles
- *   PRINTING              Print display styles
- *   MISC                  Minor misc styles
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*

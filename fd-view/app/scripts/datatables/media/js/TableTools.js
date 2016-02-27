@@ -1,18 +1,21 @@
 /*
- * File:        TableTools.js
- * Version:     2.1.4
- * Description: Tools and buttons for DataTables
- * Author:      Allan Jardine (www.sprymedia.co.uk)
- * Language:    Javascript
- * License:	    GPL v2 or BSD 3 point style
- * Project:	    DataTables
- * 
- * Copyright 2009-2012 Allan Jardine, all rights reserved.
  *
- * This source file is free software, under either the GPL v2 license or a
- * BSD style license, available at:
- *   http://datatables.net/license_gpl2
- *   http://datatables.net/license_bsd
+ *  Copyright (c) 2012-2016 "FlockData LLC"
+ *
+ *  This file is part of FlockData.
+ *
+ *  FlockData is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  FlockData is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Global scope for TableTools */
