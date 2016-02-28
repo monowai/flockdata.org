@@ -73,7 +73,7 @@ public class FdStorageProxy implements StorageProxy {
 
     @Override
     public StoredContent read(LogRequest logRequest) {
-        String index = indexManager.parseIndex(logRequest.getStore(), logRequest.getEntity());
+        String index = indexManager.toStoreIndex(logRequest.getStore(), logRequest.getEntity());
         String type  = indexManager.parseType(logRequest.getEntity());
         String key   ;
         try {

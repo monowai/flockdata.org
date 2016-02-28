@@ -81,7 +81,7 @@ public class RiakRepo extends AbstractStore {
 
     public void add(StoredContent storedContent) throws IOException {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.parseBucket (storedContent.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent.getEntity()));
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
             byte[] bytes = ObjectHelper.serialize(storedContent.getContent());
@@ -129,13 +129,13 @@ public class RiakRepo extends AbstractStore {
     static final String bucketType = "default";
 
     public StoredContent read(LogRequest logRequest) {
-        String index = indexManager.parseBucket(logRequest.getEntity());
+        String index = indexManager.toStoreIndex(logRequest.getEntity());
         return read(index, bucketType, logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.parseBucket(logRequest.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(logRequest.getEntity()));
             Location location = new Location(ns, logRequest.getLogId().toString());
             DeleteValue dv = new DeleteValue.Builder(location).build();
             getClient().execute(dv);
