@@ -170,7 +170,7 @@ public class EntityBean implements Serializable {
     @JsonIgnore
     /**
      * Primary key of the node in the db. This should not be relied upon outside of
-     * fd-engine and the caller should instead use their own callerRef or the key
+     * fd-engine and the caller should instead use their own code or the key
      *
      */
     public Long getId() {
