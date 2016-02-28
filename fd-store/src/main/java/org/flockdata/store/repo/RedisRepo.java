@@ -27,13 +27,16 @@ import org.flockdata.store.StoredContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Date;
 
 @Component
+@Profile("redis")
 public class RedisRepo extends AbstractStore {
 
     @Autowired
@@ -79,6 +82,12 @@ public class RedisRepo extends AbstractStore {
         template.opsForValue().setIfAbsent(-99999l, when.toString().getBytes());
         template.opsForValue().getOperations().delete(-99999l);
         return "Redis is OK";
+    }
+
+    @PostConstruct
+    void status(){
+        Logger logger = LoggerFactory.getLogger("configuration");
+        logger.info("**** Deployed Redis repo manager");
     }
 
 }

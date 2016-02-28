@@ -116,7 +116,7 @@ public class ExecutorConfig extends AsyncConfigurerSupport {
 
     @PostConstruct
     void logStatus() {
-        logger.info("**** Async Config Executors Initialised");
+        logger.info("**** Executors for async support have been initialised");
     }
 
 }

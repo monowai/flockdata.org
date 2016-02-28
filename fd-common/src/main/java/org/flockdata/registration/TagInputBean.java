@@ -19,7 +19,6 @@ package org.flockdata.registration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.Tag;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import java.util.Map;
  */
 public class TagInputBean implements org.flockdata.transform.UserProperties {
 
-    @NotEmpty
     private String name;
 
     private String code;

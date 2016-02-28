@@ -74,9 +74,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(FdStore.class)
-@ActiveProfiles({"dev", "fd-auth-test"})
-@WebAppConfiguration
+@SpringApplicationConfiguration({FdStore.class})
+@ActiveProfiles({"dev", "fd-auth-test", "riak", "redis"})
+@WebAppConfiguration (value = "src/main/resources")
 public class TestStoreService {
 
 
@@ -218,7 +218,7 @@ public class TestStoreService {
         } catch (AmqpRejectAndDontRequeueException e) {
             // ToDo: Mock RIAK
             if (storeToTest.equals(Store.RIAK)) {
-                logger.error("Silently passing. No data data to process for {}. KV store is not running", storeToTest);
+                logger.info("Silently passing as the {} store is not running", storeToTest);
             } else {
                 logger.error("Store Error", e);
                 fail("Unexpected KV error");
@@ -309,7 +309,7 @@ public class TestStoreService {
             assertEquals("Value didn't convert to lowercase", "pdf", entityLog.getLog().getContentType());
             assertEquals(contentInputBean.getAttachment(), entityContent.getAttachment());
         } catch (Exception ies) {
-            logger.error("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeToTest);
+            logger.info("KV Stores are configured in application.yml. This test is failing to find the {} server. Is it even installed?", storeToTest);
         }
     }
 

@@ -20,12 +20,15 @@
 
 package org.flockdata.store.configuration;
 
-import org.flockdata.helper.VersionHelper;
+import org.flockdata.shared.VersionHelper;
 import org.flockdata.store.Store;
 import org.flockdata.store.service.FdStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.endpoint.InfoEndpoint;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
@@ -36,7 +39,7 @@ import java.util.Map;
  * Since: 29/08/13
  */
 @Configuration
-public class StoreConfig implements FdStoreConfig {
+class StoreConfig implements FdStoreConfig {
 
 
     private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
@@ -66,6 +69,14 @@ public class StoreConfig implements FdStoreConfig {
         return riakHosts;
     }
 
+    @Bean
+    public InfoEndpoint infoEndpoint() {
+        return new InfoEndpoint(health());
+    }
+
+    @Autowired
+    VersionHelper versionHelper;
+
     /**
      * Only users with a pre-validated api-key should be calling this
      *
@@ -74,7 +85,7 @@ public class StoreConfig implements FdStoreConfig {
     @Override
     public Map<String, String> health() {
 
-        String version = VersionHelper.getFdVersion();
+        String version =  versionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("fd.store.version", version);
         String config = System.getProperty("fd.config");

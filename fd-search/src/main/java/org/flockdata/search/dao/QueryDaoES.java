@@ -80,7 +80,7 @@ public class QueryDaoES implements QueryDao {
     @Value("${highlight.enabled:true}")
     Boolean highlightEnabled;
 
-    private Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
+    private static Logger logger = LoggerFactory.getLogger(QueryDaoES.class);
 
     private Collection<String> getTagArray(TagCloudParams params) {
         Collection<String> result = new ArrayList<>();
@@ -328,7 +328,7 @@ public class QueryDaoES implements QueryDao {
         searchResult.setTotalHits(response.getHits().getTotalHits());
         searchResult.setStartedFrom(queryParams.getFrom()==null ?0:queryParams.getFrom());
         watch.stop();
-        logger.info("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
+        logger.debug("ES Query. Results [{}] took [{}]", results.size(), watch.prettyPrint());
         return searchResult;
     }
 

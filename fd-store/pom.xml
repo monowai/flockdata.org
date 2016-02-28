@@ -8,10 +8,9 @@
          <version>0.98-BUILD-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <!--<packaging>war</packaging>-->
+    <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>fd-store</artifactId>
-    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -31,6 +30,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -97,12 +100,7 @@
             <version>2.6.3</version>
             <!-- This version needs to align with springdata-redis -->
         </dependency>
-        <dependency>
-            <!--  Only a compile scope dependency in JEDIS - we have to provide the implemenation -->
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-            <version>2.3</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -167,14 +165,14 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>
-                    <packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>
-                    <packagingExcludes>WEB-INF/lib/javax.servlet-api*.jar</packagingExcludes>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-war-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>-->
+                    <!--<packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>-->
+                    <!--<packagingExcludes>WEB-INF/lib/javax.servlet-api*.jar</packagingExcludes>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -182,19 +180,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>sources</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -260,7 +245,7 @@
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
-                                    <include>classes/log4j.xml</include>
+                                    <include>classes/log4j*</include>
                                 </resource>
                             </resources>
                         </configuration>

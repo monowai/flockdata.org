@@ -12,6 +12,9 @@
 # i.e. no history
 # You can update an existing fortress and set it's store property to false/true to
 # disable/enable KV versions
+application:
+  title: fd-engine for integration testing
+
 spring:
   profiles:
     active: integration

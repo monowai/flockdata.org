@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.helper.FlockException;
 import org.flockdata.track.EntityHelper;
 import org.flockdata.track.bean.EntityInputBean;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.neo4j.graphdb.Direction;
@@ -133,7 +132,7 @@ public class Entity implements Serializable {
 
     }
 
-    public Entity(String key, FortressSegment segment, @NotEmpty EntityInputBean entityInput, @NotEmpty DocumentType documentType) throws FlockException {
+    public Entity(String key, FortressSegment segment, EntityInputBean entityInput, DocumentType documentType) throws FlockException {
         this();
 
         assert documentType != null;
