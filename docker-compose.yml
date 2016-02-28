@@ -43,6 +43,7 @@ services:
       - rabbit    # Async processing
 
     environment:
+      org.fd.discovery.url: http://fd-discovery:8761/eureka/
       server.port: 8080
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
@@ -60,6 +61,7 @@ services:
      - '9201:9201'
      - '9301:9301'
     environment:
+      org.fd.discovery.url: http://fd-discovery:8761/eureka/
       server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
@@ -87,6 +89,7 @@ services:
     environment:
       server.port: 8082
       rabbit.host: rabbit
+      org.fd.discovery.url: http://fd-discovery:8761/eureka/
 
       # Enables integration functionality
       spring.profiles.active: production

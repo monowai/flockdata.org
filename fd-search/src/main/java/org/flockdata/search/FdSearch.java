@@ -20,8 +20,9 @@
 
 package org.flockdata.search;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  *
@@ -30,10 +31,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Time: 7:36 AM
  */
 @SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.shared", "org.flockdata.authentication"})
+@EnableDiscoveryClient()
 public class FdSearch {
 
     public static void main(String[] args) {
-        SpringApplication.run(FdSearch.class, args);
+        new SpringApplicationBuilder(FdSearch.class).web(true).run(args);
+//        SpringApplication.run(FdSearch.class, args);
     }
 
 

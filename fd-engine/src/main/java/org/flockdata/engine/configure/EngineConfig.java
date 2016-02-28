@@ -24,14 +24,16 @@ import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.search.SearchGateway;
 import org.flockdata.engine.integration.store.StorageGateway;
-import org.flockdata.helper.VersionHelper;
 import org.flockdata.model.Company;
+import org.flockdata.shared.VersionHelper;
 import org.flockdata.store.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -194,6 +196,13 @@ public class EngineConfig implements PlatformConfig {
         return getHealth();
     }
 
+    @Bean
+    public InfoEndpoint infoEndpoint() {
+        return new InfoEndpoint(getHealth());
+    }
+
+    @Autowired
+    VersionHelper versionHelper;
     /**
      * Only users with a pre-validated api-key should be calling this
      *
@@ -202,7 +211,7 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public Map<String, String> getHealth() {
 
-        String version = VersionHelper.getFdVersion();
+        String version = versionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
 
         healthResults.put("flockdata.version", version);
@@ -212,18 +221,17 @@ public class EngineConfig implements PlatformConfig {
             String esPing = searchGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
         } catch (Exception ce) {
-            esPingResult = "!Unreachable! ";
+            esPingResult = "!Unreachable ";
             if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
         healthResults.put("fd-search",  esPingResult + " on " +fdSearch);
-        healthResults.put("fd.search.url", fdSearch);
 
         try {
             String esPing = storageGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
         } catch (Exception ce) {
-            esPingResult = "!Unreachable! ";
+            esPingResult = "!Unreachable ";
             if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
