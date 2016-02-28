@@ -12,10 +12,23 @@
 # i.e. no history
 # You can update an existing fortress and set it's store property to false/true to
 # disable/enable KV versions
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+
+
 spring:
+  application:
+    name: fd-engine
   profiles:
     active: production
     include: fd-auth-test
+
+application:
+  title: FlockData GraphWriter
+
+
 
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline
@@ -59,8 +72,9 @@ org.fd:
       dlq:
         queue: fd.track.dlq.queue
         exchange: fd.track.dlq.exchange
+
   search:
-    api: http://localhost:8081/api
+    api: ${org.fd.search.url:http://127.0.0.1:8081/api/}
     index:
       prefix: true
     messaging:
@@ -76,7 +90,7 @@ org.fd:
       poolSize: 20-30
       queueCapacity: 10
   store:
-    api: http://localhost:8082/api
+    api: ${org.fd.store.url:http://127.0.0.1:8082/api/}
     system:
       enabled: false
     messaging: # Async hand offs to fd-store

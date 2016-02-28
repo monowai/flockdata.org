@@ -6,6 +6,7 @@ services:
       ports:
         - '5672:5672'
         - '15672:15672'
+
   riak:
       container_name: riak
       image: lapax/riak:latest
@@ -37,11 +38,13 @@ services:
       - '8080:8080'
       - '7474:7474'
     links:
-      - fd-search # Http queries
-      - fd-store  # Http Ping
+      #- fd-search # Http queries
+      #- fd-store  # Http Ping
       - rabbit    # Async processing
+      - discovery
 
     environment:
+      org.fd.discovery.url: http://discovery:8761/eureka/
       server.port: 8080
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
@@ -51,9 +54,6 @@ services:
       org.neo4j.path: /opt/flockdata
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j
 
-      # Enables integration functionality
-      #log4j.configuration: classpath:/log4j
-
   fd-search:
     container_name: fd-search
     image: flockdata/fd-search:latest
@@ -62,6 +62,8 @@ services:
      - '9201:9201'
      - '9301:9301'
     environment:
+      org.fd.discovery.url: http://discovery:8761/eureka/
+      server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
       riak.hosts: riak
@@ -73,13 +75,13 @@ services:
       es.http.port: 9201
       es.tcp.port: 9301
       es.clustername: 'es_flockdata'
-      log4j.configuration: /opt/flockdata/conf/log4j.xml
       es.path.home: /opt/flockdata
       es.path.data: /opt/flockdata/data
 
     links:
      - rabbit
      - elasticsearch
+     - discovery
 
   fd-store:
     container_name: fd-store
@@ -87,19 +89,19 @@ services:
     ports:
      - '8082:8082'
     environment:
+      server.port: 8082
       rabbit.host: rabbit
-      org.fd.search.url: 'http://fd-search:8081/api'
+      org.fd.discovery.url: http://discovery:8761/eureka/
 
       # Enables integration functionality
       spring.profiles.active: production
-      spring.profiles.include: fd-auth-test
-
+      spring.profiles.include: fd-auth-test,riak
+      riak.hosts: riak
       es.clustername: 'es_flockdata'
-      log4j.configuration: /opt/flockdata/conf/log4j.xml
     links:
      - rabbit
      - riak
-     - fd-search
+     - discovery
 
 # Monitoring tools
   discovery:

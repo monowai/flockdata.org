@@ -20,15 +20,18 @@
 
 package org.flockdata.store;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
+ * Starts fd-store
  * Created by mike on 17/02/16.
  */
 @SpringBootApplication(scanBasePackages = { "org.flockdata.store", "org.flockdata.authentication", "org.flockdata.shared"})
+@EnableDiscoveryClient()
 public class FdStore {
     public static void main(String[] args) {
-        SpringApplication.run(FdStore.class, args);
+        new SpringApplicationBuilder(FdStore.class).web(true).run(args);
     }
 }

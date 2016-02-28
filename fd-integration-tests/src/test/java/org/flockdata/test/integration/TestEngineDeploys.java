@@ -1,6 +1,6 @@
 package org.flockdata.test.integration;
 
-import org.flockdata.FdEngine;
+import org.flockdata.engine.FdEngine;
 import org.flockdata.registration.service.RegistrationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;

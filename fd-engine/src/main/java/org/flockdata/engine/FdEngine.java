@@ -18,13 +18,14 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata;
+package org.flockdata.engine;
 
 import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import javax.annotation.PostConstruct;
 
@@ -43,6 +44,7 @@ import javax.annotation.PostConstruct;
                 "org.flockdata.authentication", "org.flockdata.shared"})
 
 @EnableConfigurationProperties()
+@EnableDiscoveryClient()
 public class FdEngine {
     public static void main(String[] args) {
         SpringApplication.run(FdEngine.class, args);

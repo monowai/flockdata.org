@@ -1,5 +1,5 @@
 
-${AnsiColor.GREEN}Welcome to FlockData
+${AnsiColor.GREEN}Welcome to ${application.title:FlockData}
 ${AnsiColor.BLUE}  __     _                        _
 ${AnsiColor.BLUE} / _| __| |       ___ _ __   __ _(_)_ __   ___
 ${AnsiColor.BLUE}| |_ / _` |_____ / _ \ '_ \ / _` | | '_ \ / _ \

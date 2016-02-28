@@ -1,5 +1,5 @@
 Configuration:
-  status: error
+  status: error  # Controls messages from the logging classes
 
   Appenders:
     Console:
@@ -19,39 +19,51 @@ Configuration:
             modulate: true
 
   Loggers:
+
+      Root:
+          level: error
+          AppenderRef:
+            - ref: CONSOLE
+               #- ref: APPLICATION
       Logger:
         - name: org.flockdata.
+          additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
 
+        - name: org.flockdata.search
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+
         - name: org.apache.
+          additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
 
         - name: configuration
+          additivity: false
           level: info
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
 
         - name: com.
+          additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
 
         - name: org.springframework.
+          additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
           #  - ref: APPLICATION
 
-      Root:
-          level: info
-          AppenderRef:
-            - ref: CONSOLE
-               #- ref: APPLICATION

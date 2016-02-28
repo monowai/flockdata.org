@@ -64,9 +64,6 @@ public class StoreManager implements StoreService {
     @Autowired (required = false)
     InMemoryRepo inMemoryRepo;
 
-//    @Autowired
-//    EsRepo defaultStore;
-
     @Autowired
     FdStoreConfig storeConfig;
 
