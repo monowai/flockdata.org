@@ -41,6 +41,7 @@ services:
       #- fd-search # Http queries
       #- fd-store  # Http Ping
       - rabbit    # Async processing
+      - discovery
 
     environment:
       org.fd.discovery.url: http://discovery:8761/eureka/
@@ -80,6 +81,7 @@ services:
     links:
      - rabbit
      - elasticsearch
+     - discovery
 
   fd-store:
     container_name: fd-store
@@ -99,6 +101,7 @@ services:
     links:
      - rabbit
      - riak
+     - discovery
 
 # Monitoring tools
   discovery:
