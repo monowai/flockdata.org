@@ -28,6 +28,7 @@ import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -47,15 +48,21 @@ public class TestTrackEP extends MvcBase {
         FortressResultBean f = makeFortress(mike(),  new FortressInputBean("track_MinimalArguments", true));
         EntityInputBean eib = new EntityInputBean(f.getName(), "DocType");
         eib.setFortressUser("usera");
+        eib.setCode(new DateTime().toString());
         ContentInputBean cib = new ContentInputBean("userA", EntityContentHelper.getRandomMap());
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
+        assertEquals("A new entity should have been created", true, trackResult.isNewEntity());
+        assertEquals( "No service message was returned", 1, trackResult.getServiceMessages().size());
         EntityBean e = getEntity(mike(), trackResult.getKey());
         //Entity e = entityService.getEntity(su.getCompany(), trackResult.getKey());
 
         assertEquals("usera", e.getLastUser());
         assertEquals("usera", e.getCreatedUser());
+
+        trackResult =track(mike(), eib);
+        assertEquals("Existing entity should have been found", true, !trackResult.isNewEntity());
 
     }
 
