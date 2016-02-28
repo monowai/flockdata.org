@@ -112,9 +112,9 @@ public class TestLogCounts extends EngineBase {
 //        SystemUser su = registerSystemUser("fixing");
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fixing", true));
 //        assertFalse(fortress.isSearchActive());
-//        String callerRef = UUID.randomUUID().toString();
+//        String code = UUID.randomUUID().toString();
 //
-//        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), callerRef);
+//        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), code);
 //        ContentInputBean contentInputBean = new ContentInputBean("mike", new DateTime(), Helper.getSimpleMap("col", 123));
 //        inputBean.setContent(contentInputBean);
 //        TrackResultBean result = mediationFacade.trackEntity(inputBean, su.getApiKey());

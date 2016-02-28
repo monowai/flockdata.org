@@ -75,17 +75,17 @@ public interface EntityService {
 
     int getLogCount(Company company, String key) throws FlockException;
 
-    Entity findByCode(Fortress fortress, DocumentType documentType, String callerRef);
+    Entity findByCode(Fortress fortress, DocumentType documentType, String code);
 
-    Entity findByCode(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException;
+    Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException;
 
-    Entity findByCallerRefFull(Long fortressId, String documentType, String callerRef);
+    Entity findByCodeFull(Long fortressId, String documentType, String code);
 
-    Entity findByCallerRefFull(Fortress fortress, String documentType, String callerRef);
+    Entity findByCodeFull(Fortress fortress, String documentType, String code);
 
-    Iterable<Entity> findByCode(Company company, String fortressName, String callerRef) throws NotFoundException;
+    Iterable<Entity> findByCode(Company company, String fortressName, String code) throws NotFoundException;
 
-    Entity findByCode(Fortress fortress, String documentName, String callerRef);
+    Entity findByCode(Fortress fortress, String documentName, String code);
 
     EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException;
 
@@ -107,7 +107,7 @@ public interface EntityService {
      */
     Map<String, Collection<Entity>> getCrossReference(Company company, String key, String relationship) throws FlockException;
 
-    Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException;
+    Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String code, String xRefName) throws FlockException;
 
     /**
      *

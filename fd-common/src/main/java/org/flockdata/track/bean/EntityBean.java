@@ -36,7 +36,7 @@ public class EntityBean implements Serializable {
     private String searchKey;
     private String key;
     private String fortressCode;
-    private String callerRef;
+    private String code;
     private String documentType;
     private long whenCreated;
     private String indexName;
@@ -68,7 +68,7 @@ public class EntityBean implements Serializable {
             this.searchKey = entity.getSearchKey();
             this.key = entity.getKey();
             documentType = entity.getType();
-            callerRef = entity.getCode();
+            code = entity.getCode();
             whenCreated = entity.getDateCreated();
             indexName = entity.getSegment().getFortress().getRootIndex();
 
@@ -117,12 +117,12 @@ public class EntityBean implements Serializable {
         this.key = key;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
-    void setCallerRef(String callerRef) {
-        this.callerRef = callerRef;
+    void setCode(String code) {
+        this.code = code;
     }
 
     public String getIndexName() {
@@ -188,7 +188,7 @@ public class EntityBean implements Serializable {
 
         EntityBean that = (EntityBean) o;
 
-        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) return false;
@@ -202,7 +202,7 @@ public class EntityBean implements Serializable {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (searchKey != null ? searchKey.hashCode() : 0);
         result = 31 * result + (key != null ? key.hashCode() : 0);
-        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
         return result;

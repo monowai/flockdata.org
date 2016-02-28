@@ -101,7 +101,7 @@ public class EntityServiceNeo4J implements EntityService {
     TagService tagService;
 
     @Autowired
-    PlatformConfig engineConfig;
+    PlatformConfig platformConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
 
@@ -446,18 +446,18 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity findByCode(Company company, String fortress, String documentCode, String callerRef) throws NotFoundException {
+    public Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException {
         Fortress iFortress = fortressService.findByName(company, fortress);
         if (iFortress == null)
             return null;
 
-        return findByCode(iFortress, documentCode, callerRef);
+        return findByCode(iFortress, documentCode, code);
     }
 
     @Override
-    public Entity findByCallerRefFull(Long fortressId, String documentType, String callerRef) {
+    public Entity findByCodeFull(Long fortressId, String documentType, String code) {
         Fortress fortress = fortressService.getFortress(fortressId);
-        return findByCallerRefFull(fortress, documentType, callerRef);
+        return findByCodeFull(fortress, documentType, code);
 
     }
 
@@ -467,12 +467,12 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @param fortress     System
      * @param documentType Class of doc
-     * @param callerRef    fortressName PK
+     * @param code    fortressName PK
      * @return hydrated entity
      */
     @Override
-    public Entity findByCallerRefFull(Fortress fortress, String documentType, String callerRef) {
-        return findByCode(fortress, documentType, callerRef);
+    public Entity findByCodeFull(Fortress fortress, String documentType, String code) {
+        return findByCode(fortress, documentType, code);
     }
 
     /**
@@ -481,38 +481,38 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @param company      Company you are authorised to work with
      * @param fortressName Fortress to restrict the search to
-     * @param callerRef    key to locate
+     * @param code    key to locate
      * @return entities
      */
     @Override
-    public Iterable<Entity> findByCode(Company company, String fortressName, String callerRef) throws NotFoundException {
+    public Iterable<Entity> findByCode(Company company, String fortressName, String code) throws NotFoundException {
         Fortress fortress = fortressService.findByName(company, fortressName);
-        return findByCode(fortress, callerRef);
+        return findByCode(fortress, code);
     }
 
-    private Collection<Entity> findByCode(Fortress fortress, String callerRef) {
-        return entityDao.findByCode(fortress.getId(), callerRef.trim());
+    private Collection<Entity> findByCode(Fortress fortress, String code) {
+        return entityDao.findByCode(fortress.getId(), code.trim());
     }
 
-    public Entity findByCode(Fortress fortress, String documentName, String callerRef) {
+    public Entity findByCode(Fortress fortress, String documentName, String code) {
 
         DocumentType doc = conceptService.resolveByDocCode(fortress, documentName, false);
         if (doc == null) {
-            logger.debug("Unable to find document for callerRef {}, {}, {}", fortress, documentName, callerRef);
+            logger.debug("Unable to find document for code {}, {}, {}", fortress, documentName, code);
             return null;
         }
-        return findByCode(fortress, doc, callerRef);
+        return findByCode(fortress, doc, code);
 
     }
 
     /**
      * @param fortress     owning system
      * @param documentType class of document
-     * @param callerRef    fortressName primary key
+     * @param code    fortressName primary key
      * @return LogResultBean or NULL.
      */
-    public Entity findByCode(Fortress fortress, DocumentType documentType, String callerRef) {
-        return entityDao.findByCode(fortress.getId(), documentType.getId(), callerRef.trim());
+    public Entity findByCode(Fortress fortress, DocumentType documentType, String code) {
+        return entityDao.findByCode(fortress.getId(), documentType.getId(), code.trim());
     }
 
     @Override
@@ -566,7 +566,7 @@ public class EntityServiceNeo4J implements EntityService {
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
             if ( result.getEntity()!=null)
-                logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
+                logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
             arb.add(result);
         }
 
@@ -614,12 +614,12 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String callerRef, String xRefName) throws FlockException {
+    public Map<String, Collection<Entity>> getCrossReference(Company company, String fortressName, String code, String xRefName) throws FlockException {
         Fortress fortress = fortressService.findByName(company, fortressName);
 
-        Entity source = entityDao.findByCodeUnique(fortress.getId(), callerRef);
+        Entity source = entityDao.findByCodeUnique(fortress.getId(), code);
         if (source == null) {
-            throw new FlockException("Unable to find the Entity [" + callerRef + "]");
+            throw new FlockException("Unable to find the Entity [" + code + "]");
         }
 
         return entityDao.getCrossReference(source, xRefName);
@@ -726,7 +726,7 @@ public class EntityServiceNeo4J implements EntityService {
             throw new AmqpRejectAndDontRequeueException("key could not be found for [{" + searchResult.getKey() + "}]");
         }
 
-        if (entity.getSearch() == null || engineConfig.isSearchRequiredToConfirm()) { // Search ACK
+        if (entity.getSearch() == null || platformConfig.isSearchRequiredToConfirm()) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly

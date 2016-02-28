@@ -126,17 +126,17 @@ public class TrackEP {
     }
 
 
-    @RequestMapping(value = "/{fortress}/{recordType}/{callerRef}", produces = "application/json", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{fortress}/{recordType}/{code}", produces = "application/json", method = RequestMethod.PUT)
     public ResponseEntity<TrackRequestResult> trackByClientRef(@RequestBody EntityInputBean input,
                                                             @PathVariable("fortress") String fortress,
                                                             @PathVariable("recordType") String recordType,
-                                                            @PathVariable("callerRef") String callerRef ,
+                                                            @PathVariable("code") String code,
                                                             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
         input.setFortressName(fortress);
         input.setDocumentType(new DocumentTypeInputBean(recordType));
-        input.setCode(callerRef);
+        input.setCode(code);
         input.setKey(null);
         trackResultBean = mediationFacade.trackEntity(company, input);
         trackResultBean.addServiceMessage("OK");
@@ -152,24 +152,24 @@ public class TrackEP {
     }
 
     /**
-     * Looks across all document types for the caller ref within the fortress. If the callerRef is not unique or does not
+     * Looks across all document types for the caller ref within the fortress. If the code is not unique or does not
      * exist then an exception is thown.
      *
      * @param fortressName application
-     * @param callerRef    source
+     * @param code    source
      * @param entities   targets
      * @param xRefName     name of the cross reference
      * @return unresolvable caller references
-     * @throws org.flockdata.helper.FlockException if not exactly one Entity for the callerRef in the fortress
+     * @throws org.flockdata.helper.FlockException if not exactly one Entity for the code in the fortress
      */
-    @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fortress}/all/{code}/{xRefName}/link", produces = "application/json", method = RequestMethod.POST)
     public @ResponseBody  Collection<EntityKeyBean> crossReferenceEntity(@PathVariable("fortress") String fortressName,
-                                                                   @PathVariable("callerRef") String callerRef,
+                                                                   @PathVariable("code") String code,
                                                                    @RequestBody Collection<EntityKeyBean> entities,
                                                                    @PathVariable("xRefName") String xRefName,
                                                                    HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, callerRef), entities, xRefName);
+        return entityService.linkEntities(company, new EntityKeyBean("*", fortressName, code), entities, xRefName);
     }
 
 

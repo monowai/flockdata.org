@@ -158,7 +158,7 @@ public class TestStoreService {
 
         String fortress = "Entity Test";
         String docType = "TestAuditX";
-        String callerRef = "ABC123R";
+        String entityCode = "ABC123R";
         String company = "company";
 
         Map<String, Object> theData = getData();
@@ -166,7 +166,7 @@ public class TestStoreService {
                 new FortressInputBean("test", true),
                 new Company("MyName"));
         // Represents identifiable entity information
-        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), callerRef)
+        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
                 .setContent(new ContentInputBean(theData));
 
         DocumentType documentType = new DocumentType(fort, docType);
@@ -284,11 +284,11 @@ public class TestStoreService {
         logger.debug("Registering system user!");
 
         String docType = "KvTest";
-        String callerRef = "ABC123R";
+        String entityCode = "ABC123R";
         Entity entity = EntityContentHelper.getEntity("myco", "myfort", "myuser", docType);
         DocumentType documentType = new DocumentType(null, entity.getType());
 
-        EntityInputBean inputBean = EntityContentHelper.getEntityInputBean(docType, entity.getFortress(), "myuser", callerRef, DateTime.now());
+        EntityInputBean inputBean = EntityContentHelper.getEntityInputBean(docType, entity.getFortress(), "myuser", entityCode, DateTime.now());
         ContentInputBean contentInputBean = new ContentInputBean("wally", new DateTime());
         contentInputBean.setAttachment("test-attachment-data", "PDF", "testFile.txt");
 

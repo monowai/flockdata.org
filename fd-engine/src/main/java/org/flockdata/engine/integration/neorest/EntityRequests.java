@@ -112,13 +112,13 @@ public class EntityRequests extends NeoRequestBase {
     }
 
     @Bean
-    public IntegrationFlow findByCallerRef() {
+    public IntegrationFlow findByCode() {
         return IntegrationFlows.from(channels.neoFdFindByCallerRef())
-                .handle(fdFindByCallerRef())
+                .handle(fdFindByCode())
                 .get();
     }
 
-    private MessageHandler fdFindByCallerRef() {
+    private MessageHandler fdFindByCode() {
         SpelExpressionParser expressionParser = new SpelExpressionParser();
 
         HttpRequestExecutingMessageHandler handler =

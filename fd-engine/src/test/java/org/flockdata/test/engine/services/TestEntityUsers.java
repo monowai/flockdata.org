@@ -58,17 +58,17 @@ public class TestEntityUsers extends EngineBase {
     @Test
     public void created_UserAgainstEntityAndLog() throws Exception {
         logger.debug("### created_UserAgainstEntityAndLog");
-        String callerRef = "mk1hz";
+        String entityCode = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("created_UserAgainstEntityAndLog", true));
-        EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean entityBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
 
 
         entityBean.setContent(new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
 
-        Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
@@ -80,7 +80,7 @@ public class TestEntityUsers extends EngineBase {
         mediationFacade.trackEntity(su.getCompany(), entityBean);
         assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
 
-        entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
+        entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
         logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());

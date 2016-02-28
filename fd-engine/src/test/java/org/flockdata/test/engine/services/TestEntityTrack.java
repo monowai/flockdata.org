@@ -81,7 +81,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(result);
         assertNotNull(result.getEntity().getKey());
-        assertNotNull("Find by callerRef failed", entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentType().getName(), inputBean.getCode()));
+        assertNotNull("Find by code failed", entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentType().getName(), inputBean.getCode()));
         assertNotNull("Find by key failed", entityService.getEntity(su.getCompany(), result.getKey()));
     }
 
@@ -104,7 +104,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull("fortressUser should have been created by the trackEntity request", fortressService.getFortressUser(fortress, inputBean.getFortressUser()));
         Entity e = entityService.findByCode(su.getCompany(), fortressInput.getName(), inputBean.getDocumentType().getName(), inputBean.getCode());
         assertNotNull(e);
-        assertNotNull("Locating an entity by callerRef did not set the fortress", e.getSegment());
+        assertNotNull("Locating an entity by code did not set the fortress", e.getSegment());
         assertNotNull("Did not find the Company in the Fortress", e.getSegment().getCompany());
         assertNotNull("Should have found an entity connected to a fortress user", e.getCreatedBy());
 
@@ -191,13 +191,13 @@ public class TestEntityTrack extends EngineBase {
         logger.debug("### fortress_CreateOnTrack");
         engineConfig.setTestMode(true); // Force sync processing of the content and log
 
-        String callerRef = "fortress_CreateOnTrack";
+        String code = "fortress_CreateOnTrack";
         SystemUser su = registerSystemUser("fortress_CreateOnTrack");
         String fortressName = "fortress_CreateOnTrack";
 
         FortressInputBean fib = new FortressInputBean(fortressName, true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
-        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
 
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
         List<EntityInputBean> entityInputBeans = new ArrayList<>();
@@ -230,27 +230,27 @@ public class TestEntityTrack extends EngineBase {
     @Test
     public void makeEntity_MultipleIdenticalContentInput() throws Exception {
         logger.debug("### makeEntity_MultipleIdenticalContentInput");
-        String callerRef = "dcABC1";
+        String code = "dcABC1";
         SystemUser su = registerSystemUser("makeEntity_MultipleIdenticalContentInput");
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("wportfolio", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
 
 
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
         List<EntityInputBean> entityInputBeans = new ArrayList<>();
         entityInputBeans.add(inputBean);
 
-        inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
         entityInputBeans.add(inputBean);
 
-        inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), code);
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
         entityInputBeans.add(inputBean);
 
         mediationFacade.trackEntities(fortress, entityInputBeans, 1);
-        Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
+        Entity entity = entityService.findByCode(fortress, "CompanyNode", code);
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
 
@@ -308,10 +308,10 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(mediationFacade.trackEntity(su.getCompany(), inputBean));
 
         Entity entity = entityService.findByCode(su.getCompany(), fortress.getName(), inputBean.getDocumentType().getName(), inputBean.getCode());
-        assertNotNull("Unable to locate entity by callerRef", entity);
+        assertNotNull("Unable to locate entity by code", entity);
 
         ContentInputBean contentBean = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getSimpleMap("blah", 1));
-        contentBean.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
+        contentBean.setFQC(fortress.getName(), "TestTrack", "ABC123");
         TrackResultBean input = mediationFacade.trackLog(su.getCompany(), contentBean);
         assertNotNull(input.getEntity().getKey());
         assertNotNull(entityService.findByCode(fortress, contentBean.getDocumentType(), contentBean.getCode()));
@@ -507,7 +507,7 @@ public class TestEntityTrack extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
         String keyA = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
         ContentInputBean alb = new ContentInputBean("logTest", new DateTime(), EntityContentHelper.getSimpleMap("blah", 0));
-        alb.setCallerRef(fortress.getName(), docType, callerRef);
+        alb.setFQC(fortress.getName(), docType, callerRef);
         //assertNotNull (alb);
         TrackResultBean arb = mediationFacade.trackLog(su.getCompany(), alb);
         assertNotNull(arb);
@@ -523,7 +523,7 @@ public class TestEntityTrack extends EngineBase {
         String keyB = mediationFacade.trackEntity(suB.getCompany(), inputBean).getEntity().getKey();
 
         alb = new ContentInputBean("logTest", new DateTime(), EntityContentHelper.getSimpleMap("blah", 0));
-        alb.setCallerRef(fortressB.getName(), docType, callerRef);
+        alb.setFQC(fortressB.getName(), docType, callerRef);
         arb = mediationFacade.trackLog(suB.getCompany(), alb);
         assertNotNull(arb);
         assertEquals("This caller should not see KeyA", keyB, arb.getEntity().getKey());
@@ -837,7 +837,7 @@ public class TestEntityTrack extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "olivia@sunnybell.com", "CompanyNode", DateTime.now(), "ABC1");
         String key = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
-        Entity entity = entityService.findByCallerRefFull(fortress, "CompanyNode", "ABC1");
+        Entity entity = entityService.findByCodeFull(fortress, "CompanyNode", "ABC1");
         assertNotNull(entity);
         // DAT-278
         assertNotNull(entity.getType());
@@ -1219,7 +1219,7 @@ public class TestEntityTrack extends EngineBase {
     }
 
     @Test
-    public void trackByCallerRef_FortressUserInEntityButNotLog() throws Exception {
+    public void trackByCallerCode_FortressUserInEntityButNotLog() throws Exception {
         SystemUser su = registerSystemUser("trackByCallerRef_FortressUserInEntityButNotLog");
         //Fortress fortress = fortressService.registerFortress("auditTest");
         FortressInputBean fib = new FortressInputBean("FortressUserInEntityButNotLog", true);
@@ -1228,7 +1228,7 @@ public class TestEntityTrack extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "TestTrack", new DateTime(), "ABC123");
         ContentInputBean aib = new ContentInputBean("wally", new DateTime(), EntityContentHelper.getSimpleMap("blah", 1));
         aib.setFortressUser(null); // We want AB to extract this from the entity
-        aib.setCallerRef(fortress.getName(), "TestTrack", "ABC123");
+        aib.setFQC(fortress.getName(), "TestTrack", "ABC123");
         inputBean.setContent(aib);
         // This call expects the service layer to create the missing fortress from the entityInput
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean);
