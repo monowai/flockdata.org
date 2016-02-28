@@ -28,7 +28,7 @@ public class TestKvPojos {
     public void jsonSerialization() throws Exception {
         String fortress = "Entity Test";
         String docType = "TestAuditX";
-        String callerRef = "ABC123R";
+        String entityCode = "ABC123R";
         String company = "company";
 
         Map<String, Object> what = EntityContentHelper.getRandomMap();
@@ -36,7 +36,7 @@ public class TestKvPojos {
                 new FortressInputBean("test", true),
                 new Company("MyName"));
         // Represents identifiable entity information
-        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), callerRef)
+        EntityInputBean entityInputBean = new EntityInputBean(fort, "wally", docType, new DateTime(), entityCode)
                 .setContent(new ContentInputBean(what));
 
         DocumentType documentType = new DocumentType(fort, docType);

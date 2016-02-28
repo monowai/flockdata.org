@@ -146,8 +146,8 @@ public class TestCsvEntity {
         ContentProfileImpl params = getImportParams("/profile/csvtest.json");
         ColumnDefinition colDef = params.getColumnDef(headers[0]);
 
-        assertTrue("CallerRef was wrong", colDef.isCallerRef());
-        assertTrue("CallerRef was wrong", colDef.isTag());
+        assertTrue("CallerRef flag was wrong", colDef.isCallerRef());
+        assertTrue("Tag flag was wrong", colDef.isTag());
         assertTrue("Title was wrong", colDef.isTitle());
 
 

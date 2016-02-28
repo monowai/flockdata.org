@@ -181,8 +181,14 @@ public class ContentInputBean implements EntityContent, Serializable {
         this.code = code;
     }
 
-    public void setCallerRef(String fortress, String documentType, String callerRef) {
-        this.code = callerRef;
+    /**
+     * Fully qualified path to an Entity instance
+     * @param fortress
+     * @param documentType
+     * @param code
+     */
+    public void setFQC(String fortress, String documentType, String code) {
+        this.code = code;
         this.documentType = documentType;
         this.fortress = fortress;
     }

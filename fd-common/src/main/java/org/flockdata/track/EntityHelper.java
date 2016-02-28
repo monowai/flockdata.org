@@ -20,8 +20,8 @@ package org.flockdata.track;
  * Created by mike on 5/07/15.
  */
 public class EntityHelper {
-    public static String parseKey(Long fortressId, Long documentId, String callerRef) {
-        return  "" + fortressId + "." + documentId + "." + callerRef;
+    public static String parseKey(Long fortressId, Long documentId, String code) {
+        return  "" + fortressId + "." + documentId + "." + code;
     }
 
     public static String getLabel(Iterable<String> labels) {

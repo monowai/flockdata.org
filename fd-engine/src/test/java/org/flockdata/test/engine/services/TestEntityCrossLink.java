@@ -200,21 +200,21 @@ public class TestEntityCrossLink extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
-        String callerRef = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
+        String code = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
 
-        assertNotNull(callerRef);
+        assertNotNull(code);
 
-        // Check that exception is thrown if the callerRef is not unique for the fortress
+        // Check that exception is thrown if the code is not unique for the fortress
         Collection<EntityKeyBean> xRef = new ArrayList<>();
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeZ", new DateTime(), "ABC321");
         TrackResultBean destKey = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(destKey);
-        assertFalse(callerRef.equals(destKey.getKey()));
+        assertFalse(code.equals(destKey.getKey()));
 
         xRef.add(new EntityKeyBean("ABC321", "123", "444"));
         xRef.add(new EntityKeyBean("Doesn't matter", "123", "444"));
         try {
-            EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), callerRef);
+            EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), code);
             entityKey.setMissingAction(EntityKeyBean.ACTION.ERROR);
             entityService.linkEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
@@ -232,18 +232,18 @@ public class TestEntityCrossLink extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trDocA = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        Collection<EntityKeyBean> callerRefs = new ArrayList<>();
+        Collection<EntityKeyBean> codeRef = new ArrayList<>();
         // These are the two records that will cite the previously created entity
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeE", new DateTime(), "ABC321");
         TrackResultBean trDocE = mediationFacade.trackEntity(su.getCompany(), inputBean);
         inputBean = new EntityInputBean(fortress, "wally", "DocTypeF", new DateTime(), "ABC333");
         TrackResultBean trDocF = mediationFacade.trackEntity(su.getCompany(), inputBean);
 
-        callerRefs.add(new EntityKeyBean(trDocE.getEntityInputBean()));
-        callerRefs.add(new EntityKeyBean(trDocF.getEntityInputBean()));
+        codeRef.add(new EntityKeyBean(trDocE.getEntityInputBean()));
+        codeRef.add(new EntityKeyBean(trDocF.getEntityInputBean()));
 
         EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), "ABC123");
-        Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, callerRefs, "cites");
+        Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, codeRef, "cites");
         assertEquals(0, notFound.size());
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
         assertNotNull(results);

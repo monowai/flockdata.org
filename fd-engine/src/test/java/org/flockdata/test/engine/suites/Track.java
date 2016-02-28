@@ -36,7 +36,7 @@ import org.junit.runners.Suite;
         TestBatchSplitter.class,
         TestLogCounts.class,
         TestEntitySearch.class,
-        TestCallerRef.class,
+        TestCallerCode.class,
         TestTrackEvents.class
 })
 public class Track {

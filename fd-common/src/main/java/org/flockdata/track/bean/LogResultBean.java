@@ -30,7 +30,7 @@ public class LogResultBean implements Serializable {
     public static final String OK = "OK";
     private String fortress;
     private String documentType;
-    private String callerRef;
+    private String code;
     private ContentInputBean.LogStatus status = ContentInputBean.LogStatus.OK;
 
     private String fortressUser;
@@ -72,12 +72,12 @@ public class LogResultBean implements Serializable {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
-    public void setCallerRef(String callerRef) {
-        this.callerRef = callerRef;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

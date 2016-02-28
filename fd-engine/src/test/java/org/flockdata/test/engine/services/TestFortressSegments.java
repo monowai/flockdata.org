@@ -70,13 +70,13 @@ public class TestFortressSegments extends EngineBase{
         logger.debug("### moveEntityAcrossSegments");
         engineConfig.setTestMode(true); // Force sync processing of the content and log
 
-        String callerRef = "123";
+        String entityCode = "123";
         SystemUser su = registerSystemUser("user");
         String fortressName = "DAT-509";
 
         FortressInputBean fib = new FortressInputBean(fortressName, true);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
-        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), callerRef);
+        EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), entityCode);
         inputBean.setContent(new ContentInputBean("poppy", DateTime.now(), EntityContentHelper.getSimpleMap("name", "a")));
 
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);

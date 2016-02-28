@@ -148,14 +148,14 @@ public class EntityDaoNeo {
         return entity;
     }
 
-    public Collection<Entity> findByCode(Long fortressId, String callerRef) {
-        return entityRepo.findByCode(fortressId, callerRef);
+    public Collection<Entity> findByCode(Long fortressId, String code) {
+        return entityRepo.findByCode(fortressId, code);
 
     }
 
-    public Entity findByCodeUnique(Long fortressId, String callerRef) throws FlockException {
+    public Entity findByCodeUnique(Long fortressId, String code) throws FlockException {
         int count = 0;
-        Iterable<Entity> entities = findByCode(fortressId, callerRef);
+        Iterable<Entity> entities = findByCode(fortressId, code);
         Entity result = null;
         for (Entity entity : entities) {
             count++;
@@ -163,17 +163,17 @@ public class EntityDaoNeo {
             if (count > 1) break;
         }
         if (count > 1)
-            throw new FlockException("Unable to find exactly one record for the callerRef [" + callerRef + "]. Found " + count);
+            throw new FlockException("Unable to find exactly one record for the code [" + code + "]. Found " + count);
 
         return result;
 
     }
 
-    public Entity findByCode(Long fortressId, Long documentId, String callerRef) {
+    public Entity findByCode(Long fortressId, Long documentId, String code) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + documentId + "], callerRef[" + callerRef + "]");
+            logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + documentId + "], code[" + code + "]");
 
-        String keyToFind = "" + fortressId + "." + documentId + "." + callerRef;
+        String keyToFind = "" + fortressId + "." + documentId + "." + code;
         Entity result= entityRepo.findBySchemaPropertyValue(EXT_KEY, keyToFind);
 
         fetch(result);

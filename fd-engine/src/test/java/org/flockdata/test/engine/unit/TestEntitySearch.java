@@ -88,13 +88,13 @@ public class TestEntitySearch {
 
     }
 
-    EntityInputBean getEntityInputBean(DocumentType docType, org.flockdata.model.FortressUser fortressUser, String callerRef, DateTime now) {
+    EntityInputBean getEntityInputBean(DocumentType docType, org.flockdata.model.FortressUser fortressUser, String code, DateTime now) {
 
         return new EntityInputBean(fortressUser.getFortress(),
                 fortressUser.getCode(),
                 docType.getName(),
                 now,
-                callerRef);
+                code);
 
     }
 }
