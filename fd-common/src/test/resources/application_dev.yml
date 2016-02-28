@@ -22,7 +22,7 @@ spring:
   application:
     name: fd-engine
   profiles:
-    active: production
+    active: dev
     include: fd-auth-test
 
 application:
@@ -76,7 +76,7 @@ org.fd:
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081/api/}
     index:
-      prefix: fd.  #ElasticSarch indexes will start with this prefix
+      prefix: blah.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding

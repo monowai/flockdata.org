@@ -199,7 +199,7 @@ public class TestStoreService {
         try {
             storeService.doWrite(storeBean);
 
-            String index = indexManager.parseIndex(storeToTest, entity);
+            String index = indexManager.toStoreIndex(storeToTest, entity);
             String type = indexManager.parseType(entity);
             String key = indexManager.resolveKey(new LogRequest(entity, trackResultBean.getCurrentLog().getLog()));
             StoredContent contentResult = storeService.doRead(storeToTest,
@@ -298,7 +298,7 @@ public class TestStoreService {
             storeService.doWrite(storeBean);
             EntityLog entityLog = trackResultBean.getCurrentLog();
             StoredContent entityContent = storeService.doRead(storeToTest,
-                    indexManager.parseIndex(storeToTest, entity),
+                    indexManager.toStoreIndex(storeToTest, entity),
                     indexManager.parseType(entity),
                     trackResultBean.getCurrentLog().getLog().getId().toString());
 
