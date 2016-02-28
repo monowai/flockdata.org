@@ -1,5 +1,10 @@
 # Default configuration properties for fd-engine
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+
 spring:
   application:
     name: fd-store

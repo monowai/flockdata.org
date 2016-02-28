@@ -24,12 +24,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
-import org.flockdata.helper.VersionHelper;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.configure.SearchConfig;
+import org.flockdata.shared.VersionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.InfoEndpoint;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
@@ -52,28 +54,28 @@ public class SearchAdmin {
 
     private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
 
-
+    @Autowired
+    VersionHelper versionHelper;
     public Map<String, Object> getHealth() {
-        String version = VersionHelper.getFdVersion();
+        String version = versionHelper.getFdVersion();
 
         Map<String, Object> healthResults = new HashMap<>();
         healthResults.put("elasticsearch", engineDao.ping());
         healthResults.put("fd.search.version", version);
-        String config = System.getProperty("fd.config");
-        if (config == null || config.equals(""))
-            config = "system-default";
-        else {
             // Test for that the supplied path exists
             // Default to the config path for mappings
-            logger.info(searchConfig.getEsMappingPath());
-        }
-        healthResults.put("fd.config", config);
         healthResults.put("fd.search.es.settings", searchConfig.getEsDefaultSettings());
         healthResults.put("fd.search.es.mapping", searchConfig.getEsMappingPath());
 
         return healthResults;
 
     }
+
+    @Bean
+    public InfoEndpoint infoEndpoint() {
+        return new InfoEndpoint(getHealth());
+    }
+
 
     @PostConstruct
     void logStatus(){
