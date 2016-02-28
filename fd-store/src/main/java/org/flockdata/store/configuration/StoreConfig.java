@@ -39,7 +39,7 @@ import java.util.Map;
  * Since: 29/08/13
  */
 @Configuration
-public class StoreConfig implements FdStoreConfig {
+class StoreConfig implements FdStoreConfig {
 
 
     private Logger logger = LoggerFactory.getLogger(StoreConfig.class);
@@ -85,7 +85,7 @@ public class StoreConfig implements FdStoreConfig {
     @Override
     public Map<String, String> health() {
 
-        String version = versionHelper.getFdVersion();
+        String version =  versionHelper.getFdVersion();
         Map<String, String> healthResults = new HashMap<>();
         healthResults.put("fd.store.version", version);
         String config = System.getProperty("fd.config");

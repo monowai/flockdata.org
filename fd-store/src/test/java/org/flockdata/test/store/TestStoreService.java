@@ -74,9 +74,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(FdStore.class)
-@ActiveProfiles({"dev", "fd-auth-test"})
-@WebAppConfiguration
+@SpringApplicationConfiguration({FdStore.class})
+@ActiveProfiles({"dev", "fd-auth-test", "riak", "redis"})
+@WebAppConfiguration (value = "src/main/resources")
 public class TestStoreService {
 
 

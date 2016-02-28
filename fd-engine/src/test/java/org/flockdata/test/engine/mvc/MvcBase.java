@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  * Base class for Web App context driven classes
  * Created by mike on 12/02/16.
  */
-@WebAppConfiguration
+@WebAppConfiguration (value = "src/main/resources")
 @ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
 @SpringApplicationConfiguration(FdEngine.class)
 @RunWith(SpringJUnit4ClassRunner.class)
