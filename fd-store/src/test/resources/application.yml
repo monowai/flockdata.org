@@ -22,8 +22,6 @@ org.fd:
       queue: fd.store.queue
       concurrentConsumers: 2
       prefetchCount: 1
-  search:
-    url: http://localhost:8081/api
 
 riak:
   hosts: 127.0.0.1
