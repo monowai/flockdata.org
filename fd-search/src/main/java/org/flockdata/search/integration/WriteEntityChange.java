@@ -25,6 +25,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResults;
+import org.flockdata.shared.Exchanges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -105,7 +106,7 @@ public class WriteEntityChange {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
                     .outputChannel(writeSearchDoc())
-                    .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
+                        .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
                     .prefetchCount(exchanges.searchPreFetchCount())
                 )
                 .handle(handler())
@@ -147,8 +148,8 @@ public class WriteEntityChange {
     public AmqpOutboundEndpoint writeEntitySearchResult(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
-        outbound.setExchangeName(exchanges.engineExchangeName());
-        outbound.setRoutingKey(exchanges.engineBinding());
+        outbound.setExchangeName(exchanges.engineExchange());
+        outbound.setRoutingKey(exchanges.fdEngineBinding());
         outbound.setExpectReply(false);
         //outbound.setConfirmAckChannel();
         return outbound;

@@ -21,6 +21,7 @@
 package org.flockdata.store.integration;
 
 import org.flockdata.helper.FlockException;
+import org.flockdata.shared.Exchanges;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.store.service.StoreService;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
