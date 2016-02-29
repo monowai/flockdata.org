@@ -11,6 +11,10 @@ spring:
   profiles:
     active: production
     include: fd-auth-test,riak
+  cloud:
+    config:
+      discovery:
+        enabled: false
 
 application:
   title: FlockData StoreWriter

@@ -21,14 +21,14 @@ Configuration:
   Loggers:
 
       Root:
-          level: error
+          level: info
           AppenderRef:
             - ref: CONSOLE
                #- ref: APPLICATION
       Logger:
         - name: org.flockdata.
           additivity: false
-          level: error
+          level: debug
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
