@@ -17,13 +17,17 @@ eureka:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
 
-
 spring:
   application:
     name: fd-engine
   profiles:
     active: production
     include: fd-auth-test
+  cloud:
+    config:
+      discovery:
+        enabled: false
+
 
 application:
   title: FlockData GraphWriter
