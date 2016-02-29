@@ -1,3 +1,10 @@
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+    enabled: 'false'
+
 application:
   title: FlockData - Testing...
 spring:

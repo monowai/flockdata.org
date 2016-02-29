@@ -203,7 +203,7 @@ public class TestEntityTrack extends EngineBase {
         List<EntityInputBean> entityInputBeans = new ArrayList<>();
         entityInputBeans.add(inputBean);
 
-        Collection<TrackRequestResult> results = trackRequests.trackEntities(entityInputBeans, su.getApiKey());
+        Collection<TrackRequestResult> results = mediationFacade.trackEntities(entityInputBeans, su.getApiKey());
         assertEquals(1, results.size());
         fortress = fortressService.getFortress(su.getCompany(), fortressName);
         assertNotNull(fortress);

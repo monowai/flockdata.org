@@ -130,7 +130,7 @@ public class TestCsvImportIntegration extends EngineBase {
                     try {
     //                    if (entityInputBean != null) {
                             //logger.debug("My Date {}", entityInputBean.getWhen());
-                            trackRequests.trackEntities(entityBatch, su.getApiKey());
+                            mediationFacade.trackEntities(entityBatch, su.getApiKey());
                         } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
                         logger.error("Unexpected", e);
                     }

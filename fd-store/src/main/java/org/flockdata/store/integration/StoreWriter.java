@@ -57,7 +57,7 @@ public class StoreWriter {
     @Autowired
     StoreService fdStoreManager;
 
-    @Autowired
+    @Autowired (required = false)
     Exchanges exchanges;
 
     @Bean
