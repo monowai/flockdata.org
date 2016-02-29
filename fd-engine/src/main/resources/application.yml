@@ -16,7 +16,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
-
+    enabled: 'false'
 spring:
   application:
     name: fd-engine
@@ -138,7 +138,7 @@ org:
 rabbit:
   user: guest
   pass: guest
-  host: 127.0.0.1
+  host: localhost
 
 
 

@@ -67,3 +67,10 @@ Configuration:
             - ref: CONSOLE
           #  - ref: APPLICATION
 
+        - name: com.netflix.
+          additivity: false
+          level: fatal
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: APPLICATION
+
