@@ -21,13 +21,13 @@
 package org.flockdata.engine.integration.engine;
 
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.integration.Exchanges;
 import org.flockdata.engine.integration.MessageSupport;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.shared.Exchanges;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
 import org.flockdata.track.bean.TrackResultBean;
