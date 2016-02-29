@@ -23,9 +23,10 @@ package org.flockdata.engine.integration;
 import org.flockdata.engine.configure.ExecutorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,9 +44,7 @@ import javax.annotation.PostConstruct;
  */
 
 @Configuration
-@EnableRabbit
 @IntegrationComponentScan
-//@Profile({"integration","production"})
 public class AmqpRabbitConfig {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -80,7 +79,7 @@ public class AmqpRabbitConfig {
     @PostConstruct
     public void logStatus (){
         logger.info( "**** FlockData AMQP Configuration deployed");
-        logger.info ( "rabbit.host: {}, rabbit.port {}, rabbit.user {}",rabbitHost, rabbitPort, rabbitUser);
+        logger.info ( "rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]",rabbitHost, rabbitPort, rabbitUser);
     }
 
     @Bean
@@ -100,6 +99,15 @@ public class AmqpRabbitConfig {
         connect.setExecutor(executorConfig.engineExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
+    }
+
+    @Autowired
+    Exchanges exchanges;
+
+    @Bean
+    public AmqpAdmin amqpAdmin() throws Exception {
+        AmqpAdmin amqpAdmin = new RabbitAdmin(connectionFactory());
+        return amqpAdmin;
     }
 
     public Boolean getAmqpLazyConnect() {

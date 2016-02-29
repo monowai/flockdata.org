@@ -38,26 +38,17 @@ import java.util.Map;
 @Configuration
 @IntegrationComponentScan
 public class Exchanges {
-    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
-    String searchBinding;
-
-    @Value("${org.fd.search.messaging.exchange:fd.search.exchange}")
-    String searchExchange;
-
-    @Value("${org.fd.engine.binding:fd.engine.binding}")
-    private String engineBinding;
+    @Value("${org.fd.track.messaging.exchange:fd.track.exchange}")
+    String trackExchange;
 
     @Value("${org.fd.engine.messaging.exchange:fd.engine.exchange}")
     private String engineExchange;
 
-    @Value("${org.fd.search.messaging.queue:fd.search.queue}")
-    private String searchQueue;
+    @Value("${org.fd.search.messaging.exchange:fd.search.exchange}")
+    String searchExchange;
 
-    @Value("${org.fd.search.messaging.concurrentConsumers:2}")
-    private int searchConcurrentConsumers;
-
-    @Value("${org.fd.search.messaging.prefetchCount:3}")
-    private int searchPreFetchCount;
+    @Value("${org.fd.store.messaging.exchange:fd.store.exchange}")
+    private String storeExchange;
 
     @Value("${org.fd.search.messaging.dlq.queue:fd.search.dlq.queue}")
     private String searchDlq;
@@ -65,11 +56,68 @@ public class Exchanges {
     @Value("${org.fd.search.messaging.dlq.exchange:fd.search.dlq.exchange}")
     private String searchDlqExchange;
 
+    @Value("${org.fd.store.messaging.dlq.exchange:fd.store.dlq.exchange}")
+    private String storeDlqExchange;
+
+    @Value("${org.fd.track.messaging.dlq.exchange:fd.track.dlq.exchange}")
+    private String trackDlqExchange;
+
     @Value("${org.fd.engine.messaging.dlq.exchange:fd.engine.dlq.exchange}")
     private String engineDlqExchange;
 
     @Value("${org.fd.engine.messaging.queue:fd.engine.queue}")
     private String engineQueue;
+
+    @Value("${org.fd.store.messaging.queue:fd.store.queue}")
+    private String storeQueue;
+
+    @Value("${org.fd.track.messaging.queue:fd.track.queue}")
+    private String trackQueue;
+
+    @Value("${org.fd.search.messaging.queue:fd.search.queue}")
+    private String searchQueue;
+
+    @Value("${org.fd.track.messaging.dlq.queue:fd.track.dlq.queue}")
+    private String trackhDlq;
+
+    @Value("${org.fd.engine.messaging.dlq.queue:fd.engine.dlq.queue}")
+    private String engineDlq;
+
+    @Value("${org.fd.store.messaging.dlq.queue:fd.store.dlq.queue}")
+    private String storeDlq;
+
+    @Value("${org.fd.track.messaging.dlq.queue:fd.track.dlq.queue}")
+    private String trackDlq;
+
+    @Value("${org.fd.engine.messaging.concurrentConsumers:2}")
+    private int engineConcurrentConsumers;
+
+    @Value("${org.fd.engine.messaging.prefetchCount:3}")
+    private int enginePreFetchCount;
+
+    @Value("${org.fd.search.messaging.concurrentConsumers:2}")
+    private int searchConcurrentConsumers;
+
+    @Value("${org.fd.search.messaging.prefetchCount:3}")
+    private int searchPreFetchCount;
+
+    @Value("${org.fd.track.messaging.prefetchCount:3}")
+    private int trackPreFetchCount;
+
+    @Value("${org.fd.track.messaging.concurrentConsumers:2}")
+    private int trackConcurrentConsumers;
+
+    @Value("${org.fd.search.messaging.binding:fd.search.binding}")
+    String searchBinding;
+
+    @Value("${org.fd.track.messaging.binding:fd.track.binding}")
+    String trackBinding;
+
+    @Value("${org.fd.engine.binding:fd.engine.binding}")
+    String engineBinding;
+
+    @Value("${org.fd.store.binding:fd.store.binding}")
+    String storeBinding;
 
     String engineBinding() {
         return engineBinding;
