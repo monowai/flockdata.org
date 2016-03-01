@@ -21,7 +21,7 @@ Configuration:
   Loggers:
 
       Root:
-          level: info
+          level: error
           AppenderRef:
             - ref: CONSOLE
                #- ref: APPLICATION

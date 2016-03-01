@@ -1,30 +1,24 @@
 /*
+ *  Copyright 2012-2016 the original author or authors.
  *
- *  Copyright (c) 2012-2016 "FlockData LLC"
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This file is part of FlockData.
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  FlockData is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  FlockData is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
-package org.flockdata.search.integration;
+package org.flockdata.shared;
 
-import org.flockdata.search.configure.ExecutorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -39,13 +33,13 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 import javax.annotation.PostConstruct;
 
 /**
+ *
  * Rabbit MQ / AMQP
- * <p/>
+ *
  * Created by mike on 3/07/15.
  */
 
 @Configuration
-@EnableRabbit
 @IntegrationComponentScan
 @Profile({"integration","production"})
 public class AmqpRabbitConfig {
@@ -82,21 +76,16 @@ public class AmqpRabbitConfig {
     @PostConstruct
     public void logStatus (){
         logger.info( "**** FlockData AMQP Configuration deployed");
-        logger.info ( "rabbit.host: {}, rabbit.port {}, rabbit.user {}",rabbitHost, rabbitPort, rabbitUser);
+        logger.info ( "rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]",rabbitHost, rabbitPort, rabbitUser);
     }
 
     @Bean
-    RabbitTemplate rabbitTemplate () {
+    RabbitTemplate rabbitTemplate () throws Exception {
         return new RabbitTemplate(connectionFactory());
     }
 
     @Bean
-    AmqpAdmin amqpAdmin() {
-        return new RabbitAdmin(connectionFactory());
-    }
-
-    @Bean (name="connectionFactory")
-    public ConnectionFactory connectionFactory() {
+    ConnectionFactory connectionFactory() throws Exception {
         CachingConnectionFactory connect = new CachingConnectionFactory();
         connect.setHost(rabbitHost);
         connect.setPort(rabbitPort);
@@ -104,13 +93,29 @@ public class AmqpRabbitConfig {
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-        connect.setExecutor(executorConfig.fdSearchExecutor());
+        connect.setExecutor(executorConfig.engineExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
+    }
+
+    @Autowired
+    Exchanges exchanges;
+
+    @Bean
+    public AmqpAdmin amqpAdmin() throws Exception {
+        AmqpAdmin amqpAdmin = new RabbitAdmin(connectionFactory());
+        return amqpAdmin;
     }
 
     public Boolean getAmqpLazyConnect() {
         return amqpLazyConnect;
     }
-}
 
+    public String getHost() {
+        return rabbitHost;
+    }
+
+    public Integer getPort() {
+        return rabbitPort;
+    }
+}
