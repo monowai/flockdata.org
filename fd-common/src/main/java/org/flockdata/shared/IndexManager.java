@@ -45,21 +45,22 @@ public class IndexManager {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Value("${org.fd.search.index.prefix:fd.}")
-    private String prefix ;
+    private String prefix;
 
     @Value("${org.fd.search.index.typeSuffix:true}")
-    private Boolean typeSuffix ;   // use docType as an index suffix?
+    private Boolean typeSuffix;   // use docType as an index suffix?
 
-    IndexManager(){}
+    IndexManager() {
+    }
 
-    public IndexManager(String prefix, boolean typeSuffix){
+    public IndexManager(String prefix, boolean typeSuffix) {
         this.prefix = prefix;
         this.typeSuffix = typeSuffix;
     }
 
     @PostConstruct
-    void dumpConfig(){
-        logger.info("**** FlockData index variables prefix [{}], suffixing with type [{}]",prefix, typeSuffix);
+    void dumpConfig() {
+        logger.info("**** FlockData index variables prefix [{}], suffixing with type [{}]", prefix, typeSuffix);
     }
 
     public String getPrefix() {
@@ -71,24 +72,9 @@ public class IndexManager {
     }
 
     /**
-     *
-     * @param store   target datastore
-     * @param entity  object containing properties to parse
-     * @return fully qualified index
-     */
-    public String parseIndex(Store store, Entity entity) {
-        if (entity == null)
-            return null;
-
-        if ( store== Store.RIAK)
-            return parseBucket(entity);
-        else
-            return parseIndex(entity);
-    }
-
-    /**
      * Default way of building an Index. Works for most database types including
      * ElasticSearch
+     *
      * @param entity properties
      * @return parsed index
      */
@@ -102,18 +88,19 @@ public class IndexManager {
         }
     }
 
-    public String parseBucket(Entity entity) {
+    public String toStoreIndex(Entity entity) {
         return (entity.getSegment().getKey()).toLowerCase();
     }
 
     /**
      * The suffix, if any, to use for the index. Depends on fd.search.index.typeSuffix==true
+     *
      * @param entity to analyse
      * @return coded DocumentType
      */
     private String getSuffix(Entity entity) {
         if (isSuffixed())
-            return "."+parseType(entity.getType());
+            return "." + parseType(entity.getType());
         else
             return "";
     }
@@ -124,14 +111,14 @@ public class IndexManager {
 
     // Returns the root level of the index with no doctype or consideration of a segment
     public String getIndexRoot(String company, String fortress) {
-        String fort = (fortress == null || fortress.equals("*") ? "" : "."+fortress.toLowerCase());
-        return getPrefix() + company.toLowerCase() + fort ;
+        String fort = (fortress == null || fortress.equals("*") ? "" : "." + fortress.toLowerCase());
+        return getPrefix() + company.toLowerCase() + fort;
     }
 
     @Deprecated // Parse from the Entity
     public String parseIndex(QueryParams queryParams) {
         String indexRoot = getIndexRoot(queryParams.getCompany(), queryParams.getFortress());
-        if ( isDefaultSegment(queryParams.getSegment()))
+        if (isDefaultSegment(queryParams.getSegment()))
             return indexRoot;
         return String.format("%s.%s", indexRoot, queryParams.getSegment());
 
@@ -140,7 +127,7 @@ public class IndexManager {
     /**
      * Computes ES indexes, including wildcards, from the supplied query parameters
      *
-     * @param queryParams  Args holding parameters to use in the query
+     * @param queryParams Args holding parameters to use in the query
      * @return one index per doc type
      * @throws FlockException
      */
@@ -162,24 +149,24 @@ public class IndexManager {
         String[] results = new String[length];
         Collection<String> found = new ArrayList<>();
 
-        String indexRoot = getPrefix() + (company!=null ?company.toLowerCase() :"*");
-        String segmentFilter ="";
+        String indexRoot = getPrefix() + (company != null ? company.toLowerCase() : "*");
+        String segmentFilter = "";
 
-        if ( segment !=null ) {
+        if (segment != null) {
             if (!isDefaultSegment(segment))
                 segmentFilter = "." + segment.toLowerCase();
         }
 
-        String fortressFilter ;
-        if ( fortress == null || fortress.equals("*"))
-            fortressFilter=".*";
-       else
-            fortressFilter = (segmentFilter.equals("")?"."+fortress.toLowerCase()+"*":"."+fortress.toLowerCase());
+        String fortressFilter;
+        if (fortress == null || fortress.equals("*"))
+            fortressFilter = ".*";
+        else
+            fortressFilter = (segmentFilter.equals("") ? "." + fortress.toLowerCase() + "*" : "." + fortress.toLowerCase());
 
-        indexRoot = indexRoot+fortressFilter+ segmentFilter;
+        indexRoot = indexRoot + fortressFilter + segmentFilter;
 
         if (types == null || types.length == 0) {
-            results[0] = indexRoot ;
+            results[0] = indexRoot;
         } else {
             int count = 0;
             for (String type : types) {
@@ -203,19 +190,26 @@ public class IndexManager {
     }
 
     // Determines if the segment is a regular default
-    private static boolean isDefaultSegment(String segment){
+    private static boolean isDefaultSegment(String segment) {
         return segment == null || segment.equals(FortressSegment.DEFAULT);
     }
 
     public String resolveKey(LogRequest logRequest) throws NotFoundException {
-        if ( logRequest.getStore() ==Store.NONE){
+        if (logRequest.getStore() == Store.NONE) {
             // ElasticSearch
-            if ( logRequest.getEntity().getSearchKey() == null )
+            if (logRequest.getEntity().getSearchKey() == null)
                 throw new NotFoundException("Unable to resolve the search key for the entity " + logRequest.getEntity().toString());
             return logRequest.getEntity().getSearchKey();
         }
         return logRequest.getLogId().toString();
 
     }
+
+    public String toStoreIndex(Store store, Entity entity) {
+        if (store == null)
+            return parseIndex(entity);
+        return toStoreIndex(entity);
+    }
+
 }
 

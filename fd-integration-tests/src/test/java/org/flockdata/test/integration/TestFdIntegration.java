@@ -1986,7 +1986,7 @@ public class TestFdIntegration {
         //DecimalFormat f = new DecimalFormat("##.000");
         while (fortress < fortressMax) {
             while (count <= countMax) {
-                Entity entity = entityService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + count);
+                Entity entity = entityService.findByCodeFull(list.get(fortress), "CompanyNode", "ABC" + count);
                 Set<EntityLog> logs = entityService.getEntityLogs(entity);
                 assertNotNull(logs);
                 assertEquals("Wrong number of logs returned", expectedLogCount, logs.size());
@@ -2019,7 +2019,7 @@ public class TestFdIntegration {
                     if (random == 0)
                         random = 1;
 
-                    Entity entity = entityService.findByCallerRefFull(list.get(fortress), "CompanyNode", "ABC" + random);
+                    Entity entity = entityService.findByCodeFull(list.get(fortress), "CompanyNode", "ABC" + random);
                     assertNotNull("ABC" + random, entity);
                     assertNotNull("Looks like fd-search is not sending back results", entity.getSearchKey());
                     EntityLog entityLog = logService.getLastLog(entity);

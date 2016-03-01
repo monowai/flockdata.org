@@ -35,7 +35,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @Suite.SuiteClasses({
         TestCsvImportIntegration.class,
         TestBatch.class,
-        TestCallerRef.class,
+        TestCallerCode.class,
         TestEntityDeadlock.class,
         TestForceDuplicateRlx.class,
         TestNonTransactional.class,

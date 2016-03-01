@@ -54,7 +54,7 @@ public class TestImporterPreparsing extends AbstractImport {
         List<EntityInputBean> entityBatch = getFdWriter().getEntities();
 
         for (EntityInputBean entityInputBean : entityBatch) {
-            assertFalse("Expression not parsed for callerRef",entityInputBean.getCode().contains("|"));
+            assertFalse("Expression not parsed for code",entityInputBean.getCode().contains("|"));
             assertTrue("Tag not set", entityInputBean.getTags().size() == 3);
             TagInputBean politician= null;
             for (TagInputBean tagInputBean : entityInputBean.getTags()) {

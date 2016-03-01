@@ -24,7 +24,6 @@ import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.integration.engine.TrackRequests;
 import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
@@ -106,9 +105,6 @@ public abstract class EngineBase {
     @Autowired
     protected
     MediationFacade mediationFacade;
-
-    @Autowired
-    TrackRequests trackRequests;
 
     @Autowired
     TxService txService;

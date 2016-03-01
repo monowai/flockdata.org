@@ -81,7 +81,7 @@ public class RiakRepo extends AbstractStore {
 
     public void add(StoredContent storedContent) throws IOException {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.parseBucket (storedContent.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent.getEntity()));
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
             byte[] bytes = ObjectHelper.serialize(storedContent.getContent());
@@ -108,7 +108,7 @@ public class RiakRepo extends AbstractStore {
             Location location = new Location(ns, id.toString());
             FetchValue fv = new FetchValue.Builder(location).build();
             FetchValue.Response response = getClient().execute(fv);
-
+            logger.debug("Looking for RIAK value for {}", id);
             RiakObject result = response.getValue(RiakObject.class);
 
             if (result != null) {
@@ -116,7 +116,7 @@ public class RiakRepo extends AbstractStore {
                 return getContent(id, oResult);
             }
         } catch (InterruptedException | RiakException | ExecutionException | IOException | ClassNotFoundException e) {
-            logger.error("KV Error", e);
+            logger.error("RIAK Store Error", e);
             if (client != null) {
                 client.shutdown();
                 client = null;
@@ -129,13 +129,13 @@ public class RiakRepo extends AbstractStore {
     static final String bucketType = "default";
 
     public StoredContent read(LogRequest logRequest) {
-        String index = indexManager.parseBucket(logRequest.getEntity());
+        String index = indexManager.toStoreIndex(logRequest.getEntity());
         return read(index, bucketType, logRequest.getLogId().toString());
     }
 
     public void delete(LogRequest logRequest) {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.parseBucket(logRequest.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(logRequest.getEntity()));
             Location location = new Location(ns, logRequest.getLogId().toString());
             DeleteValue dv = new DeleteValue.Builder(location).build();
             getClient().execute(dv);
@@ -162,12 +162,25 @@ public class RiakRepo extends AbstractStore {
 
     @Override
     public String ping() {
-//        try {
-//            getClient().ping();
-//        } catch (RiakException e) {
-//            return "Error pinging RIAK";
-//        }
-        return "Pinging Riak not yet supported";
+        try {
+            List<RiakNode> riakNodes = getClient().getRiakCluster().getNodes();
+            if ( riakNodes .isEmpty() )
+                return "no RIAK nodes found";
+            String result =null;
+            for (RiakNode riakNode : riakNodes) {
+                if ( result == null )
+                    result = "";
+                else
+                    result =  result + "\r\n Node found";
+                result = result + riakNode.getRemoteAddress() + " " + riakNode.getPort() + " "+riakNode.getNodeState().toString();
+
+            }
+            return result;
+        } catch (RiakException e) {
+            return "Error pinging RIAK";
+        } catch (UnknownHostException e) {
+            return "Couldn't find RIAK " +e.getMessage();
+        }
 
     }
 

@@ -21,13 +21,13 @@
 package org.flockdata.engine.integration.engine;
 
 import com.google.common.net.MediaType;
-import org.flockdata.engine.integration.AmqpRabbitConfig;
-import org.flockdata.engine.integration.Exchanges;
 import org.flockdata.engine.integration.search.FdSearchChannels;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.search.model.SearchResults;
+import org.flockdata.shared.AmqpRabbitConfig;
+import org.flockdata.shared.Exchanges;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

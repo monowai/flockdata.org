@@ -24,7 +24,7 @@ package org.flockdata.test.engine.suites;
  * Created by mike on 2/04/15.
  */
 
-import org.flockdata.test.engine.services.TestCallerRef;
+import org.flockdata.test.engine.services.TestCallerCode;
 import org.flockdata.test.engine.services.TestEntityCrossLink;
 import org.flockdata.test.engine.services.TestEntityLinks;
 import org.flockdata.test.engine.services.TestEntityUsers;
@@ -39,7 +39,7 @@ import org.junit.runners.Suite;
         TestHashcodeAndEquality.class,
         EntityKeyTests.class,
         TestEntitySearch.class,
-        TestCallerRef.class,
+        TestCallerCode.class,
         TestEntityUsers.class,
         TestEntityCrossLink.class,
         TestEntityLinks.class

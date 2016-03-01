@@ -16,18 +16,14 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
-    enabled: 'false'
+
+
 spring:
   application:
     name: fd-engine
   profiles:
-    active: production
+    active: dev
     include: fd-auth-test
-  cloud:
-    config:
-      discovery:
-        enabled: false
-
 
 application:
   title: FlockData GraphWriter
@@ -80,7 +76,7 @@ org.fd:
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081/api/}
     index:
-      prefix: fd.  #ElasticSarch indexes will start with this prefix
+      prefix: blah.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding
@@ -138,7 +134,7 @@ org:
 rabbit:
   user: guest
   pass: guest
-  host: localhost
+  host: 127.0.0.1
 
 
 

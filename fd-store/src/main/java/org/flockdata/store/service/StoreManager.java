@@ -71,14 +71,17 @@ public class StoreManager implements StoreService {
 
     @Override
     public String ping(Store store) {
-        return getStore(store).ping();
+        FdStoreRepo storeService = getStore(store);
+        if (storeService == null )
+            return store.toString() +" is not enabled";
+        return storeService.ping();
     }
 
     @Override
     public StoredContent doRead(Store store, String index, String type, String id) {
         if ( id == null )
             return null;
-
+        logger.debug("Looking for {} value for {}", store.name(), id);
         return getStore(store).read(index, type, id);
     }
 

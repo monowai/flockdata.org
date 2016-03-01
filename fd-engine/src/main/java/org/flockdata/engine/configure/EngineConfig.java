@@ -68,6 +68,9 @@ public class EngineConfig implements PlatformConfig {
     @Value("${org.fd.engine.system.api:api}")
     private String apiBase ;
 
+    @Value("${spring.cloud.config.discovery.enabled:false}")
+    Boolean discoveryEnabled;
+
     public String apiBase(){
         return apiBase;
     }
@@ -90,6 +93,9 @@ public class EngineConfig implements PlatformConfig {
 
     @Value("${org.fd.store.api:http://localhost:8082/api}")
     private String fdStoreUrl;
+    //eureka.instance.hostname
+    @Value ("${eureka.client.serviceUrl.defaultZone}")
+    private String eurekaUrl;
 
     @Value("${org.fd.search.api:http://localhost:8081/api}")
     public void setFdSearch( String url) {
@@ -238,6 +244,8 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("fd-store", esPingResult + " on " +getFdStore());
         healthResults.put("fd.store.engine", storeEngine);
         healthResults.put("fd.store.enabled", storeEnabled().toString());
+        healthResults.put("eureka.client.serviceUrl.defaultZone", eurekaUrl);
+        healthResults.put("spring.cloud.config.discovery.enabled", discoveryEnabled.toString());
 
         return healthResults;
 

@@ -3,6 +3,7 @@ services:
   rabbit:
       container_name: rabbit
       image: rabbitmq:3-management
+
       ports:
         - '5672:5672'
         - '15672:15672'
@@ -10,6 +11,8 @@ services:
   riak:
       container_name: riak
       image: lapax/riak:latest
+      ports:
+        - '8087:8087'
 
   elasticsearch:
     container_name: elasticsearch
@@ -28,31 +31,40 @@ services:
       - 5601:5601
     environment:
       ELASTICSEARCH_URL: 'http://elasticsearch:9200'
-    links:
+    depends_on:
       - elasticsearch
 
   fd-engine:
     container_name: fd-engine
     image: flockdata/fd-engine:latest
+
     ports:
       - '8080:8080'
       - '7474:7474'
-    links:
-      #- fd-search # Http queries
-      #- fd-store  # Http Ping
-      - rabbit    # Async processing
-      - discovery
 
     environment:
-      org.fd.discovery.url: http://discovery:8761/eureka/
+      spring.cloud.config.discovery.enabled: 'false'
+      org.fd.discovery.url: http://eureka:8761/eureka/
+      eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
+      eureka.instance.nonSecurePort: 8080
+      eureka.client.enabled: 'false'
       server.port: 8080
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
+
       rabbit.host: rabbit
       org.fd.search.api: http://fd-search:8081/api
       org.fd.store.api: http://fd-store:8082/api
       org.neo4j.path: /opt/flockdata
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j
+
+    depends_on:
+      - rabbit
+      - eureka
+    links:
+      - fd-search
+      - rabbit
+      - eureka
 
   fd-search:
     container_name: fd-search
@@ -61,8 +73,17 @@ services:
      - '8081:8081'
      - '9201:9201'
      - '9301:9301'
+    depends_on:
+      - rabbit
+      - eureka
+      - elasticsearch
+
     environment:
-      org.fd.discovery.url: http://discovery:8761/eureka/
+      spring.cloud.config.discovery.enabled: 'false'
+      org.fd.discovery.url: http://eureka:8761/eureka/
+      eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
+      eureka.instance.nonSecurePort: 8081
+      eureka.client.enabled: 'false'
       server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
@@ -78,39 +99,36 @@ services:
       es.path.home: /opt/flockdata
       es.path.data: /opt/flockdata/data
 
-    links:
-     - rabbit
-     - elasticsearch
-     - discovery
-
   fd-store:
     container_name: fd-store
     image: flockdata/fd-store:latest
     ports:
      - '8082:8082'
+    depends_on:
+      - rabbit
+      - eureka
+      - riak
     environment:
       server.port: 8082
       rabbit.host: rabbit
-      org.fd.discovery.url: http://discovery:8761/eureka/
+      spring.cloud.config.discovery.enabled: 'false'
+      eureka.client.enabled: 'false'
+      org.fd.discovery.url: http://eureka:8761/eureka/
+      eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
+      eureka.instance.nonSecurePort: 8082
 
       # Enables integration functionality
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test,riak
       riak.hosts: riak
       es.clustername: 'es_flockdata'
-    links:
-     - rabbit
-     - riak
-     - discovery
 
 # Monitoring tools
-  discovery:
+  eureka:
     container_name: fd-discovery
     image: flockdata/fd-discovery:latest
     ports:
       - '8761:8761'
-    links:
-      - config
 
   config:
     container_name: fd-config

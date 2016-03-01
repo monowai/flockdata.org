@@ -32,7 +32,7 @@ public class EntityTXResult {
     private String fortressName;
     private String fortressKey;
     private String documentType;
-    private String callerRef;
+    private String code;
     private Long lastSystemChange;
     private Long fortressWhen = 0l;
 
@@ -47,7 +47,7 @@ public class EntityTXResult {
         this.fortressWhen = log.getFortressWhen();
         this.auditKey = entity.getKey();
         this.documentType = entity.getType();
-        this.callerRef = entity.getCode();
+        this.code = entity.getCode();
         this.fortressName = entity.getSegment().getFortress().getName();
         this.lastSystemChange = entity.getLastUpdate();
         this.entityLog = log;
@@ -77,7 +77,7 @@ public class EntityTXResult {
         return lastSystemChange;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 }

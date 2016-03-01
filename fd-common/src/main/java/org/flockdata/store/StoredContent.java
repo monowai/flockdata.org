@@ -16,7 +16,9 @@
 
 package org.flockdata.store;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.model.Entity;
+import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.Map;
  * Date: 17/09/14
  * Time: 1:01 PM
  */
+@JsonDeserialize(as=StorageBean.class)
 public interface StoredContent {
 
     String getAttachment();

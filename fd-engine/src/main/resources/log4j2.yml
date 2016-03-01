@@ -9,8 +9,8 @@ Configuration:
         Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
     RollingFile:
       - name: APPLICATION
-        fileName: ../logs/fd-search.log
-        filePattern: "../logs/$${date:yyyy-MM}/fd-engine-%d{yyyy-MM-dd}-%i.log.gz"
+        fileName: log/fd-engine.log
+        filePattern: "log/$${date:yyyy-MM}/fd-engine-%d{yyyy-MM-dd}-%i.log.gz"
         PatternLayout:
           Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
         policies:
