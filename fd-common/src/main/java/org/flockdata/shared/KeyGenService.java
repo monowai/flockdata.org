@@ -16,7 +16,7 @@
 
 package org.flockdata.shared;
 
-import org.flockdata.helper.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -29,10 +29,11 @@ import java.util.UUID;
  */
 @Service
 public class KeyGenService {
-    public enum METHOD {
+    private enum METHOD {
         UUID, SNOWFLAKE, BASE64
     }
-
+    @Autowired
+    Base64 base64;
     public String getUniqueKey() {
         return getUniqueKey(METHOD.BASE64);
     }
@@ -42,7 +43,7 @@ public class KeyGenService {
         if (method.equals(METHOD.SNOWFLAKE))
             return getSnowFlake();
         else if (method.equals(METHOD.BASE64))
-            return Base64.format(UUID.randomUUID());
+            return base64.format(UUID.randomUUID());
         else
 
         return getUUID();
