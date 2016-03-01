@@ -14,19 +14,24 @@
  *  limitations under the License.
  */
 
-package org.flockdata.helper;
+package org.flockdata.shared;
 
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
  * https://github.com/RestExpress/RepoExpress/blob/master/common/src/java/com/strategicgains/repoexpress/util/UuidConverter.java
  */
+@Component
 public class Base64 {
-    static final char[] C64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
-    static final int[] I256 = new int[256];
+    private static final char[] C64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
+    private static final int[] I256 = new int[256];
 
-    static {
+    @PostConstruct
+    void initialize(){
         for (int i = 0; i < Base64.C64.length; i++) {
             Base64.I256[Base64.C64[i]] = i;
         }
@@ -41,7 +46,7 @@ public class Base64 {
      * @throws NullPointerException     if the UUID instance is null.
      * @throws IllegalArgumentException if the underlying UUID implementation is not 16 bytes.
      */
-    public static String format(UUID uuid) {
+    public String format(UUID uuid) {
         if (uuid == null) throw new NullPointerException("Null UUID");
 
         byte[] bytes = toByteArray(uuid);
@@ -60,7 +65,7 @@ public class Base64 {
      * @throws IllegalArgumentException if the uuidString is not a valid UUID representation.
      * @throws NullPointerException     if the uuidString is null.
      */
-    public static UUID parse(String uuidString) {
+    public UUID parse(String uuidString) {
         if (uuidString == null) throw new NullPointerException("Null UUID string");
 
         if (uuidString.length() > 24) {
@@ -84,7 +89,7 @@ public class Base64 {
      * @param uuid a UUID instance.
      * @return the bytes from the UUID instance.
      */
-    static byte[] toByteArray(UUID uuid) {
+    private byte[] toByteArray(UUID uuid) {
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
@@ -103,7 +108,7 @@ public class Base64 {
      * @param bytes a UUID byte array.
      * @return a URL-safe base64-encoded string.
      */
-    static String encodeBase64(byte[] bytes) {
+    private String encodeBase64(byte[] bytes) {
         if (bytes == null) throw new NullPointerException("Null UUID byte array");
         if (bytes.length != 16) throw new IllegalArgumentException("UUID must be 16 bytes");
 
@@ -142,7 +147,7 @@ public class Base64 {
      * @param s
      * @return
      */
-    static byte[] decodeBase64(String s) {
+    private byte[] decodeBase64(String s) {
         if (s == null) throw new NullPointerException("Cannot decode null string");
         if (s.isEmpty() || (s.length() > 24)) throw new IllegalArgumentException("Invalid short UUID");
 
