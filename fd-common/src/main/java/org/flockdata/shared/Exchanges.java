@@ -16,12 +16,15 @@
 
 package org.flockdata.shared;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +36,8 @@ import java.util.Map;
 @Configuration
 @Profile({"integration","production"})
 public class Exchanges {
+
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Value("${org.fd.track.messaging.exchange:fd.track.exchange}")
     String trackExchange;
@@ -307,4 +312,10 @@ public class Exchanges {
     public int searchPreFetchCount() {
         return searchPreFetchCount;
     }
+
+    @PostConstruct
+    void logStatus() {
+        logger.info("**** Exchanges (ex.shared) have been initialised");
+    }
+
 }
