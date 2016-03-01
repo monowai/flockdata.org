@@ -86,6 +86,7 @@ public class TrackResultBean implements Serializable {
 
     private TrackResultBean(Entity entity) {
         this.entity = entity;
+        this.company = entity.getFortress().getCompany();
         this.newEntity = entity.isNewEntity();
     }
 

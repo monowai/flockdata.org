@@ -43,14 +43,12 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -132,6 +130,26 @@ public class MediationFacadeNeo implements MediationFacade {
     private Logger logger = LoggerFactory.getLogger(MediationFacadeNeo.class);
 
     static DecimalFormat f = new DecimalFormat();
+
+    @Override
+    public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
+        Company c = securityHelper.getCompany(apiKey);
+        if (c == null)
+            throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
+
+        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
+        Collection<TrackRequestResult> results = new ArrayList<>();
+        for (FortressSegment segment : byFortress.keySet()) {
+            Collection<TrackResultBean> tr =
+                    trackEntities(segment, byFortress.get(segment), 2);
+            for (TrackResultBean result : tr) {
+                results.add(new TrackRequestResult(result));
+            }
+
+        }
+        return results;
+    }
+
 
     @Override
     public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {

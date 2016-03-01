@@ -45,9 +45,9 @@ import static org.junit.Assert.*;
  * User: Mike Holdsworth
  * Since: 1/12/13
  */
-public class TestCallerRef extends EngineBase {
+public class TestCallerCode extends EngineBase {
 
-    private Logger logger = LoggerFactory.getLogger(TestCallerRef.class);
+    private Logger logger = LoggerFactory.getLogger(TestCallerCode.class);
     private String monowai = "Monowai";
 
     @Override
@@ -58,7 +58,7 @@ public class TestCallerRef extends EngineBase {
     }
 
     @Test
-    public void nullCallerRefBehaviour() throws Exception {
+    public void nullCodeBehaviour() throws Exception {
         try {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, "nullCallerRefBehaviour");
@@ -84,7 +84,7 @@ public class TestCallerRef extends EngineBase {
     }
 
     @Test
-    public void findByCallerRefAcrossDocumentTypes() throws Exception {
+    public void findByCallerCodeAcrossDocumentTypes() throws Exception {
         try {
             cleanUpGraph();
             SystemUser su = registerSystemUser(monowai, mike_admin);
@@ -92,7 +92,7 @@ public class TestCallerRef extends EngineBase {
 
             EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
 
-            // Ok we now have a key, let's find it by callerRef ignoring the document and make sure we find the same entity
+            // Ok we now have a key, let's find it by code ignoring the document and make sure we find the same entity
             String key = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
             Iterable<Entity> results = entityService.findByCode(su.getCompany(), fortress.getName(), "ABC123");
             assertEquals(true, results.iterator().hasNext());
@@ -133,15 +133,15 @@ public class TestCallerRef extends EngineBase {
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("zCallerRef" + System.currentTimeMillis(), true));
 
             String docType = "StressDupez";
-            String callerRef = "ABC123X";
+            String code = "ABC123X";
             int runnersToRun = 5;
-            Collection<CallerRefRunner> runners = new ArrayList<>();
+            Collection<CodeRefRunner> runners = new ArrayList<>();
 
             CountDownLatch startLatch = new CountDownLatch(1);
             CountDownLatch latch = new CountDownLatch(runnersToRun);
 
             for (int i = 0; i < runnersToRun; i++) {
-                runners.add(addRunner(fortress, docType, callerRef, latch, startLatch));
+                runners.add(addRunner(fortress, docType, code, latch, startLatch));
             }
 
             TestCase.assertEquals(runnersToRun, runners.size());
@@ -149,11 +149,11 @@ public class TestCallerRef extends EngineBase {
 
             latch.await();
 
-            assertNotNull(entityService.findByCode(fortress, docType, callerRef));
+            assertNotNull(entityService.findByCode(fortress, docType, code));
             logger.info("Runner Count {}", runners.size());
             int i = 1;
 
-            for (CallerRefRunner runner : runners) {
+            for (CodeRefRunner runner : runners) {
                 assertEquals("failed to get a good result when checking if the runner worked " + i, true, runner.getWorked());
                 i++;
             }
@@ -164,25 +164,25 @@ public class TestCallerRef extends EngineBase {
 
     }
 
-    private CallerRefRunner addRunner(Fortress fortress, String docType, String callerRef, CountDownLatch latch, CountDownLatch startLatch) {
+    private CodeRefRunner addRunner(Fortress fortress, String docType, String callerRef, CountDownLatch latch, CountDownLatch startLatch) {
 
-        CallerRefRunner runner = new CallerRefRunner(callerRef, docType, fortress, latch, startLatch);
+        CodeRefRunner runner = new CodeRefRunner(callerRef, docType, fortress, latch, startLatch);
         Thread thread = new Thread(runner);
         thread.start();
         return runner;
     }
 
-    class CallerRefRunner implements Runnable {
+    class CodeRefRunner implements Runnable {
         String docType;
-        String callerRef;
+        String code;
         Fortress fortress;
         CountDownLatch latch;
         CountDownLatch startLatch;
         int maxRun = 10;
         boolean worked = false;
 
-        public CallerRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch, CountDownLatch startLatch) {
-            this.callerRef = callerRef;
+        public CodeRefRunner(String callerRef, String docType, Fortress fortress, CountDownLatch latch, CountDownLatch startLatch) {
+            this.code = callerRef;
             this.docType = docType;
             this.fortress = fortress;
             this.latch = latch;
@@ -202,14 +202,14 @@ public class TestCallerRef extends EngineBase {
                 startLatch.await();
                 logger.debug("Running... ");
                 while (count < maxRun) {
-                    EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), callerRef);
+                    EntityInputBean inputBean = new EntityInputBean(fortress, "wally", docType, new DateTime(), code);
                     assert (docType != null);
                     TrackResultBean trackResult = mediationFacade.trackEntity(fortress.getDefaultSegment(), inputBean);
                     assertNotNull(trackResult);
-                    assertEquals(callerRef.toLowerCase(), trackResult.getEntity().getCode().toLowerCase());
-                    Entity byCallerRef = entityService.findByCode(fortress, docType, callerRef);
-                    assertNotNull(byCallerRef);
-                    Assert.assertEquals(trackResult.getEntity().getId(), byCallerRef.getId());
+                    assertEquals(code.toLowerCase(), trackResult.getEntity().getCode().toLowerCase());
+                    Entity byCode = entityService.findByCode(fortress, docType, code);
+                    assertNotNull(byCode);
+                    Assert.assertEquals(trackResult.getEntity().getId(), byCode.getId());
                     count++;
                 }
                 worked = true;

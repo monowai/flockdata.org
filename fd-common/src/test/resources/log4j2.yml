@@ -7,37 +7,21 @@ Configuration:
       target: SYSTEM_OUT
       PatternLayout:
         Pattern: "%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%wEx"
-    RollingFile:
-      - name: APPLICATION
-        fileName: ../logs/fd-store.log
-        filePattern: "../logs/$${date:yyyy-MM}/fd-store-%d{yyyy-MM-dd}-%i.log.gz"
-        PatternLayout:
-          Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
-        policies:
-          TimeBasedTriggeringPolicy:
-            interval: 1
-            modulate: true
 
   Loggers:
 
       Root:
-          level: error
+          level: info
           AppenderRef:
             - ref: CONSOLE
                #- ref: APPLICATION
       Logger:
-        - name: org.flockdata.
+        - name: org.flockdata.test
           additivity: false
           level: debug
           AppenderRef:
             - ref: CONSOLE
            # - ref: APPLICATION
-
-        - name: org.flockdata.store.FdStore
-          additivity: false
-          level: info
-          AppenderRef:
-            - ref: CONSOLE
 
         - name: org.apache.
           additivity: false
@@ -67,9 +51,3 @@ Configuration:
             - ref: CONSOLE
           #  - ref: APPLICATION
 
-        - name: com.netflix.
-          additivity: false
-          level: fatal
-          AppenderRef:
-            - ref: CONSOLE
-            - ref: APPLICATION

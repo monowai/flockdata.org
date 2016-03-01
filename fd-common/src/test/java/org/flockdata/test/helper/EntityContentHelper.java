@@ -35,19 +35,19 @@ import java.util.Map;
  * Time: 7:56 PM
  */
 public class EntityContentHelper {
-    public static EntityInputBean getEntityInputBean(String docType, Fortress fortress, String fortressUser, String callerRef, DateTime now) {
+    public static EntityInputBean getEntityInputBean(String docType, Fortress fortress, String fortressUser, String code, DateTime now) {
 
         return new EntityInputBean(fortress,
                 fortressUser,
                 docType,
                 now,
-                callerRef);
+                code);
 
     }
 
     public static Entity getEntity(String comp, String fort, String userName, String docType) throws FlockException {
-        String callerRef = new DateTime().toString();
-        return getEntity(comp, fort, userName, docType, callerRef);
+        String code = new DateTime().toString();
+        return getEntity(comp, fort, userName, docType, code);
     }
 
     public static Entity getEntity(String comp, String fort, String userName, String docType, String code) throws FlockException {

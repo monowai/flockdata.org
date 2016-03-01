@@ -76,24 +76,24 @@ public class EntityEP {
     private static Logger logger = LoggerFactory.getLogger(EntityEP.class);
 
 
-//    @RequestMapping(value = "/{fortress}/all/{callerRef}", method = RequestMethod.GET)
-//    public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef,
+//    @RequestMapping(value = "/{fortress}/all/{code}", method = RequestMethod.GET)
+//    public @ResponseBody Iterable<Entity> findByCallerRef(@PathVariable("fortress") String fortress, @PathVariable("code") String code,
 //                                                          HttpServletRequest request) throws FlockException {
 //        Company company = CompanyResolver.resolveCompany(request);
-//        return entityService.findByCallerRef(company, fortress, callerRef);  //To change body of created methods use File | Settings | File Templates.
+//        return entityService.findByCallerRef(company, fortress, code);  //To change body of created methods use File | Settings | File Templates.
 //    }
 
 
-    @RequestMapping(value = "/{fortress}/{documentType}/{callerRef}", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fortress}/{documentType}/{code}", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    EntityBean findByCallerRef(@PathVariable("fortress") String fortressName,
-                               @PathVariable("documentType") String documentType,
-                               @PathVariable("callerRef") String callerRef,
-                               HttpServletRequest request) throws FlockException {
+    EntityBean findByCode(@PathVariable("fortress") String fortressName,
+                          @PathVariable("documentType") String documentType,
+                          @PathVariable("code") String code,
+                          HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         Fortress fortress = fortressService.findByName(company, fortressName);
-        Entity entity = entityService.findByCode(fortress, documentType, callerRef);
+        Entity entity = entityService.findByCode(fortress, documentType, code);
         return new EntityBean(entity);
     }
 
@@ -369,7 +369,7 @@ public class EntityEP {
      *
      * @param key  uid to start from
      * @param xRefName relationship name
-     * @return all meta headers of xRefName associated with callerRef
+     * @return all meta headers of xRefName associated with code
      * @throws FlockException
      */
     @RequestMapping(value = "/{key}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
@@ -385,18 +385,18 @@ public class EntityEP {
      * Locate cross referenced headers by Fortress + CallerRef
      *
      * @param fortress  name of the callers application
-     * @param callerRef unique key within the fortress
+     * @param code unique key within the fortress
      * @param xRefName  name of the xReference to lookup
      * @return xRefName and collection of Entities
      * @throws FlockException if not exactly one CallerRef exists within the fortress
      */
-    @RequestMapping(value = "/{fortress}/all/{callerRef}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fortress}/all/{code}/{xRefName}/xref", produces = "application/json", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("callerRef") String callerRef, @PathVariable("xRefName") String xRefName,
+    Map<String, Collection<Entity>> getCrossReference(@PathVariable("fortress") String fortress, @PathVariable("code") String code, @PathVariable("xRefName") String xRefName,
                                                       HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return entityService.getCrossReference(company, fortress, callerRef, xRefName);
+        return entityService.getCrossReference(company, fortress, code, xRefName);
     }
 
 

@@ -76,12 +76,12 @@ public class TestNonTransactional extends EngineBase {
         TrackResultBean docB = mediationFacade.trackEntity(su.getCompany(), inputBeanB);
 
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
-        List<EntityKeyBean> callerRefs = new ArrayList<>();
+        List<EntityKeyBean> codeRefs = new ArrayList<>();
 
-        callerRefs.add(new EntityKeyBean("ABC321", "123", "444"));
-        callerRefs.add(new EntityKeyBean("ABC333", "123", "444"));
+        codeRefs.add(new EntityKeyBean("ABC321", "123", "444"));
+        codeRefs.add(new EntityKeyBean("ABC333", "123", "444"));
 
-        refs.put("cites",callerRefs);
+        refs.put("cites",codeRefs);
         EntityLinkInputBean bean = new EntityLinkInputBean(inputBean);
         List<EntityLinkInputBean> inputs = new ArrayList<>();
         inputs.add(bean);

@@ -24,36 +24,38 @@ import java.util.Collection;
 /**
  * Created by mike on 20/07/15.
  */
-public class TrackRequestResult implements Serializable{
+public class TrackRequestResult implements Serializable {
 
-    String company;
-    String fortressCode;
-    String callerRef;
-    String key;
+    private String company;
+    private String fortressCode;
+    private String code;
+    private String key;
 
-    boolean newEntity;
-    ContentInputBean.LogStatus logStatus;
+    private boolean newEntity;
+    private ContentInputBean.LogStatus logStatus;
 
-    Collection<String> serviceMessages = null;
+    private Collection<String> serviceMessages = null;
 
-    TrackRequestResult() {}
+    TrackRequestResult() {
+    }
 
-    public TrackRequestResult(TrackResultBean resultBean){
+    public TrackRequestResult(TrackResultBean resultBean) {
         this();
         this.key = resultBean.getKey();
-        this.callerRef = resultBean.getEntity().getCode();
-        this.fortressCode = resultBean.getEntity().getSegment().getCode();
+        this.code = resultBean.getEntity().getCode();
+        this.fortressCode = resultBean.getEntity().getSegment().getFortress().getCode();
         logStatus = resultBean.getLogStatus();
-        serviceMessages  = resultBean.getServiceMessages();
-        boolean newEntity = resultBean.isNewEntity();
+        this.company = resultBean.getCompany().getCode();
+        serviceMessages = resultBean.getServiceMessages();
+        newEntity = resultBean.isNewEntity();
     }
 
     public String getKey() {
         return key;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     public String getFortressCode() {

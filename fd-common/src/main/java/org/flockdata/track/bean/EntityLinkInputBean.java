@@ -31,9 +31,9 @@ public class EntityLinkInputBean {
     Map<String,List<EntityKeyBean>>references;
     private String fortress;
     private String documentType;
-    private String callerRef;
+    private String code; // Callers key
     private String serviceMessage;
-    Map<String,Collection<EntityKeyBean>>ignored;
+    private Map<String,Collection<EntityKeyBean>>ignored;
 
     protected EntityLinkInputBean(){}
 
@@ -49,13 +49,13 @@ public class EntityLinkInputBean {
      * @param code              Parent code reference
      */
     public EntityLinkInputBean(String fortress, String documentName, String code) {
-        this.callerRef = code;
+        this.code = code;
         this.fortress = fortress;
         this.documentType = documentName;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     public String getFortress() {
@@ -73,7 +73,7 @@ public class EntityLinkInputBean {
 
         EntityLinkInputBean that = (EntityLinkInputBean) o;
 
-        if (callerRef != null ? !callerRef.equals(that.callerRef) : that.callerRef != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (documentType != null ? !documentType.equals(that.documentType) : that.documentType != null) return false;
         return !(fortress != null ? !fortress.equals(that.fortress) : that.fortress != null);
 
@@ -82,7 +82,7 @@ public class EntityLinkInputBean {
     @Override
     public int hashCode() {
         int result = fortress != null ? fortress.hashCode() : 0;
-        result = 31 * result + (callerRef != null ? callerRef.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (documentType != null ? documentType.hashCode() : 0);
         return result;
     }
@@ -90,7 +90,7 @@ public class EntityLinkInputBean {
     @Override
     public String toString() {
         return "CrossReferenceInputBean{" +
-                "callerRef='" + callerRef + '\'' +
+                "code='" + code + '\'' +
                 ", references=" + references.size() +
                 ", fortress='" + fortress + '\'' +
                 ", docType ='" + documentType + '\'' +

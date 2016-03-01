@@ -4,6 +4,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+    enabled: 'false'
 
 spring:
   application:
@@ -11,6 +12,10 @@ spring:
   profiles:
     active: production
     include: fd-auth-test,riak
+  cloud:
+    config:
+      discovery:
+        enabled: false
 
 application:
   title: FlockData StoreWriter

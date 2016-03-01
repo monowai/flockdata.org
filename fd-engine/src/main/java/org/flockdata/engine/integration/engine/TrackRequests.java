@@ -21,22 +21,20 @@
 package org.flockdata.engine.integration.engine;
 
 import org.flockdata.engine.configure.SecurityHelper;
-import org.flockdata.engine.integration.Exchanges;
-import org.flockdata.engine.integration.MessageSupport;
 import org.flockdata.engine.track.service.TrackBatchSplitter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.Company;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.shared.Exchanges;
+import org.flockdata.shared.MessageSupport;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackRequestResult;
-import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ClientConfiguration;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -48,10 +46,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -60,6 +55,7 @@ import java.util.concurrent.ExecutionException;
  * Created by mike on 27/12/15.
  */
 @Service
+@Profile({"integration","production"})
 public class TrackRequests {
 
     @Autowired
@@ -68,7 +64,7 @@ public class TrackRequests {
     @Autowired
     MediationFacade mediationFacade;
 
-    @Autowired
+    @Autowired (required = false)
     Exchanges exchanges;
 
     @Autowired
@@ -128,21 +124,10 @@ public class TrackRequests {
     }
     @ServiceActivator(inputChannel = "doTrackEntity")
     public Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, @Header(ClientConfiguration.KEY_MSG_KEY) String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException {
-        Company c = securityHelper.getCompany(apiKey);
-        if (c == null)
+        //Company c = securityHelper.getCompany(apiKey);
+        if (apiKey == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
-
-            Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
-            Collection<TrackRequestResult> results = new ArrayList<>();
-            for (FortressSegment segment : byFortress.keySet()) {
-                Collection<TrackResultBean> tr =
-                        mediationFacade.trackEntities(segment, byFortress.get(segment), 2);
-                for (TrackResultBean result : tr) {
-                    results.add(new TrackRequestResult(result));
-                }
-
-            }
-            return results;
+        return mediationFacade.trackEntities(inputBeans, apiKey);
     }
 
 //

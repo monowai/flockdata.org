@@ -43,7 +43,7 @@ public class DataEP {
                           @PathVariable ("index")String index,
                           @PathVariable ("type") String type,
                           @PathVariable ("key") String key ){
-        Store store = Store.valueOf(repo);
+        Store store = Store.valueOf(repo.toUpperCase());
         return storeService.doRead(store, index.toLowerCase(), type.toLowerCase(), key);
     }
 }

@@ -64,7 +64,7 @@ public class EntityKeyBean {
     public EntityKeyBean(EntityLinkInputBean crossReferenceInputBean) {
         this.fortressName = crossReferenceInputBean.getFortress();
         this.documentType = crossReferenceInputBean.getDocumentType();
-        this.code = crossReferenceInputBean.getCallerRef();
+        this.code = crossReferenceInputBean.getCode();
     }
 
     public EntityKeyBean(Entity entity, String index) {

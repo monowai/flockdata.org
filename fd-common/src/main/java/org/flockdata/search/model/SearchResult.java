@@ -39,7 +39,7 @@ public class SearchResult {
     private Map<String, String[]> fragments;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> data;
-    private String callerRef;
+    private String code;
     private String createdBy;
     private Long fdTimestamp;
 
@@ -183,8 +183,8 @@ public class SearchResult {
         return fragments;
     }
 
-    public String getCallerRef() {
-        return callerRef;
+    public String getCode() {
+        return code;
     }
 
     public String getCreatedBy() {
@@ -199,8 +199,8 @@ public class SearchResult {
         this.description = description;
     }
 
-    public void setCallerRef(String callerRef) {
-        this.callerRef = callerRef;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void addFieldValue(String field, Object value) {

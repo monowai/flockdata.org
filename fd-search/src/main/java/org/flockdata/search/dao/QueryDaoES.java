@@ -357,7 +357,7 @@ public class QueryDaoES implements QueryDao {
 
                         sr.setDescription(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION)));
 
-                        sr.setCallerRef(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CODE)));
+                        sr.setCode(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CODE)));
                         if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {
                                 sr.addFieldValue(field, getHitValue(searchHitFields.getFields().get(field)));

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,7 @@ class StoreConfig implements FdStoreConfig {
     }
 
     @Bean
+    @Profile("eureka")
     public InfoEndpoint infoEndpoint() {
         return new InfoEndpoint(health());
     }

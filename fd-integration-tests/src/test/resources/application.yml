@@ -20,6 +20,13 @@ spring:
     active: integration
     include: fd-auth-test
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
+    enabled: 'false'
+
+
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline
 

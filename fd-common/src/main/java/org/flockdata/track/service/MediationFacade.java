@@ -20,10 +20,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -37,6 +34,9 @@ import java.util.concurrent.ExecutionException;
  * Time: 2:46 PM
  */
 public interface MediationFacade {
+
+    Collection<TrackRequestResult> trackEntities(Collection<EntityInputBean> inputBeans, String apiKey) throws FlockException, InterruptedException, ExecutionException, IOException;
+
     TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException;
 
     Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException;

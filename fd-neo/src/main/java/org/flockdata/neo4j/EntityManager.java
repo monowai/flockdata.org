@@ -84,7 +84,7 @@ public class EntityManager {
                 // Process the payload
                 for (EntityInputBean entityInputBean : entityPayload.getEntities()) {
                     TrackResultBean result = entityService.createEntity(entityPayload, entityInputBean);
-                    logger.trace("Batch Processed {}, callerRef=[{}], documentName=[{}]", result.getEntity().getId(), entityInputBean.getCallerRef(), entityPayload.getDocumentType());
+                    logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), entityInputBean.getCallerRef(), entityPayload.getDocumentType());
                     entityResults.addResult(result);
                     entityResults.addResult(null);
                 }
@@ -138,11 +138,11 @@ public class EntityManager {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{fortressId}/{docId}/{callerRef}")
-    public Response findByCallerRef(@PathParam("fortressId") Long fortressId, @PathParam("docId") Long docId, @PathParam("callerRef") String callerRef,
+    @Path("/{fortressId}/{docId}/{code}")
+    public Response findByCallerRef(@PathParam("fortressId") Long fortressId, @PathParam("docId") Long docId, @PathParam("code") String code,
                                     @Context CypherExecutor cypherExecutor) throws FlockException {
         try (Transaction tx = database.beginTx()) {
-            Entity entity = entityService.findEntity("callerKeyRef", EntityHelper.parseKey(fortressId, docId, callerRef));
+            Entity entity = entityService.findEntity("callerKeyRef", EntityHelper.parseKey(fortressId, docId, code));
             tx.success();
 
             if (entity == null)
