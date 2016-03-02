@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.junit.Test;
 

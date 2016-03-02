@@ -19,7 +19,7 @@ package org.flockdata.test.client;
 import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Rule;

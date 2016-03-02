@@ -16,7 +16,7 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
 
 /**
  * Simple ancestor for encapsulating profile and writer functionality

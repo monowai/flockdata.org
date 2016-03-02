@@ -20,6 +20,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 

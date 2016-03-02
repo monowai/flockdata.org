@@ -22,8 +22,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;

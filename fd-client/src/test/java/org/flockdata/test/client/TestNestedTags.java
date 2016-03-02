@@ -17,7 +17,7 @@
 package org.flockdata.test.client;
 
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
