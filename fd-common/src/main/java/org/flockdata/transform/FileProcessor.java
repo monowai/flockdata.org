@@ -31,6 +31,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.transform.xml.XmlMappable;
