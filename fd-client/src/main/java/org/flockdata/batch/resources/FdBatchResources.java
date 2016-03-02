@@ -20,10 +20,13 @@ import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.listener.FlockDataJobListener;
 import org.flockdata.batch.listener.FlockDataSkipListener;
 import org.flockdata.batch.listener.FlockDataStepListener;
+import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +40,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * Encapsulates basic DataSource functionality
@@ -102,5 +106,15 @@ public class FdBatchResources {
         return new FlockDataSkipListener();
     }
 
+
+    @Bean
+    public ItemProcessor<Map<String, Object>, EntityInputBean> fdItemProcessor() {
+        return new FlockDataItemProcessor();
+    }
+
+    @Bean
+    public ItemWriter<EntityInputBean> fdItemWriter() {
+        return new FlockDataItemWriter();
+    }
 
 }

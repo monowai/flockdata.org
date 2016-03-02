@@ -41,11 +41,11 @@ import java.util.Map;
 
 /**
  * FlockData spring-batch configuration class
- *
+ * <p>
  * creates a configured instance of an FdLoader to communicate with FlockData
  * Loads org.fd.client.configs from your fd-batch.properties file that will in-turn read a
  * YAML file for mapping between an SQL query and a ContentProfile
- *
+ * <p>
  * <p>
  * Created by mike on 24/01/16.
  */
@@ -60,7 +60,7 @@ public class BatchConfig {
     private int batchSize;
 
     @Value("${org.fd.client.batchsize:1}")
-    void setBatchSize(String batch){
+    void setBatchSize(String batch) {
         this.batchSize = Integer.parseInt(batch);
     }
 
@@ -84,7 +84,6 @@ public class BatchConfig {
     private String batchPassword;
     @Value("${batch.datasource.driver:org.hsqldb.jdbc.JDBCDriver}")
     private String batchDriver;
-
 
 
     public String getUrl() {
@@ -134,7 +133,7 @@ public class BatchConfig {
     Map<String, StepConfig> config = new HashMap<>();
 
     @Autowired
-    void loadConfigs(@Value("${org.fd.client.configs:}") final String str)  throws Exception {
+    void loadConfigs(@Value("${org.fd.client.configs:}") final String str) throws Exception {
         if (str != null && !str.equals("")) {
             List<String> configs = Arrays.asList(str.split(","));
 
@@ -143,8 +142,8 @@ public class BatchConfig {
                     StepConfig stepConfig = loadStepConfig(config);
                     logger.info("Loaded configuration {}", config);
                     this.config.put(stepConfig.getStep(), stepConfig);
-                } catch (Exception e ){
-                    logger.error (e.getMessage() +" processing " + config);
+                } catch (Exception e) {
+                    logger.error(e.getMessage() + " processing " + config);
                     throw e;
                 }
 
@@ -152,20 +151,23 @@ public class BatchConfig {
         }
     }
 
-    public StepConfig getStepConfig(String stepName){
-        return config.get(stepName);
+    public StepConfig getStepConfig(String stepName) {
+        StepConfig stepConfig = config.get(stepName);
+        if (stepConfig == null) {
+            logger.error("The requested step configuration [{}] does not exist - known step configs [{}]", stepName, Arrays.toString(config.values().toArray()));
+            throw new IllegalArgumentException("The requested step configuration " + stepName + " does not exist. Known configs are [" + Arrays.toString(config.values().toArray()) + "]");
+        }
+        return stepConfig;
     }
 
     private StepConfig loadStepConfig(String stepName) throws IOException, ClassNotFoundException {
-        StepConfig stepConfig = getStepConfig(stepName);
-        if (stepConfig == null) {
-            stepConfig = readConfig(stepName.trim());
-            if (stepConfig.getProfile() != null) {
-                ContentProfile contentProfile = ProfileReader.getImportProfile(stepConfig.getProfile());
-                stepConfig.setContentProfile(contentProfile);
-            }
-
+        StepConfig stepConfig;
+        stepConfig = readConfig(stepName.trim());
+        if (stepConfig.getProfile() != null) {
+            ContentProfile contentProfile = ProfileReader.getImportProfile(stepConfig.getProfile());
+            stepConfig.setContentProfile(contentProfile);
         }
+
         return stepConfig;
     }
 
