@@ -25,7 +25,7 @@ import org.flockdata.model.Company;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.json.JsonEntityMapper;
