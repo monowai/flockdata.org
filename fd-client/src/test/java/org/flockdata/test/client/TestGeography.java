@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.transform.*;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;

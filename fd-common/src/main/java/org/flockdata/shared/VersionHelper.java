@@ -25,10 +25,10 @@ import org.springframework.context.annotation.PropertySource;
  * Since: 29/08/13
  */
 @Configuration
-@PropertySource("version.properties")
+@PropertySource(value = "version.properties",ignoreResourceNotFound = true)
 public class VersionHelper {
 
-    @Value("${info.build.version}")
+    @Value("${info.build.version:na}")
     String version;
 
     @Value("${info.build.plan:na}")

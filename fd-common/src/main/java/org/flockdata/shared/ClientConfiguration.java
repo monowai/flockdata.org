@@ -14,9 +14,10 @@
  *  limitations under the License.
  */
 
-package org.flockdata.transform;
+package org.flockdata.shared;
 
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.transform.ProfileReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 

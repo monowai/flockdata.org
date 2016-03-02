@@ -18,7 +18,7 @@ package org.flockdata.test.client;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import org.flockdata.client.Importer;
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
