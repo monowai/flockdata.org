@@ -20,6 +20,7 @@ package org.flockdata.test.batch;
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
+import org.flockdata.batch.resources.FdRowMapper;
 import org.flockdata.batch.resources.FdWriter;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
@@ -46,7 +47,8 @@ import static org.junit.Assert.assertNotNull;
 @ActiveProfiles("dev")
 @SpringApplicationConfiguration({ BatchConfig.class,
                                   FdBatchResources.class,
-        ClientConfiguration.class,
+                                  ClientConfiguration.class,
+        FdRowMapper.class,
                                   FdMockWriter.class,
                                   HsqlDataSource.class,
                                   JobLauncherTestUtils.class,
@@ -77,8 +79,8 @@ public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContext
         }
     }
 
-    @Autowired
-    FdBatchResources batchResources;
+//    @Autowired
+//    FdBatchResources batchResources;
 
     @Bean
     public JobLauncherTestUtils getJobLauncherTestUtils() {
