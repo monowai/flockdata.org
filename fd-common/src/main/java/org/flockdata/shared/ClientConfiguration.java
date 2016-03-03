@@ -53,7 +53,7 @@ public class ClientConfiguration {
     public static final String KEY_MSG_KEY = "fd-apiKey";
     private Boolean defConfig = true;
 
-    @Value ("${"+ KEY_COMPANY +"}")
+    @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;
 
     @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
