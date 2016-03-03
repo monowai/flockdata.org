@@ -238,7 +238,7 @@ public class EntityServiceNeo4J implements EntityService {
 
     }
 
-    public Entity makeEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
+    private Entity makeEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
         String fortressUser = entityInput.getFortressUser();
         if (fortressUser == null && entityInput.getContent() != null)
             fortressUser = entityInput.getContent().getFortressUser();
