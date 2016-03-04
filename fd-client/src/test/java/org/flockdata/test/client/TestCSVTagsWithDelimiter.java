@@ -21,15 +21,12 @@ import junit.framework.TestCase;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,19 +38,15 @@ public class TestCSVTagsWithDelimiter extends AbstractImport {
 
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         String file = "/profile/no-header.json";
-        ClientConfiguration configuration = getClientConfiguration();
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
         ContentProfileImpl params = ProfileReader.getImportProfile(file);
         //assertEquals('|', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/no-header.txt", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/no-header.txt");
         int expectedRows = 6;
         assertEquals(expectedRows, rows);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         TestCase.assertEquals(expectedRows, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             assertFalse(tagInputBean.getCode().contains("|"));

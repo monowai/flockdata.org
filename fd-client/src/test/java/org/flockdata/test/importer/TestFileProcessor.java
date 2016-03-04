@@ -19,7 +19,7 @@
 
 package org.flockdata.test.importer;
 
-import org.flockdata.transform.FileProcessor;
+import org.flockdata.shared.FileProcessor;
 import org.junit.Test;
 
 import java.util.Collection;

@@ -17,8 +17,6 @@
 package org.flockdata.test.client;
 
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -37,12 +35,10 @@ public class TestTagKeyPrefix extends AbstractImport {
     private Logger logger = LoggerFactory.getLogger(TestTagKeyPrefix.class);
     @Test
     public void prefix_TagKeyWorks() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-key-prefix.json"),
-                "/data/tag-key-prefix.csv", getFdWriter(), null, configuration);
+                "/data/tag-key-prefix.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         // The profile defines a nested tag but the value is missing in the source
 
         assertEquals(2, tagInputBeans.size());

@@ -20,9 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -38,18 +36,14 @@ import static org.junit.Assert.*;
 public class TestEntityRlxProperties extends AbstractImport{
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         String file = "/profile/properties-rlx.json";
-        ClientConfiguration configuration = getClientConfiguration();
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
         ContentProfileImpl params = ProfileReader.getImportProfile(file);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/properties-rlx.txt");
         assertEquals(4, rows);
-        List<EntityInputBean> entityBatch = getFdWriter().getEntities();
+        List<EntityInputBean> entityBatch = fdBatcher.getEntities();
         assertEquals(4, entityBatch.size());
         for (EntityInputBean entityInputBean : entityBatch) {
             assertFalse("Expression not parsed for code",entityInputBean.getCode().contains("|"));
