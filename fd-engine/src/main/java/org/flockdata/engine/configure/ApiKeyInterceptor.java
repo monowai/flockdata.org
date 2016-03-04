@@ -87,16 +87,17 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     private boolean isCompanyLookupUrl(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
-        return url.contains("/api/v1/company")
+        return ! (url.contains("/api/v1/admin/health") || url.contains("/api/v1/admin/ping"))
+                && (url.contains("/api/v1/company")
                 || url.contains("/api/v1/track")
+                || url.contains("/api/v1/admin")
                 || url.contains("/api/v1/entity")
                 || url.contains("/api/v1/fortress")
                 || url.contains("/api/v1/tag")
                 || url.contains("/api/v1/path")
                 || url.contains("/api/v1/query")
                 || url.contains("/api/v1/doc")
-                || url.contains("/api/v1/geo")
-                ;
+                || url.contains("/api/v1/geo"));
     }
 
     private boolean noApiKey(String apiKey) {

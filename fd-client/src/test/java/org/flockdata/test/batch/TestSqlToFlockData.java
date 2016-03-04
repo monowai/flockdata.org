@@ -39,6 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -54,11 +55,14 @@ import static org.junit.Assert.assertNotNull;
                                   JobLauncherTestUtils.class,
                                   SqlQueryJob.class
                                 })
-@TestPropertySource("/fd-batch.properties")
+@TestPropertySource({"/fd-batch.properties"})
 public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
+
+    @Autowired
+    ClientConfiguration clientConfiguration;
 
     @Autowired
     FdWriter fdWriter;
@@ -69,6 +73,7 @@ public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContext
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
+        assertTrue(clientConfiguration.getBatchSize()>1);
         // This check works because 2 is < the configured batch size
         TestCase.assertEquals("Number of rows loaded ex data.sql does not match", 2, fdWriter.getFdLoader().getEntities().size());
         for (EntityInputBean entityInputBean : fdWriter.getFdLoader().getEntities()) {
