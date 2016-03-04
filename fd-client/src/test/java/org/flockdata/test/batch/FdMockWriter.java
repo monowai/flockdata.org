@@ -20,10 +20,12 @@ public class FdMockWriter extends FdWriterImpl {
         return fdWriter;
     }
 
+    @Override
     public void write(EntityInputBean item) throws FlockException {
         getFdLoader().batchEntity(item);// Not writing to FD. Transformed entity will be stored in the fdWriter
     }
 
+    @Override
     public void flush() throws FlockException {
         // Normally would clear the internal payload
         // noop

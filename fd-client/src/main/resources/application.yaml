@@ -1,0 +1,34 @@
+
+server:
+  port: 9099
+
+spring:
+  profiles:
+    active: production
+
+#Thu Mar 03 08:41:03 NZDT 2016
+org.fd:
+  client:
+    # The API key is used to identify a user associated with the company.
+    # You can get your APIKey via Curl with the following command
+    # curl -u mike http://localhost:8080/api/v1/profiles/me
+    apikey: ERMS4i16T768t3hxm4zh6w
+    batchsize: 1
+    login:
+      user: mike
+    default:
+      company: FlockData
+  track:
+    messaging:
+      binding: fd.track.binding
+      queue: fd.track.queue
+      exchange: fd.track.exchange
+  engine:
+    api: http://localhost:8080/api
+
+rabbit:
+  pass: guest
+  user: guest
+  host: localhost
+  persistent: true
+

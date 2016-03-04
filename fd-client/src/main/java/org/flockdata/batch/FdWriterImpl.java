@@ -18,7 +18,7 @@ package org.flockdata.batch;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import org.flockdata.batch.resources.FdWriter;
-import org.flockdata.client.Importer;
+import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.shared.ClientConfiguration;
@@ -72,7 +72,7 @@ public class FdWriterImpl implements FdWriter {
     }
 
     private org.flockdata.transform.FdWriter getRestClient(ClientConfiguration configuration) {
-        return Importer.getRestClient(configuration);
+        return new FdRestWriter(configuration);
     }
 
     public FdLoader getFdLoader () {
