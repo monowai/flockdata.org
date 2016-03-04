@@ -24,7 +24,6 @@ import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
-import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class Importer {
             logger.error("No API key is set in the config file. Have you run the config process?");
             System.exit(-1);
         }
-        //nameSpace = InitializationSupport.getImportNamespace(args);
+
         Collection<String> files = clientConfiguration.getFilesToImport();
         if (files.isEmpty()) {
             logger.error("No files to parse!");
@@ -129,14 +128,13 @@ public class Importer {
                     item++;
                 }
                 ContentProfileImpl contentProfileImpl;
-                FdWriter restClient = getRestClient(clientConfiguration);
-                if (profile != null) {
+                if (fdClient!=null && profile != null) {
                     contentProfileImpl = ProfileReader.getImportProfile(profile);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
-                SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
+                SystemUserResultBean su = fdClient.me(); // Use the configured API as the default FU unless another is set
                 if ( su == null ) {
                     if ( !clientConfiguration.isAmqp())
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
@@ -163,63 +161,6 @@ public class Importer {
                 fileProcessor.endProcess(watch, totalRows, 0);
         }
     }
-
-    private FdWriter getRestClient(ClientConfiguration configuration) {
-        if ( fdClient !=null)
-            return fdClient;
-
-        if (!configuration.isAmqp()) {
-            String ping = fdClient.ping().toLowerCase();
-            if (!ping.startsWith("pong")) {
-                logger.warn("Error communicating over http with fd-engine {} ", configuration.getEngineURL());
-                if (configuration.isAmqp()) {
-                    logger.info("Data can still be sent over AMQP");
-                }
-            }
-        }
-        fdClient.setSimulateOnly(configuration.getBatchSize() <= 0);
-        return fdClient;
-
-    }
-//    @Deprecated // Inject ClientConfiguration instead.
-//    // Create a ClientConfiguration from command line arguments.
-//    public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
-//
-//        nameSpace = InitializationSupport.getImportNamespace(args);
-//        //logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
-//
-//        File file = Configure.getFile(nameSpace);
-//
-//        ClientConfiguration importConfig = Configure.getConfiguration(file);
-//
-//        Object o = nameSpace.get(ClientConfiguration.KEY_BATCH_SIZE);
-//        if (o != null)
-//            importConfig.setBatchSize(Integer.parseInt(o.toString().trim()));
-//
-//        o = nameSpace.get("validate");
-//        if (o != null)
-//            importConfig.setValidateOnly(Boolean.parseBoolean(o.toString()));
-//
-//        o = nameSpace.get(ClientConfiguration.AMQP);
-//        if (o != null)
-//            importConfig.setAmqp(Boolean.parseBoolean(o.toString()), true);
-//
-//        o = nameSpace.get("skip");
-//        if (o !=null)
-//            importConfig.setSkipCount(Integer.parseInt(o.toString()));
-//
-//        o = nameSpace.get("stop");
-//        if (o !=null)
-//            importConfig.setStopRowProcessCount(Integer.parseInt(o.toString()));
-//
-//        return importConfig;
-//    }
-//
-//    private static Namespace getNameSpace() {
-//        return nameSpace;
-//    }
-
-//    private static Namespace nameSpace = null;
 
 
 }
