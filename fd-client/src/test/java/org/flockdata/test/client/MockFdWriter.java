@@ -22,18 +22,20 @@ import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
-import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
+ * Mock writer that satisfies the interface for testing purposes
+ *
  * Created by mike on 1/03/15.
  */
 @Service
+@Profile("dev")
 public class MockFdWriter implements FdWriter {
 
     public List<EntityInputBean> getEntities() {
@@ -68,21 +70,9 @@ public class MockFdWriter implements FdWriter {
     }
 
     @Override
-    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        return 0;
-    }
-    private boolean simulateOnly = false;
-    @Override
     public boolean isSimulateOnly() {
         // Setting this to true will mean that the flush routines above are not called
-        return simulateOnly;
+        return true;
     }
 
-    @Override
-    public void close(FdLoader fdLoader) throws FlockException {
-        this.entities = fdLoader.getEntities();
-        this.tags = fdLoader.getTags();
-//        simulateOnly = true;
-//        trackBatcher.flush();
-    }
 }

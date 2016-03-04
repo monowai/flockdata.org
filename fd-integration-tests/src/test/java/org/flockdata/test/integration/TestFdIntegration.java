@@ -38,7 +38,6 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.search.model.*;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -180,6 +179,9 @@ public class TestFdIntegration {
 
     @Autowired
     WebApplicationContext wac;
+
+    @Autowired
+    AmqpServices amqpServices;
 
     @Autowired
     FdServerWriter serverWriter;
@@ -1325,13 +1327,8 @@ public class TestFdIntegration {
         }
 
         Properties properties = getProperties(su);
-        AmqpServices amqpServices = null;
 
         try {
-            ClientConfiguration configuration = new ClientConfiguration(properties);
-            configuration.setAmqp(true, false);
-
-            amqpServices = new AmqpServices(configuration);
 
             // ToDo: Figure out response codes
 

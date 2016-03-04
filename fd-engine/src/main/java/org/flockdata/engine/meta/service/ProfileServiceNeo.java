@@ -35,8 +35,8 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.FortressService;
-import org.flockdata.transform.FileProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -62,6 +62,9 @@ public class ProfileServiceNeo implements ImportProfileService {
 
     @Autowired
     FdServerWriter fdServerWriter;
+
+    @Autowired
+    FileProcessor fileProcessor;
 
     static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
@@ -130,11 +133,10 @@ public class ProfileServiceNeo implements ImportProfileService {
         ContentProfile profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
-        FileProcessor fileProcessor = new FileProcessor();
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setBatchSize(1);
-        return fileProcessor.processFile(profile, file, fdServerWriter, company, defaults);
+        return fileProcessor.processFile(profile, file);
     }
 
     @Override

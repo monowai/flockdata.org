@@ -26,7 +26,7 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ImportProfileService;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.transform.FileProcessor;
+import org.flockdata.shared.FileProcessor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,6 +40,9 @@ import static org.junit.Assert.*;
 public class TestBatch extends EngineBase {
     @Autowired
     ImportProfileService importProfileService;
+
+    @Autowired
+    FileProcessor fileProcessor;
 
     @Test
     public void doBatchTest() throws Exception {

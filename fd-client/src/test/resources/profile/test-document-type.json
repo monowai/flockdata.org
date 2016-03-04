@@ -5,7 +5,7 @@
   "entityOnly": "true",
   "fortressName": "TestDocType",
   "delimiter": ",",
-  "header": true,
+  "header": false,
   "content": {
     "Id":{
       "callerRef":true
