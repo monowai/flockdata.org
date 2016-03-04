@@ -2,19 +2,14 @@ package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,18 +19,13 @@ public class TestCalculatedColumns extends AbstractImport {
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
         // DAT-527
-        FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/profile/calculatedcolumns.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        assertNotNull(configuration);
-
 
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/calculatedcolumns.json");
 
-        long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv", getFdWriter(), null, configuration);
+        long rows = fileProcessor.processFile(params, "/data/calculatedcolumns.csv");
         int expectedRows = 1;
         assertEquals(expectedRows, rows);
-        List<EntityInputBean> entityInputBeans = getFdWriter().getEntities();
+        List<EntityInputBean> entityInputBeans = fdBatcher.getEntities();
 
         for (EntityInputBean entityInputBean : entityInputBeans) {
             //BulkHours,ScheduledHours,Hours

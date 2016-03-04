@@ -20,26 +20,16 @@
 package org.flockdata.test.engine.services;
 
 import junit.framework.TestCase;
-import org.flockdata.helper.FlockException;
 import org.flockdata.model.*;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FileProcessor;
 import org.flockdata.store.Store;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
-import org.flockdata.transform.FdLoader;
-import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.FileProcessor;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -57,6 +47,10 @@ import static org.junit.Assert.assertNotNull;
  * Time: 9:37 AM
  */
 public class TestCsvImportIntegration extends EngineBase {
+
+    @Autowired
+    FileProcessor fileProcessor;
+
     @Override
     public void cleanUpGraph() {
         super.cleanUpGraph();   // DAT-363
@@ -76,13 +70,7 @@ public class TestCsvImportIntegration extends EngineBase {
         DocumentType docType = conceptService.resolveByDocCode(f, "QuestionEvent");
         int i = 1, maxRuns = 4;
         do {
-
-            FileProcessor myProcessor = new FileProcessor();
-            FdTestWriter testWriter = new FdTestWriter(su);
-
-            ClientConfiguration defaults = new ClientConfiguration();
-
-            myProcessor.processFile(ContentProfileDeserializer.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv", testWriter, su.getCompany(), defaults);
+            fileProcessor.processFile(ContentProfileDeserializer.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv");
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);
@@ -101,60 +89,5 @@ public class TestCsvImportIntegration extends EngineBase {
         } while (i <= maxRuns);
     }
 
-    private class FdTestWriter implements FdWriter {
-        FdTestWriter(SystemUser su) {
-            this.su = su;
-
-        }
-
-        int count = 0;
-
-        SystemUser su = null;
-
-        public SystemUserResultBean me() {
-            return new SystemUserResultBean(su);
-        }
-
-        public String flushTags(List<TagInputBean> tagInputBeans) throws FlockException {
-            return null;
-        }
-
-        @Override
-        public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
-            if (count == 0)
-                count = entityBatch.size();
-            //ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 10000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
-
-            //if (configuration.getBatchSize() == 1) {
-//                for (EntityInputBean entityInputBean : entityBatch) {
-                    try {
-    //                    if (entityInputBean != null) {
-                            //logger.debug("My Date {}", entityInputBean.getWhen());
-                            mediationFacade.trackEntities(entityBatch, su.getApiKey());
-                        } catch (InterruptedException | FlockException | ExecutionException | IOException e) {
-                        logger.error("Unexpected", e);
-                    }
-
-
-  //          logger.debug("Executor at {}", executor.getActiveCount());
-
-            return "";
-        }
-
-        @Override
-        public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-            return 0;
-        }
-
-        @Override
-        public boolean isSimulateOnly() {
-            return false;
-        }
-
-        @Override
-        public void close(FdLoader fdLoader) throws FlockException {
-            fdLoader.flush();
-        }
-    }
 
 }

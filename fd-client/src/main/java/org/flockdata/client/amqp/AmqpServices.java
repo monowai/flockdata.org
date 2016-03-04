@@ -25,7 +25,12 @@ import org.flockdata.helper.JsonUtils;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,17 +40,21 @@ import java.util.HashMap;
  * Date: 27/11/14
  * Time: 8:17 AM
  */
+@Component
+@Configuration
 public class AmqpServices {
     ConnectionFactory factory = new ConnectionFactory();
     Connection connection =null ;
     Channel channel  = null;
-    String exchange;
-    String queue;
-    String routingKey;
+
     AMQP.BasicProperties.Builder builder;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpServices.class);
 
-    public AmqpServices(ClientConfiguration configuration) throws FlockException {
+    @Autowired
+    ClientConfiguration configuration;
+
+    @PostConstruct
+    public void init() throws FlockException {
         factory.setHost(configuration.getRabbitHost());
         factory.setUsername(configuration.getRabbitUser());
         factory.setPassword(configuration.getRabbitPass());
@@ -53,11 +62,8 @@ public class AmqpServices {
         try {
             connection = factory.newConnection();
             channel = connection.createChannel();
-            this.queue = configuration.getTrackQueue();
-            this.exchange = configuration.getTrackExchange();
-            this.routingKey = configuration.getTrackRoutingKey();
 
-            channel.queueBind(queue, exchange, routingKey);
+            channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
             connection = factory.newConnection();
             HashMap<String,Object> headers = new HashMap<>();
             headers.put(ClientConfiguration.KEY_MSG_KEY, configuration.getApiKey());
@@ -75,6 +81,7 @@ public class AmqpServices {
         }
     }
 
+    @PreDestroy
     public void close(){
         if ( connection != null )
             try {
@@ -91,12 +98,12 @@ public class AmqpServices {
 
     public void publish(EntityInputBean entityInput) throws IOException {
 
-        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.toJsonBytes(entityInput));
+        channel.basicPublish(configuration.getTrackExchange(), configuration.getTrackRoutingKey(), builder.build(), JsonUtils.toJsonBytes(entityInput));
     }
 
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
 
-        channel.basicPublish(exchange, routingKey, builder.build(), JsonUtils.toJsonBytes(entityInputs));
+        channel.basicPublish(configuration.getTrackExchange(), configuration.getTrackRoutingKey(), builder.build(), JsonUtils.toJsonBytes(entityInputs));
     }
 
 }

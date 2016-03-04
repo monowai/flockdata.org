@@ -16,8 +16,7 @@
 
 package org.flockdata.batch.listener;
 
-import org.flockdata.batch.resources.FdWriter;
-import org.flockdata.helper.FlockException;
+import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
@@ -28,7 +27,7 @@ public class FlockDataJobListener implements JobExecutionListener {
     private static final Logger logger = LoggerFactory.getLogger(FlockDataJobListener.class);
 
     @Autowired
-    FdWriter batchLoader;
+    PayloadBatcher batchLoader;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
@@ -41,11 +40,7 @@ public class FlockDataJobListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         logger.info("Exit code: {}", jobExecution.getExitStatus().getExitCode());
         logger.info("End of batch {}", jobExecution.getJobInstance().getJobName());
-        try {
-            batchLoader.flush();
-        } catch (FlockException e) {
-            logger.error ( "Flushing the batch caused an exception");
-        }
+        batchLoader.flush();
     }
 
 }

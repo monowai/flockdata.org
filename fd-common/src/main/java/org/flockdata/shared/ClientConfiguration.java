@@ -16,15 +16,14 @@
 
 package org.flockdata.shared;
 
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.transform.ProfileReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,7 +54,6 @@ public class ClientConfiguration {
     public static final String KEY_RABBIT_PASS = "rabbit.pass";
     public static final String KEY_RABBIT_PD = "rabbit.persistent";
     public static final String KEY_MSG_KEY = "fd-apiKey";
-    private Boolean defConfig = true;
 
     @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;
@@ -101,11 +99,12 @@ public class ClientConfiguration {
 
 
     public ClientConfiguration() {
-        defConfig = true;
+//        defConfig = true;
     }
 
+    @Deprecated // use injection
     public ClientConfiguration(Properties prop) {
-        defConfig = false;
+        //defConfig = false;
         Object o = prop.get(KEY_ENGINE_API);
         if (o != null)
             setEngineURL(o.toString());
@@ -201,18 +200,6 @@ public class ClientConfiguration {
 
     public void setCompany(String company) {
         this.company = company;
-    }
-
-    /**
-     *
-     * @param profile Fully file name
-     * @return initialized ImportProfile
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @deprecated - use org.flockdata.transform.ProfileConfiguration
-     */
-    public static ContentProfileImpl getImportProfile(String profile) throws IOException, ClassNotFoundException {
-        return ProfileReader.getImportProfile(profile);
     }
 
     public boolean isAsync() {
@@ -341,4 +328,10 @@ public class ClientConfiguration {
     public Collection<String> getFilesToImport() {
         return filesToImport;
     }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
 }
