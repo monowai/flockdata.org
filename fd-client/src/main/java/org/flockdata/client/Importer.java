@@ -27,11 +27,18 @@ import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.transform.FdWriter;
 import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StopWatch;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -61,73 +68,82 @@ import java.util.List;
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
+@SpringBootApplication (scanBasePackages = {
+        "org.flockdata.authentication", "org.flockdata.shared",  "org.flockdata.client"})
+
 public class Importer {
 
-    private static  org.slf4j.Logger logger = null;
+    private Logger logger = LoggerFactory.getLogger(Importer.class);
 
+    @Autowired
+    ClientConfiguration clientConfiguration;
 
     public static void main(String args[]) throws ArgumentParserException {
+        SpringApplication.run(Importer.class, args);
+        System.exit(0);
+    }
 
-        ClientConfiguration configuration = getConfiguration(args);
+    @PostConstruct
+    private void runCode() {
 
-        if (configuration.getApiKey() == null) {
+        if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the config process?");
             System.exit(-1);
         }
-
-        List<String> files = getNameSpace().getList("files");
+        //nameSpace = InitializationSupport.getImportNamespace(args);
+        Collection<String> files = clientConfiguration.getFilesToImport();
         if (files.isEmpty()) {
             logger.error("No files to parse!");
             System.exit(1);
         }
 
-        importFiles(configuration, files);
-        System.exit(0);
+        importFiles();
+
     }
 
-    public static void importFiles(ClientConfiguration configuration, List<String> files){
+    void importFiles(){
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
         FileProcessor fileProcessor = null;
         try {
 
-            int batchSize = configuration.getBatchSize();
+            int batchSize = clientConfiguration.getBatchSize();
 
-            int skipCount = configuration.getSkipCount();
+            int skipCount = clientConfiguration.getSkipCount();
 
-            int rowsToProcess = configuration.getStopRowProcessCount();
+            int rowsToProcess = clientConfiguration.getStopRowProcessCount();
 
             watch.start();
 
-            for (String thisFile : files) {
+            for (String thisFile : clientConfiguration.getFilesToImport()) {
                 List<String> items = Arrays.asList(thisFile.split("\\s*,\\s*"));
 
                 int item = 0;
                 String fileName = null;
-                String clazz = null;
+                String profile = null;
                 for (String itemArg : items) {
                     if (item == 0) {
                         fileName = itemArg;
                     } else if (item == 1) {
-                        clazz = itemArg;
+                        profile = itemArg;
                     }
 
                     item++;
                 }
                 ContentProfileImpl contentProfileImpl;
-                FdWriter restClient = getRestClient(configuration);
-                if (clazz != null) {
-                    contentProfileImpl = ProfileReader.getImportProfile(clazz);
+                FdWriter restClient = getRestClient(clientConfiguration);
+                if (profile != null) {
+                    contentProfileImpl = ProfileReader.getImportProfile(profile);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
                 SystemUserResultBean su = restClient.me(); // Use the configured API as the default FU unless another is set
                 if ( su == null ) {
-                    if ( !configuration.isAmqp())
-                        throw new FlockException("Unable to connect to FlockData. Is the service running at [" + configuration.getEngineURL() + "]?");
+                    if ( !clientConfiguration.isAmqp())
+                        throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
                     else
-                        logger.warn( "Http communications with FlockData are not working. Is the service running at [" + configuration.getEngineURL() + "]?");
+                        logger.warn( "Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 
@@ -137,7 +153,7 @@ public class Importer {
                     fileProcessor = new FileProcessor(skipCount, rowsToProcess);
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName, restClient, null, configuration);
+                totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName, restClient, null, clientConfiguration);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
@@ -152,7 +168,7 @@ public class Importer {
 
     private static FdRestWriter fdClient = null;
 
-    public static FdWriter getRestClient(ClientConfiguration configuration) {
+    public FdWriter getRestClient(ClientConfiguration configuration) {
         if ( fdClient !=null)
             return fdClient;
 
@@ -170,11 +186,12 @@ public class Importer {
         return fdClient;
 
     }
-
+    @Deprecated // Inject ClientConfiguration instead.
+    // Create a ClientConfiguration from command line arguments.
     public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
 
         nameSpace = InitializationSupport.getImportNamespace(args);
-        logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
+        //logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
 
         File file = Configure.getFile(nameSpace);
 
