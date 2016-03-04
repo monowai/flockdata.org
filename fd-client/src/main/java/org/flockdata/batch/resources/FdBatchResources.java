@@ -21,6 +21,7 @@ import org.flockdata.batch.listener.FlockDataJobListener;
 import org.flockdata.batch.listener.FlockDataSkipListener;
 import org.flockdata.batch.listener.FlockDataStepListener;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.SkipListener;
@@ -49,10 +50,14 @@ import java.util.Map;
  */
 @Configuration
 @Component
+@Profile("fd-batch")
 public class FdBatchResources {
 
     @Autowired
     BatchConfig batchConfig;
+
+    @Autowired
+    PayloadBatcher payloadBatcher;
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
 
@@ -114,7 +119,7 @@ public class FdBatchResources {
 
     @Bean
     public ItemWriter<EntityInputBean> fdItemWriter() {
-        return new FlockDataItemWriter();
+        return new FlockDataItemWriter(payloadBatcher);
     }
 
 }

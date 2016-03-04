@@ -16,8 +16,7 @@
 
 package org.flockdata.batch.listener;
 
-import org.flockdata.batch.resources.FdWriter;
-import org.flockdata.helper.FlockException;
+import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -29,7 +28,7 @@ public class FlockDataStepListener implements StepExecutionListener {
     private static final Logger logger = LoggerFactory.getLogger(FlockDataStepListener.class);
 
     @Autowired
-    FdWriter batchLoader;
+    PayloadBatcher batchLoader;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -52,11 +51,7 @@ public class FlockDataStepListener implements StepExecutionListener {
         logger.info("- Number of Commit (including technical steps): " + stepExecution.getCommitCount());
         logger.info("- Number of Rollback (including technical steps): " + stepExecution.getRollbackCount());
         logger.info("");
-        try {
-            batchLoader.flush();
-        } catch (FlockException e) {
-            e.printStackTrace();
-        }
+        batchLoader.flush();
         return stepExecution.getExitStatus();
     }
 

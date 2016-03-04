@@ -20,15 +20,13 @@ import junit.framework.TestCase;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FileProcessor;
+import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 /**
  *
@@ -43,13 +41,8 @@ public class TestBatchUnqueEntities extends AbstractImport{
      */
     @Test
     public void duplicateKeysInSource_UniqueEntity() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
-        String fileName = "/profile/duplicate-entities.json";
-        ClientConfiguration configuration = getClientConfiguration();
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
-        ContentProfileImpl contentProfile = ClientConfiguration.getImportProfile(fileName);
+        ContentProfileImpl contentProfile = ProfileReader.getImportProfile( "/profile/duplicate-entities.json");
 
         contentProfile.setHeader(true);
         contentProfile.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
@@ -57,9 +50,8 @@ public class TestBatchUnqueEntities extends AbstractImport{
         contentProfile.setTagOrEntity(ContentProfile.DataType.ENTITY);
         contentProfile.setEntityOnly(true);
 
-        MockFdWriter fdWriter = new MockFdWriter();
-        fileProcessor.processFile(contentProfile, "/data/duplicate-entities.csv", fdWriter, null, configuration);
-        List<EntityInputBean> entities = fdWriter.getEntities();
+        fileProcessor.processFile(contentProfile, "/data/duplicate-entities.csv");
+        List<EntityInputBean> entities = fdBatcher.getEntities();
         TestCase.assertEquals(1, entities.size());
 
         EntityInputBean movie = entities.iterator().next();

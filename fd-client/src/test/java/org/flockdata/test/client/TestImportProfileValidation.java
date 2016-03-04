@@ -16,19 +16,15 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.File;
-
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -42,18 +38,13 @@ public class TestImportProfileValidation extends AbstractImport{
 
     @Test
     public void valid_Properties() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/profile/properties-rlx.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/properties-rlx.json");
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
         params.setFortressName(null);
         try {
-            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt");
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -61,7 +52,7 @@ public class TestImportProfileValidation extends AbstractImport{
         // Should also fail with blank
         params.setFortressName("");
         try {
-            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt");
             fail("No fortress name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("fortressName attribute."));
@@ -71,7 +62,7 @@ public class TestImportProfileValidation extends AbstractImport{
         exception.expect(IllegalArgumentException.class);
         params.setDocumentName(null);
         try {
-            fileProcessor.processFile(params, "/data/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/data/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));
@@ -79,7 +70,7 @@ public class TestImportProfileValidation extends AbstractImport{
 
         params.setDocumentName("");
         try {
-            fileProcessor.processFile(params, "/properties-rlx.txt", getFdWriter(), null, configuration);
+            fileProcessor.processFile(params, "/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
         } catch (FlockException e){
             assertTrue(e.getMessage().contains("documentName attribute."));

@@ -18,8 +18,6 @@ package org.flockdata.test.client;
 
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -36,14 +34,12 @@ import static org.junit.Assert.assertFalse;
 public class TestTagAliases extends AbstractImport {
     @Test
     public void string_csvTagAliases() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         String paramFile = "/profile/csv-tag-alias.json";
-        ClientConfiguration configuration = getClientConfiguration();
 
         ContentProfileImpl params = ProfileReader.getImportProfile(paramFile);
-        fileProcessor.processFile(params, "/data/csv-tag-alias.txt", getFdWriter(), null, configuration);
+        fileProcessor.processFile(params, "/data/csv-tag-alias.txt");
 
-        Collection<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        Collection<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(3, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             switch (tagInputBean.getCode()) {

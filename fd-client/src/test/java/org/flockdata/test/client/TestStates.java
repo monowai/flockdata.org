@@ -19,8 +19,6 @@ package org.flockdata.test.client;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -37,13 +35,11 @@ public class TestStates extends AbstractImport {
     @Test
     public void validate_States() throws Exception {
         String profile = "/states.json";
-        ClientConfiguration configuration = getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
         ContentProfileImpl params = ProfileReader.getImportProfile(profile);
-        fileProcessor.processFile(params, "/states.csv", getFdWriter(), null, configuration);
-        assertEquals(72, getFdWriter().getTags().size());
+        fileProcessor.processFile(params, "/states.csv");
+        assertEquals(72, getFdBatcher().getTags().size());
 
-        for (TagInputBean stateTag : getFdWriter().getTags()) {
+        for (TagInputBean stateTag : getFdBatcher().getTags()) {
             assertEquals(1, stateTag.getTargets().size());
             TagInputBean country = stateTag.getTargets().get("region").iterator().next();
             assertNotNull(country);

@@ -17,15 +17,14 @@
 package org.flockdata.client;
 
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FileProcessor;
 import org.flockdata.transform.FdWriter;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,7 +74,13 @@ public class Importer {
     private Logger logger = LoggerFactory.getLogger(Importer.class);
 
     @Autowired
-    ClientConfiguration clientConfiguration;
+    private ClientConfiguration clientConfiguration;
+
+    @Autowired
+    private FdRestWriter fdClient ;
+
+    @Autowired
+    private FileProcessor fileProcessor;
 
     public static void main(String args[]) throws ArgumentParserException {
         SpringApplication.run(Importer.class, args);
@@ -84,7 +88,7 @@ public class Importer {
     }
 
     @PostConstruct
-    private void runCode() {
+    void importFiles(){
 
         if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the config process?");
@@ -97,14 +101,8 @@ public class Importer {
             System.exit(1);
         }
 
-        importFiles();
-
-    }
-
-    void importFiles(){
         StopWatch watch = new StopWatch("Batch Import");
         long totalRows = 0;
-        FileProcessor fileProcessor = null;
         try {
 
             int batchSize = clientConfiguration.getBatchSize();
@@ -153,7 +151,7 @@ public class Importer {
                     fileProcessor = new FileProcessor(skipCount, rowsToProcess);
 
                 // Importer does not know what the company is
-                totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName, restClient, null, clientConfiguration);
+                totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName);
             }
             logger.info("Finished at {}", DateFormat.getDateTimeInstance().format(new Date()));
 
@@ -166,13 +164,10 @@ public class Importer {
         }
     }
 
-    private static FdRestWriter fdClient = null;
-
-    public FdWriter getRestClient(ClientConfiguration configuration) {
+    private FdWriter getRestClient(ClientConfiguration configuration) {
         if ( fdClient !=null)
             return fdClient;
 
-        fdClient = new FdRestWriter(configuration);
         if (!configuration.isAmqp()) {
             String ping = fdClient.ping().toLowerCase();
             if (!ping.startsWith("pong")) {
@@ -186,45 +181,45 @@ public class Importer {
         return fdClient;
 
     }
-    @Deprecated // Inject ClientConfiguration instead.
-    // Create a ClientConfiguration from command line arguments.
-    public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
+//    @Deprecated // Inject ClientConfiguration instead.
+//    // Create a ClientConfiguration from command line arguments.
+//    public static ClientConfiguration getConfiguration(String[] args) throws ArgumentParserException {
+//
+//        nameSpace = InitializationSupport.getImportNamespace(args);
+//        //logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
+//
+//        File file = Configure.getFile(nameSpace);
+//
+//        ClientConfiguration importConfig = Configure.getConfiguration(file);
+//
+//        Object o = nameSpace.get(ClientConfiguration.KEY_BATCH_SIZE);
+//        if (o != null)
+//            importConfig.setBatchSize(Integer.parseInt(o.toString().trim()));
+//
+//        o = nameSpace.get("validate");
+//        if (o != null)
+//            importConfig.setValidateOnly(Boolean.parseBoolean(o.toString()));
+//
+//        o = nameSpace.get(ClientConfiguration.AMQP);
+//        if (o != null)
+//            importConfig.setAmqp(Boolean.parseBoolean(o.toString()), true);
+//
+//        o = nameSpace.get("skip");
+//        if (o !=null)
+//            importConfig.setSkipCount(Integer.parseInt(o.toString()));
+//
+//        o = nameSpace.get("stop");
+//        if (o !=null)
+//            importConfig.setStopRowProcessCount(Integer.parseInt(o.toString()));
+//
+//        return importConfig;
+//    }
+//
+//    private static Namespace getNameSpace() {
+//        return nameSpace;
+//    }
 
-        nameSpace = InitializationSupport.getImportNamespace(args);
-        //logger = InitializationSupport.configureLogger(getNameSpace().getBoolean("debug"));
-
-        File file = Configure.getFile(nameSpace);
-
-        ClientConfiguration importConfig = Configure.getConfiguration(file);
-
-        Object o = nameSpace.get(ClientConfiguration.KEY_BATCH_SIZE);
-        if (o != null)
-            importConfig.setBatchSize(Integer.parseInt(o.toString().trim()));
-
-        o = nameSpace.get("validate");
-        if (o != null)
-            importConfig.setValidateOnly(Boolean.parseBoolean(o.toString()));
-
-        o = nameSpace.get(ClientConfiguration.AMQP);
-        if (o != null)
-            importConfig.setAmqp(Boolean.parseBoolean(o.toString()), true);
-
-        o = nameSpace.get("skip");
-        if (o !=null)
-            importConfig.setSkipCount(Integer.parseInt(o.toString()));
-
-        o = nameSpace.get("stop");
-        if (o !=null)
-            importConfig.setStopRowProcessCount(Integer.parseInt(o.toString()));
-
-        return importConfig;
-    }
-
-    private static Namespace getNameSpace() {
-        return nameSpace;
-    }
-
-    private static Namespace nameSpace = null;
+//    private static Namespace nameSpace = null;
 
 
 }
