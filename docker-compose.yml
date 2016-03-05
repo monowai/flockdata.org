@@ -47,7 +47,7 @@ services:
       org.fd.discovery.url: http://eureka:8761/eureka/
       eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
       eureka.instance.nonSecurePort: 8080
-      eureka.client.enabled: 'false'
+      eureka.client.enabled: 'true'
       server.port: 8080
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
@@ -83,7 +83,7 @@ services:
       org.fd.discovery.url: http://eureka:8761/eureka/
       eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
       eureka.instance.nonSecurePort: 8081
-      eureka.client.enabled: 'false'
+      eureka.client.enabled: 'true'
       server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
@@ -112,7 +112,7 @@ services:
       server.port: 8082
       rabbit.host: rabbit
       spring.cloud.config.discovery.enabled: 'false'
-      eureka.client.enabled: 'false'
+      eureka.client.enabled: 'true'
       org.fd.discovery.url: http://eureka:8761/eureka/
       eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
       eureka.instance.nonSecurePort: 8082
