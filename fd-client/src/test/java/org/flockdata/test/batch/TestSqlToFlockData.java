@@ -20,9 +20,12 @@ package org.flockdata.test.batch;
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
-import org.flockdata.batch.resources.FdWriter;
+import org.flockdata.batch.resources.FdRowMapper;
+import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FdBatcher;
+import org.flockdata.test.client.MockFdWriter;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.transform.PayloadBatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
@@ -38,47 +41,51 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 @ActiveProfiles("dev")
 @SpringApplicationConfiguration({ BatchConfig.class,
                                   FdBatchResources.class,
-        ClientConfiguration.class,
-                                  FdMockWriter.class,
+                                  ClientConfiguration.class,
+                                  MockFdWriter.class,
+                                  FdRowMapper.class,
+                                  FdBatcher.class,
                                   HsqlDataSource.class,
                                   JobLauncherTestUtils.class,
                                   SqlQueryJob.class
                                 })
-@TestPropertySource("/fd-batch.properties")
+
+@TestPropertySource({"/fd-batch.properties","/application_dev.properties"})
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
     @Autowired
-    FdWriter fdWriter;
+    ClientConfiguration clientConfiguration;
 
+    @Autowired
+    PayloadBatcher payloadBatcher;
 
     @Test
     @Sql({"/batch/sql/schema.sql", "/batch/sql/data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
+        assertTrue(clientConfiguration.getBatchSize()>1);
         // This check works because 2 is < the configured batch size
-        TestCase.assertEquals("Number of rows loaded ex data.sql does not match", 2, fdWriter.getFdLoader().getEntities().size());
-        for (EntityInputBean entityInputBean : fdWriter.getFdLoader().getEntities()) {
+        TestCase.assertEquals("Number of rows loaded ex data.sql does not match", 2, payloadBatcher.getEntities().size());
+        for (EntityInputBean entityInputBean : payloadBatcher.getEntities()) {
             assertNotNull(entityInputBean.getContent());
             assertNotNull("Primary Key was not set via the content profile", entityInputBean.getCode());
             assertNotNull(entityInputBean.getContent().getData().get("ID"));
             assertNotNull(entityInputBean.getContent().getData().get("FIRSTNAME"));
         }
     }
-
-    @Autowired
-    FdBatchResources batchResources;
 
     @Bean
     public JobLauncherTestUtils getJobLauncherTestUtils() {

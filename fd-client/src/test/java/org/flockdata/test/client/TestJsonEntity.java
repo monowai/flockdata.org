@@ -25,8 +25,6 @@ import org.flockdata.model.Company;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.json.JsonEntityMapper;
 import org.junit.Test;
@@ -90,7 +88,6 @@ public class TestJsonEntity extends AbstractImport{
 
     @Test
     public void object_ImportJsonEntity() throws Exception{
-        FileProcessor fileProcessor = new FileProcessor();
         ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
         profile.setContentType(ContentProfile.ContentType.JSON);
         profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
@@ -98,14 +95,12 @@ public class TestJsonEntity extends AbstractImport{
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
-        ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/profile/object-example.json", getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/profile/object-example.json");
         assertEquals("Should have processed the file as a single JSON object", 1, rows);
     }
 
     @Test
     public void array_ImportJsonEntities() throws Exception{
-        FileProcessor fileProcessor = new FileProcessor();
         ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
         profile.setContentType(ContentProfile.ContentType.JSON);
         profile.setFortressName("testing");
@@ -113,8 +108,7 @@ public class TestJsonEntity extends AbstractImport{
 
         Company company = Mockito.mock(Company.class);
         company.setName("Testing");
-        ClientConfiguration defaults = new ClientConfiguration();
-        long rows = fileProcessor.processFile(profile, "/profile/array-example.json", getFdWriter(),company, defaults  );
+        long rows = fileProcessor.processFile(profile, "/profile/array-example.json");
         assertEquals("Should have processed the file as an array of JSON objects", 1, rows);
     }
 

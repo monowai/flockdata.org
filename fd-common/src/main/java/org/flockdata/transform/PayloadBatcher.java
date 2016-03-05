@@ -14,25 +14,29 @@
  *  limitations under the License.
  */
 
-package org.flockdata.batch.resources;
+package org.flockdata.transform;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.FdLoader;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
- * Created by mike on 22/01/16.
+ * Created by mike on 5/03/16.
  */
-public interface FdWriter {
+public interface PayloadBatcher {
+    void batchTag(TagInputBean tagInputBean, String message) throws FlockException;
 
-    void write(EntityInputBean item) throws FlockException;
+    void batchEntity(EntityInputBean entityInputBean) throws FlockException;
 
-    ContentProfile getContentProfile(String name) throws IOException, ClassNotFoundException;
+    void batchEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException;
 
-    void flush() throws FlockException;
+    void flush();
 
-    FdLoader getFdLoader();
+    void reset();
+
+    List<EntityInputBean> getEntities();
+
+    List<TagInputBean> getTags();
 }

@@ -20,8 +20,8 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
 
 import java.util.List;
 
@@ -41,13 +41,10 @@ public interface FdWriter {
 
     String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException;
 
-    int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException;
-
     /**
      * if True, then the writer will not persist changes
      * @return
      */
     boolean isSimulateOnly();
 
-    void close(FdLoader fdLoader) throws FlockException;
 }

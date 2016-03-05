@@ -21,8 +21,6 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
@@ -36,24 +34,25 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Datatypes
  * Created by mike on 27/02/15.
  */
-public class TestDataTypeConversion extends AbstractImport {
+
+public class TestDataTypeConversion  extends AbstractImport {
+
     @Test
     public void preserve_NumberValueAsString() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ClientConfiguration configuration = getClientConfiguration();
-
+        getFdBatcher().flush();
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        fileProcessor.processFile(profile, "/data/data-types.csv");
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             if (tagInputBean.getLabel().equals("as-string"))
                 assertEquals("00165", tagInputBean.getCode());
         }
-        EntityInputBean entity = getFdWriter().getEntities().iterator().next();
+        EntityInputBean entity = getFdBatcher().getEntities().iterator().next();
         assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
@@ -62,13 +61,10 @@ public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void double_EntityProperty() throws Exception {
         // Tests that numeric values are converted to explicit data-type
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/entity-data-types.json";
-        ClientConfiguration configuration = getClientConfiguration();
-
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        fileProcessor.processFile(profile, "/data/entity-data-types.csv", getFdWriter(), null, configuration);
-        List<EntityInputBean> entityInputBeans = getFdWriter().getEntities();
+        fileProcessor.processFile(profile, "/data/entity-data-types.csv");
+        List<EntityInputBean> entityInputBeans = getFdBatcher().getEntities();
         assertEquals(2, entityInputBeans.size());
         for (EntityInputBean entityInputBean : entityInputBeans) {
             Object o = entityInputBean.getProperties().get("value");
@@ -80,19 +76,17 @@ public class TestDataTypeConversion extends AbstractImport {
     public void preserve_TagCodeAlwaysString() throws Exception {
         // Even though the source column can be treated as a number, it should be set as a String because
         // it drives a tag code.
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
-        ClientConfiguration configuration = getClientConfiguration();
 
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        fileProcessor.processFile(profile, "/data/data-types.csv");
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(2, tagInputBeans.size());
         for (TagInputBean tagInputBean : tagInputBeans) {
             if (tagInputBean.getLabel().equals("tag-code"))
                 assertEquals("123", tagInputBean.getCode());
         }
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        List<EntityInputBean> entities = getFdBatcher().getEntities();
         for (EntityInputBean entity : entities) {
             Object whatString = entity.getContent().getData().get("tag-code");
             assertEquals(""+whatString.getClass(), true, whatString instanceof String);
@@ -141,12 +135,10 @@ public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void title_Expression() throws Exception {
         // DAT-457
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration();
-        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        fileProcessor.processFile(profile, "/data/data-types.csv");
+        List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
         assertEquals("Title expression did not evaluate", "00165-test", entityInputBean.getName());
@@ -155,12 +147,10 @@ public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void date_CreatedDateSets() throws Exception {
         // DAT-457
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration();
-        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        fileProcessor.processFile(profile, "/data/data-types.csv");
+        List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
 
@@ -183,12 +173,10 @@ public class TestDataTypeConversion extends AbstractImport {
     @Test
     public void date_LastChange() throws Exception {
         // Given 2 dates that could be the last change, check the most recent
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/data-types.json";
         ContentProfileImpl profile = ProfileReader.getImportProfile(fileName);
-        ClientConfiguration configuration = getClientConfiguration();
-        fileProcessor.processFile(profile, "/data/data-types.csv", getFdWriter(), null, configuration);
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        fileProcessor.processFile(profile, "/data/data-types.csv");
+        List<EntityInputBean> entities = getFdBatcher().getEntities();
         assertEquals(1, entities.size());
         EntityInputBean entityInputBean = entities.iterator().next();
 

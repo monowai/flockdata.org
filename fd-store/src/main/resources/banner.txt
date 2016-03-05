@@ -1,8 +1,8 @@
 
-${AnsiColor.GREEN}Welcome to ${application.title:FlockData}
-${AnsiColor.BLUE}  __     _           _
-${AnsiColor.BLUE} / _| __| |      ___| |_ ___  _ __ ___
-${AnsiColor.BLUE}| |_ / _` |_____/ __| __/ _ \| '__/ _ \
-${AnsiColor.BLUE}|  _| (_| |_____\__ \ || (_) | | |  __/
-${AnsiColor.BLUE}|_|  \__,_|     |___/\__\___/|_|  \___|
+${AnsiColor.GREEN}Welcome to the ${application.title:FlockData}
+${AnsiColor.CYAN}  __     _           _
+${AnsiColor.CYAN} / _| __| |      ___| |_ ___  _ __ ___
+${AnsiColor.CYAN}| |_ / _` |_____/ __| __/ _ \| '__/ _ \
+${AnsiColor.CYAN}|  _| (_| |_____\__ \ || (_) | | |  __/
+${AnsiColor.CYAN}|_|  \__,_|     |___/\__\___/|_|  \___|
 

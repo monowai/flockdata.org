@@ -20,7 +20,10 @@ import junit.framework.TestCase;
 import org.flockdata.model.Tag;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.*;
+import org.flockdata.transform.GeoPayload;
+import org.flockdata.transform.GeoSupport;
+import org.flockdata.transform.ProfileReader;
+import org.flockdata.transform.Transformer;
 import org.flockdata.transform.csv.CsvTagMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -161,20 +164,17 @@ public class TestGeography extends AbstractImport{
 
     @Test
     public void setPropertiesFromSource () throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         String fileName = "/profile/import-geo.json";
 
-        ClientConfiguration configuration = getClientConfiguration();
-        TestCase.assertNotNull(configuration);
 
         ContentProfileImpl params = ProfileReader.getImportProfile(fileName);
         TestCase.assertEquals('|', params.getDelimiter());
         TestCase.assertEquals(true, params.hasHeader());
         TestCase.assertNotNull(params.getCondition());
 
-        fileProcessor.processFile(params, "/data/import-geo.txt", getFdWriter(), null, configuration);
+        fileProcessor.processFile(params, "/data/import-geo.txt");
 
-        List<TagInputBean> tags = getFdWriter().getTags();
+        List<TagInputBean> tags = getFdBatcher().getTags();
         assertEquals("Condition expression did not evaluate", 1, tags.size());
 
         TagInputBean tag = tags.iterator().next();

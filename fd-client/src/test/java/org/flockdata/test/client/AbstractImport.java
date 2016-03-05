@@ -16,27 +16,65 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.transform.ClientConfiguration;
+import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.FileProcessor;
+import org.flockdata.transform.PayloadBatcher;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Simple ancestor for encapsulating profile and writer functionality
  *
  * Created by mike on 12/02/15.
  */
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles("dev")
+@SpringApplicationConfiguration({
+        ClientConfiguration.class,
+        FdBatcher.class,
+        FileProcessor.class,
+        MockFdWriter.class,
+})
+@TestPropertySource({"/application_dev.properties"})
 public class AbstractImport {
     // Re-implement an FdWriter class if you want to validate data in the flush routines
 
-    private static MockFdWriter fdWriter = new MockFdWriter();
+    @Autowired
+    protected PayloadBatcher fdBatcher;
+    @Autowired
+    protected FileProcessor fileProcessor;
+    @Autowired
+    protected ClientConfiguration clientConfiguration;
 
-    protected ClientConfiguration getClientConfiguration() {
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setBatchSize(100);
-        return clientConfiguration;
+    protected PayloadBatcher getFdBatcher(){
+        return fdBatcher;
     }
 
-    public static MockFdWriter getFdWriter() {
-        return fdWriter;
+    @Before
+    public void clearLoader(){
+        // PayloadBatcher is normally cleared down when it is flushed at the end of an import process
+        // For testing purposes we need to analyse the batched payload without flushing
+        // If we don't reset the batched payload then any previous runs contents will be in the result
+        fdBatcher.reset();
     }
+
+    @Test
+    public void autoWiringWorks(){
+        assertNotNull(clientConfiguration);
+        assertTrue(""+clientConfiguration.getBatchSize(),clientConfiguration.getBatchSize()>10);
+        assertNotNull(fdBatcher);
+        assertNotNull(fileProcessor);
+    }
+
 
 }

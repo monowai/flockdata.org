@@ -26,11 +26,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
 import org.flockdata.track.service.MediationFacade;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,6 +66,8 @@ public class FdServerWriter implements FdWriter {
 
     @Override
     public String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException {
+        if ( company == null )
+            company = securityHelper.getCompany();
         try {
             for (EntityInputBean entityInputBean : entityBatch) {
                 mediationFacade.trackEntity(company, entityInputBean);
@@ -83,17 +83,8 @@ public class FdServerWriter implements FdWriter {
     }
 
     @Override
-    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        return 0;
-    }
-
-    @Override
     public boolean isSimulateOnly() {
         return false;
     }
 
-    @Override
-    public void close(FdLoader fdLoader) throws FlockException {
-        fdLoader.flush();
-    }
 }

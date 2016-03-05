@@ -25,18 +25,19 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Company;
 import org.flockdata.registration.*;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntityLinkInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FdLoader;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -50,16 +51,14 @@ import java.util.*;
  * Since: 13/10/13
  */
 @Component
+@Profile("fd-batch")
 public class FdRestWriter implements FdWriter {
 
     private String TRACK;
     private String NEW_TAG;
-    private String CROSS_REFERENCES;
     private String FORTRESS;
     private String PING;
-    private String AUTH_PING;
     private String ME;
-    private String HEALTH;
     private String REGISTER;
     private String userName;
     private String password;
@@ -69,39 +68,27 @@ public class FdRestWriter implements FdWriter {
     private boolean simulateOnly;
     private boolean validateOnly = false;
     private String defaultFortress;
+
+    @Autowired
     ClientConfiguration configuration;
 
     private ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-    private AmqpServices amqpServices = null;
 
-    FdRestWriter () {}
+    @Autowired
+    private AmqpServices amqpServices ;
 
-    /**
-     * Use this version for administrative access where the username and password must exist
-     *
-     * @param serverName where are we talking to?
-     * @param userName   configured user in the security domain
-     * @param password   configured password in the security domain
-     * @param batchSize  default batch command size
-     */
-    @Deprecated
-    public FdRestWriter(String serverName, String userName, String password, int batchSize) {
-        this(serverName, null, userName, password, batchSize, null);
-    }
+    private FdRestWriter(){}
 
-    public FdRestWriter(ClientConfiguration configuration) {
+    @PostConstruct
+    void init() {
         httpHeaders = null;
-        this.configuration = configuration;
         this.apiKey = configuration.getApiKey();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = configuration.getEngineURL() + "/v1/track/";
-        this.AUTH_PING = configuration.getEngineURL() + "/v1/admin/ping/";
         this.PING = configuration.getEngineURL() + "/v1/ping/";
         this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
         this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
-        this.HEALTH = configuration.getEngineURL() + "/v1/admin/health/";
-        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/link/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
         this.batchSize = configuration.getBatchSize();
@@ -112,40 +99,21 @@ public class FdRestWriter implements FdWriter {
     @Deprecated
     // Call with the configuration version
     public FdRestWriter(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
+        this();
         httpHeaders = null;
         this.userName = userName;
         this.password = password;
         this.apiKey = apiKey;
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = serverName + "/v1/track/";
-        this.AUTH_PING = serverName + "/v1/admin/ping/";
         this.PING = serverName + "/v1/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
         this.ME = serverName + "/v1/profiles/me/";
-        this.HEALTH = serverName + "/v1/admin/health/";
-        this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
         this.defaultFortress = defaultFortress;
         simulateOnly = batchSize < 1;
-    }
-
-    public FdRestWriter(String serverName, String apiKey, int batchSize) {
-        this(serverName, apiKey, null, null, batchSize, null);
-
-    }
-
-    /**
-     * Helper that turns the supplied object in to a Jackson mapped Map
-     * Used by fd-client
-     *
-     * @param o - arbitrary object
-     * @return Map<String,Object>
-     */
-    public static Map<String, Object> convertToMap(Object o) {
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-        return om.convertValue(o, Map.class);
     }
 
     public SystemUserResultBean me() {
@@ -165,73 +133,6 @@ public class FdRestWriter implements FdWriter {
         } catch (ResourceAccessException e) {
             return null;
         }
-    }
-
-    /**
-     * Simple ping to see if the service is up
-     *
-     * @return "pong"
-     */
-    public String ping() {
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders();
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
-            return response.getBody();
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
-                return "auth";
-            else
-                return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return "err";
-        } catch (ResourceAccessException e) {
-            return "err";
-        }
-
-    }
-
-    public String pingAuth(String userName, String password) {
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(AUTH_PING, HttpMethod.GET, requestEntity, String.class);
-            return response.getBody();
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
-                return "auth";
-            else
-                return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return "err";
-        } catch (ResourceAccessException e) {
-            return "err";
-        }
-
-    }
-
-    public Map<String, Object> health() {
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-        Map<String, Object> result = new HashMap<>();
-        try {
-            ResponseEntity<HashMap> response = restTemplate.exchange(HEALTH, HttpMethod.GET, requestEntity, HashMap.class);
-            return response.getBody();
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401")) {
-                result.put("error", "auth");
-            } else {
-                result.put("error", e.getMessage());
-            }
-
-        } catch (HttpServerErrorException | ResourceAccessException e) {
-            result.put("error", e.getMessage());
-        }
-        return result;
-
     }
 
     public boolean isSimulateOnly() {
@@ -263,53 +164,16 @@ public class FdRestWriter implements FdWriter {
         this.simulateOnly = simulateOnly;
     }
 
-    public int flushEntityLinks(List<EntityLinkInputBean> referenceInputBeans) throws FlockException {
-        logger.info("Processing [{}] cross references - simulate [{}]", referenceInputBeans.size(), simulateOnly);
-        if (simulateOnly)
-            return 0;
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
-        HttpEntity<List<EntityLinkInputBean>> requestEntity = new HttpEntity<>(referenceInputBeans, httpHeaders);
-        try {
-            ResponseEntity<ArrayList> response = restTemplate.exchange(CROSS_REFERENCES, HttpMethod.POST, requestEntity, ArrayList.class);
-            logServerMessages(response);
-            return referenceInputBeans.size();
-        } catch (HttpClientErrorException e) {
-            logger.error("Service tracking error {}", getErrorMessage(e));
-            return 0;
-        } catch (HttpServerErrorException e) {
-            logger.error("Service tracking error {}", getErrorMessage(e));
-            return 0;
-
-        }
-
-    }
-
-    @Override
-    public void close(FdLoader fdLoader) throws FlockException {
-        fdLoader.flush();
-        if (amqpServices != null) {
-            amqpServices.close();
-            amqpServices = null;
-        }
-    }
-
-    public String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    private String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
             // DAT-373
-            getAmqpHelper(configuration).publish(entityInputs);
+            amqpServices.publish(entityInputs);
         } catch (IOException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
         }
         return "OK";
 
-    }
-
-    private AmqpServices getAmqpHelper(ClientConfiguration configuration) throws FlockException {
-        if (amqpServices == null)
-            amqpServices = new AmqpServices(configuration);
-        return amqpServices;
     }
 
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
@@ -322,7 +186,7 @@ public class FdRestWriter implements FdWriter {
         }
 
         if (configuration.isAmqp())
-            return flushEntitiesAmqp(entityInputs, configuration);
+            return flushEntitiesAmqp(entityInputs);
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
@@ -353,7 +217,7 @@ public class FdRestWriter implements FdWriter {
                 params.put("fortress", entityInput.getFortressName());
                 params.put("documentName", entityInput.getDocumentType().getName());
                 params.put("code", entityInput.getCode());
-                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{code}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{code}", HttpMethod.GET, new HttpEntity<>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
                 //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
@@ -471,24 +335,6 @@ public class FdRestWriter implements FdWriter {
     }
 
     private static HttpHeaders httpHeaders = null;
-
-    /**
-     * Simple header with no authorisation
-     *
-     * @return unauthenticated header
-     */
-    private static HttpHeaders getHeaders() {
-        return new HttpHeaders() {
-            {
-                setContentType(MediaType.APPLICATION_JSON);
-                set("charset", ObjectHelper.charSet.toString());
-
-                if (compress)
-                    set("Accept-Encoding", "gzip,deflate");
-            }
-        };
-
-    }
 
     public static HttpHeaders getHeaders(final String apiKey, final String userName, final String password) {
         if (httpHeaders != null)

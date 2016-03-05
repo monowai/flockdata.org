@@ -17,8 +17,6 @@
 package org.flockdata.test.client;
 
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -34,12 +32,10 @@ public class TestNestedTags extends AbstractImport {
 
     @Test
     public void label_missingColumnDoesNotCreateTargetTag() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/interest-groups.json"),
-                "/data/tags-inputs.csv", getFdWriter(), null, configuration);
+                "/data/tags-inputs.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         // The profile defines a nested tag but the value is missing in the source
 
         assertEquals(1, tagInputBeans.size());

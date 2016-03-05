@@ -17,22 +17,19 @@
 package org.flockdata.test.client;
 
 import junit.framework.TestCase;
-import org.flockdata.client.Configure;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.service.EntityService;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
-
-import java.io.File;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -41,20 +38,18 @@ import static junit.framework.TestCase.assertNotNull;
  * Created by mike on 20/01/16.
  */
 public class TestDocTypes extends AbstractImport  {
+    @Autowired
+    FileProcessor fileProcessor  ;
+
 
     @Test
     public void testDocType() throws Exception{
-        FileProcessor fileProcessor = new FileProcessor();
-        File file = new File("/profile/test-document-type.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
-        ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-document-type.json");
+        ContentProfileImpl contentProfile = ProfileReader.getImportProfile("/profile/test-document-type.json");
 
-        fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
+        fileProcessor.processFile(contentProfile, "/data/pac.txt");
 
-        for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
+        for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
             DocumentTypeInputBean docType = entityInputBean.getDocumentType();
             assertNotNull(entityInputBean.getDocumentType());
             TestCase.assertEquals("TestDocType", docType.getName());

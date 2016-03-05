@@ -12,6 +12,10 @@
 # i.e. no history
 # You can update an existing fortress and set it's store property to false/true to
 # disable/enable KV versions
+
+server:
+  port: 8080
+
 eureka:
   client:
     serviceUrl:
@@ -22,7 +26,7 @@ spring:
     name: fd-engine
   profiles:
     active: production
-    include: fd-auth-test
+    include: fd-server,fd-auth-test
   cloud:
     config:
       discovery:

@@ -88,6 +88,10 @@ public class JsonUtils {
         return result;
     }
 
+    public static Map convertToMap(Object o) {
+        return mapper.convertValue(o, Map.class);
+    }
+
 
     public static String toJson(Object obj) {
 
