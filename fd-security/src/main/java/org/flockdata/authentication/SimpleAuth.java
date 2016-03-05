@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -43,7 +44,7 @@ import javax.annotation.PostConstruct;
 @Profile({"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
-public class AuthTesting extends WebSecurityConfigurerAdapter {
+public class SimpleAuth extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(10) // Preventing clash with AuthTesting deployment (100)
@@ -56,13 +57,15 @@ public class AuthTesting extends WebSecurityConfigurerAdapter {
             // ApiKeyInterceptor is a part of the auth chain
 
             http.authorizeRequests()
-                .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
-                .antMatchers("/api/v1/**").permitAll()
+                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
+                    .antMatchers("/api/login", "/api/ping", "/api/logout", "/api/account").permitAll()
+                    .antMatchers("/api/v1/**").authenticated()
                     .antMatchers("/").permitAll()
             ;
 
 
             //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
+            //https://github.com/aditzel/spring-security-csrf-token-interceptor
             http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
             http.httpBasic();
         }
@@ -87,7 +90,7 @@ public class AuthTesting extends WebSecurityConfigurerAdapter {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** Limited authorization (for testing) is being used");
+        logger.info("**** [SimpleAuth] - Limited authorization (for testing) is being used");
     }
 
 }

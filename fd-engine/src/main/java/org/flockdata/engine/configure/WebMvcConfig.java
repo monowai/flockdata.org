@@ -21,9 +21,11 @@
 package org.flockdata.engine.configure;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -38,6 +40,18 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Autowired
     ApiKeyInterceptor apiKeyInterceptor;
 
+    @Value("#{'${cors.allowOrigin:http://127.0.0.1:9000,http://localhost:9000}'.split(',')}")
+    String[] origins;
+
+    @Value("#{'${cors.supportedHeaders:*}'.split(',')}")
+    String[] headers;
+
+    @Value("#{'${cors.supportedMethods:GET,POST,HEAD,OPTIONS,PUT,DELETE}'.split(',')}")
+    String[] methods;
+
+    @Value("${cos.supportsCredentials:true}")
+    Boolean allowCredentials;
+
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor( apiKeyInterceptor);
     }
@@ -50,6 +64,16 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @RequestMapping("/api")
     String api () {
         return home();
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins(origins)
+                .allowedHeaders(headers)
+                .allowedMethods(methods)
+                .allowCredentials(allowCredentials)
+        ;
     }
 
 }

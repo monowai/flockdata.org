@@ -22,7 +22,7 @@ Configuration:
   Loggers:
 
       Root:
-          level: error
+          level: info
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
@@ -62,10 +62,16 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.springframework.
+        - name: org.springframework.web
+          additivity: false
+          level: debug
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: FILE
+
+        - name: org.springframework.amqp.
           additivity: false
           level: error
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
-
