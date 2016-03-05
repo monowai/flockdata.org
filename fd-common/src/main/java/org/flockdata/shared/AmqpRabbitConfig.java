@@ -70,9 +70,6 @@ public class AmqpRabbitConfig {
     @Value("${amqp.lazyConnect:false}")
     Boolean amqpLazyConnect;
 
-    @Autowired
-    ExecutorConfig executorConfig;
-
     @PostConstruct
     public void logStatus (){
         logger.info( "**** FlockData AMQP Configuration deployed");
@@ -93,7 +90,7 @@ public class AmqpRabbitConfig {
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-        connect.setExecutor(executorConfig.engineExecutor());
+//        connect.setExecutor(executorConfig.engineExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
     }

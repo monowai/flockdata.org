@@ -14,13 +14,18 @@
  *  limitations under the License.
  */
 
-package org.flockdata.transform;
+package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.FdWriter;
+import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,23 +39,36 @@ import java.util.concurrent.locks.ReentrantLock;
  * Date: 7/10/14
  * Time: 2:33 PM
  */
-public class FdLoader {
+@Component
+@Configuration
+public class FdBatcher implements PayloadBatcher {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
     private final Lock entityLock = new ReentrantLock();
-    private final String tagSync = "TagSync";
+    private final Lock tagLock = new ReentrantLock();
     private Company company = null;
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdLoader.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FdBatcher.class);
 
-    private ClientConfiguration  clientConfiguration;
+    @Autowired
+    private ClientConfiguration  clientConfiguration;  // Client config should always be availiable
+
+    @Autowired (required = false) // Impls provided in fd-client, fd-engine etc.
     FdWriter fdWriter;
 
-    public FdLoader(FdWriter writer, ClientConfiguration configuration) {
+    public FdBatcher(){}
+
+    public FdBatcher(FdWriter writer, ClientConfiguration configuration) {
         this(writer, configuration, null);
 
     }
 
-    public FdLoader(FdWriter writer, ClientConfiguration configuration, Company company) {
+    /**
+     * POJO configuration approach
+     * @param writer    writer to send payloads to
+     * @param configuration configuration properties
+     */
+    public FdBatcher(FdWriter writer, ClientConfiguration configuration, Company company) {
+        this();
         this.clientConfiguration = configuration;
         this.fdWriter = writer;
         this.company = company;
@@ -58,21 +76,24 @@ public class FdLoader {
 
     }
 
+    @Override
     public void batchTag(TagInputBean tagInputBean, String message) throws FlockException {
         batchTag(tagInputBean, false, message);
     }
 
+    @Override
     public void batchEntity(EntityInputBean entityInputBean) throws FlockException {
         batchEntity(entityInputBean, false);
     }
 
+    @Override
     public void batchEntity(EntityInputBean entityInputBean, boolean flush) throws FlockException {
-
+        if ( fdWriter == null )
+            throw new FlockException( "No valid FdWriter could be found. Please provide an implementation");
         try {
             entityLock.lock();
             if (entityInputBean != null) {
-//                if (entityInputBean.getFortress() == null && importProfile!= null)
-//                    entityInputBean.setFortress(importProfile.getFortressName());
+
                 if ( entityInputBean.getFortressName() == null || entityInputBean.getFortressName().equals(""))
                     throw new FlockException("Unable to resolve the fortress name that owns this entity. Add this via your import profile with the fortressName attribute.");
 
@@ -81,7 +102,7 @@ public class FdLoader {
 
                 int existingIndex = getExistingIndex(entityInputBean);
 
-                if ( existingIndex>-1){
+                if ( existingIndex>-1){  // Additive behaviour - merge tags in this entity into one we already know about
                     EntityInputBean masterEntity = entityBatch.get(existingIndex);
                     masterEntity.merge(entityInputBean);
                 } else {
@@ -94,8 +115,6 @@ public class FdLoader {
 
                 if (entityBatch.size() >0 ) {
                     logger.debug("Flushing....");
-                    // process the tags independently to reduce the chance of a deadlock when processing the entity
-//                    fdWriter.flushTags(new ArrayList<>(tagBatch.values()));
                     fdWriter.flushEntities(company, entityBatch,  clientConfiguration );
                     logger.debug("Flushed Batch [{}]", entityBatch.size());
                 }
@@ -126,13 +145,10 @@ public class FdLoader {
         return existingIndex;
     }
 
-    public int getEntityCount(){
-        return entityBatch.size();
-    }
-
     private void batchTag(TagInputBean tagInputBean, boolean flush, String message) throws FlockException {
 
-        synchronized (tagSync) {
+        try {
+            tagLock.lock();
             if (tagInputBean != null) {
                 if ( tagInputBean.getCode()==null || tagInputBean.getCode().equals("")) {
                     logger.error("Attempting to create a tag without a code value. Code is a required field []" + tagInputBean);
@@ -151,6 +167,8 @@ public class FdLoader {
                     logger.debug("Tag Batch Flushed");
                     tagBatch = new HashMap<>();
                 }
+        } finally {
+            tagLock.unlock();
         }
 
     }
@@ -172,16 +190,21 @@ public class FdLoader {
         return (tag.getKeyPrefix()!=null ?tag.getKeyPrefix()+"-":"")+tag.getCode() + "-" +tag.getLabel();
     }
 
-    public void flush() throws FlockException {
+    @Override
+    public void flush()  {
         if (fdWriter.isSimulateOnly())
             return;
         try {
-
             entityLock.lock();
-            batchTag(null, true, "");
-            if ( entityBatch.size() >0)
-                fdWriter.flushEntities(company, entityBatch, clientConfiguration);
-            entityBatch.clear();
+            try {
+                batchTag(null, true, "");
+                if ( entityBatch.size() >0)
+                    fdWriter.flushEntities(company, entityBatch, clientConfiguration);
+            } catch (FlockException e) {
+                logger.error(e.getMessage());
+                System.exit(1);
+            }
+            reset();
 
         } finally {
             entityLock.unlock();
@@ -189,10 +212,18 @@ public class FdLoader {
 
     }
 
+    @Override
+    public void reset(){
+        entityBatch.clear();
+        tagBatch.clear();
+    }
+
+    @Override
     public List<EntityInputBean> getEntities() {
         return entityBatch;
     }
 
+    @Override
     public List<TagInputBean> getTags() {
         return new ArrayList<>(tagBatch.values());
     }

@@ -1,11 +1,7 @@
 package org.flockdata.test.batch;
 
-import org.flockdata.batch.BatchConfig;
-import org.flockdata.batch.StepConfig;
-import org.flockdata.batch.resources.FdBatchResources;
+import org.flockdata.batch.FdAbstractSqlJob;
 import org.flockdata.batch.resources.FdRowMapper;
-import org.flockdata.batch.resources.FlockDataItemProcessor;
-import org.flockdata.batch.resources.FlockDataItemWriter;
 import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
@@ -17,11 +13,10 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.RowMapper;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -34,22 +29,19 @@ import java.util.Map;
  */
 @Configuration
 @EnableBatchProcessing
-public class SqlQueryJob {
-    @Autowired
-    FdBatchResources dataSource;
+public class SqlQueryJob extends FdAbstractSqlJob {
 
     @Autowired
-    BatchConfig batchConfig;
+    FdRowMapper fdRowMapper;
 
-    String stepName;
 
     public String getStepName() {
         return "olympic.athlete";
     }
 
-    @Bean
-    public Job runSQLQuery(JobBuilderFactory jobs, Step s1, JobExecutionListener listener) {
-        return jobs.get("load")
+        @Bean
+    public Job runSQLQuery(JobBuilderFactory jobs, @Qualifier("readSql") Step s1, JobExecutionListener listener) {
+        return jobs.get(getStepName())
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
                 .flow(s1)
@@ -70,29 +62,7 @@ public class SqlQueryJob {
     }
 
     @Bean
-    public ItemProcessor<Map<String, Object>, EntityInputBean> itemProcessor() {
-        return new FlockDataItemProcessor();
-    }
-
-    @Bean
-    public ItemWriter<EntityInputBean> itemWriter() {
-        return new FlockDataItemWriter();
-    }
-
-    @Bean
-    public RowMapper<Map<String, Object>> rowMapper() {
-        return new FdRowMapper();
-    }
-
-    @Bean
     public ItemReader itemReader() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, IOException {
-        JdbcCursorItemReader itemReader = new org.springframework.batch.item.database.JdbcCursorItemReader();
-        StepConfig stepConfig = batchConfig.getStepConfig(getStepName());
-        assert stepConfig!=null;
-
-        itemReader.setSql(stepConfig.getQuery());
-        itemReader.setDataSource(dataSource.dataSource());
-        itemReader.setRowMapper(rowMapper());
-        return itemReader;
+        return getItemReader();
     }
 }

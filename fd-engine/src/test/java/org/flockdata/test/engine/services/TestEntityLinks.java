@@ -13,7 +13,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
-import org.flockdata.transform.ClientConfiguration;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ProfileReader;
 import org.joda.time.DateTime;
@@ -177,7 +176,7 @@ public class TestEntityLinks extends EngineBase {
         DocumentType timesheet = conceptService.findDocumentType(fortress, "timesheet", true);
         String rlxName = "recorded";
 
-        ContentProfileImpl params = ClientConfiguration.getImportProfile("/profiles/test-entitylinks.json");
+        ContentProfileImpl params = ProfileReader.getImportProfile("/profiles/test-entitylinks.json");
         ColumnDefinition colDef = params.getColumnDef("EmployeeNumber");
         colDef.getEntityLinks().iterator().next().get(rlxName);
         Profile p = importProfileService.save(fortress, timesheet, params );

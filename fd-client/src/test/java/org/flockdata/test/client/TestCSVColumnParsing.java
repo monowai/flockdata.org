@@ -16,12 +16,9 @@
 
 package org.flockdata.test.client;
 
-import org.flockdata.client.Configure;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -33,23 +30,20 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Handling columns from content profile
  * Created by mike on 27/01/15.
  */
 public class TestCSVColumnParsing extends AbstractImport {
 
     @Test
     public void string_NoHeaderWithDelimiter() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
-        String file = "/profile/column-parsing.json";
-        ClientConfiguration configuration = getClientConfiguration();
-        assertNotNull(configuration);
 
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
-        long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
-        assertEquals(1l, rows);
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        long rows = fileProcessor.processFile(params, "/data/pac.txt");
+        assertEquals(1L, rows);
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertNotNull ( tagInputBeans);
         assertEquals(4, tagInputBeans.size());
         boolean foundA = false, foundB= false,foundC= false, foundD= false;
@@ -74,25 +68,21 @@ public class TestCSVColumnParsing extends AbstractImport {
         assertTrue("Failed to find Expenditure Tag", foundB);
         assertTrue("Failed to find InterestGroup Tag", foundC);
         assertTrue("Failed to find Politician Tag", foundD);
-        for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
+        for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
             assertEquals("4111320141231324700", entityInputBean.getCode());
         }
     }
 
     @Test
     public void segment_SetInPayloadFromSource() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
         File file = new File("/profile/column-parsing.json");
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
 
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/column-parsing.json");
         assertEquals(false, params.hasHeader());
 
-        long rows = fileProcessor.processFile(params, "/data/pac.txt", getFdWriter(), null, configuration);
-        assertEquals(1l, rows);
-        for (EntityInputBean entityInputBean : getFdWriter().getEntities()) {
+        long rows = fileProcessor.processFile(params, "/data/pac.txt");
+        assertEquals(1L, rows);
+        for (EntityInputBean entityInputBean : fdBatcher.getEntities()) {
             assertEquals("The segment was not set in to the EntityInput", "2014", entityInputBean.getSegment());
         }
     }

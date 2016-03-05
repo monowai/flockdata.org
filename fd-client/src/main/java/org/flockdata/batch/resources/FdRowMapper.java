@@ -17,6 +17,7 @@
 package org.flockdata.batch.resources;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -27,6 +28,7 @@ import java.util.Map;
 /**
  * Created by nabil on 18/01/2016.
  */
+@Component
 public class FdRowMapper implements RowMapper<Map<String,Object>>{
     @Override
     public Map<String,Object> mapRow(ResultSet resultSet, int i) throws SQLException {

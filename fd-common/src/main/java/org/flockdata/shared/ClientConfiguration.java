@@ -14,15 +14,19 @@
  *  limitations under the License.
  */
 
-package org.flockdata.transform;
+package org.flockdata.shared;
 
-import org.flockdata.profile.ContentProfileImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -50,9 +54,8 @@ public class ClientConfiguration {
     public static final String KEY_RABBIT_PASS = "rabbit.pass";
     public static final String KEY_RABBIT_PD = "rabbit.persistent";
     public static final String KEY_MSG_KEY = "fd-apiKey";
-    private Boolean defConfig = true;
 
-    @Value ("${"+ KEY_COMPANY +"}")
+    @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;
 
     @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
@@ -93,15 +96,15 @@ public class ClientConfiguration {
     private int stopRowProcessCount =0;
     private int skipCount=0;
     private File file;
-    private boolean reconfigure;
 
 
     public ClientConfiguration() {
-        defConfig = true;
+//        defConfig = true;
     }
 
+    @Deprecated // use injection
     public ClientConfiguration(Properties prop) {
-        defConfig = false;
+        //defConfig = false;
         Object o = prop.get(KEY_ENGINE_API);
         if (o != null)
             setEngineURL(o.toString());
@@ -151,7 +154,7 @@ public class ClientConfiguration {
         return engineURL;
     }
 
-    public void setEngineURL(String engineURL) {
+    private void setEngineURL(String engineURL) {
         this.engineURL = engineURL;
     }
 
@@ -199,35 +202,6 @@ public class ClientConfiguration {
         this.company = company;
     }
 
-    public Properties getAsProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(KEY_ENGINE_API, engineURL);
-        properties.setProperty(KEY_LOGIN_USER, loginUser);
-        properties.setProperty(KEY_COMPANY, company);
-        properties.setProperty(KEY_API_KEY, apiKey);
-        properties.setProperty(KEY_BATCH_SIZE, Long.toString(batchSize));
-        properties.setProperty(KEY_TRACK_QUEUE, trackQueue);
-        properties.setProperty(KEY_TRACK_EXCHANGE, trackExchange);
-        properties.setProperty(KEY_TRACK_BINDING, trackRoutingKey);
-        properties.setProperty(KEY_RABBIT_HOST, rabbitHost);
-        properties.setProperty(KEY_RABBIT_USER, rabbitUser);
-        properties.setProperty(KEY_RABBIT_PASS, rabbitPass);
-        properties.setProperty(KEY_RABBIT_PD, persistentDelivery.toString());
-        return properties;
-    }
-
-    /**
-     *
-     * @param profile Fully file name
-     * @return initialized ImportProfile
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @deprecated - use org.flockdata.transform.ProfileConfiguration
-     */
-    public static ContentProfileImpl getImportProfile(String profile) throws IOException, ClassNotFoundException {
-        return ProfileReader.getImportProfile(profile);
-    }
-
     public boolean isAsync() {
         return false;
     }
@@ -257,7 +231,7 @@ public class ClientConfiguration {
         return trackQueue;
     }
 
-    public void setTrackQueue(String trackQueue) {
+    private void setTrackQueue(String trackQueue) {
         this.trackQueue = trackQueue;
     }
 
@@ -265,7 +239,7 @@ public class ClientConfiguration {
         return trackExchange;
     }
 
-    public void setTrackExchange(String trackExchange) {
+    private void setTrackExchange(String trackExchange) {
         this.trackExchange = trackExchange;
     }
 
@@ -273,7 +247,7 @@ public class ClientConfiguration {
         return trackRoutingKey;
     }
 
-    public void setTrackRoutingKey(String trackRoutingKey) {
+    private void setTrackRoutingKey(String trackRoutingKey) {
         this.trackRoutingKey = trackRoutingKey;
     }
 
@@ -281,11 +255,11 @@ public class ClientConfiguration {
         return rabbitHost;
     }
 
-    public void setRabbitHost(String rabbitHost) {
+    private void setRabbitHost(String rabbitHost) {
         this.rabbitHost = rabbitHost;
     }
 
-    public void setRabbitPass(String rabbitPass) {
+    private void setRabbitPass(String rabbitPass) {
         this.rabbitPass = rabbitPass;
     }
 
@@ -293,7 +267,7 @@ public class ClientConfiguration {
         return rabbitPass;
     }
 
-    public void setRabbitUser(String rabbitUser) {
+    private void setRabbitUser(String rabbitUser) {
         this.rabbitUser = rabbitUser;
     }
 
@@ -309,7 +283,7 @@ public class ClientConfiguration {
         return persistentDelivery;
     }
 
-    public void setPersistentDelivery(boolean persistentDelivery) {
+    private void setPersistentDelivery(boolean persistentDelivery) {
         this.persistentDelivery = persistentDelivery;
     }
 
@@ -341,20 +315,23 @@ public class ClientConfiguration {
         return file;
     }
 
-    public void setReconfigure(boolean reconfigure) {
-        this.reconfigure = reconfigure;
+    Collection<String> filesToImport = new ArrayList<>();
+
+    @Autowired
+    void loadConfigs(@Value("${fd.client.import:}") final String str) throws Exception {
+        if (str != null && !str.equals("")) {
+            filesToImport = Arrays.asList(str.split(";"));
+
+        }
     }
 
-    public boolean isReconfigure() {
-        return reconfigure;
+    public Collection<String> getFilesToImport() {
+        return filesToImport;
     }
 
-    /**
-     * Supports unit testing
-     * @return true if this is intialised simply as a default configuration
-     */
-    public Boolean isDefConfig() {
-        return defConfig;
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
 }

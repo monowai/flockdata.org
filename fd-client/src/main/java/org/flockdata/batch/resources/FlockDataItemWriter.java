@@ -17,23 +17,37 @@
 package org.flockdata.batch.resources;
 
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.PayloadBatcher;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
+ * Batches the item to the payload ready for transmission
+ *
  * @author nabil
  */
+@Component
+@Profile("fd-batch")
 public class FlockDataItemWriter implements ItemWriter<EntityInputBean> {
 
     @Autowired
-    private FdWriter fdWriter;
+    private PayloadBatcher payloadBatcher;
+
+    private FlockDataItemWriter(){}
+
+    FlockDataItemWriter(PayloadBatcher payloadBatcher) {
+        this();
+        this.payloadBatcher = payloadBatcher;
+    }
 
     @Override
     public void write(List<? extends EntityInputBean> items) throws Exception {
         for (EntityInputBean item : items) {
-            fdWriter.write(item);
+            payloadBatcher.batchEntity(item);
         }
     }
 }

@@ -43,7 +43,6 @@ import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
-import org.flockdata.transform.ClientConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.*;
@@ -180,6 +179,9 @@ public class TestFdIntegration {
 
     @Autowired
     WebApplicationContext wac;
+
+    @Autowired
+    AmqpServices amqpServices;
 
     @Autowired
     FdServerWriter serverWriter;
@@ -1325,13 +1327,8 @@ public class TestFdIntegration {
         }
 
         Properties properties = getProperties(su);
-        AmqpServices amqpServices = null;
 
         try {
-            ClientConfiguration configuration = new ClientConfiguration(properties);
-            configuration.setAmqp(true, false);
-
-            amqpServices = new AmqpServices(configuration);
 
             // ToDo: Figure out response codes
 

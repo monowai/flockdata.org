@@ -67,7 +67,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(FdEngine.class)
 
-@ActiveProfiles({"dev", "fd-auth-test"})
+@ActiveProfiles({"dev", "fd-auth-test", "fd-batch"})
 public abstract class EngineBase {
 
 

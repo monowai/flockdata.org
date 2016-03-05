@@ -17,17 +17,13 @@
 package org.flockdata.test.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.client.Configure;
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -44,18 +40,13 @@ import static org.junit.Assert.assertNotEquals;
 public class TestEntityProperties extends AbstractImport {
     @Test
     public void process_individualData() throws Exception {
-        FileProcessor fileProcessor = new FileProcessor();
-        String fileName = "/profile/entity-properties.json";
-        File file = new File(fileName);
-        ClientConfiguration configuration = Configure.getConfiguration(file);
-        assertNotNull(configuration);
-        configuration.setLoginUser("test");
+        String contentProfile = "/profile/entity-properties.json";
 
-        ContentProfileImpl params = ProfileReader.getImportProfile(fileName);
+        ContentProfileImpl params = ProfileReader.getImportProfile(contentProfile);
         assertEquals(',', params.getDelimiter());
         assertEquals(false, params.hasHeader());
-        fileProcessor.processFile(params, "/data/entity-properties.txt", getFdWriter(), null, configuration);
-        List<EntityInputBean> entities = getFdWriter().getEntities();
+        fileProcessor.processFile(params, "/data/entity-properties.txt");
+        List<EntityInputBean> entities = fdBatcher.getEntities();
 
         for (EntityInputBean entity : entities) {
             assertNotEquals("One org and one candidate", 0, entity.getTags().size());

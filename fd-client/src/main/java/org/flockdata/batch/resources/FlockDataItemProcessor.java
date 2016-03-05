@@ -16,6 +16,7 @@
 
 package org.flockdata.batch.resources;
 
+import org.flockdata.batch.BatchConfig;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.Transformer;
@@ -24,6 +25,7 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -32,17 +34,25 @@ import java.util.Map;
 public class FlockDataItemProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     @Autowired
-    private FdWriter batchFdLoader;
+    private BatchConfig batchConfig;
 
     private String stepName;
 
     @Override
     public EntityInputBean process(Map<String, Object> item) throws Exception {
         // This should be initialised just the once
-        ContentProfile contentProfile = batchFdLoader.getContentProfile(stepName);
+        ContentProfile contentProfile = getContentProfile(stepName);
         return Transformer.transformToEntity(item, contentProfile);
 
     }
+
+    private ContentProfile getContentProfile(String name) throws IOException, ClassNotFoundException {
+        ContentProfile result =batchConfig.getStepConfig(name).getContentProfile();
+        if ( result == null )
+            throw new ClassNotFoundException("Unable to resolve the content profile mapping for "+name.toLowerCase());
+        return result;
+    }
+
 
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {

@@ -21,8 +21,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.transform.ClientConfiguration;
-import org.flockdata.transform.FileProcessor;
 import org.flockdata.transform.ProfileReader;
 import org.junit.Test;
 
@@ -38,13 +36,11 @@ import static org.junit.Assert.assertEquals;
 public class TestLabels extends AbstractImport {
     @Test
     public void conflict_LabelDefinition() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
 
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-labels.json"),
-                "/data/tag-labels.csv", getFdWriter(), null, configuration);
+                "/data/tag-labels.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         assertEquals(2, tagInputBeans.size());
         boolean loanType=false, occupancy= false;
         for (TagInputBean tagInputBean : tagInputBeans) {
@@ -66,12 +62,10 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void label_expressionsAndConstants() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
         fileProcessor.processFile(ProfileReader.getImportProfile("/profile/tag-label-expressions.json"),
-                "/data/tag-label-expressions.csv", getFdWriter(), null, configuration);
+                "/data/tag-label-expressions.csv");
 
-        List<TagInputBean> tagInputBeans = getFdWriter().getTags();
+        List<TagInputBean> tagInputBeans = getFdBatcher().getTags();
         // 1 Politician
         //
         assertEquals(4, tagInputBeans.size());
@@ -92,11 +86,10 @@ public class TestLabels extends AbstractImport {
 
     @Test
     public void alias_DescriptionEvaluates() throws Exception {
-        ClientConfiguration configuration= getClientConfiguration();
-        FileProcessor fileProcessor = new FileProcessor();
-        fileProcessor.processFile(ProfileReader.getImportProfile("/profile/labels.json"),
-                "/data/assets.txt", getFdWriter(), null, configuration);
-        List<EntityInputBean>entities = getFdWriter().getEntities();
+        fileProcessor.processFile(
+                ProfileReader.getImportProfile("/profile/labels.json"),
+                "/data/assets.txt");
+        List<EntityInputBean>entities = fdBatcher.getEntities();
         List<TagInputBean> tagInputBeans = entities.iterator().next().getTags();
         assertEquals(1, tagInputBeans.size());
         TestCase.assertEquals(3, entities.iterator().next().getTags().iterator().next().getAliases().size());

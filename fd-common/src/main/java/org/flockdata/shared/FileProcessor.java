@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.transform;
+package org.flockdata.shared;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -28,14 +28,18 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Company;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
+import org.flockdata.transform.PayloadBatcher;
+import org.flockdata.transform.TransformationHelper;
+import org.flockdata.transform.Transformer;
 import org.flockdata.transform.xml.XmlMappable;
 import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.expression.ExpressionParser;
@@ -62,12 +66,16 @@ import java.util.Map;
  * Date: 7/10/14
  * Time: 2:29 PM
  */
+@Configuration
 public class FileProcessor {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FileProcessor.class);
 
     private static final DecimalFormat formatter = new DecimalFormat();
-    private FdLoader fdLoader;
+
+    @Autowired
+    private PayloadBatcher payloadBatcher;
+
     private long skipCount, rowsToProcess = 0;
 
     public FileProcessor() {
@@ -127,9 +135,7 @@ public class FileProcessor {
         return results;
     }
 
-    public Long processFile(ContentProfile importProfile, String source, FdWriter writer, Company company, ClientConfiguration defaults) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
-
-        fdLoader = new FdLoader(writer, defaults, company);
+    public Long processFile(ContentProfile importProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
         logger.info("Start processing of {}", source);
@@ -139,20 +145,20 @@ public class FileProcessor {
             for (String file : files) {
 
                 if (importProfile.getContentType() == ContentProfile.ContentType.CSV)
-                    result = processCSVFile(file, importProfile, writer);
+                    result = processCSVFile(file, importProfile);
                 else if (importProfile.getContentType() == ContentProfile.ContentType.XML)
-                    result = processXMLFile(file, importProfile, writer);
+                    result = processXMLFile(file, importProfile);
                 else if (importProfile.getContentType() == ContentProfile.ContentType.JSON) {
                     if (importProfile.getDocumentType() == null)
                         result = processJsonTags(file);
                     else
-                        result = processJsonEntities(file, importProfile, writer);
+                        result = processJsonEntities(file, importProfile);
                 }
 
             }
         } finally {
             if (result > 0) {
-                writer.close(fdLoader);
+                payloadBatcher.flush();
             }
         }
 
@@ -172,7 +178,7 @@ public class FileProcessor {
                 stream = ClassLoader.class.getResourceAsStream(fileName);
                 if (stream == null) {
                     logger.error("{} does not exist", fileName);
-                    return 0;
+                    throw new FlockException(fileName+" Does not exist");
                 }
             }
             TypeFactory typeFactory = mapper.getTypeFactory();
@@ -183,7 +189,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                fdLoader.batchTag(tag, "JSON Tag Importer");
+                payloadBatcher.batchTag(tag, "JSON Tag Importer");
                 processed++;
             }
 
@@ -191,20 +197,19 @@ public class FileProcessor {
             logger.error("Error writing exceptions with {} [{}]", fileName, e.getMessage());
             throw new RuntimeException("IO Exception ", e);
         } finally {
-            if (processed > 0l)
-                fdLoader.flush();
+            if (processed > 0L)
+                payloadBatcher.flush();
 
         }
         return tags.size();
     }
 
-    private long processJsonEntities(String fileName, ContentProfile importProfile, FdWriter writer) throws FlockException {
+    private long processJsonEntities(String fileName, ContentProfile importProfile) throws FlockException {
         long rows = 0;
 
         File file = new File(fileName);
         InputStream stream = null;
         if (!file.exists()) {
-            // Try as a resource
             stream = ClassLoader.class.getResourceAsStream(fileName);
             if (stream == null) {
                 logger.error("{} does not exist", fileName);
@@ -262,12 +267,8 @@ public class FileProcessor {
 
 
         } finally {
-            writer.close(fdLoader);
+            payloadBatcher.flush();
         }
-//        if (!referenceInputBeans.isEmpty()) {
-//            logger.debug("Wrote [{}] cross references",
-//                    writeEntityLinks(writer, referenceInputBeans));
-//        }
 
         return endProcess(watch, rows, 0);
     }
@@ -279,11 +280,11 @@ public class FileProcessor {
             entityInputBean.getEntityLinks().size();
         }
 
-        fdLoader.batchEntity(entityInputBean);
+        payloadBatcher.batchEntity(entityInputBean);
 
     }
 
-    private long processXMLFile(String file, ContentProfile importProfile, FdWriter writer) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private long processXMLFile(String file, ContentProfile importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
             long rows = 0;
             StopWatch watch = new StopWatch();
@@ -300,13 +301,9 @@ public class FileProcessor {
                 long then = new DateTime().getMillis();
                 while (xsr.getLocalName().equals(dataType)) {
                     EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
-//                    if (entityInputBean!=null && !entityInputBean.getEntityLinks().isEmpty()) {
-//                        referenceInputBeans.add(new EntityLinkInputBean(entityInputBean));
-//                        entityInputBean.getEntityLinks().size();
-//                    }
                     rows++;
                     xsr.nextTag();
-                    fdLoader.batchEntity(entityInputBean);
+                    payloadBatcher.batchEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -314,11 +311,8 @@ public class FileProcessor {
 
                 }
             } finally {
-                writer.close(fdLoader);
+                payloadBatcher.flush();
             }
-//            if (!referenceInputBeans.isEmpty()) {
-//                logger.debug("Wrote [{}] cross references", writeEntityLinks(writer, referenceInputBeans));
-//            }
             return endProcess(watch, rows, 0);
 
 
@@ -327,7 +321,7 @@ public class FileProcessor {
         }
     }
 
-    private long processCSVFile(String file, ContentProfile importProfile, FdWriter writer) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private long processCSVFile(String file, ContentProfile importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
         long ignoreCount = 0;
@@ -381,11 +375,11 @@ public class FileProcessor {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
-                                    fdLoader.batchEntity(entityInputBean);
+                                    payloadBatcher.batchEntity(entityInputBean);
                             } else {// Tag
                                 TagInputBean tagInputBean = Transformer.transformToTag(map, importProfile);
                                 if (tagInputBean != null) {
-                                    fdLoader.batchTag(tagInputBean, "TagInputBean");
+                                    payloadBatcher.batchTag(tagInputBean, "TagInputBean");
                                 }
                             }
                             if (stopProcessing(currentRow, then)) {
@@ -399,7 +393,7 @@ public class FileProcessor {
             }
         } finally {
 
-            writer.close(fdLoader);
+            payloadBatcher.flush();
             br.close();
         }
 
@@ -415,10 +409,10 @@ public class FileProcessor {
     }
 
     public boolean stopProcessing(long currentRow) {
-        return stopProcessing(currentRow, 0l);
+        return stopProcessing(currentRow, 0L);
     }
 
-    public boolean stopProcessing(long currentRow, long then) {
+    private boolean stopProcessing(long currentRow, long then) {
         //DAT-350
 
         if (rowsToProcess == 0) {
@@ -446,7 +440,7 @@ public class FileProcessor {
 
     static StandardEvaluationContext context = new StandardEvaluationContext();
 
-    public static String[] preProcess(String[] row, ContentProfile importProfile) {
+    private static String[] preProcess(String[] row, ContentProfile importProfile) {
         String[] result = new String[row.length];
         String exp = importProfile.getPreParseRowExp();
         if ((exp == null || exp.equals("")))
