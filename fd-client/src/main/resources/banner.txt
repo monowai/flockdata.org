@@ -1,0 +1,7 @@
+
+${AnsiColor.GREEN}Welcome to FlockData
+${AnsiColor.CYAN}  __     _       _           _       _
+${AnsiColor.CYAN} / _| __| |     | |__   __ _| |_ ___| |__
+${AnsiColor.CYAN}| |_ / _` |_____| '_ \ / _` | __/ __| '_ \
+${AnsiColor.CYAN}|  _| (_| |_____| |_) | (_| | || (__| | | |
+${AnsiColor.CYAN}|_|  \__,_|     |_.__/ \__,_|\__\___|_| |_|
