@@ -12,7 +12,7 @@ spring:
     name: fd-search
   profiles:
     active: production
-    include: fd-auth-test
+    include: fd-server,fd-auth-test
   cloud:
     config:
       discovery:

@@ -56,12 +56,9 @@ public class FdRestWriter implements FdWriter {
 
     private String TRACK;
     private String NEW_TAG;
-    private String CROSS_REFERENCES;
     private String FORTRESS;
     private String PING;
-    private String AUTH_PING;
     private String ME;
-    private String HEALTH;
     private String REGISTER;
     private String userName;
     private String password;
@@ -89,12 +86,9 @@ public class FdRestWriter implements FdWriter {
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = configuration.getEngineURL() + "/v1/track/";
-        this.AUTH_PING = configuration.getEngineURL() + "/v1/admin/ping/";
         this.PING = configuration.getEngineURL() + "/v1/ping/";
         this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
         this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
-        this.HEALTH = configuration.getEngineURL() + "/v1/admin/health/";
-        this.CROSS_REFERENCES = configuration.getEngineURL() + "/v1/track/link/";
         this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
         this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
         this.batchSize = configuration.getBatchSize();
@@ -112,12 +106,9 @@ public class FdRestWriter implements FdWriter {
         this.apiKey = apiKey;
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = serverName + "/v1/track/";
-        this.AUTH_PING = serverName + "/v1/admin/ping/";
         this.PING = serverName + "/v1/ping/";
         this.REGISTER = serverName + "/v1/profiles/";
         this.ME = serverName + "/v1/profiles/me/";
-        this.HEALTH = serverName + "/v1/admin/health/";
-        this.CROSS_REFERENCES = serverName + "/v1/track/xref/";
         this.NEW_TAG = serverName + "/v1/tag/";
         this.FORTRESS = serverName + "/v1/fortress/";
         this.batchSize = batchSize;
@@ -142,31 +133,6 @@ public class FdRestWriter implements FdWriter {
         } catch (ResourceAccessException e) {
             return null;
         }
-    }
-
-    /**
-     * Simple ping to see if the service is up
-     *
-     * @return "pong"
-     */
-    public String ping() {
-        RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders();
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(PING, HttpMethod.GET, requestEntity, String.class);
-            return response.getBody();
-        } catch (HttpClientErrorException e) {
-            if (e.getMessage().startsWith("401"))
-                return "auth";
-            else
-                return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return "err";
-        } catch (ResourceAccessException e) {
-            return "err";
-        }
-
     }
 
     public boolean isSimulateOnly() {
@@ -198,7 +164,7 @@ public class FdRestWriter implements FdWriter {
         this.simulateOnly = simulateOnly;
     }
 
-    private String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
+    private String flushEntitiesAmqp(Collection<EntityInputBean> entityInputs) throws FlockException {
         try {
             // DAT-373
             amqpServices.publish(entityInputs);
@@ -220,7 +186,7 @@ public class FdRestWriter implements FdWriter {
         }
 
         if (configuration.isAmqp())
-            return flushEntitiesAmqp(entityInputs, configuration);
+            return flushEntitiesAmqp(entityInputs);
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
@@ -251,7 +217,7 @@ public class FdRestWriter implements FdWriter {
                 params.put("fortress", entityInput.getFortressName());
                 params.put("documentName", entityInput.getDocumentType().getName());
                 params.put("code", entityInput.getCode());
-                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{code}", HttpMethod.GET, new HttpEntity<Object>(httpHeaders), EntityBean.class, params);
+                HttpEntity<EntityBean> found = restTemplate.exchange(TRACK + "/{fortress}/{documentName}/{code}", HttpMethod.GET, new HttpEntity<>(httpHeaders), EntityBean.class, params);
 
                 //Object object = restTemplate.getForObject(TRACK + "{fortress}/{documentType}/{callerRef}", EntityBean.class, params);
                 //HttpEntity<EntityBean> found = restTemplate.getForEntity(TRACK, EntityBean.class, params );
@@ -369,24 +335,6 @@ public class FdRestWriter implements FdWriter {
     }
 
     private static HttpHeaders httpHeaders = null;
-
-    /**
-     * Simple header with no authorisation
-     *
-     * @return unauthenticated header
-     */
-    private static HttpHeaders getHeaders() {
-        return new HttpHeaders() {
-            {
-                setContentType(MediaType.APPLICATION_JSON);
-                set("charset", ObjectHelper.charSet.toString());
-
-                if (compress)
-                    set("Accept-Encoding", "gzip,deflate");
-            }
-        };
-
-    }
 
     public static HttpHeaders getHeaders(final String apiKey, final String userName, final String password) {
         if (httpHeaders != null)

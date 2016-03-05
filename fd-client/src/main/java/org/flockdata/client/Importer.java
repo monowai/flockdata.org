@@ -145,9 +145,6 @@ public class Importer {
 
                 logger.debug("*** Calculated process args {}, {}, {}, {}", fileName, contentProfileImpl, batchSize, skipCount);
 
-                if (fileProcessor == null)
-                    fileProcessor = new FileProcessor(skipCount, rowsToProcess);
-
                 // Importer does not know what the company is
                 totalRows = totalRows + fileProcessor.processFile(contentProfileImpl, fileName);
             }
