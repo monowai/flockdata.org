@@ -147,15 +147,14 @@ rabbit:
 
 
 ## CORS
-# Each cors key must be defined. Leave the value blank for defaults
-# http://software.dzhuvinov.com/cors-filter-configuration.html
+# Leave the value blank for system defaults
 cors:
   supportedHeaders:  '*'
   supportsCredentials:  true
   maxAge: 3600
-  allowOrigin :  http://127.0.0.1:9000, http://localhost:9000,chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
-  allowSubdomains :  true
-  supportedMethods :  GET, POST, HEAD, OPTIONS, PUT, DELETE
-  exposedHeaders :
-  tagRequests :
+  allowOrigin:  http://127.0.0.1:9000,http://localhost:9000,chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
+  allowSubdomains:  true
+  supportedMethods:  GET,POST,HEAD,PUT,DELETE
+  exposedHeaders:
+  tagRequests:
 

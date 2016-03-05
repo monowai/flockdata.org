@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -43,18 +43,17 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     @Autowired
     private SecurityHelper securityHelper;
 
-//    @Autowired
-//    @Qualifier("engineConfig")
-//    PlatformConfig engineConfig;
-
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
+
+        if ( HttpMethod.OPTIONS == HttpMethod.resolve(request.getMethod()))
+            return true; // CORS - this interceptor does not handle OPTIONS requests
         String apiKey = request.getHeader(API_KEY);
 
         if (noApiKey(apiKey)) {
-            // This has nothing to do with us
-            if (isCompanyLookupUrl(request)) {
+            if (isDataAccessRequest(request)) { // Is it a data access endpoint?
+                // Data access requests require a company
                 // Resolve the user from the currently logged in user
                 SystemUser su = securityHelper.getSysUser(false);
                 if (su != null) {
@@ -63,10 +62,10 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                         request.setAttribute(API_KEY, su.getApiKey());
                         return true;
                     }
-                } // Fall through to Forbidden
+                } // Falls through to Forbidden
 
             } else {
-                return true; // No APIKey, no data access request; not our problem
+                return true; // No APIKey, not a data access request; not our problem
             }
         } else {
             // Attempting to authenticate via the api secret
@@ -78,26 +77,22 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        //response.sendError(HttpServletResponse.SC_FORBIDDEN, "This user account has no access to data");
-        throw new SecurityException("Authentication is required to access this service");
-        //return false;
+        throw new SecurityException("A data access account is required to access this service. We couldn't resolve one for your login or apikey");
     }
 
-    private boolean isCompanyLookupUrl(HttpServletRequest request) {
+    private boolean isDataAccessRequest(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
         return ! (url.contains("/api/v1/admin/health") || url.contains("/api/v1/admin/ping"))
                 && (url.contains("/api/v1/company")
-                || url.contains("/api/v1/track")
-                || url.contains("/api/v1/admin")
-                || url.contains("/api/v1/entity")
-                || url.contains("/api/v1/fortress")
-                || url.contains("/api/v1/tag")
-                || url.contains("/api/v1/path")
-                || url.contains("/api/v1/query")
-                || url.contains("/api/v1/doc")
-                || url.contains("/api/v1/geo"));
+                 || url.contains("/api/v1/track")
+                 || url.contains("/api/v1/admin")
+                 || url.contains("/api/v1/entity")
+                 || url.contains("/api/v1/fortress")
+                 || url.contains("/api/v1/tag")
+                 || url.contains("/api/v1/path")
+                 || url.contains("/api/v1/query")
+                 || url.contains("/api/v1/doc")
+                 || url.contains("/api/v1/geo"));
     }
 
     private boolean noApiKey(String apiKey) {
