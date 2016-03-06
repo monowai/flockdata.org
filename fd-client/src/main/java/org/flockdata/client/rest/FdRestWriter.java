@@ -60,8 +60,6 @@ public class FdRestWriter implements FdWriter {
     private String PING;
     private String ME;
     private String REGISTER;
-    private String userName;
-    private String password;
     private String apiKey;
     private int batchSize;
     private static boolean compress = true;
@@ -98,11 +96,9 @@ public class FdRestWriter implements FdWriter {
 
     @Deprecated
     // Call with the configuration version
-    public FdRestWriter(String serverName, String apiKey, String userName, String password, int batchSize, String defaultFortress) {
+    public FdRestWriter(String serverName, String apiKey, int batchSize, String defaultFortress) {
         this();
         httpHeaders = null;
-        this.userName = userName;
-        this.password = password;
         this.apiKey = apiKey;
         // Urls to write Entity/Tag/Fortress information
         this.TRACK = serverName + "/v1/track/";
@@ -118,7 +114,7 @@ public class FdRestWriter implements FdWriter {
 
     public SystemUserResultBean me() {
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(apiKey);// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(ME, HttpMethod.GET, requestEntity, SystemUserResultBean.class);
@@ -141,7 +137,7 @@ public class FdRestWriter implements FdWriter {
 
     public SystemUserResultBean registerProfile(String authUser, String authPass, String userName, String company) {
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(null, authUser, authPass); // Internal application authorisation
+        HttpHeaders httpHeaders = getHeaders(null); // Internal application authorisation
         RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(false);
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
 
@@ -189,7 +185,7 @@ public class FdRestWriter implements FdWriter {
             return flushEntitiesAmqp(entityInputs);
         RestTemplate restTemplate = getRestTemplate();
 
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey);
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
@@ -208,7 +204,7 @@ public class FdRestWriter implements FdWriter {
     private String validateOnly(List<EntityInputBean> entityInputs) throws FlockException {
         RestTemplate restTemplate = getRestTemplate();
 
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey);
         //HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
@@ -254,7 +250,7 @@ public class FdRestWriter implements FdWriter {
             return "OK";
         RestTemplate restTemplate = getRestTemplate();
 
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey);
         HttpEntity<List<TagInputBean>> requestEntity = new HttpEntity<>(tagInputs, httpHeaders);
 
         try {
@@ -294,7 +290,7 @@ public class FdRestWriter implements FdWriter {
 
         RestTemplate restTemplate = getRestTemplate();
 
-        HttpHeaders httpHeaders = getHeaders(apiKey, userName, password);
+        HttpHeaders httpHeaders = getHeaders(apiKey);
         HttpEntity<FortressInputBean> request = new HttpEntity<>(new FortressInputBean(fortressName), httpHeaders);
         try {
             restTemplate.exchange(FORTRESS, HttpMethod.POST, request, FortressResultBean.class);
@@ -334,16 +330,16 @@ public class FdRestWriter implements FdWriter {
         return message;
     }
 
-    private static HttpHeaders httpHeaders = null;
+    private HttpHeaders httpHeaders = null;
 
-    public static HttpHeaders getHeaders(final String apiKey, final String userName, final String password) {
+    public HttpHeaders getHeaders(final String apiKey) {
         if (httpHeaders != null)
             return httpHeaders;
 
         httpHeaders = new HttpHeaders() {
             {
-                if (userName != null && password != null) {
-                    String auth = userName + ":" + password;
+                if (configuration.getHttpUser() != null && configuration.getHttpPass() != null) {
+                    String auth = configuration.getHttpUser() + ":" + configuration.getHttpPass();
                     byte[] encodedAuth = Base64.encodeBase64(
                             auth.getBytes(Charset.forName("UTF-8")));
                     String authHeader = "Basic " + new String(encodedAuth);
@@ -374,7 +370,7 @@ public class FdRestWriter implements FdWriter {
     public String toString() {
         return "FdRestWriter{" +
                 "PING='" + PING + '\'' +
-                ", userName='" + userName + '\'' +
+                ", userName='" + configuration.getHttpUser() + '\'' +
                 ", simulateOnly=" + simulateOnly +
                 ", batchSize=" + batchSize +
                 '}';

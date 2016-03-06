@@ -49,6 +49,6 @@ public class FlockDataItemWriter implements ItemWriter<EntityInputBean> {
         for (EntityInputBean item : items) {
             payloadBatcher.batchEntity(item);
         }
-        payloadBatcher.flush();
+        //payloadBatcher.flush();
     }
 }
