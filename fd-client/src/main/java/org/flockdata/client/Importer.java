@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
@@ -67,7 +68,7 @@ import java.util.List;
  */
 @SpringBootApplication (scanBasePackages = {
         "org.flockdata.authentication", "org.flockdata.shared",  "org.flockdata.client"})
-
+@Profile("!fd-batch")
 public class Importer {
 
     private Logger logger = LoggerFactory.getLogger(Importer.class);

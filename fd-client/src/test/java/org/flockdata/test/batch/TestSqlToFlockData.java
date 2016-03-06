@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
 import org.flockdata.batch.resources.FdRowMapper;
+import org.flockdata.batch.resources.FlockDataItemProcessor;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatcher;
 import org.flockdata.test.client.MockFdWriter;
@@ -51,6 +52,7 @@ import static org.junit.Assert.assertNotNull;
                                   FdBatchResources.class,
                                   ClientConfiguration.class,
                                   MockFdWriter.class,
+                                  FlockDataItemProcessor.class,
                                   FdRowMapper.class,
                                   FdBatcher.class,
                                   HsqlDataSource.class,
