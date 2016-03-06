@@ -313,30 +313,30 @@ public abstract class MvcBase {
         return JsonUtils.toObject(json, TrackRequestResult.class);
     }
 
-    public Company getCompany(String name, SystemUserResultBean su) throws Exception {
+    public Company getCompany(String name, RequestPostProcessor user) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
                 .get(apiPath +"/company/" + name)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+                .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.toObject(json, Company.class);
     }
 
-    public boolean findCompanyIllegal(String name, SystemUserResultBean su) throws Exception {
+    public boolean findCompanyIllegal(String name, RequestPostProcessor user) throws Exception {
         mvc().perform(MockMvcRequestBuilders.get(apiPath +"/company/" + name)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+                .with (user)
 
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         return true;
     }
 
-    public Collection<Company> findCompanies(SystemUserResultBean su) throws Exception {
+    public Collection<Company> findCompanies(RequestPostProcessor user) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/company/")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
+                .with(user)
 
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();

@@ -40,7 +40,6 @@ import java.util.Properties;
 public class ClientConfiguration {
 
     public static final String KEY_ENGINE_API = "org.fd.engine.api";
-    public static final String KEY_LOGIN_USER = "org.fd.client.login.user";
     public static final String KEY_COMPANY = "org.fd.client.default.company";
     public static final String KEY_API_KEY = "org.fd.client.apikey";
     public static final String KEY_HTTP_USER = "org.fd.client.http.user";
@@ -81,10 +80,6 @@ public class ClientConfiguration {
     @Value("${"+ KEY_ENGINE_API +":http://localhost:8080/api}")
     String engineURL = "http://localhost:8080/api";
 
-    // An admin user connecting to the API to retrieve a an APIKey
-    @Value("${"+ KEY_LOGIN_USER +":}")
-    String loginUser = null;
-
     @Value("${"+ KEY_API_KEY +":}")
     String apiKey = null;
 
@@ -116,10 +111,6 @@ public class ClientConfiguration {
         Object o = prop.get(KEY_ENGINE_API);
         if (o != null)
             setEngineURL(o.toString());
-        o = prop.get(KEY_LOGIN_USER);
-        if (o != null)
-            setLoginUser(o.toString());
-
         o = prop.get(KEY_API_KEY);
         if (o != null && !o.toString().equals(""))
             setApiKey(o.toString());
@@ -164,14 +155,6 @@ public class ClientConfiguration {
 
     private void setEngineURL(String engineURL) {
         this.engineURL = engineURL;
-    }
-
-    public String getLoginUser() {
-        return loginUser;
-    }
-
-    public void setLoginUser(String loginUser) {
-        this.loginUser = loginUser;
     }
 
     public String getApiKey() {
