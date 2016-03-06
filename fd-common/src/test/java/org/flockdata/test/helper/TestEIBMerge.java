@@ -43,7 +43,24 @@ public class TestEIBMerge {
         movie.merge(producer);
         assertEquals("Existing tag with different relationship not recorded", 3, movie.getTags().size());
         TagInputBean angieTag = movie.getTags().get(movie.getTags().indexOf(producer.getTags().iterator().next()));
+
         assertEquals ("An acting and production relationship should exist", 2, angieTag.getEntityLinks().size());
+
+        for (TagInputBean tagInputBean : movie.getTags()) {
+            if ( tagInputBean.getCode().equals(brad.getCode())){
+                assertEquals("Brad only acts",1, tagInputBean.getEntityLinks().size());
+            }else if ( tagInputBean.getCode().equals(angie.getCode())){
+                assertEquals("Angie produces and acts",2, tagInputBean.getEntityLinks().size());
+            }
+        }
+        EntityInputBean harrison = new EntityInputBean()
+                .setCode("tt0356910")
+                .setDocumentName("Movie")
+                .addTag(new TagInputBean("Harrison Ford", "Person", "ACTED"));
+
+        movie.merge(harrison);
+        assertEquals("New Actor did not get added in", 4, movie.getTags().size());
+
 
     }
 }

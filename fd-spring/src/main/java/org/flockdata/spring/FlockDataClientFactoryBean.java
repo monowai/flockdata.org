@@ -46,8 +46,6 @@ public class FlockDataClientFactoryBean extends FlockDataAbstractClientFactoryBe
     protected FdRestWriter buildClient() throws Exception {
         FdRestWriter exporter = new FdRestWriter(serverName,
                 null,
-                userName,
-                password,
                 batch,
                 fortress
         );

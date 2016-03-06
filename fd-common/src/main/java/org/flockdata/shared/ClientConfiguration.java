@@ -43,6 +43,8 @@ public class ClientConfiguration {
     public static final String KEY_LOGIN_USER = "org.fd.client.login.user";
     public static final String KEY_COMPANY = "org.fd.client.default.company";
     public static final String KEY_API_KEY = "org.fd.client.apikey";
+    public static final String KEY_HTTP_USER = "org.fd.client.http.user";
+    public static final String KEY_HTTP_PASS = "org.fd.client.http.pass";
     public static final String KEY_BATCH_SIZE = "org.fd.client.batchsize";
     public static final String AMQP = "org.fd.client.amqp";
 
@@ -85,6 +87,12 @@ public class ClientConfiguration {
 
     @Value("${"+ KEY_API_KEY +":}")
     String apiKey = null;
+
+    @Value("${"+ KEY_HTTP_USER +":mike}")
+    String httpUser = null;
+
+    @Value("${"+ KEY_HTTP_PASS +":123}")
+    String httpPass = null;
 
     @Value("${"+ KEY_BATCH_SIZE +":1}")
     int batchSize = 1;
@@ -334,4 +342,11 @@ public class ClientConfiguration {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    public String getHttpUser() {
+        return httpUser;
+    }
+
+    public String getHttpPass() {
+        return httpPass;
+    }
 }
