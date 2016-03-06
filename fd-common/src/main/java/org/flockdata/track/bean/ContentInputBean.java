@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +55,7 @@ public class ContentInputBean implements EntityContent, Serializable {
     private String fortressUser;
     private String event;
     private Date when;
-    private Map<String, Object> data = null;
+    private Map<String, Object> data = new HashMap<>();
     private String attachment = null;
     private boolean forceReindex;
     private boolean status;
@@ -158,7 +159,10 @@ public class ContentInputBean implements EntityContent, Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public void setData(Map<String, Object> data) throws FlockException {
-        this.data = data;
+        if ( data == null )
+            this.data.clear();
+        else
+            this.data = data;
 
     }
 
