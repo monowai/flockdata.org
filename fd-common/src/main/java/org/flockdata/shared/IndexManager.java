@@ -89,7 +89,7 @@ public class IndexManager {
     }
 
     public String toStoreIndex(Entity entity) {
-        return (entity.getSegment().getKey()).toLowerCase();
+       return parseIndex(entity);
     }
 
     /**

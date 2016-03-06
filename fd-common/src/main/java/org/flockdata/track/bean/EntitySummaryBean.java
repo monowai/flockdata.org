@@ -29,8 +29,10 @@ import java.util.Set;
  */
 public class EntitySummaryBean {
     private Entity entity;
+    private String type;
     private Set<EntityLog> changes;
     private Collection<EntityTag> tags;
+    private String index;
 
     private EntitySummaryBean() {
     }
@@ -38,6 +40,7 @@ public class EntitySummaryBean {
     public EntitySummaryBean(Entity entity, Set<EntityLog> changes, Collection<EntityTag> tags) {
         this();
         this.entity = entity;
+        this.type = entity.getType().toLowerCase();
         this.changes = changes;
         this.tags = tags;
     }
@@ -52,5 +55,17 @@ public class EntitySummaryBean {
 
     public Collection<EntityTag> getTags() {
         return tags;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    public String getIndex() {
+        return index;
     }
 }

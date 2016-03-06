@@ -148,12 +148,12 @@
                                         </small>
                                     </div>
 
-                                  <div class="well well-sm display-inline fd-metakey-elements">
+                                  <div class="well well-sm display-inline fd-entityKey-elements">
                                         <button class="btn btn-xs btn-default">{{searchResult.event}}
                                         </button>
                                         <button class="btn btn-xs btn-default"
-                                                ng-click="openDetailsView(searchResult.metaKey)">
-                                            {{searchResult.metaKey}}
+                                                ng-click="openDetailsView(searchResult.key)">
+                                            {{searchResult.key}}
                                         </button>
                                         <button class="btn btn-xs btn-default">
                                             {{searchResult.fortress}}
@@ -166,15 +166,15 @@
                                             {{searchResult.code}}
                                         </button>
                                     </div>
-                                    <a ng-click="openGraphExplorer(searchResult.metaKey)"
+                                    <a ng-click="openGraphExplorer(searchResult.key)"
                                        class="btn btn-xs btn-primary"><i class="fa fa-empire"></i
                                             > Explore</a>
 
-                                    <a ng-click="findLogs(searchResult.metaKey, $index)"
+                                    <a ng-click="findLogs(searchResult.key, $index)"
                                        ng-if="!searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i
                                             class="fa fa-angle-double-down"></i> Changes</a>
 
-                                    <a ng-click="findLogs(searchResult.metaKey, $index)"
+                                    <a ng-click="findLogs(searchResult.key, $index)"
                                        ng-if="searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i
                                             class="fa fa-angle-double-down"></i> Changes</a>
 

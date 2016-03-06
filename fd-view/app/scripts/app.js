@@ -68,7 +68,7 @@ var fdView = angular.module('fdView', [
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/view/:metaKey', {
+      .when('/view/:entityKey', {
         templateUrl: 'views/viewentity.html',
         access: {
           authorizedRoles: [USER_ROLES.all]

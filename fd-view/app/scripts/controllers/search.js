@@ -64,15 +64,15 @@ fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $modal, con
     $scope.selectedLog = [];
     $scope.fragments = [];
 
-    $scope.openGraphExplorer = function (metaKey) {
-      EntityService.getEntityPK(metaKey).then(function (id) {
+    $scope.openGraphExplorer = function (entityKey) {
+      EntityService.getEntityPK(entityKey).then(function (id) {
         var url = configuration.exploreUrl() + 'graph.html?id=' + id;
         window.open(url);
       });
     };
 
-    $scope.openDetailsView = function (metaKey) {
-      window.open('#/view/' + metaKey);
+    $scope.openDetailsView = function (entityKey) {
+      window.open('#/view/' + entityKey);
     };
 
     $scope.showAdvancedSearch = function () {
@@ -105,10 +105,10 @@ fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $modal, con
 
     };
 
-    $scope.findLogs = function (metaKey, index) {
+    $scope.findLogs = function (entityKey, index) {
       if ($scope.searchResults[index]['logs'] === null && !$scope.searchResults[index]['seeLogsAction']) {
-        $scope.metaheaderSelected = metaKey;
-        EntityService.getLogsForEntity(metaKey).then(function (data) {
+        $scope.metaheaderSelected = entityKey;
+        EntityService.getLogsForEntity(entityKey).then(function (data) {
           $scope.searchResults[index]['logs'] = data.changes;
           $scope.searchResults[index]['seeLogsAction'] = true;
           console.log('$scope.searchResults : ', $scope.searchResults);

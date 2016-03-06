@@ -514,7 +514,8 @@ public class EntityServiceNeo4J implements EntityService {
     public Entity findByCode(Fortress fortress, DocumentType documentType, String code) {
         return entityDao.findByCode(fortress.getId(), documentType.getId(), code.trim());
     }
-
+    @Autowired
+    IndexManager indexManager;
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
         Entity entity = getEntity(company, key, true);
@@ -522,7 +523,9 @@ public class EntityServiceNeo4J implements EntityService {
             throw new FlockException("Invalid Meta Key [" + key + "]");
         Set<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
-        return new EntitySummaryBean(entity, changes, tags);
+        EntitySummaryBean esb= new EntitySummaryBean(entity, changes, tags);
+        esb.setIndex(indexManager.parseIndex(entity));
+        return esb;
     }
 
     @Override

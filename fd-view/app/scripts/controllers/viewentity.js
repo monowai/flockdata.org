@@ -23,7 +23,7 @@
  */
 
 fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal, configuration, EntityService) {
-  $scope.metaKey = $routeParams.metaKey;
+  $scope.entityKey = $routeParams.entityKey;
   $scope.metaHeader = {};
   $scope.log = {};
   $scope.tags = [];
@@ -46,16 +46,16 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
 
 
   $scope.init = function () {
-    EntityService.getLogsForEntity($scope.metaKey).then(function (data) {
+    EntityService.getLogsForEntity($scope.entityKey).then(function (data) {
       $scope.metaHeader = data;
       if ($scope.metaHeader.changes[0] !== null) {
-        EntityService.getJsonContentForLog($scope.metaKey, $scope.metaHeader.changes[0].id).then(function (data) {
+        EntityService.getJsonContentForLog($scope.entityKey, $scope.metaHeader.changes[0].id).then(function (data) {
           $scope.log = data;
         });
         $scope.logSelected = $scope.metaHeader.changes[0].id;
       }
 
-      EntityService.getTagsForEntity($scope.metaKey).then(function (data) {
+      EntityService.getTagsForEntity($scope.entityKey).then(function (data) {
         $scope.tags = data;
       });
     });
@@ -66,7 +66,7 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
     var logId2 = $scope.myOption;
 
     // Getting Log2
-    EntityService.getJsonContentForLog($scope.metaKey, logId2).then(function (data) {
+    EntityService.getJsonContentForLog($scope.entityKey, logId2).then(function (data) {
       $scope.log2 = data;
       // Log One is already loaded
       $scope.log1 = $scope.log;
@@ -76,7 +76,7 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
   };
 
   $scope.openExplore = function () {
-    EntityService.getEntityPK($scope.metaKey).then(function (id) {
+    EntityService.getEntityPK($scope.entityKey).then(function (id) {
         var url = configuration.exploreUrl() + 'graph.html?id=' + id;
         window.open(url);
       }
@@ -88,7 +88,7 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
 
   $scope.openPopup = function (logId) {
     $scope.logSelected = logId;
-    EntityService.getJsonContentForLog($scope.metaKey, logId).then(function (data) {
+    EntityService.getJsonContentForLog($scope.entityKey, logId).then(function (data) {
       $scope.log = data;
     });
     // reset Logs DELTA
@@ -102,12 +102,12 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
 
 
     // Getting Log1
-    EntityService.getJsonContentForLog($scope.metaKey, logId1).then(function (data) {
+    EntityService.getJsonContentForLog($scope.entityKey, logId1).then(function (data) {
       $scope.log1 = data;
     });
 
     // Getting Log2
-    EntityService.getJsonContentForLog($scope.metaKey, logId2).then(function (data) {
+    EntityService.getJsonContentForLog($scope.entityKey, logId2).then(function (data) {
       $scope.log2 = data;
     });
 
