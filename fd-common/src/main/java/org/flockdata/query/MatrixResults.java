@@ -57,14 +57,6 @@ public class MatrixResults {
         this.nodes = nodes;
     }
 
-    @Override
-    public String toString() {
-        return "MatrixResults{" +
-                "edges=" + edges.size() +
-                "nodes=" + nodes.size() +
-                '}';
-    }
-
     public void setSampleSize(long sampleSize) {
         this.sampleSize = sampleSize;
     }
