@@ -19,7 +19,6 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.junit.Test;
 
@@ -33,33 +32,24 @@ import static org.junit.Assert.*;
 public class TestCompanyEP extends MvcBase {
 
     @Test
-    public void companyLocators () throws Exception{
+    public void companyLocators() throws Exception {
 
-        Collection<Company> companies = findCompanies(suMike);
+        Collection<Company> companies = findCompanies(mike());
         assertEquals(1, companies.size());
         Company listCompany = companies.iterator().next();
-        Company foundCompany = getCompany(listCompany.getName(), suMike);
+        Company foundCompany = getCompany(listCompany.getName(), mike());
         assertNotNull(foundCompany);
         assertEquals(null, listCompany.getId(), foundCompany.getId());
-        try {
-            boolean failed = findCompanyIllegal(foundCompany.getName(), suIllegal);
-            assertTrue("Illegal API key parsed in. This should not have worked", failed);
-        } catch (FlockException e ){
-            // Illegal API key so this is good.
-        }
-//        su = registerSystemUser("companyLocators", "mike");
-  //      getIllegalCompany("IllegalCompany Name", su);
-
-
+        boolean failed = findCompanyIllegal(foundCompany.getName(), noUser());
+        assertTrue("Illegal user parsed in. This should not have worked", failed);
     }
 
     @Test
-    public void locateCompanyByApiKey() throws Exception{
-
-        Collection<Company> companies = findCompanies(suMike);
+    public void locateCompanyByApiKey() throws Exception {
+        Collection<Company> companies = findCompanies(mike());
         assertEquals(1, companies.size());
         Company listCompany = companies.iterator().next();
-        Company foundCompany = getCompany(listCompany.getName(), suMike);
+        Company foundCompany = getCompany(listCompany.getName(), mike());
         assertEquals(null, listCompany.getId(), foundCompany.getId());
 
         // ToDo: We have no need to look up a company by name. For this we need a company to company relationship.
