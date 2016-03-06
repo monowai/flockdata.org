@@ -30,6 +30,8 @@ public class EsSearchResult {
     private int startedFrom;
     private boolean kvResponse = false;
     private Map<String,Object>what;
+    private String index;
+    private String entityType;
 
     public EsSearchResult() {
     }
@@ -106,5 +108,21 @@ public class EsSearchResult {
 
     public void setWhat(Map<String, Object> what) {
         this.what = what;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
+
+    public String getEntityType() {
+        return entityType;
     }
 }

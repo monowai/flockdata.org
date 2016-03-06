@@ -30,7 +30,9 @@ import java.util.Map;
  */
 public class SearchResult {
 
+
     private String key, fortress, searchKey, documentType;
+    private String indexName; // Store Index
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long logId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -80,6 +82,7 @@ public class SearchResult {
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
         this.key = thisChange.getKey();
+        this.indexName = thisChange.getIndexName();
 
     }
 
@@ -128,6 +131,10 @@ public class SearchResult {
      */
     public String getFortress() {
         return fortress;
+    }
+
+    public String getIndexName() {
+        return indexName;
     }
 
     /**
