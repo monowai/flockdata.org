@@ -51,13 +51,13 @@ public class SqlQueryJob extends FdAbstractSqlJob {
 
     @Bean
     public Step readSql(StepBuilderFactory stepBuilderFactory, ItemReader<Map<String, Object>> reader,
-                        ItemWriter<EntityInputBean> writer, ItemProcessor<Map<String, Object>, EntityInputBean> processor) {
+                        ItemWriter<EntityInputBean> fdItemWriter, ItemProcessor<Map<String, Object>, EntityInputBean> fdItemProcessor) {
 
         return stepBuilderFactory.get(getStepName())
                 .<Map<String, Object>, EntityInputBean> chunk(10)
                 .reader(reader)
-                .processor(processor)
-                .writer(writer)
+                .processor(fdItemProcessor)
+                .writer(fdItemWriter)
                 .build();
     }
 

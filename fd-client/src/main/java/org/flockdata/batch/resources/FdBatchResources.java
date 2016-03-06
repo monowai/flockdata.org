@@ -59,6 +59,9 @@ public class FdBatchResources {
     @Autowired
     PayloadBatcher payloadBatcher;
 
+    @Autowired
+    FlockDataItemProcessor flockDataItemProcessor;
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
 
     @Bean
@@ -114,7 +117,7 @@ public class FdBatchResources {
 
     @Bean
     public ItemProcessor<Map<String, Object>, EntityInputBean> fdItemProcessor() {
-        return new FlockDataItemProcessor();
+        return flockDataItemProcessor;
     }
 
     @Bean
