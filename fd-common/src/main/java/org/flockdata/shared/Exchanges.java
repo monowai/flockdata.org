@@ -189,7 +189,7 @@ public class Exchanges {
 
     @Bean
     Binding trackDlqBinding(Queue fdTrackDlq, Exchange fdTrackDlqExchange) {
-        return BindingBuilder.bind(fdTrackDlq).to(fdTrackDlqExchange).with(trackBinding+".dlq").noargs();
+        return BindingBuilder.bind(fdTrackDlq).to(fdTrackDlqExchange).with(trackBinding).noargs();
     }
 
     @Bean
