@@ -14,6 +14,9 @@ org.fd:
     # You can get your APIKey via Curl with the following command
     # curl -u mike http://localhost:8080/api/v1/profiles/me
     apikey: ERMS4i16T768t3hxm4zh6w
+    http:
+      user: mike
+      pass: 123
     batchsize: 1
     login:
       user: mike
