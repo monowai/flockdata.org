@@ -137,6 +137,8 @@ org:
   neo4j:
     path: src/main/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
     server.database.location: /Users/mike/data/neo4j/fd.db # where to write the db files to - required
+    http: 7575 # you can disable the browser by setting the port to 0
+    auth: "true" # enable/disable neo4j security (omitting defaults to enabled)
 
 
 rabbit:
