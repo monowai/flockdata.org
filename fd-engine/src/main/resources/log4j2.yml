@@ -64,7 +64,7 @@ Configuration:
 
         - name: org.springframework.web
           additivity: false
-          level: debug
+          level: error
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
