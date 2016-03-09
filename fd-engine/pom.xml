@@ -274,11 +274,6 @@
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-webmvc</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -295,7 +290,6 @@
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-http</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-amqp</artifactId>
@@ -304,19 +298,10 @@
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-stream</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-web</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
@@ -424,7 +409,7 @@
             <id>docker</id>
             <!--
                 Builds an executable JAR and performs the docker packaging steps for that jar.
-                The jar can be deployed using other means, i.e. java -jar fd-engine-war.jar
+                The jar can be deployed using other means, i.e. java -jar fd-engine.jar
              -->
             <activation>
                 <activeByDefault>false</activeByDefault>
