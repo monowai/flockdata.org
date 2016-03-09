@@ -28,6 +28,10 @@ package org.flockdata.engine.configure;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.server.WrappingNeoServerBootstrapper;
+import org.neo4j.server.configuration.Configurator;
+import org.neo4j.server.configuration.ServerConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +65,10 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
 
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.path:.}") String props, @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.http:7474}") Integer port,
+                                                     @Value("${org.neo4j.auth:true}") Boolean enableSecurity,
+                                                     @Value("${org.neo4j.path:.}") String props,
+                                                     @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
             logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
             logger.info("**** Neo4j datafiles [{}]", dbPath);
@@ -69,11 +76,17 @@ public class Neo4jConfig extends Neo4jConfiguration {
             configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.model");
-            return new GraphDatabaseFactory()
-
+            GraphDatabaseAPI graphdb = (GraphDatabaseAPI) new GraphDatabaseFactory()
                     .newEmbeddedDatabaseBuilder(dbPath)
                     .loadPropertiesFromFile(configFile)
                     .newGraphDatabase();
+            if ( port >0 ) {
+                ServerConfigurator config = new ServerConfigurator(graphdb);
+                config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
+                config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
+                new WrappingNeoServerBootstrapper(graphdb, config).start();
+            }
+            return graphdb;
         } catch (Exception fileNotFoundException) {
             logger.error("!!! Error initialising Neo4j from [" + configFile + "]. Path can be set via org.neo4j.path=");
             throw fileNotFoundException;
