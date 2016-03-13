@@ -31,7 +31,6 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -51,7 +50,6 @@ import java.util.*;
  * Since: 13/10/13
  */
 @Component
-@Profile("fd-batch")
 public class FdRestWriter implements FdWriter {
 
     private String TRACK;

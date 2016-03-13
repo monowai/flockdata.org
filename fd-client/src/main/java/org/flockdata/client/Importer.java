@@ -29,7 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.util.StopWatch;
 
@@ -66,10 +70,11 @@ import java.util.List;
  * User: Mike Holdsworth
  * Since: 13/10/13
  */
-@SpringBootApplication (scanBasePackages = {
-        "org.flockdata.authentication", "org.flockdata.shared",  "org.flockdata.client"})
 @Profile("!fd-batch")
-public class Importer {
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan(basePackages = {"org.flockdata.authentication", "org.flockdata.shared", "org.flockdata.client"})
+public class Importer extends SpringBootServletInitializer {
 
     private Logger logger = LoggerFactory.getLogger(Importer.class);
 
@@ -77,7 +82,7 @@ public class Importer {
     private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private FdRestWriter fdClient ;
+    private FdRestWriter fdClient;
 
     @Autowired
     private FileProcessor fileProcessor;
@@ -87,8 +92,17 @@ public class Importer {
         System.exit(0);
     }
 
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        // Customize the application or call application.sources(...) to add sources
+        // Since our example is itself a @Configuration class we actually don't
+        // need to override this method.
+        application.web(false);
+        return application;
+    }
+
     @PostConstruct
-    void importFiles(){
+    void importFiles() {
 
         if (clientConfiguration.getApiKey() == null) {
             logger.error("No API key is set in the config file. Have you run the config process?");
@@ -129,18 +143,18 @@ public class Importer {
                     item++;
                 }
                 ContentProfileImpl contentProfileImpl;
-                if (fdClient!=null && profile != null) {
+                if (fdClient != null && profile != null) {
                     contentProfileImpl = ProfileReader.getImportProfile(profile);
                 } else {
                     logger.error("No import parameters to work with");
                     return;
                 }
                 SystemUserResultBean su = fdClient.me(); // Use the configured API as the default FU unless another is set
-                if ( su == null ) {
-                    if ( !clientConfiguration.isAmqp())
+                if (su == null) {
+                    if (!clientConfiguration.isAmqp())
                         throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
                     else
-                        logger.warn( "Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
+                        logger.warn("Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 

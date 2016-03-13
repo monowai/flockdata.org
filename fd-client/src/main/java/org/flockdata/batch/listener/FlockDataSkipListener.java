@@ -21,9 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("fd-batch")
 public class FlockDataSkipListener implements SkipListener<Object, Object> {
     private static final Logger logger = LoggerFactory.getLogger(FlockDataSkipListener.class);
 
