@@ -65,13 +65,15 @@ public class Neo4jConfig extends Neo4jConfiguration {
     }
 
     @Bean
-    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.http:7474}") Integer port,
+    public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.server.webserver.port:7474}") Integer port,
+                                                     @Value("${org.neo4j.server.webserver.address:disable}") String address,
                                                      @Value("${org.neo4j.auth:true}") Boolean enableSecurity,
                                                      @Value("${org.neo4j.path:.}") String props,
                                                      @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
             logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
             logger.info("**** Neo4j datafiles [{}]", dbPath);
+            logger.info ("**** Neo4j url [{}] port [{}]", address, port );
 
             configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
@@ -83,6 +85,8 @@ public class Neo4jConfig extends Neo4jConfiguration {
             if ( port >0 ) {
                 ServerConfigurator config = new ServerConfigurator(graphdb);
                 config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
+                if ( !address.equals("disable"))
+                    config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address );
                 config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
                 new WrappingNeoServerBootstrapper(graphdb, config).start();
             }

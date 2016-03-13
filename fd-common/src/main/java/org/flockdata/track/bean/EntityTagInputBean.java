@@ -19,7 +19,6 @@ package org.flockdata.track.bean;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Tag;
 
-import javax.validation.constraints.NotNull;
 
 /**
  * Associates a Tag with an Entity
@@ -29,11 +28,8 @@ import javax.validation.constraints.NotNull;
  * Time: 9:58 PM
  */
 public class EntityTagInputBean {
-    @NotNull
     private String tagCode;
-    @NotNull
     private String key;
-    @NotNull
     private String type;
     private String index;
     private boolean since;

@@ -18,5 +18,5 @@ COPY classes/neo*.properties /opt/flockdata
 #COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 RUN bash -c 'touch app.jar'
-EXPOSE 8080 7474
-ENTRYPOINT ["java","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/app/app.jar"]
+EXPOSE 8080 7474 1337
+ENTRYPOINT ["java","-Xmx1g","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/app/app.jar"]

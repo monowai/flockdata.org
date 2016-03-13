@@ -217,12 +217,12 @@
             <scope>test</scope>
         </dependency>
         <!-- Servlet -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>7.0.47</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.apache.tomcat</groupId>-->
+        <!--<artifactId>tomcat-servlet-api</artifactId>-->
+        <!--<version>7.0.47</version>-->
+        <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
@@ -269,6 +269,16 @@
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
+        </dependency>
+        <dependency>
+            <!--https://stackoverflow.com/questions/26754982/parsing-applicationcontext-xml-renders-a-java-lang-nosuchmethoderror-could-th-->
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
@@ -355,6 +365,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <requiresUnpack>
+                        <dependency>
+                            <groupId>org.neo4j.app</groupId>
+                            <artifactId>neo4j-browser</artifactId>
+                        </dependency>
+                    </requiresUnpack>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

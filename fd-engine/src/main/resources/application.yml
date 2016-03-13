@@ -45,15 +45,18 @@ application:
 # Threadpools
 org.fd:
   engine:
-    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+    # Defaults on creation of a fortress if not otherwise supplied
+    fortress:
       search: enabled
       store: disabled
     system:
-      api: /api # Mount point for the api
+      # Mount point for the api
+      api: /api
       constraints: true
       concepts: true
       timings: false
-      storage: RIAK # The default store to write to IF a fortress allows it. See fd.engine.fortress.store & fd.store.system.enabled
+      # The default store to write to IF a fortress allows it. See fd.engine.fortress.store & fd.store.system.enabled
+      storage: RIAK
     messaging:
       queue: fd.engine.queue
       binding: fd.engine.binding
@@ -65,7 +68,8 @@ org.fd:
       poolSize: 8-15
       queueCapacity: 3
 
-  track: # Used for handling incoming data
+  # Used for handling incoming data
+  track:
     executor:
         poolSize: 8-15
         queueCapacity: 3
@@ -84,7 +88,8 @@ org.fd:
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081/api/}
     index:
-      prefix: fd.  #ElasticSarch indexes will start with this prefix
+      #ElasticSarch indexes will start with this prefix
+      prefix: fd.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding
@@ -101,7 +106,8 @@ org.fd:
     api: ${org.fd.store.url:http://127.0.0.1:8082/api/}
     system:
       enabled: false
-    messaging: # Async hand offs to fd-store
+    # Async hand offs to fd-store
+    messaging:
       exchange: fd.store.exchange
       binding: fd.store.binding
       queue: fd.store.queue
@@ -135,10 +141,18 @@ org.fd:
 
 org:
   neo4j:
-    path: src/main/resources # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
-    server.database.location: /Users/mike/data/neo4j/fd.db # where to write the db files to - required
-    http: 7474 # you can disable the browser by setting the port to 0
-    auth: "true" # enable/disable neo4j security (omitting defaults to enabled)
+    # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
+    path: src/main/resources
+    # where to write the db files to - required
+    server.database.location: ../data/fd/neo4j
+    # Disable the neo4j browser by setting the port to 0
+    server:
+      webserver:
+        port: 7474
+        # Comment this line out to disable the WEBUI for Neo4j
+        address: 0.0.0.0
+    # enable/disable neo4j security (omitting defaults to enabled)
+    auth: "true"
 
 
 rabbit:
