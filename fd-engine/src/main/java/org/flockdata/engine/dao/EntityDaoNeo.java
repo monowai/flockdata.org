@@ -33,7 +33,6 @@ import org.flockdata.track.bean.EntityKeyBean;
 import org.flockdata.track.bean.EntityTXResult;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityTagService;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.Relationship;
@@ -45,7 +44,6 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
 
@@ -220,7 +218,7 @@ public class EntityDaoNeo {
         trackLogRepo.delete(currentChange);
     }
 
-    public org.flockdata.model.TxRef findTxTag(@NotEmpty String txTag, @NotNull Company company) {
+    public org.flockdata.model.TxRef findTxTag(String txTag, Company company) {
         return txRepo.findTxTag(txTag, company.getId());
     }
 

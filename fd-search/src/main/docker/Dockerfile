@@ -16,6 +16,6 @@ COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 
 RUN bash -c 'touch app.jar'
-EXPOSE 8081
+EXPOSE 8081 9201 9301
 #"-Dfd.config=/opt/flockdata/conf/config.properties","-Dlog4j.configuration=file:/opt/flockdata/conf/log4j.xml"
-ENTRYPOINT ["java","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/bin/app.jar","-httpPort=8081"]
+ENTRYPOINT ["java","-Xmx1g","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/bin/app.jar","-httpPort=8081"]

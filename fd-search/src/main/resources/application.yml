@@ -32,7 +32,7 @@ es:
     port: 9300
   path:
     home: ./
-    data: ${es.path.home}/data/es
+    data: ../data/fd/es
 
 rabbit:
     user: guest

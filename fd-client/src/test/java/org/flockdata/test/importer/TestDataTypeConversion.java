@@ -30,7 +30,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -53,7 +52,7 @@ public class TestDataTypeConversion  extends AbstractImport {
                 assertEquals("00165", tagInputBean.getCode());
         }
         EntityInputBean entity = getFdBatcher().getEntities().iterator().next();
-        assertNotNull ( entity.getContent());
+        TestCase.assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
     }
@@ -162,7 +161,7 @@ public class TestDataTypeConversion  extends AbstractImport {
 
         // DAT-523
         Object randomDate = entityInputBean.getContent().getData().get("randomDate");
-        assertNotNull(randomDate);
+        TestCase.assertNotNull(randomDate);
         TestCase.assertTrue("", randomDate instanceof String);
         new DateTime(randomDate);
         TestCase.assertNull(entityInputBean.getContent().getData().get("nullDate"));

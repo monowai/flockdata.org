@@ -24,6 +24,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @author nabil
  */
 @Component
+@Profile("fd-batch")
 public class FlockDataItemProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     @Autowired

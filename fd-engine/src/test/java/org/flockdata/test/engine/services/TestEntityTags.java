@@ -67,6 +67,7 @@ public class TestEntityTags extends EngineBase {
         cleanUpGraph();
         SystemUser su = registerSystemUser("tags_MetaTagsUpdatedForExistingEntity", mike_admin);
         assertNotNull(su);
+
         FortressInputBean fib = new FortressInputBean("ABC", true);
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
