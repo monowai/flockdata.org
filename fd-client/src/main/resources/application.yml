@@ -5,7 +5,7 @@ server:
 spring:
   profiles:
     active: production
-    include: fd-batch
+    # include: fd-batch  #Enable this if you want spring batch support in your project
 
 #Thu Mar 03 08:41:03 NZDT 2016
 org.fd:
