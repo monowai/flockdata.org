@@ -159,7 +159,7 @@ public class TestStoreService {
 
 
     private void testStore(Store storeToTest) throws Exception {
-        if ( redisServer == null ){
+        if ( redisServer == null || !redisServer.isActive()){
             logger.info("!! REDIS is not installed so we cannot test it");
             return;
         }
