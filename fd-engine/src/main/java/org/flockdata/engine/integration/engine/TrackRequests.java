@@ -98,13 +98,11 @@ public class TrackRequests {
                 if (oKey == null) {
                     throw new AmqpRejectAndDontRequeueException("No api key");
                 }
-                //String apiKey = oKey.toString();
                 trackEntities(inputBeans, oKey.toString());
             } catch (IOException e) {
-//                logger.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
             } catch (InterruptedException | ExecutionException | FlockException e) {
-                e.printStackTrace();
+                throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s",e.getMessage()), e);
             }
 
         };
