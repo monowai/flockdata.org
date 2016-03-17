@@ -35,7 +35,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class FdSearch {
 
     public static void main(String[] args) {
-//        new SpringApplicationBuilder(FdSearch.class).web(true).run(args);
         SpringApplication.run(FdSearch.class, args);
     }
 

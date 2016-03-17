@@ -33,6 +33,8 @@ es:
   path:
     home: ./
     data: ../data/fd/es
+  # , serparated list of hosts to connect to if transportOnly == true
+  #nodes: 192.168.99.100:9300
 
 rabbit:
     user: guest
@@ -59,10 +61,16 @@ org.fd:
   search:
     es:
       mappings: ./
-      #Is the node going to be a client node which means it will hold no data (demo/dev)
-      client: false
-      # A local node is a node that uses a local (JVM level) discovery and transport (demo/dev)
-      local: true
+      #Is the node going to be a client node which means it will hold no data ?
+      # True for production/cluster
+      # False for dev/demo (default)
+      # transportOnly: true
+
+      # A local node is a node that uses a local (JVM level) discovery and transport
+      # True for dev/demo  (default)
+      # False for production/cluster
+      # local: false
+
     system:
       api: api
     messaging:
