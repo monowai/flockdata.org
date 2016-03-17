@@ -22,8 +22,8 @@ services:
   elasticsearch:
     container_name: elasticsearch
     image: elasticsearch:1.7.5
-    ports:
     command: elasticsearch -Des.cluster.name=es_flockdata
+    ports:
       - '9200:9200'
       - '9300:9300'
     #volumes:
