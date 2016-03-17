@@ -38,9 +38,9 @@ services:
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_URL: 'http://fd-search:9201'
+      ELASTICSEARCH_URL: 'http://elasticsearch:9200'
     depends_on:
-#      - elasticsearch
+      - elasticsearch
       - fd-search
 
   fd-engine:
@@ -88,7 +88,7 @@ services:
     depends_on:
       - rabbit
       - eureka
-#      - elasticsearch
+      - elasticsearch
     volumes:
       - ./data/fd/es:/opt/flockdata/data/
 
@@ -101,14 +101,17 @@ services:
       server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
-      riak.hosts: riak
 
       # Enables integration functionality
-      spring.profiles.active: production
       spring.profiles.include: fd-auth-test
 
-      es.http.port: 9201
-      es.tcp.port: 9301
+      #Is the node going to be a client node which means it will hold no data
+      org.fd.search.es.transportOnly: "true"
+      # A local node is a node that uses a local (JVM level) discovery and transport
+      org.fd.search.es.local: "false"
+      # , serparated list of hosts to connect to if transportOnly == true
+      es.nodes: elasticsearch:9300
+
       es.clustername: 'es_flockdata'
       es.path.home: /opt/flockdata
       es.path.data: /opt/flockdata/data
