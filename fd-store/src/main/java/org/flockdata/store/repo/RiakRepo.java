@@ -81,7 +81,7 @@ public class RiakRepo extends AbstractStore {
 
     public void add(StoredContent storedContent) throws IOException {
         try {
-            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent.getEntity()));
+            Namespace ns = new Namespace(bucketType, indexManager.toStoreIndex(storedContent));
             Location location = new Location(ns, storedContent.getId().toString());
             RiakObject riakObject = new RiakObject();
             byte[] bytes = ObjectHelper.serialize(storedContent.getContent());

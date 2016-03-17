@@ -24,6 +24,7 @@ import org.flockdata.model.FortressSegment;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
+import org.flockdata.store.StoredContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +72,10 @@ public class IndexManager {
         return typeSuffix;
     }
 
+    public String parseIndex(Entity entity) {
+        return parseIndex(entity, entity.getType());
+    }
+
     /**
      * Default way of building an Index. Works for most database types including
      * ElasticSearch
@@ -78,29 +83,29 @@ public class IndexManager {
      * @param entity properties
      * @return parsed index
      */
-    public String parseIndex(Entity entity) {
+    public String parseIndex(Entity entity, String type) {
         if (entity.getSegment().isDefault())
-            return entity.getSegment().getFortress().getRootIndex() + getSuffix(entity);
+            return entity.getSegment().getFortress().getRootIndex() + getSuffix(type);
         else {
-            String index = entity.getSegment().getFortress().getRootIndex() + getSuffix(entity);
+            String index = entity.getSegment().getFortress().getRootIndex() + getSuffix(type);
             index = index + "." + entity.getSegment().getCode().toLowerCase();
             return index;
         }
     }
 
     public String toStoreIndex(Entity entity) {
-       return parseIndex(entity);
+        return parseIndex(entity);
     }
 
     /**
      * The suffix, if any, to use for the index. Depends on fd.search.index.typeSuffix==true
      *
-     * @param entity to analyse
+     * @param type to analyse
      * @return coded DocumentType
      */
-    private String getSuffix(Entity entity) {
-        if (isSuffixed())
-            return "." + parseType(entity.getType());
+    private String getSuffix(String type) {
+        if (isSuffixed() && type != null)
+            return "." + parseType(type);
         else
             return "";
     }
@@ -211,5 +216,8 @@ public class IndexManager {
         return toStoreIndex(entity);
     }
 
+    public String toStoreIndex(StoredContent storedContent) {
+        return parseIndex(storedContent.getEntity(), storedContent.getType());
+    }
 }
 
