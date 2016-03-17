@@ -19,17 +19,18 @@ services:
       volumes:
         - ./data/riak:/data/riak
 
-#  elasticsearch:
-#    container_name: elasticsearch
-#    image: elasticsearch:1.7.5
-#    ports:
-#      - '9200:9200'
-#      - '9300:9300'
-#    volumes:
-#      - ./data/es:/usr/share/elasticsearch/data
-#
-#    environment:
-#      es.cluster.name: es_flockdata
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:1.7.5
+    ports:
+    command: elasticsearch -Des.cluster.name=es_flockdata
+      - '9200:9200'
+      - '9300:9300'
+    #volumes:
+    #  - ./data/es:/usr/share/elasticsearch/data
+
+    environment:
+      es.cluster.name: es_flockdata
 
   kibana:
     container_name: kibana

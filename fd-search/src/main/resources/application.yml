@@ -59,6 +59,10 @@ org.fd:
   search:
     es:
       mappings: ./
+      #Is the node going to be a client node which means it will hold no data (demo/dev)
+      client: false
+      # A local node is a node that uses a local (JVM level) discovery and transport (demo/dev)
+      local: true
     system:
       api: api
     messaging:
