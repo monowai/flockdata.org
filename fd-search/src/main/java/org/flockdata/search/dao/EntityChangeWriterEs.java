@@ -374,6 +374,11 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
         Collection<String> uniqueTags = new ArrayList<>();
         Collection<String> outputs = new ArrayList<>();
+        boolean oneToMany = true;   // Kibana presentation only. ToDo: Set from TagInputBean->SearchTag
+                                    // If false, makes the presentation look better in Kibana.
+                                    // Consider one to one then one to many. One to one displays flat
+                                    // while one to many assumes the tags to be an []. Presentation should strive to be consistent
+                                    // but you can still query consistently either way.
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
@@ -384,14 +389,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             if (enableSquash && tagValues.get(relationship).containsKey(relationship)) {
                 // DAT-328 - the relationship and label have the same name
                 ArrayList<SearchTag> values = tagValues.get(relationship).get(relationship);
-                if (values.size() == 1) {
+                if (values.size() == 1 & !oneToMany) {
                     // DAT-329
                     SearchTag searchTag = values.iterator().next();
-//                    if ( searchTag.hasSingleProperty())
-//                        squash.put(relationship, searchTag.getCode());
-//                    else
                     squash.put(relationship, searchTag);
-
                     gatherTag(uniqueTags, searchTag);
 
                 } else {
@@ -404,7 +405,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(relationship);
                 Map<String, Object> newValues = new HashMap<>();
                 for (String label : mapValues.keySet()) {
-                    if (mapValues.get(label).size() == 1) {
+                    if (mapValues.get(label).size() == 1 & !oneToMany ) {
                         // DAT-329 if only one value, don't store as a collection
                         SearchTag searchTag = mapValues.get(label).iterator().next();
                         // Store the tag
