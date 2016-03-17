@@ -35,7 +35,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.flockdata.store.Fdstore
+        - name: org.flockdata.store.FdStore
           additivity: false
           level: info
           AppenderRef:
