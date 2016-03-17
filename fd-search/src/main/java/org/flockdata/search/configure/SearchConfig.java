@@ -48,6 +48,11 @@ public class SearchConfig {
     @Value("${es.tcp.port:9300}")
     String tcpPort;
 
+    @Value("${org.fd.search.es.client:false}")
+    Boolean clientOnly;
+    @Value("${org.fd.search.es.local:true}")
+    Boolean localOnly;
+
     @Value("${org.fd.search.es.mappings:'.'}")
     private String esMappingPath;
 
@@ -61,7 +66,6 @@ public class SearchConfig {
 
     private Settings getSettings() {
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
-                .put("clustername", clusterName)
                 .put("path.home", pathHome)
                 .put("path.data", pathData)
                 .put("http.port", httpPort)
@@ -86,7 +90,8 @@ public class SearchConfig {
                 .nodeBuilder()
                 .settings(getSettings())
                 .clusterName(clusterName)
-                .local(true)
+                .local(localOnly)
+                .client(clientOnly)
                 .node();
     }
 
