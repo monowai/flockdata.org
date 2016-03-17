@@ -52,7 +52,7 @@ public class SearchAdmin {
     @Autowired
     SearchConfig searchConfig;
 
-    private Logger logger = LoggerFactory.getLogger(SearchAdmin.class);
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Autowired
     VersionHelper versionHelper;
@@ -62,10 +62,15 @@ public class SearchAdmin {
         Map<String, Object> healthResults = new HashMap<>();
         healthResults.put("elasticsearch", engineDao.ping());
         healthResults.put("fd.search.version", version);
-            // Test for that the supplied path exists
-            // Default to the config path for mappings
-        healthResults.put("fd.search.es.settings", searchConfig.getEsDefaultSettings());
-        healthResults.put("fd.search.es.mapping", searchConfig.getEsMappingPath());
+
+        String nodes = searchConfig.getTransportAddresses();
+        if ( nodes !=null )
+            healthResults.put("es.nodes", nodes);
+        else
+            healthResults.put("org.fd.search.es.transportOnly", false);
+
+        healthResults.put("org.fd.search.es.settings", searchConfig.getEsDefaultSettings());
+        healthResults.put("org.fd.search.es.mapping", searchConfig.getEsMappingPath());
 
         return healthResults;
 
@@ -82,10 +87,10 @@ public class SearchAdmin {
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
         try {
             ObjectWriter or = om.writerWithDefaultPrettyPrinter();
-            logger.info("\r\n" + or.writeValueAsString(getHealth()));
+            logger.info("fd-search.status\r\n" + or.writeValueAsString(getHealth()));
         } catch (JsonProcessingException e) {
 
-            logger.error("doHealth", e);
+            logger.error("doHealth", e.getMessage());
         }
     }
 }
