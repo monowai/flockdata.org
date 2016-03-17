@@ -1,5 +1,8 @@
-FROM java:8
+FROM anapsix/alpine-java:latest
+
 VOLUME /tmp
+
+MAINTAINER Mike Holdsworth "https://github.com/monowai"
 
 # Create flockdata var/lib folder
 RUN mkdir /opt/flockdata && \
