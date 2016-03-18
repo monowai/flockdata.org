@@ -9,37 +9,36 @@ services:
         - '15672:15672'
 
   riak:
-      container_name: riak
-      image: lapax/riak:latest
-      ports:
-        - '8087:8087'
-      environment:
-        storage_backend: leveldb
-        platform_data_dir: /data/riak
-      volumes:
-        - ./data/riak:/data/riak
+    container_name: riak
+    image: lapax/riak:latest
+    ports:
+      - '8087:8087'
+    environment:
+      storage_backend: leveldb
+      platform_data_dir: /data/riak
+    volumes:
+      - ./data/riak:/data/riak
 
-#  elasticsearch:
-#    container_name: elasticsearch
-#    image: elasticsearch:1.7.5
-#    ports:
-#      - '9200:9200'
-#      - '9300:9300'
-#    volumes:
-#      - ./data/es:/usr/share/elasticsearch/data
-#
-#    environment:
-#      es.cluster.name: es_flockdata
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:1.7.5
+    command: elasticsearch -Des.cluster.name=es_flockdata
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    volumes:
+      - fd-es:/usr/share/elasticsearch/data
+
 
   kibana:
     container_name: kibana
-    image: kibana:4.1.4
+    image: kibana:4.1.6
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_URL: 'http://fd-search:9201'
+      ELASTICSEARCH_URL: 'http://elasticsearch:9200'
     depends_on:
-#      - elasticsearch
+      - elasticsearch
       - fd-search
 
   fd-engine:
@@ -49,17 +48,17 @@ services:
     ports:
       - '8080:8080'
       - '7474:7474'
-      - '1337:1337'
+
     volumes:
-      - ./data/fd/neo4j:/opt/flockdata/data
+      - fd-neo:/opt/flockdata/data
 
     environment:
+      server.port: 8080
       spring.cloud.config.discovery.enabled: 'false'
       org.fd.discovery.url: http://eureka:8761/eureka/
       eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
       eureka.instance.nonSecurePort: 8080
       eureka.client.enabled: 'true'
-      server.port: 8080
       spring.profiles.active: production
       spring.profiles.include: fd-auth-test
 
@@ -82,32 +81,35 @@ services:
     image: flockdata/fd-search:latest
     ports:
      - '8081:8081'
-     - '9201:9201'
-     - '9301:9301'
     depends_on:
       - rabbit
       - eureka
-#      - elasticsearch
+      - elasticsearch
+
+      ## Volume only needed if !transportClient
     volumes:
-      - ./data/fd/es:/opt/flockdata/data/
+      - fd-es:/opt/flockdata/data/
 
     environment:
+      server.port: 8081
       spring.cloud.config.discovery.enabled: 'false'
       org.fd.discovery.url: http://eureka:8761/eureka/
       eureka.instance.hostname: 192.168.99.100 # DOCKER HOST
       eureka.instance.nonSecurePort: 8081
       eureka.client.enabled: 'true'
-      server.port: 8081
       rabbit.host: rabbit
       org.fd.engine.url: 'http://fd-engine:8080/api'
-      riak.hosts: riak
 
       # Enables integration functionality
-      spring.profiles.active: production
       spring.profiles.include: fd-auth-test
 
-      es.http.port: 9201
-      es.tcp.port: 9301
+      #Is the node going to be a client node which means it will hold no data
+      org.fd.search.es.transportOnly: "true"
+      # A local node is a node that uses a local (JVM level) discovery and transport
+      org.fd.search.es.local: "false"
+      # , serparated list of hosts to connect to if transportOnly == true
+      es.nodes: elasticsearch:9300
+
       es.clustername: 'es_flockdata'
       es.path.home: /opt/flockdata
       es.path.data: /opt/flockdata/data
@@ -162,6 +164,7 @@ services:
     ports:
       - '4040:4040'
     privileged: true
+
 #MySQL
 #https://dzone.com/articles/docker-compose-environment-variable-binding-exampl
 
@@ -169,3 +172,18 @@ networks:
   default:
     # Use the overlay driver for multi-host communication
     driver: bridge
+
+## You need to create your volumes. Something along the lines of:
+## docker volume create --name fd-neo
+volumes:
+  fd-es:
+    external: true
+
+  fd-neo:
+    external: true
+
+  fd-riak:
+    external: true
+
+# Cleaningup unused docker stuff
+#    http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/

@@ -41,6 +41,7 @@ public class StorageBean implements StoredContent, Serializable {
     private String checksum;
     private ContentInputBean content = null;
     private String store;
+    private String type ;
 
     StorageBean() {
     }
@@ -65,7 +66,7 @@ public class StorageBean implements StoredContent, Serializable {
     public StorageBean(TrackResultBean trackResultBean) {
         this();
         this.entity = trackResultBean.getEntity();
-
+        this.type = entity.getType();
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();
@@ -141,10 +142,8 @@ public class StorageBean implements StoredContent, Serializable {
     }
 
     @Override
-    @JsonIgnore
     public String getType() {
-        // Shorthand
-        return entity.getType();
+        return type;
     }
 
     @Override
