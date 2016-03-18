@@ -17,11 +17,11 @@ services:
       storage_backend: leveldb
       platform_data_dir: /data/riak
     volumes:
-      - fd-riak:/data/riak
+      - ./data/riak:/data/riak
 
   elasticsearch:
     container_name: elasticsearch
-    image: elasticsearch:latest
+    image: elasticsearch:1.7.5
     command: elasticsearch -Des.cluster.name=es_flockdata
     ports:
       - '9200:9200'
@@ -32,7 +32,7 @@ services:
 
   kibana:
     container_name: kibana
-    image: kibana:latest
+    image: kibana:4.1.6
     ports:
       - 5601:5601
     environment:
