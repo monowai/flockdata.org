@@ -21,15 +21,26 @@
 package org.flockdata.search.configure;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.node.Node;
 import org.flockdata.track.service.EntityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+
+import javax.annotation.PreDestroy;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created by mike on 16/02/16.
@@ -48,6 +59,11 @@ public class SearchConfig {
     @Value("${es.tcp.port:9300}")
     String tcpPort;
 
+    @Value("${org.fd.search.es.transportOnly:false}")
+    Boolean transportOnly;
+    @Value("${org.fd.search.es.local:true}")
+    Boolean localOnly;
+
     @Value("${org.fd.search.es.mappings:'.'}")
     private String esMappingPath;
 
@@ -59,34 +75,99 @@ public class SearchConfig {
 
     private Client client;
 
+    private Logger logger = LoggerFactory.getLogger("configuration");
+
     private Settings getSettings() {
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
-                .put("clustername", clusterName)
-                .put("path.home", pathHome)
                 .put("path.data", pathData)
+                .put("path.home", pathHome)
                 .put("http.port", httpPort)
+                .put("cluster.name", clusterName)
+                .put("node.local", localOnly)
+                .put("node.client", transportOnly)
                 .put("transport.tcp.port", tcpPort);
         return settings.build();
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
+    public ElasticsearchOperations elasticsearchTemplate() throws UnknownHostException {
         return new ElasticsearchTemplate(elasticSearchClient());
     }
 
-    public Client elasticSearchClient(){
-        if ( client == null )
-            client = esNode().client();
-        return client;
-//        return esNode().client();
+    @PreDestroy
+    void closeClient() {
+        if (client != null)
+            client.close();
     }
 
-    Node esNode(){
-        return  org.elasticsearch.node.NodeBuilder
+    public Client elasticSearchClient() {
+        if (client == null) {
+            if (transportOnly) {
+                // You should set the host addresses to connect to
+                for (InetSocketTransportAddress address : addresses) {
+                    logger.info("**** Transport client looking for host {}", address.toString() );
+                }
+                client = new TransportClient(getSettings())
+                        .addTransportAddresses((TransportAddress[]) addresses
+                        );
+
+            } else {
+                logger.info("Using embedded ES node");
+                // Embedded node
+                client = esNode()
+                        .client();
+            }
+        }
+
+        return client;
+    }
+
+    private InetSocketTransportAddress[] addresses;
+
+    /**
+     * Transport hosts
+     *
+     * HostA:9300,HostB:9300,HostC:9300.....
+     *
+     * @param urls , separated list of hosts to connect to
+     */
+    @Autowired
+    void setTransportAddresses(@Value("${es.nodes:localhost:9300}") String urls) {
+        Collection<String> values;
+        if (urls == null || urls.equals("")) {
+            return;
+        }
+        values = Arrays.asList(urls.split(","));
+
+        addresses = new InetSocketTransportAddress[values.size()];
+        int i = 0;
+        for (String value : values) {
+            String[] serverPort = value.split(":");
+            addresses[i++] = new InetSocketTransportAddress(serverPort[0], Integer.parseInt(serverPort[1]));
+        }
+    }
+
+    public String getTransportAddresses() {
+        if ( !transportOnly)
+            return null;
+        String result =null ;
+        for (InetSocketTransportAddress address : addresses) {
+            if ( result!=null)
+                result = result + "," + address.toString();
+            else
+                result = address.toString();
+        }
+        return result;
+    }
+
+
+    Node esNode() {
+        return org.elasticsearch.node.NodeBuilder
                 .nodeBuilder()
                 .settings(getSettings())
                 .clusterName(clusterName)
-                .local(true)
+                .local(localOnly)
+                .client(transportOnly)
                 .node();
     }
 
@@ -102,11 +183,12 @@ public class SearchConfig {
             esSettings = "fd-default-settings.json";
         return esSettings;
     }
+
     public String getEsMapping(EntityService.TAG_STRUCTURE tagStructure) {
         if (tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
-            return  esTaxonomyMapping;
+            return esTaxonomyMapping;
         else
-            return  esDefaultMapping;
+            return esDefaultMapping;
     }
 
     public String getEsPathedMapping(EntityService.TAG_STRUCTURE tagStructure) {

@@ -34,7 +34,7 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
-        - name: org.flockdata.search.Fdsearch
+        - name: org.flockdata.search.FdSearch
           additivity: false
           level: info
           AppenderRef:
