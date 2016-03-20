@@ -44,34 +44,34 @@ fdView.factory('EntityService', ['$http', 'configuration',
             return response.data.results;
           });
         },
-        getLogsForEntity: function (metaKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + metaKey + '/summary';
+        getLogsForEntity: function (entityKey) {
+          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/summary';
           return $http.get(url).then(function (response) {
             return response.data;
           });
         },
-        getJsonContentForLog: function (metaKey, logId) {
-          var url = configuration.engineUrl() + '/v1/entity/' + metaKey + '/log/' + logId + '/data';
+        getJsonContentForLog: function (entityKey, logId) {
+          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/log/' + logId + '/data';
           return $http.get(url).then(function (response) {
 //                  This endpoint only ever returns JSON type data
             return response.data;
           });
         },
-        getJsonAttachmentForLog: function (metaKey, logId) {
-          var url = configuration.engineUrl() + '/v1/entity/' + metaKey + '/log/' + logId + '/attachment';
+        getJsonAttachmentForLog: function (entityKey, logId) {
+          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/log/' + logId + '/attachment';
           return $http.get(url).then(function (response) {
 //                  Content for this EP is variable - PDF, XLS, PPT etc. Can be found from the Log
             return response.data;
           });
         },
-        getTagsForEntity: function (metaKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + metaKey + '/tags';
+        getTagsForEntity: function (entityKey) {
+          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/tags';
           return $http.get(url).then(function (response) {
             return response.data;
           });
         },
-        getEntityPK: function (metaKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + metaKey;
+        getEntityPK: function (entityKey) {
+          var url = configuration.engineUrl() + '/v1/entity/' + entityKey;
           return $http.get(url).then(function (response) {
             return response.data.id;
           });
@@ -114,7 +114,7 @@ fdView.factory('Session', [
 
 fdView.factory('Account', ['$resource', 'configuration',
     function ($resource, configuration) {
-      return $resource(configuration.engineUrl() + '/v1/account', {}, {});
+      return $resource(configuration.engineUrl() + '/account', {}, {});
     }
   ]
 );
@@ -124,7 +124,7 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$http', 'authServi
       return {
         login: function (username, password) {
           var data = {username: username, password: password};
-          var url = configuration.engineUrl() + '/v1/login';
+          var url = configuration.engineUrl() + '/login';
           $http.post(url, data).success(function (data, status, headers, config) {
             authService.loginConfirmed(data);
             Session.create(data.userId, data.userName, data.userEmail, data.status, data.company, data.userRoles, data.apiKey);
@@ -180,7 +180,7 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$http', 'authServi
           $rootScope.authenticated = false;
           $rootScope.account = null;
 
-          $http.get(configuration.engineUrl() + '/v1/logout');
+          $http.get(configuration.engineUrl() + '/logout');
           Session.invalidate();
           authService.loginCancelled();
         }

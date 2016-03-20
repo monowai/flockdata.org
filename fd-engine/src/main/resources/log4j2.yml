@@ -75,3 +75,11 @@ Configuration:
           AppenderRef:
             - ref: CONSOLE
             - ref: FILE
+
+       - name: com.sun.jersey.
+          ## Typically the Neo4j browser
+          additivity: false
+          level: fatal
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: FILE

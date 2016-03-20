@@ -61,7 +61,7 @@ public class IndexManager {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** FlockData index variables prefix [{}], suffixing with type [{}]", prefix, typeSuffix);
+        logger.info("**** Prefixing FD indexes with [{}] and it is [{}] that we will also suffix with the entity type", prefix, typeSuffix);
     }
 
     public String getPrefix() {
@@ -203,8 +203,10 @@ public class IndexManager {
         if (logRequest.getStore() == Store.NONE) {
             // ElasticSearch
             if (logRequest.getEntity().getSearchKey() == null)
-                throw new NotFoundException("Unable to resolve the search key for the entity " + logRequest.getEntity().toString());
-            return logRequest.getEntity().getSearchKey();
+                //throw new NotFoundException("Unable to resolve the search key for the entity " + logRequest.getEntity().toString());
+                return logRequest.getEntity().getKey();
+            else
+                return logRequest.getEntity().getSearchKey();
         }
         return logRequest.getLogId().toString();
 

@@ -63,7 +63,7 @@ import java.io.IOException;
 @Transactional
 @MessageEndpoint
 @Configurable
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class WriteEntityChange {
 
     private Logger logger = LoggerFactory.getLogger(WriteEntityChange.class);
@@ -131,11 +131,10 @@ public class WriteEntityChange {
 
 
     @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
-    @Profile({"integration","production"})
+//    @Profile({"fd-server"})
     public interface EngineResultGateway {
         @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
         @Async("fd-search")
-        @Profile({"integration","production"})
         void writeEntitySearchResult(SearchResults searchResult);
 
     }

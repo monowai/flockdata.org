@@ -35,9 +35,9 @@ public class TagCloudParams implements QueryInterface {
     // ToDo: This should be an Array[]
     private ArrayList<String> types = new ArrayList<>();
 
-    private ArrayList<String> tags;
+    private ArrayList<String> tags = new ArrayList<>();
 
-    private ArrayList<String> relationships;
+    private ArrayList<String> relationships = new ArrayList<>();
     private String searchText;
     private String segment;
 
