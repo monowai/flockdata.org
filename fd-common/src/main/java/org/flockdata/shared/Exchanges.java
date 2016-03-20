@@ -114,10 +114,10 @@ public class Exchanges {
     @Value("${org.fd.track.messaging.binding:fd.track.binding}")
     String trackBinding;
 
-    @Value("${org.fd.engine.binding:fd.engine.binding}")
+    @Value("${org.fd.engine.messaging.binding:fd.engine.binding}")
     String engineBinding;
 
-    @Value("${org.fd.store.binding:fd.store.binding}")
+    @Value("${org.fd.store.messaging.binding:fd.store.binding}")
     String storeBinding;
 
     @Value("${org.fd.store.messaging.concurrentConsumers:2}")

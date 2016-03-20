@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Service endpoint to write incoming search requests via an ElasticSaerch implementation
+ *
  * Created by mike on 15/02/16.
  */
 @Service
@@ -71,7 +73,7 @@ public class EsSearchWriter implements SearchWriter {
         logger.debug("Received request to index Batch {}", changes.getChanges().size());
         Map<String, Boolean> checked = new HashMap<>();
         SearchResults results = new SearchResults();
-//        boolean mappingChecked = false;
+
         for (EntitySearchChange searchChange : thisChange) {
             if (searchChange == null) {
                 logger.error("Null search change received. Retry your operation with data!");
