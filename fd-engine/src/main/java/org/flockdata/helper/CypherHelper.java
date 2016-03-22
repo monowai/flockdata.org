@@ -26,6 +26,7 @@ import org.neo4j.graphdb.Node;
 import java.util.Collection;
 import java.util.Map;
 
+
 /**
  * User: mike
  * Date: 12/06/14
@@ -63,7 +64,7 @@ public class CypherHelper {
                 // ToDo: Fix this hack
                 if (field.equals("User"))
                     field = "_FortressUser";
-                if (field.contains(" ") || field.contains("-") || field.contains(".") || field.matches("^[\\d\\-\\.]+$"))
+                if (requiresQuoting(field))
                     field = "`" + field + "`";
 
                 if (result.equals(delimiter) || result.equals(""))
@@ -75,6 +76,15 @@ public class CypherHelper {
         if (result.equals(delimiter))
             result = "";
         return result;
+    }
+
+    /**
+     *
+     * @param string to analyze
+     * @return true if the string requires quoting in the world of Cypher
+     */
+    public static boolean requiresQuoting(String string) {
+        return string.contains(" ") || string.contains("-") || string.contains(".") || string.matches("^[\\d\\-\\.]+$") ;
     }
 
     public static boolean isEntity(Node node) {
