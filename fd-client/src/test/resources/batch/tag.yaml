@@ -1,0 +1,4 @@
+profile: /batch/tag.json
+step: olympic.athlete.as.tag
+query: >
+  SELECT ID,FIRSTNAME,LASTNAME,SURNAME from TEST

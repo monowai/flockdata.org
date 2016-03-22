@@ -45,7 +45,7 @@ public class Transformer {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(Transformer.class);
 
     public static Mappable getMappable(ContentProfile profile) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Mappable mappable = null;
+        Mappable mappable ;
 
         if (!(profile.getHandler() == null || profile.getHandler().equals("")))
             mappable = (Mappable) Class.forName(profile.getHandler()).newInstance();

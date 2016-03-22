@@ -20,7 +20,9 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
-import org.flockdata.transform.csv.CsvTagMapper;
+import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.ExpressionHelper;
+import org.flockdata.transform.TransformationHelper;
 
 import java.util.Map;
 
@@ -35,15 +37,57 @@ public class TagMapper extends TagInputBean implements Mappable{
         setLabel(documentName);
     }
 
+    public TagMapper() {
+    }
+
     public Map<String, Object> setData(Map<String,Object>row, ContentProfile contentProfile) throws FlockException {
-        return null;
+        if ( !TransformationHelper.processRow(row, contentProfile))
+            return null;
+
+        Map<String, ColumnDefinition> content = contentProfile.getContent();
+
+        for (String column : content.keySet()) {
+            ColumnDefinition colDef = content.get(column);
+            String value;
+            Object colValue = row.get(column);
+            // colValue may yet be an expression
+            value = (colValue != null ? colValue.toString() : null);
+            if (value != null)
+                value = value.trim();
+
+            if (colDef != null) {
+
+                if (colDef.isTag()) {
+                    TransformationHelper.setTagInputBean(this, row, column, content, value);
+                }
+                if (colDef.isTitle()) {
+                    setName(ExpressionHelper.getValue(row, ColumnDefinition.ExpressionType.NAME, colDef, value));
+                    if (colDef.getCode() != null)
+                        row.get(colDef.getCode());
+                }
+                if (colDef.getTarget() != null && colDef.isPersistent()) {
+                    value = ExpressionHelper.getValue(row, colDef.getValue(), colDef, row.get(column));
+                    Object oValue = ExpressionHelper.getValue(value, colDef);
+                    if (oValue != null)
+                        setProperty(colDef.getTarget(), oValue);
+                }
+                if ( colDef.getGeoData() != null ){
+                    TransformationHelper.doGeoTransform(this, row, colDef);
+                }
+
+
+            } // ignoreMe
+        }
+        return row;
     }
 
     public static Mappable newInstance(ContentProfile contentProfile) {
         if (contentProfile.getContentType()== ContentProfile.ContentType.CSV)
-            return new CsvTagMapper();
-
-        return new TagMapper(contentProfile.getDocumentType().getName());
+            return new TagMapper();
+        if ( contentProfile.getDocumentType() !=null )
+            return new TagMapper(contentProfile.getDocumentType().getName());
+        else
+            return new TagMapper();
     }
 
 }

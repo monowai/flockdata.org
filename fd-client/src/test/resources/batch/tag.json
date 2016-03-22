@@ -1,0 +1,9 @@
+{
+  "content": {
+    "FIRSTNAME": {
+      "tag": true,
+      "label": "Person",
+      "code": "#row['FIRSTNAME'] + ' ' +#row['LASTNAME']"
+    }
+  }
+}

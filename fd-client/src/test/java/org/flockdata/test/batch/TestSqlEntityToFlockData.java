@@ -20,8 +20,9 @@ package org.flockdata.test.batch;
 import junit.framework.TestCase;
 import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.resources.FdBatchResources;
+import org.flockdata.batch.resources.FdEntityProcessor;
 import org.flockdata.batch.resources.FdRowMapper;
-import org.flockdata.batch.resources.FlockDataItemProcessor;
+import org.flockdata.batch.resources.FdTagProcessor;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatcher;
 import org.flockdata.test.client.MockFdWriter;
@@ -48,21 +49,22 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"dev", "fd-batch"})
-@SpringApplicationConfiguration({ BatchConfig.class,
-                                  FdBatchResources.class,
-                                  ClientConfiguration.class,
-                                  MockFdWriter.class,
-                                  FlockDataItemProcessor.class,
-                                  FdRowMapper.class,
-                                  FdBatcher.class,
-                                  HsqlDataSource.class,
-                                  JobLauncherTestUtils.class,
-                                  SqlQueryJob.class
-                                })
+@SpringApplicationConfiguration({BatchConfig.class,
+        FdBatchResources.class,
+        ClientConfiguration.class,
+        MockFdWriter.class,
+        FdTagProcessor.class,
+        FdEntityProcessor.class,
+        FdRowMapper.class,
+        FdBatcher.class,
+        HsqlDataSource.class,
+        JobLauncherTestUtils.class,
+        SqlEntityJob.class
+})
 
-@TestPropertySource({"/fd-batch.properties","/application_dev.properties"})
+@TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
+public class TestSqlEntityToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -78,7 +80,7 @@ public class TestSqlToFlockData extends AbstractTransactionalJUnit4SpringContext
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
-        assertTrue(clientConfiguration.getBatchSize()>1);
+        assertTrue(clientConfiguration.getBatchSize() > 1);
         // This check works because 2 is < the configured batch size
         TestCase.assertEquals("Number of rows loaded ex data.sql does not match", 2, payloadBatcher.getEntities().size());
         for (EntityInputBean entityInputBean : payloadBatcher.getEntities()) {

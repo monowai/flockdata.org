@@ -16,7 +16,7 @@
 
 package org.flockdata.batch.resources;
 
-import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.PayloadBatcher;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +32,22 @@ import java.util.List;
  */
 @Component
 @Profile("fd-batch")
-public class FlockDataItemWriter implements ItemWriter<EntityInputBean> {
+public class FdTagWriter implements ItemWriter<TagInputBean> {
 
     @Autowired
     private PayloadBatcher payloadBatcher;
 
-    private FlockDataItemWriter(){}
+    private FdTagWriter(){}
 
-    FlockDataItemWriter(PayloadBatcher payloadBatcher) {
+    FdTagWriter(PayloadBatcher payloadBatcher) {
         this();
         this.payloadBatcher = payloadBatcher;
     }
 
     @Override
-    public void write(List<? extends EntityInputBean> items) throws Exception {
-        for (EntityInputBean item : items) {
-            payloadBatcher.batchEntity(item);
+    public void write(List<? extends TagInputBean> items) throws Exception {
+        for (TagInputBean item : items) {
+            payloadBatcher.batchTag(item, "");
         }
-        //payloadBatcher.flush();
     }
 }

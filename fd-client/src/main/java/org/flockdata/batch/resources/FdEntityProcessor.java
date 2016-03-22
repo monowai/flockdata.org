@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @Component
 @Profile("fd-batch")
-public class FlockDataItemProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
+public class FdEntityProcessor implements ItemProcessor<Map<String, Object>, EntityInputBean> {
 
     @Autowired
     private BatchConfig batchConfig;
