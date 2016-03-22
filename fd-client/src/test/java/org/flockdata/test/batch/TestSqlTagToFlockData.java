@@ -76,18 +76,22 @@ public class TestSqlTagToFlockData extends AbstractTransactionalJUnit4SpringCont
     PayloadBatcher payloadBatcher;
 
     @Test
-    @Sql({"/batch/sql/schema.sql", "/batch/sql/data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,scripts =  {"/batch/sql/countries.sql", "/batch/sql/country-data.sql", "classpath:org/springframework/batch/core/schema-hsqldb.sql"})
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = {"classpath:org/springframework/batch/core/schema-drop-hsqldb.sql"})
     public void testDummy() throws Exception {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
         assertTrue(clientConfiguration.getBatchSize()>1);
         // This check works because 2 is < the configured batch size
-        TestCase.assertEquals("Number of rows loaded ex data.sql does not match", 2, payloadBatcher.getTags().size());
+        TestCase.assertEquals("Number of rows loaded ex entity-data.sql does not match", 2, payloadBatcher.getTags().size());
         for (TagInputBean tagInputBean : payloadBatcher.getTags()) {
-            assertEquals("Person", tagInputBean.getLabel());
+            assertEquals("Country", tagInputBean.getLabel());
+            assertNotNull(tagInputBean.getName());
+            assertEquals (3, tagInputBean.getCode().length());
             assertNotNull(tagInputBean.getCode());
         }
     }
+
 
     @Bean
     public JobLauncherTestUtils getJobLauncherTestUtils() {
