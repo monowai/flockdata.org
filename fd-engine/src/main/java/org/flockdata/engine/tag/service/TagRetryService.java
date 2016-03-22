@@ -69,7 +69,7 @@ public class TagRetryService {
             maxAttempts = 15,
             backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
 
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if ( tagInputBeans == null ||tagInputBeans.isEmpty())
             return new ArrayList<>();

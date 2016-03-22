@@ -136,8 +136,11 @@ public class MediationFacadeNeo implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
+        return trackEntities(c, inputBeans);
+    }
 
-        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
+    public Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
+        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(company, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (FortressSegment segment : byFortress.keySet()) {
             Collection<TrackResultBean> tr =
@@ -148,8 +151,8 @@ public class MediationFacadeNeo implements MediationFacade {
 
         }
         return results;
-    }
 
+    }
 
     @Override
     public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
@@ -160,7 +163,15 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+        Company company = securityHelper.getCompany(apiKey);
+        if (company == null )
+            throw new RuntimeException( "Illegal company api key");
+        return createTags(company, tagInputs);
+    }
+
+    @Override
+    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
         if (tagInputs.isEmpty())
             return null;

@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.dao;
 
+import org.flockdata.helper.CypherHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.slf4j.Logger;
@@ -131,7 +132,8 @@ public class SchemaDaoNeo4j {
     @Cacheable(value = "labels", unless = "#result==null") // Caches the fact that a constraint has been created
     @Transactional
     public String ensureUniqueIndex(String label) {
-        boolean quoted = label.contains(" ") || label.contains("/");
+
+        boolean quoted = CypherHelper.requiresQuoting(label);
 
         String cLabel = quoted ? "`" + label : label;
 

@@ -55,6 +55,8 @@ public class ClientConfiguration {
     public static final String KEY_RABBIT_PASS = "rabbit.pass";
     public static final String KEY_RABBIT_PD = "rabbit.persistent";
     public static final String KEY_MSG_KEY = "fd-apiKey";
+    public static final String KEY_MSG_TYPE = "fd-type";
+
 
     @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;

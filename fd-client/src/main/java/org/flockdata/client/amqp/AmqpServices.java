@@ -22,6 +22,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
@@ -44,10 +45,11 @@ import java.util.HashMap;
 @Configuration
 public class AmqpServices {
     ConnectionFactory factory = new ConnectionFactory();
-    Connection connection =null ;
-    Channel channel  = null;
+    Connection connection = null;
+    Channel channel = null;
 
-    AMQP.BasicProperties.Builder builder;
+    AMQP.BasicProperties entityProps;
+    AMQP.BasicProperties tagProps;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpServices.class);
 
     @Autowired
@@ -65,16 +67,22 @@ public class AmqpServices {
 
             channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
             connection = factory.newConnection();
-            HashMap<String,Object> headers = new HashMap<>();
-            headers.put(ClientConfiguration.KEY_MSG_KEY, configuration.getApiKey());
-            if ( configuration.getApiKey() == null || configuration.getApiKey().equals(""))
+            if (configuration.getApiKey() == null || configuration.getApiKey().equals(""))
                 throw new FlockException("Your API key appears to be invalid. Have you run the configure process?");
-            builder =
+            entityProps =
                     new AMQP.BasicProperties().builder()
-                            .headers(headers)
-                            .deliveryMode( configuration.getPersistentDelivery()?2:null)
-                            .replyTo("nullChannel")
-                    ;
+                            .headers(getHeaders("E", configuration.getApiKey()))
+                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
+                            .replyTo("nullChannel").build()
+            ;
+
+            tagProps =
+                    new AMQP.BasicProperties().builder()
+                            .headers(getHeaders("T", configuration.getApiKey()))
+                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
+                            .replyTo("nullChannel").build()
+            ;
+
 
         } catch (IOException e) {
             logger.error("Unexpected", e);
@@ -82,12 +90,12 @@ public class AmqpServices {
     }
 
     @PreDestroy
-    public void close(){
-        if ( connection != null )
+    public void close() {
+        if (connection != null)
             try {
-                if ( channel!=null && channel.isOpen())
+                if (channel != null && channel.isOpen())
                     channel.close();
-                if ( connection.isOpen())
+                if (connection.isOpen())
                     connection.close();
 
             } catch (IOException e) {
@@ -96,14 +104,30 @@ public class AmqpServices {
     }
 
 
-    public void publish(EntityInputBean entityInput) throws IOException {
-
-        channel.basicPublish(configuration.getTrackExchange(), configuration.getTrackRoutingKey(), builder.build(), JsonUtils.toJsonBytes(entityInput));
-    }
-
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
 
-        channel.basicPublish(configuration.getTrackExchange(), configuration.getTrackRoutingKey(), builder.build(), JsonUtils.toJsonBytes(entityInputs));
+        channel.basicPublish(configuration.getTrackExchange(),
+                configuration.getTrackRoutingKey(),
+                entityProps,
+                JsonUtils.toJsonBytes(entityInputs));
     }
+
+    public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
+
+        channel.basicPublish(configuration.getTrackExchange(),
+                configuration.getTrackRoutingKey(),
+                tagProps,
+                JsonUtils.toJsonBytes(tagInputs));
+    }
+
+    private HashMap<String, Object> getHeaders(String type, String apiKey) {
+        HashMap<String, Object> headers;
+        headers = new HashMap<>();
+        headers.put(ClientConfiguration.KEY_MSG_KEY, apiKey);
+        headers.put(ClientConfiguration.KEY_MSG_TYPE, type);
+        return headers;
+    }
+
+
 
 }
