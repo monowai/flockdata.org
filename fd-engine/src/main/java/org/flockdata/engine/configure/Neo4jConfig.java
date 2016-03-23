@@ -71,11 +71,11 @@ public class Neo4jConfig extends Neo4jConfiguration {
                                                      @Value("${org.neo4j.path:.}") String props,
                                                      @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
-            logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
             logger.info("**** Neo4j datafiles [{}]", dbPath);
             logger.info ("**** Neo4j url [{}] port [{}]", address, port );
-
             configFile = props + "/neo4j.properties";
+            logger.info("**** Neo4j configuration deploying from path [{}]", configFile);
+
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.model");
             GraphDatabaseAPI graphdb = (GraphDatabaseAPI) new GraphDatabaseFactory()
