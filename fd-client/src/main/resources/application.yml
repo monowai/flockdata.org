@@ -13,7 +13,7 @@ org.fd:
     # The API key is used to identify a user associated with the company.
     # You can get your APIKey via Curl with the following command
     # curl -u mike http://localhost:8080/api/v1/profiles/me
-    apikey: ERMS4i16T768t3hxm4zh6w
+    apikey: xi7xBfLJSGmQzAMQbq4U0w
     http:
       user: mike
       pass: 123
@@ -28,11 +28,11 @@ org.fd:
       queue: fd.track.queue
       exchange: fd.track.exchange
   engine:
-    api: http://localhost:8080/api
+    api: http://chm-dev-fds:8080/api
 
 rabbit:
   pass: guest
   user: guest
-  host: localhost
+  host: chm-dev-fds
   persistent: true
 
