@@ -25,6 +25,7 @@ import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.search.SearchGateway;
 import org.flockdata.engine.integration.store.StorageGateway;
 import org.flockdata.model.Company;
+import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.VersionHelper;
 import org.flockdata.store.Store;
 import org.slf4j.Logger;
@@ -40,8 +41,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.flockdata.authentication.FdRoles.FD_ROLE_ADMIN;
 import static org.flockdata.authentication.FdRoles.FD_ROLE_USER;
@@ -80,6 +81,9 @@ public class EngineConfig implements PlatformConfig {
 
     @Autowired
     StorageGateway storageGateway;
+
+    @Autowired
+    AmqpRabbitConfig rabbitConfig;
 
 
     @Value("${org.fd.engine.system.multiTenanted:false}")
@@ -218,9 +222,9 @@ public class EngineConfig implements PlatformConfig {
     public Map<String, String> getHealth() {
 
         String version = versionHelper.getFdVersion();
-        Map<String, String> healthResults = new HashMap<>();
+        Map<String, String> healthResults = new TreeMap<>();
 
-        healthResults.put("flockdata.version", version);
+        healthResults.put("fd.version", version);
 
         String esPingResult;
         try {
@@ -244,6 +248,9 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("fd-store", esPingResult + " on " +getFdStore());
         healthResults.put("fd.store.engine", storeEngine);
         healthResults.put("fd.store.enabled", storeEnabled().toString());
+        healthResults.put("rabbit.host", rabbitConfig.getHost());
+        healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
+        healthResults.put("rabbit.user", rabbitConfig.getUser());
         healthResults.put("eureka.client.serviceUrl.defaultZone", eurekaUrl);
         healthResults.put("spring.cloud.config.discovery.enabled", discoveryEnabled.toString());
 

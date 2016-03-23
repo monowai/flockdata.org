@@ -115,4 +115,8 @@ public class AmqpRabbitConfig {
     public Integer getPort() {
         return rabbitPort;
     }
+
+    public String getUser() {
+        return rabbitUser;
+    }
 }
