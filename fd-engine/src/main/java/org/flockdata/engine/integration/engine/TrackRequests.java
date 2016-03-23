@@ -39,6 +39,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
@@ -120,7 +121,11 @@ public class TrackRequests {
                 }
             } catch (IOException e) {
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
-            } catch (InterruptedException | ExecutionException | InvalidDataAccessResourceUsageException | FlockException e) {
+            } catch (InterruptedException |
+                    ExecutionException |
+                    InvalidDataAccessResourceUsageException |
+                    InvalidDataAccessApiUsageException |
+                    FlockException e) {
                 logger.error(e.getMessage());
                 throw new AmqpRejectAndDontRequeueException(String.format("Processing exception %s",e.getMessage()), e);
             }
