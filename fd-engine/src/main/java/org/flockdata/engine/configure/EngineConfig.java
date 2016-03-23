@@ -82,7 +82,7 @@ public class EngineConfig implements PlatformConfig {
     @Autowired
     StorageGateway storageGateway;
 
-    @Autowired
+    @Autowired (required = false)
     AmqpRabbitConfig rabbitConfig;
 
 
@@ -248,9 +248,11 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("fd-store", esPingResult + " on " +getFdStore());
         healthResults.put("fd.store.engine", storeEngine);
         healthResults.put("fd.store.enabled", storeEnabled().toString());
-        healthResults.put("rabbit.host", rabbitConfig.getHost());
-        healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
-        healthResults.put("rabbit.user", rabbitConfig.getUser());
+        if ( rabbitConfig !=null ) {
+            healthResults.put("rabbit.host", rabbitConfig.getHost());
+            healthResults.put("rabbit.port", rabbitConfig.getPort().toString());
+            healthResults.put("rabbit.user", rabbitConfig.getUser());
+        }
         healthResults.put("eureka.client.serviceUrl.defaultZone", eurekaUrl);
         healthResults.put("spring.cloud.config.discovery.enabled", discoveryEnabled.toString());
 

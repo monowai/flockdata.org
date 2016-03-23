@@ -41,7 +41,7 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class AmqpRabbitConfig {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
