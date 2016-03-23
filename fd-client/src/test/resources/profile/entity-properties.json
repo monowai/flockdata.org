@@ -118,6 +118,14 @@
           "value": "#row['0']"
         }
       ]
+    },
+    // This value does not exist in the source data so should be ignored
+    "BuildingName": {
+      "properties": [
+        {
+          "target": "building"
+        }
+      ]
     }
   }
 }
