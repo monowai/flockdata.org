@@ -23,7 +23,7 @@ package org.flockdata.engine.track.service;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.FortressSegment;
-import org.flockdata.model.Tag;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.track.service.EntityService;
@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -66,7 +67,7 @@ public class EntityRetryService {
             maxAttempts = 20,
             backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
-    public Iterable<TrackResultBean> track(FortressSegment segment, List<EntityInputBean> entityInputs, Collection<Tag> tags)
+    public Iterable<TrackResultBean> track(FortressSegment segment, List<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
 
         Collection<TrackResultBean>

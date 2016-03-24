@@ -28,6 +28,7 @@ import org.flockdata.engine.meta.service.TxService;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.search.model.EntitySearchChange;
@@ -53,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Transactional services to support record and working with entities and logs
@@ -129,7 +131,7 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput, Collection<Tag> tags) throws FlockException {
+    public TrackResultBean createEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput, Future<Collection<TagResultBean>> tags) throws FlockException {
 
         Entity entity = null;
         if (entityInput.getKey() != null) {
@@ -180,10 +182,12 @@ public class EntityServiceNeo4J implements EntityService {
             // Could be rewriting tags
             // DAT-153 - move this to the end of the process?
             EntityLog entityLog = entityDao.getLastEntityLog(entity);
+            getTags(tags);
+
             trackResult.setTags(
                     entityTagService.associateTags(segment.getCompany(), entity, entityLog, entityInput)
             );
-            if ( !entityInput.getEntityLinks().isEmpty()) {
+            if (!entityInput.getEntityLinks().isEmpty()) {
                 EntityKeyBean thisEntity = new EntityKeyBean(entity, indexHelper.parseIndex(entity));
                 for (String relationship : entityInput.getEntityLinks().keySet()) {
                     linkEntities(segment.getCompany(), thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
@@ -194,6 +198,7 @@ public class EntityServiceNeo4J implements EntityService {
         }
 
         try {
+            getTags(tags);
             entity = makeEntity(segment, documentType, entityInput);
         } catch (FlockException e) {
             logger.error(e.getMessage());
@@ -209,8 +214,6 @@ public class EntityServiceNeo4J implements EntityService {
         entity.setNew();
         trackResult.setNewEntity();
 
-        if (tags != null)
-            tags.clear();
         trackResult.setTags(
                 entityTagService.associateTags(segment.getCompany(), entity, null, entityInput)
         );
@@ -243,6 +246,15 @@ public class EntityServiceNeo4J implements EntityService {
 
         return trackResult;
 
+    }
+
+    public void getTags(Future<Collection<TagResultBean>> tags) throws FlockException {
+        if (tags != null)
+            try {
+                tags.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new FlockException(e.getMessage());
+            }
     }
 
     private Entity makeEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput) throws FlockException {
@@ -412,7 +424,7 @@ public class EntityServiceNeo4J implements EntityService {
         //kvService.delete(entity, currentLog); // ToDo: Move to mediation facade
         EntitySearchChange searchDocument = null;
         if (fromLog == null) {
-            if ( entity.getSegment().getFortress().isSearchEnabled() ) {
+            if (entity.getSegment().getFortress().isSearchEnabled()) {
                 // Nothing to index, no changes left so we're done
                 searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
                 searchDocument.setDelete(true);
@@ -440,7 +452,7 @@ public class EntityServiceNeo4J implements EntityService {
      * counts the number of logs that exist for the given entity
      *
      * @param company validated company the caller is authorised to work with
-     * @param key GUID
+     * @param key     GUID
      * @return count
      */
     @Override
@@ -474,7 +486,7 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @param fortress     System
      * @param documentType Class of doc
-     * @param code    fortressName PK
+     * @param code         fortressName PK
      * @return hydrated entity
      */
     @Override
@@ -488,7 +500,7 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @param company      Company you are authorised to work with
      * @param fortressName Fortress to restrict the search to
-     * @param code    key to locate
+     * @param code         key to locate
      * @return entities
      */
     @Override
@@ -515,14 +527,16 @@ public class EntityServiceNeo4J implements EntityService {
     /**
      * @param fortress     owning system
      * @param documentType class of document
-     * @param code    fortressName primary key
+     * @param code         fortressName primary key
      * @return LogResultBean or NULL.
      */
     public Entity findByCode(Fortress fortress, DocumentType documentType, String code) {
         return entityDao.findByCode(fortress.getId(), documentType, code.trim());
     }
+
     @Autowired
     IndexManager indexManager;
+
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {
         Entity entity = getEntity(company, key, true);
@@ -530,7 +544,7 @@ public class EntityServiceNeo4J implements EntityService {
             throw new FlockException("Invalid Meta Key [" + key + "]");
         Set<EntityLog> changes = getEntityLogs(entity);
         Collection<EntityTag> tags = entityTagService.getEntityTags(entity);
-        EntitySummaryBean esb= new EntitySummaryBean(entity, changes, tags);
+        EntitySummaryBean esb = new EntitySummaryBean(entity, changes, tags);
         esb.setIndex(indexManager.parseIndex(entity));
         return esb;
     }
@@ -563,7 +577,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> entityInputs, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
+    public Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException {
         Collection<TrackResultBean> arb = new ArrayList<>();
         DocumentType documentType = null;
         for (EntityInputBean inputBean : entityInputs) {
@@ -575,7 +589,7 @@ public class EntityServiceNeo4J implements EntityService {
             assert (documentType != null);
             assert (documentType.getCode() != null);
             TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
-            if ( result.getEntity()!=null)
+            if (result.getEntity() != null)
                 logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
             arb.add(result);
         }
@@ -588,7 +602,7 @@ public class EntityServiceNeo4J implements EntityService {
      * Cross references to Entities to create a link
      *
      * @param company          validated company the caller is authorised to work with
-     * @param key          source from which a xref will be created
+     * @param key              source from which a xref will be created
      * @param xRef             target for the xref
      * @param relationshipName name of the relationship
      */
@@ -672,10 +686,10 @@ public class EntityServiceNeo4J implements EntityService {
                             TrackResultBean trackResult = createEntity(fortress.getDefaultSegment(), documentType, eib, null);
                             entity = trackResult.getEntity();
                         }
-                    } else if (targetKey.getMissingAction() == EntityKeyBean.ACTION.IGNORE){
+                    } else if (targetKey.getMissingAction() == EntityKeyBean.ACTION.IGNORE) {
                         ignored.add(targetKey);
                     } else {
-                        throw new FlockException("Unable to resolve the target entity " +targetKey.toString());
+                        throw new FlockException("Unable to resolve the target entity " + targetKey.toString());
                     }
                 }
                 if (entity != null) {

@@ -145,6 +145,7 @@ public class TrackRequests {
                 .handle(handler())
                 .get();
     }
+
     @ServiceActivator(inputChannel = "doTrackEntity")
     Collection<TagResultBean>  sendResult() {
         return new ArrayList<>();
