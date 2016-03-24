@@ -19,6 +19,7 @@ package org.flockdata.track.service;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchResult;
 import org.flockdata.store.StoredContent;
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * User: mike
@@ -93,7 +95,7 @@ public interface EntityService {
 
     EntityLog getLogForEntity(Entity entity, Long logId);
 
-    Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> inputBeans, Collection<Tag> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
+    Collection<TrackResultBean> trackEntities(FortressSegment segment, Collection<EntityInputBean> inputBeans, Future<Collection<TagResultBean>> tags) throws InterruptedException, ExecutionException, FlockException, IOException;
 
     Collection<String> crossReference(Company company, String key, Collection<String> xRef, String relationshipName) throws FlockException;
 

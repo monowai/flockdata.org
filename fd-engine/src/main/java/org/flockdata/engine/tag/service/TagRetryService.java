@@ -44,7 +44,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.HeuristicRollbackException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -90,7 +89,7 @@ public class TagRetryService {
     }
 
     @Async("fd-tag")
-    public Future<Collection<TagResultBean>> createTagsFuture(Company company, List<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
+    public Future<Collection<TagResultBean>> createTagsFuture(Company company, Collection<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
         return new AsyncResult<>(createTags(company, tags));
     }
 }
