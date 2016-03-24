@@ -22,11 +22,13 @@ package org.flockdata.engine.configure;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Created by mike on 23/03/16.
  */
 @Configuration
 @EnableCaching
+@Profile("fd-server")
 public class CacheConfiguration {
 }

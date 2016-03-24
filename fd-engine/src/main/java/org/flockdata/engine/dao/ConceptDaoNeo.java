@@ -32,6 +32,7 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -110,6 +111,7 @@ public class ConceptDaoNeo {
      * @param createIfMissing if not found will create
      * @return the node
      */
+    @Cacheable (value = "documentType", unless = "#result==null")
     public DocumentType findDocumentType(Fortress fortress, String docType, Boolean createIfMissing) {
         DocumentType docResult = documentExists(fortress, docType);
 
@@ -139,7 +141,7 @@ public class ConceptDaoNeo {
         return docResult;
     }
 
-    DocumentType documentExists(Fortress fortress, String docType) {
+    private DocumentType documentExists(Fortress fortress, String docType) {
         logger.debug("looking for document {}, fortress {}", docType, fortress);
         assert fortress != null;
         String docKey = DocumentType.toKey(fortress, docType);

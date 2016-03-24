@@ -519,7 +519,7 @@ public class EntityServiceNeo4J implements EntityService {
      * @return LogResultBean or NULL.
      */
     public Entity findByCode(Fortress fortress, DocumentType documentType, String code) {
-        return entityDao.findByCode(fortress.getId(), documentType.getId(), code.trim());
+        return entityDao.findByCode(fortress.getId(), documentType, code.trim());
     }
     @Autowired
     IndexManager indexManager;
@@ -645,7 +645,7 @@ public class EntityServiceNeo4J implements EntityService {
             sourceEntity = entityDao.findByCodeUnique(fortress.getId(), sourceKey.getCode());
         else {
             DocumentType document = conceptService.resolveByDocCode(fortress, sourceKey.getDocumentType(), false);
-            sourceEntity = entityDao.findByCode(fortress.getId(), document.getId(), sourceKey.getCode());
+            sourceEntity = entityDao.findByCode(fortress.getId(), document, sourceKey.getCode());
         }
         if (sourceEntity == null)
             // ToDo: Should we create it??

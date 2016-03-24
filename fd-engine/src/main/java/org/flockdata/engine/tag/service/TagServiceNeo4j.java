@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,6 +123,7 @@ public class TagServiceNeo4j implements TagService {
     }
 
     @Override
+    @Cacheable (value = "companyTag", unless = "#result==null")
     public Tag findTag(Company company, String label, String keyPrefix, String tagCode) {
         try {
             return findTag(company, label, keyPrefix, tagCode, false);

@@ -81,7 +81,7 @@ public class TagDaoNeo4j {
     }
 
     public Tag findTagNode(String suffix, String label, String tagPrefix, String tagCode, boolean inflate) {
-        return tagWrangler.findTagNode(suffix, label, tagPrefix, tagCode, inflate);
+        return tagWrangler.findTag(suffix, label, tagPrefix, tagCode, inflate);
     }
 
 //    public Collection<Tag> findTags(String suffix, String label, String tagCode, boolean inflate) {
