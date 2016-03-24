@@ -167,11 +167,11 @@ public class EntityDaoNeo {
 
     }
 
-    public Entity findByCode(Long fortressId, Long documentId, String code) {
+    public Entity findByCode(Long fortressId, DocumentType document, String code) {
         if (logger.isTraceEnabled())
-            logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + documentId + "], code[" + code + "]");
+            logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + document + "], code[" + code + "]");
 
-        String keyToFind = "" + fortressId + "." + documentId + "." + code;
+        String keyToFind = "" + fortressId + "." + document.getId() + "." + code;
         Entity result= entityRepo.findBySchemaPropertyValue(EXT_KEY, keyToFind);
 
         fetch(result);
@@ -180,8 +180,10 @@ public class EntityDaoNeo {
 
     public Entity fetch(Entity entity) {
         if (entity != null ) {
-            template.fetch(entity.getCreatedBy());
-            template.fetch(entity.getLastUser());
+            if ( entity.getCreatedBy()!=null)
+                template.fetch(entity.getCreatedBy());
+            if ( entity.getLastUpdate() !=null )
+                template.fetch(entity.getLastUser());
         }
 
         return entity;
