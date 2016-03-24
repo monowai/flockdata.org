@@ -22,6 +22,7 @@ package org.flockdata.engine.track.service;
 
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.helper.FlockException;
+import org.flockdata.model.DocumentType;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -67,11 +68,11 @@ public class EntityRetryService {
             maxAttempts = 20,
             backoff = @Backoff(delay = 600, multiplier = 5, random = true))
     @Transactional(timeout = 4000)
-    public Iterable<TrackResultBean> track(FortressSegment segment, List<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags)
+    public Iterable<TrackResultBean> track(DocumentType documentType, FortressSegment segment, List<EntityInputBean> entityInputs, Future<Collection<TagResultBean>> tags)
             throws InterruptedException, ExecutionException, FlockException, IOException {
 
         Collection<TrackResultBean>
-                resultBeans = entityService.trackEntities(segment, entityInputs, tags);
+                resultBeans = entityService.trackEntities(documentType, segment, entityInputs, tags);
         // ToDo: DAT-343 - write via a queue
         boolean processAsync;
 

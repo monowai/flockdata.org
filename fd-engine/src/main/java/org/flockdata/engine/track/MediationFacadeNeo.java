@@ -262,7 +262,7 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
             assert docs.size()!=0;
             for (List<EntityInputBean> entityInputBeans : splitList) {
-                Iterable<TrackResultBean> loopResults = entityRetry.track(segment, entityInputBeans, tagResults);
+                Iterable<TrackResultBean> loopResults = entityRetry.track(docs.iterator().next(), segment, entityInputBeans, tagResults);
                 logger.debug("Tracked requests");
                 distributeChanges(segment.getFortress(), loopResults);
 
