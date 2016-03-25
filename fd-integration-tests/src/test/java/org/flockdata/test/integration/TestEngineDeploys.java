@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 // fd-engine port
 //@WebIntegrationTest({"server.port=9090", "management.port=9070"})
 @SpringApplicationConfiguration(FdEngine.class)
-@ActiveProfiles("integration")
+@ActiveProfiles({"fd-server","production"})
 @TestPropertySource("/application.yml")
 public class TestEngineDeploys {
 

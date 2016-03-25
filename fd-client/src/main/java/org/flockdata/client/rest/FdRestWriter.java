@@ -170,6 +170,18 @@ public class FdRestWriter implements FdWriter {
 
     }
 
+    private String flushTagsAmqp(Collection<TagInputBean> tagInputs) throws FlockException {
+        try {
+            // DAT-373
+            amqpServices.publishTags(tagInputs);
+        } catch (IOException ioe) {
+            logger.error(ioe.getLocalizedMessage());
+            throw new FlockException("IO Exception", ioe.getCause());
+        }
+        return "OK";
+
+    }
+
     public String flushEntities(Company company, List<EntityInputBean> entityInputs, ClientConfiguration configuration) throws FlockException {
         if (simulateOnly || entityInputs.isEmpty())
             return "OK";
@@ -246,6 +258,10 @@ public class FdRestWriter implements FdWriter {
     public String flushTags(List<TagInputBean> tagInputs) throws FlockException {
         if (tagInputs.isEmpty())
             return "OK";
+
+        if (configuration.isAmqp())
+            return flushTagsAmqp(tagInputs);
+
         RestTemplate restTemplate = getRestTemplate();
 
         HttpHeaders httpHeaders = getHeaders(apiKey);

@@ -74,7 +74,7 @@ org.fd:
         exchange: fd.track.dlq.exchange
 
   search:
-    api: ${org.fd.search.url:http://127.0.0.1:8081/api/}
+    api: ${org.fd.search.url:http://127.0.0.1:8081}
     index:
       prefix: blah.
     messaging:
@@ -90,7 +90,7 @@ org.fd:
       poolSize: 20-30
       queueCapacity: 10
   store:
-    api: ${org.fd.store.url:http://127.0.0.1:8082/api/}
+    api: ${org.fd.store.url:http://127.0.0.1:8082}
     system:
       enabled: false
     messaging: # Async hand offs to fd-store

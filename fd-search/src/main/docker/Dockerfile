@@ -11,7 +11,7 @@ RUN mkdir /opt/flockdata && \
     mkdir /opt/flockdata/bin && \
     mkdir /opt/flockdata/conf
 
-ADD fd-search-*.jar /opt/flockdata/bin/app.jar
+ADD fd-search-*.jar /opt/flockdata/search.jar
 
 #ToDo: sort out where we pull logging configuration files from
 ADD classes/log4j* /opt/flockdata/conf
@@ -20,6 +20,7 @@ ADD classes/log4j* /opt/flockdata/conf
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 
-RUN bash -c 'touch app.jar'
+RUN bash -c 'touch search.jar'
 EXPOSE 8081 9201 9301
-ENTRYPOINT ["java","-Xmx1g","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","-jar","/opt/flockdata/bin/app.jar"]
+ENV JAVA_OPTS="-Xmx2g"
+ENTRYPOINT ["java","-jar","/opt/flockdata/search.jar", "-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","${JAVA_OPTS}"]

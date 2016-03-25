@@ -240,6 +240,9 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public void setProperty(String key, Object value) {
+        if ( value == null || key == null ) // DAT-568
+            return; // We don't accept NULL values for a map
+
         if (properties == null)
             properties = new HashMap<>();
         properties.put(key, value);

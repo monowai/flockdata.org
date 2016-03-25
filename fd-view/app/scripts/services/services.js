@@ -24,7 +24,7 @@ fdView.factory('ProfileService', ['$http', 'configuration',
     function ($http, configuration) {
       return {
         getMyProfile: function () {
-          return $http.get(configuration.engineUrl() + '/v1/profiles/me').then(function (response) {
+          return $http.get(configuration.engineUrl() + '/api/v1/profiles/me').then(function (response) {
               return response.data;
             }
           );
@@ -40,38 +40,38 @@ fdView.factory('EntityService', ['$http', 'configuration',
       return {
         search: function (searchText, company, fortress, typesToBeSend) {
           var dataParam = {searchText: searchText, company: company, fortress: fortress, types: typesToBeSend};
-          return $http.post(configuration.engineUrl() + '/v1/query/', dataParam).then(function (response) {
+          return $http.post(configuration.engineUrl() + '/api/v1/query/', dataParam).then(function (response) {
             return response.data.results;
           });
         },
         getLogsForEntity: function (entityKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/summary';
+          var url = configuration.engineUrl() + '/api/v1/entity/' + entityKey + '/summary';
           return $http.get(url).then(function (response) {
             return response.data;
           });
         },
         getJsonContentForLog: function (entityKey, logId) {
-          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/log/' + logId + '/data';
+          var url = configuration.engineUrl() + '/api/v1/entity/' + entityKey + '/log/' + logId + '/data';
           return $http.get(url).then(function (response) {
 //                  This endpoint only ever returns JSON type data
             return response.data;
           });
         },
         getJsonAttachmentForLog: function (entityKey, logId) {
-          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/log/' + logId + '/attachment';
+          var url = configuration.engineUrl() + '/api/v1/entity/' + entityKey + '/log/' + logId + '/attachment';
           return $http.get(url).then(function (response) {
 //                  Content for this EP is variable - PDF, XLS, PPT etc. Can be found from the Log
             return response.data;
           });
         },
         getTagsForEntity: function (entityKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + entityKey + '/tags';
+          var url = configuration.engineUrl() + '/api/v1/entity/' + entityKey + '/tags';
           return $http.get(url).then(function (response) {
             return response.data;
           });
         },
         getEntityPK: function (entityKey) {
-          var url = configuration.engineUrl() + '/v1/entity/' + entityKey;
+          var url = configuration.engineUrl() + '/api/v1/entity/' + entityKey;
           return $http.get(url).then(function (response) {
             return response.data.id;
           });
@@ -124,7 +124,7 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$http', 'authServi
       return {
         login: function (username, password) {
           var data = {username: username, password: password};
-          var url = configuration.engineUrl() + '/login';
+          var url = configuration.engineUrl() + '/api/login';
           $http.post(url, data).success(function (data, status, headers, config) {
             authService.loginConfirmed(data);
             Session.create(data.userId, data.userName, data.userEmail, data.status, data.company, data.userRoles, data.apiKey);

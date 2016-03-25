@@ -136,8 +136,11 @@ public class MediationFacadeNeo implements MediationFacade {
         Company c = securityHelper.getCompany(apiKey);
         if (c == null)
             throw new AmqpRejectAndDontRequeueException("Unable to resolve the company for your ApiKey");
+        return trackEntities(c, inputBeans);
+    }
 
-        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(c, inputBeans);
+    public Collection<TrackRequestResult> trackEntities(Company company, Collection<EntityInputBean> inputBeans) throws FlockException, InterruptedException, ExecutionException, IOException {
+        Map<FortressSegment, List<EntityInputBean>> byFortress = batchSplitter.getEntitiesBySegment(company, inputBeans);
         Collection<TrackRequestResult> results = new ArrayList<>();
         for (FortressSegment segment : byFortress.keySet()) {
             Collection<TrackResultBean> tr =
@@ -148,8 +151,8 @@ public class MediationFacadeNeo implements MediationFacade {
 
         }
         return results;
-    }
 
+    }
 
     @Override
     public TagResultBean createTag(Company company, TagInputBean tagInput) throws FlockException, ExecutionException, InterruptedException {
@@ -160,12 +163,28 @@ public class MediationFacadeNeo implements MediationFacade {
     }
 
     @Override
-    public Collection<TagResultBean> createTags(Company company, List<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+    public Collection<TagResultBean> createTags(String apiKey, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+        Company company = securityHelper.getCompany(apiKey);
+        if (company == null )
+            throw new RuntimeException( "Illegal company api key");
+        return createTags(company, tagInputs);
+    }
+
+    @Override
+    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
 
         if (tagInputs.isEmpty())
             return null;
         indexRetryService.ensureUniqueIndexes(tagInputs);
         return tagRetryService.createTags(company, tagInputs);
+    }
+
+    private Future<Collection<TagResultBean>> createTagsAsync(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
+
+        if (tagInputs.isEmpty())
+            return null;
+        indexRetryService.ensureUniqueIndexes(tagInputs);
+        return tagRetryService.createTagsFuture(company, tagInputs);
     }
 
     @Override
@@ -223,7 +242,7 @@ public class MediationFacadeNeo implements MediationFacade {
         }
 
         Future<Collection<DocumentType>> docType = docTypeRetryService.createDocTypes(segment.getFortress(), inputBeans);
-        createTags(segment.getCompany(), getTags(inputBeans));
+        Future<Collection<TagResultBean>> tagResults = createTagsAsync(segment.getCompany(), getTags(inputBeans));
         logger.debug("About to create docTypes");
         EntityInputBean first = inputBeans.iterator().next();
 
@@ -243,7 +262,7 @@ public class MediationFacadeNeo implements MediationFacade {
             Collection<DocumentType> docs = docType.get(10, TimeUnit.SECONDS);
             assert docs.size()!=0;
             for (List<EntityInputBean> entityInputBeans : splitList) {
-                Iterable<TrackResultBean> loopResults = entityRetry.track(segment, entityInputBeans, null);
+                Iterable<TrackResultBean> loopResults = entityRetry.track(docs.iterator().next(), segment, entityInputBeans, tagResults);
                 logger.debug("Tracked requests");
                 distributeChanges(segment.getFortress(), loopResults);
 

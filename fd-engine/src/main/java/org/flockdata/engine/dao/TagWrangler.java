@@ -22,6 +22,7 @@ package org.flockdata.engine.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.flockdata.engine.schema.IndexRetryService;
+import org.flockdata.engine.tag.service.TagManager;
 import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.Alias;
@@ -30,6 +31,7 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
+import org.flockdata.track.TagKey;
 import org.flockdata.track.TagPayload;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -40,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StopWatch;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +64,12 @@ public class TagWrangler {
     IndexRetryService indexRetryService;
 
     @Autowired
+    AliasDaoNeo aliasDao;
+
+    @Autowired
+    TagManager tagManager;
+
+    @Autowired
     TagRepo tagRepo;
 
     public Collection<TagResultBean> save(TagPayload payload) {
@@ -74,15 +81,12 @@ public class TagWrangler {
 
     }
 
-    @Autowired
-    AliasDaoNeo aliasDao;
-
     // ToDo: Turn this in to ServerSide
     TagResultBean save(Company company, TagInputBean tagInput, String tagSuffix, Collection<String> cachedValues, boolean suppressRelationships)  {
         // Check exists
         boolean isNew = false;
         TagResultBean tagResultBean;
-        Tag startTag = findTagNode(tagSuffix, tagInput.getLabel(), tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
+        Tag startTag = findTag(tagSuffix, tagInput.getLabel(), tagInput.getKeyPrefix(), (tagInput.getCode() == null ? tagInput.getName() : tagInput.getCode()), false);
         if (startTag == null) {
             if (tagInput.isMustExist()) {
 
@@ -116,28 +120,12 @@ public class TagWrangler {
                     changed = true;
                 }
                 if (changed)
-                    startTag = template.save(startTag);
+                    startTag = tagManager.save( new TagKey(startTag));
             }
         }
-        String label = tagInput.getLabel();
 
         if (tagInput.hasAliases()) {
-            Collection<Alias> aliases = new ArrayList<>();
-            for (AliasInputBean newAlias : tagInput.getAliases()) {
-
-                Alias alias = aliasDao.findAlias(label, newAlias, startTag);
-                alias.setTag(startTag);
-                aliases.add(alias);
-            }
-            if (!aliases.isEmpty())
-                template.fetch(startTag.getAliases());
-            for (Alias alias : aliases) {
-                if (!startTag.hasAlias(label, alias.getKey())) {
-                    template.saveOnly(alias);
-                    startTag.addAlias(alias);
-                }
-
-            }
+            handleAliases(tagInput, startTag);
         }
 
         if (tagInput.hasTargets()) {
@@ -152,6 +140,26 @@ public class TagWrangler {
         }
 
         return new TagResultBean(tagInput, startTag, isNew);
+    }
+
+    private void handleAliases(TagInputBean tagInput, Tag startTag) {
+        String label = tagInput.getLabel();
+        Collection<Alias> aliases = new ArrayList<>();
+        for (AliasInputBean newAlias : tagInput.getAliases()) {
+
+            Alias alias = aliasDao.findAlias(label, newAlias, startTag);
+            alias.setTag(startTag);
+            aliases.add(alias);
+        }
+        if (!aliases.isEmpty())
+            template.fetch(startTag.getAliases());
+        for (Alias alias : aliases) {
+            if (!startTag.hasAlias(label, alias.getKey())) {
+                template.saveOnly(alias);
+                startTag.addAlias(alias);
+            }
+
+        }
     }
 
     private Tag createTag(Company company, TagInputBean tagInput, String suffix) {
@@ -178,7 +186,7 @@ public class TagWrangler {
         Tag tag = new Tag(tagInput, label);
 
         logger.trace("Saving {}", tag);
-        tag = template.save(tag);
+        tag = tagManager.save(tag);
         logger.debug("Saved {}", tag);
         return tag;
 
@@ -244,7 +252,7 @@ public class TagWrangler {
             // DAT-479 indirect lookup
             String[] values = StringUtils.split(keyPrefix, ":");
             if (values.length == 2) {
-                Tag indirect = findTagNode(suffix, values[0], null, values[1], false);
+                Tag indirect = findTag(suffix, values[0], null, values[1], false);
                 if (indirect == null) {
                     // ToDo: Exception or literal?
                     logger.debug("Indirect syntax was found but resolved to no tag");
@@ -258,128 +266,20 @@ public class TagWrangler {
         return keyPrefix;
     }
 
-    public Tag findTagNode(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
+    Tag findTag(String suffix, String label, String keyPrefix, String tagCode, boolean inflate) {
         if (tagCode == null)
             throw new IllegalArgumentException("Null can not be used to find a tag (" + label + ")");
 
         String multiTennantedLabel = TagHelper.suffixLabel(label, suffix);
         String kp = resolveKeyPrefix(keyPrefix, suffix);
 
-        Tag tag = tagByKey(multiTennantedLabel, kp, tagCode);
+        Tag tag = tagManager.tagByKey(new TagKey(multiTennantedLabel, kp, tagCode));
         if (tag != null && inflate)
             template.fetch(tag.getAliases());
         logger.trace("requested tag [{}:{}] foundTag [{}]", label, tagCode, (tag == null ? "NotFound" : tag));
         return tag;
     }
 
-    /**
-     * Attempts to find tag.key by prefix.tagcode. If that doesn't exist, then it will
-     * attempt to locate the alias based on tagcode
-     * <p>
-     * ToDo: A version to located by user defined AliasLabel
-     *
-     * @param multiTennantedLabel  Type of tag to look for
-     * @param keyPrefix optional prefix that the Key might have
-     * @param tagCode   mandatory value of the code
-     * @return resolved tag
-     */
-    private Tag tagByKey(String multiTennantedLabel, String keyPrefix, String tagCode) {
-        if (keyPrefix != null && keyPrefix.contains(":"))
-            throw new AmqpRejectAndDontRequeueException(String.format("Unresolved indirection %s %s for %s", multiTennantedLabel, tagCode, keyPrefix));
-        String tagKey = TagHelper.parseKey(keyPrefix, tagCode);
-        StopWatch watch = getWatch(multiTennantedLabel + " / " + tagKey);
-
-        Collection<Tag> tags = tagRepo.findByKey(tagKey);
-
-        if (tags.size() == 1) {
-            Tag tag = tags.iterator().next();
-            if (tag.getLabel().equals(multiTennantedLabel) || (multiTennantedLabel.equals(Tag.DEFAULT_TAG) || multiTennantedLabel.equals("_" + Tag.DEFAULT_TAG))) {
-                stopWatch(watch, multiTennantedLabel, tagCode);
-                return tag;
-            }
-        }
-
-        logger.trace("{} Not found by key {}", multiTennantedLabel, tagKey);
-
-        // See if the tagKey is unique for the requested label
-        Tag tResult = null;
-        for (Tag tag : tags) {
-            if (tag.getLabel().equalsIgnoreCase(multiTennantedLabel)) {
-                if (tResult == null) {
-                    tResult = tag;
-                } else {
-                    // Deleting tags that should not exist here
-                    template.delete(tag); // Concurrency issue under load ?
-                }
-            }
-        }
-        if (tResult != null) {
-            stopWatch(watch, "byKey", multiTennantedLabel, tagCode);
-            return tResult;
-        }
-
-        logger.trace("Locating by alias {}, {}", multiTennantedLabel, tagCode);
-
-        String query;
-
-        query = "match (:`" + multiTennantedLabel + "Alias` {key:{tagKey}})<-[HAS_ALIAS]-(a:`" + multiTennantedLabel + "`) return a";
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("tagKey", TagHelper.parseKey(tagCode));
-        Iterable<Map<String, Object>> result = template.query(query, params);
-        Iterator<Map<String, Object>> results = result.iterator();
-        Tag tagResult = null;
-        while (results.hasNext()) {
-            Map<String, Object> mapResult = results.next();
-
-            if (mapResult != null && tagResult == null) {
-                tagResult = getTag(mapResult);
-            } else {
-                Tag toDelete = getTag(mapResult);
-                logger.debug("Deleting duplicate {}", toDelete);
-                if (toDelete != null)
-                    template.delete(toDelete);
-            }
-
-        }
-        if (tagResult == null)
-            logger.trace("Not found {}, {}", multiTennantedLabel, tagCode);
-        else
-            stopWatch(watch, "byAlias", multiTennantedLabel, tagCode);
-
-        return tagResult;
-    }
-
-    StopWatch getWatch(String id) {
-        StopWatch watch = null;
-
-        if (logger.isDebugEnabled()) {
-            watch = new StopWatch(id);
-            watch.start(id);
-        }
-        return watch;
-    }
-
-    private void stopWatch(StopWatch watch, Object... args) {
-        if (watch == null)
-            return;
-
-        watch.stop();
-        logger.info(watch.prettyPrint());
-    }
-
-    private Tag getTag(Map<String, Object> mapResult) {
-        Tag tagResult;
-        Object o = null;
-        if (mapResult.get("a") != null)
-            o = mapResult.get("a");
-        else if (mapResult.get("t") != null) { // Tag found by alias
-            o = mapResult.get("t");
-        }
-
-        tagResult = (o == null ? null : template.projectTo(o, Tag.class));
-        return tagResult;
-    }
 
     /**
      * Create unique relationship between the tag and the node
