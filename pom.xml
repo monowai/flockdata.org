@@ -435,7 +435,7 @@
         <connection>scm:git:ssh://git@bitbucket.org/monowai/flockdata.org.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/monowai/flockdata.org.git</developerConnection>
         <url>https://bitbucket.org/monowai/flockdata.org</url>
-        <tag>DEVELOP</tag>
+        <tag>MASTER</tag>
     </scm>
 
     <distributionManagement>
