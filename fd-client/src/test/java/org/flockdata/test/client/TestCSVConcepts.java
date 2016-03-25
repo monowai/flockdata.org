@@ -23,7 +23,7 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.csv.CsvTagMapper;
+import org.flockdata.transform.tags.TagMapper;
 
 import java.util.Collection;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class TestCSVConcepts {
     @org.junit.Test
     public void csvTags() throws Exception{
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/csv-tag-import.json");
-        CsvTagMapper mappedTag = new CsvTagMapper();
+        TagMapper mappedTag = new TagMapper();
         String[] headers= new String[]{"company_name", "device_name",  "device_code", "type",         "city", "ram", "tags"};
         String[] data = new String[]{  "Samsoon",      "Palaxy",       "PX",          "Mobile Phone", "Auckland", "32mb", "phone,thing,other"};
 

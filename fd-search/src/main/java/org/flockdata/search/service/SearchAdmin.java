@@ -54,10 +54,13 @@ public class SearchAdmin {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Autowired
+    @Autowired (required = false)
     VersionHelper versionHelper;
     public Map<String, Object> getHealth() {
-        String version = versionHelper.getFdVersion();
+
+        String version = "";
+        if ( versionHelper!=null)
+            version =versionHelper.getFdVersion();
 
         Map<String, Object> healthResults = new HashMap<>();
         healthResults.put("elasticsearch", engineDao.ping());

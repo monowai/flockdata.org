@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Encapsulation of FlockData's store management functionality.
@@ -134,6 +135,12 @@ public class StoreManager implements StoreService {
         getStore(change).delete(new LogRequest(entity, change));
     }
 
-
-
+    public Map<String, String> health() {
+        Map<String, String> result = storeConfig.health();
+        String redis = ping(Store.REDIS);
+        String riak = ping(Store.RIAK);
+        result.put("redis.ping", redis);
+        result.put("riak.ping", riak);
+        return result;
+    }
 }

@@ -42,8 +42,6 @@ import org.springframework.data.neo4j.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
-
 @EnableTransactionManagement
 @EnableNeo4jRepositories(basePackages = { "org.flockdata.company.dao",
                                           "org.flockdata.geography.dao",
@@ -58,12 +56,6 @@ public class Neo4jConfig extends Neo4jConfiguration {
     private String dbPath;
 
 
-    @PostConstruct
-    public void logFdNeoConfig() {
-        logger.info("**** Neo4j configuration deployed from config [{}]", configFile);
-        logger.info("**** Neo4j datafiles are being written to [{}]", dbPath);
-    }
-
     @Bean
     public GraphDatabaseService graphDatabaseService(@Value("${org.neo4j.server.webserver.port:7474}") Integer port,
                                                      @Value("${org.neo4j.server.webserver.address:disable}") String address,
@@ -71,11 +63,11 @@ public class Neo4jConfig extends Neo4jConfiguration {
                                                      @Value("${org.neo4j.path:.}") String props,
                                                      @Value("${org.neo4j.server.database.location:data/neo4j}") String dbPath) {
         try {
-            logger.info("**** Neo4j configuration deploying from config [{}]", configFile);
-            logger.info("**** Neo4j datafiles [{}]", dbPath);
+            configFile = props + "/neo4j.properties";
+            logger.info("**** Neo4j configuration deploying from path [{}]", configFile);
+            logger.info("**** Neo4j datafiles will be written to [{}]", dbPath);
             logger.info ("**** Neo4j url [{}] port [{}]", address, port );
 
-            configFile = props + "/neo4j.properties";
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.model");
             GraphDatabaseAPI graphdb = (GraphDatabaseAPI) new GraphDatabaseFactory()

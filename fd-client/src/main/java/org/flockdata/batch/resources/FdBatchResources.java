@@ -20,13 +20,13 @@ import org.flockdata.batch.BatchConfig;
 import org.flockdata.batch.listener.FlockDataJobListener;
 import org.flockdata.batch.listener.FlockDataSkipListener;
 import org.flockdata.batch.listener.FlockDataStepListener;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +41,6 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Driver;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Encapsulates basic DataSource functionality
@@ -60,7 +59,10 @@ public class FdBatchResources {
     PayloadBatcher payloadBatcher;
 
     @Autowired
-    FlockDataItemProcessor flockDataItemProcessor;
+    FdEntityProcessor fdEntityProcessor;
+
+    @Autowired
+    ItemWriter<EntityInputBean> fdEntityWriter;
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("FdBatch");
 
@@ -114,15 +116,15 @@ public class FdBatchResources {
         return new FlockDataSkipListener();
     }
 
-
     @Bean
-    public ItemProcessor<Map<String, Object>, EntityInputBean> fdItemProcessor() {
-        return flockDataItemProcessor;
+    public ItemWriter<EntityInputBean> fdEntityWriter() {
+        return new FdEntityWriter(payloadBatcher);
     }
 
     @Bean
-    public ItemWriter<EntityInputBean> fdItemWriter() {
-        return new FlockDataItemWriter(payloadBatcher);
+    public ItemWriter<TagInputBean> fdTagWriter() {
+        return new FdTagWriter(payloadBatcher);
     }
+
 
 }

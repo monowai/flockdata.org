@@ -1,4 +1,4 @@
-profile: /batch/test.json
+profile: /batch/entity.json
 step: olympic.athlete
 query: >
   SELECT ID,FIRSTNAME,LASTNAME,SURNAME from TEST

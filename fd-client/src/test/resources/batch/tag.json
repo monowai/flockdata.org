@@ -1,0 +1,10 @@
+{
+  "content": {
+    "NAME": {
+      "tag": true,
+      "label": "Country",
+      "code": "#row['CODE']",
+      "name": "#row['NAME']"
+    }
+  }
+}

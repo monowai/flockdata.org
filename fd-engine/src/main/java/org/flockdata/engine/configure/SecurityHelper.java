@@ -24,6 +24,7 @@ import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.service.SystemUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,7 @@ public class SecurityHelper {
         return su.getCompany();
     }
 
+    @Cacheable(value = "company", unless = "#result == null")
     public Company getCompany(String usersApiKey) {
         if (usersApiKey == null)
             return getCompany();

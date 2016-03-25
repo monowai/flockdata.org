@@ -5,7 +5,7 @@
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-         <version>0.98-BUILD-SNAPSHOT</version>
+         <version>0.98.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <packaging>jar</packaging>
@@ -165,14 +165,10 @@
             </resource>
         </resources>
         <plugins>
-            <!--<plugin>-->
-                <!--<artifactId>maven-war-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<packagingExcludes>WEB-INF/classes/log4j.xml</packagingExcludes>-->
-                    <!--<packagingExcludes>WEB-INF/lib/servlet-api*.jar</packagingExcludes>-->
-                    <!--<packagingExcludes>WEB-INF/lib/javax.servlet-api*.jar</packagingExcludes>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -230,10 +226,25 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>install</phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
+                            </execution>
+                            <execution>
+                                <id>tag-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>tag</goal>
+                                </goals>
+                                <configuration>
+                                    <image>flockdata/${project.artifactId}</image>
+                                    <newName>flockdata/${project.artifactId}:${project.version}</newName>
+                                    <forceTags>true</forceTags>
+                                    <imageTags>
+                                        <imageTag>${project.version}</imageTag>
+                                    </imageTags>
+                                </configuration>
                             </execution>
                         </executions>
                         <configuration>

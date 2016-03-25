@@ -24,7 +24,7 @@ import org.flockdata.transform.GeoPayload;
 import org.flockdata.transform.GeoSupport;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
-import org.flockdata.transform.csv.CsvTagMapper;
+import org.flockdata.transform.tags.TagMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 
@@ -47,7 +47,7 @@ public class TestGeography extends AbstractImport{
     @Test
     public void string_Countries() throws Exception {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
-        CsvTagMapper tag = new CsvTagMapper();
+        TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
@@ -80,7 +80,7 @@ public class TestGeography extends AbstractImport{
     @Test
     public void string_ConditionalTag() throws Exception {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
-        CsvTagMapper tag = new CsvTagMapper();
+        TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
@@ -93,7 +93,7 @@ public class TestGeography extends AbstractImport{
         assertEquals("Capital city was not present", 1, tag.getTargets().size());
 
         data = new String[]{"NZ","New Zealand","-41.27","174.71","0", "Wellington" };
-        tag = new CsvTagMapper(); // Clear down the object
+        tag = new TagMapper(); // Clear down the object
         tag.setData(Transformer.convertToMap(headers, data, params), params);
         TestCase.assertFalse("Capital city was not suppressed", tag.hasTargets());
     }
@@ -101,7 +101,7 @@ public class TestGeography extends AbstractImport{
     @Test
     public void string_ConditionalTagProperties() throws Exception {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
-        CsvTagMapper tag = new CsvTagMapper();
+        TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};
@@ -122,7 +122,7 @@ public class TestGeography extends AbstractImport{
     @Test
     public void null_PropertyValuesNotSaved() throws Exception {
         ContentProfileImpl params = ProfileReader.getImportProfile("/profile/test-countries.json");
-        CsvTagMapper tag = new CsvTagMapper();
+        TagMapper tag = new TagMapper();
 
         // We will purposefully suppress the capital city to test the conditional expressions
         String[] headers = new String[]{"ISO3166A2","ISOen_name","UNc_latitude","UNc_longitude", "HasCapital", "BGN_capital"};

@@ -95,6 +95,9 @@ public class TestEntityProperties extends AbstractImport {
 //            TagInputBean contributor = entity.getTags().get("contributed");
             assertNotNull(entity.getProperties());
             assertTrue (entity.getProperties().get("value")!=null );
+
+            // Neo4j will not store NULL values
+            assertFalse ("Building had a null value so should not have been set", entity.getProperties().containsKey("building"));
             Object value = entity.getProperties().get("value");
             assertTrue(value instanceof Number);
             assertEquals(500, Integer.parseInt(value.toString()));
