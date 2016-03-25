@@ -45,7 +45,7 @@ rabbit:
 
 org.fd:
   engine:
-    api: http://localhost:8080/api
+    api: http://localhost:8080
     messaging:
       queue: fd.engine.queue
       binding: fd.engine.binding

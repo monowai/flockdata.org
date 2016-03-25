@@ -95,13 +95,13 @@ public class EngineConfig implements PlatformConfig {
     private boolean searchEnabled = true;
     private String fdSearch;
 
-    @Value("${org.fd.store.api:http://localhost:8082/api}")
+    @Value("${org.fd.store.api:http://localhost:8082}")
     private String fdStoreUrl;
     //eureka.instance.hostname
     @Value ("${eureka.client.serviceUrl.defaultZone}")
     private String eurekaUrl;
 
-    @Value("${org.fd.search.api:http://localhost:8081/api}")
+    @Value("${org.fd.search.api:http://localhost:8081}")
     public void setFdSearch( String url) {
         fdSearch = url;
     }
@@ -110,7 +110,7 @@ public class EngineConfig implements PlatformConfig {
     @Override
     public String getFdStore() {
 
-        return fdStoreUrl;
+        return fdStoreUrl+"/api";
     }
 
 
@@ -246,7 +246,7 @@ public class EngineConfig implements PlatformConfig {
             if (ce.getCause() != null)
                 esPingResult = esPingResult + ce.getCause().getMessage();
         }
-        healthResults.put("fd-store", esPingResult + " on " +getFdStore());
+        healthResults.put("fd-store", esPingResult + " on " +fdStoreUrl);
         healthResults.put("fd.store.engine", storeEngine);
         healthResults.put("fd.store.enabled", storeEnabled().toString());
         if ( rabbitConfig !=null ) {
@@ -317,7 +317,7 @@ public class EngineConfig implements PlatformConfig {
     }
 
     public String getFdSearch() {
-        return fdSearch;
+        return fdSearch +"/api";
     }
 
 }

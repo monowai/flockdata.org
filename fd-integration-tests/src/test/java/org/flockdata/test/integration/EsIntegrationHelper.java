@@ -489,7 +489,7 @@ public class EsIntegrationHelper {
         HttpEntity<QueryParams> requestEntity = new HttpEntity<>(queryParams, httpHeaders);
 
         try {
-            return restTemplate.exchange(TestFdIntegration.FD_SEARCH + "/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
+            return restTemplate.exchange(TestFdIntegration.FD_SEARCH + "api/v1/query/", HttpMethod.POST, requestEntity, String.class).getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Client tracking error {}", e.getMessage());
         }

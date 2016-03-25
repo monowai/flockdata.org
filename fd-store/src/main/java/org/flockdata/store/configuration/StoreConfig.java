@@ -50,7 +50,7 @@ class StoreConfig implements FdStoreConfig {
 //    @Value("${org.fd.store.system.enabled}")
 //    private Boolean storeEnabled = true;
 
-    @Value("${org.fd.search.api:http://localhost:8081/api}")
+    @Value("${org.fd.search.api:http://localhost:8081}")
     String fdSearchUrl;
 
     @Value("${riak.hosts:127.0.0.1}")
@@ -63,7 +63,7 @@ class StoreConfig implements FdStoreConfig {
     private String redisHost;
 
     public String fdSearchUrl() {
-        return fdSearchUrl;
+        return fdSearchUrl +"/api";
     }
 
     public String riakHosts() {

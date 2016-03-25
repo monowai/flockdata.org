@@ -42,7 +42,7 @@ org.fd:
       prefetchCount: 1
 
   search:
-    api: http://localhost:8081/api
+    api: http://localhost:8081
 
 riak:
   hosts: 127.0.0.1
