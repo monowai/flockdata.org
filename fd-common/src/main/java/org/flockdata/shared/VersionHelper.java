@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +30,8 @@ import javax.annotation.PostConstruct;
  * Since: 29/08/13
  */
 @Configuration
-@PropertySource(value = {"version.properties","git.properties"},ignoreResourceNotFound = false)
+@Profile("fd-server")
+@PropertySource(value = {"version.properties","git.properties"},ignoreResourceNotFound = true)
 public class VersionHelper {
 
     private Logger logger = LoggerFactory.getLogger("configuration");

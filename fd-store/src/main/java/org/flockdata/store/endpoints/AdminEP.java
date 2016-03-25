@@ -21,12 +21,15 @@
 package org.flockdata.store.endpoints;
 
 import org.flockdata.store.Store;
+import org.flockdata.store.service.FdStoreConfig;
 import org.flockdata.store.service.StoreManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Created by mike on 19/02/16.
@@ -37,6 +40,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminEP {
     @Autowired
     StoreManager storeManager;
+
+    @Autowired
+    FdStoreConfig storeConfig;
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = "text/plain")
     String ping() throws Exception {
@@ -53,6 +59,13 @@ public class AdminEP {
         } catch ( IllegalArgumentException e){
             return "Unknown store service " +service.toUpperCase();
         }
+    }
+
+
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
+    Map<String, String> health() throws Exception {
+        // curl -X GET http://localhost:8082/api/v1/admin/ping
+        return storeManager.health();
     }
 
 }
