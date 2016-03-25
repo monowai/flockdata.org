@@ -90,11 +90,6 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
         </dependency>
@@ -144,6 +139,20 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>false</skipTests>
+                    <!--Exlude Integration Tests from the standard build (mvn clean install)-->
+                    <excludes>
+                        <exclude>**/*Integration.java</exclude>
+                        <exclude>**/*Deploys.java</exclude>
+                    </excludes>
+                    <junitArtifactName>junit:junit</junitArtifactName>
+                    <argLine>-Xmx512m</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
@@ -171,33 +180,72 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>net.wouterdanes.docker</groupId>-->
-                <!--<artifactId>docker-maven-plugin</artifactId>-->
-                <!--<version>5.0.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>package</id>-->
-                        <!--<goals>-->
-                            <!--<goal>build-images</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<images>-->
-                        <!--<image>-->
-                            <!--<id>engine</id>-->
-                            <!--<dockerFile>../fd-engine/src/main/docker/Dockerfile</dockerFile>-->
-                            <!--<artifacts>-->
-                                <!--<artifact>-->
-                                    <!--<file>../fd-engine/target/fd-engine-0.98.1.jar</file>-->
-                                <!--</artifact>-->
-                            <!--</artifacts>-->
-                        <!--</image>-->
-                    <!--</images>-->
-                <!--</configuration>-->
+            <!--<groupId>net.wouterdanes.docker</groupId>-->
+            <!--<artifactId>docker-maven-plugin</artifactId>-->
+            <!--<version>5.0.0</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>package</id>-->
+            <!--<goals>-->
+            <!--<goal>build-images</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<images>-->
+            <!--<image>-->
+            <!--<id>engine</id>-->
+            <!--<dockerFile>../fd-engine/src/main/docker/Dockerfile</dockerFile>-->
+            <!--<artifacts>-->
+            <!--<artifact>-->
+            <!--<file>../fd-engine/target/fd-engine-0.98.1.jar</file>-->
+            <!--</artifact>-->
+            <!--</artifacts>-->
+            <!--</image>-->
+            <!--</images>-->
+            <!--</configuration>-->
             <!--</plugin>-->
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>integration</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
+                        <configuration>
+                            <junitArtifactName>junit:junit</junitArtifactName>
+                            <argLine>-Xmx1g</argLine>
+
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>**/Abstract*.java</exclude>
+                                        <!--MKH 02-2016, - excluding until we figure out how to stand up all the services -->
+                                        <exclude>TestFdIn*.java</exclude>
+                                        <!-- Trying to get a SpringBoot test working, but need to start fd-store and fd-search -->
+                                        <!--<exclude>TestEngine*.java</exclude>-->
+                                    </excludes>
+                                    <junitArtifactName>junit:junit</junitArtifactName>
+                                    <argLine>-Xmx512m -Xss256k</argLine>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
