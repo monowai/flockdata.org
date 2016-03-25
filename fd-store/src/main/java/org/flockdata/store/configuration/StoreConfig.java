@@ -32,8 +32,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * User: Mike Holdsworth
@@ -76,7 +76,7 @@ class StoreConfig implements FdStoreConfig {
         return new InfoEndpoint(health());
     }
 
-    @Autowired
+    @Autowired (required = false)
     VersionHelper versionHelper;
 
     /**
@@ -87,16 +87,12 @@ class StoreConfig implements FdStoreConfig {
     @Override
     public Map<String, String> health() {
 
-        String version =  versionHelper.getFdVersion();
-        Map<String, String> healthResults = new HashMap<>();
+        String version =  "";
+        if ( versionHelper!=null )
+            version = versionHelper.getFdVersion();
+        Map<String, String> healthResults = new TreeMap<>();
         healthResults.put("fd.store.version", version);
-        String config = System.getProperty("fd.config");
-        if (config == null || config.equals(""))
-            config = "system-default";
-        healthResults.put("config-file", config);
-        String integration = System.getProperty("fd.integration");
-        healthResults.put("fd.integration", integration);
-        healthResults.put("fd.store.system.engine", String.valueOf(kvStore));
+
 
         return healthResults;
 

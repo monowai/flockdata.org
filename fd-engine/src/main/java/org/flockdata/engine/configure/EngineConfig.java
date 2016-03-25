@@ -211,7 +211,7 @@ public class EngineConfig implements PlatformConfig {
         return new InfoEndpoint(getHealth());
     }
 
-    @Autowired
+    @Autowired (required = false)
     VersionHelper versionHelper;
     /**
      * Only users with a pre-validated api-key should be calling this
@@ -220,8 +220,9 @@ public class EngineConfig implements PlatformConfig {
      */
     @Override
     public Map<String, String> getHealth() {
-
-        String version = versionHelper.getFdVersion();
+        String version = "";
+        if ( versionHelper !=null )
+            version = versionHelper.getFdVersion();
         Map<String, String> healthResults = new TreeMap<>();
 
         healthResults.put("fd.version", version);
