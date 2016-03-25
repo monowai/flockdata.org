@@ -24,13 +24,13 @@
 fdView.factory('QueryService', ['$http', 'configuration', function ($http, configuration) {
     return {
       general: function (queryName) {
-        return $http.get(configuration.engineUrl() + '/v1/' + queryName + '/').then(function (response) {
+        return $http.get(configuration.engineUrl() + '/api/v1/' + queryName + '/').then(function (response) {
             return response.data;
           }
         );
       },
       query: function (queryName, params) {
-        return $http.post(configuration.engineUrl() + '/v1/query/' + queryName + '/', params).then(function (response) {
+        return $http.post(configuration.engineUrl() + '/api/v1/query/' + queryName + '/', params).then(function (response) {
             return response.data;
           }
         );
@@ -49,7 +49,7 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           reciprocalExcluded: reciprocals
         };
         console.log(dataParam);
-        var promise = $http.post(configuration.engineUrl() + '/v1/query/matrix/', dataParam).then(function (response) {
+        var promise = $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', dataParam).then(function (response) {
           console.log(response.data);
           return response.data.edges;
         });
@@ -63,7 +63,7 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           tags: tags,
           relationships: relationships
         };
-        return $http.post(configuration.engineUrl() + '/v1/query/tagcloud/', tagCloudParams).then(function (response) {
+        return $http.post(configuration.engineUrl() + '/api/v1/query/tagcloud/', tagCloudParams).then(function (response) {
           return response.data;
         });
       }
