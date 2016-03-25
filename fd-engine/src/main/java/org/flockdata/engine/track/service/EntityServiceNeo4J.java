@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,7 +96,6 @@ public class EntityServiceNeo4J implements EntityService {
     @Autowired
     StorageProxy contentReader;
 
-
     @Autowired
     EntityDaoNeo entityDao;
 
@@ -103,6 +103,7 @@ public class EntityServiceNeo4J implements EntityService {
     TagService tagService;
 
     @Autowired
+    @Qualifier("engineConfig")
     PlatformConfig platformConfig;
 
     private Logger logger = LoggerFactory.getLogger(EntityServiceNeo4J.class);
@@ -131,7 +132,7 @@ public class EntityServiceNeo4J implements EntityService {
      *
      * @return unique primary key to be used for subsequent log calls
      */
-    public TrackResultBean createEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput, Future<Collection<TagResultBean>> tags) throws FlockException {
+    private TrackResultBean createEntity(DocumentType documentType, FortressSegment segment, EntityInputBean entityInput, Future<Collection<TagResultBean>> tags) throws FlockException {
 
         Entity entity = null;
         if (entityInput.getKey() != null) {
@@ -585,7 +586,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             assert (documentType != null);
             assert (documentType.getCode() != null);
-            TrackResultBean result = createEntity(segment, documentType, inputBean, tags);
+            TrackResultBean result = createEntity(documentType, segment, inputBean, tags);
             if (result.getEntity() != null)
                 logger.trace("Batch Processed {}, code=[{}], documentName=[{}]", result.getEntity().getId(), inputBean.getCode(), inputBean.getDocumentType().getName());
             arb.add(result);
@@ -680,7 +681,7 @@ public class EntityServiceNeo4J implements EntityService {
                         DocumentType documentType = conceptService.resolveByDocCode(fortress, targetKey.getDocumentType(), false);
                         if (documentType != null) {
                             EntityInputBean eib = new EntityInputBean(fortress.getCode(), targetKey.getDocumentType()).setCode(targetKey.getCode());
-                            TrackResultBean trackResult = createEntity(fortress.getDefaultSegment(), documentType, eib, null);
+                            TrackResultBean trackResult = createEntity(documentType, fortress.getDefaultSegment(), eib, null);
                             entity = trackResult.getEntity();
                         }
                     } else if (targetKey.getMissingAction() == EntityKeyBean.ACTION.IGNORE) {
@@ -846,7 +847,6 @@ public class EntityServiceNeo4J implements EntityService {
         }
         return entityLinks;
     }
-
     @Override
     public Entity save(Entity entity) {
         return entityDao.save(entity);
