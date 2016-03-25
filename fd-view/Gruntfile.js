@@ -36,13 +36,13 @@ module.exports = function (grunt) {
       },
       development: {
         constants: {
-          engineUrl: 'http://127.0.0.1:8080/api/',
-          exploreUrl: 'https://demo.flockdata.com:8080/'
+          engineUrl: 'http://127.0.0.1:8080',
+          exploreUrl: 'not-used'
         }
       },
       production: {
         constants: {
-          engineUrl: 'https://demo.flockdata.com/api/',
+          engineUrl: 'https://demo.flockdata.com',
           exploreUrl: 'https://demo.flockdata.com/'
         }
       }
