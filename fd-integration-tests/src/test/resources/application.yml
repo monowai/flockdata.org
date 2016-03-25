@@ -70,7 +70,7 @@ org.fd:
         queueCapacity: 3
 
   search:
-    api: http://localhost:8081/api
+    api: http://localhost:8081
     index:
       prefix: true
     messaging:
@@ -87,7 +87,7 @@ org.fd:
       queueCapacity: 10
 
   store:
-    api: http://localhost:8082/api
+    api: http://localhost:8082
     system:
       enabled: false
     messaging: # Async hand offs to fd-store

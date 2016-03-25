@@ -28,7 +28,7 @@ org.fd:
       queue: fd.track.queue
       exchange: fd.track.exchange
   engine:
-    api: http://localhost:8080/api
+    api: http://localhost:8080
 
 rabbit:
   pass: guest

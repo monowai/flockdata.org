@@ -40,8 +40,8 @@ services:
       spring.profiles.include: fd-auth-test
 
       rabbit.host: rabbit
-      org.fd.search.api: http://fd-search:8081/api
-      org.fd.store.api: http://fd-store:8082/api
+      org.fd.search.api: http://fd-search:8081
+      org.fd.store.api: http://fd-store:8082
       org.neo4j.path: /opt/flockdata
       org.neo4j.server.database.location: /opt/flockdata/data/neo4j
 
@@ -71,7 +71,7 @@ services:
       eureka.client.enabled: 'false'
       server.port: 8081
       rabbit.host: rabbit
-      org.fd.engine.url: 'http://fd-engine:8080/api'
+      org.fd.engine.url: 'http://fd-engine:8080'
       riak.hosts: riak
 
       # Enables integration functionality
