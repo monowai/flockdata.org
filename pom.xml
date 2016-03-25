@@ -5,7 +5,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98-BUILD-SNAPSHOT</version>
+    <version>0.98.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -549,12 +549,23 @@
                     <version>2.5.2</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.tomcat.maven</groupId>
-                    <artifactId>tomcat7-maven-plugin</artifactId>
-                    <version>2.1</version>
-                    <!--http://tomcat.apache.org/maven-plugin-trunk/tomcat7-maven-plugin/exec-war-only-mojo.html#accessLogValveFormat-->
-                </plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <!--https://github.com/ktoso/maven-git-commit-id-plugin-->
+                    <version>2.2.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>revision</goal>
+                            </goals>
+                        </execution>
+                    </executions>
 
+                    <configuration>
+                        <!--<verbose>false</verbose>-->
+                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

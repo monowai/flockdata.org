@@ -16,28 +16,51 @@
 
 package org.flockdata.shared;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
+import javax.annotation.PostConstruct;
 
 /**
  * User: Mike Holdsworth
  * Since: 29/08/13
  */
 @Configuration
-@PropertySource(value = "version.properties",ignoreResourceNotFound = true)
+@PropertySource(value = {"version.properties","git.properties"},ignoreResourceNotFound = false)
 public class VersionHelper {
 
-    @Value("${info.build.version:na}")
+    private Logger logger = LoggerFactory.getLogger("configuration");
+
+    @Value("${git.build.version:na}")
     String version;
 
     @Value("${info.build.plan:na}")
     String plan;
 
-    @Value("${info.build.number:na}")
-    String build;
+//    @Value("${info.build.number:na}")
+//    String build;
 
+//    @Value("${info.bamboo.build}:na")
+//    String bamboo;
+
+    @Value("${git.commit.id.abbrev}")
+    String gitCommit;
+
+    @Value("${git.branch:na}")
+    String branch;
+
+    @Value("${git.commit.message.short}")
+    String commitMessage;
+
+    @PostConstruct
+    public void logVersion(){
+        logger.info(getFdVersion());
+        logger.debug (commitMessage);
+    }
     public  String getFdVersion() {
-        return version + " (" + (plan==null?"na":plan) + "/" + (build ==null?"na":build)+")";
+        return version + " (" + branch + "/" + gitCommit +")" ;
     }
 }

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-        <version>0.98-BUILD-SNAPSHOT</version>
+        <version>0.98.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -18,6 +18,7 @@
         <docs.url>http://wiki.flockdata.com</docs.url>
         <start-class>org.flockdata.engine.FdEngine</start-class>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -420,6 +421,11 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
+
         </plugins>
     </build>
     <profiles>
@@ -445,17 +451,32 @@
                                     <goal>build</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>tag-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>tag</goal>
+                                </goals>
+                                <configuration>
+                                    <image>flockdata/${project.artifactId}</image>
+                                    <newName>flockdata/${project.artifactId}:${project.version}</newName>
+                                    <forceTags>true</forceTags>
+                                    <imageTags>
+                                        <imageTag>${project.version}</imageTag>
+                                    </imageTags>
+                                </configuration>
+                            </execution>
                         </executions>
                         <configuration>
                             <imageName>flockdata/${project.artifactId}</imageName>
                             <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
-                            <dockerHost>${DOCKER_HOST}</dockerHost>
                             <resources>
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
                                     <include>${project.build.finalName}.jar</include>
                                     <include>classes/application.yml</include>
+
                                     <include>classes/log4j*</include>
                                     <include>classes/neo4j*.properties</include>
                                 </resource>
