@@ -12,7 +12,7 @@
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-        <version>0.98-BUILD-SNAPSHOT</version>
+        <version>0.98.1</version>
     </parent>
 
     <properties>
@@ -95,6 +95,21 @@
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
+                            </execution>
+                            <execution>
+                                <id>tag-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>tag</goal>
+                                </goals>
+                                <configuration>
+                                    <image>flockdata/${project.artifactId}</image>
+                                    <newName>flockdata/${project.artifactId}:${project.version}</newName>
+                                    <forceTags>true</forceTags>
+                                    <imageTags>
+                                        <imageTag>${project.version}</imageTag>
+                                    </imageTags>
+                                </configuration>
                             </execution>
                         </executions>
                         <configuration>
