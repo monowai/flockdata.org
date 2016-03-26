@@ -22,6 +22,7 @@ COPY classes/neo*.properties /opt/flockdata
 #COPY classes/application.yml /opt/flockdata/conf/application.yml
 
 ENV JAVA_OPTS="-Xmx2g"
+ENV org.neo4j.path="/opt/flockdata"
 RUN bash -c 'touch engine.jar'
 EXPOSE 8080 7474
-ENTRYPOINT ["java","-jar","/opt/flockdata/engine.jar","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","${JAVA_OPTS}"]
+ENTRYPOINT ["java","-jar","/opt/flockdata/engine.jar","-Dlogging.config=/opt/flockdata/conf/log4j2.yml","-Djava.security.egd=file:/dev/./urandom","${JAVA_OPTS}", "${org.neo4j.path}"]

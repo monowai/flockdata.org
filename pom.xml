@@ -459,7 +459,7 @@
                 <plugin>
                     <groupId>com.spotify</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.4.4</version>
+                    <version>0.4.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
