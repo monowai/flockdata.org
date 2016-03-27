@@ -115,7 +115,6 @@
                         <configuration>
                             <imageName>flockdata/${project.artifactId}</imageName>
                             <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
-                            <dockerHost>${DOCKER_HOST}</dockerHost>
                             <resources>
                                 <resource>
                                     <targetPath>/</targetPath>
