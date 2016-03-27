@@ -555,31 +555,31 @@
                             </items>
                         </configuration>
                     </plugin>
-                    <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-scm-plugin</artifactId>-->
-                        <!--<version>1.9.4</version>-->
-                        <!--<dependencies>-->
-                            <!--<dependency>-->
-                                <!--<groupId>org.apache.maven.scm</groupId>-->
-                                <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
-                                <!--<version>1.9.4</version>-->
-                            <!--</dependency>-->
-                        <!--</dependencies>-->
-                        <!--<configuration>-->
-                            <!--<tag>v${project.version}-${buildNumber}</tag>-->
-                            <!--<connectionType>connection</connectionType>-->
-                        <!--</configuration>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>tag</id>-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.9.4</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.maven.scm</groupId>
+                                <artifactId>maven-scm-provider-gitexe</artifactId>
+                                <version>1.9.4</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <tag>v${project.version}-${buildNumber}</tag>
+                            <connectionType>connection</connectionType>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>tag</id>
                                 <!--<phase>install</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>tag</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
+                                <goals>
+                                    <goal>tag</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -593,19 +593,19 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                        <!--<version>2.9.1</version>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>attach-javadocs</id>-->
+                                <!--<goals>-->
+                                    <!--<goal>jar</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
                     <!--<plugin>-->
                         <!--<groupId>org.apache.maven.plugins</groupId>-->
                         <!--<artifactId>maven-gpg-plugin</artifactId>-->
