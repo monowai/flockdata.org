@@ -567,12 +567,14 @@
                             </dependency>
                         </dependencies>
                         <configuration>
+                            <!--git describe will error if there is no tag-->
                             <tag>v${project.version}-${buildNumber}</tag>
                             <connectionType>connection</connectionType>
                         </configuration>
                         <executions>
                             <execution>
                                 <id>tag</id>
+                                <!--Binding to install caused it to tag sub-modules-->
                                 <!--<phase>install</phase>-->
                                 <goals>
                                     <goal>tag</goal>
