@@ -73,7 +73,7 @@ public class AmqpRabbitConfig {
     @PostConstruct
     public void logStatus (){
         logger.info( "**** FlockData AMQP Configuration deployed");
-        logger.info ( "rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]",rabbitHost, rabbitPort, rabbitUser);
+        logger.info ( "**** rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]",rabbitHost, rabbitPort, rabbitUser);
     }
 
     @Bean

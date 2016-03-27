@@ -59,7 +59,7 @@ public class VersionHelper {
 
     @PostConstruct
     public void logVersion(){
-        logger.info(getFdVersion());
+        logger.info("**** " + getFdVersion());
         logger.debug (commitMessage);
     }
     public  String getFdVersion() {
