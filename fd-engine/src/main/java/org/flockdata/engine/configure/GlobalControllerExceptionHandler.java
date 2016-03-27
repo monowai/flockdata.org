@@ -79,12 +79,12 @@ public class GlobalControllerExceptionHandler {
     public ModelAndView handleSecException(final SecurityException ex){
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
+
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handleSecAuthException(final AuthenticationException ex){
         return new JsonMessage(ex.getMessage()).asModelAndViewError();
     }
-
 
     //.class
     @ExceptionHandler(AccessDeniedException.class)
