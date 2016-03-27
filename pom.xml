@@ -564,7 +564,7 @@
                             <execution>
                                 <id>tag</id>
                                 <!--Binding to install caused it to tag sub-modules-->
-                                <!--<phase>install</phase>-->
+                                <phase>install</phase>
                                 <goals>
                                     <goal>tag</goal>
                                 </goals>
