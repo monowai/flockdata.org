@@ -29,7 +29,6 @@ package org.flockdata.engine.configure;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.neo4j.server.configuration.Configurator;
 import org.neo4j.server.configuration.ServerConfigurator;
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class Neo4jConfig extends Neo4jConfiguration {
                 if ( !address.equals("disable"))
                     config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address );
                 config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
-                new WrappingNeoServerBootstrapper(graphdb, config).start();
+                new WrappingCommunityNeoServer(graphdb, config).start();
             }
             return graphdb;
         } catch (Exception fileNotFoundException) {
