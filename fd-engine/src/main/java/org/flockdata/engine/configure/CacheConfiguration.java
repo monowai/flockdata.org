@@ -21,6 +21,8 @@
 package org.flockdata.engine.configure;
 
 import com.google.common.cache.CacheBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.guava.GuavaCache;
@@ -33,29 +35,31 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * FD-Cache configuration settings
  * Created by mike on 23/03/16.
  */
 @Configuration
 @EnableCaching
 @Profile("fd-server")
 public class CacheConfiguration {
+    private Logger logger = LoggerFactory.getLogger("configuration");
 
     @Bean
     public CacheManager cacheManager() {
 
         GuavaCache tagCache = new GuavaCache("tag", CacheBuilder.newBuilder()
                 .maximumSize(2000)
-                .expireAfterAccess(50, TimeUnit.SECONDS)
+                .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build());
 
         GuavaCache geoCache = new GuavaCache("geoData", CacheBuilder.newBuilder()
                 .maximumSize(500)
-                .expireAfterAccess(30, TimeUnit.MINUTES)
+                .expireAfterAccess(2, TimeUnit.MINUTES)
                 .build());
 
         GuavaCache fortressUser = new GuavaCache("fortressUser", CacheBuilder.newBuilder()
                 .maximumSize(500)
-                .expireAfterAccess(60, TimeUnit.SECONDS)
+                .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build());
 
         GuavaCache sysUserApi = new GuavaCache("sysUserApiKey", CacheBuilder.newBuilder()
@@ -70,7 +74,7 @@ public class CacheConfiguration {
 
         GuavaCache labels = new GuavaCache("labels", CacheBuilder.newBuilder()
                 .maximumSize(500)
-                .expireAfterAccess(2, TimeUnit.HOURS)
+                .expireAfterAccess(120, TimeUnit.MINUTES)
                 .build());
 
         SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
@@ -82,6 +86,7 @@ public class CacheConfiguration {
                 labels,
                 sysUserApi));
 
+        logger.info("**** Configured for Guava caching");
         return simpleCacheManager;
     }
 }
