@@ -238,12 +238,19 @@
                                     <goal>tag</goal>
                                 </goals>
                                 <configuration>
+                                    <forceTags>true</forceTags>
                                     <image>flockdata/${project.artifactId}</image>
                                     <newName>flockdata/${project.artifactId}:${project.version}</newName>
-                                    <forceTags>true</forceTags>
-                                    <imageTags>
-                                        <imageTag>${project.version}</imageTag>
-                                    </imageTags>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>push-image</id>
+                                <!--<phase>deploy</phase>-->
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                                <configuration>
+                                    <imageName>flockdata/${project.artifactId}:${project.version}</imageName>
                                 </configuration>
                             </execution>
                         </executions>
