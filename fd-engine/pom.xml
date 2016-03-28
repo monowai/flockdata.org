@@ -460,7 +460,7 @@
                                     <newName>flockdata/${project.artifactId}:${project.version}</newName>
                                     <forceTags>true</forceTags>
                                     <imageTags>
-                                        <imageTag>${project.version}</imageTag>
+                                        <imageTag>flockdata/${project.artifactId}:${project.version}</imageTag>
                                     </imageTags>
                                 </configuration>
                             </execution>
