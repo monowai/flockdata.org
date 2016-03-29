@@ -21,7 +21,6 @@
 package org.flockdata.engine.integration.engine;
 
 import com.google.common.net.MediaType;
-import org.flockdata.engine.integration.search.FdSearchChannels;
 import org.flockdata.engine.track.service.SearchHandler;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
@@ -61,9 +60,6 @@ public class WriteEntityResult {
 
     @Autowired
     AmqpRabbitConfig rabbitConfig;
-
-    @Autowired
-    FdSearchChannels channels;
 
     @Autowired
     Exchanges exchanges;

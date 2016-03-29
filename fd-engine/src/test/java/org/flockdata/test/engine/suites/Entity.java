@@ -28,7 +28,7 @@ import org.flockdata.test.engine.services.TestCallerCode;
 import org.flockdata.test.engine.services.TestEntityCrossLink;
 import org.flockdata.test.engine.services.TestEntityLinks;
 import org.flockdata.test.engine.services.TestEntityUsers;
-import org.flockdata.test.engine.unit.EntityKeyTests;
+import org.flockdata.test.engine.unit.TestEntityKeys;
 import org.flockdata.test.engine.unit.TestEntitySearch;
 import org.flockdata.test.engine.unit.TestHashcodeAndEquality;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         TestHashcodeAndEquality.class,
-        EntityKeyTests.class,
+        TestEntityKeys.class,
         TestEntitySearch.class,
         TestCallerCode.class,
         TestEntityUsers.class,

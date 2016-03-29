@@ -22,6 +22,7 @@ package org.flockdata.engine.integration.search;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
@@ -33,6 +34,7 @@ import org.springframework.messaging.MessageChannel;
  */
 @Configuration
 @IntegrationComponentScan
+@Profile("fd-server")
 public class FdSearchChannels {
 
     @Bean
