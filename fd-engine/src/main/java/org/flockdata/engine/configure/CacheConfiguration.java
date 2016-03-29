@@ -67,6 +67,11 @@ public class CacheConfiguration {
                 .expireAfterAccess(10, TimeUnit.MINUTES)
                 .build());
 
+        GuavaCache company = new GuavaCache("company", CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(10, TimeUnit.MINUTES)
+                .build());
+
         GuavaCache docType = new GuavaCache("documentType", CacheBuilder.newBuilder()
                 .maximumSize(50)
                 .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -84,6 +89,7 @@ public class CacheConfiguration {
                 geoCache,
                 fortressUser,
                 labels,
+                company,
                 sysUserApi));
 
         logger.info("**** Configured for Guava caching");
