@@ -112,7 +112,11 @@ public class SearchServiceFacade {
             logger.debug("Sending request to index entity [{}]]", searchDocuments.iterator().next().getEntityId());
         else
             logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
-        searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocuments));
+        if ( searchGateway!= null )
+            searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocuments));
+        else {
+            logger.debug("Search Gateway is diabled");
+        }
         logger.debug("[{}] log requests sent to search", searchDocuments.size());
         return true;
     }
