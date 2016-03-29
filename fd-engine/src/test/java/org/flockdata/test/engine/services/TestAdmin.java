@@ -29,14 +29,14 @@ public class TestAdmin extends EngineBase {
     @Test
     public void deleteFortressWithEntitiesAndTagsOnly() throws Exception {
 
-        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+        SystemUser su = registerSystemUser("deleteFortressWithEntitiesAndTagsOnly", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
 
         TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
         inputBean.addTag(tagInputBean);
 
-
+        assertNotNull("Why is this null ??", mediationFacade);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         String key = resultBean.getEntity().getKey();
 
@@ -68,7 +68,7 @@ public class TestAdmin extends EngineBase {
     @Test
     public void unauthorisedUserCannotDeleteFortress() throws Exception {
         setSecurity();
-        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+        SystemUser su = registerSystemUser("unauthorisedUserCannotDeleteFortress", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
@@ -87,7 +87,7 @@ public class TestAdmin extends EngineBase {
     @Test
     public void purgedFortressRemovesEntities() throws Exception {
 
-        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+        SystemUser su = registerSystemUser("purgedFortressRemovesEntities", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("deleteFortressPurgesEntitiesAndLogs", true));
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "deleteFortressPurgesEntitiesAndLogs", new DateTime(), "YYY");
 
@@ -113,12 +113,20 @@ public class TestAdmin extends EngineBase {
     public void deleteFortressPurgesDataWithTags() throws Exception {
 
         SystemUser su = registerSystemUser("deleteFortressPurgesDataWithTags", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
-        TagInputBean tagInputBean = new TagInputBean("DeleteTest", "NamedTag", "deltest");
-        inputBean.addTag(tagInputBean);
+        assertNotNull(su);
+        assertNotNull(su.getCompany());
 
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        assertNotNull ( fortress);
+        assertNotNull ( fortress.getCompany());
+        EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
+        inputBean.addTag(new TagInputBean("DeleteTest", "NamedTag", "deltest"));
+
+        assertNotNull("Why is this null ??", mediationFacade);
+        assertNotNull ( su.getCompany());
+        assertNotNull ( inputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
+        assertNotNull(resultBean);
         String key = resultBean.getEntity().getKey();
 
         assertNotNull(key);
@@ -151,7 +159,7 @@ public class TestAdmin extends EngineBase {
     @Test
     public void purgeFortressClearsDown() throws Exception {
         setSecurity();
-        SystemUser su = registerSystemUser("deleteFortressPurgesEntitiesAndLogs", mike_admin);
+        SystemUser su = registerSystemUser("purgeFortressClearsDown", mike_admin);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("purgeFortressClearsDown", true));
 
         EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");

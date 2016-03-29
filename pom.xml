@@ -442,6 +442,10 @@
                     <groupId>com.spotify</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>0.4.3</version>
+                    <configuration>
+                        <serverId>docker-hub</serverId>
+                        <registryUrl>https://index.docker.io/v1/</registryUrl>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
@@ -544,33 +548,33 @@
                             </items>
                         </configuration>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-scm-plugin</artifactId>
-                        <version>1.9.4</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.apache.maven.scm</groupId>
-                                <artifactId>maven-scm-provider-gitexe</artifactId>
-                                <version>1.9.4</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <!--git describe will error if there is no tag-->
-                            <tag>v${project.version}-${buildNumber}</tag>
-                            <connectionType>connection</connectionType>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>tag</id>
-                                <!--Binding to install caused it to tag sub-modules-->
-                                <!--<phase>install</phase>-->
-                                <goals>
-                                    <goal>tag</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-scm-plugin</artifactId>-->
+                        <!--<version>1.9.4</version>-->
+                        <!--<dependencies>-->
+                            <!--<dependency>-->
+                                <!--<groupId>org.apache.maven.scm</groupId>-->
+                                <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
+                                <!--<version>1.9.4</version>-->
+                            <!--</dependency>-->
+                        <!--</dependencies>-->
+                        <!--<configuration>-->
+                            <!--&lt;!&ndash;git describe will error if there is no tag&ndash;&gt;-->
+                            <!--<tag>v${project.version}-${buildNumber}</tag>-->
+                            <!--<connectionType>connection</connectionType>-->
+                        <!--</configuration>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>tag</id>-->
+                                <!--&lt;!&ndash;Binding to install caused it to tag sub-modules&ndash;&gt;-->
+                                <!--&lt;!&ndash;<phase>install</phase>&ndash;&gt;-->
+                                <!--<goals>-->
+                                    <!--<goal>tag</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>

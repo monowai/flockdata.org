@@ -29,7 +29,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
  * Date: 28/07/14
  * Time: 1:52 PM
  */
-public class EntityKeyTests {
+public class TestEntityKeys {
 
     @Test
     public void equalityAndDefaults() throws Exception{

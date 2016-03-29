@@ -52,7 +52,14 @@ public class CacheConfiguration {
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build());
 
-        GuavaCache geoCache = new GuavaCache("geoData", CacheBuilder.newBuilder()
+        // Fortress GEO queries
+        GuavaCache geoCache = new GuavaCache("geoQuery", CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(2, TimeUnit.MINUTES)
+                .build());
+
+        // Geo query paths
+        GuavaCache geoData = new GuavaCache("geoData", CacheBuilder.newBuilder()
                 .maximumSize(500)
                 .expireAfterAccess(2, TimeUnit.MINUTES)
                 .build());
@@ -63,6 +70,11 @@ public class CacheConfiguration {
                 .build());
 
         GuavaCache sysUserApi = new GuavaCache("sysUserApiKey", CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(10, TimeUnit.MINUTES)
+                .build());
+
+        GuavaCache company = new GuavaCache("company", CacheBuilder.newBuilder()
                 .maximumSize(500)
                 .expireAfterAccess(10, TimeUnit.MINUTES)
                 .build());
@@ -84,6 +96,8 @@ public class CacheConfiguration {
                 geoCache,
                 fortressUser,
                 labels,
+                geoData,
+                company,
                 sysUserApi));
 
         logger.info("**** Configured for Guava caching");

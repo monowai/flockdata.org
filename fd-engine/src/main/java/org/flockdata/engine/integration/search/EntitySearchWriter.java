@@ -42,7 +42,7 @@ import org.springframework.messaging.MessageChannel;
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class EntitySearchWriter {
 
     @Autowired
