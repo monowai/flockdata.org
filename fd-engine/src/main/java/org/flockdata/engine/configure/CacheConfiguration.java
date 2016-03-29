@@ -52,7 +52,7 @@ public class CacheConfiguration {
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build());
 
-        GuavaCache geoCache = new GuavaCache("geoData", CacheBuilder.newBuilder()
+        GuavaCache geoCache = new GuavaCache("geoQuery", CacheBuilder.newBuilder()
                 .maximumSize(500)
                 .expireAfterAccess(2, TimeUnit.MINUTES)
                 .build());
