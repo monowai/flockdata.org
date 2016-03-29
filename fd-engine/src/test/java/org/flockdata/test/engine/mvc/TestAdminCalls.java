@@ -78,7 +78,7 @@ public class TestAdminCalls extends MvcBase {
         if (results.get("fd-search").toString().equalsIgnoreCase("ok"))
             logger.warn("fd-search is running in a not unit test fashion....");
         else
-            assertTrue(results.get("fd-search").toString().contains("Problem"));
+            assertTrue(results.get("fd-search").toString(), results.get("fd-search").toString().contains("Problem"));
 
         // No api key, auth only DAT-203
         results = getHealth(mike());
