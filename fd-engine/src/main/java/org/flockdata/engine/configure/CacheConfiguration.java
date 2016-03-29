@@ -52,7 +52,14 @@ public class CacheConfiguration {
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build());
 
+        // Fortress GEO queries
         GuavaCache geoCache = new GuavaCache("geoQuery", CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(2, TimeUnit.MINUTES)
+                .build());
+
+        // Geo query paths
+        GuavaCache geoData = new GuavaCache("geoData", CacheBuilder.newBuilder()
                 .maximumSize(500)
                 .expireAfterAccess(2, TimeUnit.MINUTES)
                 .build());
@@ -89,6 +96,7 @@ public class CacheConfiguration {
                 geoCache,
                 fortressUser,
                 labels,
+                geoData,
                 company,
                 sysUserApi));
 
