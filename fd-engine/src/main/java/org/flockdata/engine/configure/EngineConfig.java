@@ -229,7 +229,7 @@ public class EngineConfig implements PlatformConfig {
 
         String esPingResult;
         try {
-            String esPing = "SearchNotEnabled";
+            String esPing = "!Unreachable";
             if ( searchGateway != null )
                 esPing = searchGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
