@@ -26,25 +26,28 @@ package org.flockdata.test.engine.suites;
 
 import org.flockdata.test.engine.mvc.*;
 import org.flockdata.test.engine.services.TestApiKeyInterceptor;
-import org.flockdata.test.engine.services.TestNeoRestInterface;
 import org.flockdata.test.engine.unit.TestApiKeyHelper;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        TestTrackEP.class,
-        TestNeoRestInterface.class,
-        TestAuthenticationEP.class,
         TestAdminCalls.class,
         TestAPISecurity.class,
-        TestFortressEP.class,
-        TestApiKeyHelper.class,
-        TestProfileRegistration.class,
-        TestApiKeyInterceptor.class,
+        TestAuthenticationEP.class,
+        TestCompanyEP.class,
         TestDocEP.class,
+        TestFortressEP.class,
+        TestNeoRestInterface.class,
+        TestPathEP.class,
+        TestProfileRegistration.class,
         TestTagEP.class,
-        TestCompanyEP.class
+        TestTrackEP.class,
+
+        TestApiKeyHelper.class,
+        TestApiKeyInterceptor.class
+
+
 })
 public class WebAPI {
     public WebAPI() {

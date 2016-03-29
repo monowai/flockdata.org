@@ -338,6 +338,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <junitArtifactName>junit:junit</junitArtifactName>
+                    <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
             <plugin>

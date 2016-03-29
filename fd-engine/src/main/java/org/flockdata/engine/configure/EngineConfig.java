@@ -76,7 +76,7 @@ public class EngineConfig implements PlatformConfig {
         return apiBase;
     }
 
-    @Autowired
+    @Autowired (required = false)
     SearchGateway searchGateway;
 
     @Autowired
@@ -229,7 +229,9 @@ public class EngineConfig implements PlatformConfig {
 
         String esPingResult;
         try {
-            String esPing = searchGateway.ping();
+            String esPing = "!Unreachable";
+            if ( searchGateway != null )
+                esPing = searchGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable ";
