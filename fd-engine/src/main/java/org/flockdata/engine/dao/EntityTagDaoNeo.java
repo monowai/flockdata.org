@@ -260,7 +260,7 @@ public class EntityTagDaoNeo {
      * The standard way that the entity tag payload is handled
      * The results are populated by reference
      */
-    public void getEntityTagsDefault(Entity entity, Collection<EntityTag> results) {
+    private void getEntityTagsDefault(Entity entity, Collection<EntityTag> results) {
         results.addAll(eout.getEntityTagsOut(entity.getId()));
         results.addAll(eout.getEntityTagsIn(entity.getId()));
 

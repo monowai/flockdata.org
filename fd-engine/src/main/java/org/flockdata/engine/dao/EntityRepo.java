@@ -84,4 +84,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
 
     @Query(value = "match (child:Entity)<-[p]-(parent:Entity) where id(child) = {0} return parent")
     Collection<Entity> findInbountEntities(Long id);
+
+    @Query(value = "match (entity:Entity {extKey:{0}}) return entity")
+    Entity findByExtKey(String extKey);
 }

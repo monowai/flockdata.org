@@ -176,7 +176,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (tagInputs.isEmpty())
             return null;
         indexRetryService.ensureUniqueIndexes(tagInputs);
-        return tagRetryService.createTags(company, tagInputs);
+        return tagRetryService.createTags(company, tagInputs).get();
     }
 
     private Future<Collection<TagResultBean>> createTagsAsync(Company company, Collection<TagInputBean> tagInputs) throws FlockException, ExecutionException, InterruptedException {
@@ -184,7 +184,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (tagInputs.isEmpty())
             return null;
         indexRetryService.ensureUniqueIndexes(tagInputs);
-        return tagRetryService.createTagsFuture(company, tagInputs);
+        return tagRetryService.createTags(company, tagInputs);
     }
 
     @Override

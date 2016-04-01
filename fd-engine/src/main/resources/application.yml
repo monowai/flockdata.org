@@ -78,7 +78,7 @@ org.fd:
       binding: fd.track.binding
       queue: fd.track.queue
       response: fd.response.queue
-      concurrentConsumers: 1
+      concurrentConsumers: 2
       queueCapacity: 10
       prefetchCount: 10
       dlq:

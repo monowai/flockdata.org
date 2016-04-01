@@ -197,9 +197,9 @@ public class EntityServiceNeo4J implements EntityService {
 
             return trackResult;
         }
-
+        Collection<TagResultBean>createdTags = null;
         try {
-            getTags(tags);
+            createdTags = getTags(tags);
             entity = makeEntity(segment, documentType, entityInput);
         } catch (FlockException e) {
             logger.error(e.getMessage());
@@ -249,13 +249,14 @@ public class EntityServiceNeo4J implements EntityService {
 
     }
 
-    public void getTags(Future<Collection<TagResultBean>> tags) throws FlockException {
+    public Collection<TagResultBean> getTags(Future<Collection<TagResultBean>> tags) throws FlockException {
         if (tags != null)
             try {
-                tags.get();
+                return tags.get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new FlockException(e.getMessage());
             }
+        return null;
     }
 
     private Entity makeEntity(FortressSegment segment, DocumentType documentType, EntityInputBean entityInput) throws FlockException {

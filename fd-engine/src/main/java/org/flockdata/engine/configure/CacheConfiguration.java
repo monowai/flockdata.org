@@ -89,14 +89,27 @@ public class CacheConfiguration {
                 .expireAfterAccess(120, TimeUnit.MINUTES)
                 .build());
 
+        GuavaCache entityByCode  = new GuavaCache("entityByCode", CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .expireAfterAccess(20, TimeUnit.SECONDS)
+                .build());
+
+        GuavaCache fortressSegment = new GuavaCache("fortressSegment", CacheBuilder.newBuilder()
+                .maximumSize(500)
+                .expireAfterAccess(20, TimeUnit.MINUTES)
+                .build());
+
+
         SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
 
         simpleCacheManager.setCaches(Arrays.asList(tagCache,
                 docType,
                 geoCache,
                 fortressUser,
+                entityByCode,
                 labels,
                 geoData,
+                fortressSegment,
                 company,
                 sysUserApi));
 

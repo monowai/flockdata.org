@@ -125,7 +125,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
         for (EntityTag existingTag : existingTags) {
             if (existingTag.getTag().getCode().equalsIgnoreCase(tagInputBean.getCode())
                     && existingTag.getTag().getLabel().equalsIgnoreCase(tagInputBean.getLabel())) {
-                if (tagInputBean.hasRelationship(template.getRelationship(existingTag.getId()).getType().name()))
+                if (tagInputBean.hasRelationship(existingTag.getRelationship()))
                     return existingTag;
             }
         }

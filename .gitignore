@@ -52,15 +52,12 @@ report/
 fd-engine/data
 fd-engine/neo4j-home
 
-
-ab-engine/.shell_history
+/data
 dependency-reduced-pom.xml
 release.properties
 pom.xml.releaseBackup
 fd-search/data/
 fd-search/src/test/data/
 
-ab-integration-tests/.shell_history
 atlassian-ide-plugin.xml
 
-ab-search/.shell_history

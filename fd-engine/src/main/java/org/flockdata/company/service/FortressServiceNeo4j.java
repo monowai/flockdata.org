@@ -347,9 +347,8 @@ public class FortressServiceNeo4j implements FortressService {
     }
 
     @Override
-    public FortressSegment resolveSegment(Company company, EntityInputBean entityInputBean) throws NotFoundException {
-        String fortressName = entityInputBean.getFortressName();
-        String segmentName = entityInputBean.getSegment();
+    @Cacheable (value = "fortressSegment")
+    public FortressSegment resolveSegment(Company company, String fortressName, String segmentName, String timeZone) throws NotFoundException {
 
         Fortress fortress;
         FortressSegment segment;
@@ -359,7 +358,7 @@ public class FortressServiceNeo4j implements FortressService {
             fortress = findByName(company, fortressName);
         if (fortress == null) {
             FortressInputBean fib = new FortressInputBean(fortressName);
-            fib.setTimeZone(entityInputBean.getTimezone());
+            fib.setTimeZone(timeZone);
             fortress = registerFortress(company, fib, true);
             //resolvedFortresses.put(fortress.getCode(), fortress);
         }

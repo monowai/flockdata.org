@@ -89,7 +89,7 @@ public class TrackBatchSplitter {
             String segmentKey = FortressSegment.key(Fortress.code(entityInputBean.getFortressName()), entityInputBean.getSegment());
             FortressSegment segment = resolvedSegments.get(segmentKey);
             if ( segment == null ) {
-                segment = fortressService.resolveSegment(company, entityInputBean);
+                segment = fortressService.resolveSegment(company, entityInputBean.getFortressName(), entityInputBean.getSegment(), entityInputBean.getTimezone());
                 resolvedSegments.put(segmentKey, segment);
             }
 

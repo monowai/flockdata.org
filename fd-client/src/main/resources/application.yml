@@ -1,22 +1,22 @@
 
+#Random port as, by default, this just starts and shuts down
 server:
-  port: 9099
+  port: 0
 
 spring:
   profiles:
     active: production
     # include: fd-batch  #Enable this if you want spring batch support in your project
 
-#Thu Mar 03 08:41:03 NZDT 2016
 org.fd:
   client:
     # The API key is used to identify a user associated with the company.
     # You can get your APIKey via Curl with the following command
     # curl -u mike http://localhost:8080/api/v1/profiles/me
-    apikey: ERMS4i16T768t3hxm4zh6w
-    http:
-      user: mike
-      pass: 123
+
+    # Either set in in your config file or pass it as a command line parameter
+    # --org.fd.clinet.apikey=SDKMcCU_TRCh7fL09PoFUg
+    # apikey: SDKMcCU_TRCh7fL09PoFUg
     batchsize: 1
     login:
       user: mike

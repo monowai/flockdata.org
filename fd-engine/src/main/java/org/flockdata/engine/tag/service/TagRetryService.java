@@ -64,14 +64,23 @@ public class TagRetryService {
 
     private Logger logger = LoggerFactory.getLogger(TagRetryService.class);
 
-    @Retryable(include = {FlockException.class, HeuristicRollbackException.class, DataIntegrityViolationException.class, EntityNotFoundException.class, IllegalStateException.class, ConcurrencyFailureException.class, DeadlockDetectedException.class, ConstraintViolationException.class, TransactionFailureException.class},
-            maxAttempts = 15,
-            backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
+    @Retryable(include = {  FlockException.class,
+                            HeuristicRollbackException.class,
+                            DataIntegrityViolationException.class,
+                            EntityNotFoundException.class,
+                            IllegalStateException.class,
+                            ConcurrencyFailureException.class,
+                            DeadlockDetectedException.class,
+                            ConstraintViolationException.class,
+                            TransactionFailureException.class},
+                          maxAttempts = 15,
+                          backoff = @Backoff( delay = 300,  multiplier = 3, random = true))
 
-    public Collection<TagResultBean> createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
+    @Async("fd-tag")
+    public Future<Collection<TagResultBean>>createTags(Company company, Collection<TagInputBean> tagInputBeans) throws FlockException, ExecutionException, InterruptedException {
         logger.trace("!!! Create Tags");
         if ( tagInputBeans == null ||tagInputBeans.isEmpty())
-            return new ArrayList<>();
+            return new AsyncResult<>(new ArrayList<>());
 
         boolean schemaReady;
         do {
@@ -80,16 +89,12 @@ public class TagRetryService {
 
 
         if (tagInputBeans.isEmpty())
-            return new ArrayList<>();
+            return new AsyncResult<>(new ArrayList<>());
         try {
-            return tagService.createTags(company, tagInputBeans);
+            return new AsyncResult<>(tagService.createTags(company, tagInputBeans));
         } catch (FlockException e) {
             throw (e);
         }
     }
 
-    @Async("fd-tag")
-    public Future<Collection<TagResultBean>> createTagsFuture(Company company, Collection<TagInputBean> tags) throws InterruptedException, ExecutionException, FlockException {
-        return new AsyncResult<>(createTags(company, tags));
-    }
 }
