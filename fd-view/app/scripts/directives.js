@@ -142,6 +142,16 @@ angular.module('fdView.directives', [])
       restrict: 'E',
       templateUrl: 'views/partials/singleLogPopup.html'
     }
-  });
+  })
+  .directive('ngHeight', function ($window) {
+    return {
+        restrict: 'A',
+        link: function (scope, elem, attrs) {
+            var winHeight = $window.innerHeight;
+            var headerHeight = attrs.ngHeight ? attrs.ngHeight : 0;
+            elem.css('height', winHeight - headerHeight + 'px');
+        }
+    };
+});
 
 // Directives

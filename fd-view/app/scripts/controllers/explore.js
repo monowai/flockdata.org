@@ -18,55 +18,13 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.fd-user-timeline {
-    color: #3276b1;
-}
+'use strict';
 
-.fd-logs li {
-    padding: 0px 0;
-}
-
-.fd-logs-selected {
-    background-color: #ABB2B9;
-}
-
-.fd-entityKey-elements {
-    margin-bottom: 0px;
-}
-
-.fd-logs-timeline-time {
-    float: left;
-    width: 80px;
-    text-align: left;
-}
-
-.search-resources strong {
-    color: #3276b1;
-}
-
-.btn-md {
-    padding: 5px 10px;
-}
-
-tags-input .host {
-    position: relative;
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-tags-input .tags {
-    -webkit-appearance: none;
-    box-shadow: none;
-    padding: 0;
-    border-color: #BDBDBD;
-}
-
-tags-input .tags .input {
-    font: 13px/16px 'Open Sans', Helvetica, Arial, sans-serif;
-}
-
-#fd-cy {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+fdView.controller('ExploreController', ['$scope', '$http', 'QueryService', 'netGraph', '$window', '$controller', 'configuration',
+  function ($scope, $http, QueryService, netGraph, $window, $controller, configuration) {
+    var graph={};
+    $http.get('NetworkGraph.json').success(function(data){
+      graph = data;
+      netGraph(graph);
+    });
+  }]);
