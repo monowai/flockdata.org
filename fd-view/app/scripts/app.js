@@ -64,6 +64,7 @@ var fdView = angular.module('fdView', [
       })
       .when('/explore', {
         templateUrl: 'views/explore.html',
+        controller: 'ExploreController',
         access: {
           authorizedRoles: [USER_ROLES.all]
         }
