@@ -52,7 +52,7 @@ import java.io.IOException;
  * Created by mike on 21/07/15.
  */
 @Service
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class WriteEntityResult {
 
     @Autowired

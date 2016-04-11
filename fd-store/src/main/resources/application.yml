@@ -10,8 +10,8 @@ spring:
   application:
     name: fd-store
   profiles:
-    active: production
-    include: fd-server,fd-no-auth,riak
+    active: fd-no-auth,riak
+    include: fd-server
   cloud:
     config:
       discovery:
@@ -48,7 +48,9 @@ riak:
   hosts: 127.0.0.1
   mapurl: http://localhost:8098/mapred
 
-
+rabbit:
+  port: 5672
+  host: localhost
 
 
 

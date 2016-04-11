@@ -11,8 +11,8 @@ spring:
   application:
     name: fd-search
   profiles:
-    active: production
-    include: fd-server,fd-no-auth
+    active: fd-no-auth
+    include: fd-server
   cloud:
     config:
       discovery:

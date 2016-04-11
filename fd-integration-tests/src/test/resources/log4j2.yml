@@ -16,6 +16,12 @@ Configuration:
             - ref: CONSOLE
                #- ref: APPLICATION
       Logger:
+        - name: org.flockdata.test
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+
         - name: org.flockdata.
           additivity: false
           level: error
@@ -57,3 +63,14 @@ Configuration:
             - ref: CONSOLE
           #  - ref: APPLICATION
 
+        - name: com.github.dockerjava
+          additivity: false
+          level: warn
+          AppenderRef:
+            - ref: CONSOLE
+
+        - name: org.zeroturnaround.exec
+          additivity: false
+          level: warn
+          AppenderRef:
+            - ref: CONSOLE

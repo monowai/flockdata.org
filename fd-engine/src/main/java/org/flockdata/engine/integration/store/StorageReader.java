@@ -47,7 +47,7 @@ import java.util.Map;
  */
 @IntegrationComponentScan
 @Configuration
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class StorageReader {
 
     @Autowired

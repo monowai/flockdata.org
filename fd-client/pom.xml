@@ -13,11 +13,31 @@
 
     <artifactId>fd-client</artifactId>
 
+    <properties>
+        <testcontainers.version>master-SNAPSHOT</testcontainers.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <!--https://github.com/testcontainers/testcontainers-java/blob/master/docs/index.md-->
+            <!--<groupId>org.testcontainers</groupId>-->
+            <groupId>com.github.testcontainers.testcontainers-java</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>0.4.0</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -158,6 +178,28 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
 
                 <configuration>
@@ -187,4 +229,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 </project>

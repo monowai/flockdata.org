@@ -34,7 +34,7 @@ import java.util.Map;
  * Created by mike on 12/02/16.
  */
 @Configuration
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class Exchanges {
 
     private Logger logger = LoggerFactory.getLogger("configuration");

@@ -2,7 +2,6 @@ package org.flockdata.test.engine.mvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.authentication.LoginRequest;
 import org.flockdata.engine.FdEngine;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.ApiKeyInterceptor;

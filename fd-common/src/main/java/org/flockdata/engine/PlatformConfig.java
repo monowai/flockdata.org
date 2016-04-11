@@ -72,7 +72,7 @@ public interface PlatformConfig {
 
     void setSearchEnabled(String enabled);
 
-    void setStoreEnabled(String enabled);
+    void setStoreEnabled(boolean enabled);
 
     Boolean isSearchRequiredToConfirm() ;
 

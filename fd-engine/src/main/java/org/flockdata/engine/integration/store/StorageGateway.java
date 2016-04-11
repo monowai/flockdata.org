@@ -36,14 +36,14 @@ import org.springframework.retry.annotation.Retryable;
 @Configuration
 public interface StorageGateway {
     @Payload("new java.util.Date()")
-    @Gateway(requestChannel = "storePing")
+    @Gateway(requestChannel = "storePing",requestTimeout = 2000)
     String ping();
 
     @Payload("#args")
-    @Gateway(requestChannel = "startStoreRead", requestTimeout = 40000, replyChannel = "storeReadResult")
+    @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
     StoredContent read(Store store, String index, String type, String key);
 
-    @Gateway(requestChannel = "startStoreWrite", requestTimeout = 40000, replyChannel = "nullChannel")
+    @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
     @Retryable
 //    @Async("fd-store")
     void write(StorageBean resultBean);
