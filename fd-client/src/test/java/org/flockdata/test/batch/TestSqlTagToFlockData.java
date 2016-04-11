@@ -62,7 +62,7 @@ import static org.junit.Assert.assertNotNull;
                                   SqlTagJob.class
                                 })
 
-@TestPropertySource({"/fd-batch.properties","/application_dev.properties"})
+@TestPropertySource({"/fd-batch.properties", "/application_dev.properties"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class TestSqlTagToFlockData extends AbstractTransactionalJUnit4SpringContextTests {
 

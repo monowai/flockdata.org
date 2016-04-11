@@ -47,7 +47,7 @@ import java.io.IOException;
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class TagCloudRequest {
 
     @Autowired

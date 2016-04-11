@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.commands.Ping;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
@@ -36,7 +37,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -55,7 +55,7 @@ public class FdRestWriter implements FdWriter {
     private String TRACK;
     private String NEW_TAG;
     private String FORTRESS;
-    private String PING;
+    private Ping PING;
     private String ME;
     private String REGISTER;
     private String apiKey;
@@ -75,18 +75,18 @@ public class FdRestWriter implements FdWriter {
 
     private FdRestWriter(){}
 
-    @PostConstruct
+//    @PostConstruct
     void init() {
         httpHeaders = null;
         this.apiKey = configuration.getApiKey();
         this.validateOnly = configuration.isValidateOnly();
         // Urls to write Entity/Tag/Fortress information
-        this.TRACK = configuration.getEngineURL() + "/v1/track/";
-        this.PING = configuration.getEngineURL() + "/v1/ping/";
-        this.REGISTER = configuration.getEngineURL() + "/v1/profiles/";
-        this.ME = configuration.getEngineURL() + "/v1/profiles/me/";
-        this.NEW_TAG = configuration.getEngineURL() + "/v1/tag/";
-        this.FORTRESS = configuration.getEngineURL() + "/v1/fortress/";
+        this.TRACK = configuration.getServiceUrl() + "/v1/track/";
+
+        this.REGISTER = configuration.getServiceUrl() + "/v1/profiles/";
+        this.ME = configuration.getServiceUrl() + "/v1/profiles/me/";
+        this.NEW_TAG = configuration.getServiceUrl() + "/v1/tag/";
+        this.FORTRESS = configuration.getServiceUrl() + "/v1/fortress/";
         this.batchSize = configuration.getBatchSize();
         simulateOnly = batchSize < 1;
 
@@ -96,23 +96,22 @@ public class FdRestWriter implements FdWriter {
     // Call with the configuration version
     public FdRestWriter(String serverName, String apiKey, int batchSize, String defaultFortress) {
         this();
-        httpHeaders = null;
-        this.apiKey = apiKey;
-        // Urls to write Entity/Tag/Fortress information
-        this.TRACK = serverName + "/v1/track/";
-        this.PING = serverName + "/v1/ping/";
-        this.REGISTER = serverName + "/v1/profiles/";
-        this.ME = serverName + "/v1/profiles/me/";
-        this.NEW_TAG = serverName + "/v1/tag/";
-        this.FORTRESS = serverName + "/v1/fortress/";
-        this.batchSize = batchSize;
-        this.defaultFortress = defaultFortress;
-        simulateOnly = batchSize < 1;
+//        httpHeaders = null;
+//        this.apiKey = apiKey;
+//        // Urls to write Entity/Tag/Fortress information
+//        this.TRACK = serverName + "/v1/track/";
+//        this.REGISTER = serverName + "/v1/profiles/";
+//        this.ME = serverName + "/v1/profiles/me/";
+//        this.NEW_TAG = serverName + "/v1/tag/";
+//        this.FORTRESS = serverName + "/v1/fortress/";
+//        this.batchSize = batchSize;
+//        this.defaultFortress = defaultFortress;
+//        simulateOnly = batchSize < 1;
     }
 
     public SystemUserResultBean me() {
         RestTemplate restTemplate = getRestTemplate();
-        HttpHeaders httpHeaders = getHeaders(apiKey);// Unauthorized ping is ok
+        HttpHeaders httpHeaders = getHeaders(configuration.getApiKey());// Unauthorized ping is ok
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(ME, HttpMethod.GET, requestEntity, SystemUserResultBean.class);
@@ -131,6 +130,17 @@ public class FdRestWriter implements FdWriter {
 
     public boolean isSimulateOnly() {
         return simulateOnly;
+    }
+
+    /**
+     * Simple ping to see if the service is up
+     *
+     * @return "pong"
+     */
+    public String ping() {
+        Ping ping = new Ping(configuration, this);
+        ping.exec();
+        return ping.getResult();
     }
 
     public SystemUserResultBean registerProfile(String authUser, String authPass, String userName, String company) {
@@ -195,7 +205,7 @@ public class FdRestWriter implements FdWriter {
             return flushEntitiesAmqp(entityInputs);
         RestTemplate restTemplate = getRestTemplate();
 
-        HttpHeaders httpHeaders = getHeaders(apiKey);
+        HttpHeaders httpHeaders = getHeaders(configuration.getApiKey());
         HttpEntity<List<EntityInputBean>> requestEntity = new HttpEntity<>(entityInputs, httpHeaders);
 
         try {
@@ -247,7 +257,7 @@ public class FdRestWriter implements FdWriter {
 
     RestTemplate restTemplate = null;
 
-    private RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate() {
         if (restTemplate == null) {
             restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -347,16 +357,20 @@ public class FdRestWriter implements FdWriter {
     private HttpHeaders httpHeaders = null;
 
     public HttpHeaders getHeaders(final String apiKey) {
-        if (httpHeaders != null)
+        String auth = configuration.getHttpUser() + ":" + configuration.getHttpPass();
+        byte[] encodedAuth = Base64.encodeBase64(
+                auth.getBytes(Charset.forName("UTF-8")));
+        String authHeader = "Basic " + new String(encodedAuth);
+
+        if (httpHeaders != null && httpHeaders.get("Authorization").iterator().next().equals(authHeader))
             return httpHeaders;
 
         httpHeaders = new HttpHeaders() {
             {
                 if (configuration.getHttpUser() != null && configuration.getHttpPass() != null) {
-                    String auth = configuration.getHttpUser() + ":" + configuration.getHttpPass();
-                    byte[] encodedAuth = Base64.encodeBase64(
-                            auth.getBytes(Charset.forName("UTF-8")));
-                    String authHeader = "Basic " + new String(encodedAuth);
+
+
+
                     set("Authorization", authHeader);
                 }
 
@@ -389,4 +403,5 @@ public class FdRestWriter implements FdWriter {
                 ", batchSize=" + batchSize +
                 '}';
     }
+
 }

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.flockdata.authentication;
+package org.flockdata.registration;
 
 import java.io.Serializable;
 

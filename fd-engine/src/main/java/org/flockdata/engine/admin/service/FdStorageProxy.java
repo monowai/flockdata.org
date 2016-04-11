@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
  * Created by mike on 17/02/16.
  */
 @Service
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class FdStorageProxy implements StorageProxy {
 
     @Autowired (required = false) // Functional tests don't require gateways

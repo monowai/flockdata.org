@@ -14,14 +14,15 @@
  *  limitations under the License.
  */
 
-package org.flockdata.authentication;
+package org.flockdata.client.commands;
 
-import org.flockdata.registration.UserProfile;
-import org.springframework.security.core.Authentication;
+/**
+ * Created by mike on 4/04/16.
+ */
+@FunctionalInterface
+public interface Command {
 
-public interface UserProfileService {
+    String exec();
 
-	UserProfile getUser(Authentication authentication);
-
-    String getProvider();
 }
+

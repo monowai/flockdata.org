@@ -31,7 +31,7 @@ import java.util.Map;
  * Simple map to hold Key Values. Non-persistent and for testing purposes only
  */
 @Component
-@Profile("dev")
+@Profile({"dev","memstore"})
 public class InMemoryRepo extends AbstractStore {
 
     Map<Object, ContentInputBean> map = new HashMap <>();

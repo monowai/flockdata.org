@@ -20,7 +20,6 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.Collection;
@@ -55,38 +53,57 @@ public class AmqpServices {
     @Autowired
     ClientConfiguration configuration;
 
-    @PostConstruct
-    public void init() throws FlockException {
-        factory.setHost(configuration.getRabbitHost());
-        factory.setUsername(configuration.getRabbitUser());
-        factory.setPassword(configuration.getRabbitPass());
+    private static boolean prepared = false;
 
-        try {
-            connection = factory.newConnection();
-            channel = connection.createChannel();
+    //    @PostConstruct
+    private void prepare() {
+        if (!prepared) {
+            factory.setHost(configuration.getRabbitHost());
+            factory.setUsername(configuration.getRabbitUser());
+            factory.setPassword(configuration.getRabbitPass());
 
-            channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
-            connection = factory.newConnection();
-            if (configuration.getApiKey() == null || configuration.getApiKey().equals(""))
-                throw new FlockException("Your API key appears to be invalid. Have you run the configure process?");
-            entityProps =
-                    new AMQP.BasicProperties().builder()
-                            .headers(getHeaders("E", configuration.getApiKey()))
-                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
-                            .replyTo("nullChannel").build()
-            ;
+            try {
+                connection = factory.newConnection();
+                channel = connection.createChannel();
 
+                channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
+                connection = factory.newConnection();
+
+                prepared = true;
+            } catch (IOException e) {
+                logger.error("Unexpected", e);
+            }
+        }
+
+    }
+
+    private String getApiKey() {
+        if (configuration.getApiKey() == null || configuration.getApiKey().equals(""))
+            throw new RuntimeException("No API key is set. Please configure one and try again");
+        return configuration.getApiKey();
+
+    }
+
+    private AMQP.BasicProperties getTagProps() {
+        if (tagProps == null) {
             tagProps =
                     new AMQP.BasicProperties().builder()
-                            .headers(getHeaders("T", configuration.getApiKey()))
+                            .headers(getHeaders("T", getApiKey()))
+                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
+                            .replyTo("nullChannel").build();
+        }
+        return tagProps;
+    }
+
+    private AMQP.BasicProperties getEntityProps() {
+        if (entityProps == null)
+            entityProps =
+                    new AMQP.BasicProperties().builder()
+                            .headers(getHeaders("E", getApiKey()))
                             .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
                             .replyTo("nullChannel").build()
-            ;
-
-
-        } catch (IOException e) {
-            logger.error("Unexpected", e);
-        }
+                    ;
+        return entityProps;
     }
 
     @PreDestroy
@@ -105,18 +122,18 @@ public class AmqpServices {
 
 
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
-
+        prepare();
         channel.basicPublish(configuration.getTrackExchange(),
                 configuration.getTrackRoutingKey(),
-                entityProps,
+                getEntityProps(),
                 JsonUtils.toJsonBytes(entityInputs));
     }
 
     public void publishTags(Collection<TagInputBean> tagInputs) throws IOException {
-
+        prepare();
         channel.basicPublish(configuration.getTrackExchange(),
                 configuration.getTrackRoutingKey(),
-                tagProps,
+                getTagProps(),
                 JsonUtils.toJsonBytes(tagInputs));
     }
 
@@ -127,7 +144,6 @@ public class AmqpServices {
         headers.put(ClientConfiguration.KEY_MSG_TYPE, type);
         return headers;
     }
-
 
 
 }

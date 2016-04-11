@@ -51,7 +51,7 @@ import static org.flockdata.helper.FdJsonObjectMapper.getObjectMapper;
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class StoreWriter {
 
     @Autowired
