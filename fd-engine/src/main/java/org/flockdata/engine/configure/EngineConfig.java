@@ -63,8 +63,8 @@ public class EngineConfig implements PlatformConfig {
                                 // By default, storage engine services are not disabled
                                 // and current state content is retrieved from ElasticSearch
 
-    @Value("${org.fd.engine.fortress.store:disabled}")
-    private String storeEnabled;
+    @Value("${org.fd.engine.fortress.store:false}")
+    private Boolean storeEnabled;
 
     @Value("${org.fd.engine.system.api:api}")
     private String apiBase ;
@@ -113,12 +113,9 @@ public class EngineConfig implements PlatformConfig {
         return fdStoreUrl+"/api";
     }
 
-
-
     private boolean timing = false;
 
-    @Value("${org.fd.store.system.enabled}")
-    public void setStoreEnabled(String storeEnabled) {
+    public void setStoreEnabled(boolean storeEnabled) {
         this.storeEnabled = storeEnabled;
     }
 
@@ -158,7 +155,7 @@ public class EngineConfig implements PlatformConfig {
      * @return is fd-storeEngine part of the data processing pipeline?
      */
     public Boolean storeEnabled() {
-        return Boolean.parseBoolean(this.storeEnabled);
+        return this.storeEnabled;
     }
 
     public Boolean isSearchEnabled() {

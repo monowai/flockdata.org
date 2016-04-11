@@ -50,7 +50,7 @@ import org.springframework.retry.annotation.Retryable;
 
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration", "production"})
+@Profile({"fd-server"})
 public class EsStoreRequest extends AbstractIntegrationRequest {
 
     @Autowired

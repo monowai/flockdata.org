@@ -14,14 +14,15 @@
  *  limitations under the License.
  */
 
-package org.flockdata.spring.annotations;
+package org.flockdata.client.commands;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ * Created by mike on 4/04/16.
+ */
+@FunctionalInterface
+public interface Command {
 
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface DatagioCallerRef {
+    String exec();
+
 }
+

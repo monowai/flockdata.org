@@ -33,7 +33,7 @@ import org.springframework.messaging.MessageHandler;
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class IntegrationHandlers {
 
     @Bean

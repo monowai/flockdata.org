@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PojoToAbTransformer {
+public class PojoToFdTransformer {
 
     /**
      * {
@@ -87,12 +87,12 @@ public class PojoToAbTransformer {
                         // ToDo: should be an annotation around the service.method,
                         // ToDo: i.e. @track (docType="Booking", fortress="Fortress")
                         if (field.get(pojo) != null) {
-                            if (fieldAnnotation instanceof DatagioUid) {
+                            if (fieldAnnotation instanceof FdUid) {
                                 auditWhat = false;
                                 entityInputBean.setKey(field.get(pojo).toString());
                             }
 
-                            if (fieldAnnotation instanceof DatagioCallerRef) {
+                            if (fieldAnnotation instanceof FdCallerRef) {
                                 auditWhat = false;
                                 entityInputBean.setCode(field.get(pojo).toString());
                             }
@@ -100,9 +100,9 @@ public class PojoToAbTransformer {
                             // ToDo: AuditUser
 
 
-                            if (fieldAnnotation instanceof DatagioTag) {
+                            if (fieldAnnotation instanceof FdTag) {
                                 auditWhat = false;
-                                DatagioTag auditTagAnnotation = (DatagioTag) fieldAnnotation;
+                                FdTag auditTagAnnotation = (FdTag) fieldAnnotation;
                                 // ToDo: Assume all values to be a list. We could be adding a value to an existing key
                                 // ToDo: i.e 123ABC/CustRef exists, in a sub object we add 123ABC/Customer
                                 // This would create 2 relationships for the tag key 123ABC, not simply replace it.
@@ -119,7 +119,7 @@ public class PojoToAbTransformer {
                         } else {
                             // The case when the value of field are NULL
                             // because we can have TIME=t0 ==> status=STARTED || TIME=t1 ==> status=NULL
-                            if (fieldAnnotation instanceof DatagioUid || fieldAnnotation instanceof DatagioTag || fieldAnnotation instanceof NoTrack) {
+                            if (fieldAnnotation instanceof FdUid || fieldAnnotation instanceof FdTag || fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
                         }
@@ -177,10 +177,10 @@ public class PojoToAbTransformer {
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         // The case when the value of field are not NULL
                         if (field.get(pojo) != null) {
-                            if (fieldAnnotation instanceof DatagioUid) {
+                            if (fieldAnnotation instanceof FdUid) {
                                 contentInputBean.setKey(field.get(pojo).toString());
                             }
-                            if (fieldAnnotation instanceof DatagioCallerRef) {
+                            if (fieldAnnotation instanceof FdCallerRef) {
                                 contentInputBean.setCode(field.get(pojo).toString());
                             }
 
@@ -188,7 +188,7 @@ public class PojoToAbTransformer {
                                 auditWhat = false;
                             }
                         } else {
-                            if (fieldAnnotation instanceof DatagioUid || fieldAnnotation instanceof DatagioCallerRef || fieldAnnotation instanceof DatagioTag || fieldAnnotation instanceof NoTrack) {
+                            if (fieldAnnotation instanceof FdUid || fieldAnnotation instanceof FdCallerRef || fieldAnnotation instanceof FdTag || fieldAnnotation instanceof NoTrack) {
                                 auditWhat = false;
                             }
                         }

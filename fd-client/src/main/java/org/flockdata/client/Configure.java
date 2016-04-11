@@ -44,7 +44,7 @@ public class Configure {
 //        if (!defaults.getFile().exists() || defaults.isReconfigure()) {
 //
 //            System.out.println(String.format("** %sconfiguration process", (defaults.isReconfigure() ? "re" : "initial ")));
-//            String engineURL = defaults.getEngineURL();
+//            String engineURL = defaults.getServiceUrl();
 //            System.out.println(String.format("** Looking for FlockData on [%s]", engineURL));
 //            pingServer(defaults, engineURL);
 //            defaults.setApiKey(null);
@@ -117,7 +117,7 @@ public class Configure {
 //    private static boolean configure(File file, ClientConfiguration defaults) {
 //        String version;
 //
-//        String engineURL = defaults.getEngineURL();
+//        String engineURL = defaults.getServiceUrl();
 //        //Boolean resetUser = getBooleanValue("** Have you configured FlockData with an alternative security domain?", "N");
 //
 //        String user = defaults.getLoginUser();
@@ -219,7 +219,7 @@ public class Configure {
 //    }
 //
 //    private static void testConfig(ClientConfiguration defaults) {
-//        String version = getVersion(defaults.getEngineURL(), defaults.getApiKey());
+//        String version = getVersion(defaults.getServiceUrl(), defaults.getApiKey());
 //        if (version == null)
 //            System.out.println(String.format("!! Error communicating with FlockData using parameters {%s}", defaults));
 //        else

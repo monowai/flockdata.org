@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package org.flockdata.spring;
+package org.flockdata.spring.annotations;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-abstract class FlockDataAbstractFactoryBean {
-
-    protected final Log logger = LogFactory.getLog(getClass());
-
-
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface FdCallerRef {
 }

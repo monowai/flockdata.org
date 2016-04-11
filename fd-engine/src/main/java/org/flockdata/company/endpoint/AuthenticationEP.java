@@ -20,9 +20,9 @@
 
 package org.flockdata.company.endpoint;
 
-import org.flockdata.authentication.LoginRequest;
-import org.flockdata.authentication.UserProfile;
 import org.flockdata.authentication.UserProfileService;
+import org.flockdata.registration.LoginRequest;
+import org.flockdata.registration.UserProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;

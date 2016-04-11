@@ -29,7 +29,7 @@ public class SimpleTrackedService {
     private static Logger logger = LoggerFactory.getLogger(SimpleTrackedService.class);
 
     @FlockEntity
-    public Customer save(Customer customer) {
+    Customer save(Customer customer) {
         logger.info("call save Method");
         if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
             customer.setId(324325L);
@@ -40,7 +40,7 @@ public class SimpleTrackedService {
     }
 
     @FlockLog
-    public Customer update(Customer customer) {
+    Customer update(Customer customer) {
         logger.info("call update Method");
         if (customer.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,3}$")) {
             customer.setId(324325L);
@@ -52,19 +52,19 @@ public class SimpleTrackedService {
 
     @Trackable
     public static class Customer {
-        @DatagioUid
+        @FdUid
         private Long id;
 
         private String name;
 
-        @DatagioCallerRef
+        @FdCallerRef
         private String email;
 
         public Long getId() {
             return id;
         }
 
-        public void setId(Long id) {
+        void setId(Long id) {
             this.id = id;
         }
 
@@ -72,15 +72,15 @@ public class SimpleTrackedService {
             return name;
         }
 
-        public void setName(String name) {
+        void setName(String name) {
             this.name = name;
         }
 
-        public String getEmail() {
+        String getEmail() {
             return email;
         }
 
-        public void setEmail(String email) {
+        void setEmail(String email) {
             this.email = email;
         }
 

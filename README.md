@@ -1,52 +1,31 @@
-[FlockData](http://FlockData.com) - Federated, distributed and heterogeneous information platform   
+[FlockData](http://FlockData.com) - Information Integration Services
 ===========
 
-## Project Status
-FlockData has received a significant round of framework upgrades and is now running on Spring Boot. All Spring framworks are running the latest versions.
+FlockData mediates data flows from any datastore in to Neo4j and ElasticSearch. It is an information processing pipeline.
 
-The move to Spring Boot mean we have to rethink the way that we are running end-to-end integration tests so these are currently disabled.
+FD utilises Spring Boot, Integration, Security, MVC etc, RabbitMQ, Neo4j, ElasticSearch, and Riak. Deployment is by configuration and each module has a Docker image built and made availiable.
 
-We are introducing fd-view, and AngularJS framework that gives you a nice UI over the API. However, the upgrade to Spring Security has introduced some issues with CORS which we have not yet resolved. This means fd-view does not connect to the FlockData api :/
+Using FD reduces the effort in keeping pace with change across a stack such as this.
 
-fd-batch is in place offering a simple SQL query reader which is using SpringBatch. fd-client will slowly be retired in favour of fd-batch. The nice thing is that you can now
-stream SQL queries results into FlockData and create ElasticSearch docs and Neo4j graphs.
+This stack requires Java 8 and if you're going to build it, then also mvn 3.x. If you want to build docker images then you will also require Docker to be installed.
+
+We use the mvn spotify project for docker management, and run integration tests using testcontainers in Docker. This can all be found in the fd-client project
 
 ##Docker
-We're please to introduce the first wave of docker support. An official demo image will be availiable shortly. In the meantime, it can be built out of source
-Make sure you have installed your Docker tools and created your machine
-
-Configure your environment if necessary.
-
-`eval "$(docker-machine env default)`
-
-build FlockData and the docker packages. This version skips all the FD tests.
-`mvn install -DskipTests=true -P docker`
-
-Start the demo composition
-
-`docker-compose up -d`
-
-If you're running Kitematic, then you should see something like this:
+Stack is now entirely executed through Docker with a compose script. Please see [fd-demo](http://github.com/monowai/fd-demo) for more details on how to start the stack in various ways .
 
 ![Alt text](https://github.com/monowai/flockdata.org/blob/master/docker.png)
-
-Useful docker commands
-`docker-machine ip default` Get the machiens IP
-`docker-compose run kibana env` Dump the kibana environment
 
 ## Postman
 The API can be invoked via the supplied postman [Postman](https://github.com/monowai/flockdata.org/blob/master/fd.api-postman.json). This contains environments for both localhost DEV and docker
 
-##Features
-* Enterprise/systems/services/applications create and modify organisational data databases
-  * Storing data as information requires federated and heterogeneous store capabilities
-  * FD provides a standardised way of accessing this data.
-  * Standardization enables discussions about information without loosing visibility of the data
-* Visualise and operate on the semantic entities of your business
-* Simplify management dashboards, operational metrics
-* Look around and into your data to perform forensic analysis
-* Deliver information and data to any digital platform
-* Track data lineage back to originating systems of record
+## What
+* FD combines ideas from Master Data Management, Content Management and Datawarehousing without actually being any of those things
+* FD guides you to look at data as information that need to be analysed which is achieved through acombination of
+  * Heterogeneous storage capabilities
+  * Standardised path in which to read and write data securely
+  * Being agnostic to the structure of your data
+* FD tracks metadata and builds the structures in to NoSQL databases ready for you to analyse
 
 ## Overview
 Collect, Connect Compare and Explore  - FlockData helps you find data you're looking for.
@@ -91,22 +70,21 @@ You need to gain a brief understanding of two of the key FlockData scalable micr
 Familiarise yourself with the general API on our [Wiki](http://wiki.flockdata.com/pages/viewpage.action?pageId=13172790)
 
 ## Working with us
-Drop us a line over at [flockdata.com](http://flockdata.com/) and we'd be happy to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
+Drop us a line over at [flockdata.com](http://flockdata.com/) and we'd be happy to have a ramblechat to see if we can help you reach your goals. Usual social media channels also apply - [LinkedIn](http://www.linkedin.com/company/3361595) .
 
 ## Contributing
 We encourage contributions to FlockData from the community. Here’s how to get started.
 
-Latest code is on the develop branch. Master contains last stable release.
-
-* Fork the appropriate sub-projects that are affected by your change. Fork this repository if your changes are for release generation or packaging.
+* Fork the project
 * Create a branch
-* Make your changes and run the test suite
+* Make your changes and run the test suite `mvn verify`
 * Commit your changes and push them to your fork
-* Open pull-requests for the appropriate projects
+    * Please interactively rebase your commits to aid review
+* Open pull-requests for you changes
 * We will review your pull-request, suggest changes, and merge it when it’s ready and/or offer feedback
 
-To report a bug or issue, please open a new [issue](https://monowai.atlassian.net/) in our Jira issue tracking system.
+To report a bug or issue, please register and open a new [issue](https://monowai.atlassian.net/) in our Jira issue tracking system.
 
 ### Licensing
-We want you and others to get the most out of FD. We use GPL to ensure that changes to FD code can be made shared with everyone. We lay no claim to any of your system or services that are talking to the FD API or databases. 
-FlockData is an open source project. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://flockdata.com/). Talk to us about clustering as there can be costs involved with the underlying stack.
+We want everyone to get the most out of FD. We use GPL to ensure that changes to FD code, the stuff that runs behind the API, can be made shared with everyone.
+FlockData is an open source project. We support a Community edition under the GPLv3 license. The Enterprise edition is available under the AGPLv3 license for open source projects otherwise under a commercial license by [contacting](http://flockdata.com/). Talk to us about clustering as there can be external costs involved with the underlying stack.

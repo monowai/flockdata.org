@@ -47,7 +47,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
                                           "org.flockdata.engine.*"
                                           })
 @Configuration
-@Profile({"integration", "production"})
+@Profile({"fd-server"})
 public class Neo4jConfig extends Neo4jConfiguration {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
@@ -65,7 +65,6 @@ public class Neo4jConfig extends Neo4jConfiguration {
             configFile = props + "/neo4j.properties";
             logger.info("**** Neo4j configuration deploying from path [{}]", configFile);
             logger.info("**** Neo4j datafiles will be written to [{}]", dbPath);
-            logger.info ("**** Neo4j url [{}] port [{}]", address, port );
 
             this.dbPath = dbPath;
             setBasePackage("org.flockdata.model");
@@ -74,12 +73,15 @@ public class Neo4jConfig extends Neo4jConfiguration {
                     .loadPropertiesFromFile(configFile)
                     .newGraphDatabase();
             if ( port >0 ) {
+                logger.info ("**** Enabling Neo4j browser at url [{}] port [{}]", address, port );
                 ServerConfigurator config = new ServerConfigurator(graphdb);
                 config.configuration().setProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, port);
                 if ( !address.equals("disable"))
                     config.configuration().setProperty(Configurator.WEBSERVER_ADDRESS_PROPERTY_KEY, address );
                 config.configuration().setProperty("dbms.security.auth_enabled", enableSecurity);
                 new WrappingCommunityNeoServer(graphdb, config).start();
+            } else {
+                logger.info("**** Disabling the neo4j browser ");
             }
             return graphdb;
         } catch (Exception fileNotFoundException) {

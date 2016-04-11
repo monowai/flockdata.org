@@ -25,8 +25,8 @@ spring:
   application:
     name: fd-engine
   profiles:
-    active: production
-    include: fd-server,fd-auth-test
+    active: fd-auth-test
+    include: fd-server
   cloud:
     config:
       discovery:
@@ -47,8 +47,8 @@ org.fd:
   engine:
     # Defaults on creation of a fortress if not otherwise supplied
     fortress:
-      search: enabled
-      store: disabled
+      search: true
+      store: false
     system:
       # Mount point for the api
       api: /api
@@ -144,12 +144,13 @@ org:
     # path to neo4j.properties. This setting is for development. It MUST be overriden for other environments
     path: src/main/resources
     # where to write the db files to - required
-    server.database.location: ../data/fd/neo4j
+    server.database.location: data/neo4j
     # Disable the neo4j browser by setting the port to 0
     server:
       webserver:
+        # Set the port to < 0 to disable the WEBUI for Neo4j
         port: 7474
-        # Comment this line out to disable the WEBUI for Neo4j
+        # 0.0.0.0 sets access from anywhere
         address: 0.0.0.0
     # enable/disable neo4j security (omitting defaults to enabled)
     auth: "true"
@@ -159,6 +160,7 @@ rabbit:
   user: guest
   pass: guest
   host: localhost
+  port: 5672
 
 
 

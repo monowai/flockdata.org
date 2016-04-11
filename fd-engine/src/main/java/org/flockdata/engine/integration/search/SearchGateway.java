@@ -36,7 +36,7 @@ public interface SearchGateway {
     //ToDo: I like gateway methods being encapsulated here, but you can only have one @Retryable annotation
     //      so we should move these into their respective Request classes to support retry semantics
     @Payload("new java.util.Date()")
-    @Gateway(requestChannel = "searchPing")
+    @Gateway(requestChannel = "searchPing",requestTimeout = 6000)
     String ping();
 
     @Gateway(requestChannel = "sendTagCloudRequest", replyChannel = "tagCloudResult")
@@ -49,7 +49,6 @@ public interface SearchGateway {
     EsSearchResult fdSearch(QueryParams queryParams);
 
     @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-//    @Retryable
     void makeSearchChanges(EntitySearchChanges searchChanges);
 
 

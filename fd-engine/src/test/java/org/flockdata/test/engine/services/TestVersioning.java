@@ -55,20 +55,20 @@ public class TestVersioning extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertTrue(fortress.isStoreEnabled());
 
-        engineConfig.setStoreEnabled("false");
+        engineConfig.setStoreEnabled(false);
         assertEquals(Boolean.FALSE, engineConfig.storeEnabled());
         fib = new FortressInputBean("disabledTest");
         assertEquals(null, fib.getStoreActive());
         fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertFalse("System default should have been returned", fortress.isStoreEnabled());
 
-        engineConfig.setStoreEnabled("false");
+        engineConfig.setStoreEnabled(false);
         fib = new FortressInputBean("manualEnableTest");
         fortress = fortressService.registerFortress(su.getCompany(), fib);
         fortress.setStoreEnabled(true);
         assertTrue("Callers setting did not override System default", fortress.isStoreEnabled());
 
-        engineConfig.setStoreEnabled("true");
+        engineConfig.setStoreEnabled(true);
         fib = new FortressInputBean("manualDisableTest");
         fortress = fortressService.registerFortress(su.getCompany(), fib);
         fortress.setStoreEnabled(false);
@@ -78,13 +78,13 @@ public class TestVersioning extends EngineBase {
 
     @After
     public void resetDefaults() {
-        engineConfig.setStoreEnabled("true");
+        engineConfig.setStoreEnabled(true);
     }
 
     @Test
     public void kv_Ignored() throws Exception {
         SystemUser su = registerSystemUser("kv_Ignored", "kv_Ignored");
-        engineConfig.setStoreEnabled("false");
+        engineConfig.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("kv_Ignored", true));
         assertFalse(engineConfig.storeEnabled());
         EntityInputBean eib = new EntityInputBean(fortress, "kv_Ignored", "kv_Ignored", new DateTime());
@@ -157,7 +157,7 @@ public class TestVersioning extends EngineBase {
     @Test
     public void storage_CorrectMechanismSelected() throws Exception {
         // DAT-353
-        engineConfig.setStoreEnabled("true");
+        engineConfig.setStoreEnabled(true);
         // The system default store is MEMORY
         ContentInputBean content  = new ContentInputBean(EntityContentHelper.getRandomMap());
         // Fortress is not enabled but the overall configuration says the store is enabled

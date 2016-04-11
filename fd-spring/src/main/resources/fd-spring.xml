@@ -14,7 +14,7 @@
 		                   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <aop:aspectj-autoproxy/>
-    <context:component-scan base-package="org.flockdata.spring"/>
+    <context:component-scan base-package="org.flockdata.spring,org.flockdata.client, org.flockdata.shared"/>
     <bean id="trackAspect" class="org.flockdata.spring.annotations.FlockDataAspect"/>
 
     <int-http:outbound-gateway reply-timeout="1000"

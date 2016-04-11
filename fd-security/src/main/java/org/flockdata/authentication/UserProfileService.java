@@ -16,6 +16,7 @@
 
 package org.flockdata.authentication;
 
+import org.flockdata.registration.UserProfile;
 import org.springframework.security.core.Authentication;
 
 public interface UserProfileService {

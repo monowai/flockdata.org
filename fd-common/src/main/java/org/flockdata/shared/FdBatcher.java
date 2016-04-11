@@ -25,6 +25,7 @@ import org.flockdata.transform.PayloadBatcher;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Component
 @Configuration
+@Profile({"!dev"})
 public class FdBatcher implements PayloadBatcher {
     private List<EntityInputBean> entityBatch = new ArrayList<>();
     private Map<String, TagInputBean> tagBatch = new HashMap<>();
@@ -200,6 +202,7 @@ public class FdBatcher implements PayloadBatcher {
                 batchTag(null, true, "");
                 if ( entityBatch.size() >0)
                     fdWriter.flushEntities(company, entityBatch, clientConfiguration);
+                entityBatch.clear();
             } catch (FlockException e) {
                 logger.error(e.getMessage());
                 System.exit(1);

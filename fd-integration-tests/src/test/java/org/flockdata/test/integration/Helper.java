@@ -32,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -45,7 +43,7 @@ import java.util.Map;
  * Time: 4:18 PM
  */
 public class Helper {
-    static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
+//    static Authentication AUTH_MIKE = new UsernamePasswordAuthenticationToken("mike", "123");
     private static final Logger logger = LoggerFactory.getLogger(Helper.class);
 
 
@@ -551,11 +549,11 @@ public class Helper {
         return map;
     }
 
-    public static void waitAWhile(String message) throws Exception {
-        if (message == null)
-            message = "Slept for {} seconds";
-        waitAWhile(message, TestFdIntegration.getSleepSeconds());
-    }
+//    public static void waitAWhile(String message) throws Exception {
+//        if (message == null)
+//            message = "Slept for {} seconds";
+//        waitAWhile(message, TestFdIntegration.getSleepSeconds());
+//    }
 
     /**
      * Processing delay for threads and integration to complete. If you start getting sporadic
@@ -589,8 +587,8 @@ public class Helper {
             if (count == expectedCount)
                 return log;
             Thread.yield();
-            if (i > 20)
-                waitAWhile("Waiting {} seconds for the log to update");
+//            if (i > 20)
+//                waitAWhile("Waiting {} seconds for the log to update");
             i++;
         }
         if (i > 22)

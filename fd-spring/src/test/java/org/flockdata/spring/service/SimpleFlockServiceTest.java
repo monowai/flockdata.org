@@ -19,20 +19,30 @@
 
 package org.flockdata.spring.service;
 
+import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.shared.FdBatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "classpath:fd-spring.xml", "classpath:fd-spring-test.xml"
+@ActiveProfiles("fd-server")
+@SpringApplicationConfiguration({
+        ClientConfiguration.class,
+        FdBatcher.class,
+        SimpleTrackedService.class,
+        AmqpServices.class,
+        FdRestWriter.class
 })
 public class SimpleFlockServiceTest {
+
     @Autowired
     private SimpleTrackedService simpleTrackedService;
-
 
     @Test
     public void testCreateEntityAnnotation() {

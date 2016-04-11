@@ -1,0 +1,52 @@
+### Default configuration properties for fd-engine
+
+## You can override these settings by placing a application.properties
+## in the flockdata classpath. This file, deployed with fd-engine and fd-search
+## represents the default settings if no other configuration is in use
+
+# Where fd-search
+#fd.search.url: http://fd-search:8081
+
+# Default value for new fortresses being created.
+# If store in the fortress is false, then only current state data is stored
+# i.e. no history
+# You can update an existing fortress and set it's store property to false/true to
+# disable/enable KV versions
+application:
+  title: fd-engine for integration testing
+banner:
+  location: int/banner.txt
+
+spring:
+  profiles:
+    include: fd-auth-test
+
+
+# Message queues - Balance against ack/nack rate throughput
+# Threadpools
+org.fd:
+  client:
+    http:
+      user: mike
+      pass: 123
+
+  engine:
+    fortress:  # Defaults on creation of a fortress if not otherwise supplied
+      search: true
+
+    executor:
+      poolSize: 4-10
+      queueCapacity: 3
+
+  search:
+    api: http://localhost:8091
+
+  store:
+    api: http://localhost:8082
+    system:
+      enabled: true
+
+rabbit:
+  user: guest
+  pass: guest
+  host: 127.0.0.1

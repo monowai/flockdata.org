@@ -18,7 +18,7 @@
         <module>fd-search</module>
         <module>fd-client</module>
         <module>fd-spring</module>
-        <module>fd-integration-tests</module>
+        <!--<module>fd-integration-tests</module>-->
     </modules>
 
     <properties>
@@ -441,7 +441,7 @@
                 <plugin>
                     <groupId>com.spotify</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.4.3</version>
+                    <version>0.4.5</version>
                     <configuration>
                         <serverId>docker-hub</serverId>
                         <registryUrl>https://index.docker.io/v1/</registryUrl>
@@ -467,6 +467,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.version}</version>
+                    <configuration>
+                        <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

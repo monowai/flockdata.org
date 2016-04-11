@@ -21,8 +21,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Created with IntelliJ IDEA.
+ * User: nabil
+ * Date: 11/08/13
+ * Time: 14:17
+ * To change this template use File | Settings | File Templates.
+ */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DatagioTag {
-    String name() default "";
+public @interface FdUid {
 }
