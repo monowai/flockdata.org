@@ -25,23 +25,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by mike on 4/04/16.
  */
 
-public class Ping implements Command {
+public class Ping extends AbstractRestCommand {
 
-    String url;
-    RestTemplate restTemplate;
     String result;
     HttpHeaders httpHeaders;
 
     public Ping(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        this.url = clientConfiguration.getServiceUrl();
-        this.restTemplate = restWriter.getRestTemplate();
-        this.httpHeaders = restWriter.getHeaders(clientConfiguration.getApiKey());
+            super(clientConfiguration,restWriter);
     }
 
     public String getResult() {

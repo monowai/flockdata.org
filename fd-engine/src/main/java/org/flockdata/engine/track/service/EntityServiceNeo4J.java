@@ -40,7 +40,6 @@ import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.EntityTagService;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.track.service.TagService;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -292,7 +291,7 @@ public class EntityServiceNeo4J implements EntityService {
      * @return entity the caller is authorised to view
      */
     @Override
-    public Entity getEntity(@NotEmpty String key) {
+    public Entity getEntity( String key) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
@@ -313,7 +312,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity getEntity(Company company, @NotEmpty String key, boolean inflate) {
+    public Entity getEntity(Company company,String key, boolean inflate) {
 
         if (company == null)
             return getEntity(key);

@@ -194,8 +194,6 @@ public class FdBatcher implements PayloadBatcher {
 
     @Override
     public void flush()  {
-        if (fdWriter.isSimulateOnly())
-            return;
         try {
             entityLock.lock();
             try {

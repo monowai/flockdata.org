@@ -17,16 +17,20 @@
 package org.flockdata.test.client;
 
 import org.flockdata.shared.FdBatcher;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
 /**
+ * To support unit testing. The entities and tags are not flushed so that the
+ * transformed results can be validated by a test
+ *
+ * User must call reset() to clear down any cached data
+ *
  * Created by mike on 13/04/16.
  */
 @Profile("dev")
+@Service
 public class MockPayloadBatcher extends FdBatcher {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MockPayloadBatcher.class);
-
 
     @Override
     public void flush(){

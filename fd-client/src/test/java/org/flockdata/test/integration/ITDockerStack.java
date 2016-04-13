@@ -23,6 +23,7 @@ import org.flockdata.client.commands.Health;
 import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.Ping;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.registration.UserProfile;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.ClientConfiguration;
@@ -51,7 +52,9 @@ import static junit.framework.TestCase.assertNull;
 import static org.springframework.test.util.AssertionErrors.*;
 
 /**
- * int
+ * Establishes the integration test environment. Descendant classes use @Test functions against
+ * this established stack
+ *
  * Created by mike on 3/04/16.
  */
 @SpringApplicationConfiguration({
@@ -75,11 +78,16 @@ public class ITDockerStack {
     private static final int SERVICE_SEARCH = 8091;
     private static final int SERVICE_STORE = 8092;
 
-    @Value("${org.fd.test.pause:300}")
+    @Value("${org.fd.test.pause:150}")
     int waitSeconds;
 
+    @ClassRule // start is called before the tests are run and stop is called after the class
+               // is finished. Given that is how Junit wants to play, all integration tests that
+               // want to use this stack should be in this class, otherwise a new Stack will be created
+               // increasing the time it takes to start
+               // ToDo: Figure out a better way of doing this!
+
     // http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
-    @ClassRule
     public static DockerComposeContainer stack =
             new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
                     .withExposedService("rabbit_1", 5672)
@@ -93,12 +101,23 @@ public class ITDockerStack {
 
     private static Logger logger = LoggerFactory.getLogger(ITDockerStack.class);
 
+    /**
+     * Contains properties used by rabbitConfig and fdRestWriter
+     */
     @Autowired
     ClientConfiguration clientConfiguration;
 
+    /**
+     * Rabbit connectivity
+     */
     @Autowired
     AmqpRabbitConfig rabbitConfig;
 
+    /**
+     * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
+     * but by calling clientConfiguration.setServiceUrl(...) it can be used to talk to
+     * fd-search or fd-store. Only fd-engine is secured by default
+     */
     @Autowired
     FdRestWriter fdRestWriter;
 
@@ -145,7 +164,6 @@ public class ITDockerStack {
 
         setupComplete = true;
     }
-
 
     public void pauseUntil(Command optionalCommand, String comandResult, int waitCount) throws InterruptedException {
         // A nice little status bar to show how long we've been hanging around
@@ -196,7 +214,7 @@ public class ITDockerStack {
         logger.info("{} is running. [{}]", service, url);
     }
 
-    private String getUrl() {
+    private static String getUrl() {
 
         return "http://" + stack.getContainerIpAddress();
     }
@@ -205,24 +223,21 @@ public class ITDockerStack {
         return stack.getServicePort("rabbit_1",15672);
     }
 
-    private String getEngine() {
-        //String engine = "http://" + stack.getServiceHost("fdengine_1", SERVICE_ENGINE);
-        String engine = getUrl();
-        return engine + ":" + stack.getServicePort("fdengine_1", SERVICE_ENGINE);
+    static String getEngine() {
+        return getUrl() + ":" + stack.getServicePort("fdengine_1", SERVICE_ENGINE);
     }
 
     private Integer getRabbitPort() {
         return stack.getServicePort("rabbit_1", 5672);
     }
 
-    private String getSearch() {
+    static String getSearch() {
         return getUrl() + ":" + stack.getServicePort("fdsearch_1", SERVICE_SEARCH);
     }
 
-    private String getStore() {
+    static String getStore() {
         return getUrl() + ":" + stack.getServicePort("fdstore_1", SERVICE_STORE);
     }
-
 
     private Integer getEngineDebug() {
         return  stack.getServicePort("fdengine_1", DEBUG_ENGINE);
@@ -237,23 +252,31 @@ public class ITDockerStack {
     }
 
 
+    Login getLogin(String user, String pass) {
+        clientConfiguration.setServiceUrl(getEngine())
+                .setHttpUser(user)
+                .setHttpPass(pass);
+
+        return new Login(clientConfiguration, fdRestWriter);
+    }
+
     @Test
     public void pingFdEngine() {
-        clientConfiguration.setServiceUrl(getEngine());
+        clientConfiguration.setServiceUrl(ITDockerStack.getEngine());
         String result = fdRestWriter.ping();
         assertEquals("Couldn't ping fd-engine", "pong", result);
     }
 
     @Test
     public void pingFdStore() {
-        clientConfiguration.setServiceUrl(getStore());
+        clientConfiguration.setServiceUrl(ITDockerStack.getStore());
         String result = fdRestWriter.ping();
         assertEquals("Couldn't ping fd-store", "pong", result);
     }
 
     @Test
     public void pingFdSearch() {
-        clientConfiguration.setServiceUrl(getSearch());
+        clientConfiguration.setServiceUrl(ITDockerStack.getSearch());
 
         Ping ping = new Ping(clientConfiguration, fdRestWriter);
         assertNotNull(ping.exec());
@@ -263,9 +286,10 @@ public class ITDockerStack {
 
     @Test
     public void simpleLogin() {
-        Login login = getLogin("mike", "123");
-        assertNull(login.exec());
-        UserProfile profile = login.getResult();
+        clientConfiguration.setHttpUser("mike");
+        clientConfiguration.setHttpPass("123");
+        clientConfiguration.setServiceUrl(getEngine());
+        UserProfile profile = fdRestWriter.login(clientConfiguration);
         assertNotNull(profile);
         assertTrue("User Roles missing", profile.getUserRoles().length != 0);
     }
@@ -289,12 +313,15 @@ public class ITDockerStack {
 
     }
 
-    private Login getLogin(String user, String pass) {
+    @Test
+    public void registration() {
+        // An authorised user can create DataAccess users for a given company
+
         clientConfiguration.setServiceUrl(getEngine());
-        // This is by way of example as mike/123 is the default
-        clientConfiguration.setHttpUser(user);
-        clientConfiguration.setHttpPass(pass);
-        return new Login(clientConfiguration, fdRestWriter);
+        SystemUserResultBean suResult = fdRestWriter.register("mike", "TestCompany");
+        assertNotNull(suResult);
+        assertNotNull(suResult.getApiKey());
+
     }
 
 }

@@ -82,9 +82,4 @@ public class FdServerWriter implements FdWriter {
         }
     }
 
-    @Override
-    public boolean isSimulateOnly() {
-        return false;
-    }
-
 }
