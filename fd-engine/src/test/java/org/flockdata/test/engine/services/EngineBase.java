@@ -186,7 +186,7 @@ public abstract class EngineBase {
     public void setSecurity() throws Exception{
         engineConfig.setMultiTenanted(false);
         engineConfig.setTestMode(true); // prevents Async log processing from occurring
-        engineConfig.setStoreEnabled("true");
+        engineConfig.setStoreEnabled(true);
         engineConfig.setConceptsEnabled("false");
         SecurityContextHolder.getContext().setAuthentication(authDefault);
     }

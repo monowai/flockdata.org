@@ -17,8 +17,8 @@ spring:
 org.fd:
   engine:
     fortress:  # Defaults on creation of a fortress if not otherwise supplied
-      search: disabled
-      store: disabled
+      search: false
+      store: false
     system:
       api: api
       storage: MEMORY # Simple in-memory store for testing

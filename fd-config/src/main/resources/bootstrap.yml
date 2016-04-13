@@ -2,6 +2,6 @@ spring:
   application:
     name: configuration
   profiles:
-    active: production
+    active: fd-server
 encrypt:
   failOnError: false

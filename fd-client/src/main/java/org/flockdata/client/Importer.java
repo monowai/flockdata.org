@@ -152,9 +152,9 @@ public class Importer extends SpringBootServletInitializer {
                 SystemUserResultBean su = fdClient.me(); // Use the configured API as the default FU unless another is set
                 if (su == null) {
                     if (!clientConfiguration.isAmqp())
-                        throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
+                        throw new FlockException("Unable to connect to FlockData. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
                     else
-                        logger.warn("Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getEngineURL() + "]?");
+                        logger.warn("Http communications with FlockData are not working. Is the service running at [" + clientConfiguration.getServiceUrl() + "]?");
                 } else if (su.getApiKey() == null)
                     throw new FlockException("Unable to find an API Key in your configuration for the user " + su.getLogin() + ". Have you run the configure process?");
 

@@ -22,66 +22,20 @@
 
     <properties>
         <language.level>1.8</language.level>
-        <docker-integration.version>1.1.4</docker-integration.version>
+        <testcontainers.version>1.0.4-SNAPSHOT</testcontainers.version>
     </properties>
 
 
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>dk.sublife.docker-integration</groupId>-->
-        <!--<artifactId>docker-integration</artifactId>-->
-        <!--<version>1.0.3</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-kernel</artifactId>
-            <version>${neo4j.version}</version>
-            <scope>test</scope>
-            <type>test-jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-access</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <version>${org.springboot.version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
         </dependency>
 
         <dependency>
@@ -90,33 +44,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>0.4.0</version>
         </dependency>
-        <dependency>
-            <groupId>io.searchbox</groupId>
-            <artifactId>jest</artifactId>
-            <version>0.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.flockdata</groupId>
-            <artifactId>fd-engine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>io.searchbox</groupId>-->
+            <!--<artifactId>jest</artifactId>-->
+            <!--<version>0.1.6</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.flockdata</groupId>
             <artifactId>fd-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.flockdata</groupId>-->
-        <!--<artifactId>fd-search</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -142,19 +85,33 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skipTests>false</skipTests>
-                    <!--Exlude Integration Tests from the standard build (mvn clean install)-->
-                    <excludes>
-                        <exclude>**/*Integration.java</exclude>
-                        <exclude>**/*Deploys.java</exclude>
-                    </excludes>
+                    <!--<skipTests>false</skipTests>-->
+                    <!--Exclude Integration Tests from the standard build (mvn clean install)-->
+                    <!--<excludes>-->
+                        <!--<exclude>**/IT*.java</exclude>-->
+                    <!--</excludes>-->
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <argLine>-Xmx512m</argLine>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -164,89 +121,9 @@
                     <target>${language.level}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <!--https://github.com/wouterd/docker-maven-plugin-->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--<plugin>-->
-            <!--<groupId>net.wouterdanes.docker</groupId>-->
-            <!--<artifactId>docker-maven-plugin</artifactId>-->
-            <!--<version>5.0.0</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>package</id>-->
-            <!--<goals>-->
-            <!--<goal>build-images</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--<configuration>-->
-            <!--<images>-->
-            <!--<image>-->
-            <!--<id>engine</id>-->
-            <!--<dockerFile>../fd-engine/src/main/docker/Dockerfile</dockerFile>-->
-            <!--<artifacts>-->
-            <!--<artifact>-->
-            <!--<file>../fd-engine/target/fd-engine-0.98.1.jar</file>-->
-            <!--</artifact>-->
-            <!--</artifacts>-->
-            <!--</image>-->
-            <!--</images>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+
+
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>integration</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.version}</version>
-                        <configuration>
-                            <junitArtifactName>junit:junit</junitArtifactName>
-                            <argLine>-Xmx1g</argLine>
-
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>integration-test</id>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <excludes>
-                                        <exclude>**/Abstract*.java</exclude>
-                                        <!--MKH 02-2016, - excluding until we figure out how to stand up all the services -->
-                                        <exclude>TestFdIn*.java</exclude>
-                                        <!-- Trying to get a SpringBoot test working, but need to start fd-store and fd-search -->
-                                        <!--<exclude>TestEngine*.java</exclude>-->
-                                    </excludes>
-                                    <junitArtifactName>junit:junit</junitArtifactName>
-                                    <argLine>-Xmx512m -Xss256k</argLine>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>

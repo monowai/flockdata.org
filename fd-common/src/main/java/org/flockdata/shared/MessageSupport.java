@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct;
  * Created by mike on 14/02/16.
  */
 @Component
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class MessageSupport {
 
     private ObjectToJsonTransformer objectToJsonTransformer;

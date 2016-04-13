@@ -15,6 +15,10 @@ eureka:
     statusPageUrlPath: /admin/info
     healthCheckUrlPath: /admin/health
 
+  client:
+    serviceUrl:
+      defaultZone: http://${DISCOVERY_PORT_8761_TCP_ADDR:172.17.0.8}:8761/eureka/
+
 spring:
   cloud:
     config:
@@ -23,12 +27,4 @@ spring:
           uri: https://github.com/spring-cloud-samples/config-repo
           basedir: target/config
   profiles:
-    active: production
-
----
-spring:
-  profiles: production
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://${DISCOVERY_PORT_8761_TCP_ADDR:172.17.0.8}:8761/eureka/
+    active: fd-server

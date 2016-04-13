@@ -20,9 +20,9 @@
 package org.flockdata.test.engine.mvc;
 
 import org.flockdata.authentication.FdRoles;
-import org.flockdata.authentication.LoginRequest;
-import org.flockdata.authentication.UserProfile;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.registration.LoginRequest;
+import org.flockdata.registration.UserProfile;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;

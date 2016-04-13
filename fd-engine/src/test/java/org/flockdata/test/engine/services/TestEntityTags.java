@@ -1196,7 +1196,7 @@ public class TestEntityTags extends EngineBase {
         // Emulates the default PostMan json track call.
         try {
             engineConfig.setStore(Store.MEMORY);
-            engineConfig.setStoreEnabled("true");
+            engineConfig.setStoreEnabled(true);
             logger.info("## count_NoExistingTagsFullTrackRequest");
             SystemUser su = registerSystemUser("Blah");
             Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_NoExistingTagsFullTrackRequest", true));
@@ -1212,7 +1212,7 @@ public class TestEntityTags extends EngineBase {
             Collection<EntityTag> tags = entityTagService.getEntityTags(trackResult.getEntity());
             assertEquals(2, tags.size());
         } finally {
-            engineConfig.setStoreEnabled(storeEnabled.toString());
+            engineConfig.setStoreEnabled(storeEnabled);
             engineConfig.setStore(existing);
 
         }

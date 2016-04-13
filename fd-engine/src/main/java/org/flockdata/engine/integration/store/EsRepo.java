@@ -50,7 +50,7 @@ import java.util.Map;
  *
  */
 @Service
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class EsRepo extends AbstractStore {
 
     @Autowired

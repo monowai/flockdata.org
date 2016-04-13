@@ -33,9 +33,8 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 import javax.annotation.PostConstruct;
 
 /**
- *
  * Rabbit MQ / AMQP
- *
+ * <p>
  * Created by mike on 3/07/15.
  */
 
@@ -71,26 +70,29 @@ public class AmqpRabbitConfig {
     Boolean amqpLazyConnect;
 
     @PostConstruct
-    public void logStatus (){
-        logger.info( "**** FlockData AMQP Configuration deployed");
-        logger.info ( "**** rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]",rabbitHost, rabbitPort, rabbitUser);
+    public void logStatus() {
+        logger.info("**** FlockData AMQP Configuration deployed");
+        logger.info("**** rabbit.host: [{}], rabbit.port [{}], rabbit.user [{}]", rabbitHost, rabbitPort, rabbitUser);
     }
 
     @Bean
-    RabbitTemplate rabbitTemplate () throws Exception {
-        return new RabbitTemplate(connectionFactory());
+    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) throws Exception {
+        return new RabbitTemplate(connectionFactory);
     }
 
     @Bean
     ConnectionFactory connectionFactory() throws Exception {
-        CachingConnectionFactory connect = new CachingConnectionFactory();
+        return setConnectionProperties(new CachingConnectionFactory());
+    }
+
+    private ConnectionFactory setConnectionProperties(CachingConnectionFactory connect) {
+        // First load or a refresh
         connect.setHost(rabbitHost);
         connect.setPort(rabbitPort);
         connect.setUsername(rabbitUser);
         connect.setPassword(rabbitPass);
         connect.setPublisherConfirms(publisherConfirms);
         connect.setPublisherReturns(publisherReturns);
-//        connect.setExecutor(executorConfig.engineExecutor());
         connect.setChannelCacheSize(publisherCacheSize);
         return connect;
     }
@@ -98,9 +100,15 @@ public class AmqpRabbitConfig {
     @Autowired
     Exchanges exchanges;
 
+    @Autowired
+    ConnectionFactory connectionFactory;
+
+    private AmqpAdmin amqpAdmin = null;
+
     @Bean
-    public AmqpAdmin amqpAdmin() throws Exception {
-        AmqpAdmin amqpAdmin = new RabbitAdmin(connectionFactory());
+    public AmqpAdmin amqpAdmin(ConnectionFactory connectionFactory) throws Exception {
+        if (amqpAdmin == null)
+            amqpAdmin = new RabbitAdmin(connectionFactory);
         return amqpAdmin;
     }
 
@@ -118,5 +126,16 @@ public class AmqpRabbitConfig {
 
     public String getUser() {
         return rabbitUser;
+    }
+
+    public AmqpRabbitConfig setServicePoint(String url, Integer rabbitPort) {
+        this.rabbitHost = url;
+        this.rabbitPort = rabbitPort;
+        logger.info("Resetting rabbit connection to {}:{}", rabbitHost, rabbitPort);
+        setConnectionProperties((CachingConnectionFactory) connectionFactory);
+        if (connectionFactory != null)
+            ((CachingConnectionFactory) connectionFactory).resetConnection();
+
+        return this;
     }
 }

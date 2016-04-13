@@ -38,8 +38,8 @@ application:
 org.fd:
   engine:
     fortress:  # Defaults on creation of a fortress if not otherwise supplied
-      search: enabled
-      store: disabled
+      search: true
+      store: false
     system:
       api: /api # Mount point for the api
       constraints: true

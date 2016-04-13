@@ -61,7 +61,7 @@ import java.util.concurrent.ExecutionException;
  * Created by mike on 27/12/15.
  */
 @Service
-@Profile({"integration","production"})
+@Profile({"fd-server"})
 public class TrackRequests {
 
     @Autowired

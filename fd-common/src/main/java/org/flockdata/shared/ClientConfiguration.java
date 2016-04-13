@@ -79,8 +79,8 @@ public class ClientConfiguration {
     @Value("${"+ KEY_RABBIT_USER +":guest}")
     private String rabbitUser="guest";
 
-    @Value("${"+ KEY_ENGINE_API +":http://localhost:8080/api}")
-    String engineURL = "http://localhost:8080/api";
+    @Value("${"+ KEY_ENGINE_API +":http://localhost:8080}")
+    String engineUrl = "http://localhost:8080";
 
     @Value("${"+ KEY_API_KEY +":}")
     String apiKey = null;
@@ -112,7 +112,7 @@ public class ClientConfiguration {
         //defConfig = false;
         Object o = prop.get(KEY_ENGINE_API);
         if (o != null)
-            setEngineURL(o.toString());
+            setServiceUrl(o.toString());
         o = prop.get(KEY_API_KEY);
         if (o != null && !o.toString().equals(""))
             setApiKey(o.toString());
@@ -149,14 +149,10 @@ public class ClientConfiguration {
 
     }
 
-    public String getEngineURL() {
-        if ( engineURL!=null && !engineURL.equals("") && !engineURL.startsWith("http"))
-            engineURL=  "http://" +engineURL;
-        return engineURL;
-    }
-
-    private void setEngineURL(String engineURL) {
-        this.engineURL = engineURL;
+    public String getServiceUrl() {
+        if ( engineUrl !=null && !engineUrl.equals("") && !engineUrl.startsWith("http"))
+            engineUrl =  "http://" + engineUrl;
+        return engineUrl;
     }
 
     public String getApiKey() {
@@ -179,7 +175,7 @@ public class ClientConfiguration {
     @PostConstruct
     public String toString() {
         return "ConfigProperties{" +
-                ""+ KEY_ENGINE_API +"='" + engineURL + '\'' +
+                ""+ KEY_ENGINE_API +"='" + engineUrl + '\'' +
                 ", "+ KEY_RABBIT_HOST +"='" + rabbitHost+ '\'' +
                 ", "+ KEY_RABBIT_USER +"='" + rabbitUser+ '\'' +
                 ", "+ KEY_API_KEY +"='" + ( !(apiKey!=null && apiKey.equals("")) ?"** set **": "!! not set !!")+ '\'' +
@@ -333,5 +329,17 @@ public class ClientConfiguration {
 
     public String getHttpPass() {
         return httpPass;
+    }
+
+    public void setServiceUrl(String engineUrl) {
+        this.engineUrl = engineUrl;
+    }
+
+    public void setHttpUser(String httpUser) {
+        this.httpUser = httpUser;
+    }
+
+    public void setHttpPass(String httpPass) {
+        this.httpPass = httpPass;
     }
 }
