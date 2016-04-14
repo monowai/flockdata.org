@@ -77,7 +77,7 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
             contentProfileImpl.setFortressUser(nodeValue.asText());
 
         nodeValue = node.get("entityOnly");
-        if (!isNull(nodeValue))
+        if (isNull(nodeValue))
             nodeValue = node.get("metaOnly"); // legacy value
 
         if (!isNull(nodeValue))

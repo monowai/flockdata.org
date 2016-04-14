@@ -20,9 +20,8 @@
 
 package org.flockdata.test.engine.mvc;
 
-import org.flockdata.profile.ContentProfileDeserializer;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.ContentProfileResult;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.profile.*;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
@@ -33,8 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
@@ -44,7 +42,7 @@ public class TestContentProfile extends  MvcBase{
     @Test
     public void testSaveRetrieveContent() throws  Exception {
         ContentProfileImpl contentProfile = ContentProfileDeserializer.getImportParams("/profiles/test-csv-batch.json");
-        makeProfile("TestContentProfileStorage", "mike");
+        makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
         Collection<DocumentTypeInputBean> documents = new ArrayList<>();
@@ -67,4 +65,20 @@ public class TestContentProfile extends  MvcBase{
         assertNull (contentResult.getPreParseRowExp());
         assertEquals("Content Profiles differed", contentProfile, contentResult);
     }
+
+    @Test
+    public void validate_Profile() throws  Exception {
+        makeDataAccessProfile("validateContentProfile", "mike");
+        ContentProfile profile = ContentProfileDeserializer.getImportParams("/profiles/test-profile.json");
+        ContentValidationRequest validationRequest = new ContentValidationRequest(profile);
+        String json = JsonUtils.toJson(validationRequest);
+        assertNotNull (json);
+        assertNotNull (JsonUtils.toObject(json.getBytes(), ContentValidationRequest.class).getContentProfile());
+        ContentValidationResults result = validateContent(mike(), validationRequest, MockMvcResultMatchers.status().isOk());
+        assertNotNull (result);
+        assertFalse ( result.getResults().isEmpty());
+
+    }
+
+
 }

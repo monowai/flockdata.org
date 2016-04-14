@@ -23,6 +23,8 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 
 import java.io.IOException;
@@ -49,4 +51,6 @@ public interface ContentProfileService {
     void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
 
     ContentProfile get(Company company, String fortressCode, String documentName) throws FlockException;
+
+    ContentValidationResults validate(ContentValidationRequest contentRequest);
 }

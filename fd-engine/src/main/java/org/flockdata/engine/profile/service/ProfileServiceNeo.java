@@ -32,16 +32,21 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
 import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.ContentValidationResult;
+import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.FortressService;
+import org.flockdata.transform.ColumnDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * User: mike
@@ -66,7 +71,7 @@ public class ProfileServiceNeo implements ContentProfileService {
     @Autowired
     FileProcessor fileProcessor;
 
-    static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
+    private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
     public ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException {
         Profile profile = profileDao.find(fortress, documentType);
@@ -86,7 +91,7 @@ public class ProfileServiceNeo implements ContentProfileService {
     }
 
     public Profile save(Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException {
-        //objectMapper.
+
         Profile profile = profileDao.find(fortress, documentType);
         if (profile == null) {
             profile = new Profile(fortress, documentType);
@@ -98,7 +103,7 @@ public class ProfileServiceNeo implements ContentProfileService {
             throw new FlockException("Json error", e);
         }
 
-        // ToDo: Track the change against a FlockData system account
+        // ToDo: Track this as a FlockData Entity to take advantage of versions
         return profileDao.save(profile);
     }
 
@@ -164,6 +169,19 @@ public class ProfileServiceNeo implements ContentProfileService {
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
         return get(fortress, documentType);
+    }
+
+    @Override
+    public ContentValidationResults validate(ContentValidationRequest contentRequest) {
+        assert contentRequest!=null;
+        assert contentRequest.getContentProfile() !=null;
+        ContentValidationResults validatedContent = new ContentValidationResults();
+        Map<String, ColumnDefinition> content = contentRequest.getContentProfile().getContent();
+        for (String column : content.keySet()) {
+            ContentValidationResult result = new ContentValidationResult(content.get(column), "ok");
+            validatedContent.add(result);
+        }
+        return validatedContent;
     }
 
 

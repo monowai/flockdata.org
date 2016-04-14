@@ -28,6 +28,8 @@ import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.ContentProfileResult;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.track.service.FortressService;
@@ -90,5 +92,18 @@ public class ContentProfileEP {
         return new ContentProfileResult(profileService.save(fortress, documentType, contentProfile));
 
     }
+
+    @RequestMapping(value = "/",
+            produces = "application/json",
+            consumes = "application/json",
+            method = RequestMethod.POST)
+    public ContentValidationResults validateContent (HttpServletRequest request,
+                                                     @RequestBody ContentValidationRequest contentRequest) throws FlockException {
+        CompanyResolver.resolveCompany(request);
+
+        return profileService.validate(contentRequest);
+
+    }
+
 
 }
