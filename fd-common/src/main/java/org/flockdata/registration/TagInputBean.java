@@ -482,4 +482,6 @@ public class TagInputBean implements org.flockdata.transform.UserProperties {
         return this.properties!=null && !properties.isEmpty();
     }
 
+
+
 }

@@ -8,6 +8,9 @@ import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentProfileResult;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
@@ -568,4 +571,37 @@ public abstract class MvcBase {
 
 
     }
+
+    public ContentProfileResult makeContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.post(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
+                        .content(JsonUtils.toJson( contentProfile))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
+        }
+        throw response.getResolvedException();
+    }
+
+    public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
+        }
+        throw response.getResolvedException();
+    }
+
+
 }

@@ -47,58 +47,60 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         ContentProfileImpl contentProfileImpl = new ContentProfileImpl();
         JsonNode node = jp.getCodec().readTree(jp);
         JsonNode nodeValue = node.get("documentName");
-        if (nodeValue != null)
+
+        if (!isNull(nodeValue))
             contentProfileImpl.setDocumentName(nodeValue.asText());
 
         nodeValue = node.get("documentType");
-        if ( nodeValue != null ) {
+        if (!isNull(nodeValue)){
             nodeValue = node.get("documentType");
             contentProfileImpl.setDocumentType(mapper.readValue(nodeValue.toString(), DocumentTypeInputBean.class));
         }
 
         nodeValue = node.get("fortressName");
-        if (nodeValue != null&& !nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setFortressName(nodeValue.asText());
 
         nodeValue = node.get("tagOrEntity");
         if ( nodeValue == null  )
             nodeValue = node.get("tagOrTrack");
 
-        if (nodeValue != null)
+        if (!isNull(nodeValue))
             contentProfileImpl.setTagOrEntity(nodeValue.asText().equalsIgnoreCase("entity")? ContentProfile.DataType.ENTITY : ContentProfile.DataType.TAG);
 
         nodeValue = node.get("condition");
-        if ( nodeValue!=null && ! nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setCondition(nodeValue.asText());
 
         nodeValue = node.get("fortressUser");
-        if (nodeValue != null&& !nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setFortressUser(nodeValue.asText());
 
         nodeValue = node.get("entityOnly");
-        if ( nodeValue == null || nodeValue.isNull() )
+        if (!isNull(nodeValue))
             nodeValue = node.get("metaOnly"); // legacy value
-        if (nodeValue != null&& !nodeValue.isNull())
+
+        if (!isNull(nodeValue))
             contentProfileImpl.setEntityOnly(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("emptyIgnored");
-        if (nodeValue != null)
+        if (!isNull(nodeValue))
             contentProfileImpl.setEmptyIgnored(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("archiveTags");
-        if (nodeValue != null)
+        if (!isNull(nodeValue))
             contentProfileImpl.setArchiveTags(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("event");
-        if ( nodeValue != null && !nodeValue.isNull() )
+        if (!isNull(nodeValue))
             contentProfileImpl.setEvent(nodeValue.asText());
 
         nodeValue = node.get("segment");
-        if ( nodeValue != null && !nodeValue.isNull() )
+        if (!isNull(nodeValue))
             contentProfileImpl.setSegmentExpression(nodeValue.asText());
 
         nodeValue = node.get("content");
-        if ( nodeValue !=null ){
+        if (!isNull(nodeValue)){
 
             Iterator<Map.Entry<String,JsonNode>> fields = nodeValue.fields();
             Map<String,ColumnDefinition>content = new HashMap<>();
@@ -115,27 +117,27 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         // Batch handling
         // ********
         nodeValue = node.get("handler");
-        if (nodeValue != null && !nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setHandler(nodeValue.asText());
 
         nodeValue = node.get("header");
-        if (nodeValue != null)
+        if (!isNull(nodeValue))
             contentProfileImpl.setHeader(Boolean.parseBoolean(nodeValue.asText()));
 
         nodeValue = node.get("preParseRowExp");
-        if (nodeValue != null)
+        if (!isNull(nodeValue))
             contentProfileImpl.setPreParseRowExp(nodeValue.asText());
 
         nodeValue = node.get("delimiter");
-        if (nodeValue != null&& !nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setDelimiter(nodeValue.asText());
 
         nodeValue = node.get("quoteCharacter");
-        if (nodeValue != null&& !nodeValue.isNull())
+        if (!isNull(nodeValue))
             contentProfileImpl.setQuoteCharacter(nodeValue.asText());
 
         nodeValue = node.get("contentType");
-        if (nodeValue != null) {
+        if (!isNull(nodeValue)){
             switch (nodeValue.textValue().toLowerCase()) {
                 case "csv":
                     contentProfileImpl.setContentType(ContentProfile.ContentType.CSV);
@@ -154,6 +156,11 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
 
         return contentProfileImpl;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    private boolean isNull(JsonNode nodeValue) {
+        return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
+    }
+
     public static ContentProfileImpl getImportParams(String profile) throws IOException {
         ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();

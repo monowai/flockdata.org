@@ -53,7 +53,7 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
     private Map<String, ColumnDefinition> content;
     private String entityKey;
     private String event = null;
-    private String preParseRowExp;
+    private String preParseRowExp=null;
     private Map<String, Object> properties;
     private String segmentExpression;
 
@@ -93,8 +93,6 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     @Override
     public String getPreParseRowExp() {
-        if (preParseRowExp != null && preParseRowExp.equalsIgnoreCase("null"))
-            return null;
         return preParseRowExp;
     }
 
@@ -243,11 +241,44 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
     }
 
     public DocumentTypeInputBean getDocumentType() {
-        return (DocumentTypeInputBean) documentType;
+        return documentType;
     }
 
     public ContentProfileImpl setDocumentType(DocumentTypeInputBean documentType) {
         this.documentType = documentType;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ContentProfileImpl)) return false;
+
+        ContentProfileImpl that = (ContentProfileImpl) o;
+
+        if (archiveTags != that.archiveTags) return false;
+        if (content != null ? !content.equals(that.content) : that.content != null) return false;
+        if (entityKey != null ? !entityKey.equals(that.entityKey) : that.entityKey != null) return false;
+        if (event != null ? !event.equals(that.event) : that.event != null) return false;
+        if (preParseRowExp != null ? !preParseRowExp.equals(that.preParseRowExp) : that.preParseRowExp != null)
+            return false;
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+        if (segmentExpression != null ? !segmentExpression.equals(that.segmentExpression) : that.segmentExpression != null)
+            return false;
+        return condition != null ? condition.equals(that.condition) : that.condition == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (archiveTags ? 1 : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        result = 31 * result + (entityKey != null ? entityKey.hashCode() : 0);
+        result = 31 * result + (event != null ? event.hashCode() : 0);
+        result = 31 * result + (preParseRowExp != null ? preParseRowExp.hashCode() : 0);
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        result = 31 * result + (segmentExpression != null ? segmentExpression.hashCode() : 0);
+        result = 31 * result + (condition != null ? condition.hashCode() : 0);
+        return result;
     }
 }

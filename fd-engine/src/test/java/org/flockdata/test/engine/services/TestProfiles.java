@@ -24,7 +24,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class TestProfiles extends EngineBase {
 
     private Logger logger = LoggerFactory.getLogger(TestProfiles.class);
     @Autowired
-    ImportProfileService profileService;
+    ContentProfileService profileService;
 
 
     @Test

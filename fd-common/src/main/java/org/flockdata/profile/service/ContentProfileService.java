@@ -32,7 +32,7 @@ import java.io.IOException;
  * Date: 3/10/14
  * Time: 2:45 PM
  */
-public interface ImportProfileService {
+public interface ContentProfileService {
 
     ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException ;
 

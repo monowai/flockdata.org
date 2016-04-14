@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.engine.meta.service;
+package org.flockdata.engine.profile.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.engine.dao.ProfileDaoNeo;
@@ -33,7 +33,7 @@ import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.FortressService;
@@ -49,7 +49,7 @@ import java.io.IOException;
  * Time: 2:43 PM
  */
 @Service
-public class ProfileServiceNeo implements ImportProfileService {
+public class ProfileServiceNeo implements ContentProfileService {
 
     @Autowired
     ProfileDaoNeo profileDao;

@@ -186,4 +186,54 @@ public class TagProfile implements GeoDefinition {
     public void setMerge(boolean merge) {
         this.merge = merge;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagProfile)) return false;
+
+        TagProfile that = (TagProfile) o;
+
+        if (country != that.country) return false;
+        if (mustExist != that.mustExist) return false;
+        if (merge != that.merge) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (keyPrefix != null ? !keyPrefix.equals(that.keyPrefix) : that.keyPrefix != null) return false;
+        if (reverse != null ? !reverse.equals(that.reverse) : that.reverse != null) return false;
+        if (notFound != null ? !notFound.equals(that.notFound) : that.notFound != null) return false;
+        if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null) return false;
+        if (delimiter != null ? !delimiter.equals(that.delimiter) : that.delimiter != null) return false;
+        if (label != null ? !label.equals(that.label) : that.label != null) return false;
+        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
+        if (targets != null ? !targets.equals(that.targets) : that.targets != null) return false;
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+        if (rlxProperties != null ? !rlxProperties.equals(that.rlxProperties) : that.rlxProperties != null)
+            return false;
+        if (aliases != null ? !aliases.equals(that.aliases) : that.aliases != null) return false;
+        return geoData != null ? geoData.equals(that.geoData) : that.geoData == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (keyPrefix != null ? keyPrefix.hashCode() : 0);
+        result = 31 * result + (reverse != null ? reverse.hashCode() : 0);
+        result = 31 * result + (notFound != null ? notFound.hashCode() : 0);
+        result = 31 * result + (relationship != null ? relationship.hashCode() : 0);
+        result = 31 * result + (delimiter != null ? delimiter.hashCode() : 0);
+        result = 31 * result + (country ? 1 : 0);
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        result = 31 * result + (condition != null ? condition.hashCode() : 0);
+        result = 31 * result + (targets != null ? targets.hashCode() : 0);
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        result = 31 * result + (rlxProperties != null ? rlxProperties.hashCode() : 0);
+        result = 31 * result + (aliases != null ? aliases.hashCode() : 0);
+        result = 31 * result + (geoData != null ? geoData.hashCode() : 0);
+        result = 31 * result + (mustExist ? 1 : 0);
+        result = 31 * result + (merge ? 1 : 0);
+        return result;
+    }
 }
