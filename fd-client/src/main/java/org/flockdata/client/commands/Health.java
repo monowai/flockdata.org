@@ -20,33 +20,27 @@ import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Map;
 
 /**
+ * HealthCheck to a service to see if it can see other services
  * Created by mike on 4/04/16.
  */
 
-public class Health implements Command {
+public class Health extends AbstractRestCommand {
 
-    String url;
-    RestTemplate restTemplate;
     Map<String,Object> result;
     String error = null;
-    HttpHeaders httpHeaders;
 
     public Health(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        this.url = clientConfiguration.getServiceUrl();
-        this.restTemplate = restWriter.getRestTemplate();
-        this.httpHeaders = restWriter.getHeaders(clientConfiguration.getApiKey());
+        super(clientConfiguration, restWriter);
     }
 
     public String getError() {

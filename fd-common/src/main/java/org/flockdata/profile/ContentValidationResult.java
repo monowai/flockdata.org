@@ -14,21 +14,29 @@
  *  limitations under the License.
  */
 
-package org.flockdata.spring.annotations;
+package org.flockdata.profile;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.flockdata.transform.ColumnDefinition;
 
 /**
- * Created with IntelliJ IDEA.
- * User: nabil
- * Date: 11/08/13
- * Time: 14:17
- * To change this template use File | Settings | File Templates.
+ * Encapsulates the result of a single validation run
+ *
+ * Created by mike on 14/04/16.
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface DatagioUid {
+public class ContentValidationResult {
+    ColumnDefinition column;
+    String status ;
+
+    public ContentValidationResult(){
+
+    }
+    public ContentValidationResult(ColumnDefinition column, String status) {
+        this();
+        this.column = column;
+        this.status = status;
+    }
+
+    public ColumnDefinition getColumn() {
+        return column;
+    }
 }

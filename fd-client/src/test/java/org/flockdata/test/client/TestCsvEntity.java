@@ -313,13 +313,13 @@ public class TestCsvEntity {
         //
         String[] headers = new String[]{"Title", "TagValueAsNumber", "TagNumberAsString", "StringAsNumber", "created", "updated"};
         String[] data = new String[]{"TitleTests", "123", "123", "123", "1235015570", "1235015805"};
-        ContentProfileImpl params = getImportParams("/profile/csv-entity-data-types.json");
-        assertTrue(params.isEntityOnly());
-        EntityMapper mapper = new EntityMapper(params);
+        ContentProfileImpl contentProfile = getImportParams("/profile/csv-entity-data-types.json");
+        assertTrue(contentProfile.isEntityOnly());
+        EntityMapper mapper = new EntityMapper(contentProfile);
 
-        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, params), params);
+        Map<String,Object> json = mapper.setData(Transformer.convertToMap(headers, data, contentProfile), contentProfile);
 
-        ColumnDefinition colDef = params.getColumnDef(headers[0]);
+        ColumnDefinition colDef = contentProfile.getColumnDef(headers[0]);
 
         assertTrue("CallerRef was wrong", colDef.isCallerRef());
         assertTrue("Title was wrong", colDef.isTitle());
@@ -333,7 +333,7 @@ public class TestCsvEntity {
         o = json.get("StringAsNumber");
         Assert.assertTrue("Should not have been converted to a number", o instanceof Number);
 
-        colDef= params.getColumnDef("created");
+        colDef= contentProfile.getColumnDef("created");
         assertTrue ("Created Date Not Found", colDef.isCreateDate());
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
     }

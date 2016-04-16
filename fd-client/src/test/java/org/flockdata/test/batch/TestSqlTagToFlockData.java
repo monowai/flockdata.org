@@ -27,6 +27,7 @@ import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatcher;
 import org.flockdata.test.client.MockFdWriter;
+import org.flockdata.test.client.MockPayloadBatcher;
 import org.flockdata.transform.PayloadBatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,7 @@ import static org.junit.Assert.assertNotNull;
                                   FdBatchResources.class,
                                   ClientConfiguration.class,
                                   MockFdWriter.class,
+                                  MockPayloadBatcher.class,
                                   FdTagProcessor.class,
                                   FdEntityProcessor.class,
                                   FdRowMapper.class,

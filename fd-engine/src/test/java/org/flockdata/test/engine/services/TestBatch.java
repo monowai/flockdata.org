@@ -20,11 +20,14 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.*;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Entity;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.SystemUser;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.junit.Test;
@@ -39,7 +42,7 @@ import static org.junit.Assert.*;
  */
 public class TestBatch extends EngineBase {
     @Autowired
-    ImportProfileService importProfileService;
+    ContentProfileService contentProfileService;
 
     @Autowired
     FileProcessor fileProcessor;
@@ -55,8 +58,8 @@ public class TestBatch extends EngineBase {
 
         ContentProfileImpl params = ContentProfileDeserializer.getImportParams("/profiles/test-csv-batch.json");
 
-        Profile p = importProfileService.save(fortress, docType, params );
-        importProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
+        contentProfileService.save(fortress, docType, params );
+        contentProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
 
         Entity resultBean = entityService.findByCode(fortress, docType, "1");
         assertNotNull(resultBean);

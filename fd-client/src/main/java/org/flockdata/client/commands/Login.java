@@ -21,13 +21,11 @@ import org.flockdata.registration.LoginRequest;
 import org.flockdata.registration.UserProfile;
 import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * HTTP login
@@ -35,22 +33,12 @@ import org.springframework.web.client.RestTemplate;
  * Created by mike on 4/04/16.
  */
 
-public class Login implements Command {
+public class Login extends AbstractRestCommand{
 
-    String url;
-    RestTemplate restTemplate;
     UserProfile result;
-    String error;
-    HttpHeaders httpHeaders;
-    String user;
-    String pass;
 
     public Login(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
-        this.url = clientConfiguration.getServiceUrl();
-        this.restTemplate = restWriter.getRestTemplate();
-        this.httpHeaders = restWriter.getHeaders(clientConfiguration.getApiKey());
-        this.user = clientConfiguration.getHttpUser();
-        this.pass = clientConfiguration.getHttpPass();
+        super(clientConfiguration, restWriter);
     }
 
     public UserProfile getResult() {
@@ -66,6 +54,7 @@ public class Login implements Command {
             response = restTemplate.exchange(exec, HttpMethod.POST, request, UserProfile.class);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
+
             if (e.getMessage().startsWith("401"))
                 error = "auth";
             else

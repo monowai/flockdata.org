@@ -19,39 +19,32 @@ package org.flockdata.spring;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flockdata.client.rest.FdRestWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class FlockDataClientFactoryBean extends FlockDataAbstractClientFactoryBean {
+public class FlockDataClientFactoryBean {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    @Value("${org.fd.fortress}")
+    @Value("${org.fd.client.default.fortress}")
     private String fortress;
 
-    @Value("${org.fd.batch:1}")
+    @Value("${org.fd.client.batchsize:1}")
     private int batch;
 
     @Value("${org.fd.engine.api}")
     private String serverName;
 
-    @Value("${org.fd.server.username}")
+    @Value("${org.fd.client.login.user}")
     private String userName;
 
-    @Value("${org.fd.server.password}")
+    @Value("${org.fd.client.login.pass}")
     private String password;
 
-    @Override
-    protected FdRestWriter buildClient() throws Exception {
-        FdRestWriter exporter = new FdRestWriter(serverName,
-                null,
-                batch,
-                fortress
-        );
-        exporter.setSimulateOnly((batch <= 0));
-//        exporter.ensureFortress(fortress);
-        return exporter;
+    @Autowired
+    FdRestWriter fdRestWriter;
 
-    }
+
 }

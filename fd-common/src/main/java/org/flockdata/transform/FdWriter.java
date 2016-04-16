@@ -41,10 +41,4 @@ public interface FdWriter {
 
     String flushEntities(Company company, List<EntityInputBean> entityBatch, ClientConfiguration configuration) throws FlockException;
 
-    /**
-     * if True, then the writer will not persist changes
-     * @return
-     */
-    boolean isSimulateOnly();
-
 }

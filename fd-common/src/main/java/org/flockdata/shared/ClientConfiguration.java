@@ -41,6 +41,7 @@ public class ClientConfiguration {
 
     public static final String KEY_ENGINE_API = "org.fd.engine.api";
     public static final String KEY_COMPANY = "org.fd.client.default.company";
+    public static final String KEY_FORTRESS = "org.fd.client.default.fortress";
     public static final String KEY_API_KEY = "org.fd.client.apikey";
     public static final String KEY_HTTP_USER = "org.fd.client.http.user";
     public static final String KEY_HTTP_PASS = "org.fd.client.http.pass";
@@ -60,6 +61,10 @@ public class ClientConfiguration {
 
     @Value ("${"+ KEY_COMPANY +":flockdata}")
     private String company;
+
+    @Value ("${"+ KEY_FORTRESS +":#{null}}")
+    private String fortress;
+
 
     @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
     private String trackQueue = "fd.track.queue";
@@ -185,6 +190,14 @@ public class ClientConfiguration {
 
     public String getCompany() {
         return company;
+    }
+
+    /**
+     *
+     * @return optionally defined default fortress
+     */
+    public String getFortress() {
+        return fortress;
     }
 
     public void setCompany(String company) {
@@ -331,15 +344,18 @@ public class ClientConfiguration {
         return httpPass;
     }
 
-    public void setServiceUrl(String engineUrl) {
+    public ClientConfiguration setServiceUrl(String engineUrl) {
         this.engineUrl = engineUrl;
+        return this;
     }
 
-    public void setHttpUser(String httpUser) {
+    public ClientConfiguration setHttpUser(String httpUser) {
         this.httpUser = httpUser;
+        return this;
     }
 
-    public void setHttpPass(String httpPass) {
+    public ClientConfiguration setHttpPass(String httpPass) {
         this.httpPass = httpPass;
+        return this;
     }
 }

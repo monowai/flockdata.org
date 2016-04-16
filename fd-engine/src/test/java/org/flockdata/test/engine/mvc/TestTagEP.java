@@ -145,7 +145,7 @@ public class TestTagEP extends MvcBase {
     @Test
     public void notFound_Tag() throws Exception {
 
-        makeProfile("nf_tags", "mike");
+        makeDataAccessProfile("nf_tags", "mike");
         // DAT-526
         getTagNotFound(mike(), "zz","123jja");
 

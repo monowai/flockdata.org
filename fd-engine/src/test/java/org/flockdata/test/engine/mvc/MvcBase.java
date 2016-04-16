@@ -8,6 +8,11 @@ import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
+import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentProfileResult;
+import org.flockdata.profile.ContentValidationRequest;
+import org.flockdata.profile.ContentValidationResults;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
@@ -108,9 +113,9 @@ public abstract class MvcBase {
                     .build();
         }
         cleanUpGraph();
-        suMike = makeProfile(ANYCO, mike_admin);
-        suHarry = makeProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
-        suSally = makeProfile(ANYCO, sally_admin);
+        suMike = makeDataAccessProfile(ANYCO, mike_admin);
+        suHarry = makeDataAccessProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
+        suSally = makeDataAccessProfile(ANYCO, sally_admin);
         suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
 
@@ -118,8 +123,8 @@ public abstract class MvcBase {
 
 
 
-    public SystemUserResultBean makeProfile(String companyName, String accessUser) throws Exception {
-        return makeProfile(mike(), companyName, accessUser);
+    public SystemUserResultBean makeDataAccessProfile(String companyName, String accessUser) throws Exception {
+        return makeDataAccessProfile(mike(), companyName, accessUser);
     }
 
     public MockMvc mvc() throws Exception{
@@ -203,11 +208,11 @@ public abstract class MvcBase {
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
     }
-    public SystemUserResultBean makeProfile(RequestPostProcessor user, String company, String accessUser) throws Exception{
-        return makeProfile(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
+    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser) throws Exception{
+        return makeDataAccessProfile(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
     }
 
-    public SystemUserResultBean makeProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
+    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
         MvcResult response = mvc()
                 .perform(MockMvcRequestBuilders.post(apiPath +"/profiles/")
                         .content(JsonUtils.toJson( new RegistrationBean(company, accessUser)))
@@ -568,4 +573,54 @@ public abstract class MvcBase {
 
 
     }
+
+    public ContentProfileResult makeContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.post(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
+                        .content(JsonUtils.toJson( contentProfile))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
+        }
+        throw response.getResolvedException();
+    }
+
+    public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
+        }
+        throw response.getResolvedException();
+    }
+
+    ContentValidationResults validateContent(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.post(apiPath +"/content/")
+                        .content(JsonUtils.toJson( contentProfile))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(result).andReturn();
+
+        if ( response.getResolvedException() ==null ) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentValidationResults.class);
+        }
+        throw response.getResolvedException();
+    }
+
+
+
 }

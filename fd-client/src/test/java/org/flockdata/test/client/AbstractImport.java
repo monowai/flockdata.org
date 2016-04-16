@@ -17,7 +17,6 @@
 package org.flockdata.test.client;
 
 import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FdBatcher;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.transform.PayloadBatcher;
 import org.junit.Before;
@@ -41,7 +40,7 @@ import static junit.framework.TestCase.assertTrue;
 @ActiveProfiles({"dev", "fd-batch"})
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
-        FdBatcher.class,
+        MockPayloadBatcher.class,
         FileProcessor.class,
         MockFdWriter.class,
 })

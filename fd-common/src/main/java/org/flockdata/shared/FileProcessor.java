@@ -73,7 +73,7 @@ public class FileProcessor {
 
     private static final DecimalFormat formatter = new DecimalFormat();
 
-    @Autowired
+    @Autowired (required = false)
     private PayloadBatcher payloadBatcher;
 
     private long skipCount, rowsToProcess = 0;
@@ -158,7 +158,7 @@ public class FileProcessor {
             }
         } finally {
             if (result > 0) {
-                payloadBatcher.flush();
+                getPayloadBatcher().flush();
             }
         }
 
@@ -189,7 +189,7 @@ public class FileProcessor {
             else
                 tags = mapper.readValue(stream, collType);
             for (TagInputBean tag : tags) {
-                payloadBatcher.batchTag(tag, "JSON Tag Importer");
+                getPayloadBatcher().batchTag(tag, "JSON Tag Importer");
                 processed++;
             }
 
@@ -198,7 +198,7 @@ public class FileProcessor {
             throw new RuntimeException("IO Exception ", e);
         } finally {
             if (processed > 0L)
-                payloadBatcher.flush();
+                getPayloadBatcher().flush();
 
         }
         return tags.size();
@@ -267,7 +267,7 @@ public class FileProcessor {
 
 
         } finally {
-            payloadBatcher.flush();
+            getPayloadBatcher().flush();
         }
 
         return endProcess(watch, rows, 0);
@@ -280,7 +280,7 @@ public class FileProcessor {
             entityInputBean.getEntityLinks().size();
         }
 
-        payloadBatcher.batchEntity(entityInputBean);
+        getPayloadBatcher().batchEntity(entityInputBean);
 
     }
 
@@ -303,7 +303,7 @@ public class FileProcessor {
                     EntityInputBean entityInputBean = Transformer.transformToEntity(mappable, xsr, importProfile);
                     rows++;
                     xsr.nextTag();
-                    payloadBatcher.batchEntity(entityInputBean);
+                    getPayloadBatcher().batchEntity(entityInputBean);
 
                     if (stopProcessing(rows, then)) {
                         break;
@@ -311,7 +311,7 @@ public class FileProcessor {
 
                 }
             } finally {
-                payloadBatcher.flush();
+                getPayloadBatcher().flush();
             }
             return endProcess(watch, rows, 0);
 
@@ -375,11 +375,11 @@ public class FileProcessor {
                                 EntityInputBean entityInputBean = Transformer.transformToEntity(map, importProfile);
                                 // Dispatch/load mechanism
                                 if (entityInputBean != null)
-                                    payloadBatcher.batchEntity(entityInputBean);
+                                    getPayloadBatcher().batchEntity(entityInputBean);
                             } else {// Tag
                                 TagInputBean tagInputBean = Transformer.transformToTag(map, importProfile);
                                 if (tagInputBean != null) {
-                                    payloadBatcher.batchTag(tagInputBean, "TagInputBean");
+                                    getPayloadBatcher().batchTag(tagInputBean, "TagInputBean");
                                 }
                             }
                             if (stopProcessing(currentRow, then)) {
@@ -393,7 +393,7 @@ public class FileProcessor {
             }
         } finally {
 
-            payloadBatcher.flush();
+            getPayloadBatcher().flush();
             br.close();
         }
 
@@ -498,5 +498,13 @@ public class FileProcessor {
         if (reader != null)
             reader.close();
         return true;
+    }
+
+    private PayloadBatcher getPayloadBatcher() {
+        if (payloadBatcher == null ){
+            logger.error("You are trying to use the FileProcessor but no FdBatcher has been configured for this service");
+            throw new RuntimeException("Attempted use of the FileProcessor with no FdBatcher");
+        }
+        return payloadBatcher;
     }
 }

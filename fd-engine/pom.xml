@@ -68,6 +68,7 @@
             <artifactId>fd-common</artifactId>
             <type>test-jar</type>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -111,6 +112,7 @@
             <artifactId>neo4j-io</artifactId>
             <version>${neo4j.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
             <!-- Introduced in 2.2.x-->
         </dependency>
         <!-- Web UI -->
@@ -286,6 +288,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -315,6 +318,7 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <version>${org.springsecurity.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

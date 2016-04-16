@@ -14,14 +14,26 @@
  *  limitations under the License.
  */
 
-package org.flockdata.spring;
+package org.flockdata.test.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.flockdata.shared.FdBatcher;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
-abstract class FlockDataAbstractFactoryBean {
+/**
+ * To support unit testing. The entities and tags are not flushed so that the
+ * transformed results can be validated by a test
+ *
+ * User must call reset() to clear down any cached data
+ *
+ * Created by mike on 13/04/16.
+ */
+@Profile("dev")
+@Service
+public class MockPayloadBatcher extends FdBatcher {
 
-    protected final Log logger = LogFactory.getLog(getClass());
-
-
+    @Override
+    public void flush(){
+        // Noop
+    }
 }

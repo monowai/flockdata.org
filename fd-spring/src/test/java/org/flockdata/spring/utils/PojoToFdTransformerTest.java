@@ -20,8 +20,8 @@
 package org.flockdata.spring.utils;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.spring.annotations.DatagioCallerRef;
-import org.flockdata.spring.annotations.DatagioUid;
+import org.flockdata.spring.annotations.FdCallerRef;
+import org.flockdata.spring.annotations.FdUid;
 import org.flockdata.spring.annotations.Trackable;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class PojoToFdTransformerTest {
         pojo1.email = "email@email.com";
         pojo1.id = 1L;
         pojo1.name = "name";
-        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo1);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo1);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo1");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
@@ -49,7 +49,7 @@ public class PojoToFdTransformerTest {
         pojo2.email = "email@email.com";
         pojo2.id = 1L;
         pojo2.name = "name";
-        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo2);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo2);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "testDocType");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
@@ -61,7 +61,7 @@ public class PojoToFdTransformerTest {
         pojo3.email = "email@email.com";
         pojo3.id = 1L;
         pojo3.name = "name";
-        EntityInputBean entityInputBean = PojoToAbTransformer.transformToAbFormat(pojo3);
+        EntityInputBean entityInputBean = PojoToFdTransformer.transformToAbFormat(pojo3);
         //Assert.assertEquals(metaInputBean.getKey(), "1");
         Assert.assertEquals(entityInputBean.getDocumentType().getName(), "pojo3");
         Assert.assertEquals(entityInputBean.getCode(), "email@email.com");
@@ -69,28 +69,28 @@ public class PojoToFdTransformerTest {
 
     @Trackable
     public static class Pojo1 {
-        @DatagioUid
+        @FdUid
         public Long id;
         public String name;
-        @DatagioCallerRef
+        @FdCallerRef
         public String email;
     }
 
     @Trackable(documentType = "testDocType")
     public static class Pojo2 {
-        @DatagioUid
+        @FdUid
         public Long id;
         public String name;
-        @DatagioCallerRef
+        @FdCallerRef
         public String email;
     }
 
     @Trackable
     public static class Pojo3 {
-        @DatagioUid
+        @FdUid
         private Long id;
         private String name;
-        @DatagioCallerRef
+        @FdCallerRef
         private String email;
     }
 }

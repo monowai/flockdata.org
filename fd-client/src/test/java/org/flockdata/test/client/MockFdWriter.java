@@ -69,10 +69,4 @@ public class MockFdWriter implements FdWriter {
         return null;
     }
 
-    @Override
-    public boolean isSimulateOnly() {
-        // Setting this to true will mean that the flush routines above are not called
-        return true;
-    }
-
 }

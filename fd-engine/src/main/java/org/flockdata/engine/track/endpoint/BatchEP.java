@@ -26,7 +26,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.profile.service.ImportProfileService;
+import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.track.service.MediationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,7 +49,7 @@ public class BatchEP {
     MediationFacade mediationFacade;
 
     @Autowired
-    ImportProfileService profileService;
+    ContentProfileService profileService;
 
     @RequestMapping(value = "/{fortress}/{document}/import", consumes = "application/json", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.ACCEPTED)
