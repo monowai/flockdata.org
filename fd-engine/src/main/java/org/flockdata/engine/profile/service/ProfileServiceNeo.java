@@ -41,11 +41,13 @@ import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.FortressService;
 import org.flockdata.transform.ColumnDefinition;
+import org.flockdata.transform.Transformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -182,6 +184,20 @@ public class ProfileServiceNeo implements ContentProfileService {
             validatedContent.add(result);
         }
         return validatedContent;
+    }
+
+    @Override
+    public ContentProfile createDefaultContentProfile(ContentValidationRequest contentRequest) {
+        ContentProfileImpl result = new ContentProfileImpl();
+        Collection<Map<String, Object>> content = contentRequest.getRows();
+        Transformer.fromMapToProfile(contentRequest.getRows());
+
+
+
+
+//        Map<String, ColumnDefinition> columns = new TreeMap<>();TransformationHelper.
+
+        return result;
     }
 
 

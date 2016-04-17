@@ -87,104 +87,102 @@ public class EntityMapper extends EntityInputBean implements Mappable {
             }
             // Process the column definition by evaluating expression and handling
             //  the boolean functional flags in the Contents ColumnDefinition
-            if (colDef != null) {
-                if (colDef.isDescription()) {
+            if (colDef.isDescription()) {
 
-                    setDescription(ExpressionHelper.getValue(row, colDef.getValue(), colDef, value));
-                }
-                if (colDef.isTitle()) {
-                    String title = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
-                    setName(title);
-                }
-                if (colDef.isCreateUser()) { // The user in the calling system
-                    setFortressUser(value);
-                }
-                if (colDef.isUpdateUser()) {
-                    setUpdateUser(value);
-                }
-                if (colDef.isDate()) {
-                    // DAT-523
-                    if (value == null || value.equals("")) {
-                        row.put(sourceColumn, null);
-                    } else {
-                        Long dValue = ExpressionHelper.parseDate(colDef, value);
-                        row.put(sourceColumn, new DateTime(dValue).toString());
+                setDescription(ExpressionHelper.getValue(row, colDef.getValue(), colDef, value));
+            }
+            if (colDef.isTitle()) {
+                String title = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
+                setName(title);
+            }
+            if (colDef.isCreateUser()) { // The user in the calling system
+                setFortressUser(value);
+            }
+            if (colDef.isUpdateUser()) {
+                setUpdateUser(value);
+            }
+            if (colDef.isDate()) {
+                // DAT-523
+                if (value == null || value.equals("")) {
+                    row.put(sourceColumn, null);
+                } else {
+                    Long dValue = ExpressionHelper.parseDate(colDef, value);
+                    row.put(sourceColumn, new DateTime(dValue).toString());
 
-                        if (colDef.isCreateDate()) {
-                            setWhen(new Date(dValue));
-                        }
-                        if (colDef.isUpdateDate()) {
-                            if (getLastChange() == null || dValue > getLastChange().getTime())
-                                setLastChange(new Date(dValue));
-                        }
+                    if (colDef.isCreateDate()) {
+                        setWhen(new Date(dValue));
+                    }
+                    if (colDef.isUpdateDate()) {
+                        if (getLastChange() == null || dValue > getLastChange().getTime())
+                            setLastChange(new Date(dValue));
                     }
                 }
+            }
 
 
-                if (colDef.isCallerRef()) {
-                    String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
-                    setCode(callerRef);
-                }
+            if (colDef.isCallerRef()) {
+                String callerRef = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
+                setCode(callerRef);
+            }
 
-                if (colDef.getDelimiter() != null) {
-                    // Implies a tag because it is a comma delimited list of values
-                    // Only simple mapping is achieved here
-                    if (value != null && !value.equals("")) {
-                        TagProfile tagProfile = new TagProfile();
-                        tagProfile.setLabel(colDef.getLabel());
-                        tagProfile.setReverse(colDef.getReverse());
-                        tagProfile.setMustExist(colDef.isMustExist());
-                        tagProfile.setCode(sourceColumn);
-                        tagProfile.setDelimiter(colDef.getDelimiter());
-                        String relationship = TransformationHelper.getRelationshipName(row, colDef);
-                        Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship);
-                        for (TagInputBean tag : tags) {
-                            addTag(tag);
-                        }
-
-                    }
-                } else if (colDef.isTag()) {
-                    TagInputBean tag = new TagInputBean();
-
-                    if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
+            if (colDef.getDelimiter() != null) {
+                // Implies a tag because it is a comma delimited list of values
+                // Only simple mapping is achieved here
+                if (value != null && !value.equals("")) {
+                    TagProfile tagProfile = new TagProfile();
+                    tagProfile.setLabel(colDef.getLabel());
+                    tagProfile.setReverse(colDef.getReverse());
+                    tagProfile.setMustExist(colDef.isMustExist());
+                    tagProfile.setCode(sourceColumn);
+                    tagProfile.setDelimiter(colDef.getDelimiter());
+                    String relationship = TransformationHelper.getRelationshipName(row, colDef);
+                    Collection<TagInputBean> tags = TransformationHelper.getTagsFromList(tagProfile, row, relationship);
+                    for (TagInputBean tag : tags) {
                         addTag(tag);
                     }
+
                 }
-                if (!colDef.getEntityLinks().isEmpty()) {
-                    for (Map<String, String> key : colDef.getEntityLinks()) {
-                        addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
+            } else if (colDef.isTag()) {
+                TagInputBean tag = new TagInputBean();
+
+                if (TransformationHelper.setTagInputBean(tag, row, sourceColumn, importProfile.getContent(), value)) {
+                    addTag(tag);
+                }
+            }
+            if (!colDef.getEntityLinks().isEmpty()) {
+                for (Map<String, String> key : colDef.getEntityLinks()) {
+                    addEntityLink(key.get("relationshipName"), new EntityKeyBean(key.get("documentName"), key.get("fortress"), value));
+                }
+            }
+
+            if (colDef.getGeoData() != null) {
+                TransformationHelper.doGeoTransform(this, row, colDef);
+            }
+
+            // Dynamic column DAT-527
+            if (colDef.getTarget() != null) {
+                Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
+                Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
+                if (oValue != null)
+                    row.put(colDef.getTarget(), oValue);
+            }
+            if (!colDef.isPersistent()) {
+                // DAT-528
+                row.remove(sourceColumn);
+            } else if (colDef.hasEntityProperties()) {
+                for (ColumnDefinition columnDefinition : colDef.getProperties()) {
+
+                    value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
+                    Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
+                    if (columnDefinition.getTarget() != null)
+                        valueColumn = columnDefinition.getTarget();
+                    if (oValue != null || columnDefinition.getStoreNull()){
+                        setProperty(valueColumn, oValue);
                     }
+
                 }
+            }
 
-                if (colDef.getGeoData() != null) {
-                    TransformationHelper.doGeoTransform(this, row, colDef);
-                }
-
-                // Dynamic column DAT-527
-                if (colDef.getTarget() != null) {
-                    Object targetValue = ExpressionHelper.getValue(row, colDef.getValue(), colDef, value);
-                    Object oValue = TransformationHelper.transformValue(targetValue, sourceColumn, colDef);
-                    if (oValue != null)
-                        row.put(colDef.getTarget(), oValue);
-                }
-                if (!colDef.isPersistent()) {
-                    // DAT-528
-                    row.remove(sourceColumn);
-                } else if (colDef.hasEntityProperties()) {
-                    for (ColumnDefinition columnDefinition : colDef.getProperties()) {
-
-                        value = ExpressionHelper.getValue(row, columnDefinition.getValue(), columnDefinition, row.get(valueColumn));
-                        Object oValue = TransformationHelper.transformValue(value, sourceColumn, colDef);
-                        if (columnDefinition.getTarget() != null)
-                            valueColumn = columnDefinition.getTarget();
-                        if (oValue != null || columnDefinition.getStoreNull()){
-                            setProperty(valueColumn, oValue);
-                        }
-
-                    }
-                }
-
-            } // I have no special processing to do
         }
 
         return row;

@@ -41,6 +41,11 @@ public class ColumnDefinition implements GeoDefinition {
     private String target; // source property to write source to (rename the column)
     private String dateFormat =null; // Java valid date format
     private String timeZone = TimeZone.getDefault().getID(); // To use for dates
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
     private String dataType;
 
     private Boolean persistent = true;

@@ -34,8 +34,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by mike on 18/12/15.
@@ -125,6 +127,40 @@ public class Transformer {
             entityInputBean.setContent(contentInputBean);
         }
         return entityInputBean;
+    }
+
+    /**
+     * Constructs a default content profile from the data that the caller want's to import. Pretty simple functionality
+     * that the caller should further enrich.
+     *
+     * Does things like find lowest common denominator data type from the sample content supplied, i.e. Number->String
+     *
+     * @param content data to analyse
+     * @return basic ContentProfile that descibes the Contents
+     */
+    public static Map<String, ColumnDefinition> fromMapToProfile(Collection<Map<String, Object>> content )  {
+        Map<String, ColumnDefinition> result = new TreeMap<>();
+
+
+        for (Map<String, Object> row : content) {
+            for (String column : row.keySet()) {
+                Object value = row.get(column);
+                String thisDataType = TransformationHelper.getDataType(value, column);
+                ColumnDefinition existingDataType = result.get(column);
+                if ( value!=null) {
+                    if ( existingDataType != null && thisDataType.equals("string") && !existingDataType.getDataType().equals(thisDataType) ){
+                        existingDataType.setDataType("string");// lowest common denominator
+                    } else {
+                        ColumnDefinition columnDefinition = new ColumnDefinition();
+                        columnDefinition.setDataType(thisDataType);
+                        result.put(column, columnDefinition);
+                    }
+                }
+
+            }
+        }
+
+        return result;
     }
 
     public static Map<String, Object> convertToMap(String[] headerRow, String[] line, ContentProfile profileConfig) {

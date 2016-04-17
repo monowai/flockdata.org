@@ -58,6 +58,8 @@ public interface ContentProfile extends ImportFile {
 
     String getSegmentExpression();
 
+    ContentProfile setDocumentType(DocumentTypeInputBean documentType);
+
     enum ContentType {CSV, JSON, XML}
 
     enum DataType {ENTITY, TAG}

@@ -53,4 +53,6 @@ public interface ContentProfileService {
     ContentProfile get(Company company, String fortressCode, String documentName) throws FlockException;
 
     ContentValidationResults validate(ContentValidationRequest contentRequest);
+
+    ContentProfile createDefaultContentProfile(ContentValidationRequest contentRequest);
 }

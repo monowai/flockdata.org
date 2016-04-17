@@ -21,16 +21,17 @@ import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.client.AbstractImport;
 import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.Transformer;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Datatypes
@@ -52,7 +53,7 @@ public class TestDataTypeConversion  extends AbstractImport {
                 assertEquals("00165", tagInputBean.getCode());
         }
         EntityInputBean entity = getFdBatcher().getEntities().iterator().next();
-        TestCase.assertNotNull ( entity.getContent());
+        assertNotNull ( entity.getContent());
         assertEquals("The N/A string should have been set to the default of 0", 0, entity.getContent().getData().get("illegal-num"));
         assertEquals("The Blank string should have been set to the default of 0", 0, entity.getContent().getData().get("blank-num"));
     }
@@ -161,7 +162,7 @@ public class TestDataTypeConversion  extends AbstractImport {
 
         // DAT-523
         Object randomDate = entityInputBean.getContent().getData().get("randomDate");
-        TestCase.assertNotNull(randomDate);
+        assertNotNull(randomDate);
         TestCase.assertTrue("", randomDate instanceof String);
         new DateTime(randomDate);
         TestCase.assertNull(entityInputBean.getContent().getData().get("nullDate"));
@@ -186,6 +187,42 @@ public class TestDataTypeConversion  extends AbstractImport {
         assertEquals(25, calInstance.get(Calendar.DATE));
 
     }
+
+    @Test
+    public void map_SimpleDefaultContentProfileFromInputData() throws Exception{
+        Map<String,Object>row = new HashMap<>();
+        row.put("NumCol", 120);
+        row.put("StrCol", "Abc");
+        row.put("DateCol", "2015-12-12");
+        row.put("EpocDate", System.currentTimeMillis());
+        row.put("LongNotADate", 123445552);
+        Collection<Map<String, Object>> rows = new ArrayList<>();
+        rows.add(row);
+        Map<String, ColumnDefinition> columnDefinitions = Transformer.fromMapToProfile(rows);
+        assertEquals(row.size(), columnDefinitions.size());
+        for (String column : columnDefinitions.keySet()) {
+            ColumnDefinition colDef = columnDefinitions.get(column);
+            assertNotNull ( colDef);
+            switch (column) {
+                case "NumCol":
+                case "LongNotADate":
+                    assertEquals("number", colDef.getDataType());
+                    break;
+                case "StrCol":
+                    assertEquals("string", colDef.getDataType());
+                    break;
+                case "DateCol":
+                case "EpocDate":
+                    assertEquals("date", colDef.getDataType());
+                    break;
+                default:
+                    fail("unknown column " + colDef);
+                    break;
+            }
+        }
+    }
+
+
 
 
 }

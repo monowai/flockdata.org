@@ -32,6 +32,7 @@ import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +56,13 @@ public class ContentProfileEP {
     @Autowired
     ConceptService conceptService;
 
-    @RequestMapping(value = "/{fortressCode}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.GET)
-    public ContentProfile getContentProfile (HttpServletRequest request, @PathVariable("fortressCode") String fortressCode, @PathVariable("docTypeName") String docTypeName) throws FlockException {
+    @RequestMapping(value = "/{fortressCode}/{docTypeName}",
+            produces = "application/json",
+            consumes = "application/json", method = RequestMethod.GET)
+    public ContentProfile getContentProfile (
+            HttpServletRequest request,
+            @PathVariable("fortressCode") String fortressCode,
+            @PathVariable("docTypeName") String docTypeName) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
 
         Fortress fortress = fortressService.getFortress(company, fortressCode);
@@ -102,6 +108,23 @@ public class ContentProfileEP {
         CompanyResolver.resolveCompany(request);
 
         return profileService.validate(contentRequest);
+
+    }
+
+    @RequestMapping(value = "/",
+            produces = "application/json",
+            consumes = "application/json",
+            method = RequestMethod.GET)
+    public ContentProfile defaultContentProfile (HttpServletRequest request,
+                                                     @RequestBody ContentValidationRequest contentRequest) throws FlockException {
+        CompanyResolver.resolveCompany(request);
+        ContentProfile result = profileService.createDefaultContentProfile(contentRequest);
+        result.setDocumentType( new DocumentTypeInputBean("DataType"));
+        result.setContentType(ContentProfile.ContentType.CSV);
+        result.setHeader(true);
+        result.setFortressName("DataProvider");
+        return result;
+//        return profileService.validate(contentRequest);
 
     }
 

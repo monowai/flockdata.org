@@ -24,6 +24,7 @@ import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.AliasInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.tags.TagProfile;
+import org.joda.time.DateTime;
 import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
@@ -322,6 +323,70 @@ public class TransformationHelper {
             results.add(newTag);
         });
         return results;
+    }
+
+    public static String getDataType(Object value, String column) {
+
+        Boolean tryAsNumber = true;
+        Boolean tryAsDate = true;
+        String dataType = null;
+
+        // Code values are always strings
+        if (column.equals("code") || column.equals("name")) {
+            dataType = "string";
+            tryAsNumber = false;
+            tryAsDate = false;
+        }
+
+        if (tryAsDate) {
+            if (isDate(value)) {
+                dataType = "date";
+                tryAsNumber = false;
+            }
+
+        }
+
+
+        if (tryAsNumber) {
+
+            if (value != null && NumberUtils.isNumber(value.toString())) {
+                value = NumberUtils.createNumber(value.toString());
+                if (value != null)
+                    dataType = "number";
+            } else
+                dataType = "string";
+        }
+
+        return dataType;
+
+
+    }
+
+    /**
+     * Guess if the supplied value might be a Date
+     * @param value to analyse
+     * @return yes/bo
+     */
+    private static boolean isDate(Object value) {
+        // Can we parse the object as a date
+        if (value == null)
+            return false;
+
+        try {
+            if (value instanceof String ) {
+                DateTime.parse(value.toString());
+                return true;
+            }
+            // Epoc dates? We're just guessing
+            else if ( value instanceof Long){
+                new Date((Long) value);
+                return true;
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return false;
+
     }
 
     public static Object transformValue(Object value, String column, ColumnDefinition colDef) {
