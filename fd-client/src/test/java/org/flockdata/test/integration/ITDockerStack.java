@@ -18,17 +18,14 @@ package org.flockdata.test.integration;
 
 import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.amqp.AmqpServices;
-import org.flockdata.client.commands.Command;
-import org.flockdata.client.commands.Health;
-import org.flockdata.client.commands.Login;
-import org.flockdata.client.commands.Ping;
+import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.profile.ContentProfileDeserializer;
+import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.registration.UserProfile;
-import org.flockdata.shared.AmqpRabbitConfig;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.Exchanges;
-import org.flockdata.shared.FdBatcher;
+import org.flockdata.shared.*;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -62,6 +59,7 @@ import static org.springframework.test.util.AssertionErrors.*;
         FdBatcher.class,
         FdRestWriter.class,
         Exchanges.class,
+        FileProcessor.class,
         AmqpRabbitConfig.class,
         AmqpServices.class
 
@@ -79,6 +77,7 @@ public class ITDockerStack {
     private static final int SERVICE_STORE = 8092;
 
     @Value("${org.fd.test.pause:150}")
+    private
     int waitSeconds;
 
     @ClassRule // start is called before the tests are run and stop is called after the class
@@ -105,12 +104,18 @@ public class ITDockerStack {
      * Contains properties used by rabbitConfig and fdRestWriter
      */
     @Autowired
+    private
     ClientConfiguration clientConfiguration;
+
+    @Autowired
+    private
+    FileProcessor fileProcessor; // Legacy CSV file processor
 
     /**
      * Rabbit connectivity
      */
     @Autowired
+    private
     AmqpRabbitConfig rabbitConfig;
 
     /**
@@ -119,6 +124,7 @@ public class ITDockerStack {
      * fd-search or fd-store. Only fd-engine is secured by default
      */
     @Autowired
+    private
     FdRestWriter fdRestWriter;
 
     private static boolean setupComplete = false;
@@ -128,6 +134,7 @@ public class ITDockerStack {
 
     @Before
     public void waitForServices() throws InterruptedException {
+        clientConfiguration.setServiceUrl(getEngine());
         if (stackFailed)
             fail("Stack has failed to startup cleanly - test will fail");
         if (setupComplete)
@@ -140,13 +147,13 @@ public class ITDockerStack {
         Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
         rabbitConfig.setServicePoint(stack.getContainerIpAddress(), getRabbitPort());
 
-        logger.info("FDEngine will listen on {}", getEngine() );
-        logger.info("FDSearch will listen on {}", getSearch() );
-        logger.info(" FDStore will listen on {}", getStore() );
-        logger.info("FDEngine-Debug listening on " + stack.getContainerIpAddress()+":"+ getEngineDebug());
-        logger.info("FDSearch-Debug listening on " + stack.getContainerIpAddress()+":"+ getSearchDebug());
-        logger.info("FDStore-Debug  listening on " + stack.getContainerIpAddress()+":"+ getStoreDebug());
-        logger.info("Rabbit Admin on http://"      + stack.getContainerIpAddress()+":"+ getRabbitAdmin());
+        logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine() );
+        logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch() );
+        logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore() );
+        logger.info("FDEngine-Debug - {} - reachable @ {}" , DEBUG_ENGINE, stack.getContainerIpAddress()+":"+ getEngineDebug());
+        logger.info("FDSearch-Debug - {} - reachable @ {}" , DEBUG_SEARCH, stack.getContainerIpAddress()+":"+ getSearchDebug());
+        logger.info("FDStore-Debug  - {} - reachable @ {}" , DEBUG_STORE, stack.getContainerIpAddress()+":"+ getStoreDebug());
+        logger.info("Rabbit Admin on http://{}:{}"      , stack.getContainerIpAddress(),getRabbitAdmin());
         // ToDo: Bind in yourkit profiler and expose port
 
         logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
@@ -165,7 +172,7 @@ public class ITDockerStack {
         setupComplete = true;
     }
 
-    public void pauseUntil(Command optionalCommand, String comandResult, int waitCount) throws InterruptedException {
+    private void pauseUntil(Command optionalCommand, String comandResult, int waitCount) throws InterruptedException {
         // A nice little status bar to show how long we've been hanging around
         ProgressBar pb = new ProgressBar("Waiting.... ", waitCount);
         pb.start();
@@ -190,13 +197,14 @@ public class ITDockerStack {
         } while (run != waitCount);
     }
 
-    public void waitForService(String service, Ping pingCommand, String url, int countDown) throws InterruptedException {
+    private void waitForService(String service, Ping pingCommand, String url, int countDown) throws InterruptedException {
         String result;
         if (stackFailed)
             return;
         logger.info("looking for {}", service);
         do {
             countDown--;
+
             result = pingCommand.exec();
             if (!result.equals("pong")) {
                 int waitSecs = 60;
@@ -223,7 +231,7 @@ public class ITDockerStack {
         return stack.getServicePort("rabbit_1",15672);
     }
 
-    static String getEngine() {
+    private static String getEngine() {
         return getUrl() + ":" + stack.getServicePort("fdengine_1", SERVICE_ENGINE);
     }
 
@@ -231,11 +239,11 @@ public class ITDockerStack {
         return stack.getServicePort("rabbit_1", 5672);
     }
 
-    static String getSearch() {
+    private static String getSearch() {
         return getUrl() + ":" + stack.getServicePort("fdsearch_1", SERVICE_SEARCH);
     }
 
-    static String getStore() {
+    private static String getStore() {
         return getUrl() + ":" + stack.getServicePort("fdstore_1", SERVICE_STORE);
     }
 
@@ -252,7 +260,7 @@ public class ITDockerStack {
     }
 
 
-    Login getLogin(String user, String pass) {
+    private Login getLogin(String user, String pass) {
         clientConfiguration.setServiceUrl(getEngine())
                 .setHttpUser(user)
                 .setHttpPass(pass);
@@ -262,7 +270,6 @@ public class ITDockerStack {
 
     @Test
     public void pingFdEngine() {
-        clientConfiguration.setServiceUrl(ITDockerStack.getEngine());
         String result = fdRestWriter.ping();
         assertEquals("Couldn't ping fd-engine", "pong", result);
     }
@@ -288,7 +295,6 @@ public class ITDockerStack {
     public void simpleLogin() {
         clientConfiguration.setHttpUser("mike");
         clientConfiguration.setHttpPass("123");
-        clientConfiguration.setServiceUrl(getEngine());
         UserProfile profile = fdRestWriter.login(clientConfiguration);
         assertNotNull(profile);
         assertTrue("User Roles missing", profile.getUserRoles().length != 0);
@@ -301,7 +307,7 @@ public class ITDockerStack {
     @Test
     public void engineHealth() {
         Login login = getLogin("mike", "123");
-        assertNull(login.exec());
+        assertEquals("Unexpected login error", null, login.exec());
         Health health = new Health(clientConfiguration, fdRestWriter);
         assertNull("Unexpected error running executing Health", health.exec());
         Map<String, Object> healthResult = health.getResult();
@@ -316,12 +322,56 @@ public class ITDockerStack {
     @Test
     public void registration() {
         // An authorised user can create DataAccess users for a given company
-
-        clientConfiguration.setServiceUrl(getEngine());
+        assertNull(getLogin("mike", "123").exec());
         SystemUserResultBean suResult = fdRestWriter.register("mike", "TestCompany");
         assertNotNull(suResult);
         assertNotNull(suResult.getApiKey());
 
+    }
+
+    /**
+     * FlockData ships with some basic static data like Countries and Cities.
+     * This test checks that they are tracked in to the service. Validates a number of things:
+     *      Country Content Profile
+     *      Tag being tracked over an AMQP endpoint
+     *      Countries can be found via the Tag endpoint by label
+     *
+     * @throws Exception
+     */
+    @Test
+    public void loadCountries() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = fdRestWriter.register("mike", "TestCompany");
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        ContentProfile contentProfile = ContentProfileDeserializer.getContentProfile("/countries.json");
+        int countryInputs = fileProcessor.processFile(contentProfile, "/fd-cow.txt");
+        assertEquals ("Countries not processed", countryInputs, 249);
+        GetTags countries = new GetTags(clientConfiguration, fdRestWriter, "Country");
+        // Tags are processed over a messageQ so will take a wee bit of time to be processed
+        Thread.sleep(2000);
+        assertNull(countries.exec());
+        TagResultBean[] countryResults = countries.getResults();
+        // By this stage we may or may not have processed all the tags depending on how resource constrained the host machine
+        // running the integration stack is. So we'll just check at least two batches of 10 have been processed assuming the
+        // rest will pass
+        assertTrue("No countries found!", countryResults.length > 10);
+
+        GetTag countryByIsoShort = new GetTag(clientConfiguration, fdRestWriter, "Country", "AU");
+        assertNull(countryByIsoShort.exec());
+        assertNotNull("Couldn't find Australia", countryByIsoShort.getResult());
+
+        GetTag countryByIsoLong = new GetTag(clientConfiguration, fdRestWriter, "Country", "AUS");
+        assertNull(countryByIsoLong.exec());
+        assertNotNull("Couldn't find Australia", countryByIsoLong.getResult());
+
+
+        GetTag countryByName = new GetTag(clientConfiguration, fdRestWriter, "Country", "Australia");
+        assertNull(countryByName.exec());
+        assertNotNull("Couldn't find Australia", countryByName.getResult());
+
+        assertEquals("By Code and By Name they are the same country so should equal", countryByIsoShort.getResult(), countryByName.getResult());
+        assertEquals("By short code and long code they are the same country so should equal", countryByIsoLong.getResult(), countryByIsoShort.getResult());
     }
 
 }

@@ -167,4 +167,27 @@ public class TagResultBean {
     public String getRelationship() {
         return relationship;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagResultBean)) return false;
+
+        TagResultBean that = (TagResultBean) o;
+
+        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        return label != null ? label.equals(that.label) : that.label == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = code != null ? code.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        return result;
+    }
 }

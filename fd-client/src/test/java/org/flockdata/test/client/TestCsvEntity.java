@@ -19,9 +19,8 @@
 
 package org.flockdata.test.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
@@ -33,9 +32,7 @@ import org.flockdata.transform.csv.EntityMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -338,24 +335,8 @@ public class TestCsvEntity {
         assertTrue("Didn't resolve to epoc", colDef.isDateEpoc());
     }
 
-    public static ContentProfileImpl getImportParams(String profile) throws IOException {
-        ContentProfileImpl contentProfileImpl;
-        ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
-
-        File fileIO = new File(profile);
-        if (fileIO.exists()) {
-            contentProfileImpl = om.readValue(fileIO, ContentProfileImpl.class);
-
-        } else {
-            InputStream stream = ClassLoader.class.getResourceAsStream(profile);
-            if (stream != null) {
-                contentProfileImpl = om.readValue(stream, ContentProfileImpl.class);
-            } else
-                // Defaults??
-                contentProfileImpl = new ContentProfileImpl();
-        }
-        //importParams.setWriter(restClient);
-        return contentProfileImpl;
+    private static ContentProfileImpl getImportParams(String profile) throws IOException {
+        return ContentProfileDeserializer.getContentProfile(profile);
     }
 
     @Test

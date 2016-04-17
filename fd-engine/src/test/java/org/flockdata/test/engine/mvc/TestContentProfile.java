@@ -41,7 +41,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 public class TestContentProfile extends  MvcBase{
     @Test
     public void testSaveRetrieveContent() throws  Exception {
-        ContentProfileImpl contentProfile = ContentProfileDeserializer.getImportParams("/profiles/test-csv-batch.json");
+        ContentProfileImpl contentProfile = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
@@ -69,7 +69,7 @@ public class TestContentProfile extends  MvcBase{
     @Test
     public void validate_Profile() throws  Exception {
         makeDataAccessProfile("validateContentProfile", "mike");
-        ContentProfile profile = ContentProfileDeserializer.getImportParams("/profiles/test-profile.json");
+        ContentProfile profile = ContentProfileDeserializer.getContentProfile("/profiles/test-profile.json");
         ContentValidationRequest validationRequest = new ContentValidationRequest(profile);
         String json = JsonUtils.toJson(validationRequest);
         assertNotNull (json);

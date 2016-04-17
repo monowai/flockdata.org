@@ -135,12 +135,12 @@ public class FileProcessor {
         return results;
     }
 
-    public Long processFile(ContentProfile importProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
+    public int processFile(ContentProfile importProfile, String source) throws IllegalAccessException, InstantiationException, IOException, FlockException, ClassNotFoundException {
 
         //String source = path;
         logger.info("Start processing of {}", source);
         Collection<String> files = resolveFiles(source);
-        long result = 0;
+        int result = 0;
         try {
             for (String file : files) {
 
@@ -166,10 +166,10 @@ public class FileProcessor {
         return result;
     }
 
-    private long processJsonTags(String fileName) throws FlockException {
+    private int processJsonTags(String fileName) throws FlockException {
         Collection<TagInputBean> tags;
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
-        long processed = 0;
+        int processed = 0;
         try {
             File file = new File(fileName);
             InputStream stream = null;
@@ -204,8 +204,8 @@ public class FileProcessor {
         return tags.size();
     }
 
-    private long processJsonEntities(String fileName, ContentProfile importProfile) throws FlockException {
-        long rows = 0;
+    private int processJsonEntities(String fileName, ContentProfile importProfile) throws FlockException {
+        int rows = 0;
 
         File file = new File(fileName);
         InputStream stream = null;
@@ -284,9 +284,9 @@ public class FileProcessor {
 
     }
 
-    private long processXMLFile(String file, ContentProfile importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private int processXMLFile(String file, ContentProfile importProfile) throws IOException, FlockException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         try {
-            long rows = 0;
+            int rows = 0;
             StopWatch watch = new StopWatch();
             StreamSource source = new StreamSource(file);
             XMLInputFactory xif = XMLInputFactory.newFactory();
@@ -321,11 +321,11 @@ public class FileProcessor {
         }
     }
 
-    private long processCSVFile(String file, ContentProfile importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
+    private int processCSVFile(String file, ContentProfile importProfile) throws IOException, IllegalAccessException, InstantiationException, FlockException, ClassNotFoundException {
 
         StopWatch watch = new StopWatch();
-        long ignoreCount = 0;
-        long currentRow = 0;
+        int ignoreCount = 0;
+        int currentRow = 0;
 
         BufferedReader br;
         Reader fileObject = getReader(file);
@@ -482,7 +482,7 @@ public class FileProcessor {
         return fileObject;
     }
 
-    public long endProcess(StopWatch watch, long rows, long ignoreCount) {
+    public int endProcess(StopWatch watch, int rows, int ignoreCount) {
         watch.stop();
         double mins = watch.getTotalTimeSeconds() / 60;
         long rowsProcessed = rows - skipCount;

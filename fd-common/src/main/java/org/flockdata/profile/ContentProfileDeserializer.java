@@ -161,7 +161,7 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         return nodeValue == null || nodeValue.isNull() || nodeValue.asText().equals("null");
     }
 
-    public static ContentProfileImpl getImportParams(String profile) throws IOException {
+    public static ContentProfileImpl getContentProfile(String profile) throws IOException {
         ContentProfileImpl contentProfileImpl;
         ObjectMapper om = FdJsonObjectMapper.getObjectMapper();
 

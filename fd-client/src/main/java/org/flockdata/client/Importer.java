@@ -116,7 +116,7 @@ public class Importer extends SpringBootServletInitializer {
         }
 
         StopWatch watch = new StopWatch("Batch Import");
-        long totalRows = 0;
+        int totalRows = 0;
         try {
 
             int batchSize = clientConfiguration.getBatchSize();

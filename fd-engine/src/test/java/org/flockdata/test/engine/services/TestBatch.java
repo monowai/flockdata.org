@@ -56,7 +56,7 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentProfileImpl params = ContentProfileDeserializer.getImportParams("/profiles/test-csv-batch.json");
+        ContentProfileImpl params = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
 
         contentProfileService.save(fortress, docType, params );
         contentProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);

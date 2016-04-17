@@ -52,7 +52,7 @@ public class TestProfiles extends EngineBase {
     public void create_Profile() throws Exception{
         SystemUser su = registerSystemUser("create_Profile", mike_admin);
 
-        ContentProfile profile = ContentProfileDeserializer.getImportParams("/profiles/test-profile.json");
+        ContentProfile profile = ContentProfileDeserializer.getContentProfile("/profiles/test-profile.json");
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("create_profile", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "Olympic");
         profileService.save(fortress, docType, profile);

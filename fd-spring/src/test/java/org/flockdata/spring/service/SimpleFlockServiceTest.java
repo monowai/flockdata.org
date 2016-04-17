@@ -19,8 +19,6 @@
 
 package org.flockdata.spring.service;
 
-import org.flockdata.client.amqp.AmqpServices;
-import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FdBatcher;
 import org.junit.Test;
@@ -28,16 +26,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles("fd-server")
+@ActiveProfiles("dev")
+@TestPropertySource("/fd-client-config.properties")
 @SpringApplicationConfiguration({
         ClientConfiguration.class,
         FdBatcher.class,
-        SimpleTrackedService.class,
-        AmqpServices.class,
-        FdRestWriter.class
+        SimpleTrackedService.class
 })
 public class SimpleFlockServiceTest {
 

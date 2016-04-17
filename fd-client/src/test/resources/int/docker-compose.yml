@@ -18,8 +18,8 @@ fdengine:
      - rabbit
      - fdsearch
      - fdstore
-  ports:
-    - '8090:8090'
+#  ports:
+#    - '8090:8090'
 
   expose:
     - 8090

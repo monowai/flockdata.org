@@ -70,7 +70,7 @@ public class TestCsvImportIntegration extends EngineBase {
         DocumentType docType = conceptService.resolveByDocCode(f, "QuestionEvent");
         int i = 1, maxRuns = 4;
         do {
-            fileProcessor.processFile(ContentProfileDeserializer.getImportParams("/profiles/test-sflow.json"), "/data/test-sflow.csv");
+            fileProcessor.processFile(ContentProfileDeserializer.getContentProfile("/profiles/test-sflow.json"), "/data/test-sflow.csv");
             Thread.yield();
             Entity entityA = entityService.findByCode(su.getCompany(), f.getName(), docType.getName(), "563890");
             assertNotNull(entityA);

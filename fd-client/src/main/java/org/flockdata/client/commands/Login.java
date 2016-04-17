@@ -45,6 +45,10 @@ public class Login extends AbstractRestCommand{
         return result;
     }
 
+    /**
+     *
+     * @return an error message (if one occurred) and null if everything is worked. Call getResult() to get, umm, the result
+     */
     @Override    // Command
     public String exec() {
         String exec = url + "/api/login";

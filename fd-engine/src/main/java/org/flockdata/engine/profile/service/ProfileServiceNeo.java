@@ -134,7 +134,7 @@ public class ProfileServiceNeo implements ContentProfileService {
         process(company, fortress, documentType, file, async);
     }
 
-    public Long process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+    public int process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         ContentProfile profile = get(fortress, documentType);
         profile.setFortressName(fortress.getName());
         profile.setDocumentName(documentType.getName());
