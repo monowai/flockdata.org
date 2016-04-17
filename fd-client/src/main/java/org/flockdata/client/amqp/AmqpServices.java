@@ -22,6 +22,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.LoggerFactory;
@@ -53,14 +54,18 @@ public class AmqpServices {
     @Autowired
     ClientConfiguration configuration;
 
+    @Autowired
+    AmqpRabbitConfig rabbitConfig;
+
     private static boolean prepared = false;
 
     //    @PostConstruct
     private void prepare() {
         if (!prepared) {
-            factory.setHost(configuration.getRabbitHost());
-            factory.setUsername(configuration.getRabbitUser());
-            factory.setPassword(configuration.getRabbitPass());
+            factory.setHost(rabbitConfig.getHost());
+            factory.setPort(rabbitConfig.getPort());
+            factory.setUsername(rabbitConfig.getUser());
+            factory.setPassword(rabbitConfig.getPass());
 
             try {
                 connection = factory.newConnection();
@@ -89,7 +94,7 @@ public class AmqpServices {
             tagProps =
                     new AMQP.BasicProperties().builder()
                             .headers(getHeaders("T", getApiKey()))
-                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
+                            .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
                             .replyTo("nullChannel").build();
         }
         return tagProps;
@@ -100,7 +105,7 @@ public class AmqpServices {
             entityProps =
                     new AMQP.BasicProperties().builder()
                             .headers(getHeaders("E", getApiKey()))
-                            .deliveryMode(configuration.getPersistentDelivery() ? 2 : null)
+                            .deliveryMode(rabbitConfig.getPersistentDelivery() ? 2 : null)
                             .replyTo("nullChannel").build()
                     ;
         return entityProps;

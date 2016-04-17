@@ -45,11 +45,15 @@ public class AmqpRabbitConfig {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
+
     @Value("${rabbit.host:localhost}")
     String rabbitHost;
 
     @Value("${rabbit.port:5672}")
     Integer rabbitPort;
+
+    @Value("${persistentDelivery:true}")
+    boolean persistentDelivery;
 
     @Value("${rabbit.user:guest}")
     String rabbitUser;
@@ -68,6 +72,7 @@ public class AmqpRabbitConfig {
 
     @Value("${amqp.lazyConnect:false}")
     Boolean amqpLazyConnect;
+    private String pass;
 
     @PostConstruct
     public void logStatus() {
@@ -116,6 +121,20 @@ public class AmqpRabbitConfig {
         return amqpLazyConnect;
     }
 
+    public boolean getPersistentDelivery() {
+        return persistentDelivery;
+    }
+
+    public boolean isPersistentDelivery() {
+        return persistentDelivery;
+    }
+
+    private void setPersistentDelivery(boolean persistentDelivery) {
+        this.persistentDelivery = persistentDelivery;
+    }
+
+
+
     public String getHost() {
         return rabbitHost;
     }
@@ -138,4 +157,9 @@ public class AmqpRabbitConfig {
 
         return this;
     }
+
+    public String getPass() {
+        return rabbitPass;
+    }
+
 }

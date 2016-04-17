@@ -39,22 +39,18 @@ import java.util.Properties;
 @Configuration
 public class ClientConfiguration {
 
-    public static final String KEY_ENGINE_API = "org.fd.engine.api";
-    public static final String KEY_COMPANY = "org.fd.client.default.company";
-    public static final String KEY_FORTRESS = "org.fd.client.default.fortress";
-    public static final String KEY_API_KEY = "org.fd.client.apikey";
-    public static final String KEY_HTTP_USER = "org.fd.client.http.user";
-    public static final String KEY_HTTP_PASS = "org.fd.client.http.pass";
-    public static final String KEY_BATCH_SIZE = "org.fd.client.batchsize";
+    private static final String KEY_ENGINE_API = "org.fd.engine.api";
+    private static final String KEY_COMPANY = "org.fd.client.default.company";
+    private static final String KEY_FORTRESS = "org.fd.client.default.fortress";
+    private static final String KEY_API_KEY = "org.fd.client.apikey";
+    private static final String KEY_HTTP_USER = "org.fd.client.http.user";
+    private static final String KEY_HTTP_PASS = "org.fd.client.http.pass";
+    private static final String KEY_BATCH_SIZE = "org.fd.client.batchsize";
     public static final String AMQP = "org.fd.client.amqp";
 
-    public static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
-    public static final String KEY_TRACK_EXCHANGE = "org.fd.track.messaging.exchange";
-    public static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
-    public static final String KEY_RABBIT_HOST = "rabbit.host";
-    public static final String KEY_RABBIT_USER = "rabbit.user";
-    public static final String KEY_RABBIT_PASS = "rabbit.pass";
-    public static final String KEY_RABBIT_PD = "rabbit.persistent";
+    private static final String KEY_TRACK_QUEUE = "org.fd.track.messaging.queue";
+    private static final String KEY_TRACK_EXCHANGE = "org.fd.track.messaging.exchange";
+    private static final String KEY_TRACK_BINDING = "org.fd.track.messaging.binding";
     public static final String KEY_MSG_KEY = "fd-apiKey";
     public static final String KEY_MSG_TYPE = "fd-type";
 
@@ -65,7 +61,6 @@ public class ClientConfiguration {
     @Value ("${"+ KEY_FORTRESS +":#{null}}")
     private String fortress;
 
-
     @Value("${"+ KEY_TRACK_QUEUE +":fd.track.queue}")
     private String trackQueue = "fd.track.queue";
 
@@ -75,31 +70,26 @@ public class ClientConfiguration {
     @Value("${"+ KEY_TRACK_BINDING +":fd.track.binding}")
     private String trackRoutingKey = "fd.track.binding";
 
-    @Value("${"+ KEY_RABBIT_HOST +":localhost}")
-    private String rabbitHost = "localhost";
-
-    @Value("${"+ KEY_RABBIT_PASS +":guest}")
-    private String rabbitPass="guest";
-
-    @Value("${"+ KEY_RABBIT_USER +":guest}")
-    private String rabbitUser="guest";
-
     @Value("${"+ KEY_ENGINE_API +":http://localhost:8080}")
+    private
     String engineUrl = "http://localhost:8080";
 
     @Value("${"+ KEY_API_KEY +":}")
+    private
     String apiKey = null;
 
     @Value("${"+ KEY_HTTP_USER +":mike}")
+    private
     String httpUser = null;
 
     @Value("${"+ KEY_HTTP_PASS +":123}")
+    private
     String httpPass = null;
 
     @Value("${"+ KEY_BATCH_SIZE +":1}")
+    private
     int batchSize = 1;
 
-    private Boolean persistentDelivery= true;
     private boolean validateOnly;
     private boolean amqp=true;
 
@@ -140,17 +130,6 @@ public class ClientConfiguration {
         if (o != null)
             setTrackRoutingKey(o.toString());
 
-        o = prop.get(KEY_RABBIT_HOST);
-        if (o != null)
-            setRabbitHost(o.toString());
-
-        o = prop.get(KEY_RABBIT_USER);
-        if (o != null)
-            setRabbitUser(o.toString());
-
-        o = prop.get(KEY_RABBIT_PASS);
-        if (o != null)
-            setRabbitPass(o.toString());
 
     }
 
@@ -181,8 +160,6 @@ public class ClientConfiguration {
     public String toString() {
         return "ConfigProperties{" +
                 ""+ KEY_ENGINE_API +"='" + engineUrl + '\'' +
-                ", "+ KEY_RABBIT_HOST +"='" + rabbitHost+ '\'' +
-                ", "+ KEY_RABBIT_USER +"='" + rabbitUser+ '\'' +
                 ", "+ KEY_API_KEY +"='" + ( !(apiKey!=null && apiKey.equals("")) ?"** set **": "!! not set !!")+ '\'' +
                 ", "+ KEY_BATCH_SIZE +"=" + batchSize +
                 '}';
@@ -200,7 +177,7 @@ public class ClientConfiguration {
         return fortress;
     }
 
-    public void setCompany(String company) {
+    private void setCompany(String company) {
         this.company = company;
     }
 
@@ -208,25 +185,8 @@ public class ClientConfiguration {
         return false;
     }
 
-    public void setValidateOnly(boolean validateOnly) {
-        this.validateOnly = validateOnly;
-    }
-
-    public boolean isValidateOnly() {
-        return validateOnly;
-    }
-
     public boolean isAmqp() {
         return amqp;
-    }
-
-    public void setAmqp(boolean amqp) {
-        setAmqp(amqp, true);
-    }
-
-    public void setAmqp(boolean amqp, boolean persistentDelivery) {
-        this.amqp = amqp;
-        setPersistentDelivery(persistentDelivery);
     }
 
     public String getTrackQueue() {
@@ -251,42 +211,6 @@ public class ClientConfiguration {
 
     private void setTrackRoutingKey(String trackRoutingKey) {
         this.trackRoutingKey = trackRoutingKey;
-    }
-
-    public String getRabbitHost() {
-        return rabbitHost;
-    }
-
-    private void setRabbitHost(String rabbitHost) {
-        this.rabbitHost = rabbitHost;
-    }
-
-    private void setRabbitPass(String rabbitPass) {
-        this.rabbitPass = rabbitPass;
-    }
-
-    public String getRabbitPass() {
-        return rabbitPass;
-    }
-
-    private void setRabbitUser(String rabbitUser) {
-        this.rabbitUser = rabbitUser;
-    }
-
-    public String getRabbitUser() {
-        return rabbitUser;
-    }
-
-    public boolean getPersistentDelivery() {
-        return persistentDelivery;
-    }
-
-    public boolean isPersistentDelivery() {
-        return persistentDelivery;
-    }
-
-    private void setPersistentDelivery(boolean persistentDelivery) {
-        this.persistentDelivery = persistentDelivery;
     }
 
     public void setStopRowProcessCount(int stopRowProcessCount) {
@@ -317,7 +241,7 @@ public class ClientConfiguration {
         return file;
     }
 
-    Collection<String> filesToImport = new ArrayList<>();
+    private Collection<String> filesToImport = new ArrayList<>();
 
     @Autowired
     void loadConfigs(@Value("${fd.client.import:}") final String str) throws Exception {
