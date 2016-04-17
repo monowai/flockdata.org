@@ -114,7 +114,7 @@ fdView.factory('Session', [
 
 fdView.factory('Account', ['$resource', 'configuration',
     function ($resource, configuration) {
-      return $resource(configuration.engineUrl() + '/account', {}, {});
+      return $resource(configuration.engineUrl() + '/api/account', {}, {});
     }
   ]
 );
