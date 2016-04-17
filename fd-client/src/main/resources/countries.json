@@ -54,6 +54,10 @@
         {
           "code": "ISOen_name",
           "description": "ISOen_name"
+        },
+        {
+          "code": "ISO3166A3",
+          "description": "ISO3166A3"
         }
       ]
     }
