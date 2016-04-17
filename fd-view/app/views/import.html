@@ -1,0 +1,140 @@
+<!--
+  ~
+  ~  Copyright (c) 2012-2016 "FlockData LLC"
+  ~
+  ~  This file is part of FlockData.
+  ~
+  ~  FlockData is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  FlockData is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<ng-flockheader></ng-flockheader>
+<ng-flockleftbar activeSearch="false" activeAnalyze="false" activeExplore="false"
+                 activeStatistics="true"></ng-flockleftbar>
+
+
+<!-- MAIN PANEL -->
+<div id="main" role="main">
+    <!-- RIBBON -->
+    <div id="ribbon">
+        <span class="ribbon-button-alignment"> <span id="refresh" class="btn btn-ribbon" data-title="refresh"
+                                                     rel="tooltip" data-placement="bottom"
+                                                     data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings."
+                                                     data-html="true"><i class="fa fa-refresh"></i></span> </span>
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li>Home</li>
+            <li>Import</li>
+        </ol>
+        <!-- end breadcrumb -->
+    </div>
+    <!-- END RIBBON -->
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+        <!-- PUT YOUR CONTENT HERE -->
+      <div class="row">
+          <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
+              <div role="widget" style="" class="jarviswidget jarviswidget-sortable" id="explore-widget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-jarvis-widget>
+                  <header class="ui-sortable-handle" role="heading">
+                    <h2>Import</h2>
+                        <ul id="widget-tab-1" class="nav pull-right nav-tabs">
+                            <li class="active">
+                                <a aria-expanded="false" data-toggle="tab" data-target="#upload"> <i class="fa fa-lg fa-upload"></i> <span class="hidden-mobile hidden-tablet"> File </span> </a>
+                            </li>
+                            <li class="">
+                                <a aria-expanded="true" data-toggle="tab" data-target="#profile"> <i class="fa fa-lg fa-compass"></i> <span class="hidden-mobile hidden-tablet"> Profile </span></a>
+                            </li>
+                            <li class="">
+                                <a aria-expanded="true" data-toggle="tab" data-target="#resolution"> <i class="fa fa-lg fa-magic"></i> <span class="hidden-mobile hidden-tablet"> Resolution </span></a>
+                            </li>
+                        </ul>
+                    </header>
+              <!-- widget div-->
+              <div role="content">
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+                    <!-- widget body text-->
+                    <div class="tab-content padding-10">
+                      <div id="upload" class="tab-pane fade active in">
+                        <div class="col-xs-6 col-xs-offset-3">
+                          <div class="row">
+                            <div class="well">
+                              <div class="box" file-open="showContent($fileContent)">
+                                <div class="box-input">
+                                  <input type="file" id="file" class="box-file" on-read-file="showContent($fileContent)">
+                                  <label for="file" align="center"><strong>Choose a file</strong><span> or drag it here</span>.</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                        <div id="profile" class="tab-pane fade">
+                          <div class="row">
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="fortress"> Fortress</label>
+                                <select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress()">
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="type"> Content Type</label>
+                                <select class="form-control" id="type" ng-model="type" ng-options="d.name as d.name for d in documents" ng-change="selectProfile(type)">
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label> Action</label>
+                                <div class="clearfix"></div>
+                                <button class="btn btn-info" ng-click="saveProfile()"><i class="fa fa-lg fa-save"></i> <span>Save</span></button>
+                                <button class="btn btn-success" ng-click="validate()"><i class="fa fa-lg fa-play-circle"></i> <span>Validate</span></button>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-2">
+                              <label for="headers">Column names</label>
+                              <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
+                              </select> 
+                            </div>
+                            <tabset class="col-md-10">
+                              <tab index="0" heading="Edit">
+                                <div class="col-md-6">
+                                  <div ng-jsoneditor="onEditorLoad" ng-model="profile" options="editorOptions.text" ng-change="console.log(profile)" style="height: 465px"></div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div ng-jsoneditor="onEditorLoad" ng-model="profile" options="editorOptions.tree" style="height: 465px"></div>
+                                </div>
+                              </tab>
+                              <tab index="1" heading="Structure">
+                                <ng-cytoscape></ng-cytoscape>
+                              </tab>
+                            </tabset>
+                          </div>
+                        </div>
+                        <div id="resolution" class="tab-pane fade">
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+        </div>
+    </div>
+</div>

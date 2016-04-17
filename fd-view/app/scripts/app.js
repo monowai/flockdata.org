@@ -32,7 +32,10 @@ var fdView = angular.module('fdView', [
   'config',
   'fdView.directives',
   'http-auth-interceptor',
-  'ab.graph.matrix.directives'
+  'ab.graph.matrix.directives',
+  'ngCytoscape',
+  // 'rzModule',
+  'ng.jsoneditor',
 ])
   .config(
   function ($routeProvider, $locationProvider, USER_ROLES) {
@@ -64,6 +67,7 @@ var fdView = angular.module('fdView', [
       })
       .when('/explore', {
         templateUrl: 'views/explore.html',
+        controller: 'ExploreController',
         access: {
           authorizedRoles: [USER_ROLES.all]
         }
@@ -76,6 +80,19 @@ var fdView = angular.module('fdView', [
       })
       .when('/statistics', {
         templateUrl: 'views/statistics.html',
+        access: {
+          authorizedRoles: [USER_ROLES.all]
+        }
+      })
+      .when('/import', {
+        templateUrl: 'views/import.html',
+        controller: 'ImportController',
+        access: {
+          authorizedRoles: [USER_ROLES.all]
+        }
+      })
+      .when('admin', {
+        templateUrl: 'views/admin.html',
         access: {
           authorizedRoles: [USER_ROLES.all]
         }

@@ -72,3 +72,91 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
     };
   }]
 );
+
+fdView.factory('netGraph', ['$q', function($q){
+  var cy;
+  var netGraph = function(graph) {
+    var deferred = $q.defer();
+    var elems = {nodes:[],edges:[]};
+    for (var i = 0; i < graph.edges.length; i++) {
+      elems.edges.push({
+        data: {
+          id: i,
+          source: graph.edges[i].source,
+          target: graph.edges[i].target,
+          // count: graph.edges[i].count
+        }
+      });
+    }
+    for (var i = 0; i < graph.nodes.length; i++) {
+      elems.nodes.push({
+        data: {
+          id: graph.nodes[i].key,
+          name: graph.nodes[i].value
+        }
+      });
+    }
+
+    $(function(){
+      cy = cytoscape({
+        container: document.getElementById('fd-cy'),
+
+        style: cytoscape.stylesheet()
+          .selector('node')
+          .css({
+            'content': 'data(name)',
+            'font-size': '12pt',
+            'min-zoomed-font-size': '9pt',
+            'text-halign': 'center',
+            'text-valign': 'center',
+            'color': 'white',
+            'width': 'mapData(degree,0,5,20,80)',
+            'height': 'mapData(degree,0,5,20,80)'
+          })
+          .selector('edge')
+          .css({
+            'width': 3,
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle'
+          })
+          .selector(':selected')
+          .css({
+            'background-color': 'black',
+            'line-color': 'black',
+            'target-arrow-color': 'black',
+            'source-arrow-color': 'black',
+            'text-outline-color': 'black'
+          }),
+        layout: {
+          name: 'cose',
+          padding: 10
+        },
+
+        elements: elems,
+        ready: function(){
+          deferred.resolve( this );
+        }
+      });
+    });
+    return deferred.promise;
+  };
+
+  netGraph.listeners = {};
+
+  function fire(e, args) {
+    var listeners = netGraph.listeners[e];
+
+    for (var i = 0; listeners && i < listeners.length; i++) {
+      var fn = listeners[i];
+
+      fn.apply(fn, args);
+    }
+  }
+
+  function listen(e, fn) {
+    var listeners = netGraph.listeners[e] = netGraph.listeners[e] || [];
+
+    listeners.push(fn);
+  }
+  return netGraph;
+}]);

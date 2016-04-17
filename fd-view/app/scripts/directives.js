@@ -142,6 +142,72 @@ angular.module('fdView.directives', [])
       restrict: 'E',
       templateUrl: 'views/partials/singleLogPopup.html'
     }
+  })
+  .directive('ngHeight', function ($window) {
+    return {
+        restrict: 'A',
+        link: function (scope, elem, attrs) {
+            var winHeight = $window.innerHeight;
+            var headerHeight = attrs.ngHeight ? attrs.ngHeight : 0;
+            elem.css('height', winHeight - headerHeight + 'px');
+        }
+    }
+  })
+  .directive('onReadFile', function ($parse) {
+    return {
+      restrict: 'A',
+      scope: false,
+      link: function(scope, element, attrs) {
+              var fn = $parse(attrs.onReadFile);
+              
+        element.on('change', function(onChangeEvent) {
+          var reader = new FileReader();
+                  
+          reader.onload = function(onLoadEvent) {
+            scope.$apply(function() {
+              fn(scope, {$fileContent:onLoadEvent.target.result});
+            });
+          };
+
+          reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
+        });
+      }
+    };
+  })
+  .directive('fileOpen', function($parse) {
+    return {
+      restrict: 'A',
+      scope: false,
+      link: function(scope, element, attrs) {
+        var fn = $parse(attrs.fileOpen);
+
+        element.on('dragover dragenter', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          element.addClass('is-dragover');
+        });
+        element.on('dragleave dragend',function() {
+          element.removeClass('is-dragover');
+        });
+        element.on('drop', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.originalEvent.dataTransfer){
+            if (e.originalEvent.dataTransfer.files.length>0) {
+              var reader = new FileReader();
+                  
+              reader.onload = function(onLoadEvent) {
+                scope.$apply(function() {
+                  fn(scope, {$fileContent:onLoadEvent.target.result});
+                });
+              };
+            };
+          };
+
+          reader.readAsText(e.originalEvent.dataTransfer.files[0]);
+        });
+      }
+    };
   });
 
 // Directives
