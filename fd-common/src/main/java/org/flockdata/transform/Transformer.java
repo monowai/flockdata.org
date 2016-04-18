@@ -97,7 +97,7 @@ public class Transformer {
         JsonEntityMapper entityInputBean = new JsonEntityMapper();
         entityInputBean.setData(node, importProfile);
         if (entityInputBean.getFortressName() == null)
-            entityInputBean.setFortressName(importProfile.getFortressName());
+            entityInputBean.setFortressName(importProfile.getFortress().getName());
         ContentInputBean contentInputBean = new ContentInputBean();
         if (contentInputBean.getFortressUser() == null)
             contentInputBean.setFortressUser(importProfile.getFortressUser());
@@ -115,7 +115,7 @@ public class Transformer {
         EntityInputBean entityInputBean = (EntityInputBean) row;
 
         if (entityInputBean.getFortressName() == null)
-            entityInputBean.setFortressName(importProfile.getFortressName());
+            entityInputBean.setFortressName(importProfile.getFortress().getName());
 
         if (entityInputBean.getFortressUser() == null)
             entityInputBean.setFortressUser(importProfile.getFortressUser());

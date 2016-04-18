@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.model.Company;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ProfileReader;
 import org.flockdata.transform.json.JsonEntityMapper;
@@ -89,7 +90,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void object_ImportJsonEntity() throws Exception{
         ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
-        profile.setContentType(ContentProfile.ContentType.JSON);
+        profile.setContentType(ImportFile.ContentType.JSON);
         profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
         profile.setFortressName("testing");
 
@@ -102,7 +103,7 @@ public class TestJsonEntity extends AbstractImport{
     @Test
     public void array_ImportJsonEntities() throws Exception{
         ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/gov.json");
-        profile.setContentType(ContentProfile.ContentType.JSON);
+        profile.setContentType(ImportFile.ContentType.JSON);
         profile.setFortressName("testing");
         profile.setTagOrEntity(ContentProfile.DataType.ENTITY);
 

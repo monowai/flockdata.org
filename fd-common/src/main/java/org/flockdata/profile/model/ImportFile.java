@@ -31,5 +31,16 @@ public interface ImportFile {
 
     String getQuoteCharacter();
 
+    String getHandler();
 
+    void setHeader(boolean header);
+
+    void setContentType(ContentType contentType);
+
+    boolean isEmptyIgnored();
+
+    String getCondition();
+
+
+    enum ContentType {CSV, JSON, XML}
 }

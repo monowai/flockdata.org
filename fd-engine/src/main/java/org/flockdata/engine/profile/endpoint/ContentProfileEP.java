@@ -31,6 +31,7 @@ import org.flockdata.profile.ContentProfileResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.FortressService;
@@ -120,7 +121,7 @@ public class ContentProfileEP {
         CompanyResolver.resolveCompany(request);
         ContentProfile result = profileService.createDefaultContentProfile(contentRequest);
         result.setDocumentType( new DocumentTypeInputBean("DataType"));
-        result.setContentType(ContentProfile.ContentType.CSV);
+        result.setContentType(ImportFile.ContentType.CSV);
         result.setHeader(true);
         result.setFortressName("DataProvider");
         return result;

@@ -16,6 +16,7 @@
 
 package org.flockdata.profile.model;
 
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
@@ -34,9 +35,7 @@ public interface ContentProfile extends ImportFile {
 
     Map<String, ColumnDefinition> getContent();
 
-    String getHandler();
-
-    String getFortressName();
+    FortressInputBean getFortress() ;
 
     String getFortressUser();
 
@@ -50,23 +49,15 @@ public interface ContentProfile extends ImportFile {
 
     void setFortressName(String fortressName);
 
+    ContentProfile setFortress(FortressInputBean fortress);
+
     void setDocumentName(String name);
-
-    boolean isEmptyIgnored();
-
-    String getCondition();
 
     String getSegmentExpression();
 
     ContentProfile setDocumentType(DocumentTypeInputBean documentType);
 
-    enum ContentType {CSV, JSON, XML}
-
     enum DataType {ENTITY, TAG}
-
-    void setHeader(boolean header);
-
-    void setContentType(ContentType contentType);
 
     void setTagOrEntity(DataType dataType);
 }

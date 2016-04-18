@@ -19,6 +19,7 @@ package org.flockdata.profile;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.ImportFile;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
@@ -35,6 +36,7 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     // Default fortress name if not otherwise supplied
     private String fortressName = null;
+    private FortressInputBean fortress = null;
     // Default document name if not otherwise supplied
     private String documentName;
     private DocumentTypeInputBean documentType;
@@ -139,10 +141,13 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
     }
 
     @Override
-    public String getFortressName() {
-        return fortressName;
+    public FortressInputBean getFortress() {
+        if ( fortress == null)
+            return new FortressInputBean(fortressName);
+        return fortress;
     }
 
+    @Deprecated // use setFortress and provide default properties
     public void setFortressName(String fortressName) {
         this.fortressName = fortressName;
     }
@@ -281,4 +286,10 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         return result;
     }
+
+    public ContentProfile setFortress(FortressInputBean fortress) {
+        this.fortress = fortress;
+        return this;
+    }
+
 }

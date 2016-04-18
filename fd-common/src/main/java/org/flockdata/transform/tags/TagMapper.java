@@ -18,6 +18,7 @@ package org.flockdata.transform.tags;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.model.Mappable;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.ColumnDefinition;
@@ -82,7 +83,7 @@ public class TagMapper extends TagInputBean implements Mappable{
     }
 
     public static Mappable newInstance(ContentProfile contentProfile) {
-        if (contentProfile.getContentType()== ContentProfile.ContentType.CSV)
+        if (contentProfile.getContentType()== ImportFile.ContentType.CSV)
             return new TagMapper();
         if ( contentProfile.getDocumentType() !=null )
             return new TagMapper(contentProfile.getDocumentType().getName());

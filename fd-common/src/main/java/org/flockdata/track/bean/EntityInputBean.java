@@ -19,6 +19,7 @@ package org.flockdata.track.bean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.FortressUser;
 import org.flockdata.model.MetaFortress;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.transform.UserProperties;
 import org.joda.time.DateTime;
@@ -35,6 +36,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     private String key;
     private String code;
     private String fortressName;
+    private FortressInputBean fortress;
     private String fortressUser;
     private DocumentTypeInputBean documentType;
 
@@ -142,6 +144,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         return null;
     }
 
+    public FortressInputBean getFortress (){
+        if ( fortress==null )
+            return new FortressInputBean(fortressName);
+        return fortress;
+    }
 
     public String getFortressName() {
         return fortressName;

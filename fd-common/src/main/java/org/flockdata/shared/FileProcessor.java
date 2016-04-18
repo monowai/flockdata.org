@@ -29,6 +29,7 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityLinkInputBean;
@@ -144,11 +145,11 @@ public class FileProcessor {
         try {
             for (String file : files) {
 
-                if (importProfile.getContentType() == ContentProfile.ContentType.CSV)
+                if (importProfile.getContentType() == ImportFile.ContentType.CSV)
                     result = processCSVFile(file, importProfile);
-                else if (importProfile.getContentType() == ContentProfile.ContentType.XML)
+                else if (importProfile.getContentType() == ImportFile.ContentType.XML)
                     result = processXMLFile(file, importProfile);
-                else if (importProfile.getContentType() == ContentProfile.ContentType.JSON) {
+                else if (importProfile.getContentType() == ImportFile.ContentType.JSON) {
                     if (importProfile.getDocumentType() == null)
                         result = processJsonTags(file);
                     else
