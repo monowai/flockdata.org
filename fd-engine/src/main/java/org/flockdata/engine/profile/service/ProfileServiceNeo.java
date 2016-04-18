@@ -79,7 +79,7 @@ public class ProfileServiceNeo implements ContentProfileService {
         Profile profile = profileDao.find(fortress, documentType);
 
         if (profile == null)
-            throw new NotFoundException(String.format("Unable to locate and import profile for [%s], [%s]", fortress.getCode(), documentType.getCode()));
+            throw new NotFoundException(String.format("Unable to locate and import profile for [%s], [%s]", fortress.getCode(), documentType.getName()));
         //return profile;
         String json = profile.getContent();
         try {

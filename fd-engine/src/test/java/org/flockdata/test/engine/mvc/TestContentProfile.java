@@ -67,6 +67,22 @@ public class TestContentProfile extends  MvcBase{
     }
 
     @Test
+    public void testContentNotFound() throws  Exception {
+        ContentProfileImpl contentProfile = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
+        makeDataAccessProfile("TestContentProfileStorage", "mike");
+        FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
+
+        exception.expect(IllegalArgumentException.class);
+        getContentProfile(mike(),
+                fortressResultBean.getCode(),
+                "NonExistent",
+                contentProfile,
+                MockMvcResultMatchers.status().isBadRequest());
+
+
+    }
+
+    @Test
     public void validate_Profile() throws  Exception {
         makeDataAccessProfile("validateContentProfile", "mike");
         ContentProfile profile = ContentProfileDeserializer.getContentProfile("/profiles/test-profile.json");
