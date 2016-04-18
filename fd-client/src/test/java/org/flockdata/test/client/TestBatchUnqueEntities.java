@@ -19,6 +19,7 @@ package org.flockdata.test.client;
 import junit.framework.TestCase;
 import org.flockdata.profile.ContentProfileImpl;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.ProfileReader;
@@ -46,7 +47,7 @@ public class TestBatchUnqueEntities extends AbstractImport{
 
         contentProfile.setHeader(true);
         contentProfile.setDocumentName("Movie"); // ToDo: Deserialize DocumentInputBean
-        contentProfile.setContentType(ContentProfile.ContentType.CSV);
+        contentProfile.setContentType(ImportFile.ContentType.CSV);
         contentProfile.setTagOrEntity(ContentProfile.DataType.ENTITY);
         contentProfile.setEntityOnly(true);
 

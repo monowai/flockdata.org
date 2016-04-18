@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.profile.model.ContentProfile;
+import org.flockdata.profile.model.ImportFile;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.transform.ColumnDefinition;
 
@@ -60,6 +62,12 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         nodeValue = node.get("fortressName");
         if (!isNull(nodeValue))
             contentProfileImpl.setFortressName(nodeValue.asText());
+
+        nodeValue = node.get("fortress");
+        if (!isNull(nodeValue)){
+            nodeValue = node.get("fortress");
+            contentProfileImpl.setFortress(mapper.readValue(nodeValue.toString(), FortressInputBean.class));
+        }
 
         nodeValue = node.get("tagOrEntity");
         if ( nodeValue == null  )
@@ -140,13 +148,13 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
         if (!isNull(nodeValue)){
             switch (nodeValue.textValue().toLowerCase()) {
                 case "csv":
-                    contentProfileImpl.setContentType(ContentProfile.ContentType.CSV);
+                    contentProfileImpl.setContentType(ImportFile.ContentType.CSV);
                     break;
                 case "xml":
-                    contentProfileImpl.setContentType(ContentProfile.ContentType.XML);
+                    contentProfileImpl.setContentType(ImportFile.ContentType.XML);
                     break;
                 case "json":
-                    contentProfileImpl.setContentType(ContentProfile.ContentType.JSON);
+                    contentProfileImpl.setContentType(ImportFile.ContentType.JSON);
                     break;
             }
         }

@@ -47,16 +47,16 @@
           <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
               <div role="widget" style="" class="jarviswidget jarviswidget-sortable" id="explore-widget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-jarvis-widget>
                   <header class="ui-sortable-handle" role="heading">
-                    <h2>Structure</h2>
+                    <h2>Integrate</h2>
                         <ul id="widget-tab-1" class="nav pull-right nav-tabs">
                             <li class="active">
-                                <a aria-expanded="false" data-toggle="tab" data-target="#upload"> <i class="fa fa-lg fa-upload"></i> <span class="hidden-mobile hidden-tablet"> File </span> </a>
+                                <a aria-expanded="false" data-toggle="tab" data-target="#upload"> <i class="fa fa-lg fa-upload"></i> <span class="hidden-mobile hidden-tablet"> Source </span> </a>
                             </li>
                             <li class="">
                                 <a aria-expanded="true" data-toggle="tab" data-target="#profile"> <i class="fa fa-lg fa-compass"></i> <span class="hidden-mobile hidden-tablet"> Profile </span></a>
                             </li>
                             <li class="">
-                                <a aria-expanded="true" data-toggle="tab" data-target="#resolution"> <i class="fa fa-lg fa-magic"></i> <span class="hidden-mobile hidden-tablet"> Resolution </span></a>
+                                <a aria-expanded="true" data-toggle="tab" data-target="#resolution"> <i class="fa fa-lg fa-magic"></i> <span class="hidden-mobile hidden-tablet"> Validate </span></a>
                             </li>
                         </ul>
                     </header>
@@ -73,7 +73,7 @@
                               <div class="box" file-open="showContent($fileContent)">
                                 <div class="box-input">
                                   <input type="file" id="file" class="box-file" on-read-file="showContent($fileContent)">
-                                  <label for="file" align="center"><strong>Choose a file</strong><span> or drag it here</span>.</label>
+                                  <label for="file" align="center"><strong>Click</strong>, to choose a CSV file, or drag it here.</label>
                                 </div>
                               </div>
                             </div>
@@ -107,12 +107,12 @@
                           </div>
                           <div class="row">
                             <div class="col-md-2">
-                              <label for="headers">Column names</label>
+                              <label for="headers">Source columns</label>
                               <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
                               </select>
                             </div>
                             <tabset class="col-md-10">
-                              <tab index="0" heading="Edit">
+                              <tab index="0" heading="Transformation">
                                 <div class="col-md-6">
                                   <div ng-jsoneditor="onEditorLoad" ng-model="profile" options="editorOptions.text" ng-change="console.log(profile)" style="height: 465px"></div>
                                 </div>
@@ -120,7 +120,7 @@
                                   <div ng-jsoneditor="onEditorLoad" ng-model="profile" options="editorOptions.tree" style="height: 465px"></div>
                                 </div>
                               </tab>
-                              <tab index="1" heading="Structure">
+                              <tab index="1" heading="Integrate">
                                 <ng-cytoscape></ng-cytoscape>
                               </tab>
                             </tabset>

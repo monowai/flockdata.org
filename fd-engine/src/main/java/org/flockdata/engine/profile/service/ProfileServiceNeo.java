@@ -37,6 +37,7 @@ import org.flockdata.profile.ContentValidationResult;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.track.service.FortressService;
@@ -138,8 +139,11 @@ public class ProfileServiceNeo implements ContentProfileService {
 
     public int process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         ContentProfile profile = get(fortress, documentType);
-        profile.setFortressName(fortress.getName());
-        profile.setDocumentName(documentType.getName());
+        // Users PUT params override those of the contentProfile
+        if ( !profile.getFortress().getName().equalsIgnoreCase(fortress.getName()))
+            profile.setFortress( new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
+        if ( !profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName()))
+            profile.setDocumentName(documentType.getName());
         FileProcessor.validateArgs(file);
         ClientConfiguration defaults = new ClientConfiguration();
         defaults.setBatchSize(1);

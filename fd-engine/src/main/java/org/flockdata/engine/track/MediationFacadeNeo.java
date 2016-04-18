@@ -38,7 +38,6 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.*;
-import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.registration.TagResultBean;
 import org.flockdata.registration.service.CompanyService;
@@ -189,11 +188,9 @@ public class MediationFacadeNeo implements MediationFacade {
 
     @Override
     public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
-        Fortress fortress = fortressService.findByName(company, inputBean.getFortressName());
+        Fortress fortress = fortressService.findByName(company, inputBean.getFortress().getName());
         if (fortress == null)
-            fortress = fortressService.registerFortress(company,
-                    new FortressInputBean(inputBean.getFortressName(), IGNORE_SEARCH_ENGINE)
-                            .setTimeZone(inputBean.getTimezone()));
+            fortress = fortressService.registerFortress(company,inputBean.getFortress());
         fortress.setCompany(company);
         FortressSegment segment;
         if ( inputBean.getSegment() != null )
