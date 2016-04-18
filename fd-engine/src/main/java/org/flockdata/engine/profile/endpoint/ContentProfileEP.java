@@ -57,8 +57,8 @@ public class ContentProfileEP {
     ConceptService conceptService;
 
     @RequestMapping(value = "/{fortressCode}/{docTypeName}",
-            produces = "application/json",
-            consumes = "application/json", method = RequestMethod.GET)
+            produces = "application/json", method = RequestMethod.GET)
+    @ResponseBody
     public ContentProfile getContentProfile (
             HttpServletRequest request,
             @PathVariable("fortressCode") String fortressCode,
