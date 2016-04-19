@@ -12,7 +12,7 @@ rabbit:
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-Xmx768m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000 --logging.level.org.flockdata=debug"
+  command: "-ea -Xmx768m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000 --logging.level.org.flockdata=debug"
 
   links:
      - rabbit

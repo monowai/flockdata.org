@@ -43,6 +43,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -119,6 +121,9 @@ public class ITDockerStack {
     @Autowired
     private
     AmqpRabbitConfig rabbitConfig;
+
+    @Autowired
+    AmqpServices amqpServices;
 
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
@@ -377,7 +382,7 @@ public class ITDockerStack {
     }
 
     @Test
-    public void trackEntity() throws Exception {
+    public void trackEntityOverHttp() throws Exception {
         assertNull(getLogin("mike", "123").exec());
 
         SystemUserResultBean suResult = getDefaultUser();
@@ -387,7 +392,7 @@ public class ITDockerStack {
                 .setDocumentType(new DocumentTypeInputBean("entity"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
-        TrackEntity trackEntity = new TrackEntity(clientConfiguration, fdRestWriter, entityInputBean);
+        TrackEntityHttp trackEntity = new TrackEntityHttp(clientConfiguration, fdRestWriter, entityInputBean);
         assertNull(trackEntity.exec());
         assertNotNull(trackEntity.getResult());
         assertNotNull(trackEntity.getResult().getKey());
@@ -395,6 +400,31 @@ public class ITDockerStack {
         assertEquals("Problem creating the Content", trackEntity.getResult().getLogStatus(), ContentInputBean.LogStatus.OK);
 
         GetEntity foundEntity = new GetEntity(clientConfiguration, fdRestWriter, trackEntity.getResult().getKey());
+        assertNull (foundEntity.exec());
+        assertNotNull ( foundEntity.getResult().getKey());
+
+    }
+
+    @Test
+    public void trackEntityOverAmqp() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = getDefaultUser();
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("TrackEntityAmqp", false))
+                .setCode("findme")
+                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+                .setContent(new ContentInputBean(Helper.getRandomMap()))
+                .addTag(new TagInputBean("someCode", "SomeLabel"));
+
+        Collection<EntityInputBean> entities = new ArrayList<>();
+        entities.add(entityInputBean);
+
+        amqpServices.publish(true, entities);
+
+        Thread.sleep(2000);
+        GetEntity foundEntity = new GetEntity(clientConfiguration, fdRestWriter, entityInputBean);
         assertNull (foundEntity.exec());
         assertNotNull ( foundEntity.getResult().getKey());
 

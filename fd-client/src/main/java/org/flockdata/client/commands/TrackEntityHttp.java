@@ -30,13 +30,13 @@ import org.springframework.web.client.HttpServerErrorException;
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class TrackEntity extends AbstractRestCommand  {
+public class TrackEntityHttp extends AbstractRestCommand  {
 
     private EntityInputBean entityInputBean;
 
     private TrackRequestResult result;
 
-    public TrackEntity(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
+    public TrackEntityHttp(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
         super(clientConfiguration, fdRestWriter);
         this.entityInputBean = entityInputBean;
     }

@@ -151,4 +151,10 @@ public class AmqpServices {
     }
 
 
+    public void publish(Boolean resetHeaders, Collection<EntityInputBean> entities) throws IOException {
+        if (resetHeaders) {
+            entityProps = null;
+        }
+        publish(entities);
+    }
 }
