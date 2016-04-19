@@ -92,7 +92,9 @@ public class EntityEP {
                           @PathVariable("code") String code,
                           HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Fortress fortress = fortressService.findByName(company, fortressName);
+        Fortress fortress = fortressService.findByCode(company, fortressName);
+        if ( fortress == null )
+            throw new NotFoundException("Unable to locate fortress " + fortressName);
         Entity entity = entityService.findByCode(fortress, documentType, code);
         return new EntityBean(entity);
     }

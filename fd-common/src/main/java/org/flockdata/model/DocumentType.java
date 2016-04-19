@@ -204,7 +204,7 @@ public class DocumentType  implements Comparable<DocumentType> {
         // Only in testing would the fortress be null
         Long fid ;
         if ( fortress == null || fortress.getId() == null )
-            fid = -1l;
+            fid = -1L;
         else
             fid = fortress.getId();
         return fid+ "."+ documentType.toLowerCase().replaceAll("\\s", ".");
@@ -269,6 +269,7 @@ public class DocumentType  implements Comparable<DocumentType> {
     }
 
     public static String toKey(Fortress fortress, String docType) {
+        assert fortress.getCompany()!=null;
         return String.valueOf(fortress.getCompany().getId()) + "." + DocumentType.parseCode(fortress, docType);
     }
 

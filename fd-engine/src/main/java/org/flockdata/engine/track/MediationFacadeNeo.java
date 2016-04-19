@@ -189,8 +189,10 @@ public class MediationFacadeNeo implements MediationFacade {
     @Override
     public TrackResultBean trackEntity(Company company, EntityInputBean inputBean) throws FlockException, IOException, ExecutionException, InterruptedException {
         Fortress fortress = fortressService.findByName(company, inputBean.getFortress().getName());
-        if (fortress == null)
-            fortress = fortressService.registerFortress(company,inputBean.getFortress());
+        if (fortress == null) {
+            logger.debug("Creating new Fortress {}", inputBean.getFortress());
+            fortress = fortressService.registerFortress(company, inputBean.getFortress());
+        }
         fortress.setCompany(company);
         FortressSegment segment;
         if ( inputBean.getSegment() != null )

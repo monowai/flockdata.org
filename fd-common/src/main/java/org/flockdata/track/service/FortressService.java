@@ -86,5 +86,5 @@ public interface FortressService {
 
     Collection<FortressSegment> getSegments(Fortress fortress);
 
-    FortressSegment resolveSegment(Company company, String fortressName, String segmentName, String timeZone) throws NotFoundException;
+    FortressSegment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
 }
