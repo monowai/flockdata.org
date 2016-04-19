@@ -112,7 +112,7 @@ public class TrackRequests {
                 }
 
                 Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
-                if ( oType == null || oType.toString().equals("E")) {
+                if ( oType == null || oType.toString().equalsIgnoreCase("E")) {
                     Collection<EntityInputBean> inputBeans = JsonUtils.toCollection((byte[]) message.getPayload(), EntityInputBean.class);
                     mediationFacade.trackEntities(company, inputBeans);
                 }else {

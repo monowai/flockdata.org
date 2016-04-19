@@ -23,10 +23,13 @@ import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.*;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.*;
 import org.flockdata.test.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -43,12 +46,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.springframework.test.util.AssertionErrors.*;
+import static junit.framework.TestCase.*;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Establishes the integration test environment. Descendant classes use @Test functions against
@@ -119,6 +125,9 @@ public class ITDockerStack {
     @Autowired
     private
     AmqpRabbitConfig rabbitConfig;
+
+    @Autowired
+    AmqpServices amqpServices;
 
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
@@ -377,7 +386,7 @@ public class ITDockerStack {
     }
 
     @Test
-    public void trackEntity() throws Exception {
+    public void trackEntityOverHttp() throws Exception {
         assertNull(getLogin("mike", "123").exec());
 
         SystemUserResultBean suResult = getDefaultUser();
@@ -387,7 +396,7 @@ public class ITDockerStack {
                 .setDocumentType(new DocumentTypeInputBean("entity"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
-        TrackEntity trackEntity = new TrackEntity(clientConfiguration, fdRestWriter, entityInputBean);
+        TrackEntityHttp trackEntity = new TrackEntityHttp(clientConfiguration, fdRestWriter, entityInputBean);
         assertNull(trackEntity.exec());
         assertNotNull(trackEntity.getResult());
         assertNotNull(trackEntity.getResult().getKey());
@@ -398,6 +407,58 @@ public class ITDockerStack {
         assertNull (foundEntity.exec());
         assertNotNull ( foundEntity.getResult().getKey());
 
+    }
+
+    @Test
+    public void trackEntityOverAmqpAndFindInSearch() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = getDefaultUser();
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("TrackEntityAmqp", false))
+                .setCode("findme")
+                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+                .setContent(new ContentInputBean(Helper.getRandomMap()))
+                .addTag(new TagInputBean("someCode", "SomeLabel"));
+
+        Collection<EntityInputBean> entities = new ArrayList<>();
+        entities.add(entityInputBean);
+
+        amqpServices.publish(true, entities);
+
+        EntityBean entityResult = getEntityBean(entityInputBean);
+        assertNotNull ( entityResult.getKey());
+        assertEquals( "Search Key was not set to the code of the entityInput", entityInputBean.getCode(), entityResult.getSearchKey());
+        assertFalse ( "Search was incorrectly suppressed",entityResult.isSearchSuppressed());
+        assertEquals( "Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
+        QueryParams qp = new QueryParams(entityResult.getCode());
+        SearchEs search = new SearchEs(clientConfiguration, fdRestWriter, qp);
+        assertNull (search.exec());
+        EsSearchResult searchResults = search.getResult();
+        assertEquals( "Didn't find a result for the Entity code", 1, searchResults.getResults().size());
+        assertEquals( "Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
+
+    }
+
+    // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
+    // is working on.
+    EntityBean getEntityBean(EntityInputBean entityInputBean) {
+        GetEntity getEntity = new GetEntity(clientConfiguration, fdRestWriter, entityInputBean);
+        int count = 0, timeout = 10;
+        boolean notFound = true;
+        do {
+            try {
+                Thread.sleep(3000);
+                count ++;
+                getEntity.exec();
+                notFound = getEntity.getResult() == null || getEntity.getResult().getKey() == null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } while ( count < timeout && notFound);
+        return getEntity.getResult();
     }
 
     /**

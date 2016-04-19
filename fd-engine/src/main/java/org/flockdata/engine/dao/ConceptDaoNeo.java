@@ -142,8 +142,8 @@ public class ConceptDaoNeo {
     }
 
     private DocumentType documentExists(Fortress fortress, String docType) {
-        logger.debug("looking for document {}, fortress {}", docType, fortress);
         assert fortress != null;
+        logger.debug("looking for document {}, fortress {}", docType, fortress);
         String docKey = DocumentType.toKey(fortress, docType);
         return documentTypeRepo.findFortressDocCode(docKey);
     }

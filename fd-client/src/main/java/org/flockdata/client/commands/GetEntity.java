@@ -19,6 +19,7 @@ package org.flockdata.client.commands;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -32,14 +33,22 @@ import org.springframework.web.client.ResourceAccessException;
  */
 public class GetEntity extends AbstractRestCommand  {
 
-    private String code;
+    private EntityInputBean entityInputBean;
 
     private EntityBean results;
+
+    private String code;
+
+    public GetEntity(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
+        super(clientConfiguration, fdRestWriter);
+        this.entityInputBean = entityInputBean;
+    }
 
     public GetEntity(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String code) {
         super(clientConfiguration, fdRestWriter);
         this.code = code;
     }
+
 
     public EntityBean getResult() {
         return results;
@@ -50,8 +59,15 @@ public class GetEntity extends AbstractRestCommand  {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
+
             ResponseEntity<EntityBean> response ;
+            if (code !=null ) // Locate by FD unique key
                 response = restTemplate.exchange(url+"/api/v1/entity/{code}", HttpMethod.GET, requestEntity, EntityBean.class, code );
+            else
+                response = restTemplate.exchange(url+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
+                        entityInputBean.getFortress().getName(),
+                        entityInputBean.getDocumentType().getName(),
+                        entityInputBean.getCode());
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException e) {

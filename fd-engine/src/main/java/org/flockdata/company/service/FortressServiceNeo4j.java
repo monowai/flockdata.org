@@ -233,7 +233,7 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
-        logger.trace("Fortress registration request {}, {}", company, fib);
+        logger.debug("Fortress registration request {}, {}", company, fib);
         Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());
         boolean storeEnabled = engineConfig.storeEnabled();
         if (fortress != null) {
@@ -247,7 +247,7 @@ public class FortressServiceNeo4j implements FortressService {
             if (fib.getStoreActive() == null)
                 fib.setStoreActive(storeEnabled);
             fortress = save(company, fib);
-            logger.trace("Created fortress {}", fortress);
+            logger.debug("Created fortress {}", fortress);
             fortress.setCompany(company);
 
             fortress.setRootIndex(indexHelper.getIndexRoot(company.getCode(), fortress.getCode()));
@@ -348,18 +348,16 @@ public class FortressServiceNeo4j implements FortressService {
 
     @Override
     @Cacheable (value = "fortressSegment")
-    public FortressSegment resolveSegment(Company company, String fortressName, String segmentName, String timeZone) throws NotFoundException {
+    public FortressSegment resolveSegment(Company company, FortressInputBean fortressInput, String segmentName, String timeZone) throws NotFoundException {
 
         Fortress fortress;
         FortressSegment segment;
 
-        fortress = findByCode(company, fortressName);
+        fortress = findByCode(company, fortressInput.getName());
         if (fortress == null)
-            fortress = findByName(company, fortressName);
+            fortress = findByName(company, fortressInput.getName());
         if (fortress == null) {
-            FortressInputBean fib = new FortressInputBean(fortressName);
-            fib.setTimeZone(timeZone);
-            fortress = registerFortress(company, fib, true);
+            fortress = registerFortress(company, fortressInput, true);
             //resolvedFortresses.put(fortress.getCode(), fortress);
         }
         if (segmentName != null) {
