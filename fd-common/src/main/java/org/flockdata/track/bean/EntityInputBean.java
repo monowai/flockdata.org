@@ -36,6 +36,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     private String key;
     private String code;
     private String fortressName;
+
     private FortressInputBean fortress;
     private String fortressUser;
     private DocumentTypeInputBean documentType;
@@ -144,6 +145,11 @@ public class EntityInputBean implements Serializable, UserProperties {
         return null;
     }
 
+    public EntityInputBean setFortress(FortressInputBean fortress) {
+        this.fortress = fortress;
+        return this;
+    }
+
     public FortressInputBean getFortress (){
         if ( fortress==null )
             return new FortressInputBean(fortressName);
@@ -178,14 +184,6 @@ public class EntityInputBean implements Serializable, UserProperties {
         this.fortressUser = fortressUser;
         return this;
     }
-
-//    @Deprecated // use getDocumentType().getName()
-//    @JsonIgnore
-//    public String getDocumentName() {
-//        if ( documentType == null )
-//            return null;
-//        return documentType.getName();
-//    }
 
     /**
      * Fortress unique type of document that categorizes this type of change.

@@ -22,10 +22,12 @@ import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.registration.SystemUserResultBean;
-import org.flockdata.registration.TagResultBean;
-import org.flockdata.registration.UserProfile;
+import org.flockdata.registration.*;
 import org.flockdata.shared.*;
+import org.flockdata.test.Helper;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -51,7 +53,7 @@ import static org.springframework.test.util.AssertionErrors.*;
 /**
  * Establishes the integration test environment. Descendant classes use @Test functions against
  * this established stack
- *
+ * <p>
  * Created by mike on 3/04/16.
  */
 @SpringApplicationConfiguration({
@@ -81,10 +83,10 @@ public class ITDockerStack {
     int waitSeconds;
 
     @ClassRule // start is called before the tests are run and stop is called after the class
-               // is finished. Given that is how Junit wants to play, all integration tests that
-               // want to use this stack should be in this class, otherwise a new Stack will be created
-               // increasing the time it takes to start
-               // ToDo: Figure out a better way of doing this!
+    // is finished. Given that is how Junit wants to play, all integration tests that
+    // want to use this stack should be in this class, otherwise a new Stack will be created
+    // increasing the time it takes to start
+    // ToDo: Figure out a better way of doing this!
 
     // http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
     public static DockerComposeContainer stack =
@@ -147,13 +149,13 @@ public class ITDockerStack {
         Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
         rabbitConfig.setServicePoint(stack.getContainerIpAddress(), getRabbitPort());
 
-        logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine() );
-        logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch() );
-        logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore() );
-        logger.info("FDEngine-Debug - {} - reachable @ {}" , DEBUG_ENGINE, stack.getContainerIpAddress()+":"+ getEngineDebug());
-        logger.info("FDSearch-Debug - {} - reachable @ {}" , DEBUG_SEARCH, stack.getContainerIpAddress()+":"+ getSearchDebug());
-        logger.info("FDStore-Debug  - {} - reachable @ {}" , DEBUG_STORE, stack.getContainerIpAddress()+":"+ getStoreDebug());
-        logger.info("Rabbit Admin on http://{}:{}"      , stack.getContainerIpAddress(),getRabbitAdmin());
+        logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
+        logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
+        logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore());
+        logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, stack.getContainerIpAddress() + ":" + getEngineDebug());
+        logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, stack.getContainerIpAddress() + ":" + getSearchDebug());
+        logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, stack.getContainerIpAddress() + ":" + getStoreDebug());
+        logger.info("Rabbit Admin on http://{}:{}", stack.getContainerIpAddress(), getRabbitAdmin());
         // ToDo: Bind in yourkit profiler and expose port
 
         logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
@@ -178,15 +180,15 @@ public class ITDockerStack {
         pb.start();
         int run = 0;
         do {
-            run ++;
+            run++;
             pb.step();
             // After waiting for 40% of the waitCount will try running the command if it exists
-            if ( optionalCommand!=null && run %10 ==0 && (((double)run)/waitCount) > .3  ){
+            if (optionalCommand != null && run % 10 == 0 && (((double) run) / waitCount) > .3) {
                 // After 1 minute we will ping to see if we can finish this early
                 String result = optionalCommand.exec();
-                if ( result.equals(comandResult)) {
+                if (result.equals(comandResult)) {
                     // We can finish early
-                    pb.stepBy( (waitCount-run));
+                    pb.stepBy((waitCount - run));
                     return;
 
                 }
@@ -209,7 +211,7 @@ public class ITDockerStack {
             if (!result.equals("pong")) {
                 int waitSecs = 60;
                 logger.info("Waiting {} seconds for {} to come on-line", waitSecs, service);
-                pauseUntil(pingCommand,"pong", waitSecs);
+                pauseUntil(pingCommand, "pong", waitSecs);
             }
 
         } while (!Objects.equals(result, "pong") && countDown > 0);
@@ -228,7 +230,7 @@ public class ITDockerStack {
     }
 
     private Integer getRabbitAdmin() {
-        return stack.getServicePort("rabbit_1",15672);
+        return stack.getServicePort("rabbit_1", 15672);
     }
 
     private static String getEngine() {
@@ -248,11 +250,11 @@ public class ITDockerStack {
     }
 
     private Integer getEngineDebug() {
-        return  stack.getServicePort("fdengine_1", DEBUG_ENGINE);
+        return stack.getServicePort("fdengine_1", DEBUG_ENGINE);
     }
 
     private Integer getSearchDebug() {
-         return stack.getServicePort("fdsearch_1", DEBUG_SEARCH);
+        return stack.getServicePort("fdsearch_1", DEBUG_SEARCH);
     }
 
     private Integer getStoreDebug() {
@@ -323,7 +325,7 @@ public class ITDockerStack {
     public void registration() {
         // An authorised user can create DataAccess users for a given company
         assertNull(getLogin("mike", "123").exec());
-        SystemUserResultBean suResult = fdRestWriter.register("mike", "TestCompany");
+        SystemUserResultBean suResult = getDefaultUser();
         assertNotNull(suResult);
         assertNotNull(suResult.getApiKey());
 
@@ -332,9 +334,9 @@ public class ITDockerStack {
     /**
      * FlockData ships with some basic static data like Countries and Cities.
      * This test checks that they are tracked in to the service. Validates a number of things:
-     *      Country Content Profile
-     *      Tag being tracked over an AMQP endpoint
-     *      Countries can be found via the Tag endpoint by label
+     * Country Content Profile
+     * Tag being tracked over an AMQP endpoint
+     * Countries can be found via the Tag endpoint by label
      *
      * @throws Exception
      */
@@ -342,11 +344,11 @@ public class ITDockerStack {
     public void loadCountries() throws Exception {
         assertNull(getLogin("mike", "123").exec());
 
-        SystemUserResultBean suResult = fdRestWriter.register("mike", "TestCompany");
+        SystemUserResultBean suResult = getDefaultUser();
         clientConfiguration.setApiKey(suResult.getApiKey());
         ContentProfile contentProfile = ContentProfileDeserializer.getContentProfile("/countries.json");
         int countryInputs = fileProcessor.processFile(contentProfile, "/fd-cow.txt");
-        assertEquals ("Countries not processed", countryInputs, 249);
+        assertEquals("Countries not processed", countryInputs, 249);
         GetTags countries = new GetTags(clientConfiguration, fdRestWriter, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
         Thread.sleep(2000);
@@ -372,6 +374,42 @@ public class ITDockerStack {
 
         assertEquals("By Code and By Name they are the same country so should equal", countryByIsoShort.getResult(), countryByName.getResult());
         assertEquals("By short code and long code they are the same country so should equal", countryByIsoLong.getResult(), countryByIsoShort.getResult());
+    }
+
+    @Test
+    public void trackEntity() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = getDefaultUser();
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("TrackEntity", false))
+                .setDocumentType(new DocumentTypeInputBean("entity"))
+                .setContent(new ContentInputBean(Helper.getRandomMap()))
+                .addTag(new TagInputBean("someCode", "SomeLabel"));
+        TrackEntity trackEntity = new TrackEntity(clientConfiguration, fdRestWriter, entityInputBean);
+        assertNull(trackEntity.exec());
+        assertNotNull(trackEntity.getResult());
+        assertNotNull(trackEntity.getResult().getKey());
+        assertEquals("Should be a new Entity", trackEntity.getResult().isNewEntity(), true);
+        assertEquals("Problem creating the Content", trackEntity.getResult().getLogStatus(), ContentInputBean.LogStatus.OK);
+
+        GetEntity foundEntity = new GetEntity(clientConfiguration, fdRestWriter, trackEntity.getResult().getKey());
+        assertNull (foundEntity.exec());
+        assertNotNull ( foundEntity.getResult().getKey());
+
+    }
+
+    /**
+     * A login is associated with a single company. Create different fortresses to partion
+     * data access users.
+     * <p>
+     * The user name you want to create has to exist in the security context otherwise login will fail
+     *
+     * @return details about the DataAcessUser
+     */
+    private SystemUserResultBean getDefaultUser() {
+        return fdRestWriter.register("mike", "TestCompany");
     }
 
 }
