@@ -23,10 +23,13 @@ import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.*;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.*;
 import org.flockdata.test.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
+import org.flockdata.track.bean.EntityBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -48,9 +51,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.springframework.test.util.AssertionErrors.*;
+import static junit.framework.TestCase.*;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 /**
  * Establishes the integration test environment. Descendant classes use @Test functions against
@@ -406,7 +410,7 @@ public class ITDockerStack {
     }
 
     @Test
-    public void trackEntityOverAmqp() throws Exception {
+    public void trackEntityOverAmqpAndFindInSearch() throws Exception {
         assertNull(getLogin("mike", "123").exec());
 
         SystemUserResultBean suResult = getDefaultUser();
@@ -423,11 +427,38 @@ public class ITDockerStack {
 
         amqpServices.publish(true, entities);
 
-        Thread.sleep(2000);
-        GetEntity foundEntity = new GetEntity(clientConfiguration, fdRestWriter, entityInputBean);
-        assertNull (foundEntity.exec());
-        assertNotNull ( foundEntity.getResult().getKey());
+        EntityBean entityResult = getEntityBean(entityInputBean);
+        assertNotNull ( entityResult.getKey());
+        assertEquals( "Search Key was not set to the code of the entityInput", entityInputBean.getCode(), entityResult.getSearchKey());
+        assertFalse ( "Search was incorrectly suppressed",entityResult.isSearchSuppressed());
+        assertEquals( "Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
+        QueryParams qp = new QueryParams(entityResult.getCode());
+        SearchEs search = new SearchEs(clientConfiguration, fdRestWriter, qp);
+        assertNull (search.exec());
+        EsSearchResult searchResults = search.getResult();
+        assertEquals( "Didn't find a result for the Entity code", 1, searchResults.getResults().size());
+        assertEquals( "Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
 
+    }
+
+    // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
+    // is working on.
+    EntityBean getEntityBean(EntityInputBean entityInputBean) {
+        GetEntity getEntity = new GetEntity(clientConfiguration, fdRestWriter, entityInputBean);
+        int count = 0, timeout = 10;
+        boolean notFound = true;
+        do {
+            try {
+                Thread.sleep(3000);
+                count ++;
+                getEntity.exec();
+                notFound = getEntity.getResult() == null || getEntity.getResult().getKey() == null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } while ( count < timeout && notFound);
+        return getEntity.getResult();
     }
 
     /**

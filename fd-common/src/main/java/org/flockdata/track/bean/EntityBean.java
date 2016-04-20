@@ -48,6 +48,7 @@ public class EntityBean implements Serializable {
     private String event;
     private String lastUser;
     private String createdUser;
+    private Integer search;
     private Map<String, Object> props;
 
     EntityBean() {
@@ -71,7 +72,7 @@ public class EntityBean implements Serializable {
             code = entity.getCode();
             whenCreated = entity.getDateCreated();
             indexName = entity.getSegment().getFortress().getRootIndex();
-
+            this.search = entity.getSearch();
             // Description is recorded in the search document, not the graph
             //description = entity.getDescription();
             searchSuppressed = entity.isSearchSuppressed();
@@ -165,6 +166,10 @@ public class EntityBean implements Serializable {
 
     public String getCreatedUser() {
         return createdUser;
+    }
+
+    public Integer getSearch() {
+        return search;
     }
 
     @JsonIgnore

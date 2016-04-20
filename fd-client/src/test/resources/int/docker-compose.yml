@@ -12,7 +12,7 @@ rabbit:
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-ea -Xmx768m -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000 --logging.level.org.flockdata=debug"
+  command: "-ea -Xmx768m --logging.level.org.flockdata=error"
 
   links:
      - rabbit
@@ -21,6 +21,7 @@ fdengine:
 #  ports:
 #    - '8090:8090'
 
+#  To debug the service, you MUST uncomment the debug line in the DockerFile for fd-engine
   expose:
     - 8090
     - 61000
