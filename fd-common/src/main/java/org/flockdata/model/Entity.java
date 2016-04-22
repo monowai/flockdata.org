@@ -106,8 +106,7 @@ public class Entity implements Serializable {
     @Transient
     boolean newEntity = false;
 
-    //@Transient
-    private Integer search = null;
+    private Integer search = 0;
 
     public Entity(String key, Fortress fortress, EntityInputBean eib, DocumentType doc) throws FlockException {
         this(key, fortress.getDefaultSegment(), eib, doc);
@@ -172,14 +171,14 @@ public class Entity implements Serializable {
             fortressCreate = new DateTime(dateCreated, DateTimeZone.forTimeZone(TimeZone.getTimeZone(this.segment.getFortress().getTimeZone()))).getMillis();
         else
             fortressCreate = new DateTime(when.getTime()).getMillis();//new DateTime( when.getTime(), DateTimeZone.forTimeZone(TimeZone.getTimeZone(entityInput.getMetaTZ()))).toDate().getTime();
-        if ( entityInput.getLastChange()!=null ){
+        if (entityInput.getLastChange() != null) {
             long fWhen = entityInput.getLastChange().getTime();
-            if ( fWhen!= fortressCreate )
+            if (fWhen != fortressCreate)
                 fortressLastWhen = fWhen;
         }
 
         // Content date has the last say on when the update happened
-        if ( entityInput.getContent() !=null && entityInput.getContent().getWhen() !=null ){
+        if (entityInput.getContent() != null && entityInput.getContent().getWhen() != null) {
             fortressLastWhen = entityInput.getContent().getWhen().getTime();
         }
 
@@ -298,7 +297,7 @@ public class Entity implements Serializable {
 
     public void setSearchKey(String searchKey) {
         // By default the searchkey is the code. Let's save disk space
-        if ( searchKey!=null && searchKey.equals(code))
+        if (searchKey != null && searchKey.equals(code))
             this.searchKey = null;
         else
             this.searchKey = searchKey;
@@ -326,16 +325,13 @@ public class Entity implements Serializable {
 
     @JsonIgnore     // Don't persist ov
     public DateTime getFortressUpdatedTz() {
-        if ( fortressLastWhen == null )
+        if (fortressLastWhen == null)
             return null;
         return new DateTime(fortressLastWhen, DateTimeZone.forTimeZone(TimeZone.getTimeZone(segment.getFortress().getTimeZone())));
     }
 
     public void bumpSearch() {
-        if ( search == null )
-            search = 1;
-        else
-            search++; // Increases the search count of the entity.
+        search++; // Increases the search count of the entity.
     }
 
     @Override

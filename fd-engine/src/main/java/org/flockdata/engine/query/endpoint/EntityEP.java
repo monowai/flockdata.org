@@ -27,10 +27,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.store.StoredContent;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.EntityTagResult;
-import org.flockdata.track.bean.LogDetailBean;
+import org.flockdata.track.bean.*;
 import org.flockdata.track.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +93,9 @@ public class EntityEP {
         if ( fortress == null )
             throw new NotFoundException("Unable to locate fortress " + fortressName);
         Entity entity = entityService.findByCode(fortress, documentType, code);
+        if ( entity == null )
+            throw new NotFoundException("Unable to locate entity " + code);
+
         return new EntityBean(entity);
     }
 
@@ -151,25 +151,23 @@ public class EntityEP {
 
 
     @RequestMapping(value = "/{key}/log", produces = "application/json", method = RequestMethod.GET)
-    public
     @ResponseBody
-    Set<EntityLog> getLogs(@PathVariable("key") String key,
-                           HttpServletRequest request) throws FlockException {
+    public Collection<EntityLogResult> getLogs(@PathVariable("key") String key,
+                                        @RequestParam(value = "withData", required = false ) boolean withData,
+                                        HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/{key}/logs
-        return entityService.getEntityLogs(company, key);
-
+        return entityService.getEntityLogs(company, key, withData);
     }
 
-
     @RequestMapping(value = "/{key}/log/last", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<EntityLog> getLastLog(@PathVariable("key") String key,
-                                                HttpServletRequest request) throws FlockException {
+    public EntityLogResult getLastLog(@PathVariable("key") String key,
+                                      HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // curl -u mike:123 -X GET http://localhost:8081/api/v1/track/c27ec2e5-2e17-4855-be18-bd8f82249157/lastlog
         EntityLog changed = entityService.getLastEntityLog(company, key);
         if (changed != null)
-            return new ResponseEntity<>(changed, HttpStatus.OK);
+            return new EntityLogResult(changed);
 
         throw new NotFoundException("Unable to locate the last log for the requested key");
 

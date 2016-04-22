@@ -17,7 +17,8 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.registration.TagResultBean;
+import org.flockdata.registration.RegistrationBean;
+import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,33 +28,39 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Locate a tag
- * Created by mike on 17/04/16.
+ * Handles the RegistrationInputBean through to Flockdata
+ *
+ * Created by mike on 13/04/16.
  */
-public class GetTags extends AbstractRestCommand {
+public class RegistrationPost extends AbstractRestCommand {
+    /**
+     * Set's the basic immutable properties for this command
+     *
+     * @param clientConfiguration URL, APIkey, user, password
+     * @param restWriter          Helper class to access HTTP resources
+     */
 
-    private String label;
+    private  RegistrationBean registrationBean;
 
-    private TagResultBean[] results;
+    private SystemUserResultBean result =null;
 
-    public GetTags(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label) {
+    public RegistrationPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, RegistrationBean registrationBean) {
         super(clientConfiguration, fdRestWriter);
-        this.label = label;
+        this.registrationBean=registrationBean;
+
     }
 
-    public TagResultBean[] getResults() {
-        return results;
+    public SystemUserResultBean getResult() {
+        return result;
     }
 
     @Override
     public String exec() {
-        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
 
         try {
-            ResponseEntity<TagResultBean[]> response;
-            response = restTemplate.exchange(url + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
-
-            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(url+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
+            result = response.getBody();
         } catch (HttpClientErrorException e) {
             return e.getMessage();
         } catch (HttpServerErrorException e) {

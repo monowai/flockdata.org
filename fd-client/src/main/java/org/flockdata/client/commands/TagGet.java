@@ -30,14 +30,14 @@ import org.springframework.web.client.ResourceAccessException;
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class GetTag extends AbstractRestCommand  {
+public class TagGet extends AbstractRestCommand  {
 
     private String label;
     private String code;
 
     private TagResultBean results;
 
-    public GetTag(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label, String code) {
+    public TagGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label, String code) {
         super(clientConfiguration, fdRestWriter);
         this.label = label;
         this.code = code;

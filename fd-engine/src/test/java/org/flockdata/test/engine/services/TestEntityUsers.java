@@ -20,22 +20,18 @@
 package org.flockdata.test.engine.services;
 
 import org.flockdata.model.Entity;
-import org.flockdata.model.EntityLog;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.SystemUser;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.SearchChange;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.Collection;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
@@ -71,14 +67,14 @@ public class TestEntityUsers extends EngineBase {
         Entity entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
 
-        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertEquals(1, logs.size());
-        EntityLog log = logs.iterator().next();
-        assertEquals("billie", log.getLog().getMadeBy().getCode().toLowerCase());
+        EntityLogResult log = logs.iterator().next();
+        assertEquals("billie", log.getMadeBy().getCode().toLowerCase());
 
         entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), EntityContentHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
-        assertTrue("Event name incorrect", log.getLog().getEvent().getCode().equalsIgnoreCase("answer"));
+        assertTrue("Event name incorrect", log.getEvent().getCode().equalsIgnoreCase("answer"));
 
         entity = entityService.findByCode(fortress, "CompanyNode", entityCode);
         Assert.assertEquals("poppy", entity.getCreatedBy().getCode().toLowerCase());
@@ -87,10 +83,10 @@ public class TestEntityUsers extends EngineBase {
         assertTrue(logs.size() == 2);
         boolean billieFound = false;
         boolean nemoFound = false;
-        for (EntityLog entityLog : logs) {
-            if (entityLog.getLog().getMadeBy().getCode().equals("billie"))
+        for (EntityLogResult entityLog : logs) {
+            if (entityLog.getMadeBy().getCode().equals("billie"))
                 billieFound = true;
-            if (entityLog.getLog().getMadeBy().getCode().equals("nemo"))
+            if (entityLog.getMadeBy().getCode().equals("nemo"))
                 nemoFound = true;
         }
         assertTrue("Didn't find Billie & Nemo", billieFound && nemoFound);

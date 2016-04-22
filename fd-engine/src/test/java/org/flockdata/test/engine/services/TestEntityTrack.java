@@ -26,6 +26,7 @@ import org.flockdata.helper.NotFoundException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.store.StoredContent;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
@@ -212,13 +213,13 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
 
-        Set<EntityLog> entityLogs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
+        Collection<EntityLogResult> entityLogs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertNotNull(entityLogs);
         assertEquals("Didn't find the log for the entity", 1, entityLogs.size());
         // Validate that the LastChangeUser is in the Log
-        for (EntityLog entityLog : entityLogs) {
-            assertNotNull(entityLog.getLog().getMadeBy());
-            assertEquals("poppy", entityLog.getLog().getMadeBy().getCode());
+        for (EntityLogResult entityLog : entityLogs) {
+            assertNotNull(entityLog.getMadeBy());
+            assertEquals("poppy", entityLog.getMadeBy().getCode());
         }
     }
 
@@ -254,7 +255,7 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(entity);
         waitForFirstLog(su.getCompany(), entity);
 
-        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertNotNull(logs);
         assertEquals("3 Identical changes should result in a single log", 1, logs.size());
     }
@@ -437,15 +438,13 @@ public class TestEntityTrack extends EngineBase {
             i++;
         }
         assertEquals(1d, (double) entityService.getLogCount(su.getCompany(), entity.getKey()), 0);
-        Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey());
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey(), true);
         assertNotNull(logs);
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
-        for (EntityLog entityLog : logs) {
-            StoredContent content = storageService.read(entity, entityLog.getLog());
-            assertNotNull(content);
-            assertNotNull(content.getData());
-            assertFalse(content.getData().isEmpty());
+        for (EntityLogResult entityLog : logs) {
+            assertNotNull(entityLog.getData());
+            assertFalse(entityLog.getData().isEmpty());
         }
     }
 
@@ -668,7 +667,7 @@ public class TestEntityTrack extends EngineBase {
             i++;
         }
 
-        Set<EntityLog> aLogs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey());
+        Collection<EntityLogResult> aLogs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey());
         assertEquals(max, aLogs.size());
 
         EntityLog lastLog = entityService.getLastEntityLog(su.getCompany(), entity.getKey());
@@ -720,7 +719,7 @@ public class TestEntityTrack extends EngineBase {
 
         assertNotSame(0L, firstLog.getFortressWhen());
         assertNotSame(0L, secondLog.getFortressWhen());
-        Set<EntityLog> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey());
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(fortress.getCompany(), entity.getKey());
         assertEquals("Expected two EntityLogs", 2, logs.size());
 
         entity = entityService.getEntity(su.getCompany(), key);
@@ -1292,6 +1291,43 @@ public class TestEntityTrack extends EngineBase {
         for (FortressSegment segment : results.keySet()) {
             assertEquals(1, results.get(segment).size());
         }
+    }
+
+    /**
+     * Create fortress and doctype via in the EntityInputBean
+     *
+     * Useful for checking the user experience of working with the Result view
+     *
+     * @throws Exception
+     */
+    @Test
+    public void contentInputWithDocumentAndFortress () throws Exception {
+        SystemUser su = registerSystemUser("contentInputWithDocumentAndFortress");
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("contentInputWithDocumentAndFortress", true))
+                .setCode("findme")
+                .setContent( new ContentInputBean(EntityContentHelper.getRandomMap()))
+                .setDocumentType(new DocumentTypeInputBean("contentInputWithDocumentAndFortress"))
+                .addTag(new TagInputBean("someCode", "SomeLabel"));
+
+        TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInputBean);
+        assertNotNull(result);
+        assertNotNull(result.getEntity().getKey());
+        // Wrap the entity to the outside worlds view of things.
+        EntityBean eb = new EntityBean(entityService.getEntity(su.getCompany(), result.getKey()));
+        assertNotNull(eb.getDateCreated());
+        assertNotNull(eb.getDateUpdated());
+
+        Fortress fortress = fortressService.findByName(su.getCompany(), entityInputBean.getFortress().getName());
+        assertNotNull(fortress);
+        assertEquals(entityInputBean.getFortress().getName(), fortress.getName());
+        assertNotNull(conceptService.findDocumentType(fortress, entityInputBean.getDocumentType().getName()));
+
+        SearchChange searchChange = searchService.getSearchChange(result);
+        assertNotNull(searchChange);
+        assertNotNull(searchChange.getData());
+        assertFalse(searchChange.getData().isEmpty());
+
     }
 
     private void compareUser(String exceptionMessage, Entity entity, String userName) {

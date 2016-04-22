@@ -56,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  * Base class for Web App context driven classes
  * Created by mike on 12/02/16.
  */
-@WebAppConfiguration (value = "src/main/resources")
+@WebAppConfiguration(value = "src/main/resources")
 @ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
 @SpringApplicationConfiguration(FdEngine.class)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -64,7 +64,7 @@ public abstract class MvcBase {
 
     static final String apiRoot = "/api";
     static final String LOGIN_PATH = apiRoot + "/login";
-    static final String apiPath = apiRoot+"/v1";
+    static final String apiPath = apiRoot + "/v1";
     public static final String ANYCO = "anyco";
 
     public static String harry = "harry";
@@ -104,9 +104,9 @@ public abstract class MvcBase {
 
 
     @Before
-    public void setupMvc() throws Exception{
+    public void setupMvc() throws Exception {
         engineConfig.setMultiTenanted(false);
-        if (mockMvc == null ) {
+        if (mockMvc == null) {
             mockMvc = MockMvcBuilders
                     .webAppContextSetup(wac)
                     .apply(SecurityMockMvcConfigurers.springSecurity())
@@ -122,13 +122,12 @@ public abstract class MvcBase {
     }
 
 
-
     public SystemUserResultBean makeDataAccessProfile(String companyName, String accessUser) throws Exception {
         return makeDataAccessProfile(mike(), companyName, accessUser);
     }
 
-    public MockMvc mvc() throws Exception{
-        if ( mockMvc == null )
+    public MockMvc mvc() throws Exception {
+        if (mockMvc == null)
             setupMvc();
         return mockMvc;
     }
@@ -146,14 +145,14 @@ public abstract class MvcBase {
     }
 
     public RequestPostProcessor harry() {
-        return user(harry).password("123").roles( FdRoles.FD_USER);
+        return user(harry).password("123").roles(FdRoles.FD_USER);
     }
 
     static RequestPostProcessor noUser() {
         return user("noone");
     }
 
-    public void setSecurity() throws Exception{
+    public void setSecurity() throws Exception {
     }
 
     FortressResultBean createFortress(RequestPostProcessor user, String fortressName)
@@ -162,7 +161,7 @@ public abstract class MvcBase {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post(apiPath +"/fortress/")
+                                .post(apiPath + "/fortress/")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(user)
                                 .content(
@@ -178,7 +177,7 @@ public abstract class MvcBase {
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
-                .post(apiPath +"/query/documents/")
+                .post(apiPath + "/query/documents/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(fortresses))
@@ -189,7 +188,7 @@ public abstract class MvcBase {
     }
 
     public Collection<DocumentType> getRelationships(SystemUserResultBean su, Collection<String> fortresses) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath +"/query/relationships/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath + "/query/relationships/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(fortresses))
@@ -200,7 +199,7 @@ public abstract class MvcBase {
     }
 
     public MatrixResults getMatrixResult(SystemUser su, MatrixInputBean input) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath +"/query/matrix/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath + "/query/matrix/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(input))
@@ -208,19 +207,20 @@ public abstract class MvcBase {
 
         return JsonUtils.toObject(response.getResponse().getContentAsByteArray(), MatrixResults.class);
     }
-    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser) throws Exception{
+
+    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser) throws Exception {
         return makeDataAccessProfile(user, company, accessUser, MockMvcResultMatchers.status().isCreated());
     }
 
-    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception{
+    public SystemUserResultBean makeDataAccessProfile(RequestPostProcessor user, String company, String accessUser, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath +"/profiles/")
-                        .content(JsonUtils.toJson( new RegistrationBean(company, accessUser)))
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(user)
-        ).andExpect(status).andReturn();
+                .perform(MockMvcRequestBuilders.post(apiPath + "/profiles/")
+                        .content(JsonUtils.toJson(new RegistrationBean(company, accessUser)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
 
-        if ( response.getResolvedException() ==null ) {
+        if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
             return JsonUtils.toObject(json.getBytes(), SystemUserResultBean.class);
@@ -232,18 +232,22 @@ public abstract class MvcBase {
     public EntityBean getEntity(RequestPostProcessor user, String key) throws Exception {
         return getEntity(user, key, MockMvcResultMatchers.status().isOk());
     }
+
     public EntityBean getEntity(RequestPostProcessor user, String key, ResultMatcher status) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{key}", key)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/{key}", key)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(status).andReturn();
-        String json = response.getResponse().getContentAsString();
 
+        if (response.getResolvedException() !=null) {
+            throw response.getResolvedException();
+        }
+        String json = response.getResponse().getContentAsString();
         return JsonUtils.toObject(json.getBytes(), EntityBean.class);
     }
 
     public Map<String, Object> getHealth(RequestPostProcessor user) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/admin/health/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/admin/health/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -254,7 +258,7 @@ public abstract class MvcBase {
 
 
     public Map<String, Object> getHealth(SystemUserResultBean su) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/admin/health/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/admin/health/")
                 .header(ApiKeyInterceptor.API_KEY, (su != null ? su.getApiKey() : ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(noUser())
@@ -267,7 +271,7 @@ public abstract class MvcBase {
     public String ping() throws Exception {
         ResultActions result = mvc()
                 .perform(
-                        MockMvcRequestBuilders.get(apiRoot +"/ping"));
+                        MockMvcRequestBuilders.get(apiRoot + "/ping"));
         return result.andReturn().getResponse().getContentAsString();
     }
 
@@ -288,7 +292,7 @@ public abstract class MvcBase {
                 .perform(
                         MockMvcRequestBuilders.post(LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.toJson( new LoginRequest(user, pass))))
+                                .content(JsonUtils.toJson(new LoginRequest(user, pass))))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
     }
@@ -299,17 +303,17 @@ public abstract class MvcBase {
                 .perform(
                         MockMvcRequestBuilders.post(LOGIN_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonUtils.toJson( user)))
+                                .content(JsonUtils.toJson(user)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
     }
 
     public TrackRequestResult track(RequestPostProcessor user, EntityInputBean eib) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath +"/track/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.post(apiPath + "/track/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
                 .content(JsonUtils.toJson(eib))
-        )   .andDo(log())
+        ).andDo(log())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
         byte[] json = response.getResponse().getContentAsByteArray();
@@ -319,7 +323,7 @@ public abstract class MvcBase {
 
     public Company getCompany(String name, RequestPostProcessor user) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
-                .get(apiPath +"/company/" + name)
+                .get(apiPath + "/company/" + name)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -329,16 +333,16 @@ public abstract class MvcBase {
     }
 
     public boolean findCompanyIllegal(String name, RequestPostProcessor user) throws Exception {
-        mvc().perform(MockMvcRequestBuilders.get(apiPath +"/company/" + name)
+        mvc().perform(MockMvcRequestBuilders.get(apiPath + "/company/" + name)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with (user)
+                .with(user)
 
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
         return true;
     }
 
     public Collection<Company> findCompanies(RequestPostProcessor user) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/company/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/company/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
 
@@ -352,11 +356,11 @@ public abstract class MvcBase {
 
         ResultActions result = mvc()
                 .perform(
-                        MockMvcRequestBuilders.get(apiPath +"/admin/ping")
-                        .with(user)
+                        MockMvcRequestBuilders.get(apiPath + "/admin/ping")
+                                .with(user)
                 )
-                .andExpect(expectedResult)  ;
-       return result.andReturn().getResponse().getContentAsString();
+                .andExpect(expectedResult);
+        return result.andReturn().getResponse().getContentAsString();
 
     }
 
@@ -364,7 +368,7 @@ public abstract class MvcBase {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post(apiPath +"/fortress/")
+                                .post(apiPath + "/fortress/")
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtils.toJson(fortressInputBean))).andReturn();
@@ -374,28 +378,28 @@ public abstract class MvcBase {
 
     }
 
-    public FortressResultBean getFortress(RequestPostProcessor user, String code) throws Exception{
+    public FortressResultBean getFortress(RequestPostProcessor user, String code) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .get(apiPath +"/fortress/{code}",code)
+                                .get(apiPath + "/fortress/{code}", code)
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                ).andReturn();
+                ).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.toObject(json, FortressResultBean.class);
 
     }
 
-    public Collection<FortressResultBean> getFortresses(RequestPostProcessor user) throws Exception{
+    public Collection<FortressResultBean> getFortresses(RequestPostProcessor user) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .get(apiPath +"/fortress/")
+                                .get(apiPath + "/fortress/")
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
-                               ).andReturn();
+                ).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
         return JsonUtils.toCollection(json, FortressResultBean.class);
@@ -403,7 +407,7 @@ public abstract class MvcBase {
     }
 
     public Collection<TagResultBean> getTags(RequestPostProcessor user, String label) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/tag/" + label)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -413,12 +417,12 @@ public abstract class MvcBase {
 
     }
 
-    public TagResultBean getTagWithPrefix(RequestPostProcessor user, String label, String keyPrefix, String code) throws Exception{
+    public TagResultBean getTagWithPrefix(RequestPostProcessor user, String label, String keyPrefix, String code) throws Exception {
         label = URLEncoder.encode(label, "UTF-8");
         code = URLEncoder.encode(code, "UTF-8");
 
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath +"/tag/{label}/{prefix}/{code}", label, keyPrefix, code)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/tag/{label}/{prefix}/{code}", label, keyPrefix, code)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andDo(log())
@@ -434,7 +438,7 @@ public abstract class MvcBase {
         label = URLEncoder.encode(label, "UTF-8");
         code = URLEncoder.encode(code, "UTF-8");
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath +"/tag/{label}/{code}", label, code)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/tag/{label}/{code}", label, code)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
 
@@ -447,7 +451,7 @@ public abstract class MvcBase {
     }
 
     public void getTagNotFound(RequestPostProcessor user, String label, String code) throws Exception {
-        mvc().perform(MockMvcRequestBuilders.get(apiPath +"/tag/" + label + "/" + code)
+        mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label + "/" + code)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
 
@@ -457,7 +461,7 @@ public abstract class MvcBase {
     }
 
     public Collection<DocumentResultBean> getDocuments(RequestPostProcessor user, String fortress) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/doc/" + fortress)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/doc/" + fortress)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -467,7 +471,7 @@ public abstract class MvcBase {
     }
 
     public Collection<ConceptResultBean> getLabelsForDocument(RequestPostProcessor user, String code, String docResultName) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/doc/" + code + "/" + docResultName)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/doc/" + code + "/" + docResultName)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -480,7 +484,7 @@ public abstract class MvcBase {
     public Collection<TagResultBean> createTag(RequestPostProcessor user, TagInputBean tag) throws Exception {
         ArrayList<TagInputBean> tags = new ArrayList<>();
         tags.add(tag);
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.put(apiPath +"/tag/")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.put(apiPath + "/tag/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(tags))
                 .with(user)
@@ -491,7 +495,7 @@ public abstract class MvcBase {
     }
 
     public Map<String, Object> getConnectedTags(RequestPostProcessor user, String label, String code, String relationship, String targetLabel) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -501,25 +505,25 @@ public abstract class MvcBase {
 
     }
 
-    public Collection<EntityLog> getEntityLogs(RequestPostProcessor user, String key) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + key + "/log")
+    public Collection<EntityLogResult> getEntityLogs(RequestPostProcessor user, String key) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/" + key + "/log")
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String json = response.getResponse().getContentAsString();
 
-        return JsonUtils.toCollection(json, EntityLog.class);
+        return JsonUtils.toCollection(json, EntityLogResult.class);
     }
 
     public void getEntityLogsIllegalEntity(RequestPostProcessor user, String key) throws Exception {
-        mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/" + key + "/log")
+        mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/" + key + "/log")
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
     }
 
-    public Collection<EntityTagResult> getEntityTags(RequestPostProcessor user, String key) throws Exception{
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/entity/{key}/tags", key )
+    public Collection<EntityTagResult> getEntityTags(RequestPostProcessor user, String key) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/entity/{key}/tags", key)
                 .with(user)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -532,7 +536,7 @@ public abstract class MvcBase {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post(apiPath +"/fortress/{code}/docs",fortress.getCode())
+                                .post(apiPath + "/fortress/{code}/docs", fortress.getCode())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(user)
                                 .content(JsonUtils.toJson(docTypes))).andReturn();
@@ -542,7 +546,7 @@ public abstract class MvcBase {
     }
 
     public Collection<FortressSegment> getSegments(RequestPostProcessor user, String fortressCode) throws Exception {
-        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath +"/fortress/" + fortressCode + "/segments")
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/fortress/" + fortressCode + "/segments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user)
         ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -560,7 +564,7 @@ public abstract class MvcBase {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .get(apiPath +"/path/{label}/{code}/{depth}/{lastLabel}", label, code, "4", targetLabel)
+                                .get(apiPath + "/path/{label}/{code}/{depth}/{lastLabel}", label, code, "4", targetLabel)
                                 .with(user)
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(log())
@@ -574,15 +578,15 @@ public abstract class MvcBase {
 
     }
 
-    public ContentProfileResult makeContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+    public ContentProfileResult makeContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
-                        .content(JsonUtils.toJson( contentProfile))
+                .perform(MockMvcRequestBuilders.post(apiPath + "/content/{fortress}/{documentType}", fortress, documentType)
+                        .content(JsonUtils.toJson(contentProfile))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
 
-        if ( response.getResolvedException() ==null ) {
+        if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
             return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
@@ -590,14 +594,14 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
-    public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception{
+    public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.get(apiPath +"/content/{fortress}/{documentType}", fortress, documentType)
+                .perform(MockMvcRequestBuilders.get(apiPath + "/content/{fortress}/{documentType}", fortress, documentType)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(status).andReturn();
 
-        if ( response.getResolvedException() ==null ) {
+        if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
             return JsonUtils.toObject(json.getBytes(), ContentProfileImpl.class);
@@ -605,22 +609,21 @@ public abstract class MvcBase {
         throw response.getResolvedException();
     }
 
-    ContentValidationResults validateContent(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception{
+    ContentValidationResults validateContent(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath +"/content/")
-                        .content(JsonUtils.toJson( contentProfile))
+                .perform(MockMvcRequestBuilders.post(apiPath + "/content/")
+                        .content(JsonUtils.toJson(contentProfile))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)
                 ).andExpect(result).andReturn();
 
-        if ( response.getResolvedException() ==null ) {
+        if (response.getResolvedException() == null) {
             String json = response.getResponse().getContentAsString();
 
             return JsonUtils.toObject(json.getBytes(), ContentValidationResults.class);
         }
         throw response.getResolvedException();
     }
-
 
 
 }

@@ -23,17 +23,14 @@ import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.store.Store;
 import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.EntitySummaryBean;
-import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -104,18 +101,17 @@ public class TestVersioning extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), trackResult.getEntity().getKey());
         assertNotNull ( entity);
 
-        Set<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getKey());
+        Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), trackResult.getEntity().getKey());
         assertFalse(logs.isEmpty());
         assertEquals(1, logs.size());
         // Check various properties that we still want to return
-        for (EntityLog log : logs) {
-            assertEquals (entity.getFortressCreatedTz().getMillis(),log.getFortressWhen().longValue() );
-            assertNotNull ( log.getLog().getEvent());
-            assertEquals("Create", log.getLog().getEvent().getName());
-            assertNotNull(log.getFortressWhen());
-            assertNotNull(log.getLog().getMadeBy());
+        for (EntityLogResult log : logs) {
+            assertEquals (entity.getFortressCreatedTz().getMillis(),log.getWhen().longValue() );
+            assertNotNull ( log.getEvent());
+            assertEquals("Create", log.getEvent().getName());
+            assertNotNull(log.getWhen());
+            assertNotNull(log.getMadeBy());
             assertTrue(log.isMocked());
-            assertTrue(log.getLog().isMocked());
         }
         EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
         assertNotNull (mockLog);

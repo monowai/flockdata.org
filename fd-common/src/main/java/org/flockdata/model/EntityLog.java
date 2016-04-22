@@ -49,8 +49,6 @@ public class EntityLog {
     @Fetch
     private Long fortressWhen = 0l;
 
-    private String timezone = null;
-
     @Transient
     private boolean isMock;
 
@@ -67,7 +65,6 @@ public class EntityLog {
         this();
         this.entity = entity;
         this.log = log;
-        this.timezone = entity.getSegment().getFortress().getTimeZone();
         if (entity.getSegment().getFortress().isStoreDisabled()) {
             id = System.currentTimeMillis();
             isMock = log.isMocked();
