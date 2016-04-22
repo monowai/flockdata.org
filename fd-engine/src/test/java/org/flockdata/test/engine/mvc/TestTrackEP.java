@@ -20,16 +20,14 @@
 package org.flockdata.test.engine.mvc;
 
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.model.EntityLog;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.ContentInputBean;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackRequestResult;
+import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collection;
 
@@ -60,6 +58,7 @@ public class TestTrackEP extends MvcBase {
 
         assertEquals("usera", e.getLastUser());
         assertEquals("usera", e.getCreatedUser());
+        assertNotNull(e.getSearchKey());
 
         trackResult =track(mike(), eib);
         assertEquals("Existing entity should have been found", true, !trackResult.isNewEntity());
@@ -90,7 +89,7 @@ public class TestTrackEP extends MvcBase {
         eib.setContent(cib);
         TrackRequestResult trackResult = track(mike(), eib);
         assertNotNull(trackResult);
-        Collection<EntityLog> entityLogs = getEntityLogs(mike(), trackResult.getKey());
+        Collection<EntityLogResult> entityLogs = getEntityLogs(mike(), trackResult.getKey());
         assertEquals(1, entityLogs.size());
     }
 
@@ -109,6 +108,14 @@ public class TestTrackEP extends MvcBase {
         assertNotNull(trackResult);
         login("mike", "123");
         getEntityLogsIllegalEntity(mike(), trackResult.getKey() +"123");
+
+    }
+
+    @Test
+    public void entity_notFoundException() throws Exception {
+        login("mike", "123");
+        exception.expect(NotFoundException.class);
+        getEntity(mike(), "invalidKey)", MockMvcResultMatchers.status().isNotFound());
 
     }
 

@@ -113,6 +113,12 @@ public class EngineConfig implements PlatformConfig {
         return fdStoreUrl+"/api";
     }
 
+    @Override
+    public PlatformConfig setSearchRequiredToConfirm(boolean b) {
+        this.requireSearchToConfirm = b;
+        return this;
+    }
+
     private boolean timing = false;
 
     public void setStoreEnabled(boolean storeEnabled) {
@@ -138,7 +144,7 @@ public class EngineConfig implements PlatformConfig {
 
 
     // By default, we only require a reply if this is being indexed for the first time
-    @Value("${org.fd.engine.search.update:false}")
+    @Value("${org.fd.engine.search.update:true}")
     Boolean requireSearchToConfirm = false;
 
     public Boolean isSearchRequiredToConfirm() {

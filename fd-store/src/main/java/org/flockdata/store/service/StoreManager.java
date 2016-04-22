@@ -97,9 +97,12 @@ public class StoreManager implements StoreService {
         if (storeBean.getStore().equals(Store.NONE.name()))
             return; // This service does not write to ES, that is handled via fd-engine
 
+        if (storeBean.getType() == null )
+            throw new AmqpRejectAndDontRequeueException("Couldn't figure out the type for entity "+storeBean.getId());
+
         try {
             logger.debug("Received request to add storeBean {}", storeBean);
-            getStore(Store.valueOf(storeBean.getStore())).add(storeBean);
+            getStore(Store.valueOf(storeBean.getStore().toUpperCase())).add(storeBean);
 
         } catch (IOException e) {
             String errorMsg = String.format("Error writing to the %s Store.", storeBean.getStore());

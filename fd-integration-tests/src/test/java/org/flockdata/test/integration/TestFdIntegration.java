@@ -1268,19 +1268,19 @@ public class TestFdIntegration {
 //                for (EntityInputBean entityInputBean : entityBatch) {
 //                    Collection<EntityInputBean> singleEntity = new ArrayList<>();
 //                    singleEntity.add(entityInputBean);
-//                    amqpServices.publish(singleEntity);
+//                    amqpServices.toCollection(singleEntity);
 //                }
 //            } else {
 //                // Altogether
-//                amqpServices.publish(entityBatch);
+//                amqpServices.toCollection(entityBatch);
 //                // Improving the chance of a deadlock :)
-//                //        amqpServices.publish(entityBatch);
+//                //        amqpServices.toCollection(entityBatch);
 //            }
 //
 //            Helper.waitAWhile("AMQP", required * 1500);
 //
 //            // Rerun the same batch
-//            amqpServices.publish(entityBatch);
+//            amqpServices.toCollection(entityBatch);
 //
 //            // Changes were not made so checking should be quick
 //            Helper.waitAWhile("AMQP", required * 750);

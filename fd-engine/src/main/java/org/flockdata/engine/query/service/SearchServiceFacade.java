@@ -140,11 +140,10 @@ public class SearchServiceFacade {
     }
 
     /**
-     * Here we construct a SearchChange for the supplied parameters. The input represents the state of data to index so
-     * this should always be called with a transaction.
+     * Construct a SearchChange for the Entity Content.
      * <p/>
-     * The function will additionally find the appropriate TagStructure to index as well as set any Parent, entity
-     * with a [p:parent] relationship to another entity, that may be associated.
+     * Applies the appropriate TagStructure to index as well as set any Parent entity -
+     * a [p:parent] - relationship to another entity.
      * <p/>
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
@@ -152,7 +151,7 @@ public class SearchServiceFacade {
      * @param entityLog    Log to work with (usually the "current" log)
      * @return object ready to index
      */
-    public SearchChange getSearchDocument(TrackResultBean trackResultBean,  EntityLog entityLog) {
+    private SearchChange getSearchDocument(TrackResultBean trackResultBean, EntityLog entityLog) {
         DocumentType docType =trackResultBean.getDocumentType();
         ContentInputBean contentInput =trackResultBean.getContentInput();
         Entity entity = trackResultBean.getEntity();

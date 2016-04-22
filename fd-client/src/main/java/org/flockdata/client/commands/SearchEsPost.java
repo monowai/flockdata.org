@@ -17,8 +17,8 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.registration.RegistrationBean;
-import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.search.model.EsSearchResult;
+import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -28,39 +28,35 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 /**
- * Handles the RegistrationInputBean through to Flockdata
- *
- * Created by mike on 13/04/16.
+ * Locate a tag
+ * Created by mike on 17/04/16.
  */
-public class Registration extends AbstractRestCommand {
-    /**
-     * Set's the basic immutable properties for this command
-     *
-     * @param clientConfiguration URL, APIkey, user, password
-     * @param restWriter          Helper class to access HTTP resources
-     */
+public class SearchEsPost extends AbstractRestCommand {
 
-    private  RegistrationBean registrationBean;
+    private QueryParams queryParams;
 
-    private SystemUserResultBean result =null;
+    private EsSearchResult results;
 
-    public Registration(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, RegistrationBean registrationBean) {
+    public SearchEsPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
         super(clientConfiguration, fdRestWriter);
-        this.registrationBean=registrationBean;
-
+        this.queryParams = queryParams;
     }
 
-    public SystemUserResultBean getResult() {
-        return result;
+
+    public EsSearchResult getResult() {
+        return results;
     }
 
     @Override
     public String exec() {
-        HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
 
         try {
-            ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(url+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
-            result = response.getBody();
+
+            ResponseEntity<EsSearchResult> response;
+            response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+
+            results = response.getBody();
         } catch (HttpClientErrorException e) {
             return e.getMessage();
         } catch (HttpServerErrorException e) {

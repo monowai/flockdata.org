@@ -27,8 +27,8 @@ package org.flockdata.test.engine.services;
 
 import org.flockdata.dao.EntityTagDao;
 import org.flockdata.engine.track.service.SearchHandler;
-import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
@@ -413,7 +413,7 @@ public class TestEntityTags extends EngineBase {
         // This should create the same Tag object
         mediationFacade.trackEntity(su.getCompany(), entity);
         ContentInputBean contentInputBean = new ContentInputBean("Harry", "InvalidKey", new DateTime(), EntityContentHelper.getRandomMap());
-        exception.expect(FlockException.class);
+        exception.expect(NotFoundException.class);
         mediationFacade.trackLog(su.getCompany(), contentInputBean);
 
     }
@@ -1168,24 +1168,32 @@ public class TestEntityTags extends EngineBase {
         EntityInputBean inputBean = new EntityInputBean(iFortress, "olivia@sunnybell.com", "CompanyNode", new DateTime());
         inputBean.setDescription("This is a description");
 
-        TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-        SearchChange searchChange = searchService.getSearchChange(trackResult);
+        boolean oldValue = engineConfig.isSearchRequiredToConfirm();
+        engineConfig.setSearchRequiredToConfirm(true);
+        try {
 
-        searchChange.setSearchKey("SearchKey"); // any value
+            TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
+            SearchChange searchChange = searchService.getSearchChange(trackResult);
 
-        SearchResults searchResults = getSearchResults(searchChange);
-        searchHandler.handlResults(searchResults);
+            searchChange.setSearchKey("SearchKey"); // any value
 
-        assertNotNull(searchChange);
+            SearchResults searchResults = getSearchResults(searchChange);
+            searchHandler.handlResults(searchResults);
 
-        Map<String, Object> what = EntityContentHelper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
-        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
-        // Logging after the entity has been created
-        trackResult = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getKey(), new DateTime(), what));
-        assertNotNull(trackResult.getEntity().getSearchKey());
-        SearchChange searchChangeB = searchService.getSearchChange(trackResult);
-        assertEquals(searchChange.getEntityId(), searchChangeB.getEntityId());
-        assertEquals("The log should be using the same search identifier", searchChange.getSearchKey(), searchChangeB.getSearchKey());
+            assertNotNull(searchChange);
+
+            Map<String, Object> what = EntityContentHelper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
+            what.put(EntitySearchSchema.WHAT_NAME, "NameText");
+            // Logging after the entity has been created
+            trackResult = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getKey(), new DateTime(), what));
+            assertEquals("Search count should at least be 1", new Integer(1), trackResult.getEntity().getSearch());
+            assertEquals("Search code value should be set if the platform requires it", searchChange.getSearchKey(), trackResult.getEntity().getSearchKey());
+            SearchChange searchChangeB = searchService.getSearchChange(trackResult);
+            assertEquals(searchChange.getEntityId(), searchChangeB.getEntityId());
+            assertEquals("The log should be using the same search identifier", searchChange.getSearchKey(), searchChangeB.getSearchKey());
+        } finally {
+            engineConfig.setSearchRequiredToConfirm(oldValue);
+        }
 
     }
 

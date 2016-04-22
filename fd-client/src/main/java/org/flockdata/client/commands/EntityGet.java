@@ -17,9 +17,9 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
-import org.flockdata.search.model.EsSearchResult;
-import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.ClientConfiguration;
+import org.flockdata.track.bean.EntityBean;
+import org.flockdata.track.bean.EntityInputBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,32 +31,45 @@ import org.springframework.web.client.ResourceAccessException;
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class SearchEs extends AbstractRestCommand {
+public class EntityGet extends AbstractRestCommand  {
 
-    private QueryParams queryParams;
+    private EntityInputBean entityInputBean;
 
-    private EsSearchResult results;
+    private EntityBean results;
 
-    public SearchEs(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
+    private String key;
+
+    public EntityGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
         super(clientConfiguration, fdRestWriter);
-        this.queryParams = queryParams;
+        this.entityInputBean = entityInputBean;
+    }
+
+    public EntityGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String key) {
+        super(clientConfiguration, fdRestWriter);
+        this.key = key;
     }
 
 
-    public EsSearchResult getResult() {
+    public EntityBean getResult() {
         return results;
     }
 
     @Override
     public String exec() {
-        HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
 
-            ResponseEntity<EsSearchResult> response;
-            response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+            ResponseEntity<EntityBean> response ;
+            if (key !=null ) // Locate by FD unique key
+                response = restTemplate.exchange(url+"/api/v1/entity/{key}", HttpMethod.GET, requestEntity, EntityBean.class, key);
+            else
+                response = restTemplate.exchange(url+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
+                        entityInputBean.getFortress().getName(),
+                        entityInputBean.getDocumentType().getName(),
+                        entityInputBean.getCode());
 
-            results = response.getBody();
+            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException e) {
             return e.getMessage();
         } catch (HttpServerErrorException e) {
