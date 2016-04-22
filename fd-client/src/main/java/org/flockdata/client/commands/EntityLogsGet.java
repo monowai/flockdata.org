@@ -18,8 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.track.bean.EntityBean;
-import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.EntityLogResult;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,26 +30,19 @@ import org.springframework.web.client.ResourceAccessException;
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class GetEntity extends AbstractRestCommand  {
+public class EntityLogsGet extends AbstractRestCommand {
 
-    private EntityInputBean entityInputBean;
+    private EntityLogResult[] results;
 
-    private EntityBean results;
+    private String key;
 
-    private String code;
-
-    public GetEntity(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
+    public EntityLogsGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String key) {
         super(clientConfiguration, fdRestWriter);
-        this.entityInputBean = entityInputBean;
-    }
-
-    public GetEntity(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String code) {
-        super(clientConfiguration, fdRestWriter);
-        this.code = code;
+        this.key = key;
     }
 
 
-    public EntityBean getResult() {
+    public EntityLogResult[] getResult() {
         return results;
     }
 
@@ -60,14 +52,9 @@ public class GetEntity extends AbstractRestCommand  {
 
         try {
 
-            ResponseEntity<EntityBean> response ;
-            if (code !=null ) // Locate by FD unique key
-                response = restTemplate.exchange(url+"/api/v1/entity/{code}", HttpMethod.GET, requestEntity, EntityBean.class, code );
-            else
-                response = restTemplate.exchange(url+"/api/v1/entity/{fortress}/{docType}/{code}", HttpMethod.GET, requestEntity, EntityBean.class,
-                        entityInputBean.getFortress().getName(),
-                        entityInputBean.getDocumentType().getName(),
-                        entityInputBean.getCode());
+            ResponseEntity<EntityLogResult[]> response;
+            response = restTemplate.exchange(url + "/api/v1/entity/{key}/log?withData=true", HttpMethod.GET, requestEntity, EntityLogResult[].class, key);
+
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
         } catch (HttpClientErrorException e) {

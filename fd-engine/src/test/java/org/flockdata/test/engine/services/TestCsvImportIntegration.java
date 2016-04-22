@@ -25,6 +25,7 @@ import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
 import org.flockdata.store.Store;
+import org.flockdata.track.bean.EntityLogResult;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +78,9 @@ public class TestCsvImportIntegration extends EngineBase {
             TestCase.assertEquals("563890", entityA.getSegment().getCode());
 
             EntityLog log = entityService.getLastEntityLog(entityA.getId());
-            Collection<EntityLog> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
-            for (EntityLog entityLog : logs) {
-                logger.debug("{}, {}", new DateTime(entityLog.getFortressWhen()), entityLog.getLog().getChecksum());
+            Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entityA.getKey());
+            for (EntityLogResult entityLog : logs) {
+                logger.debug("{}, {}", new DateTime(entityLog.getWhen()), entityLog.getChecksum());
             }
             logger.debug("entity.Log When {}", new DateTime(log.getFortressWhen()));
             Thread.yield();

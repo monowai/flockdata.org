@@ -21,11 +21,11 @@
 package org.flockdata.company.endpoint;
 
 import org.flockdata.engine.configure.ApiKeyInterceptor;
-import org.flockdata.engine.configure.FdRestNotFoundException;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
@@ -76,7 +76,7 @@ public class CompanyEP {
 
         Company callersCompany = CompanyResolver.resolveCompany(request);
         if ( callersCompany == null )
-            throw new FdRestNotFoundException(companyName);
+            throw new NotFoundException(companyName);
 
         // ToDo Figure out what we need this to do. Currently a caller can only belong to one company
         //   so why bother letting them chose another one?

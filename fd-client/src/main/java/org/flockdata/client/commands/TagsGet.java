@@ -17,45 +17,50 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.TrackRequestResult;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class TrackEntityHttp extends AbstractRestCommand  {
+public class TagsGet extends AbstractRestCommand {
 
-    private EntityInputBean entityInputBean;
+    private String label;
 
-    private TrackRequestResult result;
+    private TagResultBean[] results;
 
-    public TrackEntityHttp(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, EntityInputBean entityInputBean) {
+    public TagsGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label) {
         super(clientConfiguration, fdRestWriter);
-        this.entityInputBean = entityInputBean;
+        this.label = label;
     }
 
-    public TrackRequestResult getResult() {
-        return result;
+    public TagResultBean[] getResults() {
+        return results;
     }
 
     @Override
     public String exec() {
-        HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, httpHeaders);
+        HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            ResponseEntity<TrackRequestResult> restResult = restTemplate.exchange(url+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
-            result = restResult.getBody();
-            return null;
-        } catch (HttpClientErrorException |HttpServerErrorException e) {
+            ResponseEntity<TagResultBean[]> response;
+            response = restTemplate.exchange(url + "/api/v1/tag/{label}", HttpMethod.GET, requestEntity, TagResultBean[].class, label);
 
+            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+        } catch (HttpClientErrorException e) {
+            return e.getMessage();
+        } catch (HttpServerErrorException e) {
+            return e.getMessage();
+        } catch (ResourceAccessException e) {
             return e.getMessage();
         }
+        return null;// Everything worked
     }
 }

@@ -17,7 +17,6 @@
 package org.flockdata.track.bean;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.flockdata.model.EntityLog;
 import org.flockdata.model.TxRef;
 
 import java.io.Serializable;
@@ -36,8 +35,6 @@ public class LogResultBean implements Serializable {
     private String fortressUser;
     private String txReference = null;
     private Long sysWhen;
-    private EntityLog entityLog;
-    private boolean logIgnored = false;
 
     private LogResultBean() {
     }
@@ -98,10 +95,6 @@ public class LogResultBean implements Serializable {
         this.documentType = documentType;
     }
 
-//    public void setLogStatus(ContentInputBean.LogStatus status) {
-//        this.status = status;
-//    }
-
     public void setSysWhen(Long sysWhen) {
         this.sysWhen = sysWhen;
     }
@@ -110,14 +103,6 @@ public class LogResultBean implements Serializable {
         return sysWhen;
     }
 
-    public void setLogToIndex(EntityLog logToIndex) {
-        this.entityLog = logToIndex;
-    }
-
-//    @JsonIgnore
-//    public EntityLog getLogToIndex() {
-//        return entityLog;
-//    }
 
 
 }

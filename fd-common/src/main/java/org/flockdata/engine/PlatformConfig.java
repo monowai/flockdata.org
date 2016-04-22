@@ -84,4 +84,6 @@ public interface PlatformConfig {
 
 
     String getFdStore();
+
+    PlatformConfig setSearchRequiredToConfirm(boolean b);
 }
