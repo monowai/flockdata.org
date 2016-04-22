@@ -56,19 +56,19 @@ class IntegrationHelper {
         return entities;
     }
 
-    EntityLogsGet waitForEntityLog(EntityLogsGet entityLogs, int waitFor) {
+    void waitUntil(ReadyMatcher readyMatcher) {
         ProgressBar pb = null;
-        StopWatch watch = new StopWatch("waitForEntityLog");
-        watch.start("waitForEntityLog");
+        StopWatch watch = new StopWatch();
+        watch.start(readyMatcher.getMessage());
         int count = 0;
-        boolean found = false;
-        entityLogs.exec();
+        boolean ready = false;
+
         do {
             try {
-                found = entityLogs.getResult() != null && entityLogs.getResult().length == waitFor && entityLogs.getResult()[waitFor-1].getData()!=null;
-                if ( !found ) {
+                ready = readyMatcher.isReady();
+                if ( !ready ) {
                     if ( pb == null && count > 5 ) {
-                        pb = new ProgressBar("Waiting for entity Log.... ", attempts -5);
+                        pb = new ProgressBar(readyMatcher.getMessage(), attempts -5);
                         pb.start();
                     }
 
@@ -76,97 +76,36 @@ class IntegrationHelper {
                     if ( pb!=null )
                         pb.stepBy(1);
                     count ++;
-                    entityLogs.exec();
 
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-        } while ( count < attempts && !found);
+        } while ( count < attempts && !ready);
         if ( count == attempts ) {
-            logger.error("Timeout of {} was hit before we got a result", attempts);
+            logger.error("Timeout of {} was hit before we got a result for {}", attempts, readyMatcher.getMessage());
         }
         watch.stop();
         logger.info(watch.prettyPrint());
 
-        return entityLogs;
+    }
+
+    void waitForEntityLog(EntityLogsGet entityLogs, int waitFor) {
+        EntityLogReady waiter = new EntityLogReady(entityLogs, waitFor);
+        waitUntil(waiter);
     }
 
     // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
     // is working on.
-    EntityGet waitForEntityKey(EntityGet entityGet) {
-        int count = 0;
-        boolean found = false;
-        ProgressBar pb = null;
-        StopWatch watch = new StopWatch("waitForEntityKey");
-        watch.start("waitForEntityLog");
-
-        do {
-            try {
-                found = entityGet.getResult() != null && entityGet.getResult().getKey() != null;
-                if ( !found ) {
-                    if ( pb == null && count > 5 ) {
-                        pb = new ProgressBar("Waiting for entity Key.... ", attempts-5);
-                        pb.start();
-                    }
-                    Thread.sleep(sleep);
-                    if ( pb !=null)
-                        pb.stepBy(1);
-                    count++;
-                    entityGet.exec();
-                }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } while ( count < attempts && !found);
-
-        if ( count == attempts && !found)
-            logger.error ( "Timeout of {} was hit before we got a result" ,attempts);
-
-        watch.stop();
-        logger.info(watch.prettyPrint());
-
-        return entityGet;
+    void waitForEntityKey(EntityGet entityGet) {
+        EntityKeyReady waiter = new EntityKeyReady(entityGet);
+        waitUntil(waiter);
     }
 
-    EntityGet waitForSearch(EntityGet entityGet, int searchCount) {
-        int count = 0;
-        boolean found = false;
-        ProgressBar pb = null;
-        StopWatch watch = new StopWatch("waitForSearch");
-        watch.start("waitForSearch");
-
-        do {
-            try {
-                found = entityGet.getResult() != null && entityGet.getResult().getSearch() == searchCount;
-                if ( !found ) {
-                    if ( pb == null && count > 5 ) {
-                        pb = new ProgressBar("Waiting for search change.... ", attempts-5);
-                        pb.start();
-                    }
-                    Thread.sleep(sleep);
-                    if ( pb !=null)
-                        pb.stepBy(1);
-                    count++;
-                    entityGet.exec();
-                }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } while ( count < attempts && !found);
-
-        if ( count == attempts && !found)
-            logger.error ( "Timeout of {} was hit before we got a result" ,attempts);
-
-        watch.stop();
-        logger.info(watch.prettyPrint());
-
-        return entityGet;
+    void waitForSearch(EntityGet entityGet, int searchCount) {
+        EntitySearchReady waiter = new EntitySearchReady(entityGet, searchCount);
+        waitUntil(waiter);
     }
 
     void pauseUntil(Command optionalCommand, String commandResult, int waitCount) throws InterruptedException {

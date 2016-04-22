@@ -222,8 +222,11 @@ public class ITDockerStack {
     }
 
     private static String getIpAddress() {
-        //return stack.getHostIpAddress();
-        return "192.168.99.100";
+        if ( stack == null )
+            return "192.168.99.100";
+        else
+            return stack.getContainerIpAddress();
+
         //return DockerClientFactory.instance().dockerHostIpAddress();
     }
 
@@ -425,12 +428,12 @@ public class ITDockerStack {
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
         entityGet.exec();
-        entityGet = integrationHelper.waitForEntityKey(entityGet);
+        integrationHelper.waitForEntityKey(entityGet);
 
         EntityBean entityResult = entityGet.getResult();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
-        entityGet =  integrationHelper.waitForSearch(entityGet, 1);
+        integrationHelper.waitForSearch(entityGet, 1);
         entityResult = entityGet.getResult();
         assertFalse("Search was incorrectly suppressed", entityResult.isSearchSuppressed());
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
@@ -464,14 +467,14 @@ public class ITDockerStack {
 
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
-        entityGet = integrationHelper.waitForEntityKey(entityGet);
+        integrationHelper.waitForEntityKey(entityGet);
 
         EntityBean entityResult = entityGet.getResult();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
 
         EntityLogsGet entityLogs = new EntityLogsGet(clientConfiguration, fdRestWriter, entityResult.getKey());
-        entityLogs = integrationHelper.waitForEntityLog(entityLogs, 1);
+        integrationHelper.waitForEntityLog(entityLogs, 1);
         assertNotNull(entityLogs.getResult());
         assertEquals("Didn't find a log", 1, entityLogs.getResult().length);
         assertNotNull("No data was returned", entityLogs.getResult()[0].getData());
@@ -482,7 +485,7 @@ public class ITDockerStack {
 
         // Updating an existing entity
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
-        entityLogs = integrationHelper.waitForEntityLog(entityLogs, 2);
+        integrationHelper.waitForEntityLog(entityLogs, 2);
         assertEquals("Didn't find the second log", 2, entityLogs.getResult().length);
         assertEquals("Didn't find the updated field as the first result", "updated", entityLogs.getResult()[0].getData().get("key"));
         assertEquals("Didn't find the original field as the second result", "value", entityLogs.getResult()[1].getData().get("key"));
