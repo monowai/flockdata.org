@@ -22,8 +22,8 @@
  * Created by macpro on 09/08/2014.
  */
 
-fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal, configuration, EntityService) {
-  $scope.entityKey = $routeParams.entityKey;
+fdView.controller('ViewEntityCtrl', function ($scope, $stateParams, $uibModal, configuration, EntityService) {
+  $scope.entityKey = $stateParams.entityKey;
   $scope.metaHeader = {};
   $scope.log = {};
   $scope.tags = [];
@@ -48,6 +48,8 @@ fdView.controller('ViewEntityController', function ($scope, $routeParams, $modal
   $scope.init = function () {
     EntityService.getLogsForEntity($scope.entityKey).then(function (data) {
       $scope.metaHeader = data;
+      console.log(data);
+
       if ($scope.metaHeader.changes[0] !== null) {
         EntityService.getJsonContentForLog($scope.entityKey, $scope.metaHeader.changes[0].id).then(function (data) {
           $scope.log = data;

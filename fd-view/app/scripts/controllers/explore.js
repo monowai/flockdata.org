@@ -20,7 +20,7 @@
 
 'use strict';
 
-fdView.controller('ExploreController', ['$scope', '$http', 'QueryService', '$window', '$controller', 'configuration',
+fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$window', '$controller', 'configuration',
   function ($scope, $http, QueryService, $window, $controller, configuration) {
     $scope.weight = 40;
     var graph={};

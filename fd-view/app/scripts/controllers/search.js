@@ -20,7 +20,7 @@
 
 'use strict';
 
-fdView.controller('HeaderController', function ($scope, $rootScope, AuthenticationSharedService) {
+fdView.controller('HeaderCtrl', function ($scope, $rootScope, AuthenticationSharedService) {
 
     $scope.search = function () {
       $rootScope.$broadcast('META_HEADER_LOADED', $scope.searchTerm);
@@ -39,7 +39,7 @@ fdView.controller('HeaderController', function ($scope, $rootScope, Authenticati
 );
 
 
-fdView.controller('LeftBarController', function ($scope, $rootScope, ProfileService) {
+fdView.controller('LeftBarCtrl', function ($scope, $rootScope, ProfileService) {
 
     ProfileService.getMyProfile().then(function (data) {
       $scope.profile = data;
@@ -53,7 +53,7 @@ fdView.controller('LeftBarController', function ($scope, $rootScope, ProfileServ
 );
 
 // New Search Controller
-fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $modal, configuration) {
+fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $uibModal, configuration) {
     //ToDo: Why do I need to Explore functions?
     $scope.advancedSearch = false;
     $scope.searchResultFound = false;

@@ -18,80 +18,49 @@
   ~  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<ng-flockheader></ng-flockheader>
-<ng-flockleftbar activeSearch="false" activeAnalyze="false" activeExplore="true"
-                 activeStatistics="false"></ng-flockleftbar>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Explore
+    <small>your Fortress as a graph</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+    <li class="active">Explore</li>
+  </ol>
+</section>
 
+<!-- Main content -->
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+          <li><a data-target="#search" data-toggle="tab"><i class="fa fa-search"></i> Search</a></li>
+          <li class="active"><a data-target="#view" data-toggle="tab"><i class="fa fa-share-alt"></i> View</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade" id="search">
+            <b>Search params to add here</b>
 
-<!-- MAIN PANEL -->
-<div id="main" role="main">
-    <!-- RIBBON -->
-    <div id="ribbon">
-        <span class="ribbon-button-alignment"> <span id="refresh" class="btn btn-ribbon" data-title="refresh"
-                                                     rel="tooltip" data-placement="bottom"
-                                                     data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings."
-                                                     data-html="true"><i class="fa fa-refresh"></i></span> </span>
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
-            <li>Home</li>
-            <li>Explore</li>
-        </ol>
-        <!-- end breadcrumb -->
-    </div>
-    <!-- END RIBBON -->
-
-    <!-- MAIN CONTENT -->
-    <div id="content">
-        <!-- PUT YOUR CONTENT HERE -->
-      <div class="row">
-          <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 sortable-grid ui-sortable">
-              <div role="widget" style="" class="jarviswidget jarviswidget-sortable" id="explore-widget" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-jarvis-widget>
-                  <header class="ui-sortable-handle" role="heading">
-                    <h2>Explore</h2>
-                        <ul id="widget-tab-1" class="nav pull-right nav-tabs">
-                            <li class="">
-                                <a aria-expanded="false" data-toggle="tab" data-target="#search"> <i class="fa fa-lg fa-search"></i> <span class="hidden-mobile hidden-tablet"> Search </span> </a>
-                            </li>
-                            <li class="active">
-                                <a aria-expanded="true" data-toggle="tab" data-target="#view"> <i class="fa fa-lg fa-arrow-circle-o-up"></i> <span class="hidden-mobile hidden-tablet"> View </span></a>
-                            </li>
-                        </ul>
-                    </header>
-              <!-- widget div-->
-              <div role="content">
-                  <!-- widget content -->
-                  <div class="widget-body no-padding">
-                      <!-- widget body text-->
-                      <div class="tab-content padding-10">
-                          <div id="search" class="tab-pane fade">
-                              <div class="col-xs-6 col-md-4">
-
-                              </div>
-                          </div>
-                          <div id="view" class="tab-pane fade active in" ng-height="150">
-                              <div id="fd-cy">
-                              <cytoscape graph-elements="graph" graph-layout="layout" graph-style="styles"></cytoscape></div>
-                              <div class="controls">
-
-                                  <div class="col-xs-6 col-md-4">
-                                      <p>Node size</p>
-                                      <!-- <rzslider rz-slider-model="graph.n1.data.weight" rz-slider-options="slider.options"></rzslider> -->
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      <!-- end widget body text-->
-                      <!-- widget footer -->
-                      <div class="widget-footer text-right">
-
-                      </div>
-                      <!-- end widget footer -->
-                  </div>
-                  <!-- end widget content -->
-              </div>
-          <!-- end widget div -->
           </div>
-        </article>
+          <!-- /.tab-pane -->
+          <div class="tab-pane fade active in" id="view" ng-height="150">
+            <div id="fd-cy">
+              <cytoscape graph-elements="graph" graph-layout="layout" graph-style="styles"></cytoscape>
+            </div>
+            <div class="controls" ng-show="false">
+              <div class="col-xs-6 col-md-4">
+                <p>Node size</p>
+                <!-- <rzslider rz-slider-model="graph.n1.data.weight" rz-slider-options="slider.options"></rzslider> -->
+              </div>
+            </div>
+          </div>
+          <!-- /.tab-pane -->
+        </div>
+        <!-- /.tab-content -->
       </div>
+      <!-- nav-tabs-custom -->
     </div>
-</div>
+  </div>
+</section>

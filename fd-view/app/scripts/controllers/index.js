@@ -18,28 +18,20 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-fdView.controller('SettingsCtrl', function ($scope, $controller, configuration) {
-    $scope.setting = {};
+'use strict';
 
-    $scope.apply = function () {
-      configuration.setEngineUrl($scope.setting.fdEngineUrl);
-      configuration.setExploreUrl($scope.setting.exploreUrl);
-      configuration.setDevMode($scope.setting.devMode);
-      $scope.applyResult = true;
+fdView.controller('IndexCtrl', function ($scope, $rootScope, AuthenticationSharedService, ProfileService, Session) {
+
+    ProfileService.getMyProfile().then(function (data) {
+      $scope.profile = data;
+    });
+
+    $scope.logout = function () {
+      AuthenticationSharedService.logout();
     };
 
-    $scope.clear = function () {
-      configuration.setEngineUrl('');
-      configuration.setExploreUrl('');
-      $scope.setting = {};
-    };
+    $scope.loggedIn = function() {
+      return $rootScope.account!==null;
+    }
 
-    $scope.init = function () {
-      $scope.setting.fdEngineUrl = configuration.engineUrl();
-      $scope.setting.exploreUrl = configuration.exploreUrl();
-      $scope.setting.devModeChecked = configuration.devMode();
-    };
-
-  }
-);
-
+});

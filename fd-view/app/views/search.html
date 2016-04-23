@@ -18,224 +18,153 @@
   ~  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<ng-flockheader></ng-flockheader>
-<ng-flockleftbar active="search"></ng-flockleftbar>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Search
+    <small>Optional description</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="ion-home"></i> Home</a></li>
+    <li class="active">Search</li>
+  </ol>
+</section>
 
-<!-- MAIN PANEL -->
-<div id="main" role="main" ng-controller="MetaHeaderCtrl">
+<!-- Main content -->
+<section class="content">
+  <div class="col-md-10">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Search documents</h3>
+        <div class="box-tools pull-right">
+          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+        </div><!-- /.box-tools -->
+      </div><!-- /.box-header -->
+      <form role="form">
+        <div class="box-body">
+          <div class="alert alert-warning fade in" ng-show="msg">
+            {{msg}}
+          </div>
 
-<!-- RIBBON -->
-<div id="ribbon">
-
-    <span class="ribbon-button-alignment"> <span id="refresh" class="btn btn-ribbon" data-title="refresh" rel="tooltip"
-                                                 data-placement="bottom"
-                                                 data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings."
-                                                 data-html="true"><i class="fa fa-refresh"></i></span> </span>
-
-    <!-- breadcrumb -->
-    <ol class="breadcrumb">
-        <li>Home</li>
-        <li>Search</li>
-    </ol>
-    <!-- end breadcrumb -->
-
-    <!-- You can also add more buttons to the
-    ribbon for further usability
-
-    Example below:
-
-    <span class="ribbon-button-alignment pull-right">
-    <span id="search" class="btn btn-ribbon hidden-xs" data-title="search"><i class="fa-grid"></i> Change Grid</span>
-    <span id="add" class="btn btn-ribbon hidden-xs" data-title="add"><i class="fa-plus"></i> Add</span>
-    <span id="search" class="btn btn-ribbon" data-title="search"><i class="fa-search"></i> <span class="hidden-mobile">Search</span></span>
-    </span> -->
-
-</div>
-<!-- END RIBBON -->
-
-<!-- MAIN CONTENT -->
-<div id="content">
-
-    <section id="widget-grid" class="">
-
-        <div class="widget-body no-padding">
-
-            <form class="smart-form">
-
-                <fieldset>
-                  <div class="alert alert-warning fade in" ng-show="msg">
-                    {{msg}}
-                  </div>
-
-                  <div class="row">
-                    <section class="col col-6">
-                            <label class="input">
-                              <input type="text" placeholder="Search ..." ng-model="$root.searchText" autofocus/>
-                            </label>
-                        </section>
-                        <section class="col col-1">
-                            <button type="submit" class="btn btn-primary"
-                                    ng-click="search(searchText,company,fortress,types);">
-                                <i class="fa fa-search"></i>Search
-                            </button>
-
-                        </section>
-                    </div>
-                    <div class="row">
-                        <!--<section class="col col-4">-->
-                        <!--<label class="input">-->
-                        <!--<input type="text" placeholder="Company" ng-model="company"/>-->
-                        <!--</label>-->
-                        <!--</section>-->
-                        <section class="col col-3">
-                            <label class="input">
-                                <input type="text" placeholder="Fortress" ng-model="fortress"/>
-                            </label>
-                        </section>
-                        <section class="col col-3">
-                            <!--<label class="input">-->
-                            <!--Todo why doesn't this lined up?-->
-                            <tags-input type="text" placeholder="Types..." ng-model="types"></tags-input>
-                            <!--<input class="form-control tagsinput" placeholder="Types" ng-model="types" data-role="tagsinput">-->
-                            <!--</label>-->
-                        </section>
-                    </div>
-
-                </fieldset>
-
-                <footer>
-                    <!--<button type="submit" class="btn btn-primary" ng-click="search(searchText,company,fortress,types);">-->
-                    <!--Search-->
-                    <!--</button>-->
-                </footer>
-            </form>
-
+          <div class="form-group">
+            <input class="form-control" type="text" placeholder="Search..." ng-model="$root.searchText" autofocus/>
+          </div>
+          <br>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="fortress">Fortress</label>
+              <input id="fortress" class="form-control" type="text" placeholder="Fortress" ng-model="fortress"/>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label for="types">Types</label>
+            <tags-input id="types" type="text" placeholder="Types..." ng-model="types"></tags-input>
+          </div>
+        </div><!-- /.box-body -->
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary"
+                  ng-click="search(searchText,company,fortress,types);">
+            <i class="fa fa-search"></i>Search
+          </button>
         </div>
+      </form>
+    </div><!-- /.box -->
+  </div>
 
-        <div class="row">
+  <div class="col-md-12" ng-if="searchResults.length !=0">
+    <div class="box box-success">
+      <div class="box-header with-border">
+        <h3 class="box-title">Search Results</h3>
+        <div class="box-tools pull-right">
+          <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div><!-- /.box-tools -->
+      </div><!-- /.box-header -->
+      <div class="box-body">
+        <div class="well well-sm">
+          <ul class="timeline">
+            <li ng-repeat="searchResult in searchResults">
+              <i class="fa fa-file-text"></i>
+              <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> {{searchResult.whenCreated | amDateFormat:'ddd, MMM Do YYYY, hh:mm'}} </span>
 
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-if="searchResults.length !=0">
+                <h3 class="timeline-header">{{searchResult.description}} ({{searchResult.createdBy}})</h3>
 
-                <div class="well well-sm">
-                    <!-- Timeline Content -->
-                    <div class="smart-timeline">
-                        <ul class="smart-timeline-list">
-                            <li ng-repeat="searchResult in searchResults">
-                                <div class="smart-timeline-icon">
-                                    <i class="fa fa-file-text"></i>
-                                  <small class="fd-user-timeline">
-                                        <em>{{searchResult.createdBy}}</em></small>
-                                </div>
-
-                                <div class="smart-timeline-time">
-                                    <!-- ToDo - as much as I love this format, the date needs to be in the users Locale-->
-                                    <small>{{searchResult.whenCreated | amDateFormat:'ddd, MMM Do YYYY, hh:mm'}}</small>
-                                </div>
-
-                                <div class="smart-timeline-content">
-                                    <p>
-                                        <strong>{{searchResult.description}}</strong>
-                                    </p>
-
-                                    <div>
-                                        <small>
-                                                <span ng-repeat="resource in searchResult.resources track by $index"
-                                                      title="{{resource.key}}">
-                                                    <span ng-repeat="value in resource.value track by $index">
-                                                      <span ng-bind-html="value" class="search-resources"></span> ...
-                                                    </span>
-                                                </span>
-                                        </small>
-                                    </div>
-
-                                  <div class="well well-sm display-inline fd-entityKey-elements">
-                                        <button class="btn btn-xs btn-default">{{searchResult.event}}
-                                        </button>
-                                        <button class="btn btn-xs btn-default"
-                                                ng-click="openDetailsView(searchResult.key)">
-                                            {{searchResult.key}}
-                                        </button>
-                                        <button class="btn btn-xs btn-default">
-                                            {{searchResult.fortress}}
-                                        </button>
-                                        <button class="btn btn-xs btn-default">
-                                            {{searchResult.documentType}}
-                                        </button>
-                                        <button class="btn btn-xs btn-default"
-                                                ng-if="searchResult.code != null">
-                                            {{searchResult.code}}
-                                        </button>
-                                    </div>
-                                    <a ng-click="openGraphExplorer(searchResult.key)"
-                                       class="btn btn-xs btn-primary"><i class="fa fa-empire"></i
-                                            > Explore</a>
-
-                                    <a ng-click="findLogs(searchResult.key, $index)"
-                                       ng-if="!searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i
-                                            class="fa fa-angle-double-down"></i> Changes</a>
-
-                                    <a ng-click="findLogs(searchResult.key, $index)"
-                                       ng-if="searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i
-                                            class="fa fa-angle-double-down"></i> Changes</a>
-
-                                    <p ng-if="searchResult.lastUpdate != null">
-                                        <!-- ToDo - format the date to the users Locale, not hard coded-->
-                                        <small>Last update at <em>{{searchResult.lastUpdate |
-                                            amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</em> by <em>{{searchResult.lastUser}}</em>
-                                        </small>
-                                    </p>
-
-                                    <div class="widget-body no-padding smart-form"
-                                         ng-if="searchResult.seeLogsAction">
-                                        <!-- content goes here -->
-                                        <h5 class="todo-group-title"><i class="fa fa-list"></i> Logs</h5>
-                                      <ul class="todo ui-sortable fd-logs">
-                                            <li ng-repeat="logsResult in searchResult.logs">
-												<span class="handle"> <label class="checkbox">
-                                                    <input type="checkbox" ng-click="selectLog(logsResult.id)"
-                                                           name="checkbox-inline">
-                                                    <i></i> </label> </span>
-
-                                                <p>
-                                                    <strong>{{logsResult.log.event.name}}</strong> -
-                                                    {{logsResult.log.comment}}
-                                                    <small>By {{logsResult.log.who.name}}</small>
-                                                    [<a ng-click="openPopup(logsResult.id)" class="font-xs">More
-                                                    Details</a>] <span class="date">{{logsResult.fortressWhen | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</span>
-                                                </p>
-                                            </li>
-                                        </ul>
-                                      <a class="btn btn-xs btn-primary" ng-if="selectedLog.length === 2"
-                                           ng-click="openDeltaPopup()"><i class="fa fa-indent"></i> Compare Logs</a>
-                                        <!-- end content -->
-                                    </div>
-
-                                </div>
-
-                                <div class="smart-timeline-content">
-
-                                </div>
-
-                            </li>
-                            <li class="text-center">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-default"><i
-                                        class="fa fa-arrow-down text-muted"></i> LOAD MORE</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- END Timeline Content -->
-
+                <div>
+                  <small>
+                    <span ng-repeat="resource in searchResult.resources track by $index" title="{{resource.key}}">
+                      <span ng-repeat="value in resource.value track by $index">
+                        <span ng-bind-html="value" class="search-resources"></span> ...
+                      </span>
+                    </span>
+                  </small>
                 </div>
 
-            </div>
 
+                <div class="well well-sm display-inline fd-entityKey-elements">
+                  <button class="btn btn-xs btn-default">{{searchResult.event}}</button>
+                  <button class="btn btn-xs btn-default"
+                          ng-click="openDetailsView(searchResult.key)">
+                    {{searchResult.key}}</button>
+                  <button class="btn btn-xs btn-default">{{searchResult.fortress}}</button>
+                  <button class="btn btn-xs btn-default">{{searchResult.documentType}}</button>
+                  <button class="btn btn-xs btn-default"
+                          ng-if="searchResult.code != null">
+                      {{searchResult.code}}</button>
+                </div>
+                <a ng-click="openGraphExplorer(searchResult.key)"
+                   class="btn btn-xs btn-primary"><i class="fa fa-empire"></i
+                        > Explore</a>
+
+                <a ng-click="findLogs(searchResult.key, $index)"
+                   ng-if="!searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i class="fa fa-angle-double-down"></i> Changes</a>
+
+                <a ng-click="findLogs(searchResult.key, $index)"
+                   ng-if="searchResult.seeLogsAction" class="btn btn-xs btn-primary"><i class="fa fa-angle-double-down"></i> Changes</a>
+
+                <p ng-if="searchResult.lastUpdate != null">
+                    <!-- ToDo - format the date to the users Locale, not hard coded-->
+                    <small>Last update at <em>{{searchResult.lastUpdate |
+                        amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</em> by <em>{{searchResult.lastUser}}</em>
+                    </small>
+                </p>
+
+                <div class="box-body smart-form slide in" ng-if="searchResult.seeLogsAction">
+                  <!-- content goes here -->
+                  <h5 class="todo-group-title"><i class="fa fa-list"></i> Logs</h5>
+                  <ul class="todo ui-sortable fd-logs">
+                    <li ng-repeat="logsResult in searchResult.logs">
+                      <span class="handle">
+                        <label class="checkbox">
+                          <input type="checkbox" ng-click="selectLog(logsResult.id)" name="checkbox-inline">
+                            <i></i>
+                        </label>
+                      </span>
+                      <p>
+                        <strong>{{logsResult.log.event.name}}</strong> -
+                        {{logsResult.log.comment}}
+                        <small>By {{logsResult.log.who.name}}</small>
+                        [<a ng-click="openPopup(logsResult.id)" class="font-xs">More
+                        Details</a>] <span class="date">{{logsResult.fortressWhen | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</span>
+                      </p>
+                    </li>
+                  </ul>
+                  <a class="btn btn-xs btn-primary" ng-if="selectedLog.length === 2"
+                     ng-click="openDeltaPopup()"><i class="fa fa-indent"></i> Compare Logs</a>
+                  <!-- end content -->
+                </div>
+              </div>
+            </li>
+            <li class="text-center">
+              <a href="javascript:void(0)" class="btn btn-sm btn-default"><i
+                  class="fa fa-arrow-down text-muted"></i> LOAD MORE</a>
+            </li>
+          </ul>
         </div>
-
-</div>
-
+      </div><!-- /.box-body -->
+    </div><!-- /.box -->
+  </div>
 </section>
-</div>
-<!-- END MAIN CONTENT -->
-</div>
+<!-- /.content -->
+
 <ng-flockdeltapopup></ng-flockdeltapopup>
 <ng-flocksinglelogpopup></ng-flocksinglelogpopup>

@@ -24,7 +24,9 @@ var fdView = angular.module('fdView', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
-  'ngRoute',
+  // 'ngRoute',
+  'ui.router',
+  'ngAnimate',
   'ui.bootstrap',
   'ngTagsInput',
   'ngProgress',
@@ -35,99 +37,108 @@ var fdView = angular.module('fdView', [
   'ab.graph.matrix.directives',
   'ngCytoscape',
   // 'rzModule',
-  'ng.jsoneditor',
+  'ng.jsoneditor'
 ])
-  .config(
-  function ($routeProvider, $locationProvider, USER_ROLES) {
-    $routeProvider
-      .when('/', {
+  .config(function (/*$routeProvider, $locationProvider,*/$stateProvider, $urlRouterProvider, USER_ROLES) {
+    //$routeProvider
+    $stateProvider
+      .state('welcome', {
+        url: '/',
         templateUrl: 'views/welcome.html',
-        access: {
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/login', {
+      .state('login', {
+        url: '/login',
         templateUrl: 'views/login.html',
-        access: {
+        controller: 'LoginCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.FD]
         }
       })
-      .when('/search', {
+      .state('search', {
+        url: '/search',
         templateUrl: 'views/search.html',
-        access: {
+        controller: 'MetaHeaderCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/analyze', {
+      .state('analyze', {
+        url: '/analyze',
         templateUrl: 'views/analyze.html',
-        controller: 'AnalyseController',
-        access: {
+        controller: 'AnalyzeCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/explore', {
+      .state('explore', {
+        url: '/explore',
         templateUrl: 'views/explore.html',
-        controller: 'ExploreController',
-        access: {
+        controller: 'ExploreCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/view/:entityKey', {
+      .state('view', {
+        url: '/view/:entityKey',
         templateUrl: 'views/viewentity.html',
-        access: {
+        controller: 'ViewEntityCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/statistics', {
+      .state('statistics', {
+        url: '/statistics',
         templateUrl: 'views/statistics.html',
-        access: {
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/import', {
+      .state('import', {
+        url: '/import',
         templateUrl: 'views/import.html',
-        controller: 'ImportController',
-        access: {
+        controller: 'ImportCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('admin', {
+      .state('admin', {
+        url: '/admin',
         templateUrl: 'views/admin.html',
-        access: {
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       })
-      .when('/settings', {
+      .state('settings', {
+        url: '/settings',
         templateUrl: 'views/settings.html',
-        access: {
-          authorizedRoles: [USER_ROLES.all]
-        }
-      })
-      .otherwise({
-        templateUrl: 'views/welcome.html',
-        access: {
+        controller: 'SettingsCtrl',
+        data: {
           authorizedRoles: [USER_ROLES.all]
         }
       });
-    $locationProvider.html5Mode(false);
+    $urlRouterProvider.otherwise('/welcome');
+    // $locationProvider.html5Mode(false);
   })
-  .run(['$rootScope', '$location', '$http', 'AuthenticationSharedService', 'Session', 'USER_ROLES',
-    function ($rootScope, $location, $http, AuthenticationSharedService, Session, USER_ROLES) {
+  .run(['$rootScope', '$state', '$http', 'AuthenticationSharedService', 'Session', 'USER_ROLES',
+    function ($rootScope, $state, $http, AuthenticationSharedService, Session, USER_ROLES) {
       // TODO NEED TO SEE
       $rootScope.msg = '';
-
-      $rootScope.$on('$routeChangeStart', function (event, next) {
+      $rootScope.$on("$stateChangeError", console.log.bind(console));
+      $rootScope.$on('$stateChangeStart', function (event, next) {
         $rootScope.isAuthorized = AuthenticationSharedService.isAuthorized;
         $rootScope.userRoles = USER_ROLES;
-        AuthenticationSharedService.valid(next.access.authorizedRoles);
+        AuthenticationSharedService.valid(next.data.authorizedRoles);
       });
 
       // Call when the the client is confirmed
       $rootScope.$on('event:auth-loginConfirmed',
         function () {
           $rootScope.authenticated = true;
-          if ($location.path() === '/login') {
-            $location.path('/').replace();
+          if ($state.is('login')) {
+            $state.go('welcome');
           }
           $rootScope.msg = '';
         }
@@ -138,8 +149,8 @@ var fdView = angular.module('fdView', [
         function () {
           Session.invalidate();
           delete $rootScope.authenticated;
-          if ($location.path() !== '/settings' && $location.path() !== '/login') {
-            $location.path('/login').replace();
+          if (!$state.is('settings') && $state.is('login')) {
+            $state.go('login');
           }
           if ($rootScope.msg === null || $rootScope.msg === '') {
             $rootScope.msg = 'Please login';
@@ -158,7 +169,7 @@ var fdView = angular.module('fdView', [
       $rootScope.$on('event:auth-loginCancelled',
         function () {
           $rootScope.msg = 'Logged out';
-          $location.path('/login');
+          $state.go('login');
         }
       );
 
@@ -166,7 +177,7 @@ var fdView = angular.module('fdView', [
       $rootScope.$on('event:auth-session-timeout',
         function () {
           $rootScope.msg = 'Session expired';
-          $location.path('/login');
+          $state.go('login');
         }
       );
     }]);
