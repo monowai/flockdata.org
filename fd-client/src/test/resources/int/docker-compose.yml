@@ -18,7 +18,7 @@ rabbit:
 
 fdengine:
   image: flockdata/fd-engine
-  command: "-ea -Xmx768m "
+  command: "-ea -Xmx512m "
 
   links:
      - rabbit
@@ -53,7 +53,7 @@ fdengine:
 
 fdsearch:
   image: flockdata/fd-search
-  command: "-Xmx768m"
+  command: "-Xmx512m"
   links:
     - rabbit
 # Uncomment ports for non-proxy debug
@@ -86,7 +86,7 @@ fdsearch:
 
 fdstore:
   image: flockdata/fd-store
-  command: "-Xmx768m"
+  command: "-Xmx512m"
   links:
      - rabbit
 
