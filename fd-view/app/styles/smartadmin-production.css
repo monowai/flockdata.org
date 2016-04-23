@@ -12684,7 +12684,7 @@ textarea.clone {
 }
 
 .txt-color-blue {
-    color: #57889c !important
+    color: #57889c;
 }
 
 .txt-color-blueLight {
@@ -13971,7 +13971,8 @@ label input[type=checkbox][disabled].checkbox:checked + span:before, label input
     font-weight: 400;
     line-height: 22px;
     margin-top: 15px;
-    width: 270px
+    width: 270px;
+    text-align: center;
 }
 
 #login h5.about-heading {

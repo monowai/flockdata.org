@@ -119,8 +119,8 @@ fdView.factory('Account', ['$resource', 'configuration',
   ]
 );
 
-fdView.factory('AuthenticationSharedService', ['$rootScope', '$http', 'authService', 'Account', 'Session', 'configuration',
-    function ($rootScope, $http, authService, Account, Session, configuration) {
+fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 'authService', 'Account', 'Session', 'configuration',
+    function ($rootScope, $state, $http, authService, Account, Session, configuration) {
       return {
         login: function (username, password) {
           var data = {username: username, password: password};

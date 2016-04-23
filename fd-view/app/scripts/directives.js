@@ -21,21 +21,7 @@
 'use strict';
 
 angular.module('fdView.directives', [])
-  .directive('ngFlockheader', function () {
-    return {
-      restrict: 'E',
-      templateUrl: 'views/partials/header.html'
-    };
-  })
-  .directive('ngFlockleftbar', function () {
-    return {
-      restrict: 'E',
-      templateUrl: 'views/partials/leftbar.html',
-      scope: {
-        active: '='
-      }
-    };
-  }).directive('ngAbTable', function () {
+  .directive('ngAbTable', function () {
     return {
       restrict: 'E, A, C',
       link: function (scope, element, attrs, controller) {
@@ -192,14 +178,17 @@ angular.module('fdView.directives', [])
         element.on('drop', function(e) {
           e.preventDefault();
           e.stopPropagation();
+          
           if(e.originalEvent.dataTransfer){
             if (e.originalEvent.dataTransfer.files.length>0) {
               var reader = new FileReader();
-                  
+              reader.fileName = e.originalEvent.dataTransfer.files[0].name;
+
               reader.onload = function(onLoadEvent) {
                 scope.$apply(function() {
-                  fn(scope, {$fileContent:onLoadEvent.target.result});
+                  fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
                 });
+                element.addClass('is-success');
               };
             };
           };

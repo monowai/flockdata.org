@@ -20,7 +20,7 @@
 
 'use strict';
 
-fdView.controller('AnalyseController', ['$scope', 'QueryService', '$window', '$controller', 'configuration',
+fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$controller', 'configuration',
   function ($scope, QueryService, $window, $controller, configuration) {
     $scope.minCount = 1;
     $scope.resultSize = 1000;

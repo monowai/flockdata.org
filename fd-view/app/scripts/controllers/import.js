@@ -20,15 +20,15 @@
 
 'use strict';
 
-fdView.controller('ImportController', ['$scope', 'QueryService', '$window', '$controller', '$http', 'configuration',
-  function ($scope, QueryService, $window, $controller, $http, configuration) {
+fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window', '$http', 'configuration',
+  function ($scope, $uibModal, QueryService, $window, $http, configuration) {
 
-    $scope.showContent = function($fileContent){
-      d3.csv.parse($fileContent, function(data){
-        $scope.data = data; 
-        $scope.keys = d3.keys(data);
-      })
-      angular.element('[data-target="#profile"]').tab('show');
+    $scope.delim=',';
+    $scope.hasHeader=true;
+
+    $scope.loadFile = function(fileContent, fileName){
+      $scope.fileName = fileName;
+      $scope.csvContent = fileContent;
     };
 
     QueryService.general('fortress').then(function (data) {
@@ -57,19 +57,60 @@ fdView.controller('ImportController', ['$scope', 'QueryService', '$window', '$co
       //   console.log(response);
       // });
       $http.get(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+type)
-        .success(function (response){
-          console.log(response);
-          $scope.profile=response.data;
+        .success(function (data){
+          console.log(data);
+          $scope.contentProfile=data;
         })
         .error(function(){
           $http.get('testProfile.json').then(function(response){
-            $scope.profile=response.data;
+            $scope.contentProfile=response.data;
           });
         });
     };
+
+    $scope.checkProfile = function() {
+      if (!$scope.fortress) {
+        var modalError = $uibModal.open({
+          templateUrl: 'errorModal.html',
+          size: 'sm',
+          controller: function($scope, $uibModalInstance){
+            $scope.missing = 'Data Provider';
+            $scope.ok = $uibModalInstance.dismiss;
+          }
+        }); 
+      } else if (!$scope.type) {
+        var modalError = $uibModal.open({
+          templateUrl: 'errorModal.html',
+          size: 'sm',
+          controller: function($scope, $uibModalInstance){
+            $scope.missing = 'Data Type';
+            $scope.ok = $uibModalInstance.dismiss;
+          }
+        }); 
+      } else if (!$scope.csvContent) {
+        var modalError = $uibModal.open({
+          templateUrl: 'errorModal.html',
+          size: 'sm',
+          controller: function($scope, $uibModalInstance){
+            $scope.missing = 'CSV file';
+            $scope.ok = $uibModalInstance.dismiss;
+          }
+        }); 
+      } else {
+        d3.csv.parse($scope.csvContent, function(data){
+          $scope.data = data; 
+          $scope.keys = d3.keys(data);
+        })
+        angular.element('[data-target="#profile"]').tab('show');
+      }
+    };
+
+    $scope.reset = function(){
+      console.log('lets reset');
+    };
  
     $scope.saveProfile = function() {
-      console.log($scope.profile);
+      console.log($scope.contentProfile);
       $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, $scope.profile).then(function (response) {
         return response.data;
       });

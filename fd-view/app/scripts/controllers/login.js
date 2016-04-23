@@ -22,7 +22,7 @@
  * Created by Nabil on 09/08/2014.
  */
 
-fdView.controller('LoginController', function ($scope, $routeParams, AuthenticationSharedService) {
+fdView.controller('LoginCtrl', function ($scope, $stateParams, AuthenticationSharedService) {
     $scope.login = function () {
       AuthenticationSharedService.login($scope.username, $scope.password);
     };
