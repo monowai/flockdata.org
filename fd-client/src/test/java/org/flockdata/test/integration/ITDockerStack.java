@@ -222,8 +222,11 @@ public class ITDockerStack {
     }
 
     private static String getIpAddress() {
-        //return stack.getHostIpAddress();
-        return "192.168.99.100";
+        if ( stack == null )
+            return "192.168.99.100";
+        else
+            return stack.getContainerIpAddress();
+
         //return DockerClientFactory.instance().dockerHostIpAddress();
     }
 
