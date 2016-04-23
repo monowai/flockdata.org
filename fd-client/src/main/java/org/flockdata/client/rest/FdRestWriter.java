@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.Ping;
-import org.flockdata.client.commands.Registration;
+import org.flockdata.client.commands.RegistrationPost;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
@@ -113,9 +113,9 @@ public class FdRestWriter implements FdWriter {
      */
     public SystemUserResultBean register(String userName, String company) {
         RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(false);
-        Registration registration = new Registration(clientConfiguration, this, registrationBean);
-        registration.exec();
-        return registration.getResult();
+        RegistrationPost registrationPost = new RegistrationPost(clientConfiguration, this, registrationBean);
+        registrationPost.exec();
+        return registrationPost.getResult();
     }
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRestWriter.class);

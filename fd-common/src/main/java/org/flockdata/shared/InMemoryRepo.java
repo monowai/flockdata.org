@@ -21,9 +21,12 @@ import org.flockdata.store.LogRequest;
 import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.flockdata.track.bean.ContentInputBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +38,12 @@ import java.util.Map;
 public class InMemoryRepo extends AbstractStore {
 
     Map<Object, ContentInputBean> map = new HashMap <>();
+    private Logger logger = LoggerFactory.getLogger(InMemoryRepo.class);
 
+    @PostConstruct
+    void status(){
+        LoggerFactory.getLogger("configuration").info("**** Deployed InMemory non-persistent repo manager");
+    }
     public void add(StoredContent contentBean) {
         map.put(getKey(contentBean.getType(), contentBean.getId()), contentBean.getContent());
     }

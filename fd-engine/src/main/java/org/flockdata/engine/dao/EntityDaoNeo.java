@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,8 +94,6 @@ public class EntityDaoNeo {
 
     private Logger logger = LoggerFactory.getLogger(EntityDaoNeo.class);
 
-    private static final String EXT_KEY = "extKey";
-
     public Entity create(EntityInputBean inputBean, FortressSegment segment, FortressUser fortressUser, DocumentType documentType) throws FlockException {
         String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
         Entity entity = new Entity(key, segment, inputBean, documentType);
@@ -132,14 +129,11 @@ public class EntityDaoNeo {
         return txRepo.save(tagRef);
     }
 
-    private Entity getCachedEntity(String key) {
-        if (key == null)
-            return null;
-        return entityRepo.findBySchemaPropertyValue(Entity.UUID_KEY, key);
-    }
-
     public Entity findEntity(String key, boolean inflate) {
-        Entity entity = getCachedEntity(key);
+        if ( key == null )
+            return null;
+
+        Entity entity = entityRepo.findByKey( key);
         if (inflate && entity != null) {
             fetch(entity);
 
@@ -168,7 +162,7 @@ public class EntityDaoNeo {
 
     }
 
-    @Cacheable (value = "entityByCode")
+//    @Cacheable (value = "entityByCode", unless = "#result == null")
     public Entity findByCode(Long fortressId, DocumentType document, String code) {
         if (logger.isTraceEnabled())
             logger.trace("findByCode fortressUser [" + fortressId + "] docType[" + document + "], code[" + code + "]");
@@ -233,10 +227,6 @@ public class EntityDaoNeo {
             txRepo.save(txTag);
         }
         return txTag;
-    }
-
-    public int getLogCount(Long id) {
-        return trackLogRepo.getLogCount(id);
     }
 
     public Set<EntityLog> getLogs(Long entityId, Date from, Date to) {

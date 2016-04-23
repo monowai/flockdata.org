@@ -25,13 +25,18 @@
         </dependency>
 
 
+        <!--<dependency>-->
+            <!--&lt;!&ndash;https://github.com/testcontainers/testcontainers-java/blob/master/docs/index.md&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>org.testcontainers</groupId>&ndash;&gt;-->
+            <!--<groupId>com.github.testcontainers.testcontainers-java</groupId>-->
+            <!--<artifactId>testcontainers</artifactId>-->
+            <!--<version>${testcontainers.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
-            <!--https://github.com/testcontainers/testcontainers-java/blob/master/docs/index.md-->
-            <!--<groupId>org.testcontainers</groupId>-->
-            <groupId>com.github.testcontainers.testcontainers-java</groupId>
+            <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>me.tongfei</groupId>
@@ -147,10 +152,6 @@
             <version>1.4</version>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.hibernate</groupId>-->
-            <!--<artifactId>hibernate-validator</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -176,28 +177,7 @@
                     <junitArtifactName>junit:junit</junitArtifactName>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <configuration>
-                    <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -229,6 +209,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>integration</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/test-results</reportsDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>

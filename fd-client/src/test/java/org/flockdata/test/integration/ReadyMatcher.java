@@ -14,24 +14,14 @@
  *  limitations under the License.
  */
 
-package org.flockdata.helper;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+package org.flockdata.test.integration;
 
 /**
- * User: mike
- * Date: 25/08/14
- * Time: 11:33 AM
+ * Created by mike on 23/04/16.
  */
-@ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Resource not found ")  // 404
-public class NotFoundException extends RuntimeException {
+public interface ReadyMatcher {
 
-    public NotFoundException(String message) {
-        super(message);
-    }
+    String getMessage() ;
 
-    public NotFoundException(String message, Throwable t) {
-        super(message, t);
-    }
+    boolean isReady();
 }

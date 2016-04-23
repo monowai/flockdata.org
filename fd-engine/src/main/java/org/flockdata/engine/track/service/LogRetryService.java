@@ -174,7 +174,7 @@ public class LogRetryService {
                 logger.debug("Ignoring a change we already have {}", trackResult);
                 if (trackResult.getContentInput().isForceReindex()) { // Caller is recreating the search index
                     trackResult.setLogStatus((ContentInputBean.LogStatus.REINDEX));
-                    resultBean.setLogToIndex(lastLog);
+//                    resultBean.setLogToIndex(lastLog);
                     trackResult.addServiceMessage("Ignoring a change we already have. Honouring request to re-index");
                 } else {
                     trackResult.setLogStatus((ContentInputBean.LogStatus.IGNORE));

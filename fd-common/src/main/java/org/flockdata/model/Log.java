@@ -69,7 +69,6 @@ public class Log  {
     private String fileName;
 
     private boolean compressed = false;
-    private String name;
 
     @RelatedTo(type = "PREVIOUS_LOG", direction = Direction.OUTGOING)
     private Log previousLog;
@@ -128,7 +127,6 @@ public class Log  {
 
         event = contentBean.getEvent();
 
-        this.name = event + COLON + (madeBy==null ? "na" : madeBy.getCode());
         this.fileName = contentBean.getFileName();
         this.contentType = contentBean.getContentType();
         setTxRef(txRef);

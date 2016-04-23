@@ -87,4 +87,7 @@ public interface EntityRepo extends GraphRepository<Entity> {
 
     @Query(value = "match (entity:Entity {extKey:{0}}) return entity")
     Entity findByExtKey(String extKey);
+
+    @Query(value = "match (entity:Entity {key:{0}}) return entity")
+    Entity findByKey(String key);
 }

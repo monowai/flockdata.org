@@ -69,7 +69,9 @@ public interface EntityService {
 
     Set<EntityLog> getEntityLogs(Entity entity);
 
-    Set<EntityLog> getEntityLogs(Company company, String key) throws FlockException;
+    Collection<EntityLogResult> getEntityLogs(Company company, String key) throws FlockException;
+
+    Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData);
 
     Set<EntityLog> getEntityLogs(Company company, String key, Date from, Date to) throws FlockException;
 
@@ -80,8 +82,6 @@ public interface EntityService {
     Entity findByCode(Fortress fortress, DocumentType documentType, String code);
 
     Entity findByCode(Company company, String fortress, String documentCode, String code) throws NotFoundException;
-
-    Entity findByCodeFull(Long fortressId, String documentType, String code);
 
     Entity findByCodeFull(Fortress fortress, String documentType, String code);
 

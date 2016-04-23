@@ -16,7 +16,6 @@
 
 package org.flockdata.test.integration;
 
-import me.tongfei.progressbar.ProgressBar;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
@@ -46,8 +45,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -68,6 +65,7 @@ import static org.springframework.test.util.AssertionErrors.fail;
         FdRestWriter.class,
         Exchanges.class,
         FileProcessor.class,
+        IntegrationHelper.class,
         AmqpRabbitConfig.class,
         AmqpServices.class
 
@@ -88,23 +86,24 @@ public class ITDockerStack {
     private
     int waitSeconds;
 
-    @ClassRule // start is called before the tests are run and stop is called after the class
+    // start is called before the tests are run and stop is called after the class
     // is finished. Given that is how Junit wants to play, all integration tests that
     // want to use this stack should be in this class, otherwise a new Stack will be created
     // increasing the time it takes to start
-    // ToDo: Figure out a better way of doing this!
 
     // http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
-    public static DockerComposeContainer stack =
-            new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
-                    .withExposedService("rabbit_1", 5672)
-                    .withExposedService("rabbit_1", 15672)
-                    .withExposedService("fdengine_1", SERVICE_ENGINE)
-                    .withExposedService("fdengine_1", DEBUG_ENGINE)
-                    .withExposedService("fdsearch_1", SERVICE_SEARCH)
-                    .withExposedService("fdsearch_1", DEBUG_SEARCH)
-                    .withExposedService("fdstore_1", SERVICE_STORE)
-                    .withExposedService("fdstore_1", DEBUG_STORE);
+    @ClassRule
+//    public static DockerComposeContainer stack = null;
+    public static DockerComposeContainer stack =// null;
+                new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
+                        .withExposedService("rabbit_1", 5672)
+                        .withExposedService("rabbit_1", 15672)
+                        .withExposedService("fdengine_1", SERVICE_ENGINE)
+                        .withExposedService("fdengine_1", DEBUG_ENGINE)
+                        .withExposedService("fdsearch_1", SERVICE_SEARCH)
+                        .withExposedService("fdsearch_1", DEBUG_SEARCH)
+                        .withExposedService("fdstore_1", SERVICE_STORE)
+                        .withExposedService("fdstore_1", DEBUG_STORE);
 
     private static Logger logger = LoggerFactory.getLogger(ITDockerStack.class);
 
@@ -112,22 +111,22 @@ public class ITDockerStack {
      * Contains properties used by rabbitConfig and fdRestWriter
      */
     @Autowired
-    private
-    ClientConfiguration clientConfiguration;
+    private ClientConfiguration clientConfiguration;
 
     @Autowired
-    private
-    FileProcessor fileProcessor; // Legacy CSV file processor
+    private FileProcessor fileProcessor; // Legacy CSV file processor
+
+    @Autowired
+    IntegrationHelper integrationHelper;
 
     /**
      * Rabbit connectivity
      */
     @Autowired
-    private
-    AmqpRabbitConfig rabbitConfig;
+    private AmqpRabbitConfig rabbitConfig;
 
     @Autowired
-    AmqpServices amqpServices;
+    private AmqpServices amqpServices;
 
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
@@ -135,8 +134,7 @@ public class ITDockerStack {
      * fd-search or fd-store. Only fd-engine is secured by default
      */
     @Autowired
-    private
-    FdRestWriter fdRestWriter;
+    private FdRestWriter fdRestWriter;
 
     private static boolean setupComplete = false;
 
@@ -150,26 +148,29 @@ public class ITDockerStack {
             fail("Stack has failed to startup cleanly - test will fail");
         if (setupComplete)
             return; // This method is called before every @Test - it's expensive :o)
+
+        logger.debug("Running with debug logging");
         clientConfiguration.setServiceUrl(getEngine());
         Ping enginePing = new Ping(clientConfiguration, fdRestWriter);
         clientConfiguration.setServiceUrl(getStore());
         Ping storePing = new Ping(clientConfiguration, fdRestWriter);
         clientConfiguration.setServiceUrl(getSearch());
         Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
-        rabbitConfig.setServicePoint(stack.getContainerIpAddress(), getRabbitPort());
+        rabbitConfig.setServicePoint(getIpAddress(), getRabbitPort());
 
         logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
         logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
         logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore());
-        logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, stack.getContainerIpAddress() + ":" + getEngineDebug());
-        logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, stack.getContainerIpAddress() + ":" + getSearchDebug());
-        logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, stack.getContainerIpAddress() + ":" + getStoreDebug());
-        logger.info("Rabbit Admin on http://{}:{}", stack.getContainerIpAddress(), getRabbitAdmin());
+        logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getIpAddress() + ":" + getEngineDebug());
+        logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getIpAddress() + ":" + getSearchDebug());
+        logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getIpAddress() + ":" + getStoreDebug());
+        logger.info("Rabbit Admin on http://{}:{}", getIpAddress(), getRabbitAdmin());
         // ToDo: Bind in yourkit profiler and expose port
 
         logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
 
-        pauseUntil(enginePing, "pong", waitSeconds);
+        if (stack != null)
+            integrationHelper.pauseUntil(enginePing, "pong", waitSeconds);
 
         waitForService("fd-engine", enginePing, getEngine(), 30);
         waitForService("fd-search", searchPing, getSearch(), 30);
@@ -183,31 +184,6 @@ public class ITDockerStack {
         setupComplete = true;
     }
 
-    private void pauseUntil(Command optionalCommand, String comandResult, int waitCount) throws InterruptedException {
-        // A nice little status bar to show how long we've been hanging around
-        ProgressBar pb = new ProgressBar("Waiting.... ", waitCount);
-        pb.start();
-        int run = 0;
-        do {
-            run++;
-            pb.step();
-            // After waiting for 40% of the waitCount will try running the command if it exists
-            if (optionalCommand != null && run % 10 == 0 && (((double) run) / waitCount) > .3) {
-                // After 1 minute we will ping to see if we can finish this early
-                String result = optionalCommand.exec();
-                if (result.equals(comandResult)) {
-                    // We can finish early
-                    pb.stepBy((waitCount - run));
-                    return;
-
-                }
-            } else {
-                Thread.sleep(1000);
-            }
-
-        } while (run != waitCount);
-    }
-
     private void waitForService(String service, Ping pingCommand, String url, int countDown) throws InterruptedException {
         String result;
         if (stackFailed)
@@ -218,9 +194,9 @@ public class ITDockerStack {
 
             result = pingCommand.exec();
             if (!result.equals("pong")) {
-                int waitSecs = 60;
+                int waitSecs = (stack == null ? 2 : 60);
                 logger.info("Waiting {} seconds for {} to come on-line", waitSecs, service);
-                pauseUntil(pingCommand, "pong", waitSecs);
+                integrationHelper.pauseUntil(pingCommand, "pong", waitSecs);
             }
 
         } while (!Objects.equals(result, "pong") && countDown > 0);
@@ -233,41 +209,62 @@ public class ITDockerStack {
         logger.info("{} is running. [{}]", service, url);
     }
 
+    /**
+     * A login is associated with a single company. Create different fortresses to partion
+     * data access users.
+     * <p>
+     * The user name you want to create has to exist in the security context otherwise login will fail
+     *
+     * @return details about the DataAcessUser
+     */
+    SystemUserResultBean getDefaultUser() {
+        return fdRestWriter.register("mike", "TestCompany");
+    }
+
+    private static String getIpAddress() {
+        if ( stack == null )
+            return "192.168.99.100";
+        else
+            return stack.getContainerIpAddress();
+
+        //return DockerClientFactory.instance().dockerHostIpAddress();
+    }
+
     private static String getUrl() {
 
-        return "http://" + stack.getContainerIpAddress();
+        return "http://" + getIpAddress();
     }
 
     private Integer getRabbitAdmin() {
-        return stack.getServicePort("rabbit_1", 15672);
+        return (stack != null ? stack.getServicePort("rabbit_1", 15672) : 15672);
     }
 
     private static String getEngine() {
-        return getUrl() + ":" + stack.getServicePort("fdengine_1", SERVICE_ENGINE);
+        return getUrl() + ":" + (stack != null ? stack.getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
     }
 
     private Integer getRabbitPort() {
-        return stack.getServicePort("rabbit_1", 5672);
+        return (stack != null ? stack.getServicePort("rabbit_1", 5672) : 5672);
     }
 
     private static String getSearch() {
-        return getUrl() + ":" + stack.getServicePort("fdsearch_1", SERVICE_SEARCH);
+        return getUrl() + ":" + (stack != null ? stack.getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
     }
 
     private static String getStore() {
-        return getUrl() + ":" + stack.getServicePort("fdstore_1", SERVICE_STORE);
+        return getUrl() + ":" + (stack != null ? stack.getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
     }
 
     private Integer getEngineDebug() {
-        return stack.getServicePort("fdengine_1", DEBUG_ENGINE);
+        return (stack != null ? stack.getServicePort("fdengine_1", DEBUG_ENGINE) : DEBUG_ENGINE);
     }
 
     private Integer getSearchDebug() {
-        return stack.getServicePort("fdsearch_1", DEBUG_SEARCH);
+        return (stack != null ? stack.getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
     }
 
     private Integer getStoreDebug() {
-        return stack.getServicePort("fdstore_1", DEBUG_STORE);
+        return (stack != null ? stack.getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
     }
 
 
@@ -355,29 +352,32 @@ public class ITDockerStack {
 
         SystemUserResultBean suResult = getDefaultUser();
         clientConfiguration.setApiKey(suResult.getApiKey());
+        clientConfiguration.setBatchSize(5);
         ContentProfile contentProfile = ContentProfileDeserializer.getContentProfile("/countries.json");
         int countryInputs = fileProcessor.processFile(contentProfile, "/fd-cow.txt");
         assertEquals("Countries not processed", countryInputs, 249);
-        GetTags countries = new GetTags(clientConfiguration, fdRestWriter, "Country");
+        TagsGet countries = new TagsGet(clientConfiguration, fdRestWriter, "Country");
         // Tags are processed over a messageQ so will take a wee bit of time to be processed
-        Thread.sleep(2000);
         assertNull(countries.exec());
+        Thread.sleep(4000);
+        assertNull(countries.exec());
+
         TagResultBean[] countryResults = countries.getResults();
         // By this stage we may or may not have processed all the tags depending on how resource constrained the host machine
         // running the integration stack is. So we'll just check at least two batches of 10 have been processed assuming the
         // rest will pass
         assertTrue("No countries found!", countryResults.length > 10);
 
-        GetTag countryByIsoShort = new GetTag(clientConfiguration, fdRestWriter, "Country", "AU");
+        TagGet countryByIsoShort = new TagGet(clientConfiguration, fdRestWriter, "Country", "AU");
         assertNull(countryByIsoShort.exec());
         assertNotNull("Couldn't find Australia", countryByIsoShort.getResult());
 
-        GetTag countryByIsoLong = new GetTag(clientConfiguration, fdRestWriter, "Country", "AUS");
+        TagGet countryByIsoLong = new TagGet(clientConfiguration, fdRestWriter, "Country", "AUS");
         assertNull(countryByIsoLong.exec());
         assertNotNull("Couldn't find Australia", countryByIsoLong.getResult());
 
 
-        GetTag countryByName = new GetTag(clientConfiguration, fdRestWriter, "Country", "Australia");
+        TagGet countryByName = new TagGet(clientConfiguration, fdRestWriter, "Country", "Australia");
         assertNull(countryByName.exec());
         assertNotNull("Couldn't find Australia", countryByName.getResult());
 
@@ -396,16 +396,16 @@ public class ITDockerStack {
                 .setDocumentType(new DocumentTypeInputBean("entity"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
-        TrackEntityHttp trackEntity = new TrackEntityHttp(clientConfiguration, fdRestWriter, entityInputBean);
+        TrackEntityPost trackEntity = new TrackEntityPost(clientConfiguration, fdRestWriter, entityInputBean);
         assertNull(trackEntity.exec());
         assertNotNull(trackEntity.getResult());
         assertNotNull(trackEntity.getResult().getKey());
         assertEquals("Should be a new Entity", trackEntity.getResult().isNewEntity(), true);
         assertEquals("Problem creating the Content", trackEntity.getResult().getLogStatus(), ContentInputBean.LogStatus.OK);
 
-        GetEntity foundEntity = new GetEntity(clientConfiguration, fdRestWriter, trackEntity.getResult().getKey());
-        assertNull (foundEntity.exec());
-        assertNotNull ( foundEntity.getResult().getKey());
+        EntityGet foundEntity = new EntityGet(clientConfiguration, fdRestWriter, trackEntity.getResult().getKey());
+        assertNull(foundEntity.exec());
+        assertNotNull(foundEntity.getResult().getKey());
 
     }
 
@@ -414,63 +414,82 @@ public class ITDockerStack {
         assertNull(getLogin("mike", "123").exec());
 
         SystemUserResultBean suResult = getDefaultUser();
+        assertNotNull(suResult);
         clientConfiguration.setApiKey(suResult.getApiKey());
         EntityInputBean entityInputBean = new EntityInputBean()
-                .setFortress(new FortressInputBean("TrackEntityAmqp", false))
+                .setFortress(new FortressInputBean("TrackEntityAmqp")
+                        .setSearchActive(true))
                 .setCode("findme")
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))
                 .setContent(new ContentInputBean(Helper.getRandomMap()))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
-        Collection<EntityInputBean> entities = new ArrayList<>();
-        entities.add(entityInputBean);
 
-        amqpServices.publish(true, entities);
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+        EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
+        entityGet.exec();
+        integrationHelper.waitForEntityKey(entityGet);
 
-        EntityBean entityResult = getEntityBean(entityInputBean);
-        assertNotNull ( entityResult.getKey());
-        assertEquals( "Search Key was not set to the code of the entityInput", entityInputBean.getCode(), entityResult.getSearchKey());
-        assertFalse ( "Search was incorrectly suppressed",entityResult.isSearchSuppressed());
-        assertEquals( "Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
-        QueryParams qp = new QueryParams(entityResult.getCode());
-        SearchEs search = new SearchEs(clientConfiguration, fdRestWriter, qp);
-        assertNull (search.exec());
+        EntityBean entityResult = entityGet.getResult();
+        assertNotNull(entityResult);
+        assertNotNull(entityResult.getKey());
+        integrationHelper.waitForSearch(entityGet, 1);
+        entityResult = entityGet.getResult();
+        assertFalse("Search was incorrectly suppressed", entityResult.isSearchSuppressed());
+        assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
+        assertEquals("Search Key was not set to the code of the entityInput", entityInputBean.getCode(), entityResult.getSearchKey());
+
+        Thread.sleep(2000); // Give ES write time to complete
+        QueryParams qp = new QueryParams(entityResult.getCode())
+                .setFortress(entityInputBean.getFortress().getName());
+
+        SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
+        assertNull(search.exec());
         EsSearchResult searchResults = search.getResult();
-        assertEquals( "Didn't find a result for the Entity code", 1, searchResults.getResults().size());
-        assertEquals( "Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
+        assertEquals("Didn't get a search hit on the Entity", 1, searchResults.getResults().size());
+        assertEquals("Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
 
     }
 
-    // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
-    // is working on.
-    EntityBean getEntityBean(EntityInputBean entityInputBean) {
-        GetEntity getEntity = new GetEntity(clientConfiguration, fdRestWriter, entityInputBean);
-        int count = 0, timeout = 10;
-        boolean notFound = true;
-        do {
-            try {
-                Thread.sleep(3000);
-                count ++;
-                getEntity.exec();
-                notFound = getEntity.getResult() == null || getEntity.getResult().getKey() == null;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-        } while ( count < timeout && notFound);
-        return getEntity.getResult();
+    @Test
+    public void validateEntityLogs() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = getDefaultUser();
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("validateEntityLogs", false))
+                .setCode("findme")
+                .setDocumentType(new DocumentTypeInputBean("validateEntityLogs"))
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "value")))
+                .addTag(new TagInputBean("someCode", "SomeLabel"));
+
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+        EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
+        integrationHelper.waitForEntityKey(entityGet);
+
+        EntityBean entityResult = entityGet.getResult();
+        assertNotNull(entityResult);
+        assertNotNull(entityResult.getKey());
+
+        EntityLogsGet entityLogs = new EntityLogsGet(clientConfiguration, fdRestWriter, entityResult.getKey());
+        integrationHelper.waitForEntityLog(entityLogs, 1);
+        assertNotNull(entityLogs.getResult());
+        assertEquals("Didn't find a log", 1, entityLogs.getResult().length);
+        assertNotNull("No data was returned", entityLogs.getResult()[0].getData());
+        assertEquals("Content property not found", "value", entityLogs.getResult()[0].getData().get("key"));
+
+        entityInputBean.setKey(entityResult.getKey())
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "updated")));
+
+        // Updating an existing entity
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+        integrationHelper.waitForEntityLog(entityLogs, 2);
+        assertEquals("Didn't find the second log", 2, entityLogs.getResult().length);
+        assertEquals("Didn't find the updated field as the first result", "updated", entityLogs.getResult()[0].getData().get("key"));
+        assertEquals("Didn't find the original field as the second result", "value", entityLogs.getResult()[1].getData().get("key"));
     }
 
-    /**
-     * A login is associated with a single company. Create different fortresses to partion
-     * data access users.
-     * <p>
-     * The user name you want to create has to exist in the security context otherwise login will fail
-     *
-     * @return details about the DataAcessUser
-     */
-    private SystemUserResultBean getDefaultUser() {
-        return fdRestWriter.register("mike", "TestCompany");
-    }
 
 }

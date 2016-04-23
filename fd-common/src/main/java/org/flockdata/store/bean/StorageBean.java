@@ -67,6 +67,8 @@ public class StorageBean implements StoredContent, Serializable {
         this();
         this.entity = trackResultBean.getEntity();
         this.type = entity.getType();
+        assert entity.getType()!=null;
+
         if (trackResultBean.getCurrentLog() != null) {
             if (trackResultBean.getCurrentLog().getLog() != null) {
                 this.id = trackResultBean.getCurrentLog().getLog().getId();

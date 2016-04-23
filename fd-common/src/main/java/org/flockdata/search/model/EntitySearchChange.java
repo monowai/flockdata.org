@@ -94,6 +94,7 @@ public class EntitySearchChange implements SearchChange {
         this.key = entity.getKey();
         this.entityId = entity.getId();
         this.searchKey = entity.getSearchKey();
+        assert entity.getType() !=null;
         setDocumentType(entity.getType().toLowerCase());
         setFortress(entity.getSegment().getFortress());
         if (!entity.getSegment().isDefault())
@@ -112,7 +113,7 @@ public class EntitySearchChange implements SearchChange {
         if (entity.getFortressUpdatedTz() != null)
             this.updatedDate = entity.getFortressUpdatedTz().toDate();
         this.event = entity.getEvent();
-        //setWhen(new DateTime(entity.getFortressDateUpdated()));
+        //setWhen(new DateTime(entity.getDateUpdated()));
     }
 
     public EntitySearchChange(Entity entity, ContentInputBean content, String indexName) {

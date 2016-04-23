@@ -196,7 +196,7 @@ public class EntityServiceNeo4J implements EntityService {
 
             return trackResult;
         }
-        Collection<TagResultBean>createdTags = null;
+        Collection<TagResultBean> createdTags = null;
         try {
             createdTags = getTags(tags);
             entity = makeEntity(segment, documentType, entityInput);
@@ -291,7 +291,7 @@ public class EntityServiceNeo4J implements EntityService {
      * @return entity the caller is authorised to view
      */
     @Override
-    public Entity getEntity( String key) {
+    public Entity getEntity(String key) {
         String userName = securityHelper.getLoggedInUser();
         SystemUser su = sysUserService.findByLogin(userName);
         if (su == null)
@@ -301,7 +301,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity getEntity(Company company, String key) throws NotFoundException {
+    public Entity getEntity(Company company, String key) {
         if (company == null)
             throw new NotFoundException("Illegal Company");
 
@@ -312,7 +312,7 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Entity getEntity(Company company,String key, boolean inflate) {
+    public Entity getEntity(Company company, String key, boolean inflate) {
 
         if (company == null)
             return getEntity(key);
@@ -361,13 +361,31 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public Set<EntityLog> getEntityLogs(Company company, String key) throws FlockException {
+    public Collection<EntityLogResult> getEntityLogs(Company company, String key) {
+        return getEntityLogs(company, key, false);
+    }
+
+    @Override
+    public Collection<EntityLogResult> getEntityLogs(Company company, String key, boolean withData) {
         Entity entity = getEntity(company, key);
-        if (entity.getSegment().getFortress().isStoreEnabled())
-            return entityDao.getLogs(entity);
-        Set<EntityLog> logs = new HashSet<>();
-        logs.add(entityDao.getLastEntityLog(entity));
-        return logs;
+        Set<EntityLog> entityLogs;
+        Collection<EntityLogResult> results = new ArrayList<>();
+        if (entity.getSegment().getFortress().isStoreEnabled()) {
+            entityLogs = entityDao.getLogs(entity);
+            for (EntityLog log : entityLogs) {
+                log.setEntity(entity); // Lazy initialisation from getLogs
+                if (withData) {
+                    StoredContent storedContent = contentReader.read(log.getEntity(), log.getLog());
+                    results.add(new EntityLogResult(log, storedContent));
+                } else {
+                    results.add( new EntityLogResult(log));
+                }
+            }
+        } else {
+            results.add(new EntityLogResult(entityDao.getLastEntityLog(entity)));
+        }
+
+        return results;
     }
 
     @Override
@@ -417,7 +435,7 @@ public class EntityServiceNeo4J implements EntityService {
             // ToDo: What to to with the entity? Delete it? Store the "canceled By" User? Assign the log to a Cancelled RLX?
             // Delete from ElasticSearch??
             entity.setLastUser(fortressService.getFortressUser(entity.getSegment().getFortress(), entity.getCreatedBy().getCode()));
-            entity.setFortressLastWhen(0l);
+            entity.setFortressLastWhen(0L);
             entity.setSearchKey(null);
             entity = entityDao.save(entity);
             entityDao.delete(currentLog);
@@ -472,13 +490,6 @@ public class EntityServiceNeo4J implements EntityService {
             return null;
 
         return findByCode(iFortress, documentCode, code);
-    }
-
-    @Override
-    public Entity findByCodeFull(Long fortressId, String documentType, String code) {
-        Fortress fortress = fortressService.getFortress(fortressId);
-        return findByCodeFull(fortress, documentType, code);
-
     }
 
     /**
@@ -733,14 +744,14 @@ public class EntityServiceNeo4J implements EntityService {
     }
 
     @Override
-    public void recordSearchResult(SearchResult searchResult, Long metaId) throws FlockException {
+    public void recordSearchResult(SearchResult searchResult, Long entityId) throws FlockException {
         // Only exists and is public because we need the transaction
         Entity entity;
         try {
-            entity = getEntity(metaId); // Happens during development when Graph is cleared down and incoming search results are on the q
+            entity = getEntity(entityId); // Happens during development when Graph is cleared down and incoming search results are on the q
         } catch (DataRetrievalFailureException | IllegalStateException e) {
-            logger.error("Unable to locate entity for entity {} in order to handle the search key. Ignoring.", metaId);
-            throw new FlockException("Unable to locate entity for entity " + metaId + " in order to handle the search result.");
+            logger.error("Unable to locate entity for entity {} in order to handle the search key. Ignoring.", entityId);
+            throw new FlockException("Unable to locate entity for entity " + entityId + " in order to handle the search result.");
         }
 
         if (entity == null) {
@@ -748,7 +759,7 @@ public class EntityServiceNeo4J implements EntityService {
             throw new AmqpRejectAndDontRequeueException("key could not be found for [{" + searchResult.getKey() + "}]");
         }
 
-        if (entity.getSearch() == null || platformConfig.isSearchRequiredToConfirm()) { // Search ACK
+        if ( platformConfig.isSearchRequiredToConfirm()) { // Search ACK
             entity.setSearchKey(searchResult.getSearchKey());
             entity.bumpSearch();
             entityDao.save(entity, true); // We don't treat this as a "changed" so we do it quietly
@@ -757,7 +768,7 @@ public class EntityServiceNeo4J implements EntityService {
             logger.debug("No need to update searchKey");
         }
 
-        if (searchResult.getLogId() == null || searchResult.getLogId() == 0l) {
+        if (searchResult.getLogId() == null || searchResult.getLogId() == 0L) {
             // Indexing entity meta data only
             return;
         }
@@ -770,7 +781,7 @@ public class EntityServiceNeo4J implements EntityService {
                 return;
             }
         } catch (DataRetrievalFailureException e) {
-            logger.error("Unable to locate track log {} for metaId {} in order to handle the search key. Ignoring.", searchResult.getLogId(), entity.getId());
+            logger.error("Unable to locate track log {} for entityId {} in order to handle the search key. Ignoring.", searchResult.getLogId(), entity.getId());
             return;
         }
 
@@ -847,6 +858,7 @@ public class EntityServiceNeo4J implements EntityService {
         }
         return entityLinks;
     }
+
     @Override
     public Entity save(Entity entity) {
         return entityDao.save(entity);

@@ -43,25 +43,28 @@ import java.util.HashMap;
 @Component
 @Configuration
 public class AmqpServices {
-    ConnectionFactory factory = new ConnectionFactory();
-    Connection connection = null;
-    Channel channel = null;
+    private ConnectionFactory factory ;
+    private Connection connection = null;
+    private Channel channel = null;
 
-    AMQP.BasicProperties entityProps;
-    AMQP.BasicProperties tagProps;
+    private AMQP.BasicProperties entityProps;
+    private AMQP.BasicProperties tagProps;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(AmqpServices.class);
 
     @Autowired
-    ClientConfiguration configuration;
+    private ClientConfiguration configuration;
 
     @Autowired
-    AmqpRabbitConfig rabbitConfig;
+    private AmqpRabbitConfig rabbitConfig;
 
     private static boolean prepared = false;
 
     //    @PostConstruct
     private void prepare() {
         if (!prepared) {
+            entityProps = null;
+            tagProps = null;
+            factory = new ConnectionFactory();
             factory.setHost(rabbitConfig.getHost());
             factory.setPort(rabbitConfig.getPort());
             factory.setUsername(rabbitConfig.getUser());
@@ -72,8 +75,6 @@ public class AmqpServices {
                 channel = connection.createChannel();
 
                 channel.queueBind(configuration.getTrackQueue(), configuration.getTrackExchange(), configuration.getTrackRoutingKey());
-                connection = factory.newConnection();
-
                 prepared = true;
             } catch (IOException e) {
                 logger.error("Unexpected", e);
@@ -113,6 +114,7 @@ public class AmqpServices {
 
     @PreDestroy
     public void close() {
+        prepared = false;
         if (connection != null)
             try {
                 if (channel != null && channel.isOpen())
@@ -127,7 +129,10 @@ public class AmqpServices {
 
 
     public void publish(Collection<EntityInputBean> entityInputs) throws IOException {
+        if ( prepared && !channel.isOpen())
+            prepared = false;
         prepare();
+
         channel.basicPublish(configuration.getTrackExchange(),
                 configuration.getTrackRoutingKey(),
                 getEntityProps(),
@@ -150,11 +155,4 @@ public class AmqpServices {
         return headers;
     }
 
-
-    public void publish(Boolean resetHeaders, Collection<EntityInputBean> entities) throws IOException {
-        if (resetHeaders) {
-            entityProps = null;
-        }
-        publish(entities);
-    }
 }
