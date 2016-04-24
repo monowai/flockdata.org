@@ -16,6 +16,8 @@
 
 package org.flockdata.registration;
 
+import org.flockdata.model.MetaFortress;
+
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -29,7 +31,7 @@ import java.util.TimeZone;
  * Date: 15/06/13
  * Time: 12:04 PM
  */
-public class FortressInputBean implements Serializable {
+public class FortressInputBean implements Serializable, MetaFortress {
     private String name;
     private Boolean searchActive = false;
     private Boolean storeActive = null;
@@ -40,6 +42,7 @@ public class FortressInputBean implements Serializable {
     private String languageTag;
     private Boolean enabled = true;
     private Boolean system = false;
+    private String code = null;
 
     protected FortressInputBean() {
     }
@@ -55,15 +58,22 @@ public class FortressInputBean implements Serializable {
         //this.accumulateChanges = ignoreSearchEngine;
         this.searchActive = !ignoreSearchEngine;
         this.name = name;
+        this.code = name;
     }
 
     public FortressInputBean(String name) {
         this.name = name;
         searchActive = true;
+        this.code = name;
     }
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getCode() {
+        return code;
     }
 
     public FortressInputBean setName(String name) {

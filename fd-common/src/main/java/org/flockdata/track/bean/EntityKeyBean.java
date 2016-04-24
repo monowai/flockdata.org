@@ -18,6 +18,7 @@ package org.flockdata.track.bean;
 
 import org.flockdata.model.Entity;
 import org.flockdata.model.EntityTag;
+import org.flockdata.model.MetaFortress;
 import org.flockdata.search.model.SearchTag;
 
 import java.util.ArrayList;
@@ -47,14 +48,18 @@ public class EntityKeyBean {
 
     private EntityKeyBean(){}
 
-    public EntityKeyBean(String documentType, String fortressName, String code){
-        this.fortressName = fortressName;
-        this.documentType = documentType;
-        this.code = code;
+    public EntityKeyBean(String documentType, MetaFortress fortress, String code){
+        this(documentType, fortress.getName(), code);
+    }
+
+    public EntityKeyBean(String documentName, String fortress, String value) {
+        this.documentType = documentName;
+        this.fortressName = fortress;
+        this.code = value;
     }
 
     public EntityKeyBean(EntityInputBean entityInput) {
-        this(entityInput.getDocumentType().getName(), entityInput.getFortressName(), entityInput.getCode());
+        this(entityInput.getDocumentType().getName(), entityInput.getFortress(), entityInput.getCode());
     }
 
     public EntityKeyBean(String code) {
@@ -98,6 +103,8 @@ public class EntityKeyBean {
             tags.add(new SearchTag(entityTag)) ;
         }
     }
+
+
 
     public String getFortressName() {
         return fortressName;

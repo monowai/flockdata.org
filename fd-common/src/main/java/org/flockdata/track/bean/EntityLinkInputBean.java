@@ -16,6 +16,8 @@
 
 package org.flockdata.track.bean;
 
+import org.flockdata.registration.FortressInputBean;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -38,20 +40,19 @@ public class EntityLinkInputBean {
     protected EntityLinkInputBean(){}
 
     public EntityLinkInputBean(EntityInputBean entityInputBean) {
-        this(entityInputBean.getFortressName(), entityInputBean.getDocumentType().getName(), entityInputBean.getCode());
+        this(entityInputBean.getFortress(), entityInputBean.getDocumentType(), entityInputBean.getCode());
         this.references = entityInputBean.getEntityLinks();
     }
 
     /**
-     *
-     * @param fortress          Parent fortress
+     *  @param fortress          Parent fortress
      * @param documentName      Parent docType
      * @param code              Parent code reference
      */
-    public EntityLinkInputBean(String fortress, String documentName, String code) {
+    public EntityLinkInputBean(FortressInputBean fortress, DocumentTypeInputBean documentName, String code) {
         this.code = code;
-        this.fortress = fortress;
-        this.documentType = documentName;
+        this.fortress = fortress.getName();
+        this.documentType = documentName.getName();
     }
 
     public String getCode() {

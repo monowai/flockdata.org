@@ -29,10 +29,10 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Parameter import checks for ImportProfile
- *
+ * <p>
  * Created by mike on 28/01/15.
  */
-public class TestImportProfileValidation extends AbstractImport{
+public class TestImportProfileValidation extends AbstractImport {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
@@ -42,35 +42,29 @@ public class TestImportProfileValidation extends AbstractImport{
         ContentProfileImpl profile = ProfileReader.getImportProfile("/profile/properties-rlx.json");
         assertEquals(',', profile.getDelimiter());
         assertEquals(false, profile.hasHeader());
-        profile.setFortressName(null);
-        try {
-            fileProcessor.processFile(profile, "/data/properties-rlx.txt");
-            fail("No fortress name found. We should not have gotten here");
-        } catch (FlockException e){
-            assertTrue(e.getMessage().contains("fortressName attribute."));
-        }
-        // Should also fail with blank
-        profile.setFortressName("");
-        try {
-            fileProcessor.processFile(profile, "/data/properties-rlx.txt");
-            fail("No fortress name found. We should not have gotten here");
-        } catch (FlockException e){
-            assertTrue(e.getMessage().contains("fortressName attribute."));
-        }
-        profile.setFortress(new FortressInputBean("Override The Name"));
-        assertTrue ("Blank fortressName was not overridden", profile.getFortress().getName().equals("Override The Name"));
+        profile.setFortress(null);
+        exception.expect(FlockException.class);
+        fileProcessor.processFile(profile, "/data/properties-rlx.txt");
 
-        profile.setFortressName("abc");
-        assertFalse("Setting fortressName should not override a fortressObject",profile.getFortress().getName().equals("abc"));
+        // Should also fail with blank
+        profile.setFortress(new FortressInputBean(""));
+        exception.expect(IllegalArgumentException.class);
+        fileProcessor.processFile(profile, "/data/properties-rlx.txt");
+
         profile.setFortress(new FortressInputBean("Override The Name"));
-        assertTrue (profile.getFortress().getName().equals("Override The Name"));
+        assertTrue("Blank fortressName was not overridden", profile.getFortress().getName().equals("Override The Name"));
+
+        profile.setFortress(new FortressInputBean("abc"));
+        assertFalse("Setting fortressName should not override a fortressObject", profile.getFortress().getName().equals("abc"));
+        profile.setFortress(new FortressInputBean("Override The Name"));
+        assertTrue(profile.getFortress().getName().equals("Override The Name"));
 
         exception.expect(IllegalArgumentException.class);
         profile.setDocumentName(null);
         try {
             fileProcessor.processFile(profile, "/data/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
-        } catch (FlockException e){
+        } catch (FlockException e) {
             assertTrue(e.getMessage().contains("documentName attribute."));
         }
 
@@ -78,7 +72,7 @@ public class TestImportProfileValidation extends AbstractImport{
         try {
             fileProcessor.processFile(profile, "/properties-rlx.txt");
             fail("No document name found. We should not have gotten here");
-        } catch (FlockException e){
+        } catch (FlockException e) {
             assertTrue(e.getMessage().contains("documentName attribute."));
         }
 

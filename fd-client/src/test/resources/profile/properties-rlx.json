@@ -1,7 +1,7 @@
 {
   "contentType": "csv",
   "tagOrEntity": "entity",
-  "fortressName": "GovTrack",
+  "fortress": {"name": "GovTrack"},
   "documentName": "PAC",
   "fortressUser": "mike",
   "header": false,

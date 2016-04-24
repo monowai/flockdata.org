@@ -178,7 +178,7 @@ public class ConceptServiceNeo implements ConceptService {
                 EntityInputBean inputBean = resultBean.getEntityInputBean();
                 if (inputBean != null && inputBean.getTags() != null) {
                     for (TagInputBean inputTag : resultBean.getEntityInputBean().getTags()) {
-                        if (!inputTag.getEntityLinks().isEmpty()) {
+                        if (inputTag.getEntityLinks()!=null && !inputTag.getEntityLinks().isEmpty()) {
                             ConceptInputBean cib = new ConceptInputBean(inputTag.getLabel());
 
                             if (!conceptInputBeans.contains(cib)) {

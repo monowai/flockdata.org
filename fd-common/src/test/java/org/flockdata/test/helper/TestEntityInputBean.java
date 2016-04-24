@@ -1,11 +1,19 @@
 package org.flockdata.test.helper;
 
+import org.flockdata.model.Company;
+import org.flockdata.model.DocumentType;
+import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Verifies that EntityInputBeans can be merged into each other
@@ -48,5 +56,13 @@ public class TestEntityInputBean {
 
     }
 
+    @Test
+    public void docTypeInArray(){
+        Map<DocumentType, String> docTypes = new HashMap<>();
+        Fortress fortress = new Fortress(new FortressInputBean("Testing"), new Company("Testling"));
 
+        DocumentType documentType = new DocumentType(fortress, new DocumentTypeInputBean("Blah"));
+        docTypes.put(documentType, "OK");
+        assertNotNull ( docTypes.get(documentType));
+    }
 }

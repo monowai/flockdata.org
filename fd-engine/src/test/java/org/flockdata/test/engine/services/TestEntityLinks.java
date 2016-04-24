@@ -66,8 +66,8 @@ public class TestEntityLinks extends EngineBase {
 
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
 
-        EntityKeyBean staffKey = new EntityKeyBean(staff.getDocumentType().getName(), staff.getFortressName(), staff.getCode());
-        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentType().getName(), workRecord.getFortressName(), workRecord.getCode());
+        EntityKeyBean staffKey = new EntityKeyBean(staff.getDocumentType().getName(), staff.getFortress().getName(), staff.getCode());
+        EntityKeyBean workKey = new EntityKeyBean(workRecord.getDocumentType().getName(), workRecord.getFortress().getName(), workRecord.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(staffKey);
