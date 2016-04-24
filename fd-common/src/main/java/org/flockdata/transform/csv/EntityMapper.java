@@ -47,7 +47,7 @@ public class EntityMapper extends EntityInputBean implements Mappable {
 
     public EntityMapper(ContentProfile contentProfile) {
         setDocumentType(contentProfile.getDocumentType());
-        setFortressName(contentProfile.getFortress().getName());
+        setFortress(contentProfile.getFortress());
         setFortressUser(contentProfile.getFortressUser());
     }
 

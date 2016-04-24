@@ -121,7 +121,8 @@ public class TestEntityTrack extends EngineBase {
         assertNotNull(su);
         engineConfig.setConceptsEnabled("false");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("docTypeFromInput", true));
+        FortressInputBean fib = new FortressInputBean("docTypeFromInput", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         Collection<DocumentResultBean> docs = conceptService.getDocumentsInUse(su.getCompany());
         assertEquals("DB has stray DocumentType objects lying around",0, docs.size());
@@ -130,7 +131,7 @@ public class TestEntityTrack extends EngineBase {
         docTypeObject.setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
 
         EntityInputBean eib = new EntityInputBean(fortress, docTypeObject, "!123321!")
-                .setFortressName(fortress.getName())
+                .setFortress(fib)
                 .setEntityOnly(true);
 
 

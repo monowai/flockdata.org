@@ -61,7 +61,7 @@ public class ContentProfileDeserializer extends JsonDeserializer<ContentProfileI
 
         nodeValue = node.get("fortressName");
         if (!isNull(nodeValue))
-            contentProfileImpl.setFortressName(nodeValue.asText());
+            contentProfileImpl.setFortress(new FortressInputBean(nodeValue.asText()));
 
         nodeValue = node.get("fortress");
         if (!isNull(nodeValue)){

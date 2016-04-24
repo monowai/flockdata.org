@@ -142,8 +142,6 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     @Override
     public FortressInputBean getFortress() {
-        if ( fortress == null)
-            return new FortressInputBean(fortressName);
         return fortress;
     }
 

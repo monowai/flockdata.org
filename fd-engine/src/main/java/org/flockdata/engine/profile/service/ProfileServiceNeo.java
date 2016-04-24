@@ -85,7 +85,7 @@ public class ProfileServiceNeo implements ContentProfileService {
         String json = profile.getContent();
         try {
             ContentProfileImpl iProfile=  objectMapper.readValue(json, ContentProfileImpl.class);
-            iProfile.setFortressName(fortress.getName());
+            iProfile.setFortress(new FortressInputBean(fortress.getName()));
             iProfile.setDocumentName(documentType.getName());
             return iProfile;
         } catch (IOException e) {

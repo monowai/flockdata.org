@@ -96,8 +96,8 @@ public class Transformer {
     public static EntityInputBean transformToEntity(JsonNode node, ContentProfile importProfile) throws FlockException {
         JsonEntityMapper entityInputBean = new JsonEntityMapper();
         entityInputBean.setData(node, importProfile);
-        if (entityInputBean.getFortressName() == null)
-            entityInputBean.setFortressName(importProfile.getFortress().getName());
+        if (entityInputBean.getFortress() == null)
+            entityInputBean.setFortress(importProfile.getFortress());
         ContentInputBean contentInputBean = new ContentInputBean();
         if (contentInputBean.getFortressUser() == null)
             contentInputBean.setFortressUser(importProfile.getFortressUser());
@@ -114,8 +114,8 @@ public class Transformer {
         ContentInputBean contentInputBean = row.setXMLData(xsr, importProfile);
         EntityInputBean entityInputBean = (EntityInputBean) row;
 
-        if (entityInputBean.getFortressName() == null)
-            entityInputBean.setFortressName(importProfile.getFortress().getName());
+        if (entityInputBean.getFortress() == null)
+            entityInputBean.setFortress(importProfile.getFortress());
 
         if (entityInputBean.getFortressUser() == null)
             entityInputBean.setFortressUser(importProfile.getFortressUser());

@@ -35,7 +35,6 @@ import java.util.*;
 public class EntityInputBean implements Serializable, UserProperties {
     private String key;
     private String code;
-    private String fortressName;
 
     private FortressInputBean fortress;
     private String fortressUser;
@@ -68,7 +67,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public EntityInputBean(EntityKeyBean entityKeyBean) {
-        setFortressName(entityKeyBean.getFortressName());
+        setFortress(new FortressInputBean(entityKeyBean.getFortressName()));
         setDocumentType(new DocumentTypeInputBean(entityKeyBean.getDocumentType()));
         setCode(entityKeyBean.getCode());
     }
@@ -87,7 +86,7 @@ public class EntityInputBean implements Serializable, UserProperties {
         if (fortressWhen != null) {
             setWhen(fortressWhen.toDate());
         }
-        setFortressName(fortress.getName());
+        setFortress(new FortressInputBean(fortress.getName()));
         setFortressUser(fortressUser);
         setDocumentType(new DocumentTypeInputBean(documentName));
         this.documentType = new DocumentTypeInputBean(documentName);
@@ -101,7 +100,7 @@ public class EntityInputBean implements Serializable, UserProperties {
 
     public EntityInputBean(String fortressName, String documentName) {
         this();
-        this.fortressName = fortressName;
+        this.fortress = new FortressInputBean(fortressName);
         setDocumentType(new DocumentTypeInputBean(documentName));
     }
 
@@ -110,7 +109,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public EntityInputBean(MetaFortress fortress, DocumentTypeInputBean documentType) {
-        this.fortressName = fortress.getName();
+        this.fortress = new FortressInputBean(fortress.getName());
         setDocumentType(documentType);
     }
 
@@ -146,32 +145,16 @@ public class EntityInputBean implements Serializable, UserProperties {
     }
 
     public EntityInputBean setFortress(FortressInputBean fortress) {
+        if ( fortress!=null && fortress.getName().equals(""))
+            throw new IllegalArgumentException("Fortress name cannot be blank or null");
         this.fortress = fortress;
         return this;
     }
 
     public FortressInputBean getFortress (){
-        if ( fortress==null )
-            return new FortressInputBean(fortressName);
         return fortress;
     }
 
-    public String getFortressName() {
-        return fortressName;
-    }
-
-    /**
-     * Fortress is a computer application/service in the callers environment, i.e. Payroll, HR, AR.
-     * This could also be thought of as a Database in an DBMS
-     * <p/>
-     * The Fortress relationshipName is unique for the Company.
-     *
-     * @param fortress unique fortressName relationshipName
-     */
-    public EntityInputBean setFortressName(final String fortress) {
-        this.fortressName = fortress;
-        return this;
-    }
 
     /**
      * @return name
@@ -365,7 +348,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     @Override
     public String toString() {
         return "EntityInputBean{" +
-                "for='" + getFortressName() + '\'' +
+                "for='" + getFortress() + '\'' +
                 ", doc='" + getDocumentType() + '\'' +
                 ", seg='" + getSegment() + '\'' +
                 ", mek='" + getKey() + '\'' +
@@ -447,7 +430,7 @@ public class EntityInputBean implements Serializable, UserProperties {
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (!getDocumentType().getName().equals(that.getDocumentType().getName())) return false;
-        if (!fortressName.equals(that.fortressName)) return false;
+        if (!fortress.equals(that.fortress)) return false;
         return !(key != null ? !key.equals(that.key) : that.key != null);
 
     }
@@ -456,7 +439,7 @@ public class EntityInputBean implements Serializable, UserProperties {
     public int hashCode() {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + fortressName.hashCode();
+        result = 31 * result + fortress.hashCode();
         result = 31 * result + getDocumentType().getName().hashCode();
         return result;
     }
