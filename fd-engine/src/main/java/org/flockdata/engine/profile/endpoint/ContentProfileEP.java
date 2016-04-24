@@ -33,6 +33,7 @@ import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.model.ImportFile;
 import org.flockdata.profile.service.ContentProfileService;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.service.FortressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +124,7 @@ public class ContentProfileEP {
         result.setDocumentType( new DocumentTypeInputBean("DataType"));
         result.setContentType(ImportFile.ContentType.CSV);
         result.setHeader(true);
-        result.setFortressName("DataProvider");
+        result.setFortress(new FortressInputBean("DataProvider"));
         return result;
 //        return profileService.validate(contentRequest);
 

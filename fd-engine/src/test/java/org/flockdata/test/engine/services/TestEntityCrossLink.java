@@ -76,8 +76,8 @@ public class TestEntityCrossLink extends EngineBase {
 
         TrackResultBean childResult = mediationFacade.trackEntity(su.getCompany(), child);
 
-        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortressName(), parent.getCode());
-        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentType().getName(), child.getFortressName(), child.getCode());
+        EntityKeyBean parentKey = new EntityKeyBean(parent.getDocumentType().getName(), parent.getFortress(), parent.getCode());
+        EntityKeyBean childKey = new EntityKeyBean(child.getDocumentType().getName(), child.getFortress(), child.getCode());
 
         Collection<EntityKeyBean> parents = new ArrayList<>();
         parents.add(parentKey);
@@ -148,7 +148,8 @@ public class TestEntityCrossLink extends EngineBase {
     public void link_targetDoesNotExist() throws Exception {
         cleanUpGraph();
         SystemUser su = registerSystemUser("xRef_targetDoesNotExist", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("xRef_targetDoesNotExist", true));
+        FortressInputBean fib = new FortressInputBean("xRef_targetDoesNotExist", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         TrackResultBean trackResultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
@@ -160,7 +161,7 @@ public class TestEntityCrossLink extends EngineBase {
         // DAT-443 - Request to xreference with an entity that does not yet exist.
         // Will only work when both the fortress and doctype are known i.e. not a DocType of "*"
         callerRefs.add(
-                new EntityKeyBean(trackResultBean.getDocumentType().getName(), fortress.getName(), "ABC321")
+                new EntityKeyBean(trackResultBean.getDocumentType().getName(), fib, "ABC321")
                         .setMissingAction(EntityKeyBean.ACTION.CREATE));
 
         EntityKeyBean sourceKey = new EntityKeyBean(new EntityLinkInputBean(inputBean));
@@ -197,7 +198,8 @@ public class TestEntityCrossLink extends EngineBase {
     @Test
     public void link_duplicateCallerRefForFortressFails() throws Exception {
         SystemUser su = registerSystemUser("xRef_duplicateCallerRefForFortressFails", mike_admin);
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
+        FortressInputBean fib = new FortressInputBean("auditTest", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "DocTypeA", new DateTime(), "ABC123");
         String code = mediationFacade.trackEntity(su.getCompany(), inputBean).getEntity().getKey();
@@ -211,10 +213,10 @@ public class TestEntityCrossLink extends EngineBase {
         assertNotNull(destKey);
         assertFalse(code.equals(destKey.getKey()));
 
-        xRef.add(new EntityKeyBean("ABC321", "123", "444"));
-        xRef.add(new EntityKeyBean("Doesn't matter", "123", "444"));
+        xRef.add(new EntityKeyBean("ABC321", new FortressInputBean("123"), "444"));
+        xRef.add(new EntityKeyBean("Doesn't matter", new FortressInputBean("123"), "444"));
         try {
-            EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), code);
+            EntityKeyBean entityKey = new EntityKeyBean("*", fib, code);
             entityKey.setMissingAction(EntityKeyBean.ACTION.ERROR);
             entityService.linkEntities(su.getCompany(), entityKey, xRef, "cites");
             fail("Exactly one check failed");
@@ -242,7 +244,7 @@ public class TestEntityCrossLink extends EngineBase {
         codeRef.add(new EntityKeyBean(trDocE.getEntityInputBean()));
         codeRef.add(new EntityKeyBean(trDocF.getEntityInputBean()));
 
-        EntityKeyBean entityKey = new EntityKeyBean("*", fortress.getName(), "ABC123");
+        EntityKeyBean entityKey = new EntityKeyBean("*", fortress, "ABC123");
         Collection<EntityKeyBean> notFound = entityService.linkEntities(su.getCompany(), entityKey, codeRef, "cites");
         assertEquals(0, notFound.size());
         Map<String, Collection<Entity>> results = entityService.getCrossReference(su.getCompany(), fortress.getName(), "ABC123", "cites");
@@ -308,8 +310,8 @@ public class TestEntityCrossLink extends EngineBase {
         Map<String, List<EntityKeyBean>> refs = new HashMap<>();
         List<EntityKeyBean> entityKeys = new ArrayList<>();
 
-        entityKeys.add(new EntityKeyBean("DocTypeZ", fortressA.getName(), "ABC321"));
-        entityKeys.add(new EntityKeyBean("DocTypeS", fortressB.getName(), "ABC333"));
+        entityKeys.add(new EntityKeyBean("DocTypeZ", fortressA, "ABC321"));
+        entityKeys.add(new EntityKeyBean("DocTypeS", fortressB, "ABC333"));
 
         refs.put("cites", entityKeys);
         inputBean.setEntityLinks(refs);

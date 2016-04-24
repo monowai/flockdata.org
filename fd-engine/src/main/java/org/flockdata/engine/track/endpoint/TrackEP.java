@@ -26,6 +26,7 @@ import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.EntityLog;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.service.CompanyService;
 import org.flockdata.track.bean.*;
 import org.flockdata.track.service.EntityService;
@@ -130,7 +131,7 @@ public class TrackEP {
                                                             HttpServletRequest request) throws FlockException, InterruptedException, ExecutionException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         TrackResultBean trackResultBean;
-        input.setFortressName(fortress);
+        input.setFortress(new FortressInputBean(fortress));
         input.setDocumentType(new DocumentTypeInputBean(recordType));
         input.setCode(code);
         input.setKey(null);
