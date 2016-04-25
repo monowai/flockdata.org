@@ -42,6 +42,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
     private String languageTag;
     private Boolean enabled = true;
     private Boolean system = false;
+    private String code = null;
 
     protected FortressInputBean() {
     }
@@ -57,11 +58,13 @@ public class FortressInputBean implements Serializable, MetaFortress {
         //this.accumulateChanges = ignoreSearchEngine;
         this.searchActive = !ignoreSearchEngine;
         this.name = name;
+        this.code = name;
     }
 
     public FortressInputBean(String name) {
         this.name = name;
         searchActive = true;
+        this.code = name;
     }
 
     public String getName() {
@@ -70,7 +73,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
 
     @Override
     public String getCode() {
-        return null;
+        return code;
     }
 
     public FortressInputBean setName(String name) {
