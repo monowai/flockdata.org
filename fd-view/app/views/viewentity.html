@@ -29,7 +29,7 @@
     <small>entity</small>
     </h1>
     <ol class="breadcrumb">
-      <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+      <li><a ui-sref="welcome"><i class="fa fa-home"></i> Home</a></li>
       <li>View</li>
       <li>{{metaHeader.index}}</li>
       <li>{{metaHeader.type}}</li>
@@ -90,14 +90,13 @@
                             </tr>
                             </tbody>
                         </table>
-                   
                 </div>
             </div>
             <!-- /.tab-pane -->
             <div class="tab-pane fade" id="details">
               <!-- SHOW DETAILS LOGS-->
               <div id="log1" ng-jsonabview ab-data="log"></div>
-         
+
             </div>
             <!-- /.tab-pane -->
             <div class="tab-pane fade" id="delta">
@@ -111,7 +110,7 @@
                               {{logsResult.log.who.name}} | {{logsResult.fortressWhen |
                               amDateFormat:'dddd, MMMM Do YYYY,hh:mm a'}}
                           </option>
-                      </select> <i></i> 
+                      </select> <i></i>
 
                   <div class="widget-body smart-form">
                     <input type="checkbox" ng-model="showUnchangedFlag"
@@ -123,7 +122,6 @@
                   </div>
               </form>
 
-                
             </div>
             <!-- /.tab-pane -->
           </div>

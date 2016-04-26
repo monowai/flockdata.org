@@ -26,7 +26,7 @@
     <small>new data into your Fortress</small>
   </h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+    <li><a ui-shref="welcome"><i class="fa fa-home"></i> Home</a></li>
     <li class="active">Import</li>
   </ol>
 </section>
@@ -34,7 +34,7 @@
 <!-- Main content -->
 <section class="content">
   <div class="row">
-    <div class="col-xs-12">
+    <div class="col-md-12">
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
           <li class="active"><a data-target="#upload" data-toggle="tab"><i class="fa fa-upload"></i> File</a></li>
@@ -51,9 +51,9 @@
                       <label for="fortress" class="col-sm-6 control-label"> Data Provider</label>
                       <div class="col-sm-6">
                         <div class="input-group">
-                          <select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress()"></select>
+                          <select class="form-control" id="fortress"  ng-model="fortress" ng-options="f.name as f.name for f in fortresses" ng-change="selectFortress(fortress)"></select>
                           <div class="input-group-btn">
-                            <button class="btn btn-primary"><i class="fa fa-plus"></i></button>
+                            <button class="btn btn-primary" ng-click="createFortress()"><i class="fa fa-plus"></i></button>
                           </div>
                         </div>
                       </div>
@@ -64,7 +64,7 @@
                         <div class="input-group">
                           <select class="form-control" id="type" ng-model="type" ng-options="d.name as d.name for d in documents" ng-change="selectProfile(type)"></select>
                           <div class="input-group-btn">
-                            <button class="btn btn-primary"><i class="fa fa-plus"></i></button>
+                            <button class="btn btn-primary" ng-click="createType()"><i class="fa fa-plus"></i></button>
                           </div>
                         </div>
                       </div>
@@ -98,52 +98,44 @@
                   </form>
                 </div>
                 <div class="col-md-6">
-                  <div class="file-box" file-open="loadFile($fileContent, $fileName)">
-                    <div class="file-box-input">
-                      <input type="file" id="file" class="box-file" on-read-file="loadFile($fileContent, $fileName)">
-                      <label for="file" align="center"><strong><i class="fa fa-cloud-download"></i> Click</strong><span> to choose a CSV file, or drop it here</span>.</label>
-                    </div>
-                    <div class="file-box-success"><strong>Done!</strong>&nbsp;{{fileName}} is loaded</div>
-                  </div>
+                  <div class="file-box" file-box="loadFile($fileContent, $fileName)"></div>
                 </div>
               </div>
             </div>
             <div class="box-footer">
               <button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>
               <button type="submit" class="btn btn-info pull-right" ng-click="checkProfile()"><i class="fa fa-check"></i>&nbsp; Check profile</button>
-            </div> 
+            </div>
           </div>
           <!-- /.tab-pane -->
           <div class="tab-pane fade" id="profile">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label> Action</label>
-                  <div class="clearfix"></div>
-                  <button class="btn btn-primary" ng-click="saveProfile()"><i class="fa fa-lg fa-save"></i>&nbsp; Save</button>
-                  <button class="btn btn-success" ng-click="validate()"><i class="fa fa-lg fa-play-circle"></i>&nbsp; Validate</button>
-                </div>
-              </div>
+          <div class="row">
+
+            <div class="col-md-2">
+              <label for="headers">Columns</label>
+              <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
+              </select>
             </div>
-            <div class="row">
-              <div class="col-md-2">
-                <label for="headers">Columns</label>
-                <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
-                </select> 
+            <div class="col-md-10">
+              <div class="form-group pull-right">
+                <button class="btn btn-primary" ng-click="saveProfile()"><i class="fa fa-lg fa-save"></i>&nbsp; Save</button>
+                <button class="btn btn-success" ng-click="validate()"><i class="fa fa-lg fa-play-circle"></i>&nbsp; Validate</button>
               </div>
-              <tabset class="col-md-10">
-                <tab index="0" heading="Edit">
-                  <div class="col-md-6">
-                    <div ng-jsoneditor="onEditorLoad" ng-model="contentProfile" options="editorOptions.text" ng-change="console.log(profile)" style="height: 465px"></div>
-                  </div>
-                  <div class="col-md-6">
-                    <div ng-jsoneditor="onEditorLoad" ng-model="contentProfile" options="editorOptions.tree" style="height: 465px"></div>
-                  </div>
-                </tab>
-                <tab index="1" heading="Structure">
-                  <ng-cytoscape></ng-cytoscape>
-                </tab>
-              </tabset>
+                <uib-tabset class="nav-tabs-custom">
+                  <uib-tab index="0" heading="Edit">
+                    <!-- <div class="col-md-6">
+                      <div ng-jsoneditor="onEditorLoad" ng-model="contentProfile" options="editorOptions.text" ng-change="console.log(profile)" style="height: 465px"></div>
+                    </div>
+                    <div class="col-md-12"> -->
+                      <div ng-jsoneditor="onEditorLoad" ng-model="contentProfile" options="editorOptions.tree" ng-height="180"></div>
+                    <!-- </div> -->
+                    <div class="clearfix"></div>
+                  </uib-tab>
+                  <uib-tab index="1" heading="Structure">
+                    <ng-cytoscape></ng-cytoscape>
+                  </uib-tab>
+                </uib-tabset>
+              </div>
             </div>
           </div>
           <!-- /.tab-pane -->
@@ -158,16 +150,87 @@
     </div>
   </div>
 </section>
+<script type="text/ng-template" id="createFortressModal.html">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="close()">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Create Data Provider</h4>
+  </div>
+  <div class="modal-body">
+    <form role="form" class="form-horizontal">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" placeholder="DP name" ng-model="name">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <!-- <div class="form-group"> -->
+            <select name="timezone" id="timezone" class="form-control" ng-model="timezone" ng-options="tz as tz for tz in timezones" placeholder="Timezone"></select>
+          <!-- </div> -->
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-3 col-sm-offset-1 checkbox">
+          <label><input type="checkbox" ng-model="searchable"> Searchable</label>
+        </div>
+        <div class="col-sm-4 checkbox">
+          <label><input type="checkbox" ng-model="versionable"> Versionable Content</label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary" ng-click="save()"><i class="fa fa-floppy-o"></i>&nbsp; Save</button>
+  </div>
+</script>
+
+<script type="text/ng-template" id="createTypeModal.html">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="close()">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Create Data Type</h4>
+  </div>
+  <div class="modal-body">
+    <form role="form" class="form-horizontal">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" placeholder="Data type name" ng-model="name">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ** requires end point ** 
+      <div class="form-group">
+        <div class="col-sm-4 checkbox">
+          <label><input type="checkbox" ng-model="searchable"> Searchable</label>
+        </div>
+        <div class="col-sm-8 checkbox">
+          <label><input type="checkbox" ng-model="versionable"> Versionable Content</label>
+        </div>
+      </div> -->
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary" ng-click="save(name)"><i class="fa fa-floppy-o"></i>&nbsp; Save</button>
+  </div>
+</script>
 <script type="text/ng-template" id="errorModal.html">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="ok()">
-                  <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">{{missing}} missing.</h4>
-              </div>
-              <div class="modal-body">
-                <p>Please choose a {{missing}}&hellip;</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-click="ok()">Ok</button>
-              </div>  
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="ok()">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">{{missing}} missing.</h4>
+  </div>
+  <div class="modal-body">
+    <p>Please choose a {{missing}}&hellip;</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="ok()">Ok</button>
+  </div>
 </script>
