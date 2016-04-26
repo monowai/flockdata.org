@@ -45,6 +45,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 
@@ -93,17 +94,17 @@ public class ITDockerStack {
 
     // http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
     @ClassRule
-    public static DockerComposeContainer stack = null;
-//    public static DockerComposeContainer stack =// null;
-//                new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
-//                        .withExposedService("rabbit_1", 5672)
-//                        .withExposedService("rabbit_1", 15672)
-//                        .withExposedService("fdengine_1", SERVICE_ENGINE)
-//                        .withExposedService("fdengine_1", DEBUG_ENGINE)
-//                        .withExposedService("fdsearch_1", SERVICE_SEARCH)
-//                        .withExposedService("fdsearch_1", DEBUG_SEARCH)
-//                        .withExposedService("fdstore_1", SERVICE_STORE)
-//                        .withExposedService("fdstore_1", DEBUG_STORE);
+//    public static DockerComposeContainer stack = null;
+    public static DockerComposeContainer stack =
+                new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
+                        .withExposedService("rabbit_1", 5672)
+                        .withExposedService("rabbit_1", 15672)
+                        .withExposedService("fdengine_1", SERVICE_ENGINE)
+                        .withExposedService("fdengine_1", DEBUG_ENGINE)
+                        .withExposedService("fdsearch_1", SERVICE_SEARCH)
+                        .withExposedService("fdsearch_1", DEBUG_SEARCH)
+                        .withExposedService("fdstore_1", SERVICE_STORE)
+                        .withExposedService("fdstore_1", DEBUG_STORE);
 
     private static Logger logger = LoggerFactory.getLogger(ITDockerStack.class);
 
