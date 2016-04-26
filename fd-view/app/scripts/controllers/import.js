@@ -20,8 +20,8 @@
 
 'use strict';
 
-fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window', '$http', 'configuration',
-  function ($scope, $uibModal, QueryService, $window, $http, configuration) {
+fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state', '$http', 'configuration',
+  function ($scope, $uibModal, QueryService, $state, $http, configuration) {
 
     $scope.delim=',';
     $scope.hasHeader=true;
@@ -35,27 +35,18 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window
       $scope.fortresses = data;
     });
 
-    $scope.selectFortress = function() {
-      var query = [$scope.fortress];
+    $scope.selectFortress = function(fortress) {
+      var query = [fortress];
       QueryService.query('documents', query).then(function (data) {
         $scope.documents = data;
-        $scope.type = $scope.documents[0].name;
-        $scope.selectProfile($scope.type);
+        if(data.length>0) {
+          $scope.type = $scope.documents[0].name;
+          $scope.selectProfile($scope.type);
+        }
       });
     };
 
     $scope.selectProfile = function (type) {
-      // var query = String('content/'+$scope.fortress+'/'+$scope.type);
-      // QueryService.general(query).then(function(data){
-      //   console.log(data);
-      // });
-      // return $http({
-      //   method: "GET",
-      //   url: configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type,
-      //   headers: {'Content-Type': 'application/json'} 
-      // }).then(function(response){
-      //   console.log(response);
-      // });
       $http.get(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+type)
         .success(function (data){
           console.log(data);
@@ -66,6 +57,84 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window
             $scope.contentProfile=response.data;
           });
         });
+    };
+
+    $scope.createFortress = function() {
+      var modalCreateDP = $uibModal.open({
+        templateUrl: 'createFortressModal.html',
+        resolve: {
+          timezones: function() {
+            return $http.get(configuration.engineUrl() + '/api/v1/fortress/timezones').then(function (response) {
+              return response.data;
+            })
+          }
+        },
+        controller: function($scope, $uibModalInstance, timezones) {
+          $scope.timezones = timezones;
+          $scope.timezone = $scope.timezones[0];
+          $scope.close = $uibModalInstance.dismiss;          
+          $scope.save = function() {
+            var newFortress = {
+              name: $scope.name,
+              searchEnabled: $scope.searchable,
+              storeEnabled: $scope.versionable,
+              timeZone: $scope.timezone
+            };
+            $http.post(configuration.engineUrl()+'/api/v1/fortress/', newFortress).then(function(response){
+              $uibModalInstance.close(response.data);
+            });
+          };
+        }
+      });
+      modalCreateDP.result.then(function(newDP){
+        $scope.fortresses.push(newDP);
+        $scope.fortress = newDP.name;
+      });
+    };
+
+    $scope.createType = function() {
+      if(!$scope.fortress) return;
+      var modalCreateDP = $uibModal.open({
+        templateUrl: 'createTypeModal.html',
+        size: 'sm',
+        resolve: {
+          fortress: function() {
+            return $scope.fortress.toLowerCase().replace(/\s+/g, '');
+          }
+        },
+        controller: function($scope, $uibModalInstance, fortress) {
+          $scope.searchable = false;
+          $scope.versionable = false;
+          $scope.close = $uibModalInstance.dismiss;
+          $scope.save = function(name) {
+            // -- waiting for end point added
+            // var newType = {
+            //   name: $scope.name,
+            //   searchEnabled: $scope.searchable,
+            //   storeEnabled: $scope.versionable
+            // };
+            // $http.post(configuration.engineUrl()+'/api/v1/fortress/'+fortress+'/docs/',newType).then(function(response){
+            //   $uibModalInstance.close(response.data);
+            // });
+            $http({
+              method: 'PUT',
+              url: configuration.engineUrl() + '/api/v1/fortress/' +fortress+'/'+name,
+              dataType: 'raw',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              data: ''
+            }).then(function(response){
+                $uibModalInstance.close(response.data);
+              });
+          };
+        }
+      });
+      modalCreateDP.result.then(function(newDocType){
+        console.log($scope.documents);
+        $scope.documents.push(newDocType);
+        $scope.type = newDocType.name;
+      });
     };
 
     $scope.checkProfile = function() {
@@ -97,21 +166,27 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window
           }
         }); 
       } else {
-        d3.csv.parse($scope.csvContent, function(data){
+        var csvParser = d3.dsv($scope.delim,'text/plain');
+        csvParser.parse($scope.csvContent, function(data){
           $scope.data = data; 
           $scope.keys = d3.keys(data);
-        })
+        });
+        // d3.csv.parse($scope.csvContent, function(data){
+        //   $scope.data = data; 
+        //   $scope.keys = d3.keys(data);
+        // });
         angular.element('[data-target="#profile"]').tab('show');
       }
     };
 
     $scope.reset = function(){
-      console.log('lets reset');
+      $state.reload();
     };
  
     $scope.saveProfile = function() {
       console.log($scope.contentProfile);
       $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, $scope.profile).then(function (response) {
+        console.log(response);
         return response.data;
       });
     };
@@ -123,7 +198,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$window
       // });
     };
 
-    $scope.editorOptions = { tree: {mode: "tree", expanded: true}, text: {mode:"text", modes:["text","code"]}};
+    $scope.editorOptions = { tree: {mode: "tree", modes:["tree","code","form"]}, text: {mode:"text", modes:["text","code"]}};
     $scope.onEditorLoad = function(instance){
       $scope.editor = instance;
     };
