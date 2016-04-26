@@ -8,9 +8,9 @@ rabbit:
   image: rabbitmq:3-management
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '5672:5672'
-#    - '15672:15672'
+  ports:
+    - '5672:5672'
+    - '15672:15672'
 
   expose:
     - 5672
@@ -26,9 +26,9 @@ fdengine:
      - fdstore
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '8090:8090'
-#    - '61000:61000'
+  ports:
+    - '8090:8090'
+    - '61000:61000'
 
 #  To debug the service, you MUST uncomment the debug line in the DockerFile for fd-engine
   expose:
@@ -36,7 +36,6 @@ fdengine:
     - 61000
 
   environment:
-
     server.port: 8090
     org.fd.engine.fortress.search: 'true'
     org.fd.engine.fortress.store: 'true'
@@ -57,13 +56,16 @@ fdsearch:
   links:
     - rabbit
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '8091:8091'
-#    - '61001:61001'
+  ports:
+    - '8091:8091'
+    - '61001:61001'
+    - '9200:9200'
+
 
   expose:
     - 8091
     - 61001
+    - 9200
 
   environment:
     server.port: 8091
@@ -91,9 +93,9 @@ fdstore:
      - rabbit
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '8092:8092'
-#    - '61002:61002'
+  ports:
+    - '8092:8092'
+    - '61002:61002'
 
   expose:
     - 8092

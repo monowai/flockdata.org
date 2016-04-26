@@ -107,7 +107,7 @@ public class TestConcepts extends EngineBase {
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
             validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
-            assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, queryService.getDocumentsInUse(su.getCompany(), null).size());
+            assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, conceptService.getDocumentsInUse(su.getCompany(), null).size());
 
             // DAT-112
             Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);
@@ -205,7 +205,7 @@ public class TestConcepts extends EngineBase {
 
             Collection<String> docs = new ArrayList<>();
             docs.add("DocA");
-            Collection<DocumentResultBean> documentTypes = queryService.getConcepts(su.getCompany(), docs);
+            Collection<DocumentResultBean> documentTypes = conceptService.findConcepts(su.getCompany(), docs, false);
             assertNotNull(documentTypes);
             assertEquals(1, documentTypes.size());
 
@@ -214,7 +214,7 @@ public class TestConcepts extends EngineBase {
             input.addTag(new TagInputBean("cust123", "Rep", "sold").setLabel("Rep"));
             mediationFacade.trackEntity(su.getCompany(), input);
 
-            documentTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+            documentTypes = conceptService.getConceptsWithRelationships(su.getCompany(), docs);
             assertEquals("Only one doc type should exist", 1, documentTypes.size());
 
             Boolean foundCustomer = false, foundRep = false;
@@ -283,7 +283,7 @@ public class TestConcepts extends EngineBase {
 
             Collection<String> docs = new ArrayList<>();
             docs.add("DocA");
-            Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+            Set<DocumentResultBean> docTypes = conceptService.getConceptsWithRelationships(su.getCompany(), docs);
             for (DocumentResultBean docType : docTypes) {
                 Collection<ConceptResultBean> concepts = docType.getConcepts();
                 for (ConceptResultBean concept : concepts) {
@@ -299,7 +299,7 @@ public class TestConcepts extends EngineBase {
 
                 }
             }
-            assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
+            assertEquals("Docs In Use not supporting 'null args'", 2, conceptService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
             cleanUpGraph();
         }
@@ -341,7 +341,7 @@ public class TestConcepts extends EngineBase {
             docs.add(docA.getName());
             docs.add(docB.getName());
 
-            Set<DocumentResultBean> docTypes = queryService.getConceptsWithRelationships(su.getCompany(), docs);
+            Set<DocumentResultBean> docTypes = conceptService.getConceptsWithRelationships(su.getCompany(), docs);
             for (DocumentResultBean docType : docTypes) {
                 Collection<ConceptResultBean> concepts = docType.getConcepts();
                 for (ConceptResultBean concept : concepts) {
@@ -359,7 +359,7 @@ public class TestConcepts extends EngineBase {
             // ToDo: it is unclear if we should track in this manner
 //            assertTrue("DocA Not Found in the concept", docAFound);
 //            assertTrue("DocB Not Found in the concept", docBFound);
-            assertEquals("Docs In Use not supporting 'null args'", 2, queryService.getConceptsWithRelationships(su.getCompany(), null).size());
+            assertEquals("Docs In Use not supporting 'null args'", 2, conceptService.getConceptsWithRelationships(su.getCompany(), null).size());
         } finally {
             cleanUpGraph();
         }
@@ -551,7 +551,7 @@ public class TestConcepts extends EngineBase {
     }
 
     private Set<DocumentResultBean> validateConcepts(Collection<String> docs, SystemUser su, int expected) throws Exception {
-        Set<DocumentResultBean> concepts = queryService.getConcepts(su.getCompany(), docs, true);
+        Set<DocumentResultBean> concepts = conceptService.findConcepts(su.getCompany(), docs, true);
         String message = "Collection";
         if (docs != null && docs.size() == 1)
             message = docs.iterator().next();

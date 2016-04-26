@@ -29,6 +29,7 @@ RUN bash -c 'touch /opt/flockdata/store.jar'
 EXPOSE 8082 61002
 
 ENTRYPOINT ["java",\
+      "-Dfile.encoding=UTF8", \
 #     "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61002",\
      "-jar",\
      "/opt/flockdata/store.jar", \

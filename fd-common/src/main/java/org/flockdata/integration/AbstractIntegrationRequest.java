@@ -18,6 +18,7 @@ package org.flockdata.integration;
 
 import com.google.common.net.MediaType;
 import org.flockdata.helper.JsonUtils;
+import org.springframework.integration.json.JsonToObjectTransformer;
 import org.springframework.integration.json.ObjectToJsonTransformer;
 import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 
@@ -31,9 +32,14 @@ import javax.annotation.PostConstruct;
 public class AbstractIntegrationRequest {
 
     private ObjectToJsonTransformer objectToJsonTransformer;
+    private JsonToObjectTransformer jsonToObjectTransformer;
 
     public ObjectToJsonTransformer objectToJson(){
         return objectToJsonTransformer;
+    }
+
+    public JsonToObjectTransformer jsonToObjectTransformer (){
+        return jsonToObjectTransformer;
     }
 
     @PostConstruct
@@ -41,6 +47,8 @@ public class AbstractIntegrationRequest {
         objectToJsonTransformer = new ObjectToJsonTransformer(
                 new Jackson2JsonObjectMapper(JsonUtils.getMapper())
         );
-        objectToJsonTransformer.setContentType(MediaType.JSON_UTF_8.toString());
+        objectToJsonTransformer.setContentType("application/json;"+MediaType.JSON_UTF_8.toString());
+        jsonToObjectTransformer = new JsonToObjectTransformer(new Jackson2JsonObjectMapper(JsonUtils.getMapper()));
+        //objectToJsonTransformer.setContentType(MediaType.JSON_UTF_8.toString());
     }
 }

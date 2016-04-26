@@ -17,9 +17,9 @@
 package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.ClientConfiguration;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,26 +27,24 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.util.Map;
-
 /**
- * Passthrough query to ES
+ * Locate a tag
  * Created by mike on 17/04/16.
  */
-public class SearchEsPost extends AbstractRestCommand {
+public class SearchFdPost extends AbstractRestCommand {
 
     private QueryParams queryParams;
 
-    private Map<String,Object> result;
+    private EsSearchResult results;
 
-    public SearchEsPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
+    public SearchFdPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
         super(clientConfiguration, fdRestWriter);
         this.queryParams = queryParams;
     }
 
 
-    public Map<String,Object> getResult() {
-        return result;
+    public EsSearchResult getResult() {
+        return results;
     }
 
     @Override
@@ -54,11 +52,11 @@ public class SearchEsPost extends AbstractRestCommand {
         HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
 
         try {
-            ParameterizedTypeReference<Map<String,Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {};
-            ResponseEntity<Map<String,Object>> response;
-            response = restTemplate.exchange(url + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
-            result = response.getBody();
+            ResponseEntity<EsSearchResult> response;
+            response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
+
+            results = response.getBody();
         } catch (HttpClientErrorException e) {
             return e.getMessage();
         } catch (HttpServerErrorException e) {

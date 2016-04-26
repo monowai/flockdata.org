@@ -178,6 +178,10 @@ public class EntityInputBean implements Serializable, UserProperties {
         return this;
     }
 
+    public EntityInputBean setFortressName(String fortressName) {
+        this.fortress = new FortressInputBean(fortressName);
+        return this;
+    }
 
     public String getCode() {
         return code;

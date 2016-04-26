@@ -117,7 +117,7 @@ public class TestQueryResults extends EngineBase {
         ArrayList<String>fortresses = new ArrayList<>();
         fortresses.add(fortress.getName());
 
-        Collection<DocumentResultBean>documentTypes = queryService.getDocumentsInUse(su.getCompany(), fortresses);
+        Collection<DocumentResultBean>documentTypes = conceptService.getDocumentsInUse(su.getCompany(), fortresses);
         assertFalse(documentTypes.isEmpty());
 
         ArrayList<String>filterFrom = new ArrayList<>();
