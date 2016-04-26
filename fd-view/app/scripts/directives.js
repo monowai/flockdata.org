@@ -139,33 +139,18 @@ angular.module('fdView.directives', [])
         }
     }
   })
-  .directive('onReadFile', function ($parse) {
+  .directive('fileBox', function($parse) {
     return {
-      restrict: 'A',
+      restrict: 'AE',
       scope: false,
+      template: '<div class="file-box-input">'+
+                '<input type="file" id="file" class="box-file">'+
+                '<label for="file" align="center"><strong>'+
+                '<i class="fa fa-cloud-download"></i> Click</strong>'+
+                '<span> to choose a CSV file, or drop it here</span>.</label></div>'+
+                '<div class="file-box-success"><strong>Done!</strong>&nbsp;{{fileName}} is loaded</div>',
       link: function(scope, element, attrs) {
-              var fn = $parse(attrs.onReadFile);
-              
-        element.on('change', function(onChangeEvent) {
-          var reader = new FileReader();
-                  
-          reader.onload = function(onLoadEvent) {
-            scope.$apply(function() {
-              fn(scope, {$fileContent:onLoadEvent.target.result});
-            });
-          };
-
-          reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
-        });
-      }
-    };
-  })
-  .directive('fileOpen', function($parse) {
-    return {
-      restrict: 'A',
-      scope: false,
-      link: function(scope, element, attrs) {
-        var fn = $parse(attrs.fileOpen);
+        var fn = $parse(attrs.fileBox);
 
         element.on('dragover dragenter', function(e) {
           e.preventDefault();
@@ -183,7 +168,6 @@ angular.module('fdView.directives', [])
             if (e.originalEvent.dataTransfer.files.length>0) {
               var reader = new FileReader();
               reader.fileName = e.originalEvent.dataTransfer.files[0].name;
-
               reader.onload = function(onLoadEvent) {
                 scope.$apply(function() {
                   fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
@@ -192,8 +176,18 @@ angular.module('fdView.directives', [])
               };
             };
           };
-
           reader.readAsText(e.originalEvent.dataTransfer.files[0]);
+        });
+        element.on('change', function(onChangeEvent) {
+          var reader = new FileReader();
+          reader.fileName = onChangeEvent.target.files[0].name;
+          reader.onload = function(onLoadEvent) {
+            scope.$apply(function() {
+              fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
+            });
+            element.addClass('is-success');
+          };
+          reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
         });
       }
     };

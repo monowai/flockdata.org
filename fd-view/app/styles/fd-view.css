@@ -174,15 +174,13 @@ h4.paragraph-header {
 .box-file + label {
     max-width: 80%;
     text-overflow: ellipsis;
-    /*white-space: nowrap;*/
     cursor: pointer;
     display: inline-block;
     overflow: hidden;
 }
 .box-file + label:hover strong,
-.box-file:focus + label strong,
-.box-file:has-focus +label strong {
-    color: #39bfd3;
+.box-file:focus + label strong {
+    color: #3c8dbc;
 }
 
 .controls {
