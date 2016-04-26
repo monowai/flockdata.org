@@ -102,7 +102,6 @@ public abstract class MvcBase {
 
     }
 
-
     @Before
     public void setupMvc() throws Exception {
         engineConfig.setMultiTenanted(false);
@@ -120,7 +119,6 @@ public abstract class MvcBase {
 
 
     }
-
 
     public SystemUserResultBean makeDataAccessProfile(String companyName, String accessUser) throws Exception {
         return makeDataAccessProfile(mike(), companyName, accessUser);
@@ -255,7 +253,6 @@ public abstract class MvcBase {
 
         return JsonUtils.toMap(json);
     }
-
 
     public Map<String, Object> getHealth(SystemUserResultBean su) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/admin/health/")
@@ -532,17 +529,17 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, EntityTagResult.class);
     }
 
-    public Collection<DocumentResultBean> makeDocuments(RequestPostProcessor user, MetaFortress fortress, Collection<DocumentTypeInputBean> docTypes) throws Exception {
+    public DocumentResultBean makeDocuments(RequestPostProcessor user, MetaFortress fortress, DocumentTypeInputBean docTypes) throws Exception {
         MvcResult response = mvc()
                 .perform(
                         MockMvcRequestBuilders
-                                .post(apiPath + "/fortress/{code}/docs", fortress.getCode())
+                                .post(apiPath + "/fortress/{code}/doc", fortress.getCode())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(user)
                                 .content(JsonUtils.toJson(docTypes))).andReturn();
 
         byte[] json = response.getResponse().getContentAsByteArray();
-        return JsonUtils.toCollection(json, DocumentResultBean.class);
+        return JsonUtils.toObject(json, DocumentResultBean.class);
     }
 
     public Collection<FortressSegment> getSegments(RequestPostProcessor user, String fortressCode) throws Exception {
