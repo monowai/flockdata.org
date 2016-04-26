@@ -16,54 +16,61 @@
 
 package org.flockdata.query;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: mike
  * Date: 27/11/14
  * Time: 2:41 PM
  */
-public class KeyValue {
-    String key;
-    Object value;
+public class FdNode {
+    Map<String,Object>data = new HashMap<>();
+    public FdNode(){}
 
-    public KeyValue(){}
-
-    public KeyValue(String key, Object value) {
-        this.key = key;
-        this.value = value;
+    public FdNode(String key, Object value) {
+        data.put("id", key);
+        data.put("name", value);
     }
 
+    public Map<String,Object>getData(){
+        return data;
+    }
+
+//    @JsonIgnore
     public String getKey() {
-        return key;
+        return data.get("id").toString();
     }
 
-    public Object getValue() {
-        return value;
+//    @JsonIgnore
+    public Object getName() {
+        return data.get("name");
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof KeyValue)) return false;
+        if (!(o instanceof FdNode)) return false;
 
-        KeyValue keyValue = (KeyValue) o;
+        FdNode fdNode = (FdNode) o;
 
-        if (key != null ? !key.equals(keyValue.key) : keyValue.key != null) return false;
-        return !(value != null ? !value.equals(keyValue.value) : keyValue.value != null);
+        if (getKey() != null ? !getKey().equals(fdNode.getKey()) : fdNode.getKey() != null) return false;
+        return !(getName()!= null ? !getName().equals(fdNode.getName()) : fdNode.getName() != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = key != null ? key.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
+        int result = getKey() != null ? getKey().hashCode() : 0;
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "KeyValue{" +
-                "key='" + key + '\'' +
-                ", value=" + value +
+        return "FdNode{" +
+                "key='" + getKey() + '\'' +
+                ", value=" + getName() +
                 '}';
     }
 }
