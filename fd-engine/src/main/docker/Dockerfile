@@ -38,6 +38,7 @@ ENV org.neo4j.path="/opt/flockdata"
 EXPOSE 8080 7474 61000
 
 ENTRYPOINT ["java",\
+    "-Dfile.encoding=UTF8", \
 #    "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61000", \
      "-jar",\
      "/opt/flockdata/engine.jar", \

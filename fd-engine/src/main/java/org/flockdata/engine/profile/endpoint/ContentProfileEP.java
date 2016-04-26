@@ -101,7 +101,7 @@ public class ContentProfileEP {
 
     }
 
-    @RequestMapping(value = "/",
+    @RequestMapping(value = "/validate",
             produces = "application/json",
             consumes = "application/json",
             method = RequestMethod.POST)
@@ -113,10 +113,10 @@ public class ContentProfileEP {
 
     }
 
-    @RequestMapping(value = "/",
+    @RequestMapping(value = "/default",
             produces = "application/json",
             consumes = "application/json",
-            method = RequestMethod.GET)
+            method = RequestMethod.POST)
     public ContentProfile defaultContentProfile (HttpServletRequest request,
                                                      @RequestBody ContentValidationRequest contentRequest) throws FlockException {
         CompanyResolver.resolveCompany(request);

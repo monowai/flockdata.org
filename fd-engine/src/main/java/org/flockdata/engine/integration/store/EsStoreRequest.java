@@ -41,8 +41,6 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 
 /**
  * Pulls the "data" block from ElasticSearch
@@ -59,7 +57,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
 
     @MessagingGateway
     public interface ContentStoreEs {
-        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
+//        @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 600, multiplier = 5, random = true))
         @Gateway(requestChannel = "doDataQuery", replyChannel = "receiveContentReply")
         EsSearchResult getData(QueryParams queryParams);
     }
@@ -86,6 +84,7 @@ public class EsStoreRequest extends AbstractIntegrationRequest {
         HttpRequestExecutingMessageHandler handler =
                 new HttpRequestExecutingMessageHandler(getDataQuery());
         handler.setHttpMethod(HttpMethod.POST);
+        handler.setCharset("UTF-8");
         handler.setExpectedResponseType(EsSearchResult.class);
         return handler;
     }

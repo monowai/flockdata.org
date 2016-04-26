@@ -22,11 +22,11 @@ ADD classes/log4j* /opt/flockdata/conf
 # We don't need this. vars should be set in Compose. This will default to the properties stored within app.jar
 COPY classes/application.yml /opt/flockdata/conf/application.yml
 
-
 RUN bash -c 'touch /opt/flockdata/search.jar'
 EXPOSE 8081 9201 9301 61001
 
 ENTRYPOINT ["java",\
+     "-Dfile.encoding=UTF8", \
 #     "-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=61001",\
      "-jar",\
      "/opt/flockdata/search.jar", \

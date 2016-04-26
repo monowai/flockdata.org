@@ -19,6 +19,7 @@ package org.flockdata.test.integration;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.registration.*;
@@ -44,7 +45,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 
@@ -93,17 +93,17 @@ public class ITDockerStack {
 
     // http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
     @ClassRule
-//    public static DockerComposeContainer stack = null;
-    public static DockerComposeContainer stack =// null;
-                new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
-                        .withExposedService("rabbit_1", 5672)
-                        .withExposedService("rabbit_1", 15672)
-                        .withExposedService("fdengine_1", SERVICE_ENGINE)
-                        .withExposedService("fdengine_1", DEBUG_ENGINE)
-                        .withExposedService("fdsearch_1", SERVICE_SEARCH)
-                        .withExposedService("fdsearch_1", DEBUG_SEARCH)
-                        .withExposedService("fdstore_1", SERVICE_STORE)
-                        .withExposedService("fdstore_1", DEBUG_STORE);
+    public static DockerComposeContainer stack = null;
+//    public static DockerComposeContainer stack =// null;
+//                new DockerComposeContainer(new File("src/test/resources/int/docker-compose.yml"))
+//                        .withExposedService("rabbit_1", 5672)
+//                        .withExposedService("rabbit_1", 15672)
+//                        .withExposedService("fdengine_1", SERVICE_ENGINE)
+//                        .withExposedService("fdengine_1", DEBUG_ENGINE)
+//                        .withExposedService("fdsearch_1", SERVICE_SEARCH)
+//                        .withExposedService("fdsearch_1", DEBUG_SEARCH)
+//                        .withExposedService("fdstore_1", SERVICE_STORE)
+//                        .withExposedService("fdstore_1", DEBUG_STORE);
 
     private static Logger logger = LoggerFactory.getLogger(ITDockerStack.class);
 
@@ -421,7 +421,7 @@ public class ITDockerStack {
                         .setSearchActive(true))
                 .setCode("findme")
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))
-                .setContent(new ContentInputBean(Helper.getRandomMap()))
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
                 .addTag(new TagInputBean("someCode", "SomeLabel"));
 
 
@@ -443,11 +443,16 @@ public class ITDockerStack {
         QueryParams qp = new QueryParams(entityResult.getCode())
                 .setFortress(entityInputBean.getFortress().getName());
 
-        SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
+        SearchFdPost search = new SearchFdPost(clientConfiguration, fdRestWriter, qp);
         assertNull(search.exec());
         EsSearchResult searchResults = search.getResult();
         assertEquals("Didn't get a search hit on the Entity", 1, searchResults.getResults().size());
         assertEquals("Keys do not match", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
+
+        // Test we can find via UTF-8
+        qp.setSearchText(entityInputBean.getContent().getData().get("key").toString());
+        search.exec();
+        assertEquals("Couldn't find via UTF-8 Text search", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
 
     }
 
@@ -489,6 +494,62 @@ public class ITDockerStack {
         assertEquals("Didn't find the second log", 2, entityLogs.getResult().length);
         assertEquals("Didn't find the updated field as the first result", "updated", entityLogs.getResult()[0].getData().get("key"));
         assertEquals("Didn't find the original field as the second result", "value", entityLogs.getResult()[1].getData().get("key"));
+    }
+
+    @Test
+    public void findByESPasshthroughUsingUTF8() throws Exception {
+        assertNull(getLogin("mike", "123").exec());
+
+        SystemUserResultBean suResult = getDefaultUser();
+        assertNotNull(suResult);
+        clientConfiguration.setApiKey(suResult.getApiKey());
+        EntityInputBean entityInputBean = new EntityInputBean()
+                .setFortress(new FortressInputBean("findByESPasshthroughUsingUTF8")
+                        .setSearchActive(true))
+                .setCode("Katerina Neumannová")
+                .setDescription("Katerina Neumannová")
+                .setDocumentType(new DocumentTypeInputBean("entityamqp"))
+                .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
+                ;
+
+
+        amqpServices.publish(integrationHelper.toCollection(entityInputBean));
+        EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
+        entityGet.exec();
+        integrationHelper.waitForEntityKey(entityGet);
+
+        EntityBean entityResult = entityGet.getResult();
+        assertNotNull(entityResult);
+        assertNotNull(entityResult.getKey());
+        entityResult = null;
+        integrationHelper.waitForSearch(entityGet, 1);
+        assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.getResult().getSearch());
+
+        Thread.sleep(2000); // Give ES write time to complete
+        QueryParams qp = new QueryParams()
+                .setFortress(entityInputBean.getFortress().getName())
+                .setQuery(JsonUtils.toMap("{\n" +
+//                        "  \"query\": {\n" +
+                        "    \"filtered\": {\n" +
+                        "      \"query\": {\n" +
+                        "        \"query_string\": {\n" +
+                        "          \"query\": \"Neumannová\"\n" +
+                        "        }\n" +
+                        "      }\n" +
+                        "    }\n" +
+//                        "  }\n" +
+                        "}"));
+
+        SearchEsPost search = new SearchEsPost(clientConfiguration, fdRestWriter, qp);
+        assertNull(search.exec());
+        Map<String,Object> esResult = search.getResult();
+        assertFalse ( "errors were found "+esResult.get("errors") ,esResult.containsKey("errors"));
+        Map<String,Object> hits = (Map<String, Object>) esResult.get("hits");
+        assertNotNull(hits);
+        assertEquals("Expected 1 hit", 1, hits.get("total"));
+        // Test we can find via UTF-8
+        //assertEquals("Couldn't find via UTF-8 Text search", entityResult.getKey(), searchResults.getResults().iterator().next().getKey());
+
     }
 
 
