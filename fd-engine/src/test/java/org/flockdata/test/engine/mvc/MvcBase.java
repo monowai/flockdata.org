@@ -177,7 +177,7 @@ public abstract class MvcBase {
 
     public Collection<DocumentResultBean> getDocuments(SystemUser su, Collection<String> fortresses) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders
-                .post(apiPath + "/query/documents/")
+                .post(apiPath + "/doc/")
                 .header("api-key", su.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(fortresses))
@@ -611,7 +611,7 @@ public abstract class MvcBase {
 
     ContentValidationResults validateContent(RequestPostProcessor user, ContentValidationRequest contentProfile, ResultMatcher result) throws Exception {
         MvcResult response = mvc()
-                .perform(MockMvcRequestBuilders.post(apiPath + "/content/")
+                .perform(MockMvcRequestBuilders.post(apiPath + "/content/validate")
                         .content(JsonUtils.toJson(contentProfile))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(user)

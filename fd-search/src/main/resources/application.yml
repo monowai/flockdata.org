@@ -17,12 +17,16 @@ spring:
     config:
       discovery:
         enabled: false
-
+  messages:
+    encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8 # the encoding of HTTP requests/responses
+      enabled: 'true' # enable http encoding support
+      force: 'true' # force the configured encoding
 
 server:
   port: 8081
-
-
 
 es:
   clustername: es_flockdata

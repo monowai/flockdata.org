@@ -36,7 +36,6 @@ fdengine:
     - 61000
 
   environment:
-
     server.port: 8090
     org.fd.engine.fortress.search: 'true'
     org.fd.engine.fortress.store: 'true'
@@ -60,10 +59,13 @@ fdsearch:
 #  ports:
 #    - '8091:8091'
 #    - '61001:61001'
+#    - '9200:9200'
+
 
   expose:
     - 8091
     - 61001
+    - 9200
 
   environment:
     server.port: 8091
