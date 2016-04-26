@@ -29,9 +29,6 @@ import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.junit.Test;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import static junit.framework.TestCase.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
@@ -45,9 +42,7 @@ public class TestContentProfile extends  MvcBase{
         makeDataAccessProfile("TestContentProfileStorage", "mike");
         FortressResultBean fortressResultBean = makeFortress(mike(), new FortressInputBean("contentFortress"));
 
-        Collection<DocumentTypeInputBean> documents = new ArrayList<>();
-        documents.add(new DocumentTypeInputBean("ContentStore"));
-        makeDocuments(mike(), fortressResultBean, documents  );
+        makeDocuments(mike(), fortressResultBean, new DocumentTypeInputBean("ContentStore")  );
         ContentProfileResult result = makeContentProfile(mike(),
                     fortressResultBean.getCode(),
                     "ContentStore",
