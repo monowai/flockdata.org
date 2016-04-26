@@ -86,6 +86,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
                 && (url.contains("/api/v1/company")
                  || url.contains("/api/v1/track")
                  || url.contains("/api/v1/admin")
+                || url.contains("/api/v1/concept")
                  || url.contains("/api/v1/entity")
                  || url.contains("/api/v1/fortress")
                  || url.contains("/api/v1/tag")
