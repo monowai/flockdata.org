@@ -20,6 +20,7 @@
 
 package org.flockdata.engine.track.service;
 
+import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
@@ -55,6 +56,10 @@ public interface ConceptService {
     DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing);
 
     DocumentType findOrCreate(Fortress fortress, DocumentType documentType);
+
+    Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents);
+
+    Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException;
 
 
 }

@@ -22,8 +22,11 @@ package org.flockdata.engine.query.endpoint;
 
 import org.flockdata.engine.query.service.MatrixService;
 import org.flockdata.engine.query.service.QueryService;
+import org.flockdata.engine.track.service.ConceptService;
 import org.flockdata.helper.CompanyResolver;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
@@ -39,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -57,6 +61,9 @@ public class QueryEP {
     QueryService queryService;
 
     @Autowired
+    ConceptService conceptService;
+
+    @Autowired
     RegistrationService registrationService;
 
     @RequestMapping(value = "/matrix", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
@@ -73,14 +80,14 @@ public class QueryEP {
     }
 
     @RequestMapping(value = "/es", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-    public String searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
+    public Map<String,Object> searchEsParam(@RequestBody QueryParams queryParams, HttpServletRequest request) throws FlockException, IOException {
         Company company = CompanyResolver.resolveCompany(request);
         queryParams.setEntityOnly(false);
         queryParams.setCompany(company.getName());
         EsSearchResult result = queryService.search(company, queryParams);
         if ( result.getJson() == null )
-            return "No Results found";
-        return new String(result.getJson()) ;
+            throw new NotFoundException("No search results were found");
+        return JsonUtils.toMap(result.getJson()) ;
     }
 
     @RequestMapping(value = "/tagcloud", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
@@ -97,24 +104,28 @@ public class QueryEP {
 
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    @Deprecated // fd-view is using this. it should point to the /doc/ EP
     public Collection<DocumentResultBean> getDocumentsInUse(@RequestBody (required = false) Collection<String> fortresses, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return queryService.getDocumentsInUse(company, fortresses);
+        return conceptService.getDocumentsInUse(company, fortresses);
     }
 
 
     @RequestMapping(value = "/concepts", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    @Deprecated // fd-view is using this. it should point to the /concept/ EP
     public Set<DocumentResultBean> getConcepts(@RequestBody (required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        return queryService.getConcepts(company, documents);
+        return conceptService.findConcepts(company, documents, false);
     }
 
 
     @RequestMapping(value = "/relationships", method = RequestMethod.POST,consumes = "application/json", produces = "application/json")
+    @Deprecated // fd-view is using this. it should point to the /concept/ EP
     public Set<DocumentResultBean> getRelationships(@RequestBody(required = false) Collection<String> documents, HttpServletRequest request) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
         // Todo: DAT-100 Sherry's comment. Should be Concepts, not Doc Types
-        return queryService.getConcepts(company, documents, true);
+        return conceptService.findConcepts(company, documents, true);
     }
+
 
 }
