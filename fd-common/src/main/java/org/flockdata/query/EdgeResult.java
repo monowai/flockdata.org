@@ -16,68 +16,64 @@
 
 package org.flockdata.query;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Pojo for carrying matrix result data
  * User: mike
  * Date: 19/04/14
  * Time: 6:52 AM
- * To change this template use File | Settings | File Templates.
  */
 public class EdgeResult {
-    private String source;
-    private String target;
-    private Number count;
+    private Map<String,Object> data = new HashMap<>();
 
     public EdgeResult(String source, String target, Number count) {
         this();
-        this.source = source;
-        this.target = target;
-        this.count = count;
+        data.put("source", source);
+        data.put("target", target);
+        data.put("count", count);
 
     }
 
     public EdgeResult() {
     }
 
-    public String getSource() {
-        return source;
+    public Map<String,Object> getData(){
+        return data;
     }
 
-    /**
-     *
-     * @deprecated  use getSource()
-     * @return source
-     */
-//    public String getFrom() {return getSource(); }
+    public String getSource() {
+        return data.get("source").toString();
+    }
 
     public void setSource(String source) {
-        this.source = source;
+        data.put("source",source);
     }
 
     public String getTarget() {
-        return target;
+        return getData().get("target").toString();
     }
 
-//    public String getTo() {return getTarget();}
-
     public void setTarget(String target) {
-        this.target = target;
+        getData().put("target", target);
     }
 
     public Number getCount() {
-        return count;
+
+        return (Number)getData().get("count");
     }
 
     public void setCount(Number count) {
-        this.count = count;
+        getData().put("count", count);
     }
 
     @Override
     public String toString() {
         return "EdgeResult{" +
-                "source='" + source + '\'' +
-                ", target='" + target + '\'' +
-                ", count=" + count +
+                "source='" + getSource() + '\'' +
+                ", target='" + getTarget() + '\'' +
+                ", count=" + getCount() +
                 '}';
     }
 
@@ -88,15 +84,15 @@ public class EdgeResult {
 
         EdgeResult that = (EdgeResult) o;
 
-        if (source != null ? !source.equals(that.source) : that.source != null) return false;
-        return !(target != null ? !target.equals(that.target) : that.target != null);
+        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource()!= null) return false;
+        return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget()!= null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = source != null ? source.hashCode() : 0;
-        result = 31 * result + (target != null ? target.hashCode() : 0);
+        int result = getSource() != null ? getSource().hashCode() : 0;
+        result = 31 * result + (getTarget() != null ? getTarget().hashCode() : 0);
         return result;
     }
 

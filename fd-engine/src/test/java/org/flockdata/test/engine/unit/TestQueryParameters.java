@@ -21,7 +21,7 @@ package org.flockdata.test.engine.unit;
 
 import org.flockdata.engine.dao.MatrixDaoNeo4j;
 import org.flockdata.helper.CypherHelper;
-import org.flockdata.query.KeyValue;
+import org.flockdata.query.FdNode;
 import org.flockdata.query.MatrixInputBean;
 import org.junit.Assert;
 import org.junit.Test;
@@ -67,16 +67,16 @@ public class TestQueryParameters {
         names.add("Name A");
         names.add("Name A");
         names.add("Name B");
-        Collection<KeyValue> values = new ArrayList<>();
+        Collection<FdNode> values = new ArrayList<>();
         MatrixDaoNeo4j.setTargetTags(values, ids, names);
         assertEquals(2, values.size());
-        for (KeyValue value : values) {
+        for (FdNode value : values) {
             switch (value.getKey()) {
                 case "123":
-                    assertEquals("Name A", value.getValue());
+                    assertEquals("Name A", value.getName());
                     break;
                 case "456":
-                    assertEquals("Name B", value.getValue());
+                    assertEquals("Name B", value.getName());
                     break;
                 default:
                     throw new Exception("Unexpected value");
