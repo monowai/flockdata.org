@@ -31,7 +31,7 @@ public class MatrixResults {
     private long sampleSize;
     private long totalHits;
     Collection<EdgeResult> edges;  // From To
-    Collection<KeyValue> nodes;    // Lookup table if edges contains just Ids
+    Collection<FdNode> nodes;    // Lookup table if edges contains just Ids
 
     public MatrixResults (){}
 
@@ -45,7 +45,7 @@ public class MatrixResults {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public Collection<KeyValue> getNodes() {
+    public Collection<FdNode> getNodes() {
         return nodes;
     }
 
@@ -53,7 +53,7 @@ public class MatrixResults {
         this.edges = edges;
     }
 
-    public void setNodes(Collection<KeyValue> nodes) {
+    public void setNodes(Collection<FdNode> nodes) {
         this.nodes = nodes;
     }
 

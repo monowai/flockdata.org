@@ -340,7 +340,7 @@ function constructBiPartiteData(data) {
       data: bP.partData(mappedData, 2),
       dataLength: data.length,
       id: 'Relationship',
-      header: ['Source', 'Target', 'Relationship']
+      header: ['From', 'To', 'Relationship']
     }
   ];
   chartData.push(bpData);
