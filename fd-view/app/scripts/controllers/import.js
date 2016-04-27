@@ -69,7 +69,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
             })
           }
         },
-        controller: function($scope, $uibModalInstance, timezones) {
+        controller: ['$scope','$uibModalInstance','timezones',function($scope, $uibModalInstance, timezones) {
           $scope.timezones = timezones;
           $scope.timezone = $scope.timezones[0];
           $scope.close = $uibModalInstance.dismiss;          
@@ -84,7 +84,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
               $uibModalInstance.close(response.data);
             });
           };
-        }
+        }]
       });
       modalCreateDP.result.then(function(newDP){
         $scope.fortresses.push(newDP);
@@ -102,7 +102,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
             return $scope.fortress.toLowerCase().replace(/\s+/g, '');
           }
         },
-        controller: function($scope, $uibModalInstance, fortress) {
+        controller: ['$scope','$uibModalInstance','fortress', function($scope, $uibModalInstance, fortress) {
           $scope.searchable = false;
           $scope.versionable = false;
           $scope.close = $uibModalInstance.dismiss;
@@ -128,7 +128,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
                 $uibModalInstance.close(response.data);
               });
           };
-        }
+        }]
       });
       modalCreateDP.result.then(function(newDocType){
         console.log($scope.documents);
@@ -183,12 +183,12 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
       $state.reload();
     };
  
-    $scope.saveProfile = function() {
-      console.log($scope.contentProfile);
-      $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, $scope.profile).then(function (response) {
-        console.log(response);
-        return response.data;
-      });
+    $scope.saveProfile = function(cp) {
+      console.log(cp);
+      // $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, $scope.profile).then(function (response) {
+      //   console.log(response);
+      //   return response.data;
+      // });
     };
 
     $scope.validate = function(){

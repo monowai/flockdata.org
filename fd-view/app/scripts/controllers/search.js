@@ -20,7 +20,8 @@
 
 'use strict';
 
-fdView.controller('HeaderCtrl', function ($scope, $rootScope, AuthenticationSharedService) {
+fdView.controller('HeaderCtrl', ['$scope', '$rootScope', 'AuthenticationSharedService',
+  function ($scope, $rootScope, AuthenticationSharedService) {
 
     $scope.search = function () {
       $rootScope.$broadcast('META_HEADER_LOADED', $scope.searchTerm);
@@ -35,11 +36,11 @@ fdView.controller('HeaderCtrl', function ($scope, $rootScope, AuthenticationShar
       AuthenticationSharedService.logout();
     };
 
-  }
-);
+}]);
 
 
-fdView.controller('LeftBarCtrl', function ($scope, $rootScope, ProfileService) {
+fdView.controller('LeftBarCtrl', ['$scope', '$rootScope', 'ProfileService', 
+  function ($scope, $rootScope, ProfileService) {
 
     ProfileService.getMyProfile().then(function (data) {
       $scope.profile = data;
@@ -49,11 +50,12 @@ fdView.controller('LeftBarCtrl', function ($scope, $rootScope, ProfileService) {
       // TODO Technical DEBT :  ANTI-PATTERN_1 (Don't manipulate DOM in the controller)
       $('body').toggleClass('minified');
     };
-  }
+  }]
 );
 
 // New Search Controller
-fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $uibModal, configuration) {
+fdView.controller('MetaHeaderCtrl', ['$scope', 'EntityService', '$uibModal', 'configuration', 
+  function ($scope, EntityService, $uibModal, configuration) {
     //ToDo: Why do I need to Explore functions?
     $scope.advancedSearch = false;
     $scope.searchResultFound = false;
@@ -128,7 +130,7 @@ fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $uibModal, 
 //            $scope.log1 = data;
 //        });
 
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         templateUrl: 'singleLogModalContent.html',
         controller: ModalInstanceSingleLogCtrl,
         resolve: {
@@ -156,7 +158,7 @@ fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $uibModal, 
       // Getting Log2
       $scope.log2 = EntityService.getJsonContentForLog($scope.metaheaderSelected, logId2);
 
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         templateUrl: 'myModalContent.html',
         controller: ModalInstanceCtrl,
         resolve: {
@@ -185,12 +187,10 @@ fdView.controller('MetaHeaderCtrl', function ($scope, EntityService, $uibModal, 
       }
     }
 
-  }
-)
-;
+}]);
 
 
-var ModalInstanceCtrl = function ($scope, $modalInstance, log1, log2) {
+var ModalInstanceCtrl = ['$scope', '$uibModalInstance', 'log1', 'log2', function ($scope, $uibModalInstance, log1, log2) {
   $scope.log1 = log1;
   $scope.log2 = log2;
   $scope.showUnchangedFlag = false;
@@ -204,13 +204,13 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, log1, log2) {
     $scope.showUnchangedFlag = !$scope.showUnchangedFlag;
   };
   $scope.ok = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
-};
+}];
 
-var ModalInstanceSingleLogCtrl = function ($scope, $modalInstance, log1) {
+var ModalInstanceSingleLogCtrl = ['$scope', '$uibModalInstance', 'log1', function ($scope, $uibModalInstance, log1) {
   $scope.log1 = log1;
   $scope.ok = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
-};
+}];

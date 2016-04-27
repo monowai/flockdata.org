@@ -22,7 +22,8 @@
  * Created by Nabil on 09/08/2014.
  */
 
-fdView.controller('LoginCtrl', function ($scope, $stateParams, AuthenticationSharedService) {
+fdView.controller('LoginCtrl', ['$scope', '$stateParams', 'AuthenticationSharedService', 
+  function ($scope, $stateParams, AuthenticationSharedService) {
     $scope.login = function () {
       AuthenticationSharedService.login($scope.username, $scope.password);
     };
@@ -40,5 +41,4 @@ fdView.controller('LoginCtrl', function ($scope, $stateParams, AuthenticationSha
       AuthenticationSharedService.logout();
     };
 
-  }
-);
+}]);

@@ -129,7 +129,7 @@ angular.module('fdView.directives', [])
       templateUrl: 'views/partials/singleLogPopup.html'
     }
   })
-  .directive('ngHeight', function ($window) {
+  .directive('ngHeight', '$window', function ($window) {
     return {
         restrict: 'A',
         link: function (scope, elem, attrs) {
@@ -139,58 +139,59 @@ angular.module('fdView.directives', [])
         }
     }
   })
-  .directive('fileBox', function($parse) {
-    return {
-      restrict: 'AE',
-      scope: false,
-      template: '<div class="file-box-input">'+
-                '<input type="file" id="file" class="box-file">'+
-                '<label for="file" align="center"><strong>'+
-                '<i class="fa fa-cloud-download"></i> Click</strong>'+
-                '<span> to choose a CSV file, or drop it here</span>.</label></div>'+
-                '<div class="file-box-success"><strong>Done!</strong>&nbsp;{{fileName}} is loaded</div>',
-      link: function(scope, element, attrs) {
-        var fn = $parse(attrs.fileBox);
-
-        element.on('dragover dragenter', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          element.addClass('is-dragover');
-        });
-        element.on('dragleave dragend',function() {
-          element.removeClass('is-dragover');
-        });
-        element.on('drop', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          if(e.originalEvent.dataTransfer){
-            if (e.originalEvent.dataTransfer.files.length>0) {
-              var reader = new FileReader();
-              reader.fileName = e.originalEvent.dataTransfer.files[0].name;
-              reader.onload = function(onLoadEvent) {
-                scope.$apply(function() {
-                  fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
-                });
-                element.addClass('is-success');
+  .directive('fileBox', ['$parse', function($parse) {
+      return {
+        restrict: 'AE',
+        scope: false,
+        template: '<div class="file-box-input">'+
+                  '<input type="file" id="file" class="box-file">'+
+                  '<label for="file" align="center"><strong>'+
+                  '<i class="fa fa-cloud-download"></i> Click</strong>'+
+                  '<span> to choose a CSV file, or drop it here</span>.</label></div>'+
+                  '<div class="file-box-success"><strong>Done!</strong>&nbsp;{{fileName}} is loaded</div>',
+        link: function(scope, element, attrs) {
+          var fn = $parse(attrs.fileBox);
+  
+          element.on('dragover dragenter', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            element.addClass('is-dragover');
+          });
+          element.on('dragleave dragend',function() {
+            element.removeClass('is-dragover');
+          });
+          element.on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if(e.originalEvent.dataTransfer){
+              if (e.originalEvent.dataTransfer.files.length>0) {
+                var reader = new FileReader();
+                reader.fileName = e.originalEvent.dataTransfer.files[0].name;
+                reader.onload = function(onLoadEvent) {
+                  scope.$apply(function() {
+                    fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
+                  });
+                  element.addClass('is-success');
+                };
               };
             };
-          };
-          reader.readAsText(e.originalEvent.dataTransfer.files[0]);
-        });
-        element.on('change', function(onChangeEvent) {
-          var reader = new FileReader();
-          reader.fileName = onChangeEvent.target.files[0].name;
-          reader.onload = function(onLoadEvent) {
-            scope.$apply(function() {
-              fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
-            });
-            element.addClass('is-success');
-          };
-          reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
-        });
-      }
-    };
-  });
+            reader.readAsText(e.originalEvent.dataTransfer.files[0]);
+          });
+          element.on('change', function(onChangeEvent) {
+            var reader = new FileReader();
+            reader.fileName = onChangeEvent.target.files[0].name;
+            reader.onload = function(onLoadEvent) {
+              scope.$apply(function() {
+                fn(scope, {$fileContent:onLoadEvent.target.result, $fileName:reader.fileName});
+              });
+              element.addClass('is-success');
+            };
+            reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
+          });
+        }
+      };
+    }]);
+
 
 // Directives

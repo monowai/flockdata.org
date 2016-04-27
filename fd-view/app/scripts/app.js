@@ -39,7 +39,7 @@ var fdView = angular.module('fdView', [
   // 'rzModule',
   'ng.jsoneditor'
 ])
-  .config(function (/*$routeProvider, $locationProvider,*/$stateProvider, $urlRouterProvider, USER_ROLES) {
+  .config(['$stateProvider','$urlRouterProvider','USER_ROLES', function (/*$routeProvider, $locationProvider,*/$stateProvider, $urlRouterProvider, USER_ROLES) {
     //$routeProvider
     $stateProvider
       .state('welcome', {
@@ -121,7 +121,7 @@ var fdView = angular.module('fdView', [
       });
     $urlRouterProvider.otherwise('/welcome');
     // $locationProvider.html5Mode(false);
-  })
+  }])
   .run(['$rootScope', '$state', '$http', 'AuthenticationSharedService', 'Session', 'USER_ROLES',
     function ($rootScope, $state, $http, AuthenticationSharedService, Session, USER_ROLES) {
       // TODO NEED TO SEE
@@ -183,7 +183,7 @@ var fdView = angular.module('fdView', [
     }]);
 
 
-fdView.provider('configuration', function (engineUrl, exploreUrl) {
+fdView.provider('configuration', ['engineUrl','exploreUrl', function (engineUrl, exploreUrl) {
   var config = {
     'engineUrl': localStorage.getItem('engineUrl') || getDefaultEngineUrl() || engineUrl,
     'exploreUrl': localStorage.getItem('exploreUrl') || getDefaultExploreUrl() || exploreUrl,
@@ -258,8 +258,8 @@ fdView.provider('configuration', function (engineUrl, exploreUrl) {
 
     }
   };
-});
+}]);
 
-fdView.config(function ($httpProvider) {
+fdView.config(['$httpProvider', function ($httpProvider) {
   $httpProvider.defaults.withCredentials = true;
-});
+}]);
