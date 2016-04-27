@@ -18,7 +18,7 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-fdView.controller('SettingsCtrl', function ($scope, $controller, configuration) {
+fdView.controller('SettingsCtrl', ['$scope', '$controller', 'configuration', function ($scope, $controller, configuration) {
     $scope.setting = {};
 
     $scope.apply = function () {
@@ -40,6 +40,5 @@ fdView.controller('SettingsCtrl', function ($scope, $controller, configuration) 
       $scope.setting.devModeChecked = configuration.devMode();
     };
 
-  }
-);
+}]);
 

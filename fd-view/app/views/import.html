@@ -113,12 +113,18 @@
 
             <div class="col-md-2">
               <label for="headers">Columns</label>
-              <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
+              <div class="btn-toolbar">
+                <!-- <draggable options="{opacity: .5,revert: true}" ng-repeat="key in keys"> -->
+                  <button class="btn btn-xs btn-primary">{{key}}</button>
+                <!-- </draggable> -->
+              </div>
+              
+<!--               <select id="headers" ng-model="selectedKeys" ng-options="key as key for key in keys" multiple="true" class="custom-scroll" size="30" style="width: 100%;height: 100%;">
               </select>
-            </div>
+ -->            </div>
             <div class="col-md-10">
               <div class="form-group pull-right">
-                <button class="btn btn-primary" ng-click="saveProfile()"><i class="fa fa-lg fa-save"></i>&nbsp; Save</button>
+                <button class="btn btn-primary" ng-click="saveProfile(contentProfile)"><i class="fa fa-lg fa-save"></i>&nbsp; Save</button>
                 <button class="btn btn-success" ng-click="validate()"><i class="fa fa-lg fa-play-circle"></i>&nbsp; Validate</button>
               </div>
                 <uib-tabset class="nav-tabs-custom">
