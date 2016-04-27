@@ -190,7 +190,7 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
 );
 
 
-fdView.factory('interceptorNgProgress', function ($injector) {
+fdView.factory('interceptorNgProgress', ['$injector' ,function ($injector) {
     var completedProgress, getNgProgress, ngProgress, working;
     ngProgress = null;
     working = false;
@@ -237,5 +237,5 @@ fdView.factory('interceptorNgProgress', function ($injector) {
         return response;
       }
     };
-  }
+  }]
 );

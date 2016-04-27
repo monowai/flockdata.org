@@ -20,7 +20,8 @@
 
 'use strict';
 
-fdView.controller('IndexCtrl', function ($scope, $rootScope, AuthenticationSharedService, ProfileService, Session) {
+fdView.controller('IndexCtrl', ['$scope', '$rootScope', 'AuthenticationSharedService', 'ProfileService', 
+  function ($scope, $rootScope, AuthenticationSharedService, ProfileService) {
 
     ProfileService.getMyProfile().then(function (data) {
       $scope.profile = data;
@@ -34,4 +35,4 @@ fdView.controller('IndexCtrl', function ($scope, $rootScope, AuthenticationShare
       return $rootScope.account!==null;
     }
 
-});
+}]);
