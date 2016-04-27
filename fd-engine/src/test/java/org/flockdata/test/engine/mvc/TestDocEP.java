@@ -27,7 +27,6 @@ import org.flockdata.track.bean.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
@@ -124,13 +123,9 @@ public class TestDocEP extends MvcBase {
 
         login(mike_admin, "123");
 
-        Collection<DocumentTypeInputBean>docTypes = new ArrayList<>();
-        docTypes.add(docType);
 
-        Collection<DocumentResultBean> docs = makeDocuments(mike(), fortress, docTypes);
-        assertEquals(1, docs.size());
+        DocumentResultBean result = makeDocuments(mike(), fortress, docType);
 
-        DocumentResultBean result = docs.iterator().next();
         assertEquals(docType.getName(), result.getName());
         assertEquals(1, getDocuments(mike(), fortress.getName()).size());
 

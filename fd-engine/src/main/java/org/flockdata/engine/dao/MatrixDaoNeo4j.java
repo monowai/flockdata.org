@@ -143,7 +143,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
             }
         }
 
-        Collection<KeyValue> labels = new ArrayList<>();
+        Collection<FdNode> labels = new ArrayList<>();
 
         String conceptFmCol = "tag1Id";
         String conceptToCol = "tag2Ids";
@@ -174,7 +174,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
             if (input.isByKey()) {
                 // Edges will be indexed by Id. This will set the Name values in to the Node collection
-                KeyValue source = new KeyValue(row.get("tag1Id").toString(), row.get("tag1"));
+                FdNode source = new FdNode(row.get("tag1Id").toString(), row.get("tag1"));
                 Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
                 Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
                 if (!labels.contains(source))
@@ -256,10 +256,10 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
     }
 
-    public static Collection<? extends KeyValue> setTargetTags(Collection<KeyValue> labels, Collection<Object> ids, Collection<Object> names) {
+    public static Collection<? extends FdNode> setTargetTags(Collection<FdNode> labels, Collection<Object> ids, Collection<Object> names) {
         Iterator<Object> tagNames = names.iterator();
         for (Object id : ids) {
-            KeyValue kv = new KeyValue(id.toString(), tagNames.next());
+            FdNode kv = new FdNode(id.toString(), tagNames.next());
             if (!labels.contains(kv))
                 labels.add(kv);
         }

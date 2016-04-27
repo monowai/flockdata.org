@@ -22,14 +22,17 @@ package org.flockdata.engine.meta.service;
 
 import org.flockdata.engine.dao.ConceptDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
+import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
+import org.flockdata.registration.FortressResultBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.track.bean.ConceptInputBean;
 import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.service.FortressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,9 @@ import java.util.*;
 public class ConceptServiceNeo implements ConceptService {
     @Autowired
     ConceptDaoNeo conceptDao;
+
+    @Autowired
+    FortressService fortressService;
 
     static Logger logger = LoggerFactory.getLogger(ConceptServiceNeo.class);
 
@@ -210,5 +216,33 @@ public class ConceptServiceNeo implements ConceptService {
     public DocumentType findDocumentType(Fortress fortress, String documentName, boolean createIfMissing) {
         return conceptDao.findDocumentType(fortress, documentName, createIfMissing);
     }
+
+    public Set<DocumentResultBean> getConceptsWithRelationships(Company company, Collection<String> documents) {
+        return findConcepts(company, documents, true);
+
+    }
+
+    public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException {
+        ArrayList<DocumentResultBean> docs = new ArrayList<>();
+
+        // ToDo: Optimize via Cypher, not a java loop
+        //match (f:Fortress) -[:FORTRESS_DOC]-(d) return f,d
+        if (fortresses == null) {
+            Collection<FortressResultBean> forts = fortressService.findFortresses(fdCompany);
+            for (FortressResultBean fort : forts) {
+                docs.addAll(fortressService.getFortressDocumentsInUse(fdCompany, fort.getName()));
+            }
+
+        } else {
+            for (String fortress : fortresses) {
+                Collection<DocumentResultBean> documentTypes = fortressService.getFortressDocumentsInUse(fdCompany, fortress);
+                docs.addAll(documentTypes);
+            }
+        }
+        return docs;
+
+    }
+
+
 
 }
