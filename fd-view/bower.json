@@ -16,6 +16,7 @@
     "json3": "~3.3.2",
     "jsondiffpatch": "~0.1.43",
     "jsoneditor": "~5.5.1",
+    "jquery-ui": "~1.11.4",
     "d3": "~3.5.16",
     "underscore": "~1.8.3",
     "ng-tags-input": "~3.0.0",
