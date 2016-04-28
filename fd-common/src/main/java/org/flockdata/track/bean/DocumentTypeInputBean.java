@@ -31,7 +31,8 @@ public class DocumentTypeInputBean {
     private String geoQuery;
     private DocumentType.VERSION versionStrategy = DocumentType.VERSION.FORTRESS;
     private EntityService.TAG_STRUCTURE tagStructure = EntityService.TAG_STRUCTURE.DEFAULT;
-    private Boolean searchEnabled; // If null default to fortress
+    private Boolean searchActive; // If null default to fortress
+    private Boolean storeActive; // If null default to fortress
 
     DocumentTypeInputBean(){}
 
@@ -100,8 +101,12 @@ public class DocumentTypeInputBean {
         return this;
     }
 
-    public Boolean isSearchEnabled() {
-        return searchEnabled;
+    public Boolean isSearchActive() {
+        return searchActive;
+    }
+
+    public Boolean isStoreActive() {
+        return storeActive;
     }
 
     public DocumentTypeInputBean setTagStructure(EntityService.TAG_STRUCTURE tagStructure) {
