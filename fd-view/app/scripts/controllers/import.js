@@ -176,6 +176,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
         //   $scope.keys = d3.keys(data);
         // });
         angular.element('[data-target="#profile"]').tab('show');
+        $scope.editor.expandAll();
       }
     };
 
@@ -183,12 +184,12 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
       $state.reload();
     };
  
-    $scope.saveProfile = function(cp) {
-      console.log(cp);
-      // $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, $scope.profile).then(function (response) {
-      //   console.log(response);
-      //   return response.data;
-      // });
+    $scope.saveProfile = function() {
+      var profile = $scope.editor.getText();
+      $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, profile).then(function (response) {
+        console.log(response);
+        return response.statusText;
+      });
     };
 
     $scope.validate = function(){

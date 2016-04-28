@@ -199,6 +199,13 @@ h4.paragraph-header {
     transition-delay: 0;
 }
 
+.cursor {
+  cursor: move;
+}
+.dragging {
+  border: 1px dashed #ccc;
+}
+
 #view:hover .controls {
     pointer-events: auto;
     opacity: 1;
