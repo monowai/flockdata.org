@@ -149,13 +149,7 @@ public class Tag {
     }
 
     public String getLabel() {
-
-        for (String label : labels) {
-            if (!TagHelper.isInternalLabel(label))
-//            if (!label.equals("_Tag") && !label.equals("Tag"))
-                return label;
-        }
-        return "Tag";
+        return TagHelper.getLabel(labels);
     }
 
     public void setId(Long id) {
