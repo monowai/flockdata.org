@@ -138,7 +138,8 @@ fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$control
           $scope.fromRlx,
           $scope.toRlx,
           $scope.minCount,
-          $scope.reciprocalExcludedChecked).then(function (data) {
+          $scope.reciprocalExcludedChecked,
+          false).then(function (data) {
             if (!data || data.length === 0) {
               $scope.msg = 'No Results.';
               return data;
