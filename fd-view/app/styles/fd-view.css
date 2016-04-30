@@ -192,23 +192,16 @@ h4.paragraph-header {
     left: 2em;
     right: 2em;
     bottom: 2em;
-    text-align: center;
+    text-align: left;
     pointer-events: none;
     opacity: 0;
     transition: opacity .5s ease-in-out;
     transition-delay: 0;
 }
-
-.cursor {
-  cursor: move;
-}
-.dragging {
-  border: 1px dashed #ccc;
-}
-
 #view:hover .controls {
     pointer-events: auto;
     opacity: 1;
+    /*z-index: 10;*/
 }
 #view:not(:hover) .controls {
     transition-delay: .5s;
@@ -217,4 +210,11 @@ h4.paragraph-header {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.cursor {
+  cursor: move;
+}
+.dragging {
+  border: 1px dashed #ccc;
 }

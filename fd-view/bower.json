@@ -42,6 +42,11 @@
     },
     "ngCytoscape": {
       "main": "dst/ngCytoscape.js"
+    },
+    "font-awesome": {
+      "main": [
+        "css/font-awesome.min.css"
+      ]
     }
   }
 }

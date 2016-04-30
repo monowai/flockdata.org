@@ -22,10 +22,16 @@
 
 fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration', 'cyGraph',
   function ($scope, $http, QueryService, $compile, $controller, configuration, cyGraph) {
-    $scope.layout = {name:'cose'};
+    $scope.matrix = QueryService.lastMatrix();
+    if(_.isEmpty($scope.matrix)) {
+      angular.element('[data-target="#search"]').tab('show');
+      $scope.graphData = [];
+    } else $scope.graphData=$scope.matrix;
+
     $scope.layouts = [{name: 'cose'},
       {name: 'grid'},{name: 'concentric'},
       {name: 'circle'},{name: 'random'}];
+    $scope.layout = $scope.layouts[0];
     $scope.minCount = 1;
     $scope.resultSize = 1000;
     $scope.sharedRlxChecked = true;
@@ -82,7 +88,6 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
 
       });
     };
-    $scope.graphData = [];
 
     $scope.styles = [
       {'selector': 'node',
@@ -95,8 +100,9 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
         'color': 'white',
         'text-outline-width': 2,
         'text-outline-color': '#888',
-        'width': 30,//'mapData(degree,0,5,20,80)',
-        'height': 30//'mapData(degree,0,5,20,80)'
+        'width': '40',//'mapData(degree,0,5,20,80)',
+        'height': '40',//'mapData(degree,0,5,20,80)',
+        // 'shape': 'roundrectangle'
       }},
     {'selector':'edge',
       'css':{
@@ -111,10 +117,17 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
         'target-arrow-color': 'black',
         'source-arrow-color': 'black',
         'text-outline-color': 'black'
+      }},
+    {'selector':'.mouseover',
+      'css':{
+        'color':'#499ef0'
       }}
     ];
 
+    //$scope.node = {};
+
     $scope.search = function () {
+      angular.element('[data-target="#view"]').tab('show');
       if ($scope.sharedRlxChecked) {
         $scope.toRlx = $scope.fromRlx;
       }
@@ -138,7 +151,6 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
             $scope.msg = null;
           }
 
-          angular.element('[data-target="#view"]').tab('show');
           $scope.graphData = data;
           // cyGraph($scope.graphData);
         });
@@ -148,5 +160,29 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
     // $scope.openView = function () {
     //   angular.element('[data-target="#view"]').tab('show');
     // };
+    //
+    // $scope.changeLayout = function () {
+    //   console.log('change');
+    //   if ($scope.layout === {name:'cose'}) $scope.layout={name:'grid'};
+    //   else $scope.layout = {name: 'cose'};
+    // };
+
+    // QueryService.matrixSearch(["medline"],"cervical",1000,
+    //   ["Study"],true,["Person"],["lead","writer"],
+    //   ["lead","writer"],1,true,true)
+    //     .then(function (data) {
+    //       console.log(data);
+    //       $scope.graphData=data;
+    //     });
+    // cyGraph.on('click', function (e) {
+    //   var et = e.cyTarget;
+    //   if(et === cyGraph) console.log('Clicked');
+    // });
+    // $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', req)
+    //   .then(function (response){
+    //     csService(response.data);
+    //   });
+
+
 
   }]);
