@@ -30,6 +30,12 @@ import java.util.Map;
 public class EdgeResult {
     private Map<String, Object> data = new HashMap<>();
 
+    /**
+     * Testing only!!
+     * @param source
+     * @param target
+     * @param count
+     */
     public EdgeResult(String source, String target, Number count) {
         this();
         data.put("source", source);

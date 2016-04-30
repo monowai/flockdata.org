@@ -230,8 +230,8 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         for (Map<String, Object> result : results) {
 
-            String conceptFrom = result.get("source").toString();
-            String conceptTo = result.get("target").toString();
+            Node conceptFrom = (Node)result.get("source");
+            Node conceptTo = (Node)result.get("target");
             String conceptKey = conceptFrom + "/" + conceptTo;
 
             boolean selfRlx = conceptFrom.equals(conceptTo);
@@ -240,7 +240,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
 
 
-                    edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0));
+                    edgeResults.addResult(new EdgeResult(conceptFrom, conceptTo, 0, input.isByKey()));
                     if (input.isReciprocalExcluded())
                         uniqueKeys.put(conceptKey, true);
 
