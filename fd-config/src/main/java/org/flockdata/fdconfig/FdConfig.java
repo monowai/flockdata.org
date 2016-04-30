@@ -1,4 +1,4 @@
-package org.flockdata;
+package org.flockdata.fdconfig;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @EnableDiscoveryClient
 @EnableConfigServer
-public class ConfigServiceApplication {
+public class FdConfig {
     public static void main(String[] args) {
-        SpringApplication.run(ConfigServiceApplication.class, args);
+        SpringApplication.run(FdConfig.class, args);
     }
 }
