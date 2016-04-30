@@ -22,10 +22,15 @@
 
 fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration', 'cyGraph',
   function ($scope, $http, QueryService, $compile, $controller, configuration, cyGraph) {
-    $scope.layout = {name:'cose'};
+    $scope.matrix = QueryService.lastMatrix();
+    if(!$scope.matrix) {
+      $scope.graphData = [];
+    } else $scope.graphData=$scope.matrix;
+
     $scope.layouts = [{name: 'cose'},
       {name: 'grid'},{name: 'concentric'},
       {name: 'circle'},{name: 'random'}];
+    $scope.layout = $scope.layouts[0];
     $scope.minCount = 1;
     $scope.resultSize = 1000;
     $scope.sharedRlxChecked = true;
@@ -82,7 +87,7 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
 
       });
     };
-    $scope.graphData = [];
+    // $scope.graphData = [];
 
     $scope.styles = [
       {'selector': 'node',
@@ -111,8 +116,14 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
         'target-arrow-color': 'black',
         'source-arrow-color': 'black',
         'text-outline-color': 'black'
+      }},
+    {'selector':'.mouseover',
+      'css':{
+        'color':'#272C2F'
       }}
     ];
+
+    //$scope.node = {};
 
     $scope.search = function () {
       if ($scope.sharedRlxChecked) {
@@ -148,5 +159,29 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
     // $scope.openView = function () {
     //   angular.element('[data-target="#view"]').tab('show');
     // };
+    //
+    // $scope.changeLayout = function () {
+    //   console.log('change');
+    //   if ($scope.layout === {name:'cose'}) $scope.layout={name:'grid'};
+    //   else $scope.layout = {name: 'cose'};
+    // };
+
+    // QueryService.matrixSearch(["medline"],"cervical",1000,
+    //   ["Study"],true,["Person"],["lead","writer"],
+    //   ["lead","writer"],1,true,true)
+    //     .then(function (data) {
+    //       console.log(data);
+    //       $scope.graphData=data;
+    //     });
+    // cyGraph.on('click', function (e) {
+    //   var et = e.cyTarget;
+    //   if(et === cyGraph) console.log('Clicked');
+    // });
+    // $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', req)
+    //   .then(function (response){
+    //     csService(response.data);
+    //   });
+
+
 
   }]);

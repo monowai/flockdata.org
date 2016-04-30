@@ -34,6 +34,15 @@ fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$control
       delete $scope.devMode;
     }
 
+    $scope.matrix = QueryService.lastMatrix();
+    if(!$scope.matrix) {
+      $scope.graphData = [];
+      // console.log($scope.matrix);
+    } else {
+      $scope.graphData=$scope.matrix;
+    }
+
+
     QueryService.general('fortress').then(function (data) {
       $scope.fortresses = data;
     });
@@ -90,7 +99,7 @@ fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$control
 
       });
     };
-    $scope.graphData = [];
+    // $scope.graphData = [];
 
     $scope.search = function () {
       if ($scope.chartType === 'TagCloud') {

@@ -158,13 +158,17 @@
           <div class="alert alert-warning fade in" ng-show="msg">
             {{msg}}
           </div>
-          <div ng-height="150">
+          <div id="view" ng-height="250">
             <!--<div id="cy"></div>-->
 
-            <cytoscape elements="graphData" layout="layout" styles="styles"></cytoscape>
-            <div class="controls">
+            <cytoscape elements="graphData" layout="layout" styles="styles" selected-node="node"></cytoscape>
+            <div class="controls" ng-show="node">
               <div class="col-xs-6 col-md-4">
-                <button class="btn btn-info" ng-click="changeLayout()">Change layout</button>
+                <p>Name: {{node.name}}</p>
+                <p>Code: {{node.id}}</p>
+                <p>Node type: {{node.nodeType}}</p>
+                <!--<button class="btn btn-info" ng-click="changeLayout()">Change layout</button>-->
+                <!-- <rzslider rz-slider-model="graph.n1.data.weight" rz-slider-options="slider.options"></rzslider> -->
               </div>
             </div>
           </div>

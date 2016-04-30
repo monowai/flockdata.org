@@ -22,7 +22,9 @@
 
 
 fdView.factory('QueryService', ['$http', 'configuration', function ($http, configuration) {
-    return {
+  var lastMatrixQuery={},
+      lastMatrixResult={};
+  return {
       general: function (queryName) {
         return $http.get(configuration.engineUrl() + '/api/v1/' + queryName + '/').then(function (response) {
             return response.data;
@@ -49,13 +51,19 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           reciprocalExcluded: reciprocals,
           byKey: byKey
         };
+        if(dataParam === lastMatrixQuery) return lastMatrixResult;
+        else lastMatrixQuery = dataParam;
         console.log(dataParam);
         var promise = $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', dataParam).then(function (response) {
+          angular.copy(response.data, lastMatrixResult);
           if(byKey===false) {
             return response.data.edges;
           } else return response.data;
         });
         return promise;
+      },
+      lastMatrix: function () {
+        return lastMatrixResult;
       },
       tagCloud: function (searchText, documents, fortress, tags, relationships) {
         var tagCloudParams = {

@@ -201,7 +201,7 @@ angular.module('fdView.directives', [])
         elements: '=',
         styles: '=',
         layout: '=',
-        selectedElements: '=',
+        selectedNode: '=',
         highlightByName: '=',
         onComplete: '=',
         onChange: '=',
@@ -243,9 +243,18 @@ angular.module('fdView.directives', [])
                 };
                 // Tap
                 cy.on('tap', function(event) {
-                  $timeout(function() {
-                    if(cy.$(':selected'))scope.selectedElements = cy.$(':selected');
+                  if (event.cyTarget === cy)
+                    $timeout(function() {
+                      scope.selectedNode = {};
+                      // scope.selectedElements = cy.$(':selected');
+                      // console.log(cy.$(':selected'));
                   }, 10);
+                });
+                cy.on('tap', 'node', function (event) {
+                  console.log(event.cyTarget.data());
+                  scope.$apply(function () {
+                    scope.selectedNode = event.cyTarget.data();
+                  });
                 });
                 // Mouseout
                 cy.on('mouseout', function() {
