@@ -16,6 +16,8 @@
 
 package org.flockdata.query;
 
+import org.neo4j.graphdb.Node;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,7 @@ import java.util.Map;
  * Time: 6:52 AM
  */
 public class EdgeResult {
-    private Map<String,Object> data = new HashMap<>();
+    private Map<String, Object> data = new HashMap<>();
 
     public EdgeResult(String source, String target, Number count) {
         this();
@@ -39,7 +41,28 @@ public class EdgeResult {
     public EdgeResult() {
     }
 
-    public Map<String,Object> getData(){
+    public EdgeResult(Node conceptFrom, Node conceptTo, Number count, boolean byKey) {
+        if (byKey) {
+            data.put("source", conceptFrom.getId());
+            data.put("target", conceptTo.getId());
+        } else {
+
+            if (conceptFrom.hasProperty("name"))
+                data.put("source", conceptFrom.getProperty("name"));
+            else
+                data.put("source", conceptFrom.getProperty("code"));
+
+            if (conceptTo.hasProperty("name"))
+                data.put("target", conceptTo.getProperty("name"));
+            else
+                data.put("target", conceptTo.getProperty("code"));
+        }
+
+        data.put("count", count);
+
+    }
+
+    public Map<String, Object> getData() {
         return data;
     }
 
@@ -48,7 +71,7 @@ public class EdgeResult {
     }
 
     public void setSource(String source) {
-        data.put("source",source);
+        data.put("source", source);
     }
 
     public String getTarget() {
@@ -61,7 +84,7 @@ public class EdgeResult {
 
     public Number getCount() {
 
-        return (Number)getData().get("count");
+        return (Number) getData().get("count");
     }
 
     public void setCount(Number count) {
@@ -84,8 +107,8 @@ public class EdgeResult {
 
         EdgeResult that = (EdgeResult) o;
 
-        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource()!= null) return false;
-        return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget()!= null);
+        if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource() != null) return false;
+        return !(getTarget() != null ? !getTarget().equals(that.getTarget()) : that.getTarget() != null);
 
     }
 

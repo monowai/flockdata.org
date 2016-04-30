@@ -31,6 +31,7 @@ import org.flockdata.query.*;
 import org.flockdata.search.model.EntityKeyResults;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.track.service.FortressService;
+import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,10 +78,9 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         if (input.getQueryString() == null)
             input.setQueryString("*");
-
         if (input.getSampleSize() > 0) {
-            if (input.getSampleSize() > 3000)
-                input.setSampleSize(3000); // Neo4j can't handle any more in it's where clause
+            if (input.getSampleSize() > input.getMaxEdges())
+                input.setSampleSize(input.getMaxEdges()); // Neo4j can't handle any more in it's where clause
             entityKeyResults = searchGateway.keys(getQueryParams(company, input));
         }
 
@@ -132,7 +132,7 @@ public class MatrixDaoNeo4j implements MatrixDao {
                 "with tag1, id(tag1) as tag1Id, tag2, id(tag2) as tag2Id, count(t) as links " + sumCol +
 
                 (input.getMinCount() > 1 ? "where links >={linkCount} " : "") +
-                "return coalesce(tag1.name, tag1.code) as tag1, tag1Id, collect(coalesce(tag2.name, tag2.code)) as tag2, collect(tag2Id) as tag2Ids, " +
+                "return tag1, tag2, collect(tag2Id) as tag2Ids, " +
                 "collect( links) as occurrenceCount " + sumVal;
 
         Map<String, Object> params = new HashMap<>();
@@ -145,13 +145,13 @@ public class MatrixDaoNeo4j implements MatrixDao {
 
         Collection<FdNode> labels = new ArrayList<>();
 
-        String conceptFmCol = "tag1Id";
-        String conceptToCol = "tag2Ids";
+        String conceptFmCol ;
+        String conceptToCol ;
         // Does the caller want Keys or Values in the result set?
-        if (!input.isByKey()) {
+//        if (!input.isByKey()) {
             conceptFmCol = "tag1";
             conceptToCol = "tag2";
-        }
+//        }
 
         params.put("linkCount", input.getMinCount());
         StopWatch watch = new StopWatch(input.toString());
@@ -163,49 +163,49 @@ public class MatrixDaoNeo4j implements MatrixDao {
         Map<String, Object> uniqueKeys = new HashMap<>();
         while (rows.hasNext()) {
             Map<String, Object> row = rows.next();
-            Collection<Object> tag2 = (Collection<Object>) row.get(conceptToCol);
+            Node conceptTo = (Node)row.get(conceptToCol);
             Collection<Object> occ;
             if (row.containsKey("sumValues"))
                 occ = (Collection<Object>) row.get("sumValues");
             else
                 occ = (Collection<Object>) row.get("occurrenceCount");
 
-            String conceptFrom = row.get(conceptFmCol).toString();
+            Node conceptFrom = (Node)row.get(conceptFmCol);
 
             if (input.isByKey()) {
                 // Edges will be indexed by Id. This will set the Name values in to the Node collection
-                FdNode source = new FdNode(row.get("tag1Id").toString(), row.get("tag1"));
+                FdNode source = new FdNode((Node)row.get("tag1"));
                 Collection<Object> targetIds = (Collection<Object>) row.get("tag2Ids");
-                Collection<Object> targetVals = (Collection<Object>) row.get("tag2");
+                Node targetVals = (Node) row.get("tag2");
                 if (!labels.contains(source))
                     labels.add(source);
-                setTargetTags(labels, targetIds, targetVals);
+                //setTargetTags(labels, targetIds, targetVals);
             }
 
-            Iterator<Object> concept = tag2.iterator();
-            Iterator<Object> occurrence = occ.iterator();
-            while (concept.hasNext() && occurrence.hasNext()) {
-                Object conceptTo = concept.next();
+//            Iterator<Object> concept = tag2.iterator();
+//            Iterator<Object> occurrence = occ.iterator();
+            //while (concept.hasNext() && occurrence.hasNext()) {
+//                Object conceptTo = concept.next();
                 String conceptKey = conceptFrom + "/" + conceptTo;
                 boolean selfRlx = conceptFrom.equals(conceptTo.toString());
 
                 if (!selfRlx) {
                     String inverseKey = conceptTo + "/" + conceptFrom;
                     if (!uniqueKeys.containsKey(inverseKey) && !uniqueKeys.containsKey(conceptKey)) {
-                        Number value;
+                        Number value = Double.parseDouble(occ.iterator().next().toString());
 
-                        if (input.isSumByCol())
-                            value = Double.parseDouble(occurrence.next().toString());
-                        else
-                            value = Long.parseLong(occurrence.next().toString());
+//                        if (input.isSumByCol())
+//                            value = Double.parseDouble(occ.iterator().next().toString());
+//                        else
+//                            value = occ;//Long.parseLong(occurrence.next().toString());
 
-                        EdgeResult mr = new EdgeResult(conceptFrom, conceptTo.toString(), value);
+                        EdgeResult mr = new EdgeResult(conceptFrom, conceptTo, value, input.isByKey());
                         edgeResults.addResult(mr);
                         if (input.isReciprocalExcluded())
                             uniqueKeys.put(conceptKey, true);
                     }
                 }
-            }
+           // }
         }
 
         logger.info("Count {}, Performance {}", edgeResults.get().size(), watch.prettyPrint());
