@@ -20,23 +20,27 @@
 
 package org.flockdata.engine.integration.store;
 
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.EngineConfig;
+import org.flockdata.store.Store;
+import org.flockdata.store.StoredContent;
 import org.flockdata.store.bean.StorageBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.handler.annotation.Payload;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,8 +55,14 @@ import java.util.Map;
 public class StorageReader {
 
     @Autowired
-    @Qualifier("engineConfig")
-    PlatformConfig engineConfig;
+    EngineConfig engineConfig;
+
+    @MessagingGateway
+    public interface StorageReaderGateway {
+        @Payload("#args")
+        @Gateway(requestChannel = "startStoreRead", requestTimeout = 5000, replyChannel = "storeReadResult")
+        StoredContent read(Store store, String index, String type, String key);
+    }
 
     @Bean
     MessageChannel startStoreRead(){

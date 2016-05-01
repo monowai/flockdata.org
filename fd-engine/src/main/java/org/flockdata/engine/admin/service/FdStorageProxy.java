@@ -22,7 +22,8 @@ package org.flockdata.engine.admin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.flockdata.engine.integration.store.EsRepo;
-import org.flockdata.engine.integration.store.StorageGateway;
+import org.flockdata.engine.integration.store.StorageReader;
+import org.flockdata.engine.integration.store.StorageWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Entity;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,8 +50,12 @@ import org.springframework.stereotype.Service;
 @Profile({"fd-server"})
 public class FdStorageProxy implements StorageProxy {
 
-    @Autowired (required = false) // Functional tests don't require gateways
-            StorageGateway storageGateway;
+    @Autowired (required = false)
+    StorageReader.StorageReaderGateway readGateway;
+
+    @Autowired (required = false)
+    StorageWriter.StorageWriterGateway writeGateway;
+
     private Logger logger = LoggerFactory.getLogger(FdStorageProxy.class);
 
     @Autowired
@@ -59,11 +65,12 @@ public class FdStorageProxy implements StorageProxy {
     EsRepo esRepo;
 
     @Override
+    @Retryable
     public void write(TrackResultBean resultBean) {
         StorageBean storageBean = new StorageBean(resultBean);
         // If there is no store to write to then don't !
         if ( !storageBean.getStore().equals( Store.NONE.name()))
-            storageGateway.write(storageBean);
+            writeGateway.write(storageBean);
     }
 
     @Override
@@ -86,7 +93,7 @@ public class FdStorageProxy implements StorageProxy {
         if ( logRequest.getStore() == Store.NONE){
             contentResult = esRepo.read(index,type,key);
         } else {
-            contentResult = storageGateway.read(logRequest.getStore(),
+            contentResult = readGateway.read(logRequest.getStore(),
                     index,
                     type,
                     key);

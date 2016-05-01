@@ -26,26 +26,27 @@
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://wiki.flockdata.com</docs.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
         <jackson.version>2.6.5</jackson.version>
-        <org.springframework.version>4.2.4.RELEASE</org.springframework.version>
-        <org.springintegration.version>4.2.4.RELEASE</org.springintegration.version>
-        <org.springsecurity.version>4.0.3.RELEASE</org.springsecurity.version>
-        <org.springboot.version>1.3.2.RELEASE</org.springboot.version>
-        <org.springcloud.version>1.0.4.RELEASE</org.springcloud.version>
-        <org.springcloud.eureka.version>1.0.6.RELEASE</org.springcloud.eureka.version>
+        <org.springboot.version>1.3.3.RELEASE</org.springboot.version>
+        <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
+        <org.springbatch.version>3.0.7.RELEASE</org.springbatch.version>
+        <org.springintegration.version>4.2.5.RELEASE</org.springintegration.version>
+        <org.springsecurity.version>4.0.4.RELEASE</org.springsecurity.version>
+        <org.springcloud.release.train>Brixton.RC2</org.springcloud.release.train>
+
+        <org.springcloud.version>1.1.0.RC2</org.springcloud.version>
         <stormpath.sdk.version>1.0.RC2</stormpath.sdk.version>
         <stormpath.spring.security.version>0.3.0</stormpath.spring.security.version>
-        <org.springbatch.version>3.0.6.RELEASE</org.springbatch.version>
         <neo4j.version>2.3.3</neo4j.version>
-        <org.springdata.neo4j>3.3.2.RELEASE</org.springdata.neo4j>
-        <org.springdata.redis>1.5.2.RELEASE</org.springdata.redis>
+        <org.springdata.neo4j>3.4.4.RELEASE</org.springdata.neo4j>
         <ehcache.version>2.6.10</ehcache.version>
         <org.aspectj.version>1.8.4</org.aspectj.version>
         <surefire.version>2.19.1</surefire.version>
         <slf4j.version>1.7.10</slf4j.version>
         <log4j2.version>2.4.1</log4j2.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
     <dependencyManagement>
@@ -162,16 +163,6 @@
                         <artifactId>hamcrest-core</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-config-server</artifactId>
-                <version>${org.springcloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-eureka</artifactId>
-                <version>${org.springcloud.eureka.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -294,7 +285,7 @@
             <dependency>
                 <groupId>org.springframework.retry</groupId>
                 <artifactId>spring-retry</artifactId>
-                <version>1.1.1.RELEASE</version>
+                <version>1.1.2.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -370,11 +361,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-elasticsearch</artifactId>
-                <version>1.3.0.RELEASE</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-parent</artifactId>
+                <version>${org.springcloud.release.train}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
     <repositories>
@@ -560,31 +552,31 @@
                         </configuration>
                     </plugin>
                     <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-scm-plugin</artifactId>-->
-                        <!--<version>1.9.4</version>-->
-                        <!--<dependencies>-->
-                            <!--<dependency>-->
-                                <!--<groupId>org.apache.maven.scm</groupId>-->
-                                <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
-                                <!--<version>1.9.4</version>-->
-                            <!--</dependency>-->
-                        <!--</dependencies>-->
-                        <!--<configuration>-->
-                            <!--&lt;!&ndash;git describe will error if there is no tag&ndash;&gt;-->
-                            <!--<tag>v${project.version}-${buildNumber}</tag>-->
-                            <!--<connectionType>connection</connectionType>-->
-                        <!--</configuration>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>tag</id>-->
-                                <!--&lt;!&ndash;Binding to install caused it to tag sub-modules&ndash;&gt;-->
-                                <!--&lt;!&ndash;<phase>install</phase>&ndash;&gt;-->
-                                <!--<goals>-->
-                                    <!--<goal>tag</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-scm-plugin</artifactId>-->
+                    <!--<version>1.9.4</version>-->
+                    <!--<dependencies>-->
+                    <!--<dependency>-->
+                    <!--<groupId>org.apache.maven.scm</groupId>-->
+                    <!--<artifactId>maven-scm-provider-gitexe</artifactId>-->
+                    <!--<version>1.9.4</version>-->
+                    <!--</dependency>-->
+                    <!--</dependencies>-->
+                    <!--<configuration>-->
+                    <!--&lt;!&ndash;git describe will error if there is no tag&ndash;&gt;-->
+                    <!--<tag>v${project.version}-${buildNumber}</tag>-->
+                    <!--<connectionType>connection</connectionType>-->
+                    <!--</configuration>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>tag</id>-->
+                    <!--&lt;!&ndash;Binding to install caused it to tag sub-modules&ndash;&gt;-->
+                    <!--&lt;!&ndash;<phase>install</phase>&ndash;&gt;-->
+                    <!--<goals>-->
+                    <!--<goal>tag</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
                     <!--</plugin>-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -600,31 +592,31 @@
                         </executions>
                     </plugin>
                     <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                        <!--<version>2.10.3</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>attach-javadocs</id>-->
-                                <!--<goals>-->
-                                    <!--<goal>jar</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                    <!--<version>2.10.3</version>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>attach-javadocs</id>-->
+                    <!--<goals>-->
+                    <!--<goal>jar</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
                     <!--</plugin>-->
                     <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                        <!--<version>1.5</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>sign-artifacts</id>-->
-                                <!--<phase>verify</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>sign</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
+                    <!--<groupId>org.apache.maven.plugins</groupId>-->
+                    <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                    <!--<version>1.5</version>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>sign-artifacts</id>-->
+                    <!--<phase>verify</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>sign</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
                     <!--</plugin>-->
                 </plugins>
             </build>

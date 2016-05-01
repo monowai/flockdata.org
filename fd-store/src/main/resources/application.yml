@@ -1,5 +1,12 @@
 # Default configuration properties for fd-engine
 
+
+server:
+  port: 8082
+
+application:
+  title: FlockData StoreWriter
+
 eureka:
   client:
     serviceUrl:
@@ -23,13 +30,6 @@ spring:
       charset: UTF-8 # the encoding of HTTP requests/responses
       enabled: 'true' # enable http encoding support
       force: 'true' # force the configured encoding
-
-application:
-  title: FlockData StoreWriter
-
-server:
-  port: 8082
-
 
 org.fd:
   store:
