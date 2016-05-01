@@ -21,7 +21,6 @@ package org.flockdata.test.store;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.TestCase;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.model.*;
@@ -68,7 +67,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.util.AssertionErrors.fail;
@@ -237,10 +236,10 @@ public class TestStoreService {
     }
 
     private void validateContent(String failureMessage, StoredContent contentResult) throws InterruptedException {
-        TestCase.assertNotNull(failureMessage, contentResult);
-        TestCase.assertNotNull(failureMessage + " - content was not found", contentResult.getContent());
-        TestCase.assertNotNull(failureMessage, contentResult.getContent().getKey());
-        TestCase.assertNotNull(failureMessage, contentResult.getContent().getCode());
+        assertNotNull(failureMessage, contentResult);
+        assertNotNull(failureMessage + " - content was not found", contentResult.getContent());
+        assertNotNull(failureMessage, contentResult.getContent().getKey());
+        assertNotNull(failureMessage, contentResult.getContent().getCode());
         Map<String, Object> data = contentResult.getContent().getData();
         Thread.sleep(1500);
         assertEquals(failureMessage, data.get("sval"), contentResult.getData().get("sval"));

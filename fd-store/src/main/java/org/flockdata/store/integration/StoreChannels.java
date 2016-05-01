@@ -67,5 +67,10 @@ public class StoreChannels {
         return new DirectChannel();
     }
 
+    @Bean
+    MessageChannel storePing () {
+        return new DirectChannel();
+    }
+
 
 }
