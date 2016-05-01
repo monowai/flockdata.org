@@ -31,7 +31,7 @@ public class MatrixInputBean {
 
     private int sampleSize = 1000;
 
-    private int maxEdges = 2000;
+    private int maxEdges = 5000;
     private String queryString = null;
 
     private Boolean byKey = false;

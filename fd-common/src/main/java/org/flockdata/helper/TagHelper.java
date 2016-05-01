@@ -22,6 +22,8 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.TagInputBean;
 import org.neo4j.graphdb.Label;
 
+import java.util.ArrayList;
+
 /**
  * Tag parsing support
  * <p/>
@@ -95,5 +97,15 @@ public class TagHelper {
                 return label.name();
         }
         return "Tag";
+    }
+
+    public static String getLabel(ArrayList<String> labels) {
+        for (String label : labels) {
+            if (!isInternalLabel(label))
+//            if (!label.equals("_Tag") && !label.equals("Tag"))
+                return label;
+        }
+        return "Tag";
+
     }
 }

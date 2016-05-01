@@ -118,12 +118,12 @@
               <section>
                 <div class="form-group col-md-6">
                   <label for="minCount">Min Occurence</label>
-                  <input type="text" class="form-control" name="minCount" ng-model="minCount"/>
+                  <input type="text" class="form-control" name="minCount" id="minCount" ng-model="minCount"/>
                 </div>
                 <div class="form-group col-md-6">
                   <label for="resultSize">Sample Size</label>
                   <input type="text" class="form-control" name="resultSize"
-                           ng-model="resultSize"/>
+                         id="resultSize" ng-model="resultSize"/>
                 </div>
               </section>
 
@@ -170,7 +170,7 @@
             <input type="search" class="form-control" value="*" placeholder="Select criteria before applying a filter ..." ng-model="$root.searchText"
                  size="100" autocomplete="on"/>
           </div>
-          <div class="alert alert-warning fade in" ng-show="msg">
+          <div class="callout callout-warning fade in" ng-show="msg">
             {{msg}}
           </div>
 

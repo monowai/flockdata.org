@@ -22,7 +22,9 @@
 
 
 fdView.factory('QueryService', ['$http', 'configuration', function ($http, configuration) {
-    return {
+  var lastMatrixQuery={},
+      lastMatrixResult={};
+  return {
       general: function (queryName) {
         return $http.get(configuration.engineUrl() + '/api/v1/' + queryName + '/').then(function (response) {
             return response.data;
@@ -35,7 +37,7 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           }
         );
       },
-      matrixSearch: function (fortresses, searchText, resultSize, documents, sumByCount, concepts, fromRlxs, toRlxs, minCount, reciprocals) {
+      matrixSearch: function (fortresses, searchText, resultSize, documents, sumByCount, concepts, fromRlxs, toRlxs, minCount, reciprocals, byKey) {
         var dataParam = {
           documents: documents,
           sampleSize: resultSize,
@@ -46,14 +48,22 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           fromRlxs: fromRlxs,
           toRlxs: toRlxs,
           minCount: minCount,
-          reciprocalExcluded: reciprocals
+          reciprocalExcluded: reciprocals,
+          byKey: byKey
         };
+        if(dataParam === lastMatrixQuery) return lastMatrixResult;
+        else lastMatrixQuery = dataParam;
         console.log(dataParam);
         var promise = $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', dataParam).then(function (response) {
-          console.log(response.data);
-          return response.data.edges;
+          angular.copy(response.data, lastMatrixResult);
+          if(byKey===false) {
+            return response.data.edges;
+          } else return response.data;
         });
         return promise;
+      },
+      lastMatrix: function () {
+        return lastMatrixResult;
       },
       tagCloud: function (searchText, documents, fortress, tags, relationships) {
         var tagCloudParams = {
@@ -67,51 +77,32 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
           return response.data;
         });
       }
-
-
     };
   }]
 );
 
-fdView.factory('netGraph', ['$q', function($q){
+fdView.factory('cyGraph', ['$q', function($q){
   var cy;
-  var netGraph = function(graph) {
+  var cyGraph = function(graph) {
     var deferred = $q.defer();
-    var elems = {nodes:[],edges:[]};
-    for (var i = 0; i < graph.edges.length; i++) {
-      elems.edges.push({
-        data: {
-          id: i,
-          source: graph.edges[i].source,
-          target: graph.edges[i].target,
-          // count: graph.edges[i].count
-        }
-      });
-    }
-    for (var i = 0; i < graph.nodes.length; i++) {
-      elems.nodes.push({
-        data: {
-          id: graph.nodes[i].key,
-          name: graph.nodes[i].value
-        }
-      });
-    }
 
     $(function(){
       cy = cytoscape({
-        container: document.getElementById('fd-cy'),
+        container: document.getElementById('cy'),
 
         style: cytoscape.stylesheet()
           .selector('node')
           .css({
             'content': 'data(name)',
-            'font-size': '12pt',
+            'font-size': '15pt',
             'min-zoomed-font-size': '9pt',
             'text-halign': 'center',
             'text-valign': 'center',
             'color': 'white',
-            'width': 'mapData(degree,0,5,20,80)',
-            'height': 'mapData(degree,0,5,20,80)'
+            'text-outline-width': 2,
+            'text-outline-color': '#888',
+            'width': 20,//'mapData(degree,0,5,20,80)',
+            'height': 20//'mapData(degree,0,5,20,80)'
           })
           .selector('edge')
           .css({
@@ -127,24 +118,26 @@ fdView.factory('netGraph', ['$q', function($q){
             'source-arrow-color': 'black',
             'text-outline-color': 'black'
           }),
+
         layout: {
-          name: 'cose',
-          padding: 10
+          name: 'cose'
         },
 
-        elements: elems,
+        elements: graph,
+
         ready: function(){
           deferred.resolve( this );
         }
       });
     });
+
     return deferred.promise;
   };
 
-  netGraph.listeners = {};
+  cyGraph.listeners = {};
 
   function fire(e, args) {
-    var listeners = netGraph.listeners[e];
+    var listeners = cyGraph.listeners[e];
 
     for (var i = 0; listeners && i < listeners.length; i++) {
       var fn = listeners[i];
@@ -154,9 +147,9 @@ fdView.factory('netGraph', ['$q', function($q){
   }
 
   function listen(e, fn) {
-    var listeners = netGraph.listeners[e] = netGraph.listeners[e] || [];
+    var listeners = cyGraph.listeners[e] = cyGraph.listeners[e] || [];
 
     listeners.push(fn);
   }
-  return netGraph;
+  return cyGraph;
 }]);

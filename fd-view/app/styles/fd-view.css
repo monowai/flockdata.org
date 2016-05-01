@@ -192,11 +192,24 @@ h4.paragraph-header {
     left: 2em;
     right: 2em;
     bottom: 2em;
-    text-align: center;
+    text-align: left;
     pointer-events: none;
     opacity: 0;
     transition: opacity .5s ease-in-out;
     transition-delay: 0;
+}
+#view:hover .controls {
+    pointer-events: auto;
+    opacity: 1;
+    /*z-index: 10;*/
+}
+#view:not(:hover) .controls {
+    transition-delay: .5s;
+}
+#cy {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .cursor {
@@ -204,29 +217,4 @@ h4.paragraph-header {
 }
 .dragging {
   border: 1px dashed #ccc;
-}
-
-#view:hover .controls {
-    pointer-events: auto;
-    opacity: 1;
-}
-#view:not(:hover) .controls {
-    transition-delay: .5s;
-}
-
-rzslider .rzpointer {
-    top: -7px;
-    width: 18px;
-    height: 18px;
-}
-rzslider .rzpointer:after {
-    top: 7px;
-    left: 7px;
-    width: 5px;
-    height: 5px;
-}
-#fd-cy {
-  width: 100%;
-  height: 100%;
-  display: block;
 }
