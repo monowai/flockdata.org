@@ -1,5 +1,6 @@
-package org.kbastani;
+package org.flockdata.test.discovery;
 
+import org.flockdata.discovery.FdDiscovery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DiscoveryServiceApplication.class)
+@SpringApplicationConfiguration(classes = FdDiscovery.class)
 @WebAppConfiguration
 @IntegrationTest("server.port=0")
 public class DiscoveryServiceApplicationTests {

@@ -16,6 +16,8 @@ import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.query.MatrixInputBean;
 import org.flockdata.query.MatrixResults;
 import org.flockdata.registration.*;
+import org.flockdata.test.engine.MapBasedStorageProxy;
+import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.bean.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +60,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  */
 @WebAppConfiguration(value = "src/main/resources")
 @ActiveProfiles({"dev", "web-dev", "fd-auth-test"})
-@SpringApplicationConfiguration(FdEngine.class)
+@SpringApplicationConfiguration({FdEngine.class,
+        Neo4jConfigTest.class,
+        MapBasedStorageProxy.class})
+
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MvcBase {
 

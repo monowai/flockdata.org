@@ -2,7 +2,7 @@
   // We would like the movie search document to be indexed in ElasticSearch
   "documentType": {
     "name": "Movie",
-    "searchEnabled": true
+    "searchActive": true
   },
   "fortressName": "kodi",
   // source system that provided the data

@@ -1,5 +1,6 @@
 package org.flockdata;
 
+import org.flockdata.fdconfig.FdConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ConfigServiceApplication.class)
+@SpringApplicationConfiguration(classes = FdConfig.class)
 @WebAppConfiguration
 @IntegrationTest("server.port=0")
 public class ConfigServiceApplicationTests {

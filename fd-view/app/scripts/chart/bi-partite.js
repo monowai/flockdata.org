@@ -31,12 +31,12 @@
 
     sData.keys = [
       d3.set(data.map(function (d) {
-        return d[0];
+        return d[0].source;
       })).values().sort(function (a, b) {
         return ( a < b ? -1 : a > b ? 1 : 0);
       }),
       d3.set(data.map(function (d) {
-        return d[1];
+        return d[0].target;
       })).values().sort(function (a, b) {
         return ( a < b ? -1 : a > b ? 1 : 0);
       })
@@ -55,8 +55,8 @@
     ];
 
     data.forEach(function (d) {
-      sData.data[0][sData.keys[0].indexOf(d[0])][sData.keys[1].indexOf(d[1])] = d[p];
-      sData.data[1][sData.keys[1].indexOf(d[1])][sData.keys[0].indexOf(d[0])] = d[p];
+      sData.data[0][sData.keys[0].indexOf(d[0].source)][sData.keys[1].indexOf(d[0].target)] = d[p];
+      sData.data[1][sData.keys[1].indexOf(d[0].target)][sData.keys[0].indexOf(d[0].source)] = d[p];
     });
 
     return sData;

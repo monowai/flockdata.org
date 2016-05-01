@@ -23,7 +23,7 @@ package org.flockdata.engine.configure;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.integration.search.SearchGateway;
-import org.flockdata.engine.integration.store.StorageGateway;
+import org.flockdata.engine.integration.store.StorePingRequest;
 import org.flockdata.model.Company;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.VersionHelper;
@@ -80,7 +80,7 @@ public class EngineConfig implements PlatformConfig {
     SearchGateway searchGateway;
 
     @Autowired
-    StorageGateway storageGateway;
+    StorePingRequest.StorePingGateway storePingGateway;
 
     @Autowired (required = false)
     AmqpRabbitConfig rabbitConfig;
@@ -244,7 +244,7 @@ public class EngineConfig implements PlatformConfig {
         healthResults.put("fd-search",  esPingResult + " on " +fdSearch);
 
         try {
-            String esPing = storageGateway.ping();
+            String esPing = storePingGateway.ping();
             esPingResult = (esPing == null || !esPing.equals("pong") ? "Problem" : "Ok");
         } catch (Exception ce) {
             esPingResult = "!Unreachable ";

@@ -338,7 +338,7 @@ public class TestFdIntegration {
 //
 //        SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
 //        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound"));
-//        assertTrue("Search should not be disabled", fortressA.isSearchEnabled());
+//        assertTrue("Search should not be disabled", fortressA.isSearchActive());
 //        String docType = "Contract";
 //        String callerRef = "PDF-TRACK-123";
 //        EntityInputBean entityInputBean =
@@ -1725,7 +1725,7 @@ public class TestFdIntegration {
 //        engineConfig.setStoreEnabled("false");
 //
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
-//        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+//        assertTrue("Search not enabled- this test will fail", fortress.isSearchActive());
 //
 //        DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-498")
 //                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
@@ -1828,7 +1828,7 @@ public class TestFdIntegration {
 //            // Includes the default segment. Do we want this behaviour??
 //            assertEquals(3, fortressService.getSegments(fortress).size());
 //
-//            assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
+//            assertTrue("Search not enabled- this test will fail", fortress.isSearchActive());
 //
 //            DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-506");
 //            EntityInputBean entityInputBean =

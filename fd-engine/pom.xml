@@ -16,15 +16,12 @@
     <properties>
         <license-text.header>GPL-3-header.txt</license-text.header>
         <docs.url>http://wiki.flockdata.com</docs.url>
+        <neo4j.jersey.version>1.19.1</neo4j.jersey.version>
         <start-class>org.flockdata.engine.FdEngine</start-class>
     </properties>
 
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-server</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -43,11 +40,6 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -178,12 +170,12 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>1.18.1</version>
+            <version>${neo4j.jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
-            <version>1.18.1</version>
+            <version>${neo4j.jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
@@ -208,10 +200,6 @@
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-cypher</artifactId>
                 </exclusion>
-                <!--<exclusion>-->
-                <!--<groupId>org.neo4j</groupId>-->
-                <!--<artifactId>neo4j-kernel</artifactId>-->
-                <!--</exclusion>-->
             </exclusions>
         </dependency>
         <dependency>
@@ -220,13 +208,6 @@
             <version>2.6.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- Servlet -->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tomcat</groupId>-->
-        <!--<artifactId>tomcat-servlet-api</artifactId>-->
-        <!--<version>7.0.47</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
@@ -251,18 +232,6 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
         </dependency>
-        <!-- Spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <exclusions>
-                <!-- Exclude Commons Logging in favor of SLF4j -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -278,10 +247,6 @@
             <artifactId>spring-beans</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
@@ -325,6 +290,20 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.2.4.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
