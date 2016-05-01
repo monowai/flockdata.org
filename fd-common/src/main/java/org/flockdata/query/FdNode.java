@@ -16,6 +16,9 @@
 
 package org.flockdata.query;
 
+import org.flockdata.helper.TagHelper;
+import org.neo4j.graphdb.Node;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +29,18 @@ import java.util.Map;
  */
 public class FdNode {
     Map<String,Object>data = new HashMap<>();
-    public FdNode(){}
+    public FdNode(Node node){
+        data.put("id", node.getId());
+        if ( node.hasProperty("name") ) {
+            data.put("name", node.getProperty("name"));
+            data.put("code", node.getProperty("code"));
+        } else {
+            data.put("name", node.getProperty("code"));
+        }
+        data.put("nodeType", TagHelper.getLabel(node.getLabels()));
+        data.put("tag", true);
+
+    }
 
     public FdNode(String key, Object value) {
         data.put("id", key);
@@ -45,6 +59,10 @@ public class FdNode {
 //    @JsonIgnore
     public Object getName() {
         return data.get("name");
+    }
+
+    public String getNodeType(){
+        return data.get("nodeType").toString();
     }
 
     @Override

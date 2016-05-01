@@ -35,7 +35,7 @@ var fdView = angular.module('fdView', [
   'fdView.directives',
   'http-auth-interceptor',
   'ab.graph.matrix.directives',
-  'ngCytoscape',
+  // 'ngCytoscape',
   // 'rzModule',
   'ng.jsoneditor'
 ])

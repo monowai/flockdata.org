@@ -20,78 +20,169 @@
 
 'use strict';
 
-fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$window', '$controller', 'configuration',
-  function ($scope, $http, QueryService, $window, $controller, configuration) {
-    $scope.weight = 40;
-    var graph={};
-    $scope.slider ={
-      value: $scope.weight,
-      options: {
-        floor: 5,
-        ceil: 100,
-        hideLimitLabels: true
-      }
-    };
-    $scope.graph = {};
-    $http.get('NetworkGraph.json').success(function(graph){
-      // netGraph(graph, $scope.weight);
-      // var elems ={nodes:[],edges:[]};
-      for (var i = 0; i < graph.edges.length; i++) {
-        $scope.graph['e'+i] = {
-          data: {
-            id: i,
-            source: graph.edges[i].source,
-            target: graph.edges[i].target,
-          },
-          group: "edges"
-        };
+fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration', 'cyGraph',
+  function ($scope, $http, QueryService, $compile, $controller, configuration, cyGraph) {
+    $scope.matrix = QueryService.lastMatrix();
+    if(_.isEmpty($scope.matrix)) {
+      angular.element('[data-target="#search"]').tab('show');
+      $scope.graphData = [];
+    } else $scope.graphData=$scope.matrix;
 
-      };
-      for (var i = 0; i < graph.nodes.length; i++) {
-        $scope.graph['n'+i] = {
-          data: {
-            id: graph.nodes[i].key,
-            name: graph.nodes[i].value,
-            weight: 30
-          },
-          group: "nodes"
-        };
-      };
+    $scope.layouts = [{name: 'cose'},
+      {name: 'grid'},{name: 'concentric'},
+      {name: 'circle'},{name: 'random'}];
+    $scope.layout = $scope.layouts[0];
+    $scope.minCount = 1;
+    $scope.resultSize = 1000;
+    $scope.sharedRlxChecked = true;
+    $scope.reciprocalExcludedChecked = true;
+    $scope.sumByCountChecked = true;
+    if (configuration.devMode()) {
+      $scope.devMode = 'true';
+    } else {
+      delete $scope.devMode;
+    }
+
+    QueryService.general('fortress').then(function (data) {
+      $scope.fortresses = data;
     });
-    $scope.layout = {name:'cose'};
-    $scope.styles =[
-      {
-        selector: 'node',
-        style: {
-          'content': 'data(name)',
-          'font-size': '15pt',
-          'min-zoomed-font-size': '9pt',
-          'text-halign': 'center',
-          'text-valign': 'center',
-          'color': 'white',
-          'width': 'data(weight)',
-          'height': 'data(weight)',
-          'text-outline-width': 2,
-          'text-outline-color': '#888'
-        }
-      },
-      {
-        selector: 'edge',
-        style: {
-          'width': 3,
-          'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'triangle'
-        }
-      },
-      {
-        selector: ':selected',
-        style: {
-          'background-color': 'black',
-          'line-color': 'black',
-          'target-arrow-color': 'black',
-          'source-arrow-color': 'black',
-          'text-outline-color': 'black'
-        }
-      }
+
+    $scope.selectFortress = function () {
+      QueryService.query('documents', $scope.fortress).then(function (data) {
+        $scope.documents = data;
+      });
+      $scope.concepts = [];
+      $scope.fromRlxs = [];
+      $scope.toRlxs = [];
+    };
+    $scope.selectDocument = function () {
+      QueryService.query('concepts', $scope.document).then(function (data) {
+        var conceptMap = _.flatten(_.pluck(data, 'concepts'));
+        $scope.concepts = _.uniq(conceptMap, function (c) {
+          return c.name;
+        });
+      });
+      $scope.fromRlxs = [];
+      $scope.toRlxs = [];
+    };
+
+    $scope.selectAllFromRlx = function () {
+      var filtered = filter($scope.fromRlxs);
+
+      angular.forEach(filtered, function (item) {
+        item.selected = true;
+      });
+    };
+
+    $scope.selectConcept = function () {
+      QueryService.query('relationships', $scope.document).then(function (data) {
+        var conceptMap = _.filter(_.flatten(_.pluck(data, 'concepts')), function (c) {
+          return _.contains($scope.concept, c.name);
+        });
+        var rlxMap = _.flatten(_.pluck(conceptMap, 'relationships'));
+        var rlx = _.uniq(rlxMap, function (c) {
+          return c.name;
+        });
+        $scope.fromRlxs = rlx;
+        $scope.toRlxs = rlx;
+
+      });
+    };
+
+    $scope.styles = [
+      {'selector': 'node',
+      'css': {
+        'content': 'data(name)',
+        'font-size': '15pt',
+        'min-zoomed-font-size': '9pt',
+        'text-halign': 'center',
+        'text-valign': 'center',
+        'color': 'white',
+        'text-outline-width': 2,
+        'text-outline-color': '#888',
+        'width': '40',//'mapData(degree,0,5,20,80)',
+        'height': '40',//'mapData(degree,0,5,20,80)',
+        // 'shape': 'roundrectangle'
+      }},
+    {'selector':'edge',
+      'css':{
+        'width': 3,
+        'target-arrow-color': '#ccc',
+        'target-arrow-shape': 'triangle'
+      }},
+    {'selector':':selected',
+      'css':{
+        'background-color': 'black',
+        'line-color': 'black',
+        'target-arrow-color': 'black',
+        'source-arrow-color': 'black',
+        'text-outline-color': 'black'
+      }},
+    {'selector':'.mouseover',
+      'css':{
+        'color':'#499ef0'
+      }}
     ];
+
+    //$scope.node = {};
+
+    $scope.search = function () {
+      angular.element('[data-target="#view"]').tab('show');
+      if ($scope.sharedRlxChecked) {
+        $scope.toRlx = $scope.fromRlx;
+      }
+      $scope.msg = '';
+
+      QueryService.matrixSearch($scope.fortress,
+        $scope.searchText,
+        $scope.resultSize,
+        $scope.document,
+        $scope.sumByCountChecked,
+        $scope.concept,
+        $scope.fromRlx,
+        $scope.toRlx,
+        $scope.minCount,
+        $scope.reciprocalExcludedChecked,
+        true).then(function (data) {
+          if (!data || data.length === 0) {
+            $scope.msg = 'No Results.';
+            return data;
+          } else {
+            $scope.msg = null;
+          }
+
+          $scope.graphData = data;
+          // cyGraph($scope.graphData);
+        });
+
+    };
+
+    // $scope.openView = function () {
+    //   angular.element('[data-target="#view"]').tab('show');
+    // };
+    //
+    // $scope.changeLayout = function () {
+    //   console.log('change');
+    //   if ($scope.layout === {name:'cose'}) $scope.layout={name:'grid'};
+    //   else $scope.layout = {name: 'cose'};
+    // };
+
+    // QueryService.matrixSearch(["medline"],"cervical",1000,
+    //   ["Study"],true,["Person"],["lead","writer"],
+    //   ["lead","writer"],1,true,true)
+    //     .then(function (data) {
+    //       console.log(data);
+    //       $scope.graphData=data;
+    //     });
+    // cyGraph.on('click', function (e) {
+    //   var et = e.cyTarget;
+    //   if(et === cyGraph) console.log('Clicked');
+    // });
+    // $http.post(configuration.engineUrl() + '/api/v1/query/matrix/', req)
+    //   .then(function (response){
+    //     csService(response.data);
+    //   });
+
+
+
   }]);
