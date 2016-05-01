@@ -39,11 +39,8 @@ spring:
       enabled: 'true' # enable http encoding support
       force: 'true' # force the configured encoding
 
-
 application:
   title: FlockData GraphWriter
-
-
 
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline

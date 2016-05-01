@@ -39,6 +39,9 @@ import org.flockdata.registration.service.CompanyService;
 import org.flockdata.registration.service.RegistrationService;
 import org.flockdata.registration.service.SystemUserService;
 import org.flockdata.shared.IndexManager;
+import org.flockdata.test.engine.MapBasedStorageProxy;
+import org.flockdata.test.engine.MockFdBatcher;
+import org.flockdata.test.engine.Neo4jConfigTest;
 import org.flockdata.track.service.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,11 +68,13 @@ import static org.junit.Assert.*;
  * User: mike Date: 16/06/14 Time: 7:54 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(FdEngine.class)
+@SpringApplicationConfiguration({FdEngine.class,
+        Neo4jConfigTest.class,
+        MockFdBatcher.class,
+        MapBasedStorageProxy.class})
 
 @ActiveProfiles({"dev", "fd-auth-test", "fd-batch"})
 public abstract class EngineBase {
-
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
@@ -101,10 +106,8 @@ public abstract class EngineBase {
     @Autowired
     IndexManager indexHelper;
 
-    @Qualifier("mediationFacadeNeo")
     @Autowired
-    protected
-    MediationFacade mediationFacade;
+    protected MediationFacade mediationFacade;
 
     @Autowired
     TxService txService;
@@ -136,7 +139,7 @@ public abstract class EngineBase {
 
     @Autowired
     @Deprecated // Use companyService instead
-    CompanyEP companyEP;
+            CompanyEP companyEP;
 
     @Autowired
     SearchServiceFacade searchService = new SearchServiceFacade();
@@ -183,7 +186,7 @@ public abstract class EngineBase {
     }
 
     @Before
-    public void setSecurity() throws Exception{
+    public void setSecurity() throws Exception {
         engineConfig.setMultiTenanted(false);
         engineConfig.setTestMode(true); // prevents Async log processing from occurring
         engineConfig.setStoreEnabled(true);

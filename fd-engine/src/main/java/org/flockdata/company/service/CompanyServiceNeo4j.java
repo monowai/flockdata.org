@@ -21,7 +21,7 @@
 package org.flockdata.company.service;
 
 
-import org.flockdata.engine.PlatformConfig;
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.model.Company;
 import org.flockdata.model.SystemUser;
@@ -48,7 +48,7 @@ public class CompanyServiceNeo4j implements CompanyService {
     KeyGenService keyGenService;
 
     @Autowired
-    PlatformConfig platformConfig;
+    EngineConfig engineConfig;
 
     @Autowired
     SchemaService schemaService;

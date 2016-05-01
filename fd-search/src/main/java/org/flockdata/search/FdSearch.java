@@ -31,7 +31,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * Time: 7:36 AM
  */
 @SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.shared", "org.flockdata.authentication"})
-@EnableDiscoveryClient()
+@EnableDiscoveryClient
 public class FdSearch {
 
     public static void main(String[] args) {

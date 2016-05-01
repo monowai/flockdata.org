@@ -23,19 +23,19 @@ package org.flockdata.engine.integration.store;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.Exchanges;
 import org.flockdata.shared.MessageSupport;
+import org.flockdata.store.bean.StorageBean;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
-import org.springframework.integration.annotation.IntegrationComponentScan;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.annotation.Transformer;
+import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * Created by mike on 20/02/16.
@@ -53,6 +53,13 @@ public class StorageWriter {
 
     @Autowired
     MessageSupport messageSupport;
+
+    @MessagingGateway
+    public interface StorageWriterGateway {
+        @Gateway(requestChannel = "startStoreWrite", requestTimeout = 5000, replyChannel = "nullChannel")
+        @Async("fd-store")
+        void write(StorageBean resultBean);
+    }
 
     @Bean
     MessageChannel storeWrite(){

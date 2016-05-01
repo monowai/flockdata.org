@@ -29,7 +29,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * Created by mike on 17/02/16.
  */
 @SpringBootApplication(scanBasePackages = { "org.flockdata.store", "org.flockdata.authentication", "org.flockdata.shared"})
-@EnableDiscoveryClient()
+@EnableDiscoveryClient
 public class FdStore {
     public static void main(String[] args) {
         new SpringApplicationBuilder(FdStore.class).web(true).run(args);
