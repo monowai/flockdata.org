@@ -23,7 +23,8 @@
 fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile', '$controller', 'configuration', 'cyGraph',
   function ($scope, $http, QueryService, $compile, $controller, configuration, cyGraph) {
     $scope.matrix = QueryService.lastMatrix();
-    if(!$scope.matrix) {
+    if(_.isEmpty($scope.matrix)) {
+      angular.element('[data-target="#search"]').tab('show');
       $scope.graphData = [];
     } else $scope.graphData=$scope.matrix;
 
@@ -87,7 +88,6 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
 
       });
     };
-    // $scope.graphData = [];
 
     $scope.styles = [
       {'selector': 'node',
@@ -100,8 +100,9 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
         'color': 'white',
         'text-outline-width': 2,
         'text-outline-color': '#888',
-        'width': 30,//'mapData(degree,0,5,20,80)',
-        'height': 30//'mapData(degree,0,5,20,80)'
+        'width': '40',//'mapData(degree,0,5,20,80)',
+        'height': '40',//'mapData(degree,0,5,20,80)',
+        // 'shape': 'roundrectangle'
       }},
     {'selector':'edge',
       'css':{
@@ -119,13 +120,14 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
       }},
     {'selector':'.mouseover',
       'css':{
-        'color':'#272C2F'
+        'color':'#499ef0'
       }}
     ];
 
     //$scope.node = {};
 
     $scope.search = function () {
+      angular.element('[data-target="#view"]').tab('show');
       if ($scope.sharedRlxChecked) {
         $scope.toRlx = $scope.fromRlx;
       }
@@ -149,7 +151,6 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
             $scope.msg = null;
           }
 
-          angular.element('[data-target="#view"]').tab('show');
           $scope.graphData = data;
           // cyGraph($scope.graphData);
         });

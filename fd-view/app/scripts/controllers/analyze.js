@@ -20,8 +20,8 @@
 
 'use strict';
 
-fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$controller', 'configuration',
-  function ($scope, QueryService, $window, $controller, configuration) {
+fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$controller', '$timeout', 'configuration',
+  function ($scope, QueryService, $window, $controller, $timeout, configuration) {
     $scope.minCount = 1;
     $scope.resultSize = 1000;
     $scope.sharedRlxChecked = true;
@@ -35,13 +35,14 @@ fdView.controller('AnalyzeCtrl', ['$scope', 'QueryService', '$window', '$control
     }
 
     $scope.matrix = QueryService.lastMatrix();
-    if(!$scope.matrix) {
+    if(_.isEmpty($scope.matrix)) {
       $scope.graphData = [];
-      // console.log($scope.matrix);
     } else {
-      $scope.graphData=$scope.matrix;
-    }
-
+      $scope.graphData=$scope.matrix.edges;
+      $timeout(function () {
+        $scope.switchChart();
+      }, 10);
+    };
 
     QueryService.general('fortress').then(function (data) {
       $scope.fortresses = data;
