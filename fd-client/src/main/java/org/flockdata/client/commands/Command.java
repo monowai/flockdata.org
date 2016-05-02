@@ -19,10 +19,15 @@ package org.flockdata.client.commands;
 /**
  * Created by mike on 4/04/16.
  */
-@FunctionalInterface
-public interface Command {
+public interface Command<T> {
 
-    String exec();
+    Command exec();
+
+    String error();
+
+    T result();
+
+    boolean worked();
 
 }
 

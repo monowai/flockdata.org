@@ -17,20 +17,32 @@
 package org.flockdata.test.integration;
 
 import me.tongfei.progressbar.ProgressBar;
-import org.flockdata.client.commands.Command;
-import org.flockdata.client.commands.EntityGet;
-import org.flockdata.client.commands.EntityLogsGet;
+import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.commands.*;
+import org.flockdata.client.rest.FdRestWriter;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.shared.*;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.flockdata.test.integration.FdDocker.stack;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 
 /**
@@ -40,9 +52,21 @@ import java.util.Collection;
  */
 @Service
 @Configuration
+@SpringApplicationConfiguration({
+        ClientConfiguration.class,
+        FdBatcher.class,
+        FdRestWriter.class,
+        Exchanges.class,
+        FileProcessor.class,
+        AmqpRabbitConfig.class,
+        AmqpServices.class
+
+})
 class IntegrationHelper {
 
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
+
+//    private static DockerStack stack = new DockerStack();
 
     @Value("${org.fd.test.sleep:1000}")
     private int sleep;
@@ -50,13 +74,32 @@ class IntegrationHelper {
     @Value("${org.fd.test.attempts:100}")
     private int attempts;
 
+    @Value("${org.fd.test.pause:150}")
+    private
+    int waitSeconds;
+
+
+    static final int DEBUG_ENGINE = 61000;
+    static final int DEBUG_SEARCH = 61001;
+    static final int DEBUG_STORE = 61002;
+
+    static final int SERVICE_ENGINE = 8090;
+    static final int SERVICE_SEARCH = 8091;
+    static final int SERVICE_STORE = 8092;
+
+    private static boolean setupComplete = false;
+
+    // If any one of FD's services fail to come up we can't perform integration testing
+    private static boolean stackFailed = false;
+
+
     Collection<EntityInputBean> toCollection(EntityInputBean entityInputBean) throws IOException {
         Collection<EntityInputBean> entities = new ArrayList<>();
         entities.add(entityInputBean);
         return entities;
     }
 
-    void waitUntil(ReadyMatcher readyMatcher) {
+    private void waitUntil(ReadyMatcher readyMatcher) {
         ProgressBar pb = null;
         StopWatch watch = new StopWatch();
         watch.start(readyMatcher.getMessage());
@@ -92,23 +135,23 @@ class IntegrationHelper {
     }
 
     void waitForEntityLog(EntityLogsGet entityLogs, int waitFor) {
-        EntityLogReady waiter = new EntityLogReady(entityLogs, waitFor);
-        waitUntil(waiter);
+        EntityLogReady ready = new EntityLogReady(entityLogs, waitFor);
+        waitUntil(ready);
     }
 
     // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
     // is working on.
     void waitForEntityKey(EntityGet entityGet) {
-        EntityKeyReady waiter = new EntityKeyReady(entityGet);
-        waitUntil(waiter);
+        EntityKeyReady ready = new EntityKeyReady(entityGet);
+        waitUntil(ready);
     }
 
     void waitForSearch(EntityGet entityGet, int searchCount) {
-        EntitySearchReady waiter = new EntitySearchReady(entityGet, searchCount);
-        waitUntil(waiter);
+        EntitySearchReady ready = new EntitySearchReady(entityGet, searchCount);
+        waitUntil(ready);
     }
 
-    void pauseUntil(Command optionalCommand, String commandResult, int waitCount) throws InterruptedException {
+    private void waitForPong(Ping pingCommand, int waitCount) throws InterruptedException {
         // A nice little status bar to show how long we've been hanging around
         ProgressBar pb = new ProgressBar("Looking for services.... ", waitCount);
         pb.start();
@@ -117,12 +160,13 @@ class IntegrationHelper {
             run++;
             pb.step();
             // After waiting for 40% of the waitCount will try running the command if it exists
-            if (optionalCommand != null && run % 10 == 0 && (((double) run) / waitCount) > .3) {
+            if (pingCommand != null && run % 10 == 0 && (((double) run) / waitCount) > .3) {
                 // After 1 minute we will ping to see if we can finish this early
-                String result = optionalCommand.exec();
-                if (result.equals(commandResult)) {
+
+                if (pingCommand.exec().worked() && pingCommand.result().equals("pong")) {
                     // We can finish early
                     pb.stepBy((waitCount - run));
+                    logger.info("finished after {}", run);
                     return;
 
                 }
@@ -133,5 +177,184 @@ class IntegrationHelper {
         } while (run != waitCount);
     }
 
+    /**
+     *
+     * Executes and asserts that the command worked
+     *
+     * @param message assertion message
+     * @param command to check
+     */
+    void assertWorked(String message, Command command) {
+        command.exec();
+        assertTrue(message + command.error(), command.worked());
+
+    }
+
+    private void waitForService(String service, Ping pingCommand, String url, int countDown) throws InterruptedException {
+
+        if (stackFailed)
+            return;
+        logger.info("looking for {}", service);
+        do {
+            countDown--;
+
+            if (pingCommand.exec().worked() && !pingCommand.result().equals("pong")) {
+                int waitSecs = (stack == null ? 2 : 60);
+                logger.info("Waiting {} seconds for {} to come on-line", waitSecs, service);
+                waitForPong(pingCommand, waitSecs);
+            }
+
+        } while (!Objects.equals(pingCommand.result(), "pong") && countDown > 0);
+
+        if (pingCommand.worked() && !pingCommand.result().equals("pong")) {
+            setupComplete = true;
+            stackFailed = true;
+            fail("Failed to ping " + service + " before timeout");
+        }
+        logger.info("{} is running. [{}]", service, url);
+    }
+
+    @Autowired
+    ClientConfiguration clientConfiguration;
+
+    @Autowired
+    FdRestWriter fdRestWriter;
+
+    @Autowired
+    AmqpRabbitConfig rabbitConfig;
+
+    @PostConstruct
+    public void waitForServices() throws InterruptedException {
+        logger.info("Wating for containers to come on-line");
+
+        clientConfiguration.setServiceUrl(getEngine());
+        if (stackFailed)
+            fail("Stack has failed to startup cleanly - test will fail");
+        if (setupComplete)
+            return; // This method is called before every @Test - it's expensive :o)
+
+        logger.debug("Running with debug logging");
+        clientConfiguration.setServiceUrl(getEngine());
+        Ping enginePing = new Ping(clientConfiguration, fdRestWriter);
+        clientConfiguration.setServiceUrl(getStore());
+        Ping storePing = new Ping(clientConfiguration, fdRestWriter);
+        clientConfiguration.setServiceUrl(getSearch());
+        Ping searchPing = new Ping(clientConfiguration, fdRestWriter);
+        rabbitConfig.setServicePoint(getIpAddress(), getRabbitPort());
+
+        logger.info("FDEngine - {} - reachable @ {}", SERVICE_ENGINE, getEngine());
+        logger.info("FDSearch - {} - reachable @ {}", SERVICE_SEARCH, getSearch());
+        logger.info("FDStore - {} - reachable @ {}", SERVICE_STORE, getStore());
+        logger.info("FDEngine-Debug - {} - reachable @ {}", DEBUG_ENGINE, getIpAddress() + ":" + getEngineDebug());
+        logger.info("FDSearch-Debug - {} - reachable @ {}", DEBUG_SEARCH, getIpAddress() + ":" + getSearchDebug());
+        logger.info("FDStore-Debug  - {} - reachable @ {}", DEBUG_STORE, getIpAddress() + ":" + getStoreDebug());
+        logger.info("Rabbit Admin on http://{}:{}", getIpAddress(), getRabbitAdmin());
+        // ToDo: Bind in yourkit profiler and expose port
+
+        logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
+
+        if (stack != null)
+            waitForPong(enginePing, waitSeconds);
+
+        waitForService("fd-engine", enginePing, getEngine(), 30);
+        waitForService("fd-search", searchPing, getSearch(), 30);
+        waitForService("fd-store", storePing, getStore(), 30);
+        // If the services can't see each other, its not worth proceeding
+        interServiceHealthCheck();
+
+        if (!stackFailed)
+            logger.info("Stack is running");
+        else
+            logger.error("Failed to start the stack");
+
+        setupComplete = true;
+    }
+
+
+    private static String getUrl() {
+
+        return "http://" + getIpAddress();
+    }
+
+    private Integer getRabbitAdmin() {
+        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 15672) : 15672);
+    }
+
+    static String getEngine() {
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", SERVICE_ENGINE) : SERVICE_ENGINE);
+    }
+
+    private Integer getRabbitPort() {
+        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("rabbit_1", 5672) : 5672);
+    }
+
+    String getSearch() {
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", SERVICE_SEARCH) : SERVICE_SEARCH);
+    }
+
+    String getStore() {
+        return getUrl() + ":" + (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", SERVICE_STORE) : SERVICE_STORE);
+    }
+
+    private Integer getEngineDebug() {
+        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdengine_1", DEBUG_ENGINE) : DEBUG_ENGINE);
+    }
+
+    private Integer getSearchDebug() {
+        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdsearch_1", DEBUG_SEARCH) : DEBUG_SEARCH);
+    }
+
+    private Integer getStoreDebug() {
+        return (FdDocker.getStack() != null ? FdDocker.getStack().getServicePort("fdstore_1", DEBUG_STORE) : DEBUG_STORE);
+    }
+
+    private static String getIpAddress() {
+        if ( stack == null )
+            return "192.168.99.100";
+        else
+            return FdDocker.getStack().getContainerIpAddress();
+
+        //return DockerClientFactory.instance().dockerHostIpAddress();
+    }
+
+    /**
+     * A login is associated with a single company. Create different fortresses to partion
+     * data access users.
+     * <p>
+     * The user name you want to create has to exist in the security context otherwise login will fail
+     *
+     * @return details about the DataAcessUser
+     */
+    SystemUserResultBean makeDataAccessUser() {
+        return fdRestWriter.register("mike", "TestCompany");
+    }
+
+    Login login(String user, String pass) {
+        clientConfiguration.setServiceUrl(getEngine())
+                .setHttpUser(user)
+                .setHttpPass(pass);
+
+        return new Login(clientConfiguration, fdRestWriter);
+    }
+
+    /**
+     * Engine connects to both search and store over HTTP so here we verify that
+     * connectivity is working
+     */
+    private void interServiceHealthCheck() {
+        Login login = login("mike", "123");
+        assertWorked("Login error ", login.exec());
+        assertTrue("Unexpected login error "+login.error(), login.worked());
+        Health health = new Health(clientConfiguration, fdRestWriter);
+        assertWorked("Health Check", health.exec());
+
+        Map<String, Object> healthResult = health.result();
+        assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
+        assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
+        assertTrue("Failure for fd-engine to connect to fd-search in the container", healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
+        assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
+        assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
+
+    }
 
 }

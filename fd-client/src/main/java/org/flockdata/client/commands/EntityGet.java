@@ -35,7 +35,7 @@ public class EntityGet extends AbstractRestCommand  {
 
     private EntityInputBean entityInputBean;
 
-    private EntityBean results;
+    private EntityBean result;
 
     private String key;
 
@@ -50,14 +50,14 @@ public class EntityGet extends AbstractRestCommand  {
     }
 
 
-    public EntityBean getResult() {
-        return results;
+    public EntityBean result() {
+        return result;
     }
 
     @Override
-    public String exec() {
+    public EntityGet exec() {
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
-
+        result=null;   error =null;
         try {
 
             ResponseEntity<EntityBean> response ;
@@ -69,14 +69,11 @@ public class EntityGet extends AbstractRestCommand  {
                         entityInputBean.getDocumentType().getName(),
                         entityInputBean.getCode());
 
-            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+
+        } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }

@@ -40,6 +40,6 @@ public class EntitySearchReady implements ReadyMatcher {
     @Override
     public boolean isReady() {
         entityGet.exec();
-        return entityGet.getResult() != null && entityGet.getResult().getSearch() == waitFor;
+        return entityGet.result() != null && entityGet.result().getSearch() == waitFor;
     }
 }

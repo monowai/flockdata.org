@@ -35,7 +35,7 @@ public class SearchFdPost extends AbstractRestCommand {
 
     private QueryParams queryParams;
 
-    private EsSearchResult results;
+    private EsSearchResult result;
 
     public SearchFdPost(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, QueryParams queryParams) {
         super(clientConfiguration, fdRestWriter);
@@ -43,12 +43,13 @@ public class SearchFdPost extends AbstractRestCommand {
     }
 
 
-    public EsSearchResult getResult() {
-        return results;
+    public EsSearchResult result() {
+        return result;
     }
 
     @Override
-    public String exec() {
+    public SearchFdPost exec() {
+        result =null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
 
         try {
@@ -56,14 +57,10 @@ public class SearchFdPost extends AbstractRestCommand {
             ResponseEntity<EsSearchResult> response;
             response = restTemplate.exchange(url + "/api/v1/query/", HttpMethod.POST, requestEntity, EsSearchResult.class);
 
-            results = response.getBody();
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+            result = response.getBody();
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }

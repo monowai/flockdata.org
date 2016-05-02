@@ -45,8 +45,6 @@ application:
 # Example Stormpath configuration
 # You pass FD_HOME on your commandline
 
-# Message queues - Balance against ack/nack rate throughput
-# Threadpools
 org.fd:
   engine:
     # Defaults on creation of a fortress if not otherwise supplied

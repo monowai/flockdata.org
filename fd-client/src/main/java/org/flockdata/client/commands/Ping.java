@@ -39,25 +39,28 @@ public class Ping extends AbstractRestCommand {
             super(clientConfiguration,restWriter);
     }
 
-    public String getResult() {
+    public String result() {
         return result;
     }
 
     @Override    // Command
-    public String exec() {
+    public Ping exec() {
+        result=null;
+        error = null;
         String exec = url + "/api/ping/";
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response = restTemplate.exchange(exec, HttpMethod.GET, requestEntity, String.class);
             result = response.getBody();
+            error = null;
         } catch (HttpClientErrorException e) {
             if (e.getMessage().startsWith("401"))
-                result = "auth";
+                error = "auth";
             else
-                result = e.getMessage();
+                error = e.getMessage();
         } catch (HttpServerErrorException | ResourceAccessException e) {
-            result = e.getMessage();
+            error = e.getMessage();
         }
-        return result;
+        return this;
     }
 }

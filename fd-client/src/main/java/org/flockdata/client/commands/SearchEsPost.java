@@ -45,12 +45,13 @@ public class SearchEsPost extends AbstractRestCommand {
     }
 
 
-    public Map<String,Object> getResult() {
+    public Map<String,Object> result() {
         return result;
     }
 
     @Override
-    public String exec() {
+    public SearchEsPost exec() {
+        result=null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(queryParams,httpHeaders);
 
         try {
@@ -59,13 +60,9 @@ public class SearchEsPost extends AbstractRestCommand {
             response = restTemplate.exchange(url + "/api/v1/query/es", HttpMethod.POST, requestEntity, responseType);
 
             result = response.getBody();
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }
