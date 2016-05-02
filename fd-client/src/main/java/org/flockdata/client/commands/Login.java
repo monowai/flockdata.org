@@ -41,17 +41,18 @@ public class Login extends AbstractRestCommand{
         super(clientConfiguration, restWriter);
     }
 
-    public UserProfile getResult() {
+    public UserProfile result() {
         return result;
     }
 
     /**
      *
-     * @return an error message (if one occurred) and null if everything is worked. Call getResult() to get, umm, the result
+     * @return an error message (if one occurred) and null if everything is worked. Call result() to get, umm, the result
      */
     @Override    // Command
-    public String exec() {
+    public Login exec() {
         String exec = url + "/api/login";
+        result = null; error =null;
         try {
             ResponseEntity<UserProfile> response;
             HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user,pass), httpHeaders);
@@ -66,6 +67,6 @@ public class Login extends AbstractRestCommand{
         } catch (HttpServerErrorException | ResourceAccessException e) {
             error = e.getMessage();
         }
-        return error;
+        return this;
     }
 }

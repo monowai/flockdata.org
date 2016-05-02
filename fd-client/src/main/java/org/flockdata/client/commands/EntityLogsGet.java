@@ -42,12 +42,13 @@ public class EntityLogsGet extends AbstractRestCommand {
     }
 
 
-    public EntityLogResult[] getResult() {
+    public EntityLogResult[] result() {
         return results;
     }
 
     @Override
-    public String exec() {
+    public EntityLogsGet exec() {
+        results=null;   error =null;
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
@@ -57,13 +58,9 @@ public class EntityLogsGet extends AbstractRestCommand {
 
 
             results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }

@@ -37,23 +37,19 @@ import java.util.Map;
 public class Health extends AbstractRestCommand {
 
     Map<String,Object> result;
-    String error = null;
 
     public Health(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
         super(clientConfiguration, restWriter);
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public Map<String,Object> getResult() {
+    public Map<String,Object> result() {
         return result;
     }
 
     @Override    // Command
-    public String exec() {
+    public Health exec() {
         String exec = url + "/api/v1/admin/health/";
+        result=null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
         try {
             ResponseEntity<String> response;
@@ -67,6 +63,6 @@ public class Health extends AbstractRestCommand {
         } catch (HttpServerErrorException | ResourceAccessException | IOException e) {
             error = e.getMessage();
         }
-        return error;
+        return this;
     }
 }

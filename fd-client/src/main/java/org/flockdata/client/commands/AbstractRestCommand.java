@@ -27,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * Created by mike on 13/04/16.
  */
-abstract class AbstractRestCommand implements Command {
+abstract class AbstractRestCommand<T> implements Command {
 
     String url;
     RestTemplate restTemplate;
@@ -35,6 +35,7 @@ abstract class AbstractRestCommand implements Command {
     String error = null;
     String user = null;
     String pass = null;
+
 
     /**
      * Set's the basic immutable properties for this command
@@ -55,7 +56,12 @@ abstract class AbstractRestCommand implements Command {
         return url;
     }
 
-    public String getError() {
+    // NULL if no error
+    public String error() {
         return error;
+    }
+
+    public boolean worked() {
+        return error == null;
     }
 }

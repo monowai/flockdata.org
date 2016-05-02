@@ -25,6 +25,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Locate a tag
@@ -41,21 +42,21 @@ public class TrackEntityPost extends AbstractRestCommand  {
         this.entityInputBean = entityInputBean;
     }
 
-    public TrackRequestResult getResult() {
+    public TrackRequestResult result() {
         return result;
     }
 
     @Override
-    public String exec() {
+    public TrackEntityPost exec() {
+        result=null; error =null;
         HttpEntity<EntityInputBean> requestEntity = new HttpEntity<>(entityInputBean, httpHeaders);
 
         try {
             ResponseEntity<TrackRequestResult> restResult = restTemplate.exchange(url+"/api/v1/track/", HttpMethod.POST, requestEntity, TrackRequestResult.class);
             result = restResult.getBody();
-            return null;
-        } catch (HttpClientErrorException |HttpServerErrorException e) {
-
-            return e.getMessage();
+        }catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
+        return this;// Everything worked
     }
 }

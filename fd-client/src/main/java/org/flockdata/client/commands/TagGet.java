@@ -35,7 +35,7 @@ public class TagGet extends AbstractRestCommand  {
     private String label;
     private String code;
 
-    private TagResultBean results;
+    private TagResultBean result;
 
     public TagGet(ClientConfiguration clientConfiguration, FdRestWriter fdRestWriter, String label, String code) {
         super(clientConfiguration, fdRestWriter);
@@ -43,26 +43,23 @@ public class TagGet extends AbstractRestCommand  {
         this.code = code;
     }
 
-    public TagResultBean getResult() {
-        return results;
+    public TagResultBean result() {
+        return result;
     }
 
     @Override
-    public String exec() {
+    public TagGet exec() {
+        result=null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(httpHeaders);
 
         try {
             ResponseEntity<TagResultBean> response ;
                 response = restTemplate.exchange(url+"/api/v1/tag/{label}/{code}", HttpMethod.GET, requestEntity, TagResultBean.class, label,code );
 
-            results = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+            result = response.getBody();//JsonUtils.toCollection(response.getBody(), TagResultBean.class);
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }

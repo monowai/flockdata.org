@@ -50,24 +50,21 @@ public class RegistrationPost extends AbstractRestCommand {
 
     }
 
-    public SystemUserResultBean getResult() {
+    public SystemUserResultBean result() {
         return result;
     }
 
     @Override
-    public String exec() {
+    public RegistrationPost exec() {
+        result=null; error =null;
         HttpEntity requestEntity = new HttpEntity<>(registrationBean, httpHeaders);
 
         try {
             ResponseEntity<SystemUserResultBean> response = restTemplate.exchange(url+"/api/v1/profiles/", HttpMethod.POST, requestEntity, SystemUserResultBean.class);
             result = response.getBody();
-        } catch (HttpClientErrorException e) {
-            return e.getMessage();
-        } catch (HttpServerErrorException e) {
-            return e.getMessage();
-        } catch (ResourceAccessException e) {
-            return e.getMessage();
+        } catch (HttpClientErrorException | ResourceAccessException | HttpServerErrorException e) {
+            error= e.getMessage();
         }
-        return null;// Everything worked
+        return this;// Everything worked
     }
 }

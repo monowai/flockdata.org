@@ -37,6 +37,6 @@ public class EntityKeyReady implements ReadyMatcher {
     @Override
     public boolean isReady() {
         entityGet.exec();
-        return entityGet.getResult() != null && entityGet.getResult().getKey() != null;
+        return entityGet.result() != null && entityGet.result().getKey() != null;
     }
 }

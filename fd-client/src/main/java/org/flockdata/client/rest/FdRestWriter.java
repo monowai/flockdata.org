@@ -100,7 +100,7 @@ public class FdRestWriter implements FdWriter {
     public String ping() {
         Ping ping = new Ping(clientConfiguration, this);
         ping.exec();
-        return ping.getResult();
+        return ping.result();
     }
 
     /**
@@ -115,7 +115,7 @@ public class FdRestWriter implements FdWriter {
         RegistrationBean registrationBean = new RegistrationBean(company, userName).setIsUnique(false);
         RegistrationPost registrationPost = new RegistrationPost(clientConfiguration, this, registrationBean);
         registrationPost.exec();
-        return registrationPost.getResult();
+        return registrationPost.result();
     }
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(FdRestWriter.class);
@@ -310,18 +310,18 @@ public class FdRestWriter implements FdWriter {
     @Override
     public String toString() {
         return "FdRestWriter{" +
-                ", userName='" + clientConfiguration.getHttpUser() + '\'' +
+                "userName='" + clientConfiguration.getHttpUser() + '\'' +
                 ", serviceEndpoint='" + clientConfiguration.getServiceUrl()  +
                 '}';
     }
 
     public UserProfile login(ClientConfiguration clientConfiguration) {
         Login login = new Login(clientConfiguration, this);
-        String result = login.exec();
+        String result = login.exec().error();
         if (result != null)
             logger.error("Login result {}", result);
 
-        return login.getResult();
+        return login.result();
 
     }
 }

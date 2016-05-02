@@ -38,6 +38,6 @@ public class EntityLogReady implements ReadyMatcher {
     @Override
     public boolean isReady() {
         entityLogs.exec();
-        return entityLogs.getResult() != null && entityLogs.getResult().length == waitFor && entityLogs.getResult()[waitFor-1].getData()!=null;
+        return entityLogs.result() != null && entityLogs.result().length == waitFor && entityLogs.result()[waitFor-1].getData()!=null;
     }
 }
