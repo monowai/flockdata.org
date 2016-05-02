@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Encapsulate methods to evaluate transformational expressions
@@ -87,7 +88,7 @@ public class ExpressionHelper {
      */
     public static String getValue(Map<String, Object> row, String expression, ColumnDefinition colDef, Object defaultValue) {
         if (colDef == null)
-            return getNullSafeDefault(defaultValue, colDef);
+            return getNullSafeDefault(defaultValue, null);
 
         Object result = evaluateExpression(row, expression);
         if (result == null)
@@ -135,6 +136,8 @@ public class ExpressionHelper {
         if (colDef.isDateEpoc()) {
             return Long.parseLong(value) * 1000;
         }
+
+
         if (colDef.getDateFormat().equalsIgnoreCase("timestamp")) {
             return Timestamp.valueOf(value).getTime();
         }
@@ -144,15 +147,19 @@ public class ExpressionHelper {
 
         // Date formats
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern(colDef.getDateFormat(), Locale.ENGLISH);
+        String tz = colDef.getTimeZone();
+        if ( tz == null )
+            tz = TimeZone.getDefault().getID();
+
         try {
 
             // Try first as DateTime
             LocalDateTime date = LocalDateTime.parse(value, pattern);
-            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+            return new DateTime(date.toString(), DateTimeZone.forID(tz)).getMillis();
         } catch (DateTimeParseException e) {
             // Just a plain date
             LocalDate date = LocalDate.parse(value, pattern);
-            return new DateTime(date.toString(), DateTimeZone.forID(colDef.getTimeZone())).getMillis();
+            return new DateTime(date.toString(), DateTimeZone.forID(tz)).getMillis();
         }
     }
 }

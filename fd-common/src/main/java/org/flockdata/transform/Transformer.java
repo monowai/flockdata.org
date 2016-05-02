@@ -140,17 +140,18 @@ public class Transformer {
      */
     public static Map<String, ColumnDefinition> fromMapToProfile(Collection<Map<String, Object>> content )  {
         Map<String, ColumnDefinition> result = new TreeMap<>();
-
+        if ( content == null)
+            return result;
 
         for (Map<String, Object> row : content) {
             for (String column : row.keySet()) {
                 Object value = row.get(column);
                 String thisDataType = TransformationHelper.getDataType(value, column);
-                ColumnDefinition existingDataType = result.get(column);
                 if ( value!=null) {
-                    if ( existingDataType != null && thisDataType.equals("string") && !existingDataType.getDataType().equals(thisDataType) ){
-                        existingDataType.setDataType("string");// lowest common denominator
-                    } else {
+                    ColumnDefinition existingColumn = result.get(column);
+                    if ( existingColumn != null &&  !existingColumn.getDataType().equals(thisDataType)  && !existingColumn.getDataType().equals("string") ){
+                        existingColumn.setDataType("string");// lowest common denominator
+                    } else if (existingColumn == null ) {
                         ColumnDefinition columnDefinition = new ColumnDefinition();
                         columnDefinition.setDataType(thisDataType);
                         result.put(column, columnDefinition);
