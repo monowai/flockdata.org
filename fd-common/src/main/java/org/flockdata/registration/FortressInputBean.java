@@ -38,7 +38,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
 
     private String message = null;
     private String fortressKey = null;
-    private String timeZone = null;
+    private String timeZone =  TimeZone.getDefault().getID();
     private String languageTag;
     private Boolean enabled = true;
     private Boolean system = false;

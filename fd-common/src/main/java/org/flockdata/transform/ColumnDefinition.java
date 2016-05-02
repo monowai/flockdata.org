@@ -25,7 +25,6 @@ import org.flockdata.transform.tags.TagProfileDeserializer;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * User: mike
@@ -40,7 +39,7 @@ public class ColumnDefinition implements GeoDefinition {
     private String keyPrefix; // Optional value to prefix a code with
     private String target; // source property to write source to (rename the column)
     private String dateFormat =null; // Java valid date format
-    private String timeZone = TimeZone.getDefault().getID(); // To use for dates
+    private String timeZone = null; // To use for dates
 
     public void setDataType(String dataType) {
         this.dataType = dataType;

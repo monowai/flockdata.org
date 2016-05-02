@@ -189,17 +189,38 @@ public class TestDataTypeConversion  extends AbstractImport {
     }
 
     @Test
-    public void map_SimpleDefaultContentProfileFromInputData() throws Exception{
-        Map<String,Object>row = new HashMap<>();
-        row.put("NumCol", 120);
-        row.put("StrCol", "Abc");
-        row.put("DateCol", "2015-12-12");
-        row.put("EpocDate", System.currentTimeMillis());
-        row.put("LongNotADate", 123445552);
+    public void map_NoArgsSuppliedToGetDefaultContentProfile() throws Exception {
+        assertEquals("Null map should return 0 entries", 0, Transformer.fromMapToProfile( null ).size());
         Collection<Map<String, Object>> rows = new ArrayList<>();
-        rows.add(row);
+        assertEquals("Empty row set should return 0 entries", 0, Transformer.fromMapToProfile( rows ).size());
+        rows.add(new HashMap<>());
+        assertEquals("Empty row should return 0 entries", 0, Transformer.fromMapToProfile( rows ).size());
+    }
+
+    @Test
+    public void map_SimpleDefaultContentProfileFromInputData() throws Exception{
+        Map<String,Object>firstRow = new HashMap<>();
+        firstRow.put("NumCol", 120);
+        firstRow.put("StrCol", "Abc");
+        firstRow.put("DateCol", "2015-12-12");
+        firstRow.put("EpocDate", System.currentTimeMillis());
+        firstRow.put("LongNotADate", 123445552);
+        firstRow.put("StringThatLooksLikeANumber", 123);
+
+
+        Map<String,Object>secondRow = new HashMap<>();
+        secondRow.put("NumCol", 122);
+        secondRow.put("StrCol", "Abc");
+        secondRow.put("DateCol", "2015-12-12");
+        secondRow.put("EpocDate", System.currentTimeMillis());
+        secondRow.put("LongNotADate", 123445550);
+        secondRow.put("StringThatLooksLikeANumber", "Turn to a String");
+
+        Collection<Map<String, Object>> rows = new ArrayList<>();
+        rows.add(firstRow);
+        rows.add(secondRow);
         Map<String, ColumnDefinition> columnDefinitions = Transformer.fromMapToProfile(rows);
-        assertEquals(row.size(), columnDefinitions.size());
+        assertEquals(firstRow.size(), columnDefinitions.size());
         for (String column : columnDefinitions.keySet()) {
             ColumnDefinition colDef = columnDefinitions.get(column);
             assertNotNull ( colDef);
@@ -214,6 +235,9 @@ public class TestDataTypeConversion  extends AbstractImport {
                 case "DateCol":
                 case "EpocDate":
                     assertEquals("date", colDef.getDataType());
+                    break;
+                case "StringThatLooksLikeANumber":
+                    assertEquals("DataType should be String as its the lower common denominator","string", colDef.getDataType());
                     break;
                 default:
                     fail("unknown column " + colDef);
