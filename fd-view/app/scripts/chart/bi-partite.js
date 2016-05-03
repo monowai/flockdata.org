@@ -55,8 +55,8 @@
     ];
 
     data.forEach(function (d) {
-      sData.data[0][sData.keys[0].indexOf(d[0].source)][sData.keys[1].indexOf(d[0].target)] = d[p];
-      sData.data[1][sData.keys[1].indexOf(d[0].target)][sData.keys[0].indexOf(d[0].source)] = d[p];
+      sData.data[0][sData.keys[0].indexOf(d[0].source)][sData.keys[1].indexOf(d[0].target)] = d[0].count;
+      sData.data[1][sData.keys[1].indexOf(d[0].target)][sData.keys[0].indexOf(d[0].source)] = d[0].count;
     });
 
     return sData;
