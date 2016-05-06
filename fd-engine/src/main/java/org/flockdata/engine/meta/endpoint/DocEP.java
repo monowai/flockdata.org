@@ -58,9 +58,7 @@ public class DocEP {
     @RequestMapping(value = "/{fortress}", method = RequestMethod.GET)
     public Collection<DocumentResultBean> getFortressDocs(HttpServletRequest request, @PathVariable("fortress") String fortress) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
-        Collection<String>fortresses = new ArrayList<>();
-        fortresses.add(fortress)   ;
-        return conceptService.getDocumentsInUse(company, fortresses);
+        return conceptService.getDocumentsInUse(company, fortress);
     }
 
     @RequestMapping(value = "/{fortress}/{docType}", method = RequestMethod.GET)

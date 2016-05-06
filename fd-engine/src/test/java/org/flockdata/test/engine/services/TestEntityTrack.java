@@ -154,7 +154,6 @@ public class TestEntityTrack extends EngineBase {
      *
      * @throws Exception
      */
-
     @Test
     public void modified_UserDefinedProperties_NoContent() throws Exception {
         SystemUser su = registerSystemUser("DAT386", mike_admin);
@@ -894,7 +893,6 @@ public class TestEntityTrack extends EngineBase {
         assertEquals("Case sensitivity failed", 1, entityService.getEntities(fortress, "type b", 0L).size());
     }
 
-    //@Ignore // FixMe - serverside call needs to be implemented
     @Test
     public void findEntitiesForCollectionOfKeys() throws Exception {
         SystemUser suA = registerSystemUser("findEntitiesForCollectionOfKeys", "findEntitiesForCollectionOfKeys");
@@ -1168,10 +1166,8 @@ public class TestEntityTrack extends EngineBase {
     }
 
     @Test
-    //@Ignore //FixMe  DAT-470
     public void event_Serializable() throws Exception {
         // DAT-276
-        // ToDo: Fix Me = Track2ResutBean needs a serializable view,
         Entity entity = EntityContentHelper.getEntity("lba", "abc", "asdf", "asdf");
         TrackResultBean trackResultBean = new TrackResultBean(entity, new DocumentType(entity.getType()));
         trackResultBean.addServiceMessage("Blah");

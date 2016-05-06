@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,6 +62,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
+
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -332,6 +335,16 @@ public abstract class EngineBase {
         assertNotNull(f);
         assertNull(f.getCompany());// JsonIgnored - Discuss!
         assertEquals("testing", f.getName());
+    }
+
+    public void assertNodeDoesNotExist(Long nodeId) {
+        assertNodeDoesNotExist("Node should not have existed", nodeId);
+    }
+
+    public void assertNodeDoesNotExist(String message, Long nodeId) {
+        Result<Map<String, Object>> results = neo4jTemplate.query("match (n) where id(n)= " + nodeId +" return n", null);
+        assertFalse(message, results.iterator().hasNext());
+
     }
 
 

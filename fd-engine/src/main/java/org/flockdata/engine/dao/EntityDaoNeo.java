@@ -474,6 +474,7 @@ public class EntityDaoNeo {
 
     @Transactional
     public void purgeFortressDocuments(Fortress fortress) {
+        documentTypeRepo.purgeDocumentAssociations(fortress.getId());
         documentTypeRepo.purgeFortressDocuments(fortress.getId());
     }
 

@@ -38,4 +38,8 @@ public interface FortressSegmentRepository extends GraphRepository<FortressSegme
     @Query( value =  "match (fortress:Fortress)-[r:DEFINES]- (segment:FortressSegment) " +
             "where id(fortress) = {0} and segment.key = {1} return segment")
     FortressSegment findSegment(Long id, String segmentName);
+
+    @Query( value =  "match (fortress:Fortress)-[r]- (segment:FortressSegment) " +
+            "where id(fortress) = {0} delete r,segment")
+    void purgeFortressSegments(Long fortressId);
 }

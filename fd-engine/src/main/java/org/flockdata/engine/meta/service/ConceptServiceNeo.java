@@ -222,6 +222,12 @@ public class ConceptServiceNeo implements ConceptService {
 
     }
 
+    public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException {
+        Collection<String>fortresses = new ArrayList<>();
+        fortresses.add(fortress)   ;
+        return getDocumentsInUse(fdCompany, fortresses);
+    }
+
     public Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException {
         ArrayList<DocumentResultBean> docs = new ArrayList<>();
 
