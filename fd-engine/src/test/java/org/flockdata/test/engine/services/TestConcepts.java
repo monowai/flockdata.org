@@ -107,7 +107,7 @@ public class TestConcepts extends EngineBase {
             mediationFacade.trackEntity(su.getCompany(), input).getEntity();
 
             validateConcepts((Collection<String>) null, su, 3); // 3 Doc types.
-            assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, conceptService.getDocumentsInUse(su.getCompany(), null).size());
+            assertEquals("Docs In Use not supporting 'null args' for fortress'", 3, conceptService.getDocumentsInUse(su.getCompany()).size());
 
             // DAT-112
             Set<DocumentResultBean> found = validateConcepts("DocA", su, 1);

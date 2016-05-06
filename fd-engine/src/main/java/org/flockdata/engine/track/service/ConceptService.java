@@ -61,5 +61,5 @@ public interface ConceptService {
 
     Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, Collection<String> fortresses) throws FlockException;
 
-
+    Collection<DocumentResultBean> getDocumentsInUse(Company fdCompany, String fortress) throws FlockException;
 }

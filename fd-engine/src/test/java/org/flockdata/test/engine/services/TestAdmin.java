@@ -7,6 +7,7 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.DocumentResultBean;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.TrackResultBean;
 import org.joda.time.DateTime;
@@ -117,14 +118,14 @@ public class TestAdmin extends EngineBase {
         assertNotNull(su.getCompany());
 
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("auditTest", true));
-        assertNotNull ( fortress);
-        assertNotNull ( fortress.getCompany());
+        assertNotNull(fortress);
+        assertNotNull(fortress.getCompany());
         EntityInputBean inputBean = new EntityInputBean(fortress, "wally", "testDupe", new DateTime(), "YYY");
         inputBean.addTag(new TagInputBean("DeleteTest", "NamedTag", "deltest"));
 
         assertNotNull("Why is this null ??", mediationFacade);
-        assertNotNull ( su.getCompany());
-        assertNotNull ( inputBean);
+        assertNotNull(su.getCompany());
+        assertNotNull(inputBean);
         TrackResultBean resultBean = mediationFacade.trackEntity(su.getCompany(), inputBean);
         assertNotNull(resultBean);
         String key = resultBean.getEntity().getKey();
@@ -189,20 +190,56 @@ public class TestAdmin extends EngineBase {
 
         mediationFacade.purge(fortress);
         EngineBase.waitAWhile("Waiting for Async processing to complete");
-        try {
-            assertNull(entityService.getEntity(su.getCompany(), resultA));
-            fail("Should have thrown notFound exception");
-        } catch (NotFoundException n) {
-            // good
-        }
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultA);
 
-        try {
-            assertNull(entityService.getEntity(su.getCompany(), resultB));
-            fail("Should have thrown notFound exception");
-        } catch (NotFoundException n) {
-            // good
-        }
+        exception.expect(NotFoundException.class);
+        entityService.getEntity(su.getCompany(), resultB);
+
 
     }
+
+
+    @Test
+    public void conceptsDeleteAndRecreate() throws Exception {
+        setSecurity();
+        SystemUser su = registerSystemUser("conceptsDeleteAndRecreate", mike_admin);
+        FortressInputBean fib = new FortressInputBean("purgeFortressClearsDown", true);
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
+
+        EntityInputBean trackBean = new EntityInputBean(fortress, "olivia@ast.com", "CompanyNode", null, "abc2");
+        trackBean.addTag(new TagInputBean("anyName", "TestTag", "rlx"));
+        trackBean.addTag(new TagInputBean("otherName", "TestTag", "rlxValue").setReverse(true));
+        ContentInputBean logBean = new ContentInputBean("me", DateTime.now(), EntityContentHelper.getRandomMap());
+        trackBean.setContent(logBean);
+        String resultA = mediationFacade.trackEntity(su.getCompany(), trackBean).getEntity().getKey();
+
+        assertNotNull(resultA);
+
+        Collection<DocumentResultBean> documents = conceptService.getDocumentsInUse(su.getCompany(), fib.getName());
+        assertEquals(1, documents.size());
+
+        mediationFacade.purge(fortress);
+        Long fortressId = fortress.getId();
+        Long segmentId = fortress.getDefaultSegment().getId();
+        Long documentId = documents.iterator().next().getId();
+
+        // Fortress is now invalid
+
+        EngineBase.waitAWhile("Waiting for Async processing to complete");
+
+        try {
+            entityService.getEntity(su.getCompany(), resultA);
+            fail("Expected not to find the entity after the fortress was pruged");
+        } catch (NotFoundException e){
+            // good
+        }
+        assertNull( fortressService.findByName(fib.getName()));
+        assertNodeDoesNotExist("Fortress should not exist", fortressId);
+        assertNodeDoesNotExist("Segment should not exist", segmentId);
+        assertNodeDoesNotExist("DocumentType should not exist", documentId);
+    }
+
+
 
 }

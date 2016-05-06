@@ -95,7 +95,7 @@ public class AdminService implements EngineAdminService {
         watch.start();
         boolean keepRunning;
         schemaService.purge(fortress);
-        entityService.purgeFortressDocs(fortress);
+
         long total = 0;
         do {
             Collection<String> entities = entityService.getEntityBatch(fortress, 2000);
@@ -106,7 +106,7 @@ public class AdminService implements EngineAdminService {
                 logger.info("Progress update - {} entities purged ... ", nf.format(total));
 
         } while (keepRunning);
-
+        entityService.purgeFortressDocs(fortress);
         fortressService.purge(fortress);
         engineConfig.resetCache();
         searchService.purge(fortress.getRootIndex());

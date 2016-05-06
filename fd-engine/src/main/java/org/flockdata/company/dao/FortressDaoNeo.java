@@ -120,4 +120,8 @@ public class FortressDaoNeo  {
     FortressSegment findSegment(Fortress fortress, String segmentKey){
         return fortressSegmentRepo.findSegment(fortress.getId(),segmentKey);
     }
+
+    public void purgeFortress(Long fortressId) {
+        fortressSegmentRepo.purgeFortressSegments(fortressId);
+    }
 }

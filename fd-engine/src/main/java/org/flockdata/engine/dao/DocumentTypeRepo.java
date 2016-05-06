@@ -57,8 +57,8 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
                     "where id(company) = {0} return docTypes")
     Collection<DocumentType> getCompanyDocumentsInUse(Long companyId);
 
-    @Query (value = "match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType) " +
-            "where id(fortress) = {0} delete fd")
+    @Query (value = "match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType)" +
+            "where id(fortress) = {0} delete fd,d")
     void purgeFortressDocuments(Long fortressId);
 
     @Query(elementClass = DocumentType.class,
@@ -73,4 +73,7 @@ public interface DocumentTypeRepo extends GraphRepository<DocumentType> {
                     "       return doc")
     Set<DocumentType> findAllDocuments(Company company);
 
+    @Query (value = "optional match (fortress:Fortress)-[fd:FORTRESS_DOC]-(d:DocType)-[r]-(c:Concept)" +
+            "where id(fortress) = {0} delete r")
+    void purgeDocumentAssociations(Long id);
 }
