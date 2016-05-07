@@ -24,7 +24,6 @@ import org.flockdata.track.service.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import javax.annotation.PostConstruct;
 
@@ -41,7 +40,6 @@ import javax.annotation.PostConstruct;
                 "org.flockdata.engine", "org.flockdata.geography",
                 "org.flockdata.authentication", "org.flockdata.shared"})
 
-@EnableDiscoveryClient
 public class FdEngine {
     public static void main(String[] args) {
         SpringApplication.run(FdEngine.class, args);

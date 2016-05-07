@@ -9,9 +9,11 @@ application:
 
 eureka:
   client:
+    healthcheck:
+      enabled: false
     serviceUrl:
       defaultZone: ${org.fd.discovery.url:http://127.0.0.1:8761/eureka/}
-    enabled: 'false'
+    enabled: false
 
 spring:
   application:
@@ -20,16 +22,10 @@ spring:
     active: fd-no-auth,riak
     include: fd-server
   cloud:
-    config:
-      discovery:
-        enabled: false
+    discovery:
+      enabled: false
   messages:
     encoding: UTF-8
-  http:
-    encoding:
-      charset: UTF-8 # the encoding of HTTP requests/responses
-      enabled: 'true' # enable http encoding support
-      force: 'true' # force the configured encoding
 
 org.fd:
   store:

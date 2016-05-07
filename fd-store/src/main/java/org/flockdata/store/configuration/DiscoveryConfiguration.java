@@ -18,22 +18,29 @@
  *  along with FlockData.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.flockdata.search;
+package org.flockdata.store.configuration;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+import javax.annotation.PostConstruct;
+
 /**
- *
- * User: mike
- * Date: 16/12/14
- * Time: 7:36 AM
+ * Created by mike on 7/05/16.
  */
-@SpringBootApplication (scanBasePackages = {"org.flockdata.search", "org.flockdata.shared", "org.flockdata.authentication"})
-public class FdSearch {
+@EnableDiscoveryClient
+@Configuration
+@Profile("discovery")
+public class DiscoveryConfiguration {
 
-    public static void main(String[] args) {
-        SpringApplication.run(FdSearch.class, args);
+    private Logger logger = LoggerFactory.getLogger("configuration");
+
+    @PostConstruct
+    public void logStatus() {
+        logger.info("**** Discovery Configuration Client configuration deployed");
     }
-
 
 }
