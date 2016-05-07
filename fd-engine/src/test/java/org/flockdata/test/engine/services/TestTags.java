@@ -19,6 +19,7 @@
 
 package org.flockdata.test.engine.services;
 
+import org.flockdata.helper.FlockDataTagException;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.TagHelper;
 import org.flockdata.model.SystemUser;
@@ -46,9 +47,18 @@ import static org.junit.Assert.*;
 public class TestTags extends EngineBase {
 
     @Test
+    public void nullTagCode() throws Exception {
+        SystemUser systemUser = registerSystemUser("nullTagCode", mike_admin);
+
+        TagInputBean tagInputBean = new TagInputBean();
+        tagInputBean.setName("Blah");
+        exception.expect(FlockDataTagException.class);
+        tagService.createTag(systemUser.getCompany(), tagInputBean);
+    }
+        @Test
     public void duplicateTagLists() throws Exception {
-        SystemUser iSystemUser = registerSystemUser("duplicateTagLists", mike_admin);
-        assertNotNull(iSystemUser);
+        SystemUser systemUser = registerSystemUser("duplicateTagLists", mike_admin);
+        assertNotNull(systemUser);
 
         List<TagInputBean> tags = new ArrayList<>();
         tags.add(new TagInputBean("FLOP", "DUPE"));
@@ -57,7 +67,7 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOP", "DUPE"));
         tags.add(new TagInputBean("FLOP", "DUPE"));
 
-        Iterable<TagResultBean> tagResults = tagService.createTags(iSystemUser.getCompany(), tags);
+        Iterable<TagResultBean> tagResults = tagService.createTags(systemUser.getCompany(), tags);
         assertNotNull(tagResults);
         int count = 0;
         Boolean oneIsNew = null;
@@ -80,7 +90,7 @@ public class TestTags extends EngineBase {
         tags.add(new TagInputBean("FLOPSY", "DUPE"));
         tags.add(new TagInputBean("FLOPPO", "DUPE"));
         tags.add(new TagInputBean("FLOPER", "DUPE"));
-        tagResults = tagService.createTags(iSystemUser.getCompany(), tags);
+        tagResults = tagService.createTags(systemUser.getCompany(), tags);
         count = 0;
         for (TagResultBean next : tagResults) {
             assertNotNull(next);
@@ -500,7 +510,7 @@ public class TestTags extends EngineBase {
         engineConfig.setMultiTenanted(false);
         SystemUser su = registerSystemUser("geographyEndPoints", mike_admin);
         // Clear down issues - the Country may already be in the DB
-        Collection<Tag> co = geoService.findCountries(su.getCompany());
+        Collection<TagResultBean> co = geoService.findCountries(su.getCompany());
 
         int existingSize = co .size();
 
@@ -806,7 +816,7 @@ public class TestTags extends EngineBase {
         params.put("t",tags.iterator().next().getTag().getId());
         Result<Map<String, Object>> results = neo4jTemplate.query(cypher, params);
         for (Map<String, Object> row : results) {
-            assertEquals(1l, row.get("value"));
+            assertEquals(1L, row.get("value"));
         }
     }
 

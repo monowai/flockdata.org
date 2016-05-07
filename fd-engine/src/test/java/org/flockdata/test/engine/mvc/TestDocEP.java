@@ -82,8 +82,6 @@ public class TestDocEP extends MvcBase {
                     throw new Exception("Unexpected label " + labelResult.getName());
             }
         }
-        Thread.sleep(1000);
-
     }
 
     @Test

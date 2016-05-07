@@ -26,13 +26,13 @@ public class CompressionResult {
     private Method method;
     private byte[] bytes;
 
-    public CompressionResult(byte[] bytes, boolean compressed) {
+    CompressionResult(byte[] bytes, boolean compressed) {
         this(bytes);
         if (!compressed)
             this.method = Method.NONE;
     }
 
-    public CompressionResult(String value) throws UnsupportedEncodingException {
+    CompressionResult(String value) throws UnsupportedEncodingException {
         this();
         method = Method.NONE;
         this.bytes = value.getBytes(ObjectHelper.charSet);// DAT-75
@@ -53,7 +53,7 @@ public class CompressionResult {
     private CompressionResult() {
     }
 
-    public CompressionResult(byte[] bytes) {
+    CompressionResult(byte[] bytes) {
         this();
         method = Method.GZIP;
         this.bytes = bytes;

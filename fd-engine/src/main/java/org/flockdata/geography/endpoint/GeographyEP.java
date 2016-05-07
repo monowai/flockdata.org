@@ -23,7 +23,7 @@ package org.flockdata.geography.endpoint;
 import org.flockdata.engine.configure.ApiKeyInterceptor;
 import org.flockdata.geography.service.GeographyService;
 import org.flockdata.helper.FlockException;
-import org.flockdata.model.Tag;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -51,7 +51,7 @@ public class GeographyEP {
     RegistrationService regService;
 
     @RequestMapping(value = "/", produces = "application/json", method = RequestMethod.GET)
-    public Collection<Tag> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
+    public Collection<TagResultBean> findCountries(String apiKey, @RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         return geoService.findCountries(regService.resolveCompany(ApiKeyInterceptor.ApiKeyHelper.resolveKey(apiHeaderKey, apiKey)));
     }
 

@@ -24,7 +24,6 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import java.util.Collection;
-import java.util.Map;
 
 
 /**
@@ -96,19 +95,4 @@ public class CypherHelper {
         return false;
     }
 
-    public static String getCypherSet(String cypherObject, Map<String, Object> propMap) {
-
-        String result = "";
-        for (String s : propMap.keySet()) {
-            if (!result.equals(""))
-                result = result + ", ";
-            Object o = propMap.get(s);
-            Object value = null;
-            if (o instanceof String)
-                value = "'" + o.toString() + "'";
-            result = result + cypherObject + "." + s + " = " + (value == null ? o : value);
-        }
-        return result;
-
-    }
 }

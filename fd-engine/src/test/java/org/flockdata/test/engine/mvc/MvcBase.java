@@ -496,6 +496,16 @@ public abstract class MvcBase {
         return JsonUtils.toCollection(json, TagResultBean.class);
     }
 
+    public Collection<TagResultBean> getCountries(RequestPostProcessor user) throws Exception {
+        MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/geo/")
+                //.contentType(MediaType.APPLICATION_JSON)
+                .with(user)
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String json = response.getResponse().getContentAsString();
+
+        return JsonUtils.toCollection(json, TagResultBean.class);
+    }
+
     public Map<String, Object> getConnectedTags(RequestPostProcessor user, String label, String code, String relationship, String targetLabel) throws Exception {
         MvcResult response = mvc().perform(MockMvcRequestBuilders.get(apiPath + "/tag/" + label + "/" + code + "/path/" + relationship + "/" + targetLabel)
                 .contentType(MediaType.APPLICATION_JSON)
