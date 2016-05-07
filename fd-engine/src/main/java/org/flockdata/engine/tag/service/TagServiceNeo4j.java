@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Handles management of a companies tags.
@@ -114,6 +115,14 @@ public class TagServiceNeo4j implements TagService {
         Company company = securityHelper.getCompany();
         String suffix = engineAdmin.getTagSuffix(company);
         return tagDaoNeo4j.findDirectedTags(suffix, startTag, company);
+    }
+
+    @Override
+    public Collection<TagResultBean> findTagResults(Company company, String label) {
+        Collection<Tag> tags = tagDaoNeo4j.findTags(label);
+        Collection<TagResultBean>countries = new ArrayList<>(tags.size());
+        countries.addAll(tags.stream().map(TagResultBean::new).collect(Collectors.toList()));
+        return countries;
     }
 
     @Override

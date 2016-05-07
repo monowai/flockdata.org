@@ -29,6 +29,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Collection;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertFalse;
+
 /**
  * Created by mike on 31/05/15.
  */
@@ -148,6 +150,16 @@ public class TestTagEP extends MvcBase {
         makeDataAccessProfile("nf_tags", "mike");
         // DAT-526
         getTagNotFound(mike(), "zz","123jja");
+
+    }
+
+    @Test
+    public void countriesFoundOverEP() throws Exception {
+        makeDataAccessProfile("countriesFoundOverEP", "mike");
+        TagInputBean newZealand = new TagInputBean("NZ", "Country");
+        createTag(mike(), newZealand);
+        Collection<TagResultBean>countries = getCountries(mike());
+        assertFalse(countries.isEmpty());
 
     }
 }

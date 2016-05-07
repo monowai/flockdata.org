@@ -21,7 +21,7 @@
 package org.flockdata.geography.service;
 
 import org.flockdata.model.Company;
-import org.flockdata.model.Tag;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.track.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,8 +39,8 @@ import java.util.Collection;
 public class GeographyService {
     @Autowired
     TagService tagService;
-    public Collection<Tag> findCountries(Company company) {
-        return tagService.findTags(company, "Country");
+    public Collection<TagResultBean> findCountries(Company company) {
+        return tagService.findTagResults(company, "Country");
 
     }
 }

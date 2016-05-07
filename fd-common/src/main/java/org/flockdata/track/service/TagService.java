@@ -44,6 +44,8 @@ public interface TagService {
 
     Collection<Tag> findTags(Company company, String label);
 
+    Collection<TagResultBean> findTagResults(Company company, String label) ;
+
     Tag findTag(Company company, String label, String keyPrefix, String tagCode);
 
     Tag findTag(Company company, String label, String keyPrefix, String tagCode, boolean inflate) throws NotFoundException;
