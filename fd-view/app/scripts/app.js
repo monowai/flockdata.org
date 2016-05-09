@@ -100,8 +100,25 @@ var fdView = angular.module('fdView', [
         url: '/import',
         templateUrl: 'views/import.html',
         controller: 'ImportCtrl',
+        // abstract: true,
         data: {
           authorizedRoles: [USER_ROLES.all]
+        }
+      })
+      .state('import.load', {
+        url: '/load',
+        templateUrl: 'load-profile.html',
+        controller: 'LoadProfileCtrl'
+      })
+      .state('import.edit', {
+        url: '/edit',
+        templateUrl: 'show-profile.html',
+        controller: 'EditProfileCtrl',
+        params: {keys: null},
+        resolve: {
+          keys: ['$stateParams', function ($stateParams) {
+            return $stateParams.keys;
+          }]
         }
       })
       .state('admin', {

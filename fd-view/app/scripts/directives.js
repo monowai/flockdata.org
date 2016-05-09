@@ -151,7 +151,7 @@ angular.module('fdView.directives', [])
                   '<div class="file-box-success"><strong>Done!</strong>&nbsp;{{fileName}} is loaded</div>',
         link: function(scope, element, attrs) {
           var fn = $parse(attrs.fileBox);
-  
+
           element.on('dragover dragenter', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -163,7 +163,7 @@ angular.module('fdView.directives', [])
           element.on('drop', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             if(e.originalEvent.dataTransfer){
               if (e.originalEvent.dataTransfer.files.length>0) {
                 var reader = new FileReader();
@@ -277,6 +277,7 @@ angular.module('fdView.directives', [])
                 });
                 // Add elements
                 scope.$on('cytoscapeAddElements', function(event, data) {
+                  // console.log('add');
                   var addElements = data.elements;
                   var addedElements = cy.add(addElements);
                   runLayout(addedElements);
@@ -296,6 +297,11 @@ angular.module('fdView.directives', [])
                     }
                     scope.onChange(cy, data.forceApply);
                   });
+                scope.$on('cytoscapeResize', function (event) {
+                  // console.log(event);
+                  cy.resize();
+                  // scope.onChange(cy, data.forceApply);
+                });
                 // Filter nodes by name
                 scope.$watch('highlightByName', function(name) {
                   cy.elements().addClass('searched');
