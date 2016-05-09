@@ -30,7 +30,7 @@ fdView.controller('ExploreCtrl', ['$scope', '$http', 'QueryService', '$compile',
 
     $scope.layouts = [{name: 'cose'},
       {name: 'grid'},{name: 'concentric'},
-      {name: 'circle'},{name: 'random'}];
+      {name: 'circle'},{name: 'random'},{name: 'breadthfirst'}];
     $scope.layout = $scope.layouts[0];
     $scope.minCount = 1;
     $scope.resultSize = 1000;
