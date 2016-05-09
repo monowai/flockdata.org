@@ -20,9 +20,13 @@
 
 'use strict';
 
-fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state', '$http', 'configuration',
-  function ($scope, $uibModal, QueryService, $state, $http, configuration) {
+fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration',
+  function ($scope, $uibModal, QueryService, ContentProfile, $state, $http, $timeout, $compile, configuration) {
+    $state.transitionTo('import.load');
+  }]);
 
+fdView.controller('LoadProfileCtrl', ['$scope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration',
+  function ($scope, $uibModal, QueryService, ContentProfile, $state, $http, $timeout, $compile, configuration) {
     $scope.delim=',';
     $scope.hasHeader=true;
 
@@ -34,6 +38,9 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
     QueryService.general('fortress').then(function (data) {
       $scope.fortresses = data;
     });
+
+    $scope.fortress = ContentProfile.getFortress();
+    $scope.type = ContentProfile.getDocType();
 
     $scope.selectFortress = function(fortress) {
       var query = [fortress];
@@ -47,21 +54,23 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
     };
 
     $scope.selectProfile = function (type) {
-      $http.get(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+type)
-        .success(function (data){
-          console.log(data);
-          $scope.contentProfile=data;
+      ContentProfile.getProfile($scope.fortress, type)
+        .success(function (data) {
+          $scope.contentProfile = data;
+          $scope.profileGraph = profile2graph();
         })
         .error(function(){
-          $http.get('testProfile.json').then(function(response){
-            $scope.contentProfile=response.data;
-          });
+          $scope.noProfile = true;
         });
     };
 
+    var profile2graph = function () {
+      return ContentProfile.graphProfile();
+    };
+
     $scope.createFortress = function() {
-      var modalCreateDP = $uibModal.open({
-        templateUrl: 'createFortressModal.html',
+      $uibModal.open({
+        templateUrl: 'create-fortress-modal.html',
         resolve: {
           timezones: function() {
             return $http.get(configuration.engineUrl() + '/api/v1/fortress/timezones').then(function (response) {
@@ -72,7 +81,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
         controller: ['$scope','$uibModalInstance','timezones',function($scope, $uibModalInstance, timezones) {
           $scope.timezones = timezones;
           $scope.timezone = $scope.timezones[0];
-          $scope.close = $uibModalInstance.dismiss;          
+          $scope.close = $uibModalInstance.dismiss;
           $scope.save = function() {
             var newFortress = {
               name: $scope.name,
@@ -85,8 +94,7 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
             });
           };
         }]
-      });
-      modalCreateDP.result.then(function(newDP){
+      }).result.then(function(newDP){
         $scope.fortresses.push(newDP);
         $scope.fortress = newDP.name;
       });
@@ -94,8 +102,8 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
 
     $scope.createType = function() {
       if(!$scope.fortress) return;
-      var modalCreateDP = $uibModal.open({
-        templateUrl: 'createTypeModal.html',
+      $uibModal.open({
+        templateUrl: 'create-type-modal.html',
         size: 'sm',
         resolve: {
           fortress: function() {
@@ -125,12 +133,11 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
               },
               data: ''
             }).then(function(response){
-                $uibModalInstance.close(response.data);
-              });
+              $uibModalInstance.close(response.data);
+            });
           };
         }]
-      });
-      modalCreateDP.result.then(function(newDocType){
+      }).result.then(function(newDocType){
         console.log($scope.documents);
         $scope.documents.push(newDocType);
         $scope.type = newDocType.name;
@@ -139,56 +146,155 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
 
     $scope.checkProfile = function() {
       if (!$scope.fortress) {
-        var modalError = $uibModal.open({
-          templateUrl: 'errorModal.html',
+        $uibModal.open({
+          templateUrl: 'error-modal.html',
           size: 'sm',
           controller: function($scope, $uibModalInstance){
             $scope.missing = 'Data Provider';
             $scope.ok = $uibModalInstance.dismiss;
           }
-        }); 
+        });
       } else if (!$scope.type) {
-        var modalError = $uibModal.open({
-          templateUrl: 'errorModal.html',
+        $uibModal.open({
+          templateUrl: 'error-modal.html',
           size: 'sm',
           controller: function($scope, $uibModalInstance){
             $scope.missing = 'Data Type';
             $scope.ok = $uibModalInstance.dismiss;
           }
-        }); 
-      } else if (!$scope.csvContent) {
-        var modalError = $uibModal.open({
-          templateUrl: 'errorModal.html',
-          size: 'sm',
-          controller: function($scope, $uibModalInstance){
-            $scope.missing = 'CSV file';
-            $scope.ok = $uibModalInstance.dismiss;
-          }
-        }); 
-      } else {
-        var csvParser = d3.dsv($scope.delim,'text/plain');
-        csvParser.parse($scope.csvContent, function(data){
-          $scope.data = data; 
-          $scope.keys = d3.keys(data);
         });
+      } /*else if (!$scope.csvContent) {
+       $uibModal.open({
+       templateUrl: 'error-modal.html',
+       size: 'sm',
+       controller: function($scope, $uibModalInstance){
+       $scope.missing = 'CSV file';
+       $scope.ok = $uibModalInstance.dismiss;
+       }
+       });
+       }*/ else {
+        if ($scope.csvContent) {
+          var csvParser = d3.dsv($scope.delim, 'text/plain');
+          csvParser.parse($scope.csvContent, function (data) {
+            $scope.data = data;
+            $scope.keys = d3.keys(data);
+          });
+        }
+        // option for comma only
         // d3.csv.parse($scope.csvContent, function(data){
-        //   $scope.data = data; 
+        //   $scope.data = data;
         //   $scope.keys = d3.keys(data);
         // });
-        angular.element('[data-target="#profile"]').tab('show');
-        $scope.editor.expandAll();
+
+        $state.go('import.edit', {keys: $scope.keys});
       }
     };
 
     $scope.reset = function(){
       $state.reload();
     };
- 
-    $scope.saveProfile = function() {
-      var profile = $scope.editor.getText();
-      $http.post(configuration.engineUrl() + '/api/v1/content/' + $scope.fortress+'/'+$scope.type, profile).then(function (response) {
+
+  }]);
+
+fdView.controller('EditProfileCtrl', ['$scope', '$uibModal', 'QueryService', 'ContentProfile', '$state', '$http', '$timeout', '$compile', 'configuration', 'keys',
+  function ($scope, $uibModal, QueryService, ContentProfile, $state, $http, $timeout, $compile, configuration, keys) {
+
+    $scope.profileGraph = ContentProfile.graphProfile();
+
+    $scope.keys = keys;
+
+    $scope.save = function() {
+      ContentProfile.saveProfile().then(function (response) {
         console.log(response);
         return response.statusText;
+      });
+    };
+
+    $scope.styles = [
+      {'selector': 'node',
+        'css': {
+          'content': 'data(id)',
+          'font-size': '15pt',
+          'min-zoomed-font-size': '9pt',
+          'text-halign': 'center',
+          'text-valign': 'center',
+          'color': '#222D32',
+          'background-color': '#499ef0',
+          'width': '100',//'mapData(degree,0,5,20,80)',
+          'height': '50',//'mapData(degree,0,5,20,80)',
+          'shape': 'roundrectangle'
+        }},
+      {'selector': 'node[type="tag"]',
+        'css': {
+          'background-color': '#ff7701',
+          'content': 'data(label)',
+          'shape': 'ellipse',
+          'width': '110',
+          'height': '50'
+        }},
+      {'selector': 'node[type="alias"]',
+        'css': {
+          'background-color': '#f7bf65',
+          'content': 'data(description)',
+          'shape': 'ellipse',
+          'width': '100',
+          'height': '45'
+        }},
+      {'selector':'edge',
+        'css':{
+          'content': 'data(relationship)',
+          'width': 3,
+          'target-arrow-color': '#ccc',
+          'target-arrow-shape': 'triangle'
+        }},
+      {'selector':':selected',
+        'css':{
+          'background-color': 'f2b871',
+          'line-color': 'black',
+          'target-arrow-color': 'black',
+          'source-arrow-color': 'black',
+          'text-outline-width': 2,
+          'text-outline-color': '#888',
+          // 'text-outline-color': 'black'
+        }},
+      {'selector':'.mouseover',
+        'css':{
+          'color':'#499ef0'
+        }}
+    ];
+
+    // $scope.layout = {name: 'breadthfirst'};
+    $scope.layouts = [{name: 'circle'},{name: 'cose'},
+      {name: 'grid'},{name: 'concentric'},
+      {name: 'random'},{name: 'breadthfirst'}];
+    $scope.layout = $scope.layouts[0];
+
+    $scope.editJson = function () {
+      $uibModal.open({
+        templateUrl: 'modal-json-profile.html',
+        size: 'lg',
+        resolve: {
+          jsonProfile: ContentProfile.getProfile().then(function (profile) {
+            return profile;
+          })
+        },
+        controller: ['$scope','$uibModalInstance','jsonProfile', function ($scope, $uibModalInstance, jsonProfile) {
+          $scope.contentProfile = jsonProfile;
+
+          $scope.editorOptions = { tree: {mode: "tree", modes:["tree","code","form"]}, text: {mode:"text", modes:["text","code"]}};
+          $scope.onEditorLoad = function(instance){
+            $scope.editor = instance;
+          };
+
+          $scope.cancel = $uibModalInstance.dismiss;
+          $scope.update = function () {
+            var profile = $scope.editor.get();
+            $uibModalInstance.close(profile);
+          }
+        }]
+      }).result.then(function (cp) {
+        ContentProfile.updateProfile(cp);
+        $scope.profileGraph = ContentProfile.graphProfile();
       });
     };
 
@@ -199,9 +305,6 @@ fdView.controller('ImportCtrl', ['$scope', '$uibModal', 'QueryService', '$state'
       // });
     };
 
-    $scope.editorOptions = { tree: {mode: "tree", modes:["tree","code","form"]}, text: {mode:"text", modes:["text","code"]}};
-    $scope.onEditorLoad = function(instance){
-      $scope.editor = instance;
-    };
+
 
   }]);

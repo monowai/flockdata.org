@@ -79,7 +79,137 @@ fdView.factory('QueryService', ['$http', 'configuration', function ($http, confi
       }
     };
   }]
-);
+)
+.factory('ContentProfile', ['$http', '$q', 'configuration',
+  function ($http, $q, configuration) {
+    var cp = {};
+    var cpGraph = {};
+    var cpFortress, cpType;
+    return {
+      getFortress: function () {
+        if (cpFortress) { return cpFortress; }
+      },
+      getDocType: function () {
+        if (cpType) { return cpType; }
+      },
+      getProfile: function (fortress, type) {
+        if ((fortress===cpFortress && type===cpType && cp!=={}) || (!fortress && cp.length>0)) {
+          var deferred = $q.defer();
+          deferred.resolve(cp);
+          return deferred.promise;
+        } else {
+          angular.copy(fortress, cpFortress);
+          angular.copy(type, cpType);
+          this.cpFortress = fortress;
+          this.cpType = type;
+          return $http.get(configuration.engineUrl() + '/api/v1/content/' + fortress + '/' + type)
+            .success(function (data) {
+              console.log(data);
+              angular.copy(data, cp);
+            });
+        }
+      },
+      graphProfile: function () {
+        if (cpGraph.length>0) {
+          return cpGraph;
+        }
+        else {
+          var graph = {nodes: [], edges: []};
+
+          var createEntity = function (name, data) {
+            var entity = new Object({id: name, name: name, type: 'entity'});
+            _.extend(entity, data);
+            return entity;
+          };
+          var isTag = function (o) {
+            return o.tag === true || o.tagOrEntity === 'tag';
+          };
+          var addProp = function (obj, property) {
+            return _.extend(obj, property);
+          };
+          var createTag = function (key, data) {
+            var tag = new Object({id: key, name: key, type: 'tag'});
+            _.extend(tag, data);
+            return tag;
+          };
+          var connect = function (source, target, rel) {
+            return {source: source, target: target, relationship: rel};
+          };
+
+          var hasTargets = function (obj) {
+            return !!obj.targets && obj.targets.length > 0;
+          };
+
+          var hasEntityLinks = function (obj) {
+            return !!obj.entityLinks && obj.entityLinks.length > 0;
+          };
+
+          var hasAliases = function (obj) {
+            return !!obj.aliases && obj.aliases.length > 0;
+          };
+          var createTargets = function (tag, id) {
+            _.each(tag.targets, function (target) {
+              var t = createTag(target.code, {label: target.label});
+              graph.nodes.push({data: t});
+              var src, tgt;
+              if (target.reverse) {
+                src = t.id;
+                tgt = id || tag.code;
+              } else {
+                src = id || tag.code;
+                tgt = t.id;
+              }
+              graph.edges.push({data: connect(src, tgt, target.relationship)});
+              if (hasTargets(target)) createTargets(target);
+            })
+          };
+
+          var root = {};
+
+          if (!isTag(cp)) {
+            root = createEntity(cp.documentName || cp.documentType.name);
+            graph.nodes.push({data: root});
+          } else {
+            root = createTag(cp.documentName);
+            graph.nodes.push({data: root});
+          }
+          _.each(cp.content, function (obj, key) {
+            if (isTag(obj)) {
+              var tag = createTag(key, {label: (obj.label || key)});
+              graph.nodes.push({data: tag});
+              graph.edges.push({data: connect(root.id, tag.id, obj.relationship)});
+              if (hasTargets(obj)) {
+                createTargets(obj, tag.id);
+              }
+              if (hasAliases(obj)) {
+                _.each(obj.aliases, function (alias) {
+                  var a = {id: alias.code, code: alias.code, description: alias.description, type: 'alias'};
+                  graph.nodes.push({data: a});
+                  graph.edges.push({data: connect(tag.id, a.id)});
+                })
+              }
+            }
+            if (hasEntityLinks(obj)) {
+              _.each(obj.entityLinks, function (entity) {
+                var e = createEntity(entity.documentName);
+                graph.nodes.push({data: e});
+                graph.edges.push({data: connect(root.id, e.id, entity.relationshipName)});
+              })
+            }
+          });
+          angular.copy(graph, cpGraph);
+          return graph;
+        }
+      },
+      updateProfile: function (profile) {
+        angular.copy(profile, cp);
+        this.graphProfile();
+      },
+      saveProfile: function () {
+       return $http.post(configuration.engineUrl() + '/api/v1/content/' + this.cpFortress+'/'+this.cpType, cp);
+      }
+  };
+}]);
 
 fdView.factory('cyGraph', ['$q', function($q){
   var cy;

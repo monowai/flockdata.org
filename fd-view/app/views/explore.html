@@ -133,14 +133,13 @@
                       </div>
                     </section>
                   </div>
-                </div>
               </fieldset>
 
             </form>
           </div>
            <!--/.tab-pane -->
-          <div class="tab-pane fade active in" id="view" ng-height="250">
-            <cytoscape elements="graphData" layout="layout" styles="styles" selected-nodes="nodes"></cytoscape>
+          <div class="tab-pane fade active in" id="view">
+            <cytoscape elements="graphData" layout="layout" styles="styles" selected-nodes="nodes" ng-height="250"></cytoscape>
             <div class="controls" ng-show="nodes.length>0">
               <div class="row">
                 <div class="col-md-4">
