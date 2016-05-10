@@ -30,6 +30,11 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 @SpringBootApplication(scanBasePackages = { "org.flockdata.store", "org.flockdata.authentication", "org.flockdata.shared"})
 public class FdStore {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(FdStore.class).web(true).run(args);
+        try {
+            new SpringApplicationBuilder(FdStore.class).web(true).run(args);
+        } catch ( Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
     }
 }

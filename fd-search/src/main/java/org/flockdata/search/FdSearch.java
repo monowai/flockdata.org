@@ -32,7 +32,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FdSearch {
 
     public static void main(String[] args) {
-        SpringApplication.run(FdSearch.class, args);
+        try {
+            SpringApplication.run(FdSearch.class, args);
+        } catch ( Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
     }
 
 
