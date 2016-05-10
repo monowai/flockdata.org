@@ -42,7 +42,12 @@ import javax.annotation.PostConstruct;
 
 public class FdEngine {
     public static void main(String[] args) {
-        SpringApplication.run(FdEngine.class, args);
+        try {
+            SpringApplication.run(FdEngine.class, args);
+        } catch ( Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
     }
 
     @Autowired
