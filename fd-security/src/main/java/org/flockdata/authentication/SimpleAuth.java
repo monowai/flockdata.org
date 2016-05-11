@@ -40,7 +40,6 @@ import javax.annotation.PostConstruct;
  * Created by mike on 16/02/16.
  */
 
-@Configuration
 @Profile({"fd-auth-test"}) //
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
@@ -72,17 +71,24 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
+    SimpleUsers simpleUsers;
+
+    @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> ima = auth.inMemoryAuthentication();
-        ima.withUser("mike")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
-        ima.withUser("sally")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER, FdRoles.FD_ADMIN);
-        ima.withUser("harry")
-                .password("123")
-                .roles("USER", FdRoles.FD_USER);
+        if (simpleUsers == null || simpleUsers.getUsers() == null) {
+            logger.info("**** [fd-auth-test] - attempting to use fd-auth-test but no users have been configured. Consider starting the service with -P fd-no-auth");
+            logger.info("**** [fd-auth-test] - a default user of mike will be created");
+            simpleUsers.createDefault();
+        }
+        for (String login : simpleUsers.getUsers().keySet()) {
+            SimpleUsers.UserEntry user = simpleUsers.getUsers().get(login);
+            ima.withUser(login)
+                    .password(user.getPass())
+                    .roles(user.getRoles().toArray(new String[0]));
+
+            logger.info("**** [fd-auth-test] - Added {}", login);
+        }
 
     }
 
@@ -90,7 +96,7 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** [SimpleAuth] - Limited authorization (for testing) is being used");
+        logger.info("**** [fd-auth-test] - Limited authorization (for testing) is being used");
     }
 
 }

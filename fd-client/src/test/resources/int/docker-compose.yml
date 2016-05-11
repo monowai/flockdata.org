@@ -19,16 +19,15 @@ rabbit:
 fdengine:
   image: flockdata/fd-engine
   command: "-ea -Xmx512m "
-
   links:
      - rabbit
      - fdsearch
      - fdstore
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '8090:8090'
-#    - '61000:61000'
+  ports:
+    - '8090:8090'
+    - '61000:61000'
 
 #  To debug the service, you MUST uncomment the debug line in the DockerFile for fd-engine
   expose:
@@ -43,6 +42,9 @@ fdengine:
     org.fd.engine.search.update: 'true'
     org.fd.search.api: http://fdsearch:8091
     org.fd.store.api: http://fdstore:8092
+    # Create an integration account for testing
+    org.fd.auth.simple.users.integration.pass: 123
+    org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
     logging.level.org.flockdata: DEBUG
     # Disable the webserver
     org.neo4j.server.webserver.port: -1
@@ -55,12 +57,12 @@ fdsearch:
   command: "-Xmx512m"
   links:
     - rabbit
+
 # Uncomment ports for non-proxy debug
 #  ports:
 #    - '8091:8091'
 #    - '61001:61001'
 #    - '9200:9200'
-
 
   expose:
     - 8091
@@ -74,8 +76,10 @@ fdsearch:
     org.fd.engine.api: http://fdengine:8090
     #Is the node going to be a client node which means it will hold no data
     org.fd.search.es.transportOnly: "false"
-    # A local node is a node that uses a local (JVM level) discovery and transport
-    org.fd.search.es.local: "true"
+    # , serparated list of hosts to connect to if transportOnly == true
+#    es.nodes: elasticsearch:9300
+    org.fd.search.es.local: "false"
+
     spring.jackson.serialization.indent_output: 'true'
 
     es.clustername: 'es_int_fd'
@@ -107,6 +111,16 @@ fdstore:
     spring.profiles.active: fd-no-auth,memstore
     rabbit.host: rabbit
     rabbit.port: 5672
+
+#elasticsearch:
+#  image: elasticsearch:1.7.5
+#  command: elasticsearch -Des.cluster.name=es_int_fd
+#
+#  expose:
+#    - 9200
+#    - 9300
+
+
 
 #fdriak:
 #  image: lapax/riak:latest

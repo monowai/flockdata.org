@@ -27,10 +27,10 @@ import static org.flockdata.test.integration.IntegrationHelper.*;
 
 /**
  * see http://testcontainers.viewdocs.io/testcontainers-java/usage/docker_compose/
- *
+ * <p>
  * We want to be able to run the stack either for a single test method or as a suite.
  * Easier to centralise the container config in this class to accomplish that
- *
+ * <p>
  * Created by mike on 6/05/16.
  */
 public class FdDocker extends ExternalResource {
@@ -51,13 +51,15 @@ public class FdDocker extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         logger.info("Starting FD full docker stack");
-        stack.start();
+        if (stack != null)
+            stack.start();
     }
 
     @Override
     protected void after() {
         logger.info("Stopping FD full docker stack");
-        stack.stop();
+        if (stack != null)
+            stack.stop();
     }
 
     static DockerComposeContainer getStack() {
