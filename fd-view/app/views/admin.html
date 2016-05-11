@@ -22,10 +22,10 @@
 <section class="content-header">
   <h1>
     Administration
-    <small>Fortress controls</small>
+    <small>{{profile.companyName}} Data Providers</small>
   </h1>
   <ol class="breadcrumb">
-    <li><a ui-sref="welcome"><i class="fa fa-home"></i> Home</a></li>
+    <li><a ui-sref="welcome"><i class="fa fa-home"></i>Home</a></li>
     <li class="active">Administration</li>
   </ol>
 </section>
@@ -34,28 +34,194 @@
 <section class="content">
 
   <!-- Default box -->
-  <div class="box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Administration</h3>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="box box-warning">
+        <div class="box-header with-border">
+          <h3 class="box-title">Data Providers</h3>
 
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-          <i class="fa fa-minus"></i></button>
-        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-          <i class="fa fa-times"></i></button>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" uib-tooltip="Create new Data Provider" ng-click="editFortress()">
+              <i class="fa fa-2x fa-plus-square"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+
+          <uib-accordion class="box-group">
+            <uib-accordion-group ng-repeat="f in fortresses" class="box box-solid fader">
+              <uib-accordion-heading>
+                <span class="box-title" ng-click="selectFortress(f)">{{f.name}}</span>
+              </uib-accordion-heading>
+              <div class="row">
+                <div class="col-md-8">
+                  <b>Name: </b><a ng-click="editFortress(f)" href="#">{{f.name}}</a><br>
+                  <b>Root Index: </b>{{f.rootIndex}}
+                </div>
+                <div class="col-md-4">
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" uib-tooltip="Analyze" ng-click="analyzeFortress(f)"><i class="fa fa-lg fa-search"></i></button>
+                    <button type="button" class="btn btn-box-tool" uib-tooltip="Reindex" ng-click="rebuildFortress(f)" ng-if="isAdmin()"><i class="fa fa-lg fa-recycle"></i></button>
+                    <button type="button" class="btn btn-box-tool" uib-tooltip="Delete" ng-click="deleteFortress(f)" ng-if="isAdmin()"><i class="fa fa-lg fa-times"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" uib-tooltip="Create DocType" ng-click="editType()" ng-show="typeOpen"><i class="fa fa-2x fa-plus-square"></i>
+                  </button>
+                <button type="button" class="btn btn-box-tool" uib-tooltip="Create Segment" ng-click="editSegment()" ng-hide="typeOpen"><i class="fa fa-2x fa-plus-square"></i>
+                </button>
+              </div>
+              <uib-tabset class="nav-tabs-custom">
+                <uib-tab heading="Types" class="fader" active="typeOpen" select="typeOpen=true">
+                  <div class="box-body">
+                    <div class="box-group" id="doctypes">
+                      <div class="box-header with-border fader" ng-repeat="doc in documents">
+                        <a ng-click="editType(doc)" href=""><b>{{doc.name}}</b></a>
+                        <div class="box-tools pull-right">
+                          <button type="button" class="btn btn-box-tool" uib-tooltip="Analyze" ng-click=""><i class="fa fa-lg fa-search"></i></button>
+                          <button type="button" class="btn btn-box-tool" uib-tooltip="Reindex" ng-click="" ng-if="isAdmin()"><i class="fa fa-lg fa-recycle"></i></button>
+                          <!--**waiting for endpoint <button type="button" class="btn btn-box-tool" uib-tooltip="Delete" ng-click="deleteDocType(f, doc)" ng-if="isAdmin()"><i class="fa fa-lg fa-times"></i></button>-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- /.box-body -->
+                </uib-tab>
+                <uib-tab heading="Segments" class="fader" active="!typeOpen" select="typeOpen=false">
+                  <div class="box-body">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div ng-repeat="seg in segments"><b> Code: </b>&nbsp; {{seg.code}}
+                          <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" uib-tooltip="Analyze" ng-click=""><i class="fa fa-lg fa-search"></i></button>
+                            <button type="button" class="btn btn-box-tool" uib-tooltip="Reindex" ng-click=""><i class="fa fa-lg fa-recycle" ng-if="isAdmin()"></i></button>
+                            <button type="button" class="btn btn-box-tool" uib-tooltip="Delete" ng-click="deleteSegment(seg)" ng-disabled="seg.code==='Default'"  ng-if="isAdmin()"><i class="fa fa-lg fa-times"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </uib-tab>
+              </uib-tabset>
+            </uib-accordion-group>
+          </uib-accordion>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+
+        </div>
+        <!-- /.box-footer-->
       </div>
-    </div>
-    <div class="box-body">
-      Here is coming some administration features for the app
-    </div>
-    <!-- /.box-body -->
-    <div class="box-footer">
+      <!-- /.box -->
 
     </div>
-    <!-- /.box-footer-->
+
+    <div class="col-md-6">
+      <div class="box box-success fader" ng-show="createDP">
+        <div class="box-header with-border">
+          <h3 class="box-title">{{action}} Data Provider</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-box-tool" ng-click="createDP=false">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <form role="form" class="form-horizontal">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label for="name" class="col-sm-2 control-label">Name</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" placeholder="DP name" ng-model="name">
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <!-- <div class="form-group"> -->
+                <select name="timezone" id="timezone" class="form-control" ng-model="timezone" ng-options="tz as tz for tz in timezones" placeholder="Timezone"></select>
+                <!-- </div> -->
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-3 col-sm-offset-1 checkbox">
+                <label><input type="checkbox" ng-model="searchable"> Searchable</label>
+              </div>
+              <div class="col-sm-4 checkbox">
+                <label><input type="checkbox" ng-model="versionable"> Versionable Content</label>
+              </div>
+            </div>
+          </form>
+
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          <!--<button type="submit" class="btn btn-warning" ng-click="deleteFortress(f)" ng-show="action==='Edit'"><i class="fa fa-trash-o"></i>&nbsp; Delete</button>-->
+          <button type="submit" class="btn btn-primary pull-right" ng-click="saveFortress()"><i class="fa fa-floppy-o"></i>&nbsp; Save</button>
+        </div>
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+
+      <div class="box box-success fader" ng-show="createDT">
+        <div class="box-header with-border">
+          <h3 class="box-title">{{taction}} Document Type</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" uib-tooltip="Cancel" ng-click="createDT=false">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <form role="form" class="form-horizontal">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="name" class="col-sm-2 control-label">Name</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" placeholder="Data type name" ng-model="typeName" ng-disabled="taction==='Edit'">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ** requires end point **
+            <div class="form-group">
+              <div class="col-sm-4 checkbox">
+                <label><input type="checkbox" ng-model="tsearchable"> Searchable</label>
+              </div>
+              <div class="col-sm-8 checkbox">
+                <label><input type="checkbox" ng-model="tversionable"> Versionable Content</label>
+              </div>
+            </div> -->
+          </form>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary pull-right" ng-click="saveDocType(typeName)"><i class="fa fa-floppy-o"></i>&nbsp; Save</button>
+        </div>
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+
+    </div>
+
   </div>
-  <!-- /.box -->
 </section>
+
+<script type="text/ng-template" id="delete-modal.html"  ng-if="isAdmin()">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel()">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Deleting...</h4>
   </div>
-  <!-- /.box -->
-</section>
+  <div class="modal-body">
+    <p>Warning! You are about to delete the {{type}} - "{{name}}" and all associated data. Do you want to proceed?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default pull-left" ng-click="cancel()">No</button>
+    <button type="button" class="btn btn-danger" ng-click="delete()">Yes</button>
+  </div>
+</script>
