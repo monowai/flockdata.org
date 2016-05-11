@@ -233,4 +233,8 @@ public class Fortress implements MetaFortress, Serializable {
     public void setRootIndex(String rootIndex) {
         this.rootIndex = rootIndex;
     }
+
+    public void setSystem(Boolean system) {
+        this.system = system;
+    }
 }

@@ -26,12 +26,14 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.NoShardAvailableActionException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.index.mapper.MapperParsingException;
+import org.elasticsearch.indices.IndexMissingException;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.base.EntityChangeWriter;
@@ -49,6 +51,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Mike Holdsworth
@@ -122,10 +125,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             return searchChange;
         } catch (MapperParsingException e) {
             // DAT-359
-            logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]" , indexName , searchChange.getCode(),searchChange.getKey(), e.getMessage());
+            logger.error("Parsing error {} - callerRef [{}], key [{}], [{}]", indexName, searchChange.getCode(), searchChange.getKey(), e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Writing to index {} produced an error [{}]" ,indexName, e.getMessage());
+            logger.error("Writing to index {} produced an error [{}]", indexName, e.getMessage());
             throw new AmqpRejectAndDontRequeueException("Parsing error - callerRef [" + searchChange.getCode() + "], key [" + searchChange.getKey() + "], " + e.getMessage(), e);
         }
 
@@ -261,6 +264,18 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         return results;
     }
 
+    @Override
+    public void deleteIndex(String index) {
+        try {
+            searchConfig.elasticSearchClient().admin().indices().delete(new DeleteIndexRequest(index)).get();
+            logger.info("deleted [{}]", index);
+        } catch (IndexMissingException e){
+            logger.info("Index [{}] did not exist", index);
+        }catch (ExecutionException|InterruptedException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
     private String getJsonToIndex(SearchChange searchChange) {
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
@@ -333,20 +348,20 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         for (EntityKeyBean linkedEntity : entityLinks) {
             //String prefix;
 
-            Map<String,Map<String,Object>> entity = (Map<String, Map<String, Object>>) indexMe.get("e");
-            if ( entity == null ) {
+            Map<String, Map<String, Object>> entity = (Map<String, Map<String, Object>>) indexMe.get("e");
+            if (entity == null) {
                 entity = new HashMap<>();//
                 indexMe.put("e", entity);
 
             }
             String docType = linkedEntity.getDocumentType().toLowerCase();
-            Map<String,Object>docEntry = entity.get(docType);
-            if ( docEntry == null) {
+            Map<String, Object> docEntry = entity.get(docType);
+            if (docEntry == null) {
                 docEntry = new HashMap<>();
             }
             entity.put(docType, docEntry);
 
-            Map<String,Object>leaf;
+            Map<String, Object> leaf;
             if (linkedEntity.getRelationship() == null || linkedEntity.getRelationship().equals("") || linkedEntity.getRelationship().equalsIgnoreCase(linkedEntity.getDocumentType())) {
                 leaf = docEntry;
                 //prefix = "e" +QueryDaoES.ES_FIELD_SEP + linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP;
@@ -375,10 +390,10 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         Collection<String> uniqueTags = new ArrayList<>();
         Collection<String> outputs = new ArrayList<>();
         boolean oneToMany = true;   // Kibana presentation only. ToDo: Set from TagInputBean->SearchTag
-                                    // If false, makes the presentation look better in Kibana.
-                                    // Consider one to one then one to many. One to one displays flat
-                                    // while one to many assumes the tags to be an []. Presentation should strive to be consistent
-                                    // but you can still query consistently either way.
+        // If false, makes the presentation look better in Kibana.
+        // Consider one to one then one to many. One to one displays flat
+        // while one to many assumes the tags to be an []. Presentation should strive to be consistent
+        // but you can still query consistently either way.
 
         Map<String, Object> byRelationship = new HashMap<>();
         Map<String, Object> squash = new HashMap<>();
@@ -405,7 +420,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 Map<String, ArrayList<SearchTag>> mapValues = tagValues.get(relationship);
                 Map<String, Object> newValues = new HashMap<>();
                 for (String label : mapValues.keySet()) {
-                    if (mapValues.get(label).size() == 1 & !oneToMany ) {
+                    if (mapValues.get(label).size() == 1 & !oneToMany) {
                         // DAT-329 if only one value, don't store as a collection
                         SearchTag searchTag = mapValues.get(label).iterator().next();
                         // Store the tag

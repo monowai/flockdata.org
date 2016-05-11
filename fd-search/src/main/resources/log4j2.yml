@@ -34,6 +34,13 @@ Configuration:
             - ref: CONSOLE
             - ref: FILE
 
+        - name: org.flockdata.search.dao.EntityChangeWriterEs
+          additivity: false
+          level: info
+          AppenderRef:
+            - ref: CONSOLE
+            - ref: FILE
+
         - name: org.flockdata.search.FdSearch
           additivity: false
           level: info

@@ -443,7 +443,7 @@ public class MediationFacadeNeo implements MediationFacade {
         if (fortress == null)
             throw new NotFoundException("Fortress [" + fortressCode + "] does not exist");
 
-        logger.info("Purging fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
+        logger.info("Processing request to purge fortress [{}] on behalf of [{}]", fortress, securityHelper.getLoggedInUser());
         adminService.purge(company, fortress);
     }
 

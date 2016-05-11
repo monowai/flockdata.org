@@ -88,7 +88,7 @@ public class NoAuth extends WebSecurityConfigurerAdapter {
 
     @PostConstruct
     void dumpConfig() {
-        logger.info("**** [NoAuth] - un-authorized requests to all endpoints is being used");
+        logger.info("**** [NoAuth] - requests to endpoints are not secured");
     }
 
 }

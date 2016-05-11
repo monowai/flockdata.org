@@ -71,4 +71,5 @@ public interface EntityChangeWriter {
 
     Map<String, Object> ping();
 
+    void deleteIndex(String index);
 }

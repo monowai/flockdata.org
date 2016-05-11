@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,6 +85,12 @@ public class SearchAdmin {
         return new InfoEndpoint(getHealth());
     }
 
+    public void deleteIndexes (Collection<String>indexesToDelete){
+        for (String index : indexesToDelete) {
+            engineDao.deleteIndex(index);
+        }
+
+    }
 
     @PostConstruct
     void logStatus(){

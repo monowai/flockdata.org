@@ -21,6 +21,7 @@
 package org.flockdata.company.service;
 
 
+import org.flockdata.authentication.FdRoles;
 import org.flockdata.company.dao.FortressDaoNeo;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.configure.SecurityHelper;
@@ -44,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -235,7 +237,7 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     public Fortress registerFortress(Company company, FortressInputBean fib, boolean createIfMissing) {
         logger.debug("Fortress registration request {}, {}", company, fib);
-        Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getName().toLowerCase());
+        Fortress fortress = fortressDao.getFortressByCode(company.getId(), fib.getCode());
         boolean storeEnabled = engineConfig.storeEnabled();
         if (fortress != null) {
             if (fortress.isStoreEnabled() == null)
@@ -369,6 +371,17 @@ public class FortressServiceNeo4j implements FortressService {
         }
         return segment;
 
+    }
+
+    @Override
+    @PreAuthorize(FdRoles.EXP_ADMIN)
+    public Fortress updateFortress(Company company, Fortress existing, FortressInputBean fortressInputBean) {
+        existing.setSearchEnabled(fortressInputBean.getSearchActive());
+        existing.setStoreEnabled(fortressInputBean.getStoreActive());
+        existing.setTimeZone(fortressInputBean.getTimeZone());
+        existing.setName(fortressInputBean.getName());
+        existing.setSystem(fortressInputBean.getSystem());
+        return fortressDao.update(existing);
     }
 
     private Map<Long, EntityTagFinder> tagFinders = new HashMap<>();

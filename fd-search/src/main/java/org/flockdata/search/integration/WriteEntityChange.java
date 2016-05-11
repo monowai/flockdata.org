@@ -22,10 +22,13 @@ package org.flockdata.search.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
+import org.flockdata.search.AdminRequest;
 import org.flockdata.search.base.SearchWriter;
 import org.flockdata.search.model.EntitySearchChanges;
 import org.flockdata.search.model.SearchResults;
+import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.shared.AmqpRabbitConfig;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.Exchanges;
 import org.flockdata.shared.MessageSupport;
 import org.slf4j.Logger;
@@ -76,6 +79,9 @@ public class WriteEntityChange {
     SearchWriter searchWriter;
 
     @Autowired
+    SearchAdmin searchAdmin;
+
+    @Autowired
     AmqpRabbitConfig rabbitConfig;
 
     @Autowired
@@ -108,6 +114,7 @@ public class WriteEntityChange {
         return IntegrationFlows.from(
                 Amqp.inboundAdapter(connectionFactory, exchanges.fdSearchQueue())
                     .outputChannel(writeSearchDoc())
+                        .mappedRequestHeaders(ClientConfiguration.KEY_MSG_KEY, ClientConfiguration.KEY_MSG_TYPE)
                         .maxConcurrentConsumers(exchanges.searchConcurrentConsumers())
                     .prefetchCount(exchanges.searchPreFetchCount())
                 )
@@ -120,7 +127,14 @@ public class WriteEntityChange {
     public MessageHandler handler() {
         return message -> {
             try {
-                searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), EntitySearchChanges.class));
+                Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
+                if ( oType == null || oType.toString().equalsIgnoreCase("W"))
+                    searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), EntitySearchChanges.class));
+                else if ( oType.toString().equalsIgnoreCase("ADMIN")){
+                    AdminRequest adminRequest =objectMapper.readValue((String)message.getPayload(),AdminRequest.class);
+                    searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());
+                    logger.info("Got an admin request");
+                }
             } catch (IOException e) {
                 logger.error("Unable to de-serialize the payload. Rejecting due to [{}]", e.getMessage());
                 throw new AmqpRejectAndDontRequeueException("Unable to de-serialize the payload", e);
@@ -131,7 +145,6 @@ public class WriteEntityChange {
 
 
     @MessagingGateway(name = "engineGateway", asyncExecutor = "fd-search")
-//    @Profile({"fd-server"})
     public interface EngineResultGateway {
         @Gateway(requestChannel = "searchReply", requestTimeout = 40000)
         @Async("fd-search")
@@ -152,7 +165,6 @@ public class WriteEntityChange {
         outbound.setExchangeName(exchanges.engineExchange());
         outbound.setRoutingKey(exchanges.fdEngineBinding());
         outbound.setExpectReply(false);
-        //outbound.setConfirmAckChannel();
         return outbound;
 
     }

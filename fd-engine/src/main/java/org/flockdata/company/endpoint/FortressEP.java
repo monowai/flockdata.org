@@ -80,6 +80,17 @@ public class FortressEP {
 
     }
 
+    @RequestMapping(value = "/{code}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+    public FortressResultBean updateFortress(@RequestBody FortressInputBean fortressInputBean, HttpServletRequest request, @PathVariable("code") String code) throws FlockException {
+        Company company = CompanyResolver.resolveCompany(request);
+        Fortress existing = fortressService.findByCode(company, code);
+        if ( existing == null )
+            throw new NotFoundException("Unable to locate the fortress with the code " + code);
+
+        return new FortressResultBean(fortressService.updateFortress(company, existing, fortressInputBean));
+
+    }
+
     @RequestMapping(value = "/{fortressName}/{docTypeName}", produces = "application/json", consumes = "application/json", method = RequestMethod.PUT)
     public DocumentResultBean registerDocumentType(HttpServletRequest request, @PathVariable("fortressName") String fortressName, @PathVariable("docTypeName") String docTypeName) throws FlockException {
         Company company = CompanyResolver.resolveCompany(request);
