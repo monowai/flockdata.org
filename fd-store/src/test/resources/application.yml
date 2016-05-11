@@ -5,7 +5,7 @@ application:
 spring:
   profiles:
     active: dev
-    include: redis,riak
+    include: redis,riak,fd-no-auth
 
 org.fd:
   store:

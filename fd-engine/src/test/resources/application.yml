@@ -29,6 +29,18 @@ org.fd:
 
   auth:
     simple:
+      users:
+        mike:
+          pass: 123
+          roles: FD_USER;FD_ADMIN
+        harry:
+          pass: 123
+          roles: FD_USER
+        sally:
+          pass: 123
+          roles: FD_USER;FD_ADMIN
+
+
       user: admin
       pass: hackme
     stormpath:

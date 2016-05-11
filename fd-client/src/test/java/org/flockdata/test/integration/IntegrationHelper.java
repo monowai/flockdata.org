@@ -64,9 +64,10 @@ import static org.springframework.test.util.AssertionErrors.fail;
 })
 class IntegrationHelper {
 
+    // These are defined in docker-compose.yml
+    static final String ADMIN_REGRESSION_USER = "integration";
+    static final String ADMIN_REGRESSION_PASS = "123";
     private static Logger logger = LoggerFactory.getLogger(IntegrationHelper.class);
-
-//    private static DockerStack stack = new DockerStack();
 
     @Value("${org.fd.test.sleep:1000}")
     private int sleep;
@@ -326,7 +327,7 @@ class IntegrationHelper {
      * @return details about the DataAcessUser
      */
     SystemUserResultBean makeDataAccessUser() {
-        return fdRestWriter.register("mike", "TestCompany");
+        return fdRestWriter.register(ADMIN_REGRESSION_USER, "TestCompany");
     }
 
     Login login(String user, String pass) {
@@ -342,7 +343,7 @@ class IntegrationHelper {
      * connectivity is working
      */
     private void interServiceHealthCheck() {
-        Login login = login("mike", "123");
+        Login login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
         assertWorked("Login error ", login.exec());
         assertTrue("Unexpected login error "+login.error(), login.worked());
         Health health = new Health(clientConfiguration, fdRestWriter);

@@ -101,7 +101,7 @@ public class ReadWriteTesting {
 
     @Test
     public void simpleLogin() {
-        clientConfiguration.setHttpUser("mike");
+        clientConfiguration.setHttpUser(IntegrationHelper.ADMIN_REGRESSION_USER);
         clientConfiguration.setHttpPass("123");
         clientConfiguration.setServiceUrl(getEngine());
         UserProfile profile = fdRestWriter.login(clientConfiguration);
@@ -119,7 +119,7 @@ public class ReadWriteTesting {
     @Test
     public void registration() {
         // An authorised user can create DataAccess users for a given company
-        integrationHelper.assertWorked("Registration failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Registration failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, IntegrationHelper.ADMIN_REGRESSION_PASS).exec());
         SystemUserResultBean suResult = integrationHelper.makeDataAccessUser();
         assertNotNull(suResult);
         assertNotNull(suResult.getApiKey());
@@ -138,7 +138,7 @@ public class ReadWriteTesting {
     @Test
     public void loadCountries() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
 
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
         clientConfiguration.setBatchSize(5);
@@ -181,7 +181,7 @@ public class ReadWriteTesting {
     @Test
     public void trackEntityOverHttp() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -208,7 +208,7 @@ public class ReadWriteTesting {
     @Test
     public void trackEntityOverAmqpThenFindInSearch() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -256,7 +256,7 @@ public class ReadWriteTesting {
     @Test
     public void validateEntityLogs() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()
@@ -295,7 +295,7 @@ public class ReadWriteTesting {
     @Test
     public void findByESPassThroughWithUTF8() throws Exception {
 
-        integrationHelper.assertWorked("Login failed ", integrationHelper.login("mike", "123").exec());
+        integrationHelper.assertWorked("Login failed ", integrationHelper.login(IntegrationHelper.ADMIN_REGRESSION_USER, "123").exec());
         clientConfiguration.setApiKey(integrationHelper.makeDataAccessUser().getApiKey());
 
         EntityInputBean entityInputBean = new EntityInputBean()

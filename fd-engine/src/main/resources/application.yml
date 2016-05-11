@@ -125,10 +125,15 @@ org.fd:
     executor:
       poolSize: 5-10
       queueCapacity: 30
-  auth:
-    simple:
-      user: admin
-      pass: hackme
+
+## These should be enabled in your environment. If no users are provided then an account with the credentials mike/123 will be created
+#  auth:
+#    simple:
+#      users:
+#        admin:
+#          pass: 123
+#          roles: FD_USER;FD_ADMIN
+
     stormpath:
       #apiKeyFile: '${FD_HOME}/conf/apiKey.properties'
       #application: https://api.stormpath.com/v1/applications/2vD7nBoKANqpIFSDvXxfWY

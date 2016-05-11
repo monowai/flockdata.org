@@ -26,9 +26,9 @@ fdengine:
      - fdstore
 
 # Uncomment ports for non-proxy debug
-#  ports:
-#    - '8090:8090'
-#    - '61000:61000'
+  ports:
+    - '8090:8090'
+    - '61000:61000'
 
 #  To debug the service, you MUST uncomment the debug line in the DockerFile for fd-engine
   expose:
@@ -43,6 +43,9 @@ fdengine:
     org.fd.engine.search.update: 'true'
     org.fd.search.api: http://fdsearch:8091
     org.fd.store.api: http://fdstore:8092
+    # Create an integration account for testing
+    org.fd.auth.simple.users.integration.pass: 123
+    org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
     logging.level.org.flockdata: DEBUG
     # Disable the webserver
     org.neo4j.server.webserver.port: -1
