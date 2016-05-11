@@ -20,13 +20,19 @@
 package org.flockdata.test.engine.mvc;
 
 import junit.framework.TestCase;
+import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.FortressSegment;
+import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.FortressResultBean;
 import org.junit.Test;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collection;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by mike on 16/02/15.
@@ -44,14 +50,76 @@ public class TestFortressEP extends MvcBase {
 
         FortressResultBean fortress = createFortress(mike(), "make_DocTypes");
 
-
         Collection<FortressSegment> segments = getSegments(mike(), fortress.getName());
         assertEquals(1, segments.size());
 
         TestCase.assertTrue("Default segment not found", segments.iterator().next().getCode().equals("Default"));
 
+    }
+
+    @Test
+    public void update_Fortress() throws Exception {
+
+        FortressResultBean fortress = createFortress(mike(), "update_Fortress");
+        FortressInputBean update = new FortressInputBean(fortress.getName());
+
+        update.setSearchActive(true);
+        update.setStoreActive(true);
+        update.setTimeZone(TimeZone.getTimeZone("PST").getID());
+        update.setName("A new name");
+        update.setSystem(true);
+
+        FortressResultBean updated = updateFortress(mike(), fortress.getCode(), update, MockMvcResultMatchers.status().isOk());
+        assertNotNull(updated);
+        assertEquals("Search active did not change", update.getSearchActive().booleanValue(), updated.getSearchEnabled());
+        assertEquals("Store active did not change", update.getStoreActive().booleanValue(), updated.isStoreEnabled());
+        assertEquals(update.getName(), updated.getName());
+
+
+        exception.expect(NotFoundException.class);
+        updateFortress(mike(), "doesNotExist", update, MockMvcResultMatchers.status().isNotFound());
+
+        updateFortress(sally(), fortress.getCode(), update, MockMvcResultMatchers.status().isNotFound());
+        // Harry is not authorised
+        updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isOk());
+
 
     }
 
+    @Test
+    public void cant_updateFortressThatUserDoesntBelongTo() throws Exception {
 
+        FortressResultBean fortress = createFortress(mike(), "cant_updateFortressThatUserDoesntBelongTo");
+
+        FortressInputBean update = new FortressInputBean(fortress.getName());
+
+        update.setSearchActive(true);
+        update.setStoreActive(true);
+        update.setTimeZone(TimeZone.getTimeZone("PST").getID());
+        update.setName("A new name");
+        update.setSystem(true);
+
+        // Sally works for a different company
+        exception.expect(NotFoundException.class);
+        updateFortress(sally(), fortress.getCode(), update, MockMvcResultMatchers.status().isNotFound());
+
+    }
+    @Test
+    public void cant_updateFortressUnlessUserIsAdmin() throws Exception {
+
+        FortressResultBean fortress = createFortress(mike(), "cant_updateFortressUnlessUserIsAdmin");
+
+        FortressInputBean update = new FortressInputBean(fortress.getName());
+
+        update.setSearchActive(true);
+        update.setStoreActive(true);
+        update.setTimeZone(TimeZone.getTimeZone("PST").getID());
+        update.setName("A new name");
+        update.setSystem(true);
+
+        // Sally works for a different company
+        exception.expect(AccessDeniedException.class);
+        updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isUnauthorized());
+
+    }
 }

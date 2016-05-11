@@ -71,11 +71,11 @@ public abstract class MvcBase {
     static final String LOGIN_PATH = apiRoot + "/login";
     static final String apiPath = apiRoot + "/v1";
     public static final String ANYCO = "anyco";
+    public static final String OTHERCO = "otherco";
 
     public static String harry = "harry";
     public static String mike_admin = "mike";
-    public static String sally_admin = "sally";
-    //public static String gina_admin = "gina";
+    public static String sally_admin = "sally"; // admin in a different company
 
     static Logger logger = LoggerFactory.getLogger(MvcBase.class);
 
@@ -119,7 +119,7 @@ public abstract class MvcBase {
         cleanUpGraph();
         suMike = makeDataAccessProfile(ANYCO, mike_admin);
         suHarry = makeDataAccessProfile(mike(), ANYCO, harry);// Harry works at Anyco where Mike is the administrator
-        suSally = makeDataAccessProfile(ANYCO, sally_admin);
+        suSally = makeDataAccessProfile(OTHERCO, sally_admin);
         suIllegal = new SystemUserResultBean(new SystemUser("illegal", "noone", null, false).setApiKey("blahh"));
 
 
@@ -156,6 +156,28 @@ public abstract class MvcBase {
     }
 
     public void setSecurity() throws Exception {
+    }
+
+    FortressResultBean updateFortress(RequestPostProcessor user, String code, FortressInputBean update,  ResultMatcher resultMatch) throws Exception {
+        MvcResult response = mvc()
+                .perform(
+                        MockMvcRequestBuilders
+                                .post(apiPath + "/fortress/{code}", code)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(user)
+                                .content(
+                                        JsonUtils
+                                                .toJson(update)))
+                .andExpect(resultMatch)
+                .andReturn();
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), FortressResultBean.class);
+        }
+
+        throw response.getResolvedException();
+
     }
 
     FortressResultBean createFortress(RequestPostProcessor user, String fortressName)
@@ -389,8 +411,13 @@ public abstract class MvcBase {
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andReturn();
 
-        byte[] json = response.getResponse().getContentAsByteArray();
-        return JsonUtils.toObject(json, FortressResultBean.class);
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), FortressResultBean.class);
+        }
+        throw response.getResolvedException();
+
 
     }
 

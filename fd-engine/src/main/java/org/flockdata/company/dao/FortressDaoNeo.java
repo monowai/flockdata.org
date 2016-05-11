@@ -124,4 +124,8 @@ public class FortressDaoNeo  {
     public void purgeFortress(Long fortressId) {
         fortressSegmentRepo.purgeFortressSegments(fortressId);
     }
+
+    public Fortress update(Fortress existing) {
+        return template.save(existing);
+    }
 }

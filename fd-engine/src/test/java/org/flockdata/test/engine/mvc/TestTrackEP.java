@@ -121,7 +121,7 @@ public class TestTrackEP extends MvcBase {
 
     @Test
     public void fortress_DuplicateNameWithProperties() throws Exception{
-        String fName= "fortress_ResultProperties";
+        String fName= "fortress_DuplicateNameWithProperties";
 //        cleanUpGraph();
         FortressInputBean fortressInputBean = new FortressInputBean(fName);
         FortressResultBean result = makeFortress(sally(), fortressInputBean);
@@ -130,14 +130,14 @@ public class TestTrackEP extends MvcBase {
 
         // Create the same fortress with a lowercase name.
         fortressInputBean = new FortressInputBean(fName.toLowerCase());
-        result = makeFortress(mike(), fortressInputBean);
+        result = makeFortress(sally(), fortressInputBean);
         assertEquals(fName, result.getName());
         assertEquals(fName.toLowerCase(), result.getCode());
         assertNotNull("Index Name not found", result.getIndexName());
 
-        FortressResultBean fortress = getFortress(mike(), result.getCode());
+        FortressResultBean fortress = getFortress(sally(), result.getCode());
         assertEquals(fortress.getRootIndex(), result.getIndexName());
-        assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(mike()).size());
+        assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
 
     }
 
