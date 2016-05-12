@@ -14,14 +14,30 @@
  *  limitations under the License.
  */
 
-package org.flockdata.test.integration;
+package org.flockdata.test.integration.matchers;
+
+import org.flockdata.client.commands.EntityLogsGet;
 
 /**
  * Created by mike on 23/04/16.
  */
-public interface ReadyMatcher {
+public class EntityLogReady implements ReadyMatcher {
 
-    String getMessage() ;
+    EntityLogsGet entityLogs;
+    int waitFor;
+    public EntityLogReady(EntityLogsGet entityLogs, int waitFor) {
+        this.waitFor = waitFor;
+        this.entityLogs = entityLogs;
+    }
 
-    boolean isReady();
+    @Override
+    public String getMessage() {
+        return "EntityLog "+ waitFor;
+    }
+
+    @Override
+    public boolean isReady() {
+        entityLogs.exec();
+        return entityLogs.result() != null && entityLogs.result().length == waitFor && entityLogs.result()[waitFor-1].getData()!=null;
+    }
 }

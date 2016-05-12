@@ -20,8 +20,9 @@
 
 package org.flockdata.engine.integration.search;
 
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.AdminRequest;
 import org.flockdata.shared.AmqpRabbitConfig;
+import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.shared.Exchanges;
 import org.flockdata.shared.MessageSupport;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -30,59 +31,76 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.integration.amqp.outbound.AmqpOutboundEndpoint;
+import org.springframework.integration.amqp.support.DefaultAmqpHeaderMapper;
 import org.springframework.integration.annotation.*;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.NullChannel;
+import org.springframework.integration.transformer.HeaderEnricher;
+import org.springframework.integration.transformer.support.HeaderValueMessageProcessor;
+import org.springframework.integration.transformer.support.StaticHeaderValueMessageProcessor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Created by mike on 12/02/16.
  */
 @Configuration
 @IntegrationComponentScan
-@Profile({"fd-server"})
-public class EntitySearchWriter {
+@Profile("fd-server")
+public class DeleteIndex {
 
     @Autowired
     AmqpRabbitConfig rabbitConfig;
 
     @Autowired
     Exchanges exchanges;
+
     @Autowired
     MessageSupport messageSupport;
 
-    @MessagingGateway
-    public interface EntitySearchWriterGateway {
-        @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-        void makeSearchChanges(EntitySearchChanges searchChanges);
+    @Transformer(inputChannel="startIndexDelete", outputChannel="adminHeadersChannel")
+    public Message<?> deleteSearchIndex(Message message){
+        return messageSupport.toJson(message);
     }
 
-
-    // ToDo: Can we handle this more via the flow or handler?
-    @Transformer(inputChannel="sendEntityIndexRequest", outputChannel="writeSearchChanges")
-    public Message<?> transformSearchChanges(Message theObject){
-        return messageSupport.toJson(theObject);
+    @MessagingGateway
+    public interface DeleteIndexGateway {
+        @Gateway(requestChannel = "startIndexDelete", requestTimeout = 5000, replyChannel = "nullChannel")
+//        @Async("fd-search")
+        void deleteIndex(AdminRequest adminRequest);
+    }
+    @Bean
+    @Transformer(inputChannel = "adminHeadersChannel", outputChannel = "writeAdminChanges")
+    public HeaderEnricher enrichHeaders() {
+        Map<String, ? extends HeaderValueMessageProcessor<?>> headersToAdd =
+                Collections.singletonMap(ClientConfiguration.KEY_MSG_TYPE,
+                        new StaticHeaderValueMessageProcessor<>("admin"));
+        return new HeaderEnricher(headersToAdd);
     }
 
     @Bean
-    MessageChannel writeSearchChanges(){
+    MessageChannel startIndexDelete(){
         return new DirectChannel();
     }
 
+
     @Bean
-    @ServiceActivator(inputChannel = "writeSearchChanges")
-    public AmqpOutboundEndpoint fdSearchAMQPOutbound(AmqpTemplate amqpTemplate) {
+    @ServiceActivator(inputChannel = "writeAdminChanges")
+    public AmqpOutboundEndpoint fdWriteAdminChanges(AmqpTemplate amqpTemplate) {
         AmqpOutboundEndpoint outbound = new AmqpOutboundEndpoint(amqpTemplate);
         outbound.setLazyConnect(rabbitConfig.getAmqpLazyConnect());
         outbound.setRoutingKey(exchanges.searchBinding());
         outbound.setExchangeName(exchanges.searchExchange());
+        DefaultAmqpHeaderMapper headerMapper = new DefaultAmqpHeaderMapper();
+        headerMapper.setRequestHeaderNames(ClientConfiguration.KEY_MSG_TYPE);
+        outbound.setHeaderMapper(headerMapper);
         outbound.setExpectReply(false);
         outbound.setConfirmAckChannel(new NullChannel());// NOOP
         //outbound.setConfirmAckChannel();
         return outbound;
 
     }
-
-
 }

@@ -14,29 +14,14 @@
  *  limitations under the License.
  */
 
-package org.flockdata.test.integration;
-
-import org.flockdata.client.commands.EntityGet;
+package org.flockdata.test.integration.matchers;
 
 /**
  * Created by mike on 23/04/16.
  */
-public class EntityKeyReady implements ReadyMatcher {
+public interface ReadyMatcher {
 
-    EntityGet entityGet;
+    String getMessage() ;
 
-    public EntityKeyReady(EntityGet entityGet) {
-        this.entityGet = entityGet;
-    }
-
-    @Override
-    public String getMessage() {
-        return "EntityKey";
-    }
-
-    @Override
-    public boolean isReady() {
-        entityGet.exec();
-        return entityGet.result() != null && entityGet.result().getKey() != null;
-    }
+    boolean isReady();
 }

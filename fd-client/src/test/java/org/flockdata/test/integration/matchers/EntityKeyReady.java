@@ -14,32 +14,29 @@
  *  limitations under the License.
  */
 
-package org.flockdata.test.integration;
+package org.flockdata.test.integration.matchers;
 
 import org.flockdata.client.commands.EntityGet;
 
 /**
- * Waits for a Search count of the requested value
  * Created by mike on 23/04/16.
  */
-public class EntitySearchReady implements ReadyMatcher {
+public class EntityKeyReady implements ReadyMatcher {
 
     EntityGet entityGet;
 
-    int waitFor;
-    public EntitySearchReady(EntityGet entityGet, int searchCount) {
+    public EntityKeyReady(EntityGet entityGet) {
         this.entityGet = entityGet;
-        this.waitFor = searchCount;
     }
 
     @Override
     public String getMessage() {
-        return "EntitySearch "+waitFor;
+        return "EntityKey";
     }
 
     @Override
     public boolean isReady() {
         entityGet.exec();
-        return entityGet.result() != null && entityGet.result().getSearch() == waitFor;
+        return entityGet.result() != null && entityGet.result().getKey() != null;
     }
 }

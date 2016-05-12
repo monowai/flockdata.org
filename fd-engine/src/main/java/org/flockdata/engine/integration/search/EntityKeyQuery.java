@@ -98,8 +98,8 @@ public class EntityKeyQuery {
 
 //    // ToDo: Can this be integrated to the handler?
 //    @Transformer(inputChannel="receiveKeyReply", outputChannel="keyResult")
-//    public KeyResults transforMkResponse(Message<String> theObject) throws IOException {
-//        return JsonUtils.toObject(theObject.getPayload().getBytes(), KeyResults.class);
+//    public KeyResults transforMkResponse(Message<String> message) throws IOException {
+//        return JsonUtils.toObject(message.getPayload().getBytes(), KeyResults.class);
 //    }
 
 }

@@ -22,6 +22,10 @@ import org.flockdata.client.commands.*;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.shared.*;
+import org.flockdata.test.integration.matchers.EntityKeyReady;
+import org.flockdata.test.integration.matchers.EntityLogReady;
+import org.flockdata.test.integration.matchers.EntitySearchReady;
+import org.flockdata.test.integration.matchers.ReadyMatcher;
 import org.flockdata.track.bean.EntityInputBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +104,7 @@ class IntegrationHelper {
         return entities;
     }
 
-    private void waitUntil(ReadyMatcher readyMatcher) {
+    private void waitUntil(Logger logger, ReadyMatcher readyMatcher) {
         ProgressBar pb = null;
         StopWatch watch = new StopWatch();
         watch.start(readyMatcher.getMessage());
@@ -135,21 +139,21 @@ class IntegrationHelper {
 
     }
 
-    void waitForEntityLog(EntityLogsGet entityLogs, int waitFor) {
+    void waitForEntityLog(Logger logger, EntityLogsGet entityLogs, int waitFor) {
         EntityLogReady ready = new EntityLogReady(entityLogs, waitFor);
-        waitUntil(ready);
+        waitUntil(logger, ready);
     }
 
     // Executes a GetEntity command and waits for a result. Can take some time depending on the environment that this
     // is working on.
-    void waitForEntityKey(EntityGet entityGet) {
+    void waitForEntityKey(Logger logger, EntityGet entityGet) {
         EntityKeyReady ready = new EntityKeyReady(entityGet);
-        waitUntil(ready);
+        waitUntil(logger, ready);
     }
 
-    void waitForSearch(EntityGet entityGet, int searchCount) {
+    void waitForSearch(Logger logger, EntityGet entityGet, int searchCount) {
         EntitySearchReady ready = new EntitySearchReady(entityGet, searchCount);
-        waitUntil(ready);
+        waitUntil(logger, ready);
     }
 
     private void waitForPong(Ping pingCommand, int waitCount) throws InterruptedException {
@@ -226,7 +230,7 @@ class IntegrationHelper {
 
     @PostConstruct
     public void waitForServices() throws InterruptedException {
-        logger.info("Wating for containers to come on-line");
+        logger.info("Waiting for containers to come on-line");
 
         clientConfiguration.setServiceUrl(getEngine());
         if (stackFailed)

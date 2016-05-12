@@ -34,6 +34,8 @@ import org.flockdata.track.bean.EntityInputBean;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -99,8 +101,11 @@ public class ReadWriteTesting {
     @Autowired
     private FdRestWriter fdRestWriter;
 
+    private static Logger logger = LoggerFactory.getLogger(ReadWriteTesting.class);
+
     @Test
     public void simpleLogin() {
+        logger.info("Testing simpleLogin");
         clientConfiguration.setHttpUser(IntegrationHelper.ADMIN_REGRESSION_USER);
         clientConfiguration.setHttpPass("123");
         clientConfiguration.setServiceUrl(getEngine());
@@ -113,8 +118,6 @@ public class ReadWriteTesting {
     public void resetClientConfiguration(){
         clientConfiguration.setServiceUrl(getEngine());
     }
-
-
 
     @Test
     public void registration() {
@@ -225,12 +228,12 @@ public class ReadWriteTesting {
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean)
                             .exec();
 
-        integrationHelper.waitForEntityKey(entityGet);
+        integrationHelper.waitForEntityKey(logger, entityGet);
 
         EntityBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
-        integrationHelper.waitForSearch(entityGet, 1);
+        integrationHelper.waitForSearch(logger, entityGet, 1);
         entityResult = entityGet.result();
         assertFalse("Search was incorrectly suppressed", entityResult.isSearchSuppressed());
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityResult.getSearch());
@@ -268,14 +271,14 @@ public class ReadWriteTesting {
 
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean).exec();
-        integrationHelper.waitForEntityKey(entityGet);
+        integrationHelper.waitForEntityKey(logger, entityGet);
 
         EntityBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
 
         EntityLogsGet entityLogs = new EntityLogsGet(clientConfiguration, fdRestWriter, entityResult.getKey());
-        integrationHelper.waitForEntityLog(entityLogs, 1);
+        integrationHelper.waitForEntityLog(logger, entityLogs, 1);
         assertNotNull(entityLogs.result());
         assertEquals("Didn't find a log", 1, entityLogs.result().length);
         assertNotNull("No data was returned", entityLogs.result()[0].getData());
@@ -286,7 +289,7 @@ public class ReadWriteTesting {
 
         // Updating an existing entity
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
-        integrationHelper.waitForEntityLog(entityLogs, 2);
+        integrationHelper.waitForEntityLog(logger, entityLogs, 2);
         assertEquals("Didn't find the second log", 2, entityLogs.result().length);
         assertEquals("Didn't find the updated field as the first result", "updated", entityLogs.result()[0].getData().get("key"));
         assertEquals("Didn't find the original field as the second result", "value", entityLogs.result()[1].getData().get("key"));
@@ -308,12 +311,12 @@ public class ReadWriteTesting {
 
         amqpServices.publish(integrationHelper.toCollection(entityInputBean));
         EntityGet entityGet = new EntityGet(clientConfiguration, fdRestWriter, entityInputBean);
-        integrationHelper.waitForEntityKey(entityGet);
+        integrationHelper.waitForEntityKey(logger, entityGet);
 
         EntityBean entityResult = entityGet.result();
         assertNotNull(entityResult);
         assertNotNull(entityResult.getKey());
-        integrationHelper.waitForSearch(entityGet, 1);
+        integrationHelper.waitForSearch(logger, entityGet, 1);
         assertEquals("Reply from fd-search was not received. Search key should have been set to 1", 1, entityGet.result().getSearch());
 
         Thread.sleep(2000); // Give ES write time to complete

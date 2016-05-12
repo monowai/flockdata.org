@@ -107,9 +107,9 @@ public class AdminService implements EngineAdminService {
 
         } while (keepRunning);
         entityService.purgeFortressDocs(fortress);
+        searchService.purge(fortress);
         fortressService.purge(fortress);
         engineConfig.resetCache();
-        searchService.purge(fortress.getRootIndex());
         watch.stop();
         logger.info("Completed purge. Removed " + nf.format(total) + " entities for fortress " + fortress);
 

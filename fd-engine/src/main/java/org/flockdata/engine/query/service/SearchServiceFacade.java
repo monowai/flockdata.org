@@ -23,9 +23,12 @@ package org.flockdata.engine.query.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.flockdata.engine.PlatformConfig;
 import org.flockdata.engine.admin.service.StorageProxy;
+import org.flockdata.engine.integration.search.DeleteIndex;
+import org.flockdata.engine.integration.search.EntitySearchWriter;
 import org.flockdata.engine.integration.search.SearchGateway;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.*;
+import org.flockdata.search.AdminRequest;
 import org.flockdata.search.model.*;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.store.StoredContent;
@@ -72,8 +75,14 @@ public class SearchServiceFacade {
     @Autowired
     StorageProxy storageProxy;
 
-    @Autowired (required = false) // Functional tests don't require gateways
+    @Autowired(required = false) // Functional tests don't require gateways
     SearchGateway searchGateway;
+
+    @Autowired(required = false) // Functional tests don't require gateways
+    EntitySearchWriter.EntitySearchWriterGateway searchWriter;
+
+    @Autowired
+    DeleteIndex.DeleteIndexGateway deleteIndexGateway;
 
     @Autowired
     IndexManager indexHelper;
@@ -94,7 +103,6 @@ public class SearchServiceFacade {
     PlatformConfig platformConfig;
 
 
-
     public void makeChangeSearchable(SearchChange searchChange) {
         if (searchChange == null)
             return;
@@ -112,8 +120,8 @@ public class SearchServiceFacade {
             logger.debug("Sending request to index entity [{}]]", searchDocuments.iterator().next().getEntityId());
         else
             logger.debug("Sending request to index [{}]] logs", searchDocuments.size());
-        if ( searchGateway!= null )
-            searchGateway.makeSearchChanges(new EntitySearchChanges(searchDocuments));
+        if (searchWriter != null)
+            searchWriter.makeSearchChanges(new EntitySearchChanges(searchDocuments));
         else {
             logger.debug("Search Gateway is diabled");
         }
@@ -147,13 +155,13 @@ public class SearchServiceFacade {
      * <p/>
      * If you're looking for how the content gets from the Graph to ElasticSearch you're in the right place.
      *
-     * @param trackResultBean       Payload to index
-     * @param entityLog    Log to work with (usually the "current" log)
+     * @param trackResultBean Payload to index
+     * @param entityLog       Log to work with (usually the "current" log)
      * @return object ready to index
      */
     private SearchChange getSearchDocument(TrackResultBean trackResultBean, EntityLog entityLog) {
-        DocumentType docType =trackResultBean.getDocumentType();
-        ContentInputBean contentInput =trackResultBean.getContentInput();
+        DocumentType docType = trackResultBean.getDocumentType();
+        ContentInputBean contentInput = trackResultBean.getContentInput();
         Entity entity = trackResultBean.getEntity();
 
         SearchChange searchDocument = new EntitySearchChange(entity, entityLog, contentInput, indexHelper.parseIndex(entity));
@@ -173,7 +181,7 @@ public class SearchServiceFacade {
         searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
 
         // Description is not carried against the entity - todo: configurable?
-        if (trackResultBean.getEntityInputBean()!=null)
+        if (trackResultBean.getEntityInputBean() != null)
             searchDocument.setDescription(trackResultBean.getEntityInputBean().getDescription());
         searchDocument.setName(entity.getName());
         searchDocument.setSearchKey(entity.getSearchKey());
@@ -187,7 +195,7 @@ public class SearchServiceFacade {
 
         }
 
-        if ( entity.getId()!=null) {
+        if (entity.getId() != null) {
             Collection<EntityKeyBean> inboundEntities = entityService.getInboundEntities(entity, true);
             searchDocument.addEntityLinks(inboundEntities);
         }
@@ -210,7 +218,7 @@ public class SearchServiceFacade {
             searchDocument.setSearchKey(null);
         }
 
-        if (!platformConfig.isSearchRequiredToConfirm() )
+        if (!platformConfig.isSearchRequiredToConfirm())
             // If we already have the search key for this Entity then don't bother us with a reply
             searchDocument.setReplyRequired(entity.getSearch() == null);
 
@@ -259,7 +267,7 @@ public class SearchServiceFacade {
             EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
             searchDocument.setStructuredTags(tagFinder.getTagStructure(), tagFinder.getEntityTags(entity));
 
-            if ( !platformConfig.isSearchRequiredToConfirm())
+            if (!platformConfig.isSearchRequiredToConfirm())
                 searchDocument.setReplyRequired(false);
 
             searchDocument.setForceReindex(true);
@@ -287,9 +295,19 @@ public class SearchServiceFacade {
         return searchGateway.getTagCloud(tagCloudParams);
     }
 
-    public void purge(String indexName) {
-        // ToDO: Implement this
-        logger.info("You have to manually purge the ElasticSearch index {}", indexName);
+    public void purge(Fortress fortress) {
+        if (deleteIndexGateway != null) {
+            if (fortress.isSearchEnabled() && fortress.getRootIndex() != null && !fortress.getRootIndex().equals("")) {
+                AdminRequest adminRequest = new AdminRequest(fortress.getRootIndex() + ".*");
+
+                logger.info("Deleting the search indexes {}", adminRequest.getIndexesToDelete().toArray());
+                deleteIndexGateway.deleteIndex(adminRequest);
+            }else {
+                logger.info("Ignoring fortress [{}] - index {} searchEnabled {}", fortress.getName(),fortress.getRootIndex(), fortress.isSearchEnabled());
+            }
+        } else {
+            logger.debug("Delete Index Gateway is not enabled");
+        }
     }
 
     @Async("fd-search")
@@ -342,7 +360,7 @@ public class SearchServiceFacade {
 
     private EntityLog getLog(TrackResultBean trackResultBean) {
         if (!trackResultBean.processLog()) {
-            logger.debug("Tracking Entity Content to fd-search is suppressed. Content present {}, LogStatus {}", trackResultBean.getContentInput()!=null, trackResultBean.getLogStatus());
+            logger.debug("Tracking Entity Content to fd-search is suppressed. Content present {}, LogStatus {}", trackResultBean.getContentInput() != null, trackResultBean.getLogStatus());
             return null;
         }
         if (trackResultBean.getLogStatus() != ContentInputBean.LogStatus.OK || trackResultBean.getCurrentLog() == null) {

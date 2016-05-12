@@ -53,6 +53,12 @@ public class FdSearchChannels {
     }
 
     @Bean
+    MessageChannel startIndexDelete() {
+        return new DirectChannel();
+    }
+
+
+    @Bean
     MessageChannel syncSearchDocs() {
         return new DirectChannel();
     }
@@ -79,6 +85,11 @@ public class FdSearchChannels {
 
     @Bean
     MessageChannel sendTagCloudRequest (){
+        return new DirectChannel();
+    }
+
+    @Bean
+    MessageChannel adminHeadersChannel() {
         return new DirectChannel();
     }
 

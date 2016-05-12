@@ -48,9 +48,4 @@ public interface SearchGateway {
     @Gateway(requestChannel = "sendSearchRequest", replyChannel = "fdViewResult")
     EsSearchResult fdSearch(QueryParams queryParams);
 
-    @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-    void makeSearchChanges(EntitySearchChanges searchChanges);
-
-
-
 }
