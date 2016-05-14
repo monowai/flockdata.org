@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.AdminRequest;
 import org.flockdata.search.base.SearchWriter;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.search.service.SearchAdmin;
 import org.flockdata.shared.AmqpRabbitConfig;
@@ -129,7 +129,7 @@ public class WriteEntityChange {
             try {
                 Object oType = message.getHeaders().get(ClientConfiguration.KEY_MSG_TYPE);
                 if ( oType == null || oType.toString().equalsIgnoreCase("W"))
-                    searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), EntitySearchChanges.class));
+                    searchWriter.createSearchableChange(objectMapper.readValue((byte[])message.getPayload(), SearchChanges.class));
                 else if ( oType.toString().equalsIgnoreCase("ADMIN")){
                     AdminRequest adminRequest =objectMapper.readValue((String)message.getPayload(),AdminRequest.class);
                     searchAdmin.deleteIndexes(adminRequest.getIndexesToDelete());

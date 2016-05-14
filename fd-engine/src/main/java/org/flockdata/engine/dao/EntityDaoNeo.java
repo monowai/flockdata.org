@@ -87,7 +87,7 @@ public class EntityDaoNeo {
     EntityTagService entityTagService;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Autowired
     Neo4jTemplate template;
@@ -98,7 +98,7 @@ public class EntityDaoNeo {
         String key = (inputBean.isTrackSuppressed() ? null : keyGenService.getUniqueKey());
         Entity entity = new Entity(key, segment, inputBean, documentType);
 
-        entity.setIndexName(indexHelper.parseIndex(entity));
+        entity.setIndexName(indexManager.parseIndex(entity));
         entity.setCreatedBy(fortressUser);
         entity.addLabel(documentType.getName());
 
@@ -518,9 +518,9 @@ public class EntityDaoNeo {
             Collection<EntityTag> entityTags;
             if ( withEntityTags){
                 entityTags = entityTagService.findEntityTags(childEntity.getFortress().getCompany(), entity);
-                results.add(new EntityKeyBean(entity, entityTags, indexHelper.parseIndex(entity)).addRelationship(""));
+                results.add(new EntityKeyBean(entity, entityTags, indexManager.parseIndex(entity)).addRelationship(""));
             } else {
-                results.add(new EntityKeyBean(entity, indexHelper.parseIndex(entity)).addRelationship(""));
+                results.add(new EntityKeyBean(entity, indexManager.parseIndex(entity)).addRelationship(""));
             }
 
         }

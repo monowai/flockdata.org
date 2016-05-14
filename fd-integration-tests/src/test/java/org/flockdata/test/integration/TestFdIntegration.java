@@ -365,7 +365,7 @@ public class TestFdIntegration {
 //        esHelper.doEsQuery(entity, "*", 1);
 //        esHelper.doEsQuery(entity, "brown fox", 1);
 //        esHelper.doEsQuery(entity, contentInputBean.getFileName(), 1);
-//        esHelper.doEsFieldQuery(entity, EntitySearchSchema.ENTITY_KEY, entity.getKey(), 1);
+//        esHelper.doEsFieldQuery(entity, EntitySearchSchema.KEY, entity.getKey(), 1);
 //        esHelper.doEsFieldQuery(entity, EntitySearchSchema.FILENAME, "test.pdf", 1);
 //        esHelper.doEsFieldQuery(entity, EntitySearchSchema.ATTACHMENT, "pdf", 1);
 //        esHelper.deleteEsIndex(indexHelper.parseIndex(entity));
@@ -1954,7 +1954,7 @@ public class TestFdIntegration {
 //                    assertNotNull(entityLog);
 //
 //                    assertTrue("fortress " + fortress + " run " + x + " entity " + entity.getKey() + " - " + entityLog.getId(), entityLog.isIndexed());
-//                    String result = esHelper.doEsTermQuery(entity, EntitySearchSchema.ENTITY_KEY, entity.getKey(), 1, true);
+//                    String result = esHelper.doEsTermQuery(entity, EntitySearchSchema.KEY, entity.getKey(), 1, true);
 //                    totalSearchRequests++;
 //                    esHelper.validateResultFieds(result);
 //

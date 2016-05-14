@@ -20,7 +20,7 @@
 
 package org.flockdata.engine.integration.search;
 
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.shared.AmqpRabbitConfig;
 import org.flockdata.shared.Exchanges;
 import org.flockdata.shared.MessageSupport;
@@ -55,7 +55,7 @@ public class EntitySearchWriter {
     @MessagingGateway
     public interface EntitySearchWriterGateway {
         @Gateway(requestChannel = "sendEntityIndexRequest", replyChannel = "nullChannel")
-        void makeSearchChanges(EntitySearchChanges searchChanges);
+        void makeSearchChanges(SearchChanges searchChanges);
     }
 
 

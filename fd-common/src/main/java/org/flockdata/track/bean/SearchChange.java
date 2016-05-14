@@ -16,84 +16,64 @@
 
 package org.flockdata.track.bean;
 
-import org.flockdata.model.EntityTag;
-import org.flockdata.search.model.SearchTag;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.flockdata.track.service.EntityService;
-import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * User: Mike Holdsworth
  * Date: 21/04/13
  * Time: 7:44 PM
  */
-public interface SearchChange {
+public interface SearchChange<T> {
+
+    @JsonIgnore
+    boolean isType(Type type);
+
+    enum Type { ENTITY, TAG }
+
     /**
-     * @return search keys unique document identifier
+     *
+     * @return String representation of the Type of searchChange that this represents (entity/tag)
+     */
+    String getType();
+
+    /**
+     * @return unique key identifier for the document in the search service
      */
     String getSearchKey();
 
-    EntityKeyBean getParent();
+    String getName();
 
-    void setSearchKey(String parent);
+    void setName(String name);
+
+    Long getLogId();
+
+    void setSearchKey(String key);
 
     /**
-     * primary key of the Entity record that this document belongs to
+     * primary key of the Item that this document belongs to
      *
-     * @return GUID
+     * @return unique key for a documentType
      */
     String getKey();
 
-    SearchChange setData(Map<String, Object> what);
-
-    Map<String, Object> getData();
-
-    HashMap<String, Map<String, ArrayList<SearchTag>>> getTagValues();
-
-    SearchChange setStructuredTags(EntityService.TAG_STRUCTURE tagStructure, Iterable<EntityTag> tagSet);
-
-    /**
-     * @return who made this change
-     */
-    String getWho();
-
-    Long getSysWhen();
-
-    Date getCreatedDate();
-
-    Date getUpdatedDate();
-
-    String getFortressName();
-
-    String getCompanyName();
-
     String getIndexName();
 
-    /**
-     * when this log was created in the Fortress
-     *
-     * @param date date
-     */
-    void setWhen(DateTime date);
-
-    void setWho(String name);
+    String getFortressName();
 
     String getDocumentType();
 
     String getCode();
 
-    String getEvent();
+    /**
+     *
+     * @return unique identify number in fd-engine
+     */
+    Long getId();
 
-    void setSysWhen(Long sysWhen);
-
-    void setLogId(Long id);
-
-    Long getLogId();
-
-    Long getEntityId();
-
-    SearchChange setDescription(String description);
+    T setDescription(String description);
 
     String getDescription();
 
@@ -120,31 +100,12 @@ public interface SearchChange {
      */
     Boolean isDelete();
 
-    void setName(String name);
-
-    void setAttachment(String attachment);
-
-    boolean hasAttachment();
-
-    String getAttachment();
-
-    String getFileName();
-
-    String getContentType();
-
     Map<String,Object> getProps();
 
     EntityService.TAG_STRUCTURE getTagStructure();
 
-    SearchChange setStructuredTags(ArrayList<EntityTag> tagsB);
 
-    SearchChange setParent(EntityKeyBean parent);
+    EntityKeyBean getParent();
 
-    String getSegment();
 
-    SearchChange addEntityLinks(Collection<EntityKeyBean> inboundEntities);
-
-    Collection<EntityKeyBean> getEntityLinks();
-
-    String getName();
 }

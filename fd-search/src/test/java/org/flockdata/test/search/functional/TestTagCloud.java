@@ -29,7 +29,7 @@ import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.dao.QueryDaoES;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.TagCloud;
 import org.flockdata.search.model.TagCloudParams;
 import org.flockdata.test.helper.EntityContentHelper;
@@ -72,7 +72,7 @@ public class TestTagCloud extends ESBase {
 
         Entity entity = getEntity(comp, fort, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -84,7 +84,7 @@ public class TestTagCloud extends ESBase {
 
         //deleteEsIndex(entity);
 
-        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new SearchChanges(change));
         Thread.sleep(1000);
         TagCloudParams tagCloudParams = new TagCloudParams();
         tagCloudParams.setCompany(entity.getSegment().getCompany().getName());

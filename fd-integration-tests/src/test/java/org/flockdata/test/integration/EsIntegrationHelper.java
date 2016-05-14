@@ -1,24 +1,18 @@
 package org.flockdata.test.integration;
 
-import org.flockdata.shared.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * ElasticSearch plumbing stuff to support running and validating integration tests
  *
  * Created by mike on 1/01/16.
  */
-@Component
 public class EsIntegrationHelper {
     static int esTimeout = 10; // Max attempts to find the result in ES
 //    private static JestClient esClient;
     private static final Logger logger = LoggerFactory.getLogger(EsIntegrationHelper.class);
 
-    @Autowired
-    IndexManager indexHelper;
 
 //    @PostConstruct
 //    void setupEsClient () throws Exception{
@@ -409,7 +403,7 @@ public class EsIntegrationHelper {
 //        assertNotNull(node.get(EntitySearchSchema.CREATED));
 //        assertNotNull(node.get(EntitySearchSchema.WHO));
 //        assertNotNull(node.get(EntitySearchSchema.UPDATED));
-//        assertNotNull(node.get(EntitySearchSchema.ENTITY_KEY));
+//        assertNotNull(node.get(EntitySearchSchema.KEY));
 //        assertNotNull(node.get(EntitySearchSchema.DOC_TYPE));
 //        assertNotNull(node.get(EntitySearchSchema.FORTRESS));
 //

@@ -27,6 +27,7 @@ import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.*;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.registration.TagInputBean;
+import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.store.StoredContent;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.*;
@@ -1048,7 +1049,7 @@ public class TestEntityTrack extends EngineBase {
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), inputBean); // Mock result as we're not tracking
 
         Entity entity = result.getEntity();
-        assertEquals(indexHelper.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), entity.getFortress().getRootIndex());
+        assertEquals(indexManager.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, fortressDateCreated.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
@@ -1083,7 +1084,7 @@ public class TestEntityTrack extends EngineBase {
         Entity entity = entityService.getEntity(su.getCompany(), result.getEntity().getKey());
         logger.debug("***  problem {}", entity.toString());
         logger.debug("**** Fortress {}, Company {}, Entity Fortress {}", entity.getSegment(), entity.getSegment().getCompany(), result.getEntity().getSegment());
-        assertEquals("Why is this failing", indexHelper.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), entity.getFortress().getRootIndex());
+        assertEquals("Why is this failing", indexManager.getPrefix() + su.getCompany().getCode() + "." + fortress.getCode(), entity.getFortress().getRootIndex());
         assertEquals("DateCreated not in Fortress TZ", 0, expectedCreateDate.compareTo(entity.getFortressCreatedTz()));
 
         EntityLog log = entityService.getLastEntityLog(su.getCompany(), result.getEntity().getKey());
@@ -1320,7 +1321,7 @@ public class TestEntityTrack extends EngineBase {
         assertEquals(entityInputBean.getFortress().getName(), fortress.getName());
         assertNotNull(conceptService.findDocumentType(fortress, entityInputBean.getDocumentType().getName()));
 
-        SearchChange searchChange = searchService.getSearchChange(result);
+        EntitySearchChange searchChange = searchService.getEntityChange(result);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getData());
         assertFalse(searchChange.getData().isEmpty());

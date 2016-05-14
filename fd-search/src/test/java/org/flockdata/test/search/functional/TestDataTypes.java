@@ -29,10 +29,9 @@ import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.flockdata.track.bean.EntityInputBean;
-import org.flockdata.track.bean.SearchChange;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,7 +67,7 @@ public class TestDataTypes extends ESBase {
         Entity entity = getEntity(fortress, fortress, user, doc);
         deleteEsIndex(entity);
 
-        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity))
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity))
                 .setDescription("Test Description");
 
         Map<String,Object> numMap = EntityContentHelper.getSimpleMap("num", 100);
@@ -82,7 +81,7 @@ public class TestDataTypes extends ESBase {
 
         Entity entityB = getEntity(fortress, fortress, user, doc);
         Map<String,Object> strMap = EntityContentHelper.getSimpleMap("num", "NA");
-        change = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
+        change = new EntitySearchChange(entityB, indexManager.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setData(strMap);
 
@@ -110,11 +109,11 @@ public class TestDataTypes extends ESBase {
         Entity entity = new Entity("abc", fortress, eib, doc);
         deleteEsIndex(entity);
 
-        EntitySearchChange searchChange = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
-        EntitySearchChanges changes = new EntitySearchChanges(searchChange);
+        EntitySearchChange searchChange = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        SearchChanges changes = new SearchChanges(searchChange);
         String json = JsonUtils.toJson(changes);
 
-        EntitySearchChanges fromJson = JsonUtils.toObject(json.getBytes(), EntitySearchChanges.class);
+        SearchChanges fromJson = JsonUtils.toObject(json.getBytes(), SearchChanges.class);
 
         TestCase.assertTrue("", fromJson.getChanges().size()==1);
 

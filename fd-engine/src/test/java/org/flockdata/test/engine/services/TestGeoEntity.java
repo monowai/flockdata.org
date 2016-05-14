@@ -150,7 +150,7 @@ public class TestGeoEntity extends EngineBase {
         // However, we are retrieving the geo structure via a custom query set in the DocType, ignoring
         // the invalid data relationship to find only one geodata path associated with the County
 
-        searchService.getSearchChange(result);
+        searchService.getEntityChange(result);
 
         Iterable<EntityTag> iTags = entityTagService.getEntityTagsWithGeo(result.getEntity());
         int count = 0;

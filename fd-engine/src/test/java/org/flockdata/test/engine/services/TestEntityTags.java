@@ -721,7 +721,7 @@ public class TestEntityTags extends EngineBase {
         Collection<EntityTag> tags = entityTagService.findEntityTags(su.getCompany(), resultBean.getEntity());
         assertFalse(tags.isEmpty());
 
-        SearchChange searchChange = searchService.getSearchChange(resultBean);
+        EntitySearchChange searchChange = searchService.getEntityChange(resultBean);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }
@@ -763,7 +763,7 @@ public class TestEntityTags extends EngineBase {
                     tag.getGeoData());
         }
 
-        SearchChange searchChange = searchService.getSearchChange(resultBean);
+        EntitySearchChange searchChange = searchService.getEntityChange(resultBean);
         assertNotNull(searchChange);
         assertNotNull(searchChange.getTagValues());
     }
@@ -1153,7 +1153,7 @@ public class TestEntityTags extends EngineBase {
         entityInput.setEntityOnly(true); // If true, the entity will be indexed
         // Track suppressed but search is enabled
         TrackResultBean result = mediationFacade.trackEntity(su.getCompany(), entityInput);
-        assertNotNull(searchService.getSearchChange(result));
+        assertNotNull(searchService.getEntityChange(result));
 
     }
 
@@ -1173,7 +1173,7 @@ public class TestEntityTags extends EngineBase {
         try {
 
             TrackResultBean trackResult = mediationFacade.trackEntity(su.getCompany(), inputBean);
-            SearchChange searchChange = searchService.getSearchChange(trackResult);
+            SearchChange searchChange = searchService.getEntityChange(trackResult);
 
             searchChange.setSearchKey("SearchKey"); // any value
 
@@ -1182,14 +1182,14 @@ public class TestEntityTags extends EngineBase {
 
             assertNotNull(searchChange);
 
-            Map<String, Object> what = EntityContentHelper.getSimpleMap(EntitySearchSchema.WHAT_CODE, "AZERTY");
-            what.put(EntitySearchSchema.WHAT_NAME, "NameText");
+            Map<String, Object> what = EntityContentHelper.getSimpleMap(SearchSchema.WHAT_CODE, "AZERTY");
+            what.put(SearchSchema.WHAT_NAME, "NameText");
             // Logging after the entity has been created
             trackResult = mediationFacade.trackLog(su.getCompany(), new ContentInputBean("olivia@sunnybell.com", trackResult.getEntity().getKey(), new DateTime(), what));
             assertEquals("Search count should at least be 1", new Integer(1), trackResult.getEntity().getSearch());
             assertEquals("Search code value should be set if the platform requires it", searchChange.getSearchKey(), trackResult.getEntity().getSearchKey());
-            SearchChange searchChangeB = searchService.getSearchChange(trackResult);
-            assertEquals(searchChange.getEntityId(), searchChangeB.getEntityId());
+            SearchChange searchChangeB = searchService.getEntityChange(trackResult);
+            assertEquals(searchChange.getId(), searchChangeB.getId());
             assertEquals("The log should be using the same search identifier", searchChange.getSearchKey(), searchChangeB.getSearchKey());
         } finally {
             engineConfig.setSearchRequiredToConfirm(oldValue);
@@ -1304,7 +1304,7 @@ public class TestEntityTags extends EngineBase {
 
         Collection<EntityTag> entityTags = entityTagService.findEntityTags(su.getCompany(), trackResultBean.getEntity());
         assertFalse("The custom EntityTag path should have been used to find the tags", entityTags.isEmpty());
-        SearchChange searchChange = searchService.getSearchChange(trackResultBean);
+        EntitySearchChange searchChange = searchService.getEntityChange(trackResultBean);
         assertNotNull(searchChange);
         assertFalse(searchChange.getTagValues().isEmpty());
 
@@ -1334,7 +1334,7 @@ public class TestEntityTags extends EngineBase {
         assertTrue("Interest not found", interestFound);
 
         String json = JsonUtils.toJson(searchChange);
-        SearchChange deserialized = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
+        EntitySearchChange deserialized = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
         assertNotNull(deserialized);
         assertEquals(searchChange.getTagValues().size(), deserialized.getTagValues().size());
         assertEquals(EntityService.TAG_STRUCTURE.TAXONOMY, searchChange.getTagStructure());
