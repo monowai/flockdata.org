@@ -23,7 +23,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
+import org.flockdata.track.bean.SearchChange;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -34,10 +35,10 @@ import java.util.Iterator;
  * Date: 23/05/14
  * Time: 12:29 PM
  */
-public class JsonSearchChange extends JsonDeserializer<EntitySearchChanges> {
+public class SearchChangesDeserializer extends JsonDeserializer<SearchChanges> {
     @Override
-    public EntitySearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        EntitySearchChanges changes = new EntitySearchChanges();
+    public SearchChanges deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        SearchChanges changes = new SearchChanges();
         JsonNode n = jp.getCodec().readTree(jp);
         Collection<JsonNode> columns = n.findValues("changes");
         if ( columns !=null ){
@@ -47,8 +48,11 @@ public class JsonSearchChange extends JsonDeserializer<EntitySearchChanges> {
                 Iterator<JsonNode>nodes = node.elements();
 
                 while (nodes.hasNext()){
-                    EntitySearchChange change=mapper.readValue(nodes.next().toString(), EntitySearchChange.class);
-                    changes.addChange(change);
+                    JsonNode changeNode = nodes.next();
+                    if (SearchChange.Type.ENTITY.name().equals(changeNode.findValue("type").asText())) {
+                        EntitySearchChange change = mapper.readValue(changeNode.toString(), EntitySearchChange.class);
+                        changes.addChange(change);
+                    }
 
                 }
             }

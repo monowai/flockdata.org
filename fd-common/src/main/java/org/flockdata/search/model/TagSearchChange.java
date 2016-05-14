@@ -1,0 +1,191 @@
+/*
+ *  Copyright 2012-2016 the original author or authors.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.flockdata.search.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.flockdata.model.Fortress;
+import org.flockdata.model.Tag;
+import org.flockdata.track.bean.AliasResultBean;
+import org.flockdata.track.bean.EntityKeyBean;
+import org.flockdata.track.bean.SearchChange;
+import org.flockdata.track.service.EntityService;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Represents data about a tag that requires indexing
+ *
+ * Created by mike on 15/05/16.
+ */
+public class TagSearchChange implements SearchChange {
+
+    private Map<String, Object> props= new HashMap<>(); // User defined properties
+    private String code;
+    private String name = null;
+    private String type = Type.TAG.name();
+    private String documentType;
+    private String key = null;
+    private String fortressName ;
+    private String description;
+    private Long id ;
+    private Long logId = null;
+    private boolean delete = false;
+    private String indexName;
+    private boolean forceReindex=false;
+    private boolean replyRequired=false;
+
+    private Collection<AliasResultBean>aliases = new ArrayList<>();
+    private EntityKeyBean parent= null;
+
+    TagSearchChange(){
+
+    }
+
+    public TagSearchChange(String indexName, Fortress fortress, Tag tag) {
+        this();
+        this.id = tag.getId();
+        this.code = tag.getCode();
+        this.name = tag.getName();
+        this.documentType = tag.getLabel();
+        this.key = tag.getKey();
+        this.fortressName = fortress.getName();
+        this.indexName = indexName;
+        if ( tag.hasProperties())
+            this.props = tag.getProperties();
+        aliases.addAll(tag.getAliases().stream().map(AliasResultBean::new).collect(Collectors.toList()));
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isType(Type type) {
+        return getType().equals(type.name());
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String getSearchKey() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Long getLogId() {
+        return logId;
+    }
+
+    @Override
+    public void setSearchKey(String key) {
+
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getIndexName() {
+        return indexName;
+    }
+
+    @Override
+    public String getFortressName() {
+        return fortressName;
+    }
+
+    @Override
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    @Override
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public TagSearchChange setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setReplyRequired(boolean required) {
+
+    }
+
+    @Override
+    public boolean isReplyRequired() {
+        return replyRequired;
+    }
+
+    @Override
+    public boolean isForceReindex() {
+        return forceReindex;
+    }
+
+    @Override
+    public Boolean isDelete() {
+        return delete;
+    }
+
+    @Override
+    public Map<String, Object> getProps() {
+        return props;
+    }
+
+    @Override
+    public EntityService.TAG_STRUCTURE getTagStructure() {
+        return null;
+    }
+
+    @Override
+    public EntityKeyBean getParent() {
+        return parent;
+    }
+
+    public Collection<AliasResultBean> getAliases() {
+        return aliases;
+    }
+}

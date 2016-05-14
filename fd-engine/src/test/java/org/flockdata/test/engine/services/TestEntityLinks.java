@@ -11,7 +11,6 @@ import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.bean.TrackResultBean;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.ProfileReader;
@@ -80,9 +79,10 @@ public class TestEntityLinks extends EngineBase {
         // *** End initial setup.
 
         // We now have two linked entities. Check that they are set in to the SearchDocument
-        SearchChange searchDocument = searchService.getSearchChange(workResult);
+        EntitySearchChange searchDocument = searchService.getEntityChange(workResult);
         validateSearchStaff( searchDocument);
         String json = JsonUtils.toJson(searchDocument);
+        assertNotNull(json);
         EntitySearchChange deserialized = JsonUtils.toObject(json.getBytes(), EntitySearchChange.class);
         assertNotNull("Issue with JSON serialization", deserialized);
         // Results should be exactly the same
@@ -90,7 +90,7 @@ public class TestEntityLinks extends EngineBase {
 
     }
 
-    private void validateSearchStaff(SearchChange searchDocument){
+    private void validateSearchStaff(EntitySearchChange searchDocument){
         assertNotNull(searchDocument.getEntityLinks());
         assertEquals(1, searchDocument.getEntityLinks().size());
         EntityKeyBean staffDetails = searchDocument.getEntityLinks().iterator().next();
@@ -122,7 +122,7 @@ public class TestEntityLinks extends EngineBase {
         // Checking that the entity is linked when part of the track request
         workRecord.addEntityLink("worked", new EntityKeyBean("Staff", "timesheet", "ABC123"));
         TrackResultBean workResult = mediationFacade.trackEntity(su.getCompany(), workRecord);
-        SearchChange searchDocument = searchService.getSearchChange(workResult);
+        EntitySearchChange searchDocument = searchService.getEntityChange(workResult);
         validateSearchStaff( searchDocument);
     }
 

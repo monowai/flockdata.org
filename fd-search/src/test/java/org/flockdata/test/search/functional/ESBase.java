@@ -39,7 +39,8 @@ import org.flockdata.model.Fortress;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.base.SearchWriter;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.base.TagChangeWriter;
+import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.service.IndexMappingService;
 import org.flockdata.search.service.QueryServiceEs;
 import org.flockdata.shared.IndexManager;
@@ -75,10 +76,14 @@ public class ESBase {
     static JestClient esClient;
 
     @Autowired
-    EntityChangeWriter searchRepo;
+    EntityChangeWriter entityWriter;
 
     @Autowired
-    IndexManager indexHelper;
+    TagChangeWriter tagWriter;
+
+
+    @Autowired
+    IndexManager indexManager;
 
     @Autowired
     IndexMappingService indexMappingService;
@@ -92,7 +97,7 @@ public class ESBase {
     QueryServiceEs queryServiceEs;
 
     void deleteEsIndex(Entity entity) throws Exception{
-        deleteEsIndex(indexHelper.parseIndex(entity));
+        deleteEsIndex(indexManager.parseIndex(entity));
     }
 
     void deleteEsIndex(String indexName) throws Exception {
@@ -162,13 +167,7 @@ public class ESBase {
             result = esClient.execute(search);
             TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
 
-            if (result.getErrorMessage() == null) {
-                assertNotNull(result.getErrorMessage(), result.getJsonObject());
-                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+            nbrResult = getNbrResult(result);
 
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
@@ -216,24 +215,18 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(indexHelper.parseIndex(entity))
+                    .addIndex(indexManager.parseIndex(entity))
                     .build();
 
             result = esClient.execute(search);
             TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
 
-            if (result.getErrorMessage() == null) {
-                assertNotNull(result.getErrorMessage(), result.getJsonObject());
-                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(result.getErrorMessage(), result.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+            nbrResult = getNbrResult(result);
 
         } while (nbrResult != expectedHitCount && runCount < esTimeout);
 
         logger.debug("ran ES Term Query - result count {}, runCount {}", nbrResult, runCount);
-        logger.trace("searching index [{}] field [{}] for [{}]", indexHelper.parseIndex(entity), field, queryString);
+        logger.trace("searching index [{}] field [{}] for [{}]", indexManager.parseIndex(entity), field, queryString);
         if (exceptionMessage == null)
             exceptionMessage = result.getJsonString();
         Assert.assertEquals(exceptionMessage, expectedHitCount, nbrResult);
@@ -259,14 +252,14 @@ public class ESBase {
                 "    \"tags\" : {\n" +
                 "        \"text\" : \"" + queryString + "\",\n" +
                 "        \"completion\" : {\n" +
-                "            \"field\" : \"" + EntitySearchSchema.ALL_TAGS + "\"\n" +
+                "            \"field\" : \"" + SearchSchema.ALL_TAGS + "\"\n" +
                 "        }\n" +
                 "    }" +
                 "}";
 
 
         Suggest search = new Suggest.Builder(query).
-                addIndex(indexHelper.parseIndex(entity)).
+                addIndex(indexManager.parseIndex(entity)).
                 build();
         result = esClient.execute(search);
         TestCase.assertTrue(result.getErrorMessage(), result.isSucceeded());
@@ -282,7 +275,7 @@ public class ESBase {
     }
 
     String doQuery(Entity entity, String queryString, int expectedHitCount) throws Exception {
-        return doQuery(indexHelper.parseIndex(entity), indexHelper.parseType(entity), queryString, expectedHitCount);
+        return doQuery(indexManager.parseIndex(entity), indexManager.parseType(entity), queryString, expectedHitCount);
     }
 
     String doQuery(String index, String type, String queryString, int expectedHitCount) throws Exception {
@@ -316,14 +309,7 @@ public class ESBase {
                 logger.debug("Confirmed index {} was deleted and empty", index);
                 return null;
             }
-            if (jResult.getErrorMessage() == null) {
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
-                assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
-                nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
-            } else {
-                nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
-            }
+            nbrResult = getNbrResult(jResult);
             runCount++;
         } while (nbrResult != expectedHitCount && runCount < 6);
         logger.debug("ran ES query - result count {}, runCount {}", nbrResult, runCount);
@@ -333,6 +319,19 @@ public class ESBase {
 
         return jResult.getJsonString();
 
+    }
+
+    static int getNbrResult(JestResult jResult) {
+        int nbrResult;
+        if (jResult.getErrorMessage() == null) {
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject());
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits"));
+            assertNotNull(jResult.getErrorMessage(), jResult.getJsonObject().getAsJsonObject("hits").get("total"));
+            nbrResult = jResult.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
+        } else {
+            nbrResult = 0;// Index has not yet been created in ElasticSearch, we'll try again
+        }
+        return nbrResult;
     }
 
     String doFacetQuery(Entity entity, String field, String queryString, int expectedHitCount) throws Exception {
@@ -354,12 +353,12 @@ public class ESBase {
                     "    }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(indexHelper.parseIndex(entity))
-                    .addType(indexHelper.parseType(entity))
+                    .addIndex(indexManager.parseIndex(entity))
+                    .addType(indexManager.parseType(entity))
                     .build();
 
             result = esClient.execute(search);
-            String message = indexHelper.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
+            String message = indexManager.parseIndex(entity) + " - " + field + " - " + queryString + (result == null ? "[noresult]" : "\r\n" + result.getJsonString());
             assertNotNull(message, result);
             assertNotNull(message, result.getJsonObject());
             assertNotNull(message, result.getJsonObject().getAsJsonObject("hits"));
@@ -367,7 +366,7 @@ public class ESBase {
             nbrResult = result.getJsonObject().getAsJsonObject("hits").get("total").getAsInt();
         } while (nbrResult != expectedHitCount && runCount < 5);
 
-        Assert.assertEquals("Unexpected hit count searching '" + indexHelper.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
+        Assert.assertEquals("Unexpected hit count searching '" + indexManager.parseIndex(entity) + "' for {" + queryString + "} in field {" + field + "}", expectedHitCount, nbrResult);
         if (nbrResult != 0)
             return result.getJsonObject()
                     .getAsJsonObject("hits")
@@ -402,7 +401,7 @@ public class ESBase {
                     "      }\n" +
                     "}";
             Search search = new Search.Builder(query)
-                    .addIndex(indexHelper.parseIndex(entity))
+                    .addIndex(indexManager.parseIndex(entity))
                     .addType(type)
                     .build();
 
@@ -445,7 +444,7 @@ public class ESBase {
 
         FortressInputBean fib = new FortressInputBean(fort, false);
         Fortress fortress = new Fortress(fib, mockCompany);
-        String index = indexHelper.getIndexRoot(fortress);
+        String index = indexManager.getIndexRoot(fortress);
         fortress.setRootIndex(index);
         DateTime now = new DateTime();
         EntityInputBean entityInput = EntityContentHelper.getEntityInputBean(docType, fortress, userName, code, now);

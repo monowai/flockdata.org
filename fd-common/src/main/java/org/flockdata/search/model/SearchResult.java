@@ -77,12 +77,16 @@ public class SearchResult {
 
     public SearchResult(SearchChange thisChange) {
         this();
-        this.entityId = thisChange.getEntityId();
+        this.entityId = thisChange.getId();
         this.fortress = thisChange.getFortressName();
         this.searchKey = thisChange.getSearchKey();
         this.documentType = thisChange.getDocumentType();
         this.key = thisChange.getKey();
         this.indexName = thisChange.getIndexName();
+
+        setLogId(thisChange.getLogId());
+        setEntityId(thisChange.getId());
+
 
     }
 
@@ -213,8 +217,8 @@ public class SearchResult {
     public void addFieldValue(String field, Object value) {
         if ( this.data == null )
             data = new HashMap<>();
-        if ( field.contains(EntitySearchSchema.DATA))
-            field = field.substring(EntitySearchSchema.DATA.length()+1);
+        if ( field.contains(SearchSchema.DATA))
+            field = field.substring(SearchSchema.DATA.length()+1);
         this.data.put(field, value);
     }
 

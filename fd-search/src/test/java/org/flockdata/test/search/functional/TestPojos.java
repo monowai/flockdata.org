@@ -23,6 +23,7 @@ import org.flockdata.search.helper.QueryGenerator;
 import org.flockdata.search.model.QueryParams;
 import org.junit.Assert;
 import org.junit.Test;
+
 import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -56,7 +57,7 @@ public class TestPojos {
     }
 
 //    @Test
-//    public void indexHelper() throws Exception {
+//    public void indexManager() throws Exception {
 //
 //        String company = "qc";
 //
@@ -64,19 +65,19 @@ public class TestPojos {
 //        qp.setCompany(company);
 //        qp.setSearchText("*");
 //
-//        String indexRoot = indexHelper.getIndexRoot(company, null);
-//        assertEquals(indexHelper.getPrefix() + company.toLowerCase() , indexRoot);
+//        String indexRoot = indexManager.getIndexRoot(company, null);
+//        assertEquals(indexManager.getPrefix() + company.toLowerCase() , indexRoot);
 //
 //        // Varargs set to a 0 length array
 //        qp.setTypes();
 //
-//        String[] indexes = indexHelper.getIndexesToQuery(qp);
+//        String[] indexes = indexManager.getIndexesToQuery(qp);
 //        TestCase.assertFalse(indexes == null);
 //        TestCase.assertEquals(1, indexes.length);
 //        assertEquals(indexRoot +".*", indexes[0]);
 //
 //        qp.setFortress("*");
-//        indexes = indexHelper.getIndexesToQuery(qp);
+//        indexes = indexManager.getIndexesToQuery(qp);
 //        TestCase.assertFalse(indexes == null);
 //        TestCase.assertEquals(1, indexes.length);
 //        assertEquals(indexRoot+".*", indexes[0]);

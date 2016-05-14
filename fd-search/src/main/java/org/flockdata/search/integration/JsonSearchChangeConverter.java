@@ -22,7 +22,7 @@ package org.flockdata.search.integration;
 
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.ObjectHelper;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
@@ -43,7 +43,7 @@ public class JsonSearchChangeConverter extends SimpleMessageConverter {
         final Object content = super.fromMessage(message);
         try {
             if (content instanceof String) {
-                return FdJsonObjectMapper.getObjectMapper().readValue(((String) content).getBytes(ObjectHelper.charSet), EntitySearchChanges.class);
+                return FdJsonObjectMapper.getObjectMapper().readValue(((String) content).getBytes(ObjectHelper.charSet), SearchChanges.class);
             }
         } catch (IOException e1) {
             e1.printStackTrace();

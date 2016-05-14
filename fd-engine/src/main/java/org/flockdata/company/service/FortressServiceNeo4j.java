@@ -73,7 +73,7 @@ public class FortressServiceNeo4j implements FortressService {
     private PlatformConfig engineConfig;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Override
     public Fortress getFortress(Long id) {
@@ -253,7 +253,7 @@ public class FortressServiceNeo4j implements FortressService {
             logger.debug("Created fortress {}", fortress);
             fortress.setCompany(company);
 
-            fortress.setRootIndex(indexHelper.getIndexRoot(company.getCode(), fortress.getCode()));
+            fortress.setRootIndex(indexManager.getIndexRoot(company.getCode(), fortress.getCode()));
             logger.trace("Returning fortress {}", fortress);
             return fortress;
         }

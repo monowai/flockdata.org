@@ -87,7 +87,8 @@ org.fd:
     api: ${org.fd.search.url:http://127.0.0.1:8081}
     index:
       #ElasticSarch indexes will start with this prefix
-      prefix: fd.
+      entity.prefix: fd.
+      tag.prefix: .fd.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding

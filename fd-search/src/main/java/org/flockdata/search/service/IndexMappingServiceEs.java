@@ -32,7 +32,6 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.configure.SearchConfig;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.track.bean.SearchChange;
-import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +61,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     private SearchConfig searchConfig;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     private Logger logger = LoggerFactory.getLogger(IndexMappingServiceEs.class);
 
@@ -70,7 +69,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
     public boolean ensureIndexMapping(SearchChange change) {
 
         final String indexName = change.getIndexName();
-        String documentType = indexHelper.parseType(change.getDocumentType());
+        String documentType = indexManager.parseType(change.getDocumentType());
 
         if (hasIndex(change)) {
             // Need to be able to allow for a "per document" mapping
@@ -121,7 +120,8 @@ public class IndexMappingServiceEs implements IndexMappingService {
 
         // Test if Type exist
         String[] documentTypes = new String[1];
-        documentTypes[0] = change.getDocumentType();
+        String documentType = indexManager.parseType(change.getDocumentType());
+        documentTypes[0] = documentType;
 
         String[] indexNames = new String[1];
         indexNames[0] = change.getIndexName();
@@ -129,14 +129,14 @@ public class IndexMappingServiceEs implements IndexMappingService {
         boolean hasIndexMapping = searchConfig.elasticSearchClient().admin()
                 .indices()
                         //.exists( new IndicesExistsRequest(indexNames))
-                .typesExists(new TypesExistsRequest(indexNames,change.getDocumentType()))
+                .typesExists(new TypesExistsRequest(indexNames,documentType))
                 .actionGet()
                 .isExists();
         if (!hasIndexMapping) {
             XContentBuilder mapping = getMapping(change);
             searchConfig.elasticSearchClient().admin().indices()
                     .preparePutMapping(indexNames[0])
-                    .setType(change.getDocumentType())
+                    .setType(documentType)
                     .setSource(mapping)
                     .execute().actionGet();
             logger.debug("Created default mapping and applied settings for {}, {}", indexNames[0], change.getDocumentType());
@@ -210,10 +210,10 @@ public class IndexMappingServiceEs implements IndexMappingService {
             Map<String,Object>theMapping = (Map<String, Object>) map.get("mapping");
             if ( change.getParent() != null ){
                 HashMap<String,Object>parentMap = new HashMap<> ();
-                parentMap.put ("type", indexHelper.parseType(change.getParent().getDocumentType()));
+                parentMap.put ("type", indexManager.parseType(change.getParent().getDocumentType()));
                 theMapping.put("_parent", parentMap);
             }
-            docMap.put(change.getDocumentType(), theMapping);
+            docMap.put(indexManager.parseType(change.getDocumentType()), theMapping);
             xbMapping = jsonBuilder().map(docMap);
         } catch (IOException e) {
             logger.error("Problem getting the search mapping", e);
@@ -223,12 +223,16 @@ public class IndexMappingServiceEs implements IndexMappingService {
     }
 
     private String getKeyName(SearchChange change) {
-        return change.getIndexName() + "/" + change.getDocumentType() + ".json";
+        String fileName = change.getIndexName();
+        if ( fileName.startsWith("."))
+            fileName = fileName.substring(1);
+        return fileName + "/" + change.getDocumentType() + ".json";
     }
 
     private Map<String, Object> getDefaultMapping(SearchChange change) throws IOException {
+        String esDefault;
+
         String keyName = getKeyName(change) ;
-        EntityService.TAG_STRUCTURE tagStructure = change.getTagStructure();
         Map<String, Object> found;
 
         // Locate file on disk
@@ -242,7 +246,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
             logger.debug("Custom mapping does not exists for {} - reverting to default", keyName);
         }
 
-        String esDefault = searchConfig.getEsPathedMapping(tagStructure);
+        esDefault = searchConfig.getEsPathedMapping(change);
         try {
             // Chance to find it on disk
             found = getMapping(esDefault);
@@ -250,7 +254,7 @@ public class IndexMappingServiceEs implements IndexMappingService {
         } catch (IOException ioe) {
             // Extract it from the WAR
             logger.debug("Reading default mapping from the package");
-            found = getMapping(searchConfig.getEsMapping(tagStructure));
+            found = getMapping(searchConfig.getEsMapping(change));
         }
         return found;
     }

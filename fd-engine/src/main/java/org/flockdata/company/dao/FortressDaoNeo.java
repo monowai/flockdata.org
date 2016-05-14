@@ -53,7 +53,7 @@ public class FortressDaoNeo  {
     private FortressUserRepository fortressUserRepo;
 
     @Autowired
-    private IndexManager indexHelper;
+    private IndexManager indexManager;
 
     @Autowired
     Neo4jTemplate template;
@@ -62,7 +62,7 @@ public class FortressDaoNeo  {
 
     public Fortress save(Company company, FortressInputBean fortressInput) {
         Fortress fortress = new Fortress(fortressInput, company);
-        fortress.setRootIndex(indexHelper.getIndexRoot(fortress));
+        fortress.setRootIndex(indexManager.getIndexRoot(fortress));
         return fortressRepo.save(fortress);
     }
 

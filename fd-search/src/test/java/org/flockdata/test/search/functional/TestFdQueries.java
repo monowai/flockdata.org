@@ -56,14 +56,14 @@ public class TestFdQueries extends ESBase{
 
         Entity entity = getEntity(company, fortress, user, doc);
         deleteEsIndex(entity);
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
 
         deleteEsIndex(entity);
         Thread.sleep(1000);
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(2000);
         assertNotNull(searchResult);

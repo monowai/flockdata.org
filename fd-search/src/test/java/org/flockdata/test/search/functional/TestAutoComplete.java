@@ -73,12 +73,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(EntityContentHelper.getEntityTag(entity, numCodeWithName, "rlxname"));
         tags.add(EntityContentHelper.getEntityTag(entity, zipCode, "zip"));
 
-        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChange searchResult = entityWriter.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
@@ -89,7 +89,7 @@ public class TestAutoComplete extends ESBase{
         doCompletionQuery(entity, numCodeWithName.getCode(), 0, "Should not be found as numeric code is ignored");
         doCompletionQuery(entity, zipCode.getCode(), 1, "Didn't find the zip code");
         doFieldQuery(entity, "tag.rlxname.autocomplete.code", numCodeWithName.getCode(), 0, "Code should not be indexed");
-        doFacetQuery(indexHelper.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
+        doFacetQuery(indexManager.parseIndex(entity), entity.getType(), "tag.rlxname.autocomplete.name.facet", numCodeWithName.getName(), 1, "Name should have been indexed");
 
 
 
@@ -114,12 +114,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(EntityContentHelper.getEntityTag(entity, tagInputA, "rlxname"));
         tags.add(EntityContentHelper.getEntityTag(entity, tagInputB, "rlxname"));
 
-        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChange searchResult = entityWriter.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);
@@ -160,12 +160,12 @@ public class TestAutoComplete extends ESBase{
         tags.add(EntityContentHelper.getEntityTag(entity, procedure, "proc"));
         tags.add(EntityContentHelper.getEntityTag(entity, procedureB, "proc"));
 
-        SearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setData(what);
         change.setStructuredTags(EntityService.TAG_STRUCTURE.DEFAULT, tags);
 
         indexMappingService.ensureIndexMapping(change);
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChange searchResult = entityWriter.handle(change);
 
         assertNotNull(searchResult);
         Thread.sleep(2000);

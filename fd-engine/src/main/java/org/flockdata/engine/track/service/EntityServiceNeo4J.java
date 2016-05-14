@@ -87,7 +87,7 @@ public class EntityServiceNeo4J implements EntityService {
     ConceptService conceptService;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Autowired
     TxService txService;
@@ -111,7 +111,7 @@ public class EntityServiceNeo4J implements EntityService {
     public EntityKeyBean findParent(Entity childEntity) {
         Entity parent = entityDao.findParent(childEntity);
         if (parent != null)
-            return new EntityKeyBean(parent, indexHelper.parseIndex(parent));
+            return new EntityKeyBean(parent, indexManager.parseIndex(parent));
         return null;
     }
 
@@ -188,7 +188,7 @@ public class EntityServiceNeo4J implements EntityService {
                     entityTagService.associateTags(segment.getCompany(), entity, entityLog, entityInput)
             );
             if (!entityInput.getEntityLinks().isEmpty()) {
-                EntityKeyBean thisEntity = new EntityKeyBean(entity, indexHelper.parseIndex(entity));
+                EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.parseIndex(entity));
                 for (String relationship : entityInput.getEntityLinks().keySet()) {
                     linkEntities(segment.getCompany(), thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
                 }
@@ -273,7 +273,7 @@ public class EntityServiceNeo4J implements EntityService {
             entityInput.setKey("NT " + segment.getFortress().getId()); // We ain't tracking this
         else if (!entityInput.getEntityLinks().isEmpty()) {
             // DAT-525
-            EntityKeyBean thisEntity = new EntityKeyBean(entity, indexHelper.parseIndex(entity));
+            EntityKeyBean thisEntity = new EntityKeyBean(entity, indexManager.parseIndex(entity));
             for (String relationship : entityInput.getEntityLinks().keySet()) {
                 linkEntities(segment.getCompany(), thisEntity, entityInput.getEntityLinks().get(relationship), relationship);
             }
@@ -445,7 +445,7 @@ public class EntityServiceNeo4J implements EntityService {
         if (fromLog == null) {
             if (entity.getSegment().getFortress().isSearchEnabled()) {
                 // Nothing to index, no changes left so we're done
-                searchDocument = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+                searchDocument = new EntitySearchChange(entity, indexManager.parseIndex(entity));
                 searchDocument.setDelete(true);
                 searchDocument.setSearchKey(searchKey);
             }
@@ -457,7 +457,7 @@ public class EntityServiceNeo4J implements EntityService {
             // Update against the Entity only by re-indexing the search document
             StoredContent priorContent = contentReader.read(entity, fromLog);
 
-            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexHelper.parseIndex(entity));
+            searchDocument = new EntitySearchChange(entity, newEntityLog, priorContent.getContent(), indexManager.parseIndex(entity));
             //EntityTagFinder tagFinder = getTagFinder(fortressService.getTagStructureFinder(entity));
 
 
@@ -545,9 +545,6 @@ public class EntityServiceNeo4J implements EntityService {
     public Entity findByCode(Fortress fortress, DocumentType documentType, String code) {
         return entityDao.findByCode(fortress.getId(), documentType, code.trim());
     }
-
-    @Autowired
-    IndexManager indexManager;
 
     @Override
     public EntitySummaryBean getEntitySummary(Company company, String key) throws FlockException {

@@ -67,7 +67,7 @@ public class TestMappings extends ESBase {
 
         Entity entity = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setDescription("Test Description");
         change.setName("Test Name");
         change.setData(json);
@@ -82,16 +82,16 @@ public class TestMappings extends ESBase {
         change.setStructuredTags(tags);
 
         deleteEsIndex(entity);
-        //searchRepo.ensureIndex(change.getIndexName(), change.getType());
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        //entityWriter.ensureIndex(change.getIndexName(), change.getType());
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
         SearchResult searchResult = searchResults.getSearchResults().iterator().next();
         Thread.sleep(1000);
         assertNotNull(searchResult);
         assertNotNull(searchResult.getSearchKey());
         entity.setSearchKey(searchResult.getSearchKey());
-        json = searchRepo.findOne(entity);
+        json = entityWriter.findOne(entity);
 
-        doFacetQuery(indexHelper.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
+        doFacetQuery(indexManager.parseIndex(entity), entity.getType(), "tag.mytag.thelabel.code.facet", "my TAG", 1, "Exact match of tag code is not working");
         doFieldQuery(entity, "tag.mytag.thelabel.code", "my tag", 1, "Gram match of un-faceted tag code is not working");
         // Assert that the description facet exists
         doFacetQuery(entity, "name.facet", change.getName(),1);
@@ -111,8 +111,8 @@ public class TestMappings extends ESBase {
         Entity entity = getEntity(company, fortress, user, doc);
         Entity entityB = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
-        EntitySearchChange changeB = new EntitySearchChange(entityB, indexHelper.parseIndex(entityB));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, indexManager.parseIndex(entityB));
         change.setDescription("Test Description");
         change.setData(json);
         changeB.setData(json);
@@ -130,7 +130,7 @@ public class TestMappings extends ESBase {
         Collection<SearchChange> changes = new ArrayList<>();
         changes.add(change);
         changes.add(changeB);
-        EntitySearchChanges searchChanges = new EntitySearchChanges(changes);
+        SearchChanges searchChanges = new SearchChanges(changes);
         SearchResults searchResults = esSearchWriter.createSearchableChange(searchChanges);
         assertEquals("2 in 2 out", 2, searchResults.getSearchResults().size());
     }
@@ -144,8 +144,8 @@ public class TestMappings extends ESBase {
         deleteEsIndex(entityA);
         deleteEsIndex(entityB);
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexHelper.parseIndex(entityA));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexHelper.parseIndex(entityB));
+        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexManager.parseIndex(entityA));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexManager.parseIndex(entityB));
 
         // FortB will have
         changeA.setDescription("Test Description");
@@ -153,8 +153,8 @@ public class TestMappings extends ESBase {
 
         indexMappingService.ensureIndexMapping(changeA);
         indexMappingService.ensureIndexMapping(changeB);
-        changeA = searchRepo.handle(changeA);
-        changeB = searchRepo.handle(changeB);
+        changeA = entityWriter.handle(changeA);
+        changeB = entityWriter.handle(changeB);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeB);
@@ -179,8 +179,8 @@ public class TestMappings extends ESBase {
         Entity entityB = getEntity("cust", fortress, "anyuser", "doctype");
 
 
-        SearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexHelper.parseIndex(entityA));
-        SearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexHelper.parseIndex(entityB));
+        EntitySearchChange changeA = new EntitySearchChange(entityA, new ContentInputBean(json), indexManager.parseIndex(entityA));
+        EntitySearchChange changeB = new EntitySearchChange(entityB, new ContentInputBean(json), indexManager.parseIndex(entityB));
 
         Tag tag = new Tag(new TagInputBean("myTag", "TheLabel", "rlxname"));
         tag.setCode("my TAG");// we should be able to find this as lowercase
@@ -199,8 +199,8 @@ public class TestMappings extends ESBase {
 
         indexMappingService.ensureIndexMapping(changeA);
         indexMappingService.ensureIndexMapping(changeB);
-        changeA = searchRepo.handle(changeA);
-        changeB = searchRepo.handle(changeB);
+        changeA = entityWriter.handle(changeA);
+        changeB = entityWriter.handle(changeB);
         Thread.sleep(2000);
         assertNotNull(changeA);
         assertNotNull(changeB);
@@ -209,7 +209,7 @@ public class TestMappings extends ESBase {
 
         doFacetQuery(entityA,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
         doFacetQuery(entityB,  "tag.mytag.thelabel.code.facet", tag.getCode(), 1);
-        String index = indexHelper.getIndexRoot(entityA.getFortress()) +"*";
+        String index = indexManager.getIndexRoot(entityA.getFortress()) +"*";
 
         doFacetQuery(index, "*", "tag.mytag.thelabel.code.facet", tag.getCode(), 2, "Not scanning across indexes");
 
@@ -220,7 +220,7 @@ public class TestMappings extends ESBase {
         Map<String, Object> json = EntityContentHelper.getBigJsonText(20);
         Entity entity = getEntity("cust", "tagWithRelationshipNamesMatchingNodeNames", "anyuser", "fortdoc");
         deleteEsIndex(entity);
-        SearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexHelper.parseIndex(entity));
+        EntitySearchChange changeA = new EntitySearchChange(entity, new ContentInputBean(json), indexManager.parseIndex(entity));
 
         Tag tag = new Tag(new TagInputBean("aValue", "myTag", "myTag"));
         tag.setName("myTag");// This will be used as the relationship name between the entity and the tag!
@@ -233,7 +233,7 @@ public class TestMappings extends ESBase {
 
         indexMappingService.ensureIndexMapping(changeA);
 
-        changeA = searchRepo.handle(changeA);
+        changeA = entityWriter.handle(changeA);
 
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());
@@ -252,12 +252,12 @@ public class TestMappings extends ESBase {
         String user = "mikey";
 
         Entity entity = getEntity(comp, fort, user, fort);
-        deleteEsIndex(indexHelper.parseIndex(entity));
+        deleteEsIndex(indexManager.parseIndex(entity));
 
         Map<String, Object> what = EntityContentHelper.getSimpleMap(
-                EntitySearchSchema.WHAT_CODE, "GEO");
-        what.put(EntitySearchSchema.WHAT_NAME, "NameText");
-        what.put(EntitySearchSchema.WHAT_DESCRIPTION, "This is a description");
+                SearchSchema.WHAT_CODE, "GEO");
+        what.put(SearchSchema.WHAT_NAME, "NameText");
+        what.put(SearchSchema.WHAT_DESCRIPTION, "This is a description");
 
         TagInputBean tagInput = new TagInputBean("tagcode", "TagLabel", "tag-relationship");
         Tag tag = new Tag(tagInput);
@@ -282,13 +282,13 @@ public class TestMappings extends ESBase {
         entityTag.setGeoData(geoPayLoad);
         tags.add(entityTag);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
 
         change.setData(what);
         change.setStructuredTags(tags);
 
         indexMappingService.ensureIndexMapping(change);
-        SearchChange searchResult = searchRepo.handle(change);
+        SearchChange searchResult = entityWriter.handle(change);
         TestCase.assertNotNull(searchResult);
         Thread.sleep(2000);
 

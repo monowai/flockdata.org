@@ -20,7 +20,7 @@
 
 package org.flockdata.search.base;
 
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.SearchResults;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 public interface SearchWriter {
 
-    SearchResults createSearchableChange(EntitySearchChanges changes) throws IOException;
+    SearchResults createSearchableChange(SearchChanges changes) throws IOException;
 
 
 }

@@ -107,7 +107,7 @@ public abstract class EngineBase {
     GeographyService geoService;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Autowired
     protected MediationFacade mediationFacade;

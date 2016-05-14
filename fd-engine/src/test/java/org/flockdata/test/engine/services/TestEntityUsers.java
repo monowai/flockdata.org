@@ -111,7 +111,7 @@ public class TestEntityUsers extends EngineBase {
         Entity entity = entityService.findByCode(fortress, "CompanyNode", callerRef);
         Assert.assertEquals(null, entity.getCreatedBy());
 
-        SearchChange searchChange = searchService.getSearchChange(resultBean);
+        SearchChange searchChange = searchService.getEntityChange(resultBean);
         assertNotNull(searchChange);
 
         searchChange = searchService.rebuild(entity, resultBean.getCurrentLog());
