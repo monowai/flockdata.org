@@ -35,6 +35,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
+import org.testcontainers.containers.DockerComposeContainer;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -44,7 +45,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.flockdata.test.integration.FdDocker.stack;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
@@ -83,6 +83,7 @@ class IntegrationHelper {
     private
     int waitSeconds;
 
+    public static DockerComposeContainer stack = FdDocker.getStack();
 
     static final int DEBUG_ENGINE = 61000;
     static final int DEBUG_SEARCH = 61001;
