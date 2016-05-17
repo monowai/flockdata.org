@@ -33,8 +33,8 @@ import java.util.TimeZone;
  */
 public class FortressInputBean implements Serializable, MetaFortress {
     private String name;
-    private Boolean searchActive = false;
-    private Boolean storeActive = null;
+    private Boolean searchEnabled = false;
+    private Boolean storeEnabled = null;
 
     private String message = null;
     private String fortressKey = null;
@@ -56,14 +56,14 @@ public class FortressInputBean implements Serializable, MetaFortress {
      */
     public FortressInputBean(String name, boolean ignoreSearchEngine) {
         //this.accumulateChanges = ignoreSearchEngine;
-        this.searchActive = !ignoreSearchEngine;
+        this.searchEnabled = !ignoreSearchEngine;
         this.name = name;
         this.code = name;
     }
 
     public FortressInputBean(String name) {
         this.name = name;
-        searchActive = true;
+        searchEnabled = true;
         this.code = name;
     }
 
@@ -78,15 +78,17 @@ public class FortressInputBean implements Serializable, MetaFortress {
 
     public FortressInputBean setName(String name) {
         this.name = name;
+        if ( this.code ==null )
+            this.code = name;
         return this;
     }
 
-    public Boolean getSearchActive() {
-        return searchActive;
+    public Boolean getSearchEnabled() {
+        return searchEnabled;
     }
 
-    public FortressInputBean setSearchActive(Boolean searchActive) {
-        this.searchActive = searchActive;
+    public FortressInputBean setSearchEnabled(Boolean searchEnabled) {
+        this.searchEnabled = searchEnabled;
         return this;
     }
 
@@ -141,7 +143,7 @@ public class FortressInputBean implements Serializable, MetaFortress {
     public String toString() {
         return "FortressInputBean{" +
                 "name='" + name + '\'' +
-                ", searchActive=" + searchActive +
+                ", searchEnabled=" + searchEnabled +
                 '}';
     }
 
@@ -163,12 +165,12 @@ public class FortressInputBean implements Serializable, MetaFortress {
         return this;
     }
 
-    public Boolean getStoreActive() {
-        return storeActive;
+    public Boolean getStoreEnabled() {
+        return storeEnabled;
     }
 
-    public FortressInputBean setStoreActive(Boolean enabled) {
-        this.storeActive = enabled;
+    public FortressInputBean setStoreEnabled(Boolean enabled) {
+        this.storeEnabled = enabled;
         return this;
     }
 

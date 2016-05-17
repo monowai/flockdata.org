@@ -3,7 +3,7 @@
     "contentType": "csv",
     "tagOrEntity": "entity",
     "entityOnly": false,
-    "fortress": {"name":"Sales","searchActive":false},
+    "fortress": {"name":"Sales","searchEnabled":false},
     "fortressUser": "batch",
     "delimiter": ",",
     "header": true,

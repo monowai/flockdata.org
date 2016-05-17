@@ -63,16 +63,16 @@ public class TestFortressEP extends MvcBase {
         FortressResultBean fortress = createFortress(mike(), "update_Fortress");
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
-        update.setSearchActive(true);
-        update.setStoreActive(true);
+        update.setSearchEnabled(true);
+        update.setStoreEnabled(true);
         update.setTimeZone(TimeZone.getTimeZone("PST").getID());
         update.setName("A new name");
         update.setSystem(true);
 
         FortressResultBean updated = updateFortress(mike(), fortress.getCode(), update, MockMvcResultMatchers.status().isOk());
         assertNotNull(updated);
-        assertEquals("Search active did not change", update.getSearchActive().booleanValue(), updated.getSearchEnabled());
-        assertEquals("Store active did not change", update.getStoreActive().booleanValue(), updated.isStoreEnabled());
+        assertEquals("Search active did not change", update.getSearchEnabled().booleanValue(), updated.getSearchEnabled());
+        assertEquals("Store active did not change", update.getStoreEnabled().booleanValue(), updated.isStoreEnabled());
         assertEquals(update.getName(), updated.getName());
 
 
@@ -93,8 +93,8 @@ public class TestFortressEP extends MvcBase {
 
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
-        update.setSearchActive(true);
-        update.setStoreActive(true);
+        update.setSearchEnabled(true);
+        update.setStoreEnabled(true);
         update.setTimeZone(TimeZone.getTimeZone("PST").getID());
         update.setName("A new name");
         update.setSystem(true);
@@ -104,6 +104,7 @@ public class TestFortressEP extends MvcBase {
         updateFortress(sally(), fortress.getCode(), update, MockMvcResultMatchers.status().isNotFound());
 
     }
+
     @Test
     public void cant_updateFortressUnlessUserIsAdmin() throws Exception {
 
@@ -111,8 +112,8 @@ public class TestFortressEP extends MvcBase {
 
         FortressInputBean update = new FortressInputBean(fortress.getName());
 
-        update.setSearchActive(true);
-        update.setStoreActive(true);
+        update.setSearchEnabled(true);
+        update.setStoreEnabled(true);
         update.setTimeZone(TimeZone.getTimeZone("PST").getID());
         update.setName("A new name");
         update.setSystem(true);
@@ -120,6 +121,23 @@ public class TestFortressEP extends MvcBase {
         // Sally works for a different company
         exception.expect(AccessDeniedException.class);
         updateFortress(harry(), fortress.getCode(), update, MockMvcResultMatchers.status().isUnauthorized());
+
+    }
+
+    @Test
+    public void null_FortressCode() throws Exception {
+
+        FortressResultBean fortress = createFortress(mike(), "null_FortressCode");
+
+        FortressInputBean update = new FortressInputBean(null);
+
+        update.setSearchEnabled(true);
+        update.setStoreEnabled(true);
+        update.setTimeZone(TimeZone.getTimeZone("NZST").getID());
+        update.setName("fName"); // Setting the name should set the code if the code is null
+        update.setSystem(true);
+
+        makeFortress(mike(), update);
 
     }
 }

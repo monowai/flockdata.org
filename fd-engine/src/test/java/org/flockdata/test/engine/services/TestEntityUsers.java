@@ -70,7 +70,7 @@ public class TestEntityUsers extends EngineBase {
         Collection<EntityLogResult> logs = entityService.getEntityLogs(su.getCompany(), entity.getKey());
         assertEquals(1, logs.size());
         EntityLogResult log = logs.iterator().next();
-        assertEquals("billie", log.getMadeBy().getCode().toLowerCase());
+        assertEquals("billie", log.getMadeBy().toLowerCase());
 
         entityBean.setContent(new ContentInputBean("nemo", DateTime.now(), EntityContentHelper.getSimpleMap("name", "b")));
         mediationFacade.trackEntity(su.getCompany(), entityBean);
@@ -84,9 +84,9 @@ public class TestEntityUsers extends EngineBase {
         boolean billieFound = false;
         boolean nemoFound = false;
         for (EntityLogResult entityLog : logs) {
-            if (entityLog.getMadeBy().getCode().equals("billie"))
+            if (entityLog.getMadeBy().equals("billie"))
                 billieFound = true;
-            if (entityLog.getMadeBy().getCode().equals("nemo"))
+            if (entityLog.getMadeBy().equals("nemo"))
                 nemoFound = true;
         }
         assertTrue("Didn't find Billie & Nemo", billieFound && nemoFound);

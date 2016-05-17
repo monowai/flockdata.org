@@ -214,7 +214,7 @@ public class TestFdIntegration {
 //            Fortress fortress = fortressService
 //                    .registerFortress(su.getCompany(),
 //                            new FortressInputBean("UTF8-Test")
-//                                    .setSearchActive(true));
+//                                    .setSearchEnabled(true));
 //
 //            ContentInputBean log = new ContentInputBean("mikeTest", new DateTime(), json);
 //            EntityInputBean input = new EntityInputBean(fortress, "mikeTest", "UtfTextCode", new DateTime(), "abzz")
@@ -338,7 +338,7 @@ public class TestFdIntegration {
 //
 //        SystemUser su = registerSystemUser("pdf_TrackedAndFound", "co-fortress");
 //        Fortress fortressA = fortressService.registerFortress(su.getCompany(), new FortressInputBean("pdf_TrackedAndFound"));
-//        assertTrue("Search should not be disabled", fortressA.isSearchActive());
+//        assertTrue("Search should not be disabled", fortressA.isSearchEnabled());
 //        String docType = "Contract";
 //        String callerRef = "PDF-TRACK-123";
 //        EntityInputBean entityInputBean =
@@ -1239,8 +1239,8 @@ public class TestFdIntegration {
 //        SystemUser su = registerSystemUser("amqp_TrackEntity");
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(),
 //                new FortressInputBean("amqp_TrackEntity")
-//                        .setSearchActive(false)
-//                        .setStoreActive(true));
+//                        .setSearchEnabled(false)
+//                        .setStoreEnabled(true));
 //
 //        //KvService.KV_STORE previousStore = engineConfig.setKvStore(KvService.KV_STORE.RIAK);
 //
@@ -1528,7 +1528,7 @@ public class TestFdIntegration {
 //        SystemUser su = registerSystemUser("store_DisabledByCallerRef");
 //
 //        FortressInputBean fib = new FortressInputBean("store_DisabledByCallerRef");
-//        fib.setStoreActive(false);
+//        fib.setStoreEnabled(false);
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 //
 //        ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
@@ -1576,7 +1576,7 @@ public class TestFdIntegration {
 //        SystemUser su = registerSystemUser("store_DisabledByWithNoCallerRef");
 //
 //        FortressInputBean fib = new FortressInputBean("store_DisabledByWithNoCallerRef");
-//        fib.setStoreActive(false);
+//        fib.setStoreEnabled(false);
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 //
 //        ContentInputBean content = new ContentInputBean("store_Disabled", new DateTime(), json);
@@ -1622,7 +1622,7 @@ public class TestFdIntegration {
 //        SystemUser su = registerSystemUser("## store_DisabledReprocessContent");
 //
 //        FortressInputBean fib = new FortressInputBean("store_DisabledReprocessContent");
-//        fib.setStoreActive(false);
+//        fib.setStoreEnabled(false);
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 //
 //        ContentInputBean content = new ContentInputBean("store_DisabledReprocessContent", new DateTime(), json);
@@ -1725,7 +1725,7 @@ public class TestFdIntegration {
 //        engineConfig.setStoreEnabled("false");
 //
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("tags_TaxonomyStructure"));
-//        assertTrue("Search not enabled- this test will fail", fortress.isSearchActive());
+//        assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
 //
 //        DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-498")
 //                .setTagStructure(EntityService.TAG_STRUCTURE.TAXONOMY);
@@ -1828,7 +1828,7 @@ public class TestFdIntegration {
 //            // Includes the default segment. Do we want this behaviour??
 //            assertEquals(3, fortressService.getSegments(fortress).size());
 //
-//            assertTrue("Search not enabled- this test will fail", fortress.isSearchActive());
+//            assertTrue("Search not enabled- this test will fail", fortress.isSearchEnabled());
 //
 //            DocumentTypeInputBean docType = new DocumentTypeInputBean("DAT-506");
 //            EntityInputBean entityInputBean =

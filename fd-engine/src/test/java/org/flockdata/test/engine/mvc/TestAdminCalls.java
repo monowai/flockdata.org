@@ -65,8 +65,11 @@ public class TestAdminCalls extends MvcBase {
     @Test
     public void auth_Health() throws Exception {
         setSecurityEmpty();
-        mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/"))
+                .andExpect(MockMvcResultMatchers
+                    .status()
+                    .isUnauthorized())
+                .andReturn();
 
     }
 
@@ -88,7 +91,8 @@ public class TestAdminCalls extends MvcBase {
 
         mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andReturn();
         setSecurity();
         // Create a data access user
 //        su = registerSystemUser("anyone", "healthCheck");
@@ -100,7 +104,8 @@ public class TestAdminCalls extends MvcBase {
         mvc().perform(MockMvcRequestBuilders.get(MvcBase.apiPath+"/admin/health/")
                         .header(ApiKeyInterceptor.API_KEY, "_invalidAPIKey_")
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andReturn();
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()
+        ).andReturn();
 
 
     }

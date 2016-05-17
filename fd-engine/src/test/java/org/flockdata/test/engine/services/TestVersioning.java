@@ -55,7 +55,7 @@ public class TestVersioning extends EngineBase {
         engineConfig.setStoreEnabled(false);
         assertEquals(Boolean.FALSE, engineConfig.storeEnabled());
         fib = new FortressInputBean("disabledTest");
-        assertEquals(null, fib.getStoreActive());
+        assertEquals(null, fib.getStoreEnabled());
         fortress = fortressService.registerFortress(su.getCompany(), fib);
         assertFalse("System default should have been returned", fortress.isStoreEnabled());
 
@@ -111,7 +111,7 @@ public class TestVersioning extends EngineBase {
             assertEquals("Create", log.getEvent().getName());
             assertNotNull(log.getWhen());
             assertNotNull(log.getMadeBy());
-            assertTrue(log.isMocked());
+            assertFalse(log.isVersioned());
         }
         EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
         assertNotNull (mockLog);
@@ -132,7 +132,7 @@ public class TestVersioning extends EngineBase {
         SystemUser su = registerSystemUser("store_Disabled");
 
         FortressInputBean fib= new FortressInputBean("store_Disabled", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         ContentInputBean log = new ContentInputBean("store_Disabled", new DateTime(), json);

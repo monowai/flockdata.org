@@ -159,7 +159,7 @@ public class TestEntityTrack extends EngineBase {
     public void modified_UserDefinedProperties_NoContent() throws Exception {
         SystemUser su = registerSystemUser("DAT386", mike_admin);
         FortressInputBean fib = new FortressInputBean("DAT386", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
         EntityInputBean inputBean = new EntityInputBean(fortress, "poppy", "CompanyNode", DateTime.now(), "12xx09");
         inputBean.setProperty("value", "H8CT04172");
@@ -220,7 +220,7 @@ public class TestEntityTrack extends EngineBase {
         // Validate that the LastChangeUser is in the Log
         for (EntityLogResult entityLog : entityLogs) {
             assertNotNull(entityLog.getMadeBy());
-            assertEquals("poppy", entityLog.getMadeBy().getCode());
+            assertEquals("poppy", entityLog.getMadeBy());
         }
     }
 

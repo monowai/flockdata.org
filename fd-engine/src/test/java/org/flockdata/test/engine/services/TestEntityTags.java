@@ -202,7 +202,7 @@ public class TestEntityTags extends EngineBase {
     public void DAT386() throws Exception {
         SystemUser su = registerSystemUser("DAT386", mike_admin);
         FortressInputBean fib = new FortressInputBean("DAT386", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         TagInputBean tagInput = new TagInputBean("DAT386");
@@ -1239,7 +1239,7 @@ public class TestEntityTags extends EngineBase {
         // DAT-411
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         //assertNotNull(result);
@@ -1265,7 +1265,7 @@ public class TestEntityTags extends EngineBase {
     public void custom_TagPath() throws Exception {
         SystemUser su = registerSystemUser("custom_TagPath", mike_admin);
         FortressInputBean fib = new FortressInputBean("custom_TagPath", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentType documentType = new DocumentType(fortress, "DAT-498");
