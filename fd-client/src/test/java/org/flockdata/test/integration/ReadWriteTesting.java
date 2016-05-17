@@ -216,7 +216,7 @@ public class ReadWriteTesting {
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("TrackEntityAmqp")
-                        .setSearchActive(true))
+                        .setSearchEnabled(true))
                 .setCode("findme")
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Katerina Neumannová")))
@@ -303,7 +303,7 @@ public class ReadWriteTesting {
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("findByESPassThroughWithUTF8")
-                        .setSearchActive(true))
+                        .setSearchEnabled(true))
                 .setCode("Katerina Neumannová")
                 .setDescription("Katerina Neumannová")
                 .setDocumentType(new DocumentTypeInputBean("entityamqp"))

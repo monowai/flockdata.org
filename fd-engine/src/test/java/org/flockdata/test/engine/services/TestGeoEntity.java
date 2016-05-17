@@ -45,7 +45,7 @@ public class TestGeoEntity extends EngineBase {
     public void geo_CustomPath() throws Exception {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentType documentType = new DocumentType(fortress, "DAT-495");
@@ -85,7 +85,7 @@ public class TestGeoEntity extends EngineBase {
         // DAT-508
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true)
-                .setStoreActive(false);
+                .setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentType documentType = new DocumentType(fortress, "DAT-508");

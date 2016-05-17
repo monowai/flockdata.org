@@ -111,7 +111,7 @@ public class TestLogCounts extends EngineBase {
 //    public void reprocess_ChangingWhatOnSameDatetimeCreatesLogs() throws Exception {
 //        SystemUser su = registerSystemUser("fixing");
 //        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("fixing", true));
-//        assertFalse(fortress.isSearchActive());
+//        assertFalse(fortress.isSearchEnabled());
 //        String code = UUID.randomUUID().toString();
 //
 //        EntityInputBean inputBean = new EntityInputBean(fortress.getName(), "wally", "TestTrack", new DateTime(), code);

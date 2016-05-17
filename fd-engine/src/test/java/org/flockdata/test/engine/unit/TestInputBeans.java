@@ -61,23 +61,23 @@ public class TestInputBeans {
     public void testFortressInputBean() {
 
         FortressInputBean fib = new FortressInputBean("ABC");
-        assertTrue(fib.getSearchActive());
-        assertEquals (null, fib.getStoreActive());
+        assertTrue(fib.getSearchEnabled());
+        assertEquals (null, fib.getStoreEnabled());
 
         fib = new FortressInputBean("ABC", false);
-        assertTrue(fib.getSearchActive());
+        assertTrue(fib.getSearchEnabled());
 
         fib = new FortressInputBean("ABC", true);
-        assertFalse(fib.getSearchActive());
+        assertFalse(fib.getSearchEnabled());
 
         fib = new FortressInputBean("ABC", false);
-        assertTrue(fib.getSearchActive());
+        assertTrue(fib.getSearchEnabled());
 
-        fib.setStoreActive(false);
-        assertFalse(fib.getStoreActive());
+        fib.setStoreEnabled(false);
+        assertFalse(fib.getStoreEnabled());
 
-        fib.setStoreActive(null);
-        assertEquals (null, fib.getStoreActive());
+        fib.setStoreEnabled(null);
+        assertEquals (null, fib.getStoreEnabled());
     }
 
     @Test

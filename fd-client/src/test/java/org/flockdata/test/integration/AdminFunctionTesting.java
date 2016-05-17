@@ -92,7 +92,7 @@ public class AdminFunctionTesting {
 
         EntityInputBean entityInputBean = new EntityInputBean()
                 .setFortress(new FortressInputBean("purgeFortressRemovesEsIndex")
-                        .setSearchActive(true))
+                        .setSearchEnabled(true))
                 .setCode("SearchDoc")
                 .setDocumentType(new DocumentTypeInputBean("DeleteSearchDoc"))
                 .setContent(new ContentInputBean(Helper.getSimpleMap("key", "Quick brown fox")));

@@ -29,7 +29,7 @@ public class TestVersionedDocuments extends EngineBase {
 
         Fortress fortress= fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("DocTypeTest", true)
-                .setStoreActive(true));
+                .setStoreEnabled(true));
 
         assertTrue(fortress.isStoreEnabled());
 
@@ -53,7 +53,7 @@ public class TestVersionedDocuments extends EngineBase {
 
         Fortress fortress= fortressService.registerFortress(su.getCompany(),
                 new FortressInputBean("trackResult_Kv", true)
-                        .setStoreActive(true));
+                        .setStoreEnabled(true));
 
         assertTrue(fortress.isStoreEnabled());
 
