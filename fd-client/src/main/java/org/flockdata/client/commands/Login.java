@@ -18,7 +18,7 @@ package org.flockdata.client.commands;
 
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.registration.LoginRequest;
-import org.flockdata.registration.UserProfile;
+import org.flockdata.registration.SystemUserResultBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -35,13 +35,13 @@ import org.springframework.web.client.ResourceAccessException;
 
 public class Login extends AbstractRestCommand{
 
-    UserProfile result;
+    SystemUserResultBean result;
 
     public Login(ClientConfiguration clientConfiguration, FdRestWriter restWriter) {
         super(clientConfiguration, restWriter);
     }
 
-    public UserProfile result() {
+    public SystemUserResultBean result() {
         return result;
     }
 
@@ -54,9 +54,9 @@ public class Login extends AbstractRestCommand{
         String exec = url + "/api/login";
         result = null; error =null;
         try {
-            ResponseEntity<UserProfile> response;
+            ResponseEntity<SystemUserResultBean> response;
             HttpEntity<LoginRequest> request = new HttpEntity<>(new LoginRequest(user,pass), httpHeaders);
-            response = restTemplate.exchange(exec, HttpMethod.POST, request, UserProfile.class);
+            response = restTemplate.exchange(exec, HttpMethod.POST, request, SystemUserResultBean.class);
             result = response.getBody();
         } catch (HttpClientErrorException e) {
 

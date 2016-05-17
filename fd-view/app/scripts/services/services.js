@@ -24,7 +24,7 @@ fdView.factory('ProfileService', ['$http', 'configuration',
     function ($http, configuration) {
       return {
         getMyProfile: function () {
-          return $http.get(configuration.engineUrl() + '/api/v1/profiles/me').then(function (response) {
+          return $http.get(configuration.engineUrl() + '/api/account').then(function (response) {
               return response.data;
             }
           );

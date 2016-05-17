@@ -20,6 +20,7 @@
 
 package org.flockdata.company.endpoint;
 
+import org.flockdata.authentication.UserProfileService;
 import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.SystemUser;
@@ -29,6 +30,8 @@ import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -47,6 +50,9 @@ public class RegistrationEP {
     @Autowired
     SecurityHelper secHelper;
 
+    @Autowired
+    UserProfileService userProfileService;
+
 
     @RequestMapping(value = "/", consumes = "application/json", method = RequestMethod.POST)
 
@@ -57,7 +63,8 @@ public class RegistrationEP {
         if (su == null)
             return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CONFLICT);
 
-        return new ResponseEntity<>(new SystemUserResultBean(su), HttpStatus.CREATED);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return new ResponseEntity<>(new SystemUserResultBean(su, userProfileService.getUser(auth)), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/me", method = RequestMethod.GET)
@@ -65,7 +72,10 @@ public class RegistrationEP {
     public SystemUserResultBean get(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws FlockException {
         // curl -u batch:123 -X GET http://localhost:8080/ab/profiles/me/
 
-        return new SystemUserResultBean(regService.getSystemUser(apiHeaderKey));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        SystemUserResultBean su = new  SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth));
+        return su;
+
     }
 
 

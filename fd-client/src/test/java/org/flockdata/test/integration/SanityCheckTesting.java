@@ -17,6 +17,8 @@
 package org.flockdata.test.integration;
 
 import org.flockdata.client.amqp.AmqpServices;
+import org.flockdata.client.commands.Health;
+import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.Ping;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.shared.*;
@@ -28,6 +30,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Map;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_PASS;
+import static org.flockdata.test.integration.IntegrationHelper.ADMIN_REGRESSION_USER;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -81,6 +88,26 @@ public class SanityCheckTesting {
         assertTrue(ping.error(), ping.worked());
 
         assertEquals("Couldn't ping fd-search", "pong", ping.result());
+    }
+
+    @Test
+    public void healthChecks() {
+        // If the services can't see each other, its not worth proceeding
+        integrationHelper.login(fdRestWriter, ADMIN_REGRESSION_USER, "123").exec();
+        Login login = integrationHelper.login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
+        integrationHelper.assertWorked("Login error ", login.exec());
+        assertTrue("Unexpected login error "+login.error(), login.worked());
+        Health health = new Health(clientConfiguration, fdRestWriter);
+        integrationHelper.assertWorked("Health Check", health.exec());
+
+        Map<String, Object> healthResult = health.result();
+        assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
+        assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
+        assertTrue("Failure for fd-engine to connect to fd-search in the container", healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
+        assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
+        assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
+
+
     }
 
 }

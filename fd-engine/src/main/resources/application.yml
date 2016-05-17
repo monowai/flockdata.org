@@ -34,6 +34,9 @@ spring:
       enabled: false
   messages:
     encoding: UTF-8
+  jackson:
+    serialization:
+      indent_output: true
 
 application:
   title: FlockData GraphWriter
@@ -128,8 +131,11 @@ org.fd:
       queueCapacity: 30
 
 ## These should be enabled in your environment. If no users are provided then an account with the credentials mike/123 will be created
-#  auth:
-#    simple:
+  auth:
+    simple:
+      login:
+        method: basic
+        form: /#/login
 #      users:
 #        admin:
 #          pass: 123

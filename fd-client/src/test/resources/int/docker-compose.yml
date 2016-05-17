@@ -45,6 +45,8 @@ fdengine:
     # Create an integration account for testing
     org.fd.auth.simple.users.integration.pass: 123
     org.fd.auth.simple.users.integration.roles: FD_USER;FD_ADMIN
+    org.fd.auth.simple.login.method: basic
+
     logging.level.org.flockdata: DEBUG
     # Disable the webserver
     org.neo4j.server.webserver.port: -1

@@ -56,7 +56,7 @@ HTTP, REST and JSON is the lingua franca.
 
 ### Authenticate and see who you are
 ```
-curl -u myuser:123 -X GET http://localhost:8080/api/v1/profiles/me/
+curl -u myuser:123 -X GET http://localhost:8080/api/account/
 ```
 An authorised user is one with one of the two FD_ auth roles. And FD_ADMIN user does not automatically inherit the rights to read and write data, but they can create users who can do this.
 

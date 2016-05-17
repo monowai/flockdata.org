@@ -22,7 +22,10 @@ import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.profile.ContentProfileDeserializer;
 import org.flockdata.profile.model.ContentProfile;
-import org.flockdata.registration.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.TagInputBean;
+import org.flockdata.registration.TagResultBean;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.shared.*;
@@ -109,9 +112,9 @@ public class ReadWriteTesting {
         clientConfiguration.setHttpUser(IntegrationHelper.ADMIN_REGRESSION_USER);
         clientConfiguration.setHttpPass("123");
         clientConfiguration.setServiceUrl(getEngine());
-        UserProfile profile = fdRestWriter.login(clientConfiguration);
-        assertNotNull(profile);
-        assertTrue("User Roles missing", profile.getUserRoles().length != 0);
+        SystemUserResultBean suResult = fdRestWriter.login(clientConfiguration);
+        assertNotNull(suResult);
+        assertTrue("User Roles missing", suResult.getUserRoles().length != 0);
     }
 
     @Before

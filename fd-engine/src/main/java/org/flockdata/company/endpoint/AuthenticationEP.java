@@ -22,7 +22,8 @@ package org.flockdata.company.endpoint;
 
 import org.flockdata.authentication.UserProfileService;
 import org.flockdata.registration.LoginRequest;
-import org.flockdata.registration.UserProfile;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -34,10 +35,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +51,10 @@ public class AuthenticationEP {
     AuthenticationManager authenticationManager;
 
     @Autowired
+    RegistrationService regService;
+
+
+    @Autowired
     private UserProfileService userProfileService;
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET)
@@ -63,7 +65,7 @@ public class AuthenticationEP {
 
 
     @RequestMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public ResponseEntity<UserProfile> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<SystemUserResultBean> handleLogin(@RequestBody LoginRequest loginRequest) throws Exception {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
 
@@ -71,9 +73,7 @@ public class AuthenticationEP {
                 username, password);
         Authentication auth = authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        UserProfile userProfile = userProfileService.getUser(auth);
-
-        return new ResponseEntity<>(userProfile, HttpStatus.OK);
+        return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(), userProfileService.getUser(auth)), HttpStatus.OK);
     }
 
     /**
@@ -81,13 +81,14 @@ public class AuthenticationEP {
      */
     @RequestMapping(value = "/account", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 
-    public ResponseEntity<UserProfile> checkUser() throws Exception {
+    public ResponseEntity<SystemUserResultBean> checkUser(@RequestHeader(value = "api-key", required = false) String apiHeaderKey) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        UserProfile userProfile = userProfileService.getUser(auth);
-        return new ResponseEntity<>(userProfile, HttpStatus.OK);
+
+        return new ResponseEntity<>(new SystemUserResultBean(regService.getSystemUser(apiHeaderKey), userProfileService.getUser(auth)), HttpStatus.OK);
     }
 
     /**
