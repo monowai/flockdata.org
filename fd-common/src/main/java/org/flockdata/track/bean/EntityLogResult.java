@@ -16,9 +16,9 @@
 
 package org.flockdata.track.bean;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.flockdata.model.ChangeEvent;
 import org.flockdata.model.EntityLog;
-import org.flockdata.model.FortressUser;
 import org.flockdata.model.Log;
 import org.flockdata.store.Store;
 import org.flockdata.store.StoredContent;
@@ -34,17 +34,18 @@ public class EntityLogResult {
 
     private Long logId;
     private Store store;
-    private EntityBean entity;
+//    private EntityBean entity;
+    private String entityKey;
     private String contentType;
     private String checkSum;
-    private FortressUser madeBy;
+    private String madeBy;
     private String comment;
     private Long when;
-    private Boolean indexed;
+//    private Boolean indexed;
     private ChangeEvent event;
     private Map<String, Object> data;
-    private boolean mocked;
-    private Object checksum;
+    private boolean versioned;
+    private String checksum;
 
     EntityLogResult(){}
 
@@ -53,18 +54,19 @@ public class EntityLogResult {
         Log log = entityLog.getLog();
         this.logId = entityLog.getId();
         this.store = Store.valueOf(log.getStorage());
-        this.entity = new EntityBean(entityLog.getEntity());
+        //this.entity = new EntityBean(entityLog.getEntity());
+        this.entityKey = entityLog.getEntity().getKey();
         this.contentType = log.getContentType();
         this.checkSum = log.getChecksum();
-        this.mocked = log.isMocked();
+        this.versioned = !log.isMocked();
         this.event = log.getEvent();
         if (log.getContent()!=null )
             this.data = log.getContent().getData();
         if ( log.getMadeBy()!=null)
-            this.madeBy = log.getMadeBy();
+            this.madeBy = log.getMadeBy().getCode();
         this.comment= log.getComment();
         this.when = entityLog.getFortressWhen();
-        this.indexed = entityLog.isIndexed();
+//        this.indexed = entityLog.isIndexed();
 
     }
 
@@ -82,16 +84,12 @@ public class EntityLogResult {
         return store;
     }
 
-    public EntityBean getEntity() {
-        return entity;
-    }
-
     @Override
     public String toString() {
         return "LogRequest{" +
                 "store=" + store +
                 ", logId=" + logId +
-                ", entity=" + entity.getKey() +
+                ", entity=" + entityKey +
                 '}';
     }
 
@@ -99,14 +97,15 @@ public class EntityLogResult {
         return contentType;
     }
 
-    public String getCheckSum() {
-        return checkSum;
-    }
-
-    public FortressUser getMadeBy() {
+    public String getMadeBy() {
         return madeBy;
     }
 
+    public String getEntityKey() {
+        return entityKey;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getComment() {
         return comment;
     }
@@ -115,31 +114,33 @@ public class EntityLogResult {
         return when;
     }
 
-    public Boolean getIndexed() {
-        return indexed;
-    }
+//    public Boolean getIndexed() {
+//        return indexed;
+//    }
 
     public ChangeEvent getEvent() {
         return event;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Map<String, Object> getData() {
         return data;
     }
 
-    public boolean isMocked() {
-        return mocked;
+    public boolean isVersioned() {
+        return versioned;
     }
 
     public void setMocked(boolean mocked) {
-        this.mocked = mocked;
+        this.versioned = mocked;
     }
 
-    public Object getChecksum() {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getChecksum() {
         return checksum;
     }
 
-    public void setChecksum(Object checksum) {
+    public void setChecksum(String checksum) {
         this.checksum = checksum;
     }
 }

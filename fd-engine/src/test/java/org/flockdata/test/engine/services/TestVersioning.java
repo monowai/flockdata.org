@@ -111,7 +111,7 @@ public class TestVersioning extends EngineBase {
             assertEquals("Create", log.getEvent().getName());
             assertNotNull(log.getWhen());
             assertNotNull(log.getMadeBy());
-            assertTrue(log.isMocked());
+            assertFalse(log.isVersioned());
         }
         EntityLog mockLog = entityService.getLogForEntity(entity, 0L);
         assertNotNull (mockLog);

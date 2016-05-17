@@ -136,7 +136,7 @@ public class TestTrackEP extends MvcBase {
         assertNotNull("Index Name not found", result.getIndexName());
 
         FortressResultBean fortress = getFortress(sally(), result.getCode());
-        assertEquals(fortress.getRootIndex(), result.getIndexName());
+        assertEquals(fortress.getIndexName(), result.getIndexName());
         assertEquals("Creation of a fortress should be case insensitive", 1, getFortresses(sally()).size());
 
     }

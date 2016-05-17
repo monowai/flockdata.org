@@ -220,7 +220,7 @@ public class TestEntityTrack extends EngineBase {
         // Validate that the LastChangeUser is in the Log
         for (EntityLogResult entityLog : entityLogs) {
             assertNotNull(entityLog.getMadeBy());
-            assertEquals("poppy", entityLog.getMadeBy().getCode());
+            assertEquals("poppy", entityLog.getMadeBy());
         }
     }
 

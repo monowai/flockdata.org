@@ -67,8 +67,8 @@ fdView.controller('AdminCtrl', ['$scope', '$uibModal', 'QueryService', 'ProfileS
     $scope.saveFortress = function () {
       var dp = {
         name: $scope.name,
-        searchActive: $scope.searchable,
-        storeActive: $scope.versionable,
+        searchEnabled: $scope.searchable,
+        storeEnabled: $scope.versionable,
         timeZone: $scope.timezone
       };
       $http.post(configuration.engineUrl()+'/api/v1/fortress/', dp).then(function(response){
