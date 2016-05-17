@@ -20,10 +20,10 @@ package org.flockdata.search.model;
  * User: Mike Holdsworth
  * Since: 5/09/13
  */
-public class EntitySearchSchema {
+public class SearchSchema {
     // Storage schema used in a Search Document
     public static final String DATA = "data";
-    public static final String ENTITY_KEY = "key";
+    public static final String KEY = "key";
     public static final String CODE = "code";
     public static final String DESCRIPTION = "description";
     public static final String NAME = "name";

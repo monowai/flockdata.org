@@ -5,7 +5,7 @@ import org.flockdata.model.Entity;
 import org.flockdata.model.FortressSegment;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -43,10 +43,10 @@ public class TestSegmentIndexes extends ESBase{
         entity.setSegment( new FortressSegment(entity.getFortress(), "2014"));
         TestCase.assertEquals("2014", entity.getSegment().getCode());
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
-        deleteEsIndex(indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
+        deleteEsIndex(indexManager.parseIndex(entity));
 
-        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new SearchChanges(change));
 
         // Each entity will be written to it's own segment
         Entity entityOtherSegment = getEntity(company, fortress, user, "Invoice", "123");
@@ -54,10 +54,10 @@ public class TestSegmentIndexes extends ESBase{
         entityOtherSegment.setSegment( new FortressSegment(entity.getFortress(), "2015"));
         TestCase.assertEquals("2015", entityOtherSegment.getSegment().getCode());
 
-        change = new EntitySearchChange(entityOtherSegment, indexHelper.parseIndex(entityOtherSegment));
-        deleteEsIndex(indexHelper.parseIndex(entityOtherSegment));
+        change = new EntitySearchChange(entityOtherSegment, indexManager.parseIndex(entityOtherSegment));
+        deleteEsIndex(indexManager.parseIndex(entityOtherSegment));
 
-        esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        esSearchWriter.createSearchableChange(new SearchChanges(change));
 
         Thread.sleep(2000);
         //"Each doc should be in it's own segmented index"
@@ -66,7 +66,7 @@ public class TestSegmentIndexes extends ESBase{
         doQuery(entityOtherSegment, entityOtherSegment.getKey(), 1);
         // Scanning across segmented indexes
         String index;
-        if (indexHelper.isSuffixed())
+        if (indexManager.isSuffixed())
             index = entity.getSegment().getFortress().getRootIndex()+".invoice.*";
         else
             index = entity.getSegment().getFortress().getRootIndex()+".*";

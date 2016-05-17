@@ -23,7 +23,6 @@ import org.flockdata.model.Entity;
 import org.flockdata.search.endpoint.FdQueryEP;
 import org.flockdata.search.model.EntitySearchChange;
 import org.flockdata.test.helper.EntityContentHelper;
-import org.flockdata.track.bean.SearchChange;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertNotNull;
@@ -46,13 +45,13 @@ public class AttachmentTests extends ESBase {
 //            return ;
         Entity entity = getEntity("cust", "fort", "anyuser", "fort");
 
-        SearchChange changeA = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange changeA = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         changeA.setAttachment(EntityContentHelper.getPdfDoc());
 
         deleteEsIndex(entity);
 
         indexMappingService.ensureIndexMapping(changeA);
-        changeA = searchRepo.handle(changeA);
+        changeA = entityWriter.handle(changeA);
         Thread.sleep(1000);
         assertNotNull(changeA);
         assertNotNull(changeA.getSearchKey());

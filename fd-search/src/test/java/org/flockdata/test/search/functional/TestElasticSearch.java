@@ -27,7 +27,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.SearchSchema;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -56,8 +56,8 @@ public class TestElasticSearch extends ESBase {
         Map<String, Object> indexMe = new HashMap<>(40);
         indexMe.put("auditKey", "abc");
         Map what = om.readValue(escWhat, Map.class);
-        indexMe.put(EntitySearchSchema.DATA, what);
-        logger.info(indexMe.get(EntitySearchSchema.DATA).toString());
+        indexMe.put(SearchSchema.DATA, what);
+        logger.info(indexMe.get(SearchSchema.DATA).toString());
     }
 
     @Test

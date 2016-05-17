@@ -76,7 +76,7 @@ org.fd:
   search:
     api: ${org.fd.search.url:http://127.0.0.1:8081}
     index:
-      prefix: blah.
+      entity.prefix: blah.
     messaging:
       exchange: fd.search.exchange
       binding: fd.search.binding

@@ -56,7 +56,7 @@ public class TestEntitySearch {
 
         EntitySearchChange entitySearchChange = new EntitySearchChange(e, "");
 
-        entitySearchChange.setTags( tags);
+        entitySearchChange.setStructuredTags( tags);
         assertEquals(1,entitySearchChange.getTagValues().size());
         // Find by relationship
         Map<String, ArrayList<SearchTag>> values = entitySearchChange.getTagValues().get(relationship);

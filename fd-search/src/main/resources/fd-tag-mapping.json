@@ -1,0 +1,77 @@
+{
+  "SomeLabel": {
+    "numeric_detection": false,
+    "dynamic_templates": [
+      {
+        "geo_points": {
+          "path_match": "geo.points.*",
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "geo_point",
+            "lat_lon": true,
+            "geohash": true,
+            "geohash_precision": "1km"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "key": {
+        "type": "string",
+        "doc_values": true,
+        "store": false,
+        "index": "not_analyzed"
+      },
+      "fortress": {
+        "type": "string",
+        "doc_values": true,
+        "index": "not_analyzed"
+      },
+      "code": {
+        "type": "string",
+        "doc_values": true,
+        "boost": "2.0",
+        "mapping": {
+          "type": "multi_field",
+          "fields": {
+            "{name}": {
+              "type": "string",
+              "boost": "3.0",
+              "index": "analyzed"
+            },
+            "facet": {
+              "type": "string",
+              "boost": "5.0",
+              "doc_values": true,
+              "index": "not_analyzed"
+            }
+          }
+        }
+      },
+      "name": {
+        "type": "string",
+        "boost": "4.0",
+        "mapping": {
+          "type": "multi_field",
+          "fields": {
+            "{name}": {
+              "type": "string",
+              "boost": "3.0",
+              "index": "analyzed"
+            },
+            "facet": {
+              "type": "string",
+              "boost": "5.0",
+              "doc_values": true,
+              "index": "not_analyzed"
+            }
+          }
+        }
+      },
+      "description": {
+        "type": "string",
+        "boost": 4
+      }
+    }
+  }
+}

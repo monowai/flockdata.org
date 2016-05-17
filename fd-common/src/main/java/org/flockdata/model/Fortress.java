@@ -79,10 +79,10 @@ public class Fortress implements MetaFortress, Serializable {
 
     Fortress setFortressInput(FortressInputBean fortressInputBean) {
         setName(fortressInputBean.getName().trim());
-        setSearchEnabled(fortressInputBean.getSearchActive());
+        setSearchEnabled(fortressInputBean.getSearchEnabled());
         system = fortressInputBean.getSystem();
         enabled = fortressInputBean.getEnabled();
-        storeEnabled = fortressInputBean.getStoreActive();
+        storeEnabled = fortressInputBean.getStoreEnabled();
         if (fortressInputBean.getTimeZone() != null) {
             this.timeZone = fortressInputBean.getTimeZone();
             if (TimeZone.getTimeZone(timeZone) == null)

@@ -75,7 +75,7 @@ public class QueryDaoES implements QueryDao {
     @Autowired
     private SearchConfig esClient;
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Value("${highlight.enabled:true}")
     Boolean highlightEnabled;
@@ -111,15 +111,15 @@ public class QueryDaoES implements QueryDao {
     }
 
     private String parseTagCode(String relationship, String tag) {
-        return EntitySearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_FACET;
+        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + CODE_FACET;
     }
 
     private String parseTagName(String relationship, String tag) {
-        return EntitySearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-facet";
+        return SearchSchema.TAG + ES_FIELD_SEP + (relationship.toLowerCase().equals(tag.toLowerCase()) ? "" : relationship.toLowerCase() + ES_FIELD_SEP) + tag.toLowerCase() + "-name-facet";
     }
 
     public String[] getIndexes(TagCloudParams tagCloudParams) {
-        return indexHelper.getIndexesToQuery(tagCloudParams.getCompany(), tagCloudParams.getFortress(), null, tagCloudParams.getTypes());
+        return indexManager.getIndexesToQuery(tagCloudParams.getCompany(), tagCloudParams.getFortress(), null, tagCloudParams.getTypes());
 
     }
 
@@ -231,9 +231,9 @@ public class QueryDaoES implements QueryDao {
         if (queryParams.getTypes() != null) {
             types = queryParams.getTypes();
         }
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
+        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setTypes(types)
-                .addField(EntitySearchSchema.ENTITY_KEY)
+                .addField(SearchSchema.KEY)
                 .setExtraSource(QueryGenerator.getFilteredQuery(queryParams, false));
         if ( queryParams.getSize()!=null)
             query.setSize(queryParams.getSize());
@@ -254,7 +254,7 @@ public class QueryDaoES implements QueryDao {
             return results;
 
         for (SearchHit searchHitFields : response.getHits().getHits()) {
-            Object o = searchHitFields.getFields().get(EntitySearchSchema.ENTITY_KEY).getValues().iterator().next();
+            Object o = searchHitFields.getFields().get(SearchSchema.KEY).getValues().iterator().next();
             results.add(o);
         }
         return results;
@@ -262,7 +262,7 @@ public class QueryDaoES implements QueryDao {
 
     @Override
     public String doSearch(QueryParams queryParams) throws FlockException {
-        SearchResponse result = esClient.elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
+        SearchResponse result = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, false))
                 .execute()
                 .actionGet();
@@ -289,16 +289,16 @@ public class QueryDaoES implements QueryDao {
 
         watch.start(queryParams.toString());
 
-        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
-                .addField(EntitySearchSchema.ENTITY_KEY)
-                .addField(EntitySearchSchema.FORTRESS)
-                .addField(EntitySearchSchema.LAST_EVENT)
-                .addField(EntitySearchSchema.DESCRIPTION)
-                .addField(EntitySearchSchema.CODE)
-                .addField(EntitySearchSchema.WHO)
-                .addField(EntitySearchSchema.UPDATED)
-                .addField(EntitySearchSchema.CREATED)
-                .addField(EntitySearchSchema.TIMESTAMP)
+        SearchRequestBuilder query = esClient.elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
+                .addField(SearchSchema.KEY)
+                .addField(SearchSchema.FORTRESS)
+                .addField(SearchSchema.LAST_EVENT)
+                .addField(SearchSchema.DESCRIPTION)
+                .addField(SearchSchema.CODE)
+                .addField(SearchSchema.WHO)
+                .addField(SearchSchema.UPDATED)
+                .addField(SearchSchema.CREATED)
+                .addField(SearchSchema.TIMESTAMP)
                 .setExtraSource(QueryGenerator.getSimpleQuery(queryParams, highlightEnabled));
 
         if (queryParams.getSize()!=null )
@@ -337,7 +337,7 @@ public class QueryDaoES implements QueryDao {
         for (SearchHit searchHitFields : response.getHits().getHits()) {
             if (!searchHitFields.getFields().isEmpty()) { // DAT-83
                 // This function returns only information tracked by FD which will always have  a key
-                SearchHitField keyCol = searchHitFields.getFields().get(EntitySearchSchema.ENTITY_KEY);
+                SearchHitField keyCol = searchHitFields.getFields().get(SearchSchema.KEY);
                 if (keyCol != null) {
                     Object key = keyCol.getValue();
                     if (key != null) {
@@ -346,18 +346,18 @@ public class QueryDaoES implements QueryDao {
                         SearchResult sr = new SearchResult(
                                 searchHitFields.getId(),
                                 key.toString(),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.FORTRESS)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.LAST_EVENT)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.FORTRESS)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.LAST_EVENT)),
                                 searchHitFields.getType(),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.WHO)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.UPDATED)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CREATED)),
-                                getHitValue(searchHitFields.getFields().get(EntitySearchSchema.TIMESTAMP)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.WHO)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.UPDATED)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.CREATED)),
+                                getHitValue(searchHitFields.getFields().get(SearchSchema.TIMESTAMP)),
                                 fragments);
 
-                        sr.setDescription(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.DESCRIPTION)));
+                        sr.setDescription(getHitValue(searchHitFields.getFields().get(SearchSchema.DESCRIPTION)));
 
-                        sr.setCode(getHitValue(searchHitFields.getFields().get(EntitySearchSchema.CODE)));
+                        sr.setCode(getHitValue(searchHitFields.getFields().get(SearchSchema.CODE)));
                         if (queryParams.getData() != null) {
                             for (String field : queryParams.getData()) {
                                 sr.addFieldValue(field, getHitValue(searchHitFields.getFields().get(field)));
@@ -410,7 +410,7 @@ public class QueryDaoES implements QueryDao {
                 query = query + "}";
 
             SearchRequestBuilder esQuery = esClient
-                    .elasticSearchClient().prepareSearch(indexHelper.getIndexesToQuery(queryParams))
+                    .elasticSearchClient().prepareSearch(indexManager.getIndexesToQuery(queryParams))
                     .setTypes(queryParams.getTypes());
 
             if ( queryParams.getSize()!=null )
@@ -443,7 +443,7 @@ public class QueryDaoES implements QueryDao {
         } else {
             String index = queryParams.getIndex();
             if ( index == null )
-                index = indexHelper.parseIndex(queryParams);
+                index = indexManager.parseIndex(queryParams);
 
             GetResponse response =
                     esClient.elasticSearchClient().prepareGet(index,

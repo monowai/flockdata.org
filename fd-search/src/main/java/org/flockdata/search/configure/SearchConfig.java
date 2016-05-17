@@ -27,6 +27,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.node.Node;
+import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,14 +185,18 @@ public class SearchConfig {
         return esSettings;
     }
 
-    public String getEsMapping(EntityService.TAG_STRUCTURE tagStructure) {
-        if (tagStructure != null && tagStructure == EntityService.TAG_STRUCTURE.TAXONOMY)
-            return esTaxonomyMapping;
-        else
-            return esDefaultMapping;
+    public String getEsMapping(SearchChange searchChange) {
+        if ( searchChange.isType(SearchChange.Type.ENTITY)) {
+            if (searchChange.getTagStructure() != null && searchChange.getTagStructure() == EntityService.TAG_STRUCTURE.TAXONOMY)
+                return esTaxonomyMapping;
+            else
+                return esDefaultMapping;
+        } else {
+            return "fd-tag-mapping.json";
+        }
     }
 
-    public String getEsPathedMapping(EntityService.TAG_STRUCTURE tagStructure) {
+    public String getEsPathedMapping(SearchChange tagStructure) {
         return getEsMappingPath() + getEsMapping(tagStructure);
     }
 

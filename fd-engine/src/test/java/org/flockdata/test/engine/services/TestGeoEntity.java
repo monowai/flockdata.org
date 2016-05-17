@@ -45,7 +45,7 @@ public class TestGeoEntity extends EngineBase {
     public void geo_CustomPath() throws Exception {
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true);
-        fib.setStoreActive(false);
+        fib.setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentType documentType = new DocumentType(fortress, "DAT-495");
@@ -85,7 +85,7 @@ public class TestGeoEntity extends EngineBase {
         // DAT-508
         SystemUser su = registerSystemUser("undefined_Tag", mike_admin);
         FortressInputBean fib = new FortressInputBean("undefined_Tag", true)
-                .setStoreActive(false);
+                .setStoreEnabled(false);
         Fortress fortress = fortressService.registerFortress(su.getCompany(), fib);
 
         DocumentType documentType = new DocumentType(fortress, "DAT-508");
@@ -150,7 +150,7 @@ public class TestGeoEntity extends EngineBase {
         // However, we are retrieving the geo structure via a custom query set in the DocType, ignoring
         // the invalid data relationship to find only one geodata path associated with the County
 
-        searchService.getSearchChange(result);
+        searchService.getEntityChange(result);
 
         Iterable<EntityTag> iTags = entityTagService.getEntityTagsWithGeo(result.getEntity());
         int count = 0;

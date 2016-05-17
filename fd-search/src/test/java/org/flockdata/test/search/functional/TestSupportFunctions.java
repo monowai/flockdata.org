@@ -26,7 +26,7 @@ import org.flockdata.model.Tag;
 import org.flockdata.registration.TagInputBean;
 import org.flockdata.search.FdSearch;
 import org.flockdata.search.model.EntitySearchChange;
-import org.flockdata.search.model.EntitySearchChanges;
+import org.flockdata.search.model.SearchChanges;
 import org.flockdata.search.model.SearchResults;
 import org.flockdata.test.helper.EntityContentHelper;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class TestSupportFunctions extends ESBase {
 
         Entity entity = getEntity(company, fortress, user, doc);
 
-        EntitySearchChange change = new EntitySearchChange(entity, indexHelper.parseIndex(entity));
+        EntitySearchChange change = new EntitySearchChange(entity, indexManager.parseIndex(entity));
         change.setDescription("Test Description");
         change.setData(json);
         ArrayList<EntityTag> tags = new ArrayList<>();
@@ -65,7 +65,7 @@ public class TestSupportFunctions extends ESBase {
         tags.add(new EntityTagOut(entity, tag, "mytag", null));
         change.setStructuredTags(tags);
 
-        SearchResults searchResults = esSearchWriter.createSearchableChange(new EntitySearchChanges(change));
+        SearchResults searchResults = esSearchWriter.createSearchableChange(new SearchChanges(change));
         Thread.sleep(1000);
 
         queryServiceEs.getTags(entity.getFortress().getRootIndex());

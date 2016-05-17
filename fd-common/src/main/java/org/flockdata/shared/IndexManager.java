@@ -18,9 +18,7 @@ package org.flockdata.shared;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.NotFoundException;
-import org.flockdata.model.Entity;
-import org.flockdata.model.Fortress;
-import org.flockdata.model.FortressSegment;
+import org.flockdata.model.*;
 import org.flockdata.search.model.QueryParams;
 import org.flockdata.store.LogRequest;
 import org.flockdata.store.Store;
@@ -45,8 +43,12 @@ public class IndexManager {
 
     private Logger logger = LoggerFactory.getLogger("configuration");
 
-    @Value("${org.fd.search.index.prefix:fd.}")
+    @Value("${org.fd.search.index.entity.prefix:fd.}")
     private String prefix;
+
+    @Value("${org.fd.search.index.tag.prefix:.fd.}")  // Kind of hidden as this is a system search cache
+    private String tagPrefix;
+
 
     @Value("${org.fd.search.index.typeSuffix:true}")
     private Boolean typeSuffix;   // use docType as an index suffix?
@@ -67,6 +69,11 @@ public class IndexManager {
     public String getPrefix() {
         return prefix;
     }
+
+    public String getTagPrefix() {
+        return tagPrefix;
+    }
+
 
     public Boolean isSuffixed() {
         return typeSuffix;
@@ -108,6 +115,10 @@ public class IndexManager {
             return "." + parseType(type);
         else
             return "";
+    }
+
+    public String getIndexRoot(Company company, Tag tag){
+        return getTagPrefix() +company.getCode().toLowerCase() +".tags" + getSuffix(tag.getLabel().toLowerCase());
     }
 
     public String getIndexRoot(Fortress fortress) {

@@ -54,7 +54,7 @@ public class TestEntitySearch extends EngineBase {
         String callerRef = "mk1hz";
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
                 new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));
@@ -77,7 +77,7 @@ public class TestEntitySearch extends EngineBase {
 
         SystemUser su = registerSystemUser("created_UserAgainstEntityAndLog");
 
-        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreActive(false).setStoreActive(false));
+        Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("count_SearchDocsFromTrackRequest", true).setStoreEnabled(false).setStoreEnabled(false));
 
         EntityInputBean beanA = getContentBean(fortress, "poppy", "CompanyNode", "2012",
                 new ContentInputBean("billie", null, DateTime.now(), EntityContentHelper.getSimpleMap("name", "a"), "Answer"));

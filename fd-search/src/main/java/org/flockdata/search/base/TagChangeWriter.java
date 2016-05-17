@@ -20,8 +20,8 @@
 
 package org.flockdata.search.base;
 
-import org.flockdata.model.Entity;
-import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.model.Tag;
+import org.flockdata.search.model.TagSearchChange;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,14 +31,14 @@ import java.util.Map;
  * Date: 26/04/13
  * Time: 12:26 PM
  */
-public interface EntityChangeWriter {
+public interface TagChangeWriter {
 
     /**
      * Rewrites an existing document
      *
      * @param searchChange values to update from
      */
-    EntitySearchChange handle(EntitySearchChange searchChange) throws IOException;
+    TagSearchChange handle(TagSearchChange searchChange) throws IOException;
 
     /**
      * locates a document by LogResultBean.searchKey
@@ -47,7 +47,7 @@ public interface EntityChangeWriter {
      * @param entity auditHeader
      * @return document context as bytes
      */
-    Map<String, Object> findOne(Entity entity);
+    Map<String, Object> findOne(Tag entity);
 
     void purgeCache() ;
 
@@ -59,7 +59,7 @@ public interface EntityChangeWriter {
      *
      * @return found track change or null if none
      */
-    Map<String, Object> findOne(Entity entity, String id);
+    Map<String, Object> findOne(Tag entity, String id);
 
     /**
      * Removes a search document. Most of the time, the searchKey in the entity
@@ -67,9 +67,7 @@ public interface EntityChangeWriter {
      * can delete a specific instance
      *
      */
-    boolean delete(EntitySearchChange searchChange);
-
-    Map<String, Object> ping();
+    boolean delete(TagSearchChange searchChange);
 
     void deleteIndex(String index);
 }

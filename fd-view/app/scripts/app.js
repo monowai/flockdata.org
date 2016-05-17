@@ -24,7 +24,6 @@ var fdView = angular.module('fdView', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
-  // 'ngRoute',
   'ui.router',
   'ngAnimate',
   'ui.bootstrap',
@@ -35,12 +34,9 @@ var fdView = angular.module('fdView', [
   'fdView.directives',
   'http-auth-interceptor',
   'ab.graph.matrix.directives',
-  // 'ngCytoscape',
-  // 'rzModule',
   'ng.jsoneditor'
 ])
-  .config(['$stateProvider','$urlRouterProvider','USER_ROLES', function (/*$routeProvider, $locationProvider,*/$stateProvider, $urlRouterProvider, USER_ROLES) {
-    //$routeProvider
+  .config(['$stateProvider','$urlRouterProvider','USER_ROLES', function ($stateProvider, $urlRouterProvider, USER_ROLES) {
     $stateProvider
       .state('welcome', {
         url: '/',
@@ -124,6 +120,7 @@ var fdView = angular.module('fdView', [
       .state('admin', {
         url: '/admin',
         templateUrl: 'views/admin.html',
+        controller: 'AdminCtrl',
         data: {
           authorizedRoles: [USER_ROLES.all]
         }
@@ -213,7 +210,7 @@ fdView.provider('configuration', ['engineUrl','exploreUrl', function (engineUrl,
       _engineUrl = window.location.href.substring(0, window.location.href.indexOf('fd-view')) + 'fd-engine';
 
     } else {
-      _engineUrl = window.location.protocol + '//' + window.location.host + '/api';
+      _engineUrl = window.location.protocol + '//' + window.location.host;// + '/api';
     }
     console.log('Calculated URL is ' + _engineUrl);
 

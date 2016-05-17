@@ -38,11 +38,11 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.model.Entity;
 import org.flockdata.search.base.EntityChangeWriter;
 import org.flockdata.search.configure.SearchConfig;
-import org.flockdata.search.model.EntitySearchSchema;
+import org.flockdata.search.model.EntitySearchChange;
+import org.flockdata.search.model.SearchSchema;
 import org.flockdata.search.model.SearchTag;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.track.bean.EntityKeyBean;
-import org.flockdata.track.bean.SearchChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -70,7 +70,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
     private Logger logger = LoggerFactory.getLogger(EntityChangeWriterEs.class);
 
     @Override
-    public boolean delete(SearchChange searchChange) {
+    public boolean delete(EntitySearchChange searchChange) {
         String indexName = searchChange.getIndexName();
         String recordType = searchChange.getDocumentType();
 
@@ -94,7 +94,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
      * @param source       Json to save
      * @return key value of the child document
      */
-    private SearchChange save(SearchChange searchChange, String source) throws IOException {
+    private EntitySearchChange save(EntitySearchChange searchChange, String source) throws IOException {
         String indexName = searchChange.getIndexName();
         String documentType = searchChange.getDocumentType();
         logger.debug("Received request to Save [{}] SearchKey [{}]", searchChange.getKey(), searchChange.getSearchKey());
@@ -115,7 +115,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
             IndexResponse ir = irb.execute().actionGet();
 
             logger.debug("Save:Document entityId [{}], [{}], logId= [{}] searchKey [{}] index [{}/{}]",
-                    searchChange.getEntityId(),
+                    searchChange.getId(),
                     searchChange.getKey(),
                     searchChange.getLogId(),
                     ir.getId(),
@@ -136,7 +136,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
 
     @Override
-    public SearchChange handle(SearchChange searchChange) throws IOException {
+    public EntitySearchChange handle(EntitySearchChange searchChange) throws IOException {
         String source = getJsonToIndex(searchChange);
 
         if (searchChange.getSearchKey() == null || searchChange.getSearchKey().equals("")) {
@@ -168,7 +168,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
                 // Check to ensure we don't accidentally overwrite a more current
                 // document with an older one. We assume the calling fortress understands
                 // what the most recent doc is.
-                Object o = response.getSource().get(EntitySearchSchema.UPDATED); // fortress view of UPDATED, not FlockDatas!
+                Object o = response.getSource().get(SearchSchema.UPDATED); // fortress view of UPDATED, not FlockDatas!
                 if (o != null) {
 
                     Long existingWhen = Long.decode(o.toString());
@@ -276,7 +276,7 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         }
     }
 
-    private String getJsonToIndex(SearchChange searchChange) {
+    private String getJsonToIndex(EntitySearchChange searchChange) {
         ObjectMapper mapper = FdJsonObjectMapper.getObjectMapper();
         Map<String, Object> index = getMapFromChange(searchChange);
         try {
@@ -294,45 +294,45 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
      * @param searchChange searchChange
      * @return document to index
      */
-    private Map<String, Object> getMapFromChange(SearchChange searchChange) {
+    private Map<String, Object> getMapFromChange(EntitySearchChange searchChange) {
         Map<String, Object> indexMe = new HashMap<>();
-        indexMe.put(EntitySearchSchema.FORTRESS, searchChange.getFortressName());
-        indexMe.put(EntitySearchSchema.DOC_TYPE, searchChange.getDocumentType());
+        indexMe.put(SearchSchema.FORTRESS, searchChange.getFortressName());
+        indexMe.put(SearchSchema.DOC_TYPE, searchChange.getDocumentType());
         if (searchChange.getKey() != null) //DAT-83 No need to track NULL key
             // This occurs if the search doc is not being tracked in fd-engine's graph
-            indexMe.put(EntitySearchSchema.ENTITY_KEY, searchChange.getKey());
+            indexMe.put(SearchSchema.KEY, searchChange.getKey());
 
         if (searchChange.getData() != null)
-            indexMe.put(EntitySearchSchema.DATA, searchChange.getData());
+            indexMe.put(SearchSchema.DATA, searchChange.getData());
         if (searchChange.getProps() != null && !searchChange.getProps().isEmpty())
-            indexMe.put(EntitySearchSchema.PROPS, searchChange.getProps());
+            indexMe.put(SearchSchema.PROPS, searchChange.getProps());
         if (searchChange.getWho() != null)
-            indexMe.put(EntitySearchSchema.WHO, searchChange.getWho());
+            indexMe.put(SearchSchema.WHO, searchChange.getWho());
         if (searchChange.getEvent() != null)
-            indexMe.put(EntitySearchSchema.LAST_EVENT, searchChange.getEvent());
+            indexMe.put(SearchSchema.LAST_EVENT, searchChange.getEvent());
 
         // When the Entity was created in the fortress
-        indexMe.put(EntitySearchSchema.CREATED, searchChange.getCreatedDate());
+        indexMe.put(SearchSchema.CREATED, searchChange.getCreatedDate());
         if (searchChange.getUpdatedDate() != null)
-            indexMe.put(EntitySearchSchema.UPDATED, searchChange.getUpdatedDate());
+            indexMe.put(SearchSchema.UPDATED, searchChange.getUpdatedDate());
 
         if (searchChange.hasAttachment()) { // DAT-159
-            indexMe.put(EntitySearchSchema.ATTACHMENT, searchChange.getAttachment());
-            indexMe.put(EntitySearchSchema.FILENAME, searchChange.getFileName());
-            indexMe.put(EntitySearchSchema.CONTENT_TYPE, searchChange.getContentType());
+            indexMe.put(SearchSchema.ATTACHMENT, searchChange.getAttachment());
+            indexMe.put(SearchSchema.FILENAME, searchChange.getFileName());
+            indexMe.put(SearchSchema.CONTENT_TYPE, searchChange.getContentType());
         }
 
         // Time that this change was indexed by fd-engine
-        indexMe.put(EntitySearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
+        indexMe.put(SearchSchema.TIMESTAMP, new Date(searchChange.getSysWhen()));
 
         if (searchChange.getCode() != null)
-            indexMe.put(EntitySearchSchema.CODE, searchChange.getCode());
+            indexMe.put(SearchSchema.CODE, searchChange.getCode());
 
         if (searchChange.getName() != null)
-            indexMe.put(EntitySearchSchema.NAME, searchChange.getName());
+            indexMe.put(SearchSchema.NAME, searchChange.getName());
 
         if (searchChange.getDescription() != null)
-            indexMe.put(EntitySearchSchema.DESCRIPTION, searchChange.getDescription());
+            indexMe.put(SearchSchema.DESCRIPTION, searchChange.getDescription());
 
         if (!searchChange.getTagValues().isEmpty())
             setTags("", indexMe, searchChange.getTagValues());
@@ -371,9 +371,9 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
 
                 //prefix = "e" +QueryDaoES.ES_FIELD_SEP+ linkedEntity.getDocumentType().toLowerCase() + QueryDaoES.ES_FIELD_SEP + linkedEntity.getRelationship() + QueryDaoES.ES_FIELD_SEP;
             }
-            setNonEmptyValue(EntitySearchSchema.CODE, linkedEntity.getCode(), leaf);
-            setNonEmptyValue(EntitySearchSchema.INDEX, linkedEntity.getIndex(), leaf);
-            setNonEmptyValue(EntitySearchSchema.DESCRIPTION, linkedEntity.getDescription(), leaf);
+            setNonEmptyValue(SearchSchema.CODE, linkedEntity.getCode(), leaf);
+            setNonEmptyValue(SearchSchema.INDEX, linkedEntity.getIndex(), leaf);
+            setNonEmptyValue(SearchSchema.DESCRIPTION, linkedEntity.getDescription(), leaf);
             setNonEmptyValue("name", linkedEntity.getName(), leaf);
             setTags("", leaf, linkedEntity.getSearchTags());
         }
@@ -440,13 +440,13 @@ public class EntityChangeWriterEs implements EntityChangeWriter {
         if (!squash.isEmpty())
             byRelationship.putAll(squash);
         if (!byRelationship.isEmpty()) {
-            indexMe.put(prefix + EntitySearchSchema.TAG, byRelationship);
+            indexMe.put(prefix + SearchSchema.TAG, byRelationship);
         }
         //
         if (prefix.equals("") && !uniqueTags.isEmpty()) {
             // ALL_TAGS contains autocomplete searchable tags.
             // ToDo: Prefix == null check stops linked entity tags being written to this list
-            indexMe.put(EntitySearchSchema.ALL_TAGS, uniqueTags);
+            indexMe.put(SearchSchema.ALL_TAGS, uniqueTags);
         }
 
 

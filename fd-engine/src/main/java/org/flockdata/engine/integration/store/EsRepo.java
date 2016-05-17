@@ -22,9 +22,9 @@ package org.flockdata.engine.integration.store;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.JsonUtils;
-import org.flockdata.search.model.EntitySearchSchema;
 import org.flockdata.search.model.EsSearchResult;
 import org.flockdata.search.model.QueryParams;
+import org.flockdata.search.model.SearchSchema;
 import org.flockdata.shared.IndexManager;
 import org.flockdata.store.AbstractStore;
 import org.flockdata.store.LogRequest;
@@ -57,7 +57,7 @@ public class EsRepo extends AbstractStore {
     EsStoreRequest.ContentStoreEs gateway;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     private Logger logger = LoggerFactory.getLogger(EsRepo.class);
 
@@ -66,8 +66,8 @@ public class EsRepo extends AbstractStore {
     }
 
     public StoredContent read(LogRequest logRequest) {
-        String index = indexHelper.parseIndex(logRequest.getEntity());
-        String type = indexHelper.parseType(logRequest.getEntity());
+        String index = indexManager.parseIndex(logRequest.getEntity());
+        String type = indexManager.parseType(logRequest.getEntity());
         String id = logRequest.getEntity().getSearchKey();
         return read (index, type, id);
     }
@@ -87,7 +87,7 @@ public class EsRepo extends AbstractStore {
                 result.setEntityType (type);
                 if (result.getJson() != null) {
                     HashMap map = JsonUtils.toObject(result.getJson(), HashMap.class);
-                    contentInput.setData((Map<String, Object>) map.get(EntitySearchSchema.DATA));
+                    contentInput.setData((Map<String, Object>) map.get(SearchSchema.DATA));
                     if( map.get("name")!=null)
                         contentInput.getData().put("_name", map.get("name"));
                     if ( map.get("description")!=null)

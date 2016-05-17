@@ -73,7 +73,7 @@ public class FortressServiceNeo4j implements FortressService {
     private PlatformConfig engineConfig;
 
     @Autowired
-    IndexManager indexHelper;
+    IndexManager indexManager;
 
     @Override
     public Fortress getFortress(Long id) {
@@ -247,13 +247,13 @@ public class FortressServiceNeo4j implements FortressService {
             return fortress;
         }
         if (createIfMissing) {
-            if (fib.getStoreActive() == null)
-                fib.setStoreActive(storeEnabled);
+            if (fib.getStoreEnabled() == null)
+                fib.setStoreEnabled(storeEnabled);
             fortress = save(company, fib);
             logger.debug("Created fortress {}", fortress);
             fortress.setCompany(company);
 
-            fortress.setRootIndex(indexHelper.getIndexRoot(company.getCode(), fortress.getCode()));
+            fortress.setRootIndex(indexManager.getIndexRoot(company.getCode(), fortress.getCode()));
             logger.trace("Returning fortress {}", fortress);
             return fortress;
         }
@@ -376,8 +376,8 @@ public class FortressServiceNeo4j implements FortressService {
     @Override
     @PreAuthorize(FdRoles.EXP_ADMIN)
     public Fortress updateFortress(Company company, Fortress existing, FortressInputBean fortressInputBean) {
-        existing.setSearchEnabled(fortressInputBean.getSearchActive());
-        existing.setStoreEnabled(fortressInputBean.getStoreActive());
+        existing.setSearchEnabled(fortressInputBean.getSearchEnabled());
+        existing.setStoreEnabled(fortressInputBean.getStoreEnabled());
         existing.setTimeZone(fortressInputBean.getTimeZone());
         existing.setName(fortressInputBean.getName());
         existing.setSystem(fortressInputBean.getSystem());
