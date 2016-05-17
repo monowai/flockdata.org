@@ -19,6 +19,7 @@ package org.flockdata.authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
@@ -50,6 +51,12 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
     @Profile({"fd-auth-test"}) //
     public static class ApiSecurity extends WebSecurityConfigurerAdapter {
 
+        @Value("${org.fd.auth.simple.login.form:#{null}}")
+        String loginForm;
+
+        @Value ("${org.fd.auth.simple.login.method:basic}")
+        String loginMethod ;
+
         @Override
         public void configure(HttpSecurity http) throws Exception {
             // Security in FD take place at the service level so acess to all endpoints is granted
@@ -66,7 +73,13 @@ public class SimpleAuth extends WebSecurityConfigurerAdapter {
             //http://www.codesandnotes.be/2015/02/05/spring-securitys-csrf-protection-for-rest-services-the-client-side-and-the-server-side/
             //https://github.com/aditzel/spring-security-csrf-token-interceptor
             http.csrf().disable();// ToDO: Fix me when we figure out POST/Login issue
-            http.httpBasic();
+
+            if ( loginMethod.equalsIgnoreCase("basic") || loginForm == null )
+                http.httpBasic();
+            else {
+                http.httpBasic();
+                http.formLogin().loginPage(loginForm).permitAll();
+            }
         }
     }
 

@@ -22,7 +22,7 @@ package org.flockdata.test.engine.mvc;
 import org.flockdata.authentication.FdRoles;
 import org.flockdata.helper.JsonUtils;
 import org.flockdata.registration.LoginRequest;
-import org.flockdata.registration.UserProfile;
+import org.flockdata.registration.SystemUserResultBean;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -50,9 +50,9 @@ public class TestAuthenticationEP extends MvcBase {
                                 .content(JsonUtils.toJson(loginReq)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 
-        UserProfile userProfile = JsonUtils.toObject(response
-                .getResponse().getContentAsByteArray(), UserProfile.class);
-        assertNotNull(userProfile);
+        SystemUserResultBean systemUserResultBean = JsonUtils.toObject(response
+                .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+        assertNotNull(systemUserResultBean);
     }
 
     @Test
@@ -87,9 +87,9 @@ public class TestAuthenticationEP extends MvcBase {
                 .andExpect(jsonPath("$.userRoles", hasSize(3))).andReturn();
         // FD_USER, FD_ADMIN & USER
 
-        UserProfile userProfile = JsonUtils.toObject(response
-                .getResponse().getContentAsByteArray(), UserProfile.class);
-        assertNotNull(userProfile.getUserRoles());
+        SystemUserResultBean systemUser = JsonUtils.toObject(response
+                .getResponse().getContentAsByteArray(), SystemUserResultBean.class);
+        assertNotNull(systemUser.getUserRoles());
     }
 
     @Test

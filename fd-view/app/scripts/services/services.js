@@ -20,20 +20,6 @@
 
 'use strict';
 
-fdView.factory('ProfileService', ['$http', 'configuration',
-    function ($http, configuration) {
-      return {
-        getMyProfile: function () {
-          return $http.get(configuration.engineUrl() + '/api/v1/profiles/me').then(function (response) {
-              return response.data;
-            }
-          );
-        }
-      };
-    }
-  ]
-);
-
 fdView.factory('EntityService', ['$http', 'configuration',
     function ($http, configuration) {
 
@@ -89,17 +75,17 @@ fdView.factory('DataSharingService', function () {
 
 fdView.factory('Session', [
     function () {
-      this.create = function (userId, userName, userEmail, status, company, userRoles, apiKey) {
-        this.userId = userId;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.status = status;
-        this.company = company;
-        this.userRoles = userRoles;
-        this.apiKey = apiKey;
+      this.create = function (data) {
+        this.login = data.login;
+        this.userName = data.name;
+        this.userEmail = data.userEmail;
+        this.status = data.status;
+        this.company = data.companyName;
+        this.userRoles = data.userRoles;
+        this.apiKey = data.apiKey;
       };
       this.invalidate = function () {
-        this.userId = null;
+        this.login = null;
         this.userName = null;
         this.userEmail = null;
         this.status = null;
@@ -125,11 +111,11 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
         login: function (username, password) {
           var data = {username: username, password: password};
           var url = configuration.engineUrl() + '/api/login';
-          $http.post(url, data).success(function (data, status, headers, config) {
-            authService.loginConfirmed(data);
-            Session.create(data.userId, data.userName, data.userEmail, data.status, data.company, data.userRoles, data.apiKey);
+          return $http.post(url, data).success(function (data, status, headers, config) {
+            Session.create(data);
             $rootScope.account = Session;
             authService.loginConfirmed(data);
+            return data;
           }).error(function (data, status, headers, config) {
               $rootScope.authenticationError = true;
               Session.invalidate();
@@ -139,18 +125,14 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
         valid: function (authorizedRoles) {
           if (!Session.login) {
             Account.get(function (data) {
-                Session.create(data.userId, data.userName, data.userEmail, data.status, data.company, data.userRoles, data.apiKey);
-                $rootScope.account = Session;
-
-                if (!$rootScope.isAuthorized(authorizedRoles)) {
-                  event.preventDefault();
-                  // user is not allowed
-                  $rootScope.$broadcast('event:auth-notAuthorized');
-                }
-
-                $rootScope.authenticated = true;
-              }
-            );
+              Session.create(data);
+              $rootScope.account = Session;
+              $rootScope.authenticated = true;
+            });
+          }
+          if (!$rootScope.isAuthorized(authorizedRoles)) {
+            // user is not allowed
+            $rootScope.$broadcast('event:auth-notAuthorized');
           }
           $rootScope.authenticated = !!Session.login;
         },
@@ -159,7 +141,6 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
             if (authorizedRoles === '*') {
               return true;
             }
-
             authorizedRoles = [authorizedRoles];
           }
 
@@ -174,6 +155,11 @@ fdView.factory('AuthenticationSharedService', ['$rootScope', '$state', '$http', 
           });
 
           return isAuthorized;
+        },
+        getMyProfile: function () {
+          return $http.get(configuration.engineUrl() + '/api/account').then(function (response) {
+            return response.data;
+          });
         },
         logout: function () {
           $rootScope.authenticationError = false;

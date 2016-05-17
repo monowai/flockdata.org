@@ -20,8 +20,8 @@
 
 'use strict';
 
-fdView.controller('AdminCtrl', ['$scope', '$uibModal', 'QueryService', 'ProfileService', 'AuthenticationSharedService', '$state', '$http', '$timeout', 'configuration', 'USER_ROLES',
-  function ($scope, $uibModal, QueryService, ProfileService, AuthenticationSharedService, $state, $http, $timeout, configuration, USER_ROLES) {
+fdView.controller('AdminCtrl', ['$scope', '$uibModal', 'QueryService', 'AuthenticationSharedService', '$state', '$http', '$timeout', 'configuration', 'USER_ROLES',
+  function ($scope, $uibModal, QueryService, AuthenticationSharedService, $state, $http, $timeout, configuration, USER_ROLES) {
 
     QueryService.general('fortress').then(function (data) {
       $scope.fortresses = data;
@@ -31,12 +31,8 @@ fdView.controller('AdminCtrl', ['$scope', '$uibModal', 'QueryService', 'ProfileS
       $scope.timezones = response.data;
     });
 
-    ProfileService.getMyProfile().then(function (data) {
-      $scope.profile = data;
-    });
-
     $scope.isAdmin = function () {
-      return !AuthenticationSharedService.isAuthorized(USER_ROLES.admin);
+      return AuthenticationSharedService.isAuthorized(USER_ROLES.admin);
     };
 
     $scope.selectFortress = function(f) {

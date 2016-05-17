@@ -19,6 +19,7 @@ package org.flockdata.registration.service;
 
 import org.flockdata.helper.FlockException;
 import org.flockdata.model.Company;
+import org.flockdata.model.SystemUser;
 import org.flockdata.registration.RegistrationBean;
 
 /**
@@ -33,5 +34,7 @@ public interface RegistrationService {
 
     Company resolveCompany(String apiKey) throws FlockException;
 
-    org.flockdata.model.SystemUser getSystemUser(String s);
+    org.flockdata.model.SystemUser getSystemUser(String apiKey);
+
+    SystemUser getSystemUser();
 }

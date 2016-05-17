@@ -24,21 +24,37 @@ import org.flockdata.model.SystemUser;
  * Time: 2:53 PM
  */
 public class SystemUserResultBean {
-    private String apiKey;
-    private String name;
-    private String login;
-    private String companyName ;
 
-    public SystemUserResultBean(){}
+    private String login;
+    private String name;
+    private String companyName;
+    private String apiKey;
+    private String userEmail;
+    private String status;
+    private Object[] userRoles;
+
+    public SystemUserResultBean() {
+    }
+
     public SystemUserResultBean(SystemUser su) {
         this();
-        this.apiKey = su.getApiKey();
-        this.name = su.getName();
-        this.login = su.getLogin();
-        if (this.name == null )
-            this.name = login;
-        if ( su.getCompany() !=null ) // an unauthenticated user does not have a company
-            this.companyName = su.getCompany().getName();
+        if (su != null) {
+            this.apiKey = su.getApiKey();
+            this.name = su.getName();
+            this.login = su.getLogin();
+            if (this.name == null)
+                this.name = login;
+            if (su.getCompany() != null) // an unauthenticated user does not have a company
+                this.companyName = su.getCompany().getName();
+        }
+
+    }
+
+    public SystemUserResultBean(SystemUser sysUser, UserProfile userProfile) {
+        this(sysUser);
+        this.userRoles = userProfile.getUserRoles();
+        this.status = userProfile.getStatus();
+        this.userEmail = userProfile.getUserEmail();
 
     }
 
@@ -56,6 +72,18 @@ public class SystemUserResultBean {
 
     public String getCompanyName() {
         return companyName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Object[] getUserRoles() {
+        return userRoles;
     }
 
     @Override

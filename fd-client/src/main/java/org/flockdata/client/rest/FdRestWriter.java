@@ -27,7 +27,10 @@ import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
 import org.flockdata.helper.ObjectHelper;
 import org.flockdata.model.Company;
-import org.flockdata.registration.*;
+import org.flockdata.registration.FortressInputBean;
+import org.flockdata.registration.RegistrationBean;
+import org.flockdata.registration.SystemUserResultBean;
+import org.flockdata.registration.TagInputBean;
 import org.flockdata.shared.ClientConfiguration;
 import org.flockdata.track.bean.EntityInputBean;
 import org.flockdata.transform.FdWriter;
@@ -315,7 +318,7 @@ public class FdRestWriter implements FdWriter {
                 '}';
     }
 
-    public UserProfile login(ClientConfiguration clientConfiguration) {
+    public SystemUserResultBean login(ClientConfiguration clientConfiguration) {
         Login login = new Login(clientConfiguration, this);
         String result = login.exec().error();
         if (result != null)

@@ -136,7 +136,7 @@ public abstract class MvcBase {
     }
 
     static void setSecurityEmpty() {
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
     }
 
     public RequestPostProcessor mike() {

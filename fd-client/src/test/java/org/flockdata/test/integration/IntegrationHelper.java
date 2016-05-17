@@ -41,10 +41,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
@@ -265,8 +263,6 @@ class IntegrationHelper {
         waitForService("fd-engine", enginePing, getEngine(), 30);
         waitForService("fd-search", searchPing, getSearch(), 30);
         waitForService("fd-store", storePing, getStore(), 30);
-        // If the services can't see each other, its not worth proceeding
-        interServiceHealthCheck();
 
         if (!stackFailed)
             logger.info("Stack is running");
@@ -336,31 +332,15 @@ class IntegrationHelper {
     }
 
     Login login(String user, String pass) {
+        return login(fdRestWriter, user, pass);
+    }
+
+    Login login(FdRestWriter fdRestWriter, String user, String pass) {
         clientConfiguration.setServiceUrl(getEngine())
                 .setHttpUser(user)
                 .setHttpPass(pass);
 
         return new Login(clientConfiguration, fdRestWriter);
-    }
-
-    /**
-     * Engine connects to both search and store over HTTP so here we verify that
-     * connectivity is working
-     */
-    private void interServiceHealthCheck() {
-        Login login = login(ADMIN_REGRESSION_USER, ADMIN_REGRESSION_PASS);
-        assertWorked("Login error ", login.exec());
-        assertTrue("Unexpected login error "+login.error(), login.worked());
-        Health health = new Health(clientConfiguration, fdRestWriter);
-        assertWorked("Health Check", health.exec());
-
-        Map<String, Object> healthResult = health.result();
-        assertTrue("Should be more than 1 entry in the health results", healthResult.size() > 1);
-        assertNotNull("Could not find an entry for fd-search", healthResult.get("fd-search"));
-        assertTrue("Failure for fd-engine to connect to fd-search in the container", healthResult.get("fd-search").toString().toLowerCase().startsWith("ok"));
-        assertNotNull("Could not find an entry for fd-store", healthResult.get("fd-store"));
-        assertTrue("Failure for fd-engine to connect to fd-store in the container", healthResult.get("fd-store").toString().toLowerCase().startsWith("ok"));
 
     }
-
 }
