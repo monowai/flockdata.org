@@ -41,12 +41,12 @@
          * requests that are retried after having logged in.  This can be used for example
          * to add an authentication token.  It must return the request.
          */
-        loginConfirmed: function (data, configUpdater) {
-
+        loginConfirmed: function(data, configUpdater) {
+          // var updater = configUpdater || function(config) {return config;};
           $rootScope.$broadcast('event:auth-loginConfirmed', data);
           // MKH - commented as it prevented logging in AFTER a failed login attempt
           // suspect it's buffering a call to the /login page
-          //httpBuffer.retryAll(updater);
+          // httpBuffer.retryAll(updater);
         },
 
         /**
@@ -69,16 +69,18 @@
    * On 403 response (without 'ignoreAuthModule' option) discards the request
    * and broadcasts 'event:auth-forbidden'.
    */
-    .config(['$httpProvider', function ($httpProvider) {
-      $httpProvider.interceptors.push(['$rootScope', '$q', 'httpBuffer', function ($rootScope, $q, httpBuffer) {
+    .config(['$httpProvider', function($httpProvider) {
+      $httpProvider.interceptors.push(['$rootScope', '$q', 'httpBuffer', function($rootScope, $q, httpBuffer) {
         return {
-          responseError: function (rejection) {
-            if (!rejection.config.ignoreAuthModule) {
+          responseError: function(rejection) {
+            var config = rejection.config || {};
+            if (!config.ignoreAuthModule) {
               switch (rejection.status) {
                 case 401:
                   var deferred = $q.defer();
-                  httpBuffer.append(rejection.config, deferred);
-                  $rootScope.$broadcast('event:auth-loginRequired', rejection);
+                  var bufferLength = httpBuffer.append(config, deferred);
+                  if (bufferLength === 1)
+                    $rootScope.$broadcast('event:auth-loginRequired', rejection);
                   return deferred.promise;
                 case 403:
                   $rootScope.$broadcast('event:auth-forbidden', rejection);
@@ -120,9 +122,10 @@
       return {
         /**
          * Appends HTTP request configuration object with deferred response attached to buffer.
+         * @return {Number} The new length of the buffer.
          */
-        append: function (config, deferred) {
-          buffer.push({
+        append: function(config, deferred) {
+          return buffer.push({
             config: config,
             deferred: deferred
           });
@@ -145,7 +148,9 @@
          */
         retryAll: function (updater) {
           for (var i = 0; i < buffer.length; ++i) {
-            retryHttpRequest(updater(buffer[i].config), buffer[i].deferred);
+            var _cfg = updater(buffer[i].config);
+            if (_cfg !== false)
+              retryHttpRequest(_cfg, buffer[i].deferred);
           }
           buffer = [];
         }

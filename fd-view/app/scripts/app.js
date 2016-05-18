@@ -163,7 +163,7 @@ var fdView = angular.module('fdView', [
         function () {
           Session.invalidate();
           delete $rootScope.authenticated;
-          if (!$state.is('settings') && $state.is('login')) {
+          if (!$state.is('settings') && !$state.is('login')) {
             $state.go('login');
           }
           if ($rootScope.msg === null || $rootScope.msg === '') {

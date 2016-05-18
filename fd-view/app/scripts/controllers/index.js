@@ -20,19 +20,26 @@
 
 'use strict';
 
-fdView.controller('IndexCtrl', ['$scope', '$rootScope', 'AuthenticationSharedService', 'ProfileService', 
-  function ($scope, $rootScope, AuthenticationSharedService, ProfileService) {
+fdView.controller('IndexCtrl', ['$scope', '$rootScope', '$state', 'AuthenticationSharedService', 'USER_ROLES',
+  function ($scope, $rootScope, $state, AuthenticationSharedService, USER_ROLES) {
 
-    ProfileService.getMyProfile().then(function (data) {
-      $scope.profile = data;
+    AuthenticationSharedService.getMyProfile().then(function (res) {
+      $scope.setCurrentUser(res);
     });
+
+    $scope.userRoles = USER_ROLES;
+    $scope.isAuthorized = AuthenticationSharedService.isAuthorized;
+
+    $scope.setCurrentUser = function (user) {
+      $scope.profile = user;
+    };
 
     $scope.logout = function () {
       AuthenticationSharedService.logout();
     };
 
-    $scope.loggedIn = function() {
-      return $rootScope.account!==null;
-    }
+    $scope.isLogin = function() {
+      return $state.is('login');
+    };
 
 }]);

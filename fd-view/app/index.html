@@ -61,8 +61,8 @@
   your browser</a> to improve your experience.</p>
 <![endif]-->
 <div class="wrapper">
-  <ng-include src=" 'views/partials/navbar.html' " ng-if="loggedIn()"></ng-include>
-  <ng-include src=" 'views/partials/sidebar.html' " ng-if="loggedIn()"></ng-include>
+  <ng-include src=" 'views/partials/navbar.html' " ng-if="!isLogin()"></ng-include>
+  <ng-include src=" 'views/partials/sidebar.html' " ng-if="!isLogin()"></ng-include>
 
   <div class="content-wrapper">
     <ui-view></ui-view>
