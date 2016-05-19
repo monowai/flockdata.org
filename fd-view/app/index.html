@@ -55,7 +55,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body ng-controller="IndexCtrl" class="hold-transition skin-blue sidebar-mini">
+<body ng-controller="IndexCtrl" class="hold-transition" ng-class="isLogin() ? 'login-page' : 'skin-blue sidebar-mini'"  ng-cloak>
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
   your browser</a> to improve your experience.</p>
@@ -64,7 +64,7 @@
   <ng-include src=" 'views/partials/navbar.html' " ng-if="!isLogin()"></ng-include>
   <ng-include src=" 'views/partials/sidebar.html' " ng-if="!isLogin()"></ng-include>
 
-  <div class="content-wrapper">
+  <div class="" ng-class="isLogin() ? '' : 'content-wrapper'">
     <ui-view></ui-view>
   </div>
 
