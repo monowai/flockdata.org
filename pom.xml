@@ -4,7 +4,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98.1</version>
+    <version>0.98.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -508,7 +508,7 @@
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
                     <!--https://github.com/ktoso/maven-git-commit-id-plugin-->
-                    <version>2.2.0</version>
+                    <version>2.2.1</version>
                     <executions>
                         <execution>
                             <goals>
@@ -520,6 +520,7 @@
                     <configuration>
                         <!--<verbose>false</verbose>-->
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                        <tags>true</tags>
                     </configuration>
                 </plugin>
             </plugins>
