@@ -22,6 +22,7 @@ import org.flockdata.client.commands.Login;
 import org.flockdata.client.commands.Ping;
 import org.flockdata.client.rest.FdRestWriter;
 import org.flockdata.shared.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
+ * Basic connectivity checks
+ *
  * Created by mike on 6/05/16.
  */
 @SpringApplicationConfiguration({
@@ -65,6 +68,11 @@ public class SanityCheckTesting {
     //  otherwise levae it commented and run the Suite
 //    @ClassRule
 //    public static FdDocker stack = new FdDocker();
+
+    @Before
+    public void setupServices(){
+        integrationHelper.waitForServices();
+    }
 
     @Test
     public void pingFdStore() {

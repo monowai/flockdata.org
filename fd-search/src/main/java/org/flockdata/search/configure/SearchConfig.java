@@ -27,6 +27,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.node.Node;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.track.bean.SearchChange;
 import org.flockdata.track.service.EntityService;
 import org.slf4j.Logger;
@@ -79,15 +80,19 @@ public class SearchConfig {
     private Logger logger = LoggerFactory.getLogger("configuration");
 
     private Settings getSettings() {
-        ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder()
+        ImmutableSettings.Builder config = ImmutableSettings.settingsBuilder()
                 .put("path.data", pathData)
                 .put("path.home", pathHome)
                 .put("http.port", httpPort)
                 .put("cluster.name", clusterName)
-                .put("node.local", localOnly)
+                .put("node.local", (!transportOnly ?false:localOnly))
                 .put("node.client", transportOnly)
                 .put("transport.tcp.port", tcpPort);
-        return settings.build();
+
+        Settings settings = config.build();
+
+        logger.info("ElasticSearch config settings " + JsonUtils.toJson(settings.getAsMap()));
+        return settings;
     }
 
     @Bean
@@ -167,7 +172,7 @@ public class SearchConfig {
                 .nodeBuilder()
                 .settings(getSettings())
                 .clusterName(clusterName)
-                .local(localOnly)
+                .local(!transportOnly ?false:localOnly)
                 .client(transportOnly)
                 .node();
     }

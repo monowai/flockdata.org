@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.testcontainers.containers.DockerComposeContainer;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -227,15 +226,15 @@ class IntegrationHelper {
     @Autowired
     AmqpRabbitConfig rabbitConfig;
 
-    @PostConstruct
-    public void waitForServices() throws InterruptedException {
-        logger.info("Waiting for containers to come on-line");
+    void waitForServices()  {
 
-        clientConfiguration.setServiceUrl(getEngine());
         if (stackFailed)
             fail("Stack has failed to startup cleanly - test will fail");
         if (setupComplete)
             return; // This method is called before every @Test - it's expensive :o)
+
+        logger.info("Waiting for containers to come on-line");
+        clientConfiguration.setServiceUrl(getEngine());
 
         logger.debug("Running with debug logging");
         clientConfiguration.setServiceUrl(getEngine());
@@ -258,11 +257,17 @@ class IntegrationHelper {
         logger.info("Initial wait for docker containers to startup. --org.fd.test.pause={} seconds ..... ", waitSeconds);
 
         if (stack != null)
-            waitForPong(enginePing, waitSeconds);
+            try {
+                waitForPong(enginePing, waitSeconds);
+                waitForService("fd-engine", enginePing, getEngine(), 30);
+                waitForService("fd-search", searchPing, getSearch(), 30);
+                waitForService("fd-store", storePing, getStore(), 30);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+                setupComplete=true;
+                stackFailed=true;
+            }
 
-        waitForService("fd-engine", enginePing, getEngine(), 30);
-        waitForService("fd-search", searchPing, getSearch(), 30);
-        waitForService("fd-store", storePing, getStore(), 30);
 
         if (!stackFailed)
             logger.info("Stack is running");

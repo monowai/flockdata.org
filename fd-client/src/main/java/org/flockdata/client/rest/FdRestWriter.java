@@ -18,6 +18,7 @@ package org.flockdata.client.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.AlreadyClosedException;
 import org.apache.commons.codec.binary.Base64;
 import org.flockdata.client.amqp.AmqpServices;
 import org.flockdata.client.commands.Login;
@@ -139,7 +140,7 @@ public class FdRestWriter implements FdWriter {
         try {
             // DAT-373
             amqpServices.publishTags(tagInputs);
-        } catch (IOException ioe) {
+        } catch (IOException |AlreadyClosedException ioe) {
             logger.error(ioe.getLocalizedMessage());
             throw new FlockException("IO Exception", ioe.getCause());
         }

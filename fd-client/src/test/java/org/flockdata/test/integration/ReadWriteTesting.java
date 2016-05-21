@@ -77,7 +77,7 @@ public class ReadWriteTesting {
 
 
     // Uncomment this ClassRue to run the stack only for this class
-    //  otherwise levae it commented and run the Suite
+    //  otherwise leave it commented and run the Suite
 //    @ClassRule
 //    public static FdDocker stack = new FdDocker();
 
@@ -95,6 +95,11 @@ public class ReadWriteTesting {
 
     @Autowired
     private AmqpServices amqpServices;
+
+    @Before
+    public void setupServices(){
+        integrationHelper.waitForServices();
+    }
 
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
@@ -329,7 +334,7 @@ public class ReadWriteTesting {
                         "    \"filtered\": {\n" +
                         "      \"query\": {\n" +
                         "        \"query_string\": {\n" +
-                        "          \"query\": \"Neumannová\"\n" +
+                        "          \"query\": \"*\"\n" +
                         "        }\n" +
                         "      }\n" +
                         "    }\n" +
@@ -344,5 +349,6 @@ public class ReadWriteTesting {
         Map hits = (Map) esResult.get("hits");
         assertNotNull(hits);
         assertEquals("Expected 1 hit", 1, hits.get("total"));
+        assertTrue("UTF-8 failure. Couldn't find " +entityInputBean.getCode(), JsonUtils.toJson(hits.get("hits")).contains(entityInputBean.getCode()));
     }
 }

@@ -28,6 +28,7 @@ import org.flockdata.test.Helper;
 import org.flockdata.track.bean.ContentInputBean;
 import org.flockdata.track.bean.DocumentTypeInputBean;
 import org.flockdata.track.bean.EntityInputBean;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -74,6 +75,11 @@ public class AdminFunctionTesting {
 
     @Autowired
     private AmqpServices amqpServices;
+
+    @Before
+    public void setupServices(){
+        integrationHelper.waitForServices();
+    }
 
     /**
      * Contains a RestTemplate configured to talk to FlockData. By default this is fd-engine
