@@ -4,7 +4,7 @@
     <groupId>org.flockdata</groupId>
     <artifactId>flockdata</artifactId>
     <name>flockdata</name>
-    <version>0.98.2-SNAPSHOT</version>
+    <version>0.98.1a-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -518,9 +518,7 @@
                     </executions>
 
                     <configuration>
-                        <!--<verbose>false</verbose>-->
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <tags>true</tags>
                     </configuration>
                 </plugin>
             </plugins>
