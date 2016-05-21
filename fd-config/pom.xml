@@ -11,7 +11,7 @@
     <parent>
         <artifactId>flockdata</artifactId>
         <groupId>org.flockdata</groupId>
-        <version>0.98.1a</version>
+        <version>0.98.2-SNAPSHOT</version>
     </parent>
 
     <properties>
