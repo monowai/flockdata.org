@@ -44,7 +44,9 @@ public interface EntityService {
 
     Collection<EntityKeyBean> getInboundEntities(Entity entity, boolean withEntityTags);
 
-    public enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
+    Map<String,Object> getEntityDataLast(Company company, String key) throws FlockException;
+
+     enum TAG_STRUCTURE {TAXONOMY, DEFAULT}
 
     StoredContent getContent(Entity entity, Log change);
 

@@ -17,17 +17,15 @@
 package org.flockdata.profile.service;
 
 import org.flockdata.helper.FlockException;
-import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
-import org.flockdata.model.Profile;
-import org.flockdata.profile.ContentProfileImpl;
+import org.flockdata.profile.ContentProfileResult;
 import org.flockdata.profile.ContentValidationRequest;
 import org.flockdata.profile.ContentValidationResults;
 import org.flockdata.profile.model.ContentProfile;
 
-import java.io.IOException;
+import java.util.Collection;
 
 /**
  * User: mike
@@ -36,23 +34,17 @@ import java.io.IOException;
  */
 public interface ContentProfileService {
 
-    ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException ;
+    ContentProfile get(Company company, Fortress fortress, DocumentType documentType) throws FlockException ;
 
-    void save(Company company, String fortressCode, String documentName, ContentProfileImpl profile) throws FlockException;
-
-    Profile save(Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException;
-
-    void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException;
-
-    void processAsync(Company company, String fortressCode, String documentName, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException;
-
-    int process(Company company, Fortress fortressCode, DocumentType documentName, String pathToBatch, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException;
-
-    void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException ;
+    ContentProfileResult saveFortressContentType(Company company, Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException;
 
     ContentProfile get(Company company, String fortressCode, String documentName) throws FlockException;
 
     ContentValidationResults validate(ContentValidationRequest contentRequest);
 
     ContentProfile createDefaultContentProfile(ContentValidationRequest contentRequest);
+
+    Collection<ContentProfileResult> find(Company company);
+
+    ContentProfileResult find(Company company, String key);
 }

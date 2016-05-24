@@ -30,6 +30,7 @@ import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.registration.FortressInputBean;
 import org.flockdata.shared.FileProcessor;
+import org.flockdata.track.service.BatchService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,6 +46,9 @@ public class TestBatch extends EngineBase {
     ContentProfileService contentProfileService;
 
     @Autowired
+    BatchService batchService;
+
+    @Autowired
     FileProcessor fileProcessor;
 
     @Test
@@ -56,10 +60,10 @@ public class TestBatch extends EngineBase {
         Fortress fortress = fortressService.registerFortress(su.getCompany(), new FortressInputBean("doBatchTest", true));
         DocumentType docType = conceptService.resolveByDocCode(fortress, "test-batch");
 
-        ContentProfileImpl params = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
+        ContentProfileImpl contentProfile = ContentProfileDeserializer.getContentProfile("/profiles/test-csv-batch.json");
 
-        contentProfileService.save(fortress, docType, params );
-        contentProfileService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
+        contentProfileService.saveFortressContentType(su.getCompany(), fortress, docType, contentProfile );
+        batchService.process(su.getCompany(), fortress, docType, "/data/test-batch.csv", false);
 
         Entity resultBean = entityService.findByCode(fortress, docType, "1");
         assertNotNull(resultBean);

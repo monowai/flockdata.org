@@ -20,6 +20,7 @@
 
 package org.flockdata.company.dao;
 
+import org.flockdata.engine.configure.EngineConfig;
 import org.flockdata.model.Company;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.FortressSegment;
@@ -56,11 +57,17 @@ public class FortressDaoNeo  {
     private IndexManager indexManager;
 
     @Autowired
+    private EngineConfig engineConfig;
+
+    @Autowired
     Neo4jTemplate template;
 
     private Logger logger = LoggerFactory.getLogger(FortressDaoNeo.class);
 
     public Fortress save(Company company, FortressInputBean fortressInput) {
+        if ( fortressInput.getSearchEnabled()==null)
+            fortressInput.setSearchEnabled(engineConfig.isSearchEnabled());
+
         Fortress fortress = new Fortress(fortressInput, company);
         fortress.setRootIndex(indexManager.getIndexRoot(fortress));
         return fortressRepo.save(fortress);

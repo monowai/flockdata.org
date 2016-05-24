@@ -89,4 +89,6 @@ public interface FortressService {
     FortressSegment resolveSegment(Company company, FortressInputBean fortress, String segmentName, String timeZone) throws NotFoundException;
 
     Fortress updateFortress(Company company, Fortress existing, FortressInputBean fortressInputBean);
+
+    Fortress findInternalFortress(Company company);
 }

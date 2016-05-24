@@ -21,34 +21,38 @@
 package org.flockdata.engine.profile.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flockdata.engine.configure.SecurityHelper;
 import org.flockdata.engine.dao.ProfileDaoNeo;
 import org.flockdata.engine.track.service.ConceptService;
-import org.flockdata.engine.track.service.FdServerWriter;
 import org.flockdata.helper.FdJsonObjectMapper;
 import org.flockdata.helper.FlockException;
+import org.flockdata.helper.JsonUtils;
 import org.flockdata.helper.NotFoundException;
 import org.flockdata.model.Company;
 import org.flockdata.model.DocumentType;
 import org.flockdata.model.Fortress;
 import org.flockdata.model.Profile;
-import org.flockdata.profile.ContentProfileImpl;
-import org.flockdata.profile.ContentValidationRequest;
-import org.flockdata.profile.ContentValidationResult;
-import org.flockdata.profile.ContentValidationResults;
+import org.flockdata.profile.*;
 import org.flockdata.profile.model.ContentProfile;
 import org.flockdata.profile.service.ContentProfileService;
 import org.flockdata.registration.FortressInputBean;
-import org.flockdata.shared.ClientConfiguration;
-import org.flockdata.shared.FileProcessor;
+import org.flockdata.track.bean.ContentInputBean;
+import org.flockdata.track.bean.EntityInputBean;
+import org.flockdata.track.bean.TrackResultBean;
+import org.flockdata.track.service.EntityService;
 import org.flockdata.track.service.FortressService;
+import org.flockdata.track.service.MediationFacade;
 import org.flockdata.transform.ColumnDefinition;
 import org.flockdata.transform.Transformer;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: mike
@@ -67,23 +71,22 @@ public class ProfileServiceNeo implements ContentProfileService {
     @Autowired
     ConceptService conceptService;
 
-    @Autowired
-    FdServerWriter fdServerWriter;
-
-    @Autowired
-    FileProcessor fileProcessor;
 
     private static final ObjectMapper objectMapper = FdJsonObjectMapper.getObjectMapper();
 
-    public ContentProfile get(Fortress fortress, DocumentType documentType) throws FlockException {
+    public ContentProfile get(Company company, Fortress fortress, DocumentType documentType) throws FlockException {
         Profile profile = profileDao.find(fortress, documentType);
 
         if (profile == null)
             throw new NotFoundException(String.format("Unable to locate and import profile for [%s], [%s]", fortress.getCode(), documentType.getName()));
-        //return profile;
-        String json = profile.getContent();
+
+        // Serialized content profile is stored in a log. Here we retrieve the last saved one
+        // but we could return the entire history
+        Map<String,Object> data = entityService.getEntityDataLast(company, profile.getKey());
+        String json = JsonUtils.toJson(data);
+
         try {
-            ContentProfileImpl iProfile=  objectMapper.readValue(json, ContentProfileImpl.class);
+            ContentProfileImpl iProfile = objectMapper.readValue(json, ContentProfileImpl.class);
             iProfile.setFortress(new FortressInputBean(fortress.getName()));
             iProfile.setDocumentName(documentType.getName());
             return iProfile;
@@ -92,94 +95,98 @@ public class ProfileServiceNeo implements ContentProfileService {
         }
     }
 
-    public Profile save(Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException {
+    @Autowired
+    MediationFacade mediationFacade;
 
-        Profile profile = profileDao.find(fortress, documentType);
-        if (profile == null) {
-            profile = new Profile(fortress, documentType);
-        }
-        try {
-            profile.setContent(objectMapper.writeValueAsString(profileConfig));
+    @Autowired
+    SecurityHelper securityHelper;
 
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            throw new FlockException("Json error", e);
-        }
-
-        // ToDo: Track this as a FlockData Entity to take advantage of versions
-        return profileDao.save(profile);
-    }
-
-    @Override
-    public void save(Company company, String fortressCode, String documentCode, ContentProfileImpl profile) throws FlockException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null )
-            throw new NotFoundException("Unable to resolve document type ");
-        save(fortress, documentType, profile);
-    }
+    @Autowired
+    EntityService entityService;
 
     /**
-     * Does not validate the arguments.
+     * Identifies the ContentProfile as being a belonging to a specific Fortress/Document combo
+     *
+     * @param company
+     * @param fortress
+     * @param documentType
+     * @param profileConfig
+     * @return
+     * @throws FlockException
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws IOException
      */
-    @Override
-    @Async ("fd-track")
-    public void processAsync(Company company, String fortressCode, String documentCode, String file) throws ClassNotFoundException, FlockException, InstantiationException, IOException, IllegalAccessException {
-        process(company, fortressCode, documentCode, file, true);
-    }
+    @Transactional
+    public ContentProfileResult saveFortressContentType(Company company, Fortress fortress, DocumentType documentType, ContentProfile profileConfig) throws FlockException {
+        // Used for storing internal versionable data
+        Fortress internalFortress = fortressService.findInternalFortress(company);
+        assert internalFortress != null;
 
-    @Override
-    public void process(Company company, String fortressCode, String documentCode, String file, boolean async) throws FlockException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null )
-            throw new NotFoundException("Unable to resolve document type ");
-        process(company, fortress, documentType, file, async);
-    }
+        Profile existingProfile = profileDao.find(fortress, documentType);
+        try {
+            if (existingProfile == null) {
+                EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdContentProfile");
+                entityInputBean.setName(profileConfig.getName());
+                ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
+                Map<String,Object> map= JsonUtils.convertToMap(profileConfig);
 
-    public int process(Company company, Fortress fortress, DocumentType documentType, String file, Boolean async) throws FlockException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-        ContentProfile profile = get(fortress, documentType);
-        // Users PUT params override those of the contentProfile
-        if ( !profile.getFortress().getName().equalsIgnoreCase(fortress.getName()))
-            profile.setFortress( new FortressInputBean(fortress.getName(), !fortress.isSearchEnabled()));
-        if ( !profile.getDocumentType().getName().equalsIgnoreCase(documentType.getName()))
-            profile.setDocumentName(documentType.getName());
-        FileProcessor.validateArgs(file);
-        ClientConfiguration defaults = new ClientConfiguration();
-        defaults.setBatchSize(1);
-        return fileProcessor.processFile(profile, file);
-    }
+                contentInputBean.setData(map);
+                entityInputBean.setContent(contentInputBean);
+                TrackResultBean trackResult = mediationFacade.trackEntity(company, entityInputBean);
+                existingProfile = new Profile(trackResult, fortress, documentType);
+                profileDao.save(existingProfile);
+            } else {
+                ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
+                contentInputBean.setKey(existingProfile.getKey());
+                contentInputBean.setData(JsonUtils.convertToMap(profileConfig));
+                mediationFacade.trackLog(company, contentInputBean);
+                if (profileConfig.getName() != null && !profileConfig.getName().equals(existingProfile.getName())){
+                    existingProfile.setName(profileConfig.getName());
+                    profileDao.save(existingProfile);
 
-    @Override
-    public void validateArguments(Company company, String fortressCode, String documentCode, String fileName) throws NotFoundException, IOException {
-        if ( !FileProcessor.validateArgs(fileName)) {
-            throw new NotFoundException("Unable to process filename "+ fileName);
+                }
+            }
+        } catch (ExecutionException | InterruptedException | IOException e) {
+            throw new FlockException(e.getMessage());
         }
-        Fortress fortress = fortressService.findByCode(company, fortressCode);
-        if ( fortress == null )
-            throw new NotFoundException("Unable to locate the fortress " + fortressCode);
-        DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null )
-            throw new NotFoundException("Unable to resolve document type " + documentCode);
 
-
+        return new ContentProfileResult(existingProfile);
     }
 
     @Override
     public ContentProfile get(Company company, String fortressCode, String documentCode) throws FlockException {
         Fortress fortress = fortressService.findByCode(company, fortressCode);
-        if ( fortress == null )
+        if (fortress == null)
             throw new NotFoundException("Unable to locate the fortress " + fortressCode);
         DocumentType documentType = conceptService.resolveByDocCode(fortress, documentCode, false);
-        if (documentType == null )
+        if (documentType == null)
             throw new NotFoundException("Unable to resolve document type " + documentCode);
 
-        return get(fortress, documentType);
+        return get(company, fortress, documentType);
+    }
+
+
+    @Override
+    @Transactional
+    public Collection<ContentProfileResult> find(Company company) {
+        return profileDao.find(company.getId());
+    }
+
+    @Override
+    @Transactional
+    public ContentProfileResult find(Company company, String key) {
+        ContentProfileResult result = profileDao.findByKey(company.getId(), key);
+        if (result == null) {
+            throw new NotFoundException("Unable to locate ContentProfile with key " + key);
+        }
+        return result;
     }
 
     @Override
     public ContentValidationResults validate(ContentValidationRequest contentRequest) {
-        assert contentRequest!=null;
-        assert contentRequest.getContentProfile() !=null;
+        assert contentRequest != null;
+        assert contentRequest.getContentProfile() != null;
         ContentValidationResults validatedContent = new ContentValidationResults();
         Map<String, ColumnDefinition> content = contentRequest.getContentProfile().getContent();
         for (String column : content.keySet()) {
@@ -195,6 +202,9 @@ public class ProfileServiceNeo implements ContentProfileService {
         result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));
         return result;
     }
+
+
+
 
 
 }

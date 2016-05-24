@@ -125,9 +125,9 @@ public class EngineConfig implements PlatformConfig {
         this.storeEnabled = storeEnabled;
     }
 
-    @Value("${org.fd.engine.fortress.search:enabled}")
+    @Value("${org.fd.engine.fortress.search:true}")
     public void setSearchEnabled(String searchEnabled) {
-        this.searchEnabled =searchEnabled.equalsIgnoreCase("enabled");
+        this.searchEnabled =Boolean.parseBoolean(searchEnabled);
     }
 
 

@@ -114,7 +114,7 @@ public class EntityDaoNeo {
     }
 
     /**
-     * @param entity  to save
+     * @param entity  to saveFortressContentType
      * @param quietly if we're doing this quietly then lastUpdate is not changed
      * @return saved entity
      */
@@ -373,7 +373,7 @@ public class EntityDaoNeo {
         if (currentState.getLastChange() == null) {
             template.save(entity);
         } else {
-            logger.debug("About to save new log");
+            logger.debug("About to saveFortressContentType new log");
             template.save(newLog);
             template.save(entityLog);
             logger.debug("Saved new log");

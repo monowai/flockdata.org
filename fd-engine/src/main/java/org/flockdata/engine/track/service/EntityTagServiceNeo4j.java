@@ -212,7 +212,7 @@ public class EntityTagServiceNeo4j implements EntityTagService {
     /**
      * Creates and sets the relationship objects to in to the entity
      * <p/>
-     * Does not save the entity
+     * Does not saveFortressContentType the entity
      *
      * @param entity       Object to affect
      * @param tag          Tag to associated

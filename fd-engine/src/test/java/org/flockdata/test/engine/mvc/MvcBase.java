@@ -139,10 +139,18 @@ public abstract class MvcBase {
         SecurityContextHolder.clearContext();
     }
 
+    /**
+     *
+     * @return mike - works for AnyCo
+     */
     public RequestPostProcessor mike() {
         return user(mike_admin).password("123").roles(FdRoles.FD_ADMIN, FdRoles.FD_USER);
     }
 
+    /**
+     *
+     * @return sally - works for OtherCo
+     */
     public RequestPostProcessor sally() {
         return user(sally_admin).password("123").roles(FdRoles.FD_ADMIN, FdRoles.FD_USER);
     }
@@ -632,6 +640,39 @@ public abstract class MvcBase {
         }
         throw response.getResolvedException();
     }
+
+    public Collection<ContentProfileResult> findContentProfiles(RequestPostProcessor user, ResultMatcher status) throws Exception {
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath + "/content/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toCollection(json.getBytes(), ContentProfileResult.class);
+        }
+        throw response.getResolvedException();
+    }
+
+    public ContentProfileResult findContentProfile(RequestPostProcessor user, String key, ResultMatcher status) throws Exception{
+        MvcResult response = mvc()
+                .perform(MockMvcRequestBuilders.get(apiPath + "/content/{key}",key)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(user)
+                ).andExpect(status).andReturn();
+
+        if (response.getResolvedException() == null) {
+            String json = response.getResponse().getContentAsString();
+
+            return JsonUtils.toObject(json.getBytes(), ContentProfileResult.class);
+        }
+        throw response.getResolvedException();
+
+    }
+
+
 
     public ContentProfileImpl getContentProfile(RequestPostProcessor user, String fortress, String documentType, ContentProfile contentProfile, ResultMatcher status) throws Exception {
         MvcResult response = mvc()

@@ -47,7 +47,8 @@ public class FortressResultBean implements MetaFortress, Serializable{
         this.timeZone = fortress.getTimeZone();
         this.enabled = fortress.isEnabled();
         this.searchEnabled = fortress.isSearchEnabled();
-        this.companyName = fortress.getCompany().getName();
+        if ( fortress.getCompany()!=null)
+            this.companyName = fortress.getCompany().getName();
         this.storeEnabled = fortress.isStoreEnabled();
     }
 

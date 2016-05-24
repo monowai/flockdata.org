@@ -36,6 +36,7 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     // Default fortress name if not otherwise supplied
     private String fortressName = null;
+    private String name = null; // User supplied description of this profile
     private FortressInputBean fortress = null;
     // Default document name if not otherwise supplied
     private String documentName;
@@ -245,6 +246,15 @@ public class ContentProfileImpl implements ContentProfile, ImportFile {
 
     public DocumentTypeInputBean getDocumentType() {
         return documentType;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public ContentProfileImpl setName(String name){
+        this.name = name;
+        return this;
     }
 
     public ContentProfileImpl setDocumentType(DocumentTypeInputBean documentType) {
