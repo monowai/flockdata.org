@@ -17,6 +17,7 @@
 package org.flockdata.profile;
 
 import org.flockdata.model.Profile;
+import org.flockdata.profile.model.ContentProfile;
 
 /**
  * Created by mike on 14/04/16.
@@ -27,6 +28,7 @@ public class ContentProfileResult {
     private String name;
     private String documentType;
     private String fortress ;
+    private ContentProfile contentProfile;
 
     ContentProfileResult () {
 
@@ -55,5 +57,13 @@ public class ContentProfileResult {
 
     public String getFortress() {
         return fortress;
+    }
+
+    public void setContentProfile(ContentProfile contentProfile) {
+        this.contentProfile = contentProfile;
+    }
+
+    public ContentProfile getContentProfile() {
+        return contentProfile;
     }
 }

@@ -82,17 +82,24 @@ public class ProfileServiceNeo implements ContentProfileService {
 
         // Serialized content profile is stored in a log. Here we retrieve the last saved one
         // but we could return the entire history
-        Map<String,Object> data = entityService.getEntityDataLast(company, profile.getKey());
-        String json = JsonUtils.toJson(data);
-
-        try {
-            ContentProfileImpl iProfile = objectMapper.readValue(json, ContentProfileImpl.class);
+        ContentProfileImpl iProfile = getContentProfile(company, profile.getKey());
+        if (iProfile != null) {
             iProfile.setFortress(new FortressInputBean(fortress.getName()));
             iProfile.setDocumentName(documentType.getName());
-            return iProfile;
-        } catch (IOException e) {
-            throw new FlockException(String.format("Unable to obtain content from ImportProfile {%d}", profile.getId()), e);
         }
+        return iProfile;
+    }
+
+    public ContentProfileImpl getContentProfile(Company company, String profileKey) throws FlockException {
+        Map<String, Object> data = entityService.getEntityDataLast(company, profileKey);
+        String json = JsonUtils.toJson(data);
+        ContentProfileImpl iProfile ;
+        try {
+            iProfile = objectMapper.readValue(json, ContentProfileImpl.class);
+        } catch (IOException e) {
+            throw new FlockException(String.format("Unable to obtain content from ImportProfile {%d}", profileKey), e);
+        }
+        return iProfile;
     }
 
     @Autowired
@@ -129,7 +136,7 @@ public class ProfileServiceNeo implements ContentProfileService {
                 EntityInputBean entityInputBean = new EntityInputBean(internalFortress, "FdContentProfile");
                 entityInputBean.setName(profileConfig.getName());
                 ContentInputBean contentInputBean = new ContentInputBean(securityHelper.getLoggedInUser(), new DateTime());
-                Map<String,Object> map= JsonUtils.convertToMap(profileConfig);
+                Map<String, Object> map = JsonUtils.convertToMap(profileConfig);
 
                 contentInputBean.setData(map);
                 entityInputBean.setContent(contentInputBean);
@@ -141,7 +148,7 @@ public class ProfileServiceNeo implements ContentProfileService {
                 contentInputBean.setKey(existingProfile.getKey());
                 contentInputBean.setData(JsonUtils.convertToMap(profileConfig));
                 mediationFacade.trackLog(company, contentInputBean);
-                if (profileConfig.getName() != null && !profileConfig.getName().equals(existingProfile.getName())){
+                if (profileConfig.getName() != null && !profileConfig.getName().equals(existingProfile.getName())) {
                     existingProfile.setName(profileConfig.getName());
                     profileDao.save(existingProfile);
 
@@ -175,12 +182,18 @@ public class ProfileServiceNeo implements ContentProfileService {
 
     @Override
     @Transactional
-    public ContentProfileResult find(Company company, String key) {
-        ContentProfileResult result = profileDao.findByKey(company.getId(), key);
-        if (result == null) {
+    public ContentProfileResult find(Company company, String key) throws FlockException {
+        ContentProfileResult profile = profileDao.findByKey(company.getId(), key);
+        if (profile == null) {
             throw new NotFoundException("Unable to locate ContentProfile with key " + key);
         }
-        return result;
+//        Entity entity = entityService.getEntity(company,key);
+        ContentProfileImpl iProfile = getContentProfile(company, profile.getKey());
+        if (iProfile != null) {
+            iProfile.setDocumentName(profile.getDocumentType());
+        }
+        profile.setContentProfile(iProfile);
+        return profile;
     }
 
     @Override
@@ -202,9 +215,6 @@ public class ProfileServiceNeo implements ContentProfileService {
         result.setContent(Transformer.fromMapToProfile(contentRequest.getRows()));
         return result;
     }
-
-
-
 
 
 }

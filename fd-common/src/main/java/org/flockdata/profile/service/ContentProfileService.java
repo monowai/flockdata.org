@@ -46,5 +46,5 @@ public interface ContentProfileService {
 
     Collection<ContentProfileResult> find(Company company);
 
-    ContentProfileResult find(Company company, String key);
+    ContentProfileResult find(Company company, String key) throws FlockException;
 }
